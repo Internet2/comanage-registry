@@ -1,0 +1,1 @@
+../../standard/json/delete.ctp

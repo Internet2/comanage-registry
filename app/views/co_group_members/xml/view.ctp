@@ -1,0 +1,1 @@
+../../standard/xml/view.ctp
