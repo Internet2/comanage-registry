@@ -81,12 +81,7 @@ class MemcacheEngine extends CacheEngine {
 			$return = false;
 			$this->__Memcache =& new Memcache();
 			foreach ($this->settings['servers'] as $server) {
-				$parts = explode(':', $server);
-				$host = $parts[0];
-				$port = 11211;
-				if (isset($parts[1])) {
-					$port = $parts[1];
-				}
+				list($host, $port) = $this->_parseServerString($server);
 				if ($this->__Memcache->addServer($host, $port)) {
 					$return = true;
 				}
@@ -97,10 +92,34 @@ class MemcacheEngine extends CacheEngine {
 	}
 
 /**
+ * Parses the server address into the host/port.  Handles both IPv6 and IPv4
+ * addresses
+ *
+ * @param string $server The server address string.
+ * @return array Array containing host, port
+ */
+	function _parseServerString($server) {
+		if (substr($server, 0, 1) == '[') {
+			$position = strpos($server, ']:');
+			if ($position !== false) {
+				$position++;
+			}
+		} else {
+		    $position = strpos($server, ':');
+		}
+		$port = 11211;
+		$host = $server;
+		if ($position !== false) {
+			$host = substr($server, 0, $position);
+			$port = substr($server, $position + 1);
+		}
+		return array($host, $port);
+	}
+
+/**
  * Write data for key into cache.  When using memcache as your cache engine
  * remember that the Memcache pecl extension does not support cache expiry times greater 
- * than 30 days in the future. If you wish to create cache entries that do not expire, set the duration
- * to `0` in your cache configuration.
+ * than 30 days in the future. Any duration greater than 30 days will be treated as never expiring.
  *
  * @param string $key Identifier for the data
  * @param mixed $value Data to be cached
@@ -110,6 +129,9 @@ class MemcacheEngine extends CacheEngine {
  * @access public
  */
 	function write($key, &$value, $duration) {
+		if ($duration > 30 * DAY) {
+			$duration = 0;
+		}
 		return $this->__Memcache->set($key, $value, $this->settings['compress'], $duration);
 	}
 

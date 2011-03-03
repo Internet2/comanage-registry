@@ -355,6 +355,33 @@ class SetTest extends CakeTestCase {
 	}
 
 /**
+ * test sorting with out of order keys.
+ *
+ * @return void
+ */
+	function testSortWithOutOfOrderKeys() {
+		$data = array(
+			9 => array('class' => 510, 'test2' => 2),
+			1 => array('class' => 500, 'test2' => 1),
+			2 => array('class' => 600, 'test2' => 2),
+			5 => array('class' => 625, 'test2' => 4),
+			0 => array('class' => 605, 'test2' => 3),
+		);
+		$expected = array(
+			array('class' => 500, 'test2' => 1),
+			array('class' => 510, 'test2' => 2),
+			array('class' => 600, 'test2' => 2),
+			array('class' => 605, 'test2' => 3),
+			array('class' => 625, 'test2' => 4),
+		);
+		$result = Set::sort($data, '{n}.class', 'asc');
+		$this->assertEqual($expected, $result);
+
+		$result = Set::sort($data, '{n}.test2', 'asc');
+		$this->assertEqual($expected, $result);
+	}
+
+/**
  * testExtract method
  *
  * @access public
@@ -855,6 +882,46 @@ class SetTest extends CakeTestCase {
 		$r = Set::extract('/file/.[type=application/zip]', $f);
 		$this->assertEqual($r, $expected);
 
+		$f = array(
+			array(
+				'file' => array(
+					'name' => 'zipfile.zip',
+					'type' => 'application/zip',
+					'tmp_name' => '/tmp/php178.tmp',
+					'error' => 0,
+					'size' => '564647'
+				)
+			),
+			array(
+				'file' => array(
+					'name' => 'zipfile2.zip',
+					'type' => 'application/x zip compressed',
+					'tmp_name' => '/tmp/php179.tmp',
+					'error' => 0,
+					'size' => '354784'
+				)
+			),
+			array(
+				'file' => array(
+					'name' => 'picture.jpg',
+					'type' => 'image/jpeg',
+					'tmp_name' => '/tmp/php180.tmp',
+					'error' => 0,
+					'size' => '21324'
+				)
+			)
+		);
+		$expected = array(array('name' => 'zipfile2.zip','type' => 'application/x zip compressed','tmp_name' => '/tmp/php179.tmp','error' => 0,'size' => '354784'));
+		$r = Set::extract('/file/.[type=application/x zip compressed]', $f);
+		$this->assertEqual($r, $expected);
+
+		$expected = array(
+			array('name' => 'zipfile.zip','type' => 'application/zip','tmp_name' => '/tmp/php178.tmp','error' => 0,'size' => '564647'),
+			array('name' => 'zipfile2.zip','type' => 'application/x zip compressed','tmp_name' => '/tmp/php179.tmp','error' => 0,'size' => '354784')
+		);
+		$r = Set::extract('/file/.[tmp_name=/tmp\/php17/]', $f);
+		$this->assertEqual($r, $expected);
+
 		$hasMany = array(
 			'Node' => array(
 				'id' => 1,
@@ -1132,6 +1199,27 @@ class SetTest extends CakeTestCase {
 		$expected = array(0 => array('Article' => array('id' => 1, 'approved' => 1)));
 		$result = Set::extract('/Article[approved=1]', $startingAtOne);
 		$this->assertEqual($result, $expected);
+
+		$items = array(
+			240 => array(
+				'A' => array(
+					'field1' => 'a240',
+					'field2' => 'a240',
+				),
+				'B' => array(
+					'field1' => 'b240',
+					'field2' => 'b240'
+				),
+			)
+		);
+
+		$expected = array(
+			0 => 'b240'
+		);
+
+		$result = Set::extract('/B/field1', $items);
+		$this->assertIdentical($result, $expected);
+		$this->assertIdentical($result, Set::extract('{n}.B.field1', $items));
 	}
 /**
  * testExtractWithArrays method
@@ -2926,5 +3014,51 @@ class SetTest extends CakeTestCase {
 			'1.Author.user' => 'larry', '1.Author.password' => null
 		);
 		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * test normalization
+ *
+ * @return void
+ */
+	function testNormalizeStrings() {
+		$result = Set::normalize('one,two,three');
+		$expected = array('one' => null, 'two' => null, 'three' => null);
+		$this->assertEqual($expected, $result);
+
+		$result = Set::normalize('one two three', true, ' ');
+		$expected = array('one' => null, 'two' => null, 'three' => null);
+		$this->assertEqual($expected, $result);
+
+		$result = Set::normalize('one  ,  two   ,  three   ', true, ',', true);
+		$expected = array('one' => null, 'two' => null, 'three' => null);
+		$this->assertEqual($expected, $result);
+	}
+
+/**
+ * test normalizing arrays
+ *
+ * @return void
+ */
+	function testNormalizeArrays() {
+		$result = Set::normalize(array('one', 'two', 'three'));
+		$expected = array('one' => null, 'two' => null, 'three' => null);
+		$this->assertEqual($expected, $result);
+
+		$result = Set::normalize(array('one', 'two', 'three'), false);
+		$expected = array('one', 'two', 'three');
+		$this->assertEqual($expected, $result);
+
+		$result = Set::normalize(array('one' => 1, 'two' => 2, 'three' => 3, 'four'), false);
+		$expected = array('one' => 1, 'two' => 2, 'three' => 3, 'four' => null);
+		$this->assertEqual($expected, $result);
+
+		$result = Set::normalize(array('one' => 1, 'two' => 2, 'three' => 3, 'four'));
+		$expected = array('one' => 1, 'two' => 2, 'three' => 3, 'four' => null);
+		$this->assertEqual($expected, $result);
+
+		$result = Set::normalize(array('one' => array('a', 'b', 'c' => 'cee'), 'two' => 2, 'three'));
+		$expected = array('one' => array('a', 'b', 'c' => 'cee'), 'two' => 2, 'three' => null);
+		$this->assertEqual($expected, $result);
 	}
 }

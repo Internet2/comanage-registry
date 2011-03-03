@@ -202,6 +202,7 @@ class RequestHandlerComponent extends Object {
 		if (isset($controller->params['url']['ext'])) {
 			$this->ext = $controller->params['url']['ext'];
 		}
+		$this->params = $controller->params;
 		$this->_set($settings);
 	}
 
@@ -239,6 +240,8 @@ class RequestHandlerComponent extends Object {
 			$this->renderAs($controller, $this->ext);
 		} elseif ($this->isAjax()) {
 			$this->renderAs($controller, 'ajax');
+		} elseif (empty($this->ext) || in_array($this->ext, array('html', 'htm'))) {
+			$this->respondAs('html', array('charset' => Configure::read('App.encoding')));
 		}
 
 		if ($this->requestedWith('xml')) {
@@ -736,7 +739,7 @@ class RequestHandlerComponent extends Object {
 			if (!empty($options['attachment'])) {
 				$this->_header("Content-Disposition: attachment; filename=\"{$options['attachment']}\"");
 			}
-			if (Configure::read() < 2 && !defined('CAKEPHP_SHELL')) {
+			if (Configure::read() < 2 && !defined('CAKEPHP_SHELL') && empty($this->params['requested'])) {
 				$this->_header($header);
 			}
 			$this->__responseTypeSet = $cType;

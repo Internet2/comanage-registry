@@ -5,12 +5,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.tests.cases.console.libs.tasks
@@ -133,6 +133,17 @@ class FixtureTaskTest extends CakeTestCase {
 		$result = $this->Task->importOptions('Article');
 		$expected = array('fromTable' => true);
 		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * test that connection gets set to the import options when a different connection is used.
+ *
+ * @return void
+ */
+	function testImportOptionsAlternateConnection() {
+		$this->Task->connection = 'test';
+		$result = $this->Task->bake('Article', false, array('schema' => 'Article'));
+		$this->assertPattern("/'connection' => 'test'/", $result);
 	}
 
 /**
@@ -287,15 +298,24 @@ class FixtureTaskTest extends CakeTestCase {
 		$this->assertPattern('/var \$fields = array\(/', $result);
 
 		$result = $this->Task->bake('Article', 'comments', array('records' => true));
-		$this->assertPattern("/var \\\$import \= array\('records' \=\> true\);/", $result);
+		$this->assertPattern(
+			"/var \\\$import \= array\('records' \=\> true, 'connection' => 'test_suite'\);/",
+			$result
+		);
 		$this->assertNoPattern('/var \$records/', $result);
 
 		$result = $this->Task->bake('Article', 'comments', array('schema' => 'Article'));
-		$this->assertPattern("/var \\\$import \= array\('model' \=\> 'Article'\);/", $result);
+		$this->assertPattern(
+			"/var \\\$import \= array\('model' \=\> 'Article', 'connection' => 'test_suite'\);/",
+			$result
+		);
 		$this->assertNoPattern('/var \$fields/', $result);
 
 		$result = $this->Task->bake('Article', 'comments', array('schema' => 'Article', 'records' => true));
-		$this->assertPattern("/var \\\$import \= array\('model' \=\> 'Article'\, 'records' \=\> true\);/", $result);
+		$this->assertPattern(
+			"/var \\\$import \= array\('model' \=\> 'Article'\, 'records' \=\> true, 'connection' => 'test_suite'\);/",
+			$result
+		);
 		$this->assertNoPattern('/var \$fields/', $result);
 		$this->assertNoPattern('/var \$records/', $result);
 	}
