@@ -212,7 +212,13 @@
     'rs.deleted-a' =>   'Deleted "%1$s"',
     'rs.inv.conf' =>    'Invitation Confirmed',
     'rs.inv.dec' =>     'Invitation Declined',
-    'rs.updated' =>     '"%1$s" Updated'
+    'rs.updated' =>     '"%1$s" Updated',
+    
+    // Setup
+    
+    'se.done' =>        'Setup complete',
+    'se.users.drop' =>  'Dropping users table',
+    'se.users.view' =>  'Creating users view'
   );
   
   function _txt($key, $vars=null, $index=null)
