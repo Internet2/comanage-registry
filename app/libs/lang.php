@@ -43,6 +43,7 @@
     'au.not' =>         'Not Logged In',
     
     // COs Controllers
+    'co.cm.gradmin' =>  'COmanage Platform Administrators',
     'co.cm.desc' =>     'COmanage Gears Internal CO',
     'co.init' =>        'No COs found, initial CO created',
     'co.nomember' =>    'You are not a member of any COs',
@@ -216,9 +217,16 @@
     
     // Setup
     
-    'se.done' =>        'Setup complete',
-    'se.users.drop' =>  'Dropping users table',
-    'se.users.view' =>  'Creating users view'
+    'se.cf.admin.given' =>  'Enter administrator\'s given name',
+    'se.cf.admin.sn' =>     'Enter administrator\'s family name',
+    'se.cf.admin.user' =>   'Enter administrator\'s login username',
+    'se.db.co' =>           'Creating COmanage CO',
+    'se.db.cop' =>          'Adding OrgPerson to CO',
+    'se.db.group' =>        'Creating COmanage admin group',
+    'se.db.op' =>           'Adding initial OrgPerson',
+    'se.done' =>            'Setup complete',
+    'se.users.drop' =>      'Dropping users table',
+    'se.users.view' =>      'Creating users view'
   );
   
   function _txt($key, $vars=null, $index=null)
