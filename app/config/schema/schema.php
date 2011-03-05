@@ -1,6 +1,5 @@
 <?php 
-/* SVN FILE: $Id$ */
-/* App schema generated on: 2011-02-28 15:02:29 : 1298924489*/
+/* App schema generated on: 2011-03-03 19:20:20 : 1299198020*/
 class AppSchema extends CakeSchema {
 	var $name = 'App';
 
@@ -11,7 +10,7 @@ class AppSchema extends CakeSchema {
 	function after($event = array()) {
 	}
 
-	var $cm_addresses = array(
+	var $addresses = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'line1' => array('type' => 'string', 'null' => true, 'length' => 128),
 		'line2' => array('type' => 'string', 'null' => true, 'length' => 128),
@@ -27,7 +26,16 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_addresses_i1' => array('unique' => false, 'column' => 'co_person_id'), 'cm_addresses_i2' => array('unique' => false, 'column' => 'org_person_id')),
 		'tableParameters' => array()
 	);
-	var $cm_co_group_members = array(
+	var $api_users = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
+		'username' => array('type' => 'string', 'null' => true, 'length' => 50),
+		'password' => array('type' => 'string', 'null' => true, 'length' => 40),
+		'created' => array('type' => 'datetime', 'null' => true),
+		'modified' => array('type' => 'datetime', 'null' => true),
+		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_api_users_i1' => array('unique' => false, 'column' => 'username')),
+		'tableParameters' => array()
+	);
+	var $co_group_members = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'co_group_id' => array('type' => 'integer', 'null' => false),
 		'co_person_id' => array('type' => 'integer', 'null' => false),
@@ -38,7 +46,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_co_group_members_co_group_id_key' => array('unique' => true, 'column' => array('co_group_id', 'co_person_id')), 'cm_co_group_members_i1' => array('unique' => false, 'column' => 'co_group_id'), 'cm_co_group_members_i2' => array('unique' => false, 'column' => 'co_person_id')),
 		'tableParameters' => array()
 	);
-	var $cm_co_groups = array(
+	var $co_groups = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'co_id' => array('type' => 'integer', 'null' => false),
 		'name' => array('type' => 'string', 'null' => true, 'length' => 128),
@@ -50,7 +58,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_co_groups_co_id_key' => array('unique' => true, 'column' => array('co_id', 'name')), 'cm_co_groups_i1' => array('unique' => false, 'column' => 'co_id'), 'cm_co_groups_i2' => array('unique' => false, 'column' => 'name')),
 		'tableParameters' => array()
 	);
-	var $cm_co_invites = array(
+	var $co_invites = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'co_person_id' => array('type' => 'integer', 'null' => false),
 		'invitation' => array('type' => 'string', 'null' => false, 'length' => 48),
@@ -61,7 +69,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_co_invites_i1' => array('unique' => false, 'column' => 'co_person_id'), 'cm_co_invites_i2' => array('unique' => false, 'column' => 'invitation')),
 		'tableParameters' => array()
 	);
-	var $cm_co_people = array(
+	var $co_people = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'edu_person_affiliation' => array('type' => 'string', 'null' => true, 'length' => 32),
 		'title' => array('type' => 'string', 'null' => true, 'length' => 128),
@@ -75,7 +83,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id')),
 		'tableParameters' => array()
 	);
-	var $cm_co_person_sources = array(
+	var $co_person_sources = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'co_id' => array('type' => 'integer', 'null' => false),
 		'co_person_id' => array('type' => 'integer', 'null' => false),
@@ -85,7 +93,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_co_person_sources_i1' => array('unique' => false, 'column' => 'org_person_id'), 'cm_co_person_sources_i2' => array('unique' => false, 'column' => 'co_id')),
 		'tableParameters' => array()
 	);
-	var $cm_cos = array(
+	var $cos = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => true, 'length' => 128),
 		'description' => array('type' => 'string', 'null' => true, 'length' => 128),
@@ -95,7 +103,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_cos_name_key' => array('unique' => true, 'column' => 'name'), 'cm_cos_i1' => array('unique' => false, 'column' => 'name')),
 		'tableParameters' => array()
 	);
-	var $cm_email_addresses = array(
+	var $email_addresses = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'mail' => array('type' => 'string', 'null' => true, 'length' => 256),
 		'type' => array('type' => 'string', 'null' => true, 'length' => 2),
@@ -106,7 +114,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_email_addresses_i1' => array('unique' => false, 'column' => 'co_person_id'), 'cm_email_addresses_i2' => array('unique' => false, 'column' => 'org_person_id')),
 		'tableParameters' => array()
 	);
-	var $cm_identifiers = array(
+	var $identifiers = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'identifier' => array('type' => 'string', 'null' => true, 'length' => 256),
 		'type' => array('type' => 'string', 'null' => true, 'length' => 32),
@@ -118,7 +126,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_identifiers_identifier_key' => array('unique' => true, 'column' => 'identifier'), 'cm_identifiers_i1' => array('unique' => false, 'column' => 'identifier'), 'cm_identifiers_i2' => array('unique' => false, 'column' => array('identifier', 'type'))),
 		'tableParameters' => array()
 	);
-	var $cm_names = array(
+	var $names = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'honorific' => array('type' => 'string', 'null' => true, 'length' => 32),
 		'given' => array('type' => 'string', 'null' => true, 'length' => 128),
@@ -133,7 +141,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id')),
 		'tableParameters' => array()
 	);
-	var $cm_org_people = array(
+	var $org_people = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'edu_person_affiliation' => array('type' => 'string', 'null' => true, 'length' => 32),
 		'title' => array('type' => 'string', 'null' => true, 'length' => 128),
@@ -145,7 +153,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id')),
 		'tableParameters' => array()
 	);
-	var $cm_organizations = array(
+	var $organizations = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'name' => array('type' => 'string', 'null' => true, 'length' => 256),
 		'domain' => array('type' => 'string', 'null' => true, 'length' => 256),
@@ -154,7 +162,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id')),
 		'tableParameters' => array()
 	);
-	var $cm_telephone_numbers = array(
+	var $telephone_numbers = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
 		'number' => array('type' => 'string', 'null' => true, 'length' => 64),
 		'co_person_id' => array('type' => 'integer', 'null' => true),
@@ -165,7 +173,7 @@ class AppSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_telephone_numbers_i1' => array('unique' => false, 'column' => 'co_person_id')),
 		'tableParameters' => array()
 	);
-	var $cm_users = array(
+	var $users = array(
 		'username' => array('type' => 'text', 'null' => true),
 		'password' => array('type' => 'text', 'null' => true),
 		'api_user_id' => array('type' => 'integer', 'null' => true),
