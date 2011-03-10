@@ -110,6 +110,7 @@
     'er.cop.none' =>    'CO Person Not Provided',
     'er.cop.unk' =>     'Unknown CO Person',
     'er.delete' =>      'Delete Failed',
+    'er.deleted-a' =>   'Deleted "%1$s"',
     'er.gr.exists' =>   'A group named "%1$s" already exists within the CO',
     'er.gr.init' =>     'Group created, but failed to set initial owner/member',
     'er.gr.nf' =>       'Graup %1$s Not Found',
@@ -210,7 +211,6 @@
     // Results
     'rs.added' =>       'Added',
     'rs.added-a' =>     '"%1$s" Added',
-    'rs.deleted-a' =>   'Deleted "%1$s"',
     'rs.inv.conf' =>    'Invitation Confirmed',
     'rs.inv.dec' =>     'Invitation Declined',
     'rs.updated' =>     '"%1$s" Updated',
