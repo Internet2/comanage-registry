@@ -83,6 +83,32 @@ class PagesController extends AppController {
 		$this->set(compact('page', 'subpage', 'title_for_layout'));
 		$this->render(implode('/', $path));
 	}
+	
+    function beforeFilter()
+    {
+      // Callback before other controller methods are invoked or views are rendered.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      //     None
+      //
+      // Postconditions:
+      // (1) Parent called
+      // (2) Auth component reconfigured to allow invite handling without login
+      //
+      // Returns:
+      //   Nothing
+      
+      // The initial index page, which might allow for self sign-up,
+      // should not require authentication
+      if($this->params['url']['url'] == "/")
+        $this->Auth->allow('display');
+
+      // Since we're overriding, we need to call the parent to run the authz check
+      parent::beforeFilter();
+    }
 
     function isAuthorized()
     {
