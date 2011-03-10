@@ -65,6 +65,11 @@
       </td>
       <td>
         <?php
+          if($permissions['compare'])
+            echo $html->link(_txt('op.compare'),
+                             array('controller' => 'co_people', 'action' => 'compare', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                             array('class' => 'comparebutton')) . "\n";
+        
           if($permissions['edit'])
             echo $html->link(_txt('op.edit'),
                              array('controller' => 'co_people', 'action' => 'edit', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),

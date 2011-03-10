@@ -115,6 +115,13 @@
         }
       });
 
+      $(".comparebutton").button({
+        icons: {
+          primary: 'ui-icon-person'
+        },
+        text: false
+      });
+
       $(".deletebutton").button({
         icons: {
           primary: 'ui-icon-circle-close'

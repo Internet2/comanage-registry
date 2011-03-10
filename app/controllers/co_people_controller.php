@@ -36,8 +36,9 @@
     );
     // This controller needs a CO to be set
     var $requires_co = true;
-    // For CO Person edit renderings, we need all CoGroup data, so we need more recursion
+    // For CO Person group renderings, we need all CoGroup data, so we need more recursion
     var $edit_recursion = 2;
+    var $view_recursion = 2;
 
     function checkWriteDependencies($curdata = null)
     {
@@ -66,6 +67,43 @@
       }
 
       return(true);
+    }
+    
+    function compare($id)
+    {
+      // Retrieve a CO and Org attributes for comparison.
+      //
+      // Parameters:
+      // - id: CO Person identifier
+      //
+      // Preconditions:
+      // (1) <id> must exist
+      //
+      // Postconditions:
+      // (1) $<object>s set (with one member) if found
+      // (2) HTTP status returned (REST)
+      // (3) Session flash message updated (HTML) on suitable error 
+      //
+      // Returns:
+      //   Nothing
+      
+      // This is pretty similar to the standard view or edit methods.
+      // We'll just retrieve and set the Org Person, then invoke view.
+      // (We could invoke edit instead, presumably.)
+      
+      $cop = $this->CoPerson->CoPersonSource->findByCoPersonId($id);
+      
+      if(!empty($cop))
+      {
+        $orgp = $this->CoPerson->CoPersonSource->OrgPerson->findById($cop['CoPersonSource']['org_person_id']);
+        
+        if(!empty($cop))
+        {
+          $this->set("org_people", array(0 => $orgp));
+          
+          $this->view($id);
+        }
+      }
     }
     
     function editself()
@@ -205,6 +243,9 @@
       $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin']);
       // Via invite?
       $p['invite'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+      
+      // Compare CO attributes and Org attributes?
+      $p['compare'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
       
       // Delete an existing CO Person?
       $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
