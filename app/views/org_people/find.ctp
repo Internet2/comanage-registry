@@ -21,9 +21,6 @@
 ?>
 <h1 class="ui-state-default"><?php echo _txt('op.find.inv', array(Sanitize::html($cur_co['Co']['name']))); ?></h1>
 
-XXX don't list people who've already been added
-XXX probably incorporate LDAP search here
-
 <table id="org_people" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
