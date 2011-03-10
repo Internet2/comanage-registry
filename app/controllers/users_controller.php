@@ -38,12 +38,8 @@
       // auto redirect with the expectation that we'll trigger the redirect here
       // after we're done.
       
-      // XXX At some point, this should probably be moved into a Component that
-      // extends AuthComponent eg
-      // http://bakery.cakephp.org/articles/pietro.brignola/2010/10/12/casauth_4_cakephp_4
-      
       // First, see if we've returned from the external handler with a user set
-      
+
       $u = $this->Session->read('Auth.external.user');
       
       if(!empty($u))

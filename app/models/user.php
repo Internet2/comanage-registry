@@ -1,6 +1,6 @@
 <?php
   /*
-   * COmanage Gears Address Model
+   * COmanage Gears User Model
    *
    * Version: $Revision$
    * Date: $Date$
