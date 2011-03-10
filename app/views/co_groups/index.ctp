@@ -142,6 +142,9 @@
     <tr>
       <td>
         <?php
+          if($this->action == 'select')
+            echo $this->Form->submit(_txt('op.add'));
+          
           echo $this->Form->end();
         ?>
       </td>
