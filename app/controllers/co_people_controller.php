@@ -213,7 +213,8 @@
       $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
 
       // Are we trying to edit our own record?
-      $p['editself'] = $self;
+      // If we're an admin, we act as an admin, not self.
+      $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'];
       
       // View all existing CO People?
       $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
