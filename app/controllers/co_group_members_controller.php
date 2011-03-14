@@ -98,7 +98,7 @@
           }
         }
         
-        if(count($a) > 0)
+        if(count($a['CoGroupMember']) > 0)
         {
           if($this->CoGroupMember->saveAll($a['CoGroupMember']))
             $this->Session->setFlash(_txt('rs.added'), '', array(), 'success');
