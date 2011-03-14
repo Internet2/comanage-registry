@@ -104,17 +104,23 @@
       
       if(!$this->restful && $this->action == 'add')
       {
-        $a['CoGroupMember'] = array(
-          'co_group_id' => $this->CoGroup->id,
-          'co_person_id' => $this->Session->read('Auth.User.co_person_id'),
-          'owner' => true,
-          'member' => true
-        );
-        
-        if(!$this->CoGroup->CoGroupMember->save($a))
+        $cos = $this->Session->read('Auth.User.cos');
+
+        // Member of current CO? (Platform admin wouldn't be)
+        if(isset($cos) && isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id']))
         {
-          $this->Session->setFlash(_txt('er.gr.init'), '', array(), 'info');
-          return(false);
+          $a['CoGroupMember'] = array(
+            'co_group_id' => $this->CoGroup->id,
+            'co_person_id' => $this->Session->read('Auth.User.co_person_id'),
+            'owner' => true,
+            'member' => true
+          );
+      
+          if(!$this->CoGroup->CoGroupMember->save($a))
+          {
+            $this->Session->setFlash(_txt('er.gr.init'), '', array(), 'info');
+            return(false);
+          }
         }
       }
       
