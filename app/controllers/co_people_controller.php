@@ -121,7 +121,7 @@
       //
       // Returns:
       //   Nothing
- 
+      
       $cmr = $this->calculateCMRoles();
       
       if(isset($cmr['copersonid']))
@@ -222,7 +222,7 @@
       //
       // Returns:
       // - Array of permissions
-
+      
       $cmr = $this->calculateCMRoles();
       
       // Is this our own record?
@@ -253,9 +253,16 @@
       // Edit an existing CO Person?
       $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
 
-      // Are we trying to edit our own record?
+      // Are we trying to edit our own record?  If so, we need to track
+      // both permission for the controller to invoke the method ('editself'),
+      // and pass a hint to the view to tell it that an admin should be able
+      // to edit their own fields anyway ('editselfv'). Kind of confusing.
+      // Hopefully this can go away with a proper implementation of ACLs on
+      // fields.
+      
       // If we're an admin, we act as an admin, not self.
-      $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'];
+      $p['editself'] = $self;
+      $p['editselfv'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'];
       
       // View all existing CO People?
       $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);

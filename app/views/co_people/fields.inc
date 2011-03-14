@@ -28,9 +28,9 @@
       || ($this->action == "edit" && $permissions['edit']))
     $e = true;
 
-  if($this->action == "edit" && $permissions['editself'])
+  if($this->action == "edit" && $permissions['editselfv'])
     $es = true;
-  
+
   // We shouldn't get here if we don't have at least read permission, but check just in case
   
   if(!$e && !$permissions['view'])
@@ -174,7 +174,7 @@
         <?php
           global $cm_lang, $cm_texts;
           
-          echo ($e ? $this->Form->select('edu_person_affiliation',
+          echo (($e && !$es)? $this->Form->select('edu_person_affiliation',
                                          $cm_texts[ $cm_lang ]['en.affil'],
                                          (isset($co_people[0]['CoPerson']['edu_person_affiliation'])
                                           ? $co_people[0]['CoPerson']['edu_person_affiliation']
