@@ -477,7 +477,7 @@
             $this->restResultHeader(400, "No Email Address");
           else
           {
-            $this->Session->setFlash(_txt('er.orgp.nomail', generateCn($orgp['Name']), $orgp['OrgPerson']['id']), '', array(), 'error');
+            $this->Session->setFlash(_txt('er.orgp.nomail', array(generateCn($orgp['Name']), $orgp['OrgPerson']['id'])), '', array(), 'error');
             $this->redirect(array('controller' => 'co_people', 'action' => 'index', 'co' => $this->cur_co['Co']['id']));
           }
         }
@@ -490,7 +490,7 @@
           $this->set('invalid_fields', array('CoPersonId' => _txt('er.cop.unk')));
         }
         else
-          $this->Session->setFlash(_txt('er.cop.nf', $cpid), '', array(), 'error');
+          $this->Session->setFlash(_txt('er.cop.nf', array($cpid)), '', array(), 'error');
       }
     }
   }
