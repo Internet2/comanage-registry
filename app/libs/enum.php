@@ -21,6 +21,7 @@
 
   global $affil_t, $affil_ti;
   global $contact_t, $contact_ti;
+  global $extattr_t, $extattr_ti;
   global $identifier_t, $identifier_ti;
   global $name_t, $name_ti;
   global $status_t, $status_ti;
@@ -62,8 +63,22 @@
     'Mobile' => 'M',
     'Office' => 'O',
     'Postal' => 'P',
-    'R' => 'Forwarding'
+    'Forwarding' => 'R'
   );
+  
+  /*
+  $extattr_t = array(
+    'INTEGER' => 'INTEGER',
+    'TIMESTAMP' => 'TIMESTAMP',
+    'VARCHAR(32)' => 'VARCHAR(32)'
+  );
+  
+  $extattr_ti = array(
+    'INTEGER' => 'I',
+    'TIMESTAMP' => 'T',
+    'VARCHAR(32)' => 'V3'
+  );
+  */
   
   $identifier_t = array(
     'eppn' => 'ePPN',

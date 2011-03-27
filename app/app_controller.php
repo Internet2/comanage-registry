@@ -238,6 +238,37 @@
       $this->Auth->autoRedirect = false;
     }
     
+    function beforeRender()
+    {
+      // Callback after controller methods are invoked but before views are rendered.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      // (1) Request Handler component has set $this->params and/or $this->data
+      //
+      // Postconditions:
+      // (1) If a CO must be specifed, a named parameter may be set.
+      //
+      // Returns:
+      //   Nothing
+
+      // Get a pointer to our model
+      $req = $this->modelClass;
+      if($req != 'Page')          // Page doesn't have an actual model
+        $model = $this->$req;
+        
+      if(!$this->restful && $this->requires_co && isset($this->cur_co) && !isset($this->params['named']['co']))
+      {
+        // When a form is submitted but errors out, the CO passed via /co:##
+        // is lost (because it had been converted to a POST parameter on submit).
+        // Regenerate it.
+        
+        $this->params['named']['co'] = $this->cur_co['Co']['id'];
+      }
+    }
+    
     function calculateCMRoles()
     {
       // Determine which COmanage platform roles the current user has.
@@ -485,9 +516,10 @@
 
         if(isset($this->data[$req]))
         {
-          // Check if a CO is required that one was specified
+          // Check if a CO is required that one was specified.
+          // Note beforeFilter() may already have found a CO.
         
-          if($this->requires_co)
+          if($this->requires_co && !isset($this->cur_co))
           {
             $coid = -1;
         
@@ -541,7 +573,23 @@
                ($k != 'Person' && !isset($this->$req->_schema[Inflector::underscore($k)])))
               $bad[$k] = "Unknown Field";
           }
-
+          
+          // Check for Extended Attributes
+          
+          if(isset($this->cur_co))
+          {
+            $ea = "Co" . $this->cur_co['Co']['id'] . "PersonExtendedAttribute";
+            
+            if(isset($this->data[$ea]) && isset($this->$req->$ea->_schema))
+            {
+              foreach(array_keys($this->data[$ea]) as $k)
+              {
+                if(!isset($this->$req->$ea->_schema[Inflector::underscore($k)]))
+                  $bad['ExtendedAttributes.'.$k] = "Unknown Field";
+              }
+            }
+          }
+          
           if(empty($bad))
             return(true);
           
@@ -709,6 +757,16 @@
         $this->data['Name']['type'] = $name_ti[ $this->data['Name']['type'] ];      
       }
       
+      // Promote Extended Attributes up a level so saveAll sees them, too
+      
+      if($req == 'CoPerson' && isset($this->data[$req]['extended_attributes']))
+      {
+        $ea = "Co" . $this->cur_co['Co']['id'] . "PersonExtendedAttribute";
+        
+        $this->data[$ea] = $this->data[$req]['extended_attributes'];
+        unset($this->data[$req]['extended_attributes']);
+      }
+      
       // Flatten the Person ID for models that use it
         
       if($this->requires_person)
@@ -724,7 +782,7 @@
           unset($this->data[$req]['person']);
         }        
       }
-
+      
       return(true);
     }
 

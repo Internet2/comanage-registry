@@ -89,6 +89,21 @@ CREATE TABLE cm_co_people (
 );
 -- XXX Add indices
 
+-- cm_co_extended_attributes
+
+CREATE TABLE cm_co_extended_attributes (
+  id SERIAL PRIMARY KEY,
+  co_id INTEGER NOT NULL REFERENCES cm_cos(id),
+  name VARCHAR(64),
+  display_name VARCHAR(64),
+  type VARCHAR(32),
+  index BOOLEAN,
+  created TIMESTAMP,
+  modified TIMESTAMP,
+  UNIQUE(co_id,name)
+);
+-- XXX Add indices
+
 -- cm_co_person_sources
 
 CREATE TABLE cm_co_person_sources (

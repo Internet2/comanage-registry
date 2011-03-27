@@ -72,6 +72,9 @@
     <br />
     ';
   }
+  
+  // Line number, for rendering
+  $l = 1;
 ?>
 <table id="<?php echo $this->action; ?>_co_person" class="ui-widget">
   <tbody>
@@ -82,7 +85,7 @@
       <th class="ui-state-default"><?php echo (!empty($org_people[0]['OrgPerson']['o']) ? Sanitize::html($org_people[0]['OrgPerson']['o']) : _txt('fd.o')); ?></th>
     </tr>
     <?php endif; ?>
-    <tr class="line1">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php
           echo _txt('fd.name.h');
@@ -105,7 +108,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.name.g'); ?><font class="required">*</font>
       </td>
@@ -119,7 +122,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.name.m'); ?>
       </td>
@@ -133,7 +136,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.name.f'); ?>
       </td>
@@ -147,7 +150,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php
           echo _txt('fd.name.s');
@@ -166,7 +169,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'); ?><font class="required">*</font>
       </td>
@@ -189,7 +192,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo $cur_co['Co']['name'] . " " . _txt('fd.title'); ?>
       </td>
@@ -203,7 +206,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.o'); ?>
       </td>
@@ -217,7 +220,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.ou'); ?>
       </td>
@@ -230,7 +233,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.valid.f'); if($e && !$es) echo " " . _txt('fd.valid.f.desc'); ?>
       </td>
@@ -240,7 +243,7 @@
                     : (($co_people[0]['CoPerson']['valid_from'] > 0) ? strftime("%F", strtotime($co_people[0]['CoPerson']['valid_from'])) : "")); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.valid.u'); if($e && !$es) echo " " . _txt('fd.valid.u.desc'); ?>
       </td>
@@ -251,7 +254,7 @@
       </td>
     </tr>
     <?php if($this->action != "invite"): ?>
-    <tr class="line2">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.ids'); ?>
       </td>
@@ -295,7 +298,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.mail'); ?>
       </td>
@@ -339,7 +342,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.phone'); ?>
       </td>
@@ -383,7 +386,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.address'); ?>
       </td>
@@ -427,7 +430,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.groups'); ?>
       </td>
@@ -468,6 +471,43 @@
       </td>
     </tr>
     <?php endif; ?>
+    <?php
+      // Check for extended attributes and render
+      
+      $cl = 'Co' . $cur_co['Co']['id'] . 'PersonExtendedAttribute';
+      
+      if(!empty($cur_co['CoExtendedAttribute']))
+      {
+        echo $this->Form->hidden($cl . '.id');
+        
+        foreach($cur_co['CoExtendedAttribute'] as $c):
+    ?>
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
+      <td>
+        <?php echo $c['display_name']; ?>
+      </td>
+      <td>
+        <?php
+          $attr = strtolower($c['name']);  
+          
+          if($c['type'] == 'TIMESTAMP')
+          {
+            echo ($e ? $this->Form->text($cl.'.'.$attr, array('class' => 'datepicker'))
+                     : (($co_people[0][$cl][$attr] > 0) ? strftime("%F", strtotime($co_people[0][$cl][$attr])) : ""));
+          }
+          else
+          {
+            echo ($e ? $this->Form->input($cl.'.'.$attr,
+                                          isset($co_people[0][$cl][$attr]) ? array('default' => $co_people[0][$cl][$attr]) : array())
+                     : Sanitize::html($co_people[0][$cl][$attr]));
+          }
+        ?>
+      </td>
+    </tr>
+    <?php
+        endforeach;
+      }
+    ?>
     <tr>
       <td>
         <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />

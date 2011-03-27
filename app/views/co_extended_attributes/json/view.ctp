@@ -1,0 +1,1 @@
+../../standard/json/view.ctp

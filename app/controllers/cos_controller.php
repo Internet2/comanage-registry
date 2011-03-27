@@ -38,13 +38,13 @@
       )
     );
     
-    function checkDeleteDependencies()
+    function checkDeleteDependencies($curdata)
     {
       // Perform any dependency checks required prior to a delete operation.
       // This method is intended to be overridden by model-specific controllers.
       //
       // Parameters:
-      //   None
+      // - curdata: Current data
       //
       // Preconditions:
       //     None
@@ -64,7 +64,7 @@
         if($this->restful)
           $this->restResultHeader(403, "Cannot Remove COmanage CO");
         else
-          $this->Session->setFlash("Cannot Remove COmanage CO", '', array(), 'error');
+          $this->Session->setFlash(_txt('er.co.cm.rm'), '', array(), 'error');
           
         return(false);
       }
@@ -97,7 +97,7 @@
           if($this->restful)
             $this->restResultHeader(403, "Cannot Edit COmanage CO");
           else
-            $this->Session->setFlash("Cannot Edit COmanage CO", '', array(), 'error');
+            $this->Session->setFlash(_txt('er.co.cm.edit'), '', array(), 'error');
             
           return(false);
         }
@@ -114,7 +114,7 @@
           if($this->restful)
             $this->restResultHeader(403, "Name In Use");
           else
-            $this->Session->setFlash("CO named '" . $this->data['Co']['name'] . "' already exists", '', array(), 'error');          
+            $this->Session->setFlash(_txt('er.co.exists', $this->data['Co']['name']), '', array(), 'error');          
   
           return(false);
         }

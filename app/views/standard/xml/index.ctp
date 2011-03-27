@@ -76,6 +76,28 @@
                                 $xn);
       }
 
+      if($req == 'CoPerson')
+      {
+        // For CO People, we need to check for extended attributes.
+        
+        foreach(array_keys($m) as $ak)
+        {
+          if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak))
+          {
+            $xn = "";
+            
+            foreach(array_keys($m[$ak]) as $ea)
+              if(!in_array($ea, array('Id', 'CoPersonId', 'Created', 'Modified'))
+                 && $m[$ak][$ea] != null)
+                $xn .= $this->Xml->elem($ea, null, $m[$ak][$ea]);
+            
+            $xd .= $this->Xml->elem("ExtendedAttributes", null, $xn);
+            
+            break;
+          }
+        }
+      }
+
       $x .= $this->Xml->elem($req,
                              array("Version" => "1.0",    // XXX this needs to be set by the controller
                                    "Id" => $m[$req]['Id']),

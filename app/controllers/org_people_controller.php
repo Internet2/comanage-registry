@@ -63,13 +63,13 @@
       $this->set('organizations', $this->OrgPerson->Organization->find('all'));
     }
     
-    function checkDeleteDependencies()
+    function checkDeleteDependencies($curdata)
     {
       // Perform any dependency checks required prior to a delete operation.
       // This method is intended to be overridden by model-specific controllers.
       //
       // Parameters:
-      //   None
+      // - curdata: Current data
       //
       // Preconditions:
       //     None

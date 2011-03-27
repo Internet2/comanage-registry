@@ -66,6 +66,13 @@
                              array('controller' => 'co_people', 'action' => 'index'),
                              array('class' => 'menuitembutton'));
           }
+          
+          if(isset($permissions['menu']['extattrs']) && $permissions['menu']['extattrs'])
+          {
+            echo $html->link("Extended Attributes",
+                             array('controller' => 'co_extended_attributes', 'action' => 'index'),
+                             array('class' => 'menuitembutton'));
+          }
         ?>
       </td>
 

@@ -169,6 +169,16 @@
 
       // Datepickers
       
+      $(".datepicker").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: "yy-mm-dd",
+        numberOfMonths: 1,
+        showButtonPanel: false,
+        showOtherMonths: true,
+        selectOtherMonths: true
+      });
+
       $(".datepicker-f").datepicker({
         changeMonth: true,
         changeYear: true,

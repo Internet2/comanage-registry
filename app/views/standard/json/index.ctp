@@ -67,10 +67,27 @@
           if(in_array($k, array('Honorific', 'Given', 'Middle', 'Family', 'Suffix', 'Type'))
              && $m['Name'][$k] != null)
             $a['Name'][$k] = $m['Name'][$k];
-        }
-      
+        }      
       }
+      
+      if($req == 'CoPerson')
+      {
+        // For CO People, we need to check for extended attributes.
         
+        foreach(array_keys($m) as $ak)
+        {
+          if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak))
+          {
+            foreach(array_keys($m[$ak]) as $ea)
+              if(!in_array($ea, array('Id', 'CoPersonId', 'Created', 'Modified'))
+                 && $m[$ak][$ea] != null)
+                $a['ExtendedAttributes'][$ea] = $m[$ak][$ea];
+            
+            break;
+          }
+        }
+      }
+      
       $ms[] = $a;
     }
 

@@ -152,6 +152,9 @@ class PagesController extends AppController {
       // Manage any CO populations?
       $p['menu']['cos'] = $cmr['admin'];
       
+      // Manage CO extended attributes?
+      $p['menu']['extattrs'] = $cmr['admin'];
+      
       // Admin COmanage?
       $p['menu']['admin'] = $cmr['cmadmin'];
       

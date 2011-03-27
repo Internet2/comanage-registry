@@ -40,6 +40,68 @@
     var $edit_recursion = 2;
     var $view_recursion = 2;
 
+    function beforeFilter()
+    {
+      // Callback before other controller methods are invoked or views are rendered.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      //     None
+      //
+      // Postconditions:
+      // (1) Parent called
+      //
+      // Returns:
+      //   Nothing
+      
+      parent::beforeFilter();
+      
+      // If there are any extended attributes defined for this CO,
+      // dynamically bind the CO table of attributes to the model.
+      
+      if($this->restful && !isset($this->cur_co))
+      {
+        // Calls to co_people via the REST controller won't have a CO set (except
+        // when retrieving all members of a CO) so we have to figure out the CO
+        // from the person requested.
+        
+        if(isset($this->params['id']))
+        {
+          // Request for an individual
+          
+          $cops = $this->CoPerson->CoPersonSource->findByCoPersonId($this->params['id']);
+          
+          if(!empty($cops))
+            $this->cur_co = $this->CoPerson->CoPersonSource->Co->findById($cops['CoPersonSource']['co_id']);
+        }
+        elseif(isset($this->params['url']['coid']))
+        {
+          // Request for all members of a CO
+          
+          $this->cur_co = $this->CoPerson->CoPersonSource->Co->findById($this->params['url']['coid']);
+        }
+        // We don't currently support requests for all CO people (regardless of CO).
+        // To do so, we'd have to extract the CO ID on a per-CO person basis, which
+        // wouldn't be terribly efficient.
+      }
+      
+      $c = $this->CoPerson->CoPersonSource->Co->CoExtendedAttribute->find('count',
+                                                                          array('conditions' =>
+                                                                                array('co_id' => $this->cur_co['Co']['id'])));
+      
+      if($c > 0)
+      {
+        $cl = 'Co' . $this->cur_co['Co']['id'] . 'PersonExtendedAttribute';
+        
+        $this->CoPerson->bindModel(array('hasOne' =>
+                                         array($cl => array('className' => $cl,
+                                                            'dependent' => true))),
+                                   false);
+      }
+    }
+  
     function checkWriteDependencies($curdata = null)
     {
       // Perform any dependency checks required prior to a write (add/edit) operation.
@@ -64,6 +126,15 @@
         // embedded in the Person), so we need to copy it over here.
         
         $this->data['Name']['id'] = $curdata['Name']['id'];
+        
+        // The same applies for Extended Attributes, except we have to figure
+        // out the appropriate name.
+        
+        foreach(array_keys($curdata) as $ak)
+        {
+          if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak))
+            $this->data[$ak]['id'] = $curdata[$ak]['id'];
+        }
       }
 
       return(true);
@@ -202,7 +273,7 @@
       }
       else
       {
-        $this->Session->setFlash(_txt('op.orgp-unk-a', $this->params['named']['orgpersonid']), '', array(), 'error');
+        $this->Session->setFlash(_txt('op.orgp-unk-a', array($this->params['named']['orgpersonid'])), '', array(), 'error');
         $this->redirect(array('action' => 'index', 'co' => $this->cur_co['Co']['id']));
       }
     }

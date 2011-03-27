@@ -1,11 +1,11 @@
 <?php
   /*
-   * COmanage Gears CO Model
+   * COmanage Gears Per-CO Extended Attribute Model
    *
    * Version: $Revision$
    * Date: $Date$
    *
-   * Copyright (C) 2010-2011 University Corporation for Advanced Internet Development, Inc.
+   * Copyright (C) 2011 University Corporation for Advanced Internet Development, Inc.
    * 
    * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
    * the License. You may obtain a copy of the License at
@@ -19,42 +19,39 @@
    *
    */
   
-  class Co extends AppModel {
+  class CoExtendedAttribute extends AppModel {
     // Define class name for cake
-    var $name = "Co";
+    var $name = "CoExtendedAttribute";
     
     // Association rules from this model to other models
-    var $hasMany = array("CoExtendedAttribute" =>    // A CO has zero or more extended attributes
-                         array('dependent' => true),
-                         "CoGroup" =>                // A CO has zero or more groups
-                         array('dependent' => true),
-                         "CoPersonSource" =>         // A CO has zero or more person sources
-                         array('dependent' => true));
+    var $belongsTo = array("Co");                     // A CO has zero or more extended attributes
     
     // Default display field for cake generated views
-    var $displayField = "name";
+    var $displayField = "display_name";
     
     // Default ordering for find operations
-    var $order = array("Co.name");
+    var $order = array("CoExtendedAttribute.name");
     
     // Validation rules for table elements
     var $validate = array(
       'name' => array(
+        'rule' => 'alphaNumeric',
+        'required' => true,
+        'message' => 'A name must be provided and consist of alphanumeric characters'
+      ),
+      'display_name' => array(
         'rule' => 'notEmpty',
         'required' => true,
         'message' => 'A name must be provided'
       ),
-      'status' => array(
-        'rule' => array('inList', array('A', 'I')),
+      'type' => array(
+        'rule' => array('inList', array('INTEGER', 'TIMESTAMP', 'VARCHAR(32)')),
         'required' => true,
-        'message' => 'A valid status must be selected'
+        'message' => 'A valid data type must be provided'
+      ),
+      'index' => array(
+        'rule' => array('boolean')
       )
-    );
-    
-    // Enum type hints
-    
-    var $cm_enum_types = array(
-      'status' => 'status_t'
     );
   }
 ?>

@@ -37,6 +37,7 @@
  */
 
 Router::mapResources('addresses');
+Router::mapResources('co_extended_attributes');
 Router::mapResources('co_invites');
 Router::mapResources('co_groups');
 Router::mapResources('co_group_members');
