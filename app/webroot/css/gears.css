@@ -30,6 +30,11 @@
   font: 200% "Trebuchet MS", sans-serif;
 }
 
+/* 0 used for autoincrementing line counters */
+.line0 {
+  background-color: lightgray;
+}
+
 .line1 {
   background-color: lightblue;
 }
