@@ -47,7 +47,14 @@
   // If user has edit permission, offer an edit button
 
   if($permissions['edit'])
+  {
+    $a = array('controller' => $modelpl, 'action' => 'edit', $d[0][$req]['id']);
+    
+    if(isset($this->params['named']['co']))
+      $a['co'] = $this->params['named']['co'];
+    
     echo $html->link(_txt('op.edit'),
-                     array('controller' => $modelpl, 'action' => 'edit', $d[0][$req]['id']),
-                     array('class' => 'editbutton'));  
+                     $a,
+                     array('class' => 'editbutton'));
+  }
 ?>
