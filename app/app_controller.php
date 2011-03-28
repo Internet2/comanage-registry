@@ -122,7 +122,7 @@
         elseif(isset($this->data['Co']['id']))
           $coid = $this->data['Co']['id'];
         elseif(isset($this->data[$this->modelClass]['co_id']))
-          $coid = $this->data[$this->modelClass]['co_id'];          
+          $coid = $this->data[$this->modelClass]['co_id'];      
 
         if($coid == -1)
         {
@@ -405,7 +405,9 @@
         $co = $this->params['named']['co'];
       elseif(!empty($this->data[$req]['co']))
         $co = $this->data[$req]['co'];
-      
+      elseif(!empty($this->data[$req]['co_id']))
+        $co = $this->data[$req]['co_id'];
+        
       if($copid != null)
       {
         $redirect['controller'] = 'co_people';
