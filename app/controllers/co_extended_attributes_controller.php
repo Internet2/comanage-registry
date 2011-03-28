@@ -88,7 +88,7 @@
       if(!$r)
       {
         if($this->restful)
-          $this->restResultHeader(403, "Name In Use");  // XXX document this
+          $this->restResultHeader(403, "Name In Use");
         else
           $this->Session->setFlash(_txt('er.ea.exists', array($this->data['CoExtendedAttribute']['name'])), '', array(), 'error');          
 
@@ -139,7 +139,7 @@
       if($this->CoExtendedAttribute->query($sql) === false)
       {
         if($this->restful)
-          ; // XXX set error
+          $this->restResultHeader(500, "Database Error");
         else
           $this->Session->setFlash(_txt('er.ea.alter'), '', array(), 'error');
         
@@ -164,7 +164,7 @@
         if($this->CoExtendedAttribute->query($sql) === false)
         {
           if($this->restful)
-            ; // XXX set error
+            $this->restResultHeader(500, "Database Error");
           else
             $this->Session->setFlash(_txt('er.ea.table.d'), '', array(), 'error');
           
@@ -271,7 +271,7 @@
           if($this->CoExtendedAttribute->query($sql) === false)
           {
             if($this->restful)
-              ; // XXX set error
+              $this->restResultHeader(500, "Database Error");
             else
               $this->Session->setFlash(_txt('er.ea.table'), '', array(), 'error');
             
@@ -297,7 +297,7 @@
         if($this->CoExtendedAttribute->query($sql) === false)
         {
           if($this->restful)
-            ; // XXX set error
+            $this->restResultHeader(500, "Database Error");
           else
             $this->Session->setFlash(_txt('er.ea.alter'), '', array(), 'error');
           
@@ -316,7 +316,7 @@
           if($this->CoExtendedAttribute->query($sql) === false)
           {
             if($this->restful)
-              ; // XXX set error
+              $this->restResultHeader(500, "Database Error");
             else
               $this->Session->setFlash(_txt('er.ea.index'), '', array(), 'error');
             
@@ -346,7 +346,7 @@
           if($this->CoExtendedAttribute->query($sql) === false)
           {
             if($this->restful)
-              ; // XXX set error
+              $this->restResultHeader(500, "Database Error");
             else
               $this->Session->setFlash(_txt('er.ea.alter'), '', array(), 'error');
             
@@ -384,7 +384,7 @@
             if($this->CoExtendedAttribute->query($sql) === false)
             {
               if($this->restful)
-                ; // XXX set error
+                $this->restResultHeader(500, "Database Error");
               else
                 $this->Session->setFlash(_txt('er.ea.index'), '', array(), 'error');
               
