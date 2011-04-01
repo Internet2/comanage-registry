@@ -307,8 +307,8 @@
 
         // Set up an index if requested
         
-        if(isset($this->data['CoExtendedAttribute']['index'])
-           && $this->data['CoExtendedAttribute']['index'])
+        if(isset($this->data['CoExtendedAttribute']['indx'])
+           && $this->data['CoExtendedAttribute']['indx'])
         {
           $sql = "CREATE INDEX " . $coindex . " ON " . $cotable
                . " (" . Sanitize::escape($this->data['CoExtendedAttribute']['name'], $dbc->configKeyName) . ")";
@@ -360,18 +360,18 @@
         
         // Alter the index setting if requested
         
-        if($this->data['CoExtendedAttribute']['index'] != $curdata['CoExtendedAttribute']['index'])
+        if($this->data['CoExtendedAttribute']['indx'] != $curdata['CoExtendedAttribute']['indx'])
         {
           $sql = "";
           
-          if(isset($curdata['CoExtendedAttribute']['index']) && $curdata['CoExtendedAttribute']['index'])
+          if(isset($curdata['CoExtendedAttribute']['indx']) && $curdata['CoExtendedAttribute']['indx'])
           {
             // Drop the current index
             
             $sql = "DROP INDEX " . $coindex;
           }
-          elseif(isset($this->data['CoExtendedAttribute']['index'])
-                 && $this->data['CoExtendedAttribute']['index'])
+          elseif(isset($this->data['CoExtendedAttribute']['indx'])
+                 && $this->data['CoExtendedAttribute']['indx'])
           {
             // Create the index
 

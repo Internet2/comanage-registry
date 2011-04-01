@@ -1,5 +1,5 @@
 <?php 
-/* App schema generated on: 2011-03-28 08:07:12 : 1301314032*/
+/* App schema generated on: 2011-03-30 12:46:28 : 1301503588*/
 class AppSchema extends CakeSchema {
 	var $name = 'App';
 
@@ -42,7 +42,7 @@ class AppSchema extends CakeSchema {
 		'co_id' => array('type' => 'integer', 'null' => false),
 		'name' => array('type' => 'string', 'null' => true, 'length' => 64),
 		'type' => array('type' => 'string', 'null' => true, 'length' => 32),
-		'index' => array('type' => 'boolean', 'null' => true),
+		'indx' => array('type' => 'boolean', 'null' => true),
 		'created' => array('type' => 'datetime', 'null' => true),
 		'modified' => array('type' => 'datetime', 'null' => true),
 		'display_name' => array('type' => 'string', 'null' => true, 'length' => 64),

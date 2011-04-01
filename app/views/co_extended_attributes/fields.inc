@@ -97,7 +97,7 @@
         <?php echo _txt('fd.index'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('index') : ($co_extended_attributes[0]['CoExtendedAttribute']['type'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php echo ($e ? $this->Form->input('indx') : ($co_extended_attributes[0]['CoExtendedAttribute']['type'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
     <tr>

@@ -49,7 +49,7 @@
         'required' => true,
         'message' => 'A valid data type must be provided'
       ),
-      'index' => array(
+      'indx' => array(
         'rule' => array('boolean')
       )
     );

@@ -39,7 +39,7 @@
       <th><?php echo $this->Paginator->sort(_txt('fd.name'), 'name'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.name.d'), 'display_name'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.type'), 'type'); ?></th>
-      <th><?php echo $this->Paginator->sort(_txt('fd.index'), 'index'); ?></th>
+      <th><?php echo $this->Paginator->sort(_txt('fd.index'), 'indx'); ?></th>
       <th><?php echo _txt('fd.actions'); ?></th>
     </tr>
   </thead>
@@ -60,7 +60,7 @@
       <td><?php echo Sanitize::html($c['CoExtendedAttribute']['display_name']); ?></td>
       <td><?php echo Sanitize::html($c['CoExtendedAttribute']['type']); ?></td>
       <td>
-        <?php echo $c['CoExtendedAttribute']['index'] ? _txt('fd.yes') : _txt('fd.no'); ?>
+        <?php echo $c['CoExtendedAttribute']['indx'] ? _txt('fd.yes') : _txt('fd.no'); ?>
       </td>
       <td>
         <?php
