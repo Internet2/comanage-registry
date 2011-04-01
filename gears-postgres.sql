@@ -97,7 +97,7 @@ CREATE TABLE cm_co_extended_attributes (
   name VARCHAR(64),
   display_name VARCHAR(64),
   type VARCHAR(32),
-  index BOOLEAN,
+  indx BOOLEAN,
   created TIMESTAMP,
   modified TIMESTAMP,
   UNIQUE(co_id,name)
