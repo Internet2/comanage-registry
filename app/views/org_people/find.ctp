@@ -40,7 +40,7 @@
       <td><?php echo $html->link(generateCn($p['Name']),
                                  array('controller' => 'org_people', 'action' => 'view', $p['OrgPerson']['id'])); ?></td>
       <td><?php echo Sanitize::html($p['OrgPerson']['o']); ?></td>
-      <td><?php echo Sanitize::html($p['OrgPerson']['ou']); ?></td>
+      <td><?php echo Sanitize::html($p['OrgPerson']['title']); ?></td>
       <td><?php echo Sanitize::html($p['OrgPerson']['edu_person_affiliation']); ?></td>
       <td><?php foreach($p['EmailAddress'] as $ea) echo Sanitize::html($ea['mail']) . "<br />"; ?></td>
       <td><?php echo $html->link(_txt('op.inv'),
