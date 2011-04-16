@@ -171,6 +171,27 @@
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
+        <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'); ?><font class="required">*</font>
+      </td>
+      <td>
+        <?php
+          echo (($e && !$es) ? $this->Form->select('CoPersonSource.0.cou_id',
+                                                   $permissions['cous'],
+                                                   (isset($co_people[0]['CoPersonSource'][0]['cou_id'])
+                                                    ? $co_people[0]['CoPersonSource'][0]['cou_id']
+                                                    : 0),
+                                                   array('empty' => false))
+                             : Sanitize::html($co_people[0]['CoPersonSource'][0]['Cou']['name']));
+        ?>
+      </td>
+    <?php if($this->action == "compare"): ?>
+      <td>
+        <?php echo Sanitize::html($org_people[0]['OrgPerson']['edu_person_affiliation']); ?>
+      </td>
+    <?php endif; ?>
+    </tr>
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
+      <td>
         <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'); ?><font class="required">*</font>
       </td>
       <td>

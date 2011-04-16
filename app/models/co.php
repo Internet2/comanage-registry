@@ -28,7 +28,9 @@
                          array('dependent' => true),
                          "CoGroup" =>                // A CO has zero or more groups
                          array('dependent' => true),
-                         "CoPersonSource" =>         // A CO has zero or more person sources
+                         "CoPersonSource" =>         // A CO can relate to zero or more person sources
+                         array('dependent' => true),
+                         "Cou" =>                    // A CO has zero or more COUs
                          array('dependent' => true));
     
     // Default display field for cake generated views

@@ -48,6 +48,8 @@
  * Inflector::rules('plural', array('rules' => array(), 'irregular' => array(), 'uninflected' => array()));
  *
  */
+Inflector::rules('singular', array('irregular' => array('cous' => 'cou')));
+Inflector::rules('plural', array('irregular' => array('cou' => 'cous')));
 
 App::import('Core', 'Sanitize');
 

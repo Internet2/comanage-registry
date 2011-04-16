@@ -73,6 +73,13 @@
                              array('controller' => 'co_extended_attributes', 'action' => 'index'),
                              array('class' => 'menuitembutton'));
           }
+          
+          if(isset($permissions['menu']['cous']) && $permissions['menu']['cous'])
+          {
+            echo $html->link("COUs",
+                             array('controller' => 'cous', 'action' => 'index'),
+                             array('class' => 'menuitembutton'));
+          }
         ?>
       </td>
 

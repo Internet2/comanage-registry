@@ -28,6 +28,21 @@ CREATE TABLE cm_cos (
 
 CREATE INDEX cm_cos_i1 ON cm_cos (name);
 
+-- cm_cous
+
+CREATE TABLE cm_cous (
+  id SERIAL PRIMARY KEY,
+  co_id INTEGER NOT NULL REFERENCES cm_cos(id),
+  name VARCHAR(128),
+  description VARCHAR(128),
+  created TIMESTAMP,
+  modified TIMESTAMP,
+  UNIQUE(co_id,name)
+);
+
+CREATE INDEX cm_cous_i1 ON cm_cous (co_id);
+CREATE INDEX cm_cous_i2 ON cm_cous (name);
+
 -- cm_organizations
 
 CREATE TABLE cm_organizations (
@@ -110,6 +125,7 @@ CREATE TABLE cm_co_person_sources (
   id SERIAL PRIMARY KEY,
   co_id INTEGER NOT NULL REFERENCES cm_cos(id),
   co_person_id INTEGER NOT NULL REFERENCES cm_co_people(id),
+  cou_id INTEGER REFERENCES cm_cous(id),
   org_person_id INTEGER NOT NULL REFERENCES cm_org_people(id),
   created TIMESTAMP,
   modified TIMESTAMP
@@ -117,6 +133,8 @@ CREATE TABLE cm_co_person_sources (
 
 CREATE INDEX cm_co_person_sources_i1 ON cm_co_person_sources(org_person_id);
 CREATE INDEX cm_co_person_sources_i2 ON cm_co_person_sources(co_id);
+CREATE INDEX cm_co_person_sources_i3 ON cm_co_person_sources(cou_id);
+CREATE INDEX cm_co_person_sources_i4 ON cm_co_person_sources(co_person_id);
 
 -- cm_identifiers
 

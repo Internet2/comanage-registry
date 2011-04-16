@@ -44,6 +44,7 @@ Router::mapResources('co_group_members');
 Router::mapResources('co_people');
 Router::mapResources('co_person_sources');
 Router::mapResources('cos');
+Router::mapResources('cous');
 Router::mapResources('email_addresses');
 Router::mapResources('identifiers');
 Router::mapResources('org_people');

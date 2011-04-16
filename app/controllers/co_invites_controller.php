@@ -191,7 +191,7 @@
       $p['reply'] = true;
       
       // Send an invite? (HTML only)
-      $p['send'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+      $p['send'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
 
       $this->set('permissions', $p);
       return($p[$this->action]);

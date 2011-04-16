@@ -1,11 +1,11 @@
 <?php
   /*
-   * COmanage Gears CO Person Source Controller
+   * COmanage Gears COU Controller
    *
-   * Version: $Revision$
-   * Date: $Date$
+   * Version: $Revision: 59 $
+   * Date: $Date: 2011-03-13 22:12:07 -0400 (Sun, 13 Mar 2011) $
    *
-   * Copyright (C) 2010-2011 University Corporation for Advanced Internet Development, Inc.
+   * Copyright (C) 2011 University Corporation for Advanced Internet Development, Inc.
    * 
    * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
    * the License. You may obtain a copy of the License at
@@ -21,9 +21,9 @@
 
   include APP."controllers/standard_controller.php";
 
-  class CoPersonSourcesController extends StandardController {
-   // Class name, used by Cake
-    var $name = "CoPersonSources";
+  class CousController extends StandardController {
+    // Class name, used by Cake
+    var $name = "Cous";
     
     // Cake Components used by this Controller
     var $components = array('RequestHandler',  // For REST
@@ -34,67 +34,49 @@
     var $paginate = array(
       'limit' => 25,
       'order' => array(
-        'id' => 'asc'
+        'Cou.name' => 'asc'
       )
     );
     
     // This controller needs a CO to be set
     var $requires_co = true;
     
-    // This controller allows a COU to be set
-    var $allows_cou = true;
-
-    function checkWriteDependencies($curdata = null)
+    function checkDeleteDependencies($curdata)
     {
-      // Perform any dependency checks required prior to a write (add/edit) operation.
+      // Perform any dependency checks required prior to a delete operation.
       // This method is intended to be overridden by model-specific controllers.
       //
       // Parameters:
-      // - For edit operations, $curdata will hold current data
+      // - curdata: Current data
       //
       // Preconditions:
-      // (1) $this->data holds request data
+      //     None
       //
       // Postconditions:
       // (1) Session flash message updated (HTML) or HTTP status returned (REST) on error
       //
       // Returns:
       // - true if dependency checks succeed, false otherwise.
-
-      // Check that the IDs (CO, CO Person, Org Person) provided point to existing
-      // entities.
-
-      if(empty($this->data['CoPersonSource']['co_person_id']))
-      {
-        $this->restResultHeader(403, "CoPerson Does Not Exist");
-        return(false);
-      }      
       
-      $a = $this->CoPersonSource->CoPerson->findById($this->data['CoPersonSource']['co_person_id']);
+      // XXX we get to CoPersonSource via Co rather than directly because adding
+      // Cou HasMany CoPersonSource to cou.php model file throws bad SQL
+      $couppl = $this->Cou->Co->CoPersonSource->findAllByCouId($this->Cou->id);
       
-      if(empty($a))
+      if(!empty($couppl))
       {
-        $this->restResultHeader(403, "CoPerson Does Not Exist");
-        return(false);
-      }
-      
-      if(empty($this->data['CoPersonSource']['org_person_id']))
-      {
-        $this->restResultHeader(403, "OrgPerson Does Not Exist");
+        // A COU can't be removed if anyone is still a member of it.
+        
+        if($this->restful)
+          $this->restResultHeader(403, "CoPersonSource Exists");
+        else
+          $this->Session->setFlash(_txt('er.cou.cop', array($curdata['Cou']['name'])), '', array(), 'error');
+        
         return(false);
       }
-      
-      $a = $this->CoPersonSource->OrgPerson->findById($this->data['CoPersonSource']['org_person_id']);
-      
-      if(empty($a))
-      {
-        $this->restResultHeader(403, "OrgPerson Does Not Exist");
-        return(false);
-      }
-      
+        
       return(true);
     }
-    
+
     function isAuthorized()
     {
       // Authorization for this Controller, called by Auth component
@@ -111,27 +93,27 @@
       // Returns:
       // - Array of permissions
 
-      $cmr = $this->calculateCMRoles();
+      $cmr = $this->calculateCMRoles();             // What was authenticated
       
       // Construct the permission set for this user, which will also be passed to the view.
       $p = array();
       
       // Determine what operations this user can perform
       
-      // Add a new Person Source?
-      $p['add'] = $cmr['cmadmin'];
+      // Add a new COU?
+      $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin']);
       
-      // Delete an existing Person Source?
-      $p['delete'] = $cmr['cmadmin'];
+      // Delete an existing COU?
+      $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
       
-      // Edit an existing Person Source?
-      $p['edit'] = $cmr['cmadmin'];
+      // Edit an existing COU?
+      $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin']);
       
-      // View all existing Person Sources?
-      $p['index'] = $cmr['cmadmin'];
-            
-      // View an existing Person Source?
-      $p['view'] = $cmr['cmadmin'];
+      // View all existing COUs?
+      $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+      
+      // View an existing COU?
+      $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin']);
 
       $this->set('permissions', $p);
       return($p[$this->action]);

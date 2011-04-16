@@ -149,12 +149,15 @@ class PagesController extends AppController {
       // Manage org person data?
       $p['menu']['orgpeople'] = $cmr['admin'];
       
-      // Manage any CO populations?
-      $p['menu']['cos'] = $cmr['admin'];
+      // Manage any CO (or COU) population?
+      $p['menu']['cos'] = $cmr['admin'] || $cmr['subadmin'];
       
       // Manage CO extended attributes?
       $p['menu']['extattrs'] = $cmr['admin'];
       
+      // Manage COU definitions?
+      $p['menu']['cous'] = $cmr['admin'];
+
       // Admin COmanage?
       $p['menu']['admin'] = $cmr['cmadmin'];
       

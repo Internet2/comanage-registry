@@ -34,8 +34,10 @@
         'Name.given' => 'asc'
       )
     );
+    
     // This controller needs a CO to be set
     var $requires_co = true;
+
     // For CO Person group renderings, we need all CoGroup data, so we need more recursion
     var $edit_recursion = 2;
     var $view_recursion = 2;
@@ -311,9 +313,9 @@
       // Determine what operations this user can perform
       
       // Add a new CO Person?
-      $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+      $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
       // Via invite?
-      $p['invite'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+      $p['invite'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
       
       // Compare CO attributes and Org attributes?
       $p['compare'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
@@ -333,14 +335,83 @@
       
       // If we're an admin, we act as an admin, not self.
       $p['editself'] = $self;
-      $p['editselfv'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'];
+      $p['editselfv'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && !$cmr['subadmin'];
       
-      // View all existing CO People?
-      $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+      // View all existing CO People (or a COU's worth)?
+      $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
       
       // View an existing CO Person?
       $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
-
+      
+      // Determine which COUs a person can manage.
+      if($cmr['cmadmin'] || $cmr['coadmin'])
+        $p['cous'] = $this->CoPerson->CoPersonSource->Cou->find("list",
+                                                                array("conditions" =>
+                                                                      array("co_id" => $this->cur_co['Co']['id'])));      
+      elseif($cmr['subadmin'])
+        $p['cous'] = $this->CoPerson->CoPersonSource->Cou->find("list",
+                                                                array("conditions" =>
+                                                                      array("co_id" => $this->cur_co['Co']['id'],
+                                                                            "name" => $cmr['couadmin'])));
+      else
+        $p['cous'] = array();
+      
+      // COUs are handled a bit differently. The rendering of /index by standard
+      // controller will only list people in the COUs managed by the COU admin,
+      // so we don't have to worry about rendering view/edit/delete links on a
+      // per-person basis for that. However, all the other operations here
+      // operate on a per-person basis, and we need to authorizer those
+      // accordingly.
+      
+      if($cmr['subadmin'] && !empty($p['cous']))
+      {
+        if(!empty($this->params['pass'][0]))
+        {
+          // If the target person is in a COU managed by the COU admin, grant permission
+          
+          $dbo = $this->CoPerson->getDataSource();
+          
+          $tcous = $this->CoPerson->CoPersonSource->Cou->find("list",
+                                                              array("conditions" =>
+                                                                    array('CoPersonSource.co_person_id' => $this->params['pass'][0]),
+                                                                    "joins" =>
+                                                                    array(array('table' => $dbo->fullTableName($this->CoPerson->CoPersonSource),
+                                                                                'alias' => 'CoPersonSource',
+                                                                                'type' => 'INNER',
+                                                                                'conditions' => array('Cou.id=CoPersonSource.cou_id')))));
+          
+          $a = array_intersect($tcous, $p['cous']);
+  
+          if(!empty($a))
+          {
+            // CO Person is a member of at least one COU that the COU admin manages
+            
+            $p['compare'] = true;
+            $p['delete'] = true;
+            $p['edit'] = true;
+            $p['view'] = true;
+          }
+        }
+        else
+        {
+          if($p['index'])
+          {
+            // We grant additional permissions so the appropriate buttons render
+            // on the assumption that any row that renders is for an individual
+            // that this COU admin can manage, and that anyway we'll check the
+            // authz on a per-person basis (the above portion of this if/else)
+            // when an individual is selected. This probably isn't ideal -- it
+            // might be better to have separate render and action permissions --
+            // but it'll do.
+            
+            $p['compare'] = true;
+            $p['delete'] = true;
+            $p['edit'] = true;
+            $p['view'] = true;
+          }
+        }
+      }
+      
       $this->set('permissions', $p);
       return($p[$this->action]);
     }

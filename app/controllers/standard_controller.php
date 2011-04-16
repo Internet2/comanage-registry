@@ -537,8 +537,10 @@
                 $this->restResultHeader(404, "CO Unknown");
                 return;
               }
-    
-              $params['joins'][] = array('table' => 'cm_co_person_sources',
+              
+              $dbo = $model->getDataSource();
+              
+              $params['joins'][] = array('table' => $dbo->fullTableName($model->CoPersonSource),
                                          'alias' => 'CoPersonSource',
                                          'type' => 'INNER',
                                          'conditions' => array(
@@ -555,6 +557,31 @@
               }
     
               $params['conditions'] = array($req.'.co_id' => $this->params['url']['coid']);
+            }
+          }
+          elseif($this->allows_cou && !empty($this->params['url']['couid']))
+          {
+            // Only retrieve members of the requested COU.
+            // For now, not specifying a COU is OK, we just retrieve all.
+            // XXX need to do an authz check on this
+  
+            if(isset($this->CoPersonSource))
+            {
+              // Currently, only CoPersonSource will get here, so we don't also check for
+              // (eg) $model->CoPersonSource, and we don't need to do a join like above
+              
+              if(!$model->Cou->findById($this->params['url']['couid']))
+              {
+                $this->restResultHeader(404, "COU Unknown");
+                return;
+              }
+    
+              $params['conditions'] = array($req.'.cou_id' => $this->params['url']['couid']);
+            }
+            else
+            {
+              $this->restResultHeader(500, "Other Error (Model Not Found)");
+              return;
             }
           }
 
@@ -596,9 +623,34 @@
           {
             if(isset($model->CoPersonSource))
             {
-              $this->paginate['conditions'] = array(
-                'CoPersonSource.co_id' => $this->cur_co['Co']['id']
-              );
+              if(!empty($this->cur_cous))
+              {
+                // If we're retrieving based on CoPersonSource and $this->cur_cous
+                // is set, only retrieve records relevant to the COUs specified
+                // (ie: those the COU Admin has access to)
+              
+                $dbo = $model->getDataSource();
+                
+                $this->paginate['conditions'] = array(
+                  'CoPersonSource.co_id' => $this->cur_co['Co']['id'],
+                  'Cou.name' => $this->cur_cous
+                );
+                
+                $this->paginate['joins'][] = array(
+                  'table' => $dbo->fullTableName($model->CoPersonSource->Cou),
+                  'alias' => 'Cou',
+                  'type' => 'INNER',
+                  'conditions' => array('CoPersonSource.cou_id=Cou.id')
+                );
+              }
+              else
+              {
+                // Otherwise retrieve "normally"
+                
+                $this->paginate['conditions'] = array(
+                  'CoPersonSource.co_id' => $this->cur_co['Co']['id']
+                );
+              }
             }
             else
             {

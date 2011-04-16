@@ -27,6 +27,9 @@
     // Determine if controller requires a CO to be selected
     var $requires_co = false;
     
+    // Determine if controller allows a COU to be selected
+    var $allows_cou = false;
+    
     // The current CO we are working with (if any)
     var $cur_co = null;
     
@@ -280,25 +283,32 @@
       // (1) users_controller:login has run
       //
       // Postconditions:
-      //     None
+      // (1) $this->cur_cous set or updated if current user is a subadmin but not an admin
       //
       // Returns:
       // - An array with values of 'true' if the user has the specified role or
       //   'false' otherwise, with possible keys of
       //   - cmadmin: COmanage platform administrator
       //   - coadmin: Administrator of the current CO
+      //   - couadmin: Administrator of one or more COUs within the current CO
+      //      (rather than set to true, the COUs are enumerated in an array)
       //   - comember: Member of the current CO
       //   - admin: Valid admin in any CO
+      //   - subadmin: Valid admin for any COU
       //   - user: Valid user in any CO (ie: to the platform)
       //   - apiuser: Valid API (REST) user (for now, API users are equivalent to cmadmins)
       //   - orgpersonid: Org Person ID of current user (or false)
       //   - copersonid: CO Person ID of current user in current CO (or false)
       
+      global $group_sep;
+      
       $ret = array(
         'cmadmin' => false,
         'coadmin' => false,
+        'couadmin' => false,
         'comember' => false,
         'admin' => false,
+        'subadmin' => false,
         'user' => false,
         'apiuser' => false,
         'orgpersonid' => false,
@@ -320,6 +330,31 @@
           if(isset($cos[ $this->cur_co['Co']['name'] ]['groups']['admin']['member']))
             $ret['coadmin'] = $cos[ $this->cur_co['Co']['name'] ]['groups']['admin']['member'];
             
+          // Admin of COU within current CO?
+          if(isset($cos[ $this->cur_co['Co']['name'] ]['groups']))
+          {
+            // COU admins are members of groups named admin{sep}{COU} within the CO
+            
+            foreach(array_keys($cos[ $this->cur_co['Co']['name'] ]['groups']) as $g)
+            {
+              $ga = explode($group_sep, $g, 2);
+              
+              if($ga[0] == "admin" && !empty($ga[1])
+                 && isset($cos[ $this->cur_co['Co']['name'] ]['groups'][$g]['member'])
+                 && $cos[ $this->cur_co['Co']['name'] ]['groups'][$g]['member'])
+              {
+                $ret['couadmin'][] = $ga[1];
+              }
+            }
+            
+            if(!empty($ret['couadmin']))
+            {
+              // Promote the set of COUs so they are globally available
+              
+              $this->cur_cous = $ret['couadmin'];
+            }
+          }
+          
           // Member of current CO?
           if(isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id']))
           {
@@ -338,6 +373,25 @@
           {
             $ret['admin'] = true;
             break;
+          }
+        }
+        
+        // Admin of any COU?
+        foreach($cos as $c)
+        {
+          if(isset($c['groups']))
+          {
+            foreach(array_keys($c['groups']) as $g)
+            {
+              $ga = explode($group_sep, $g, 2);
+              
+              if($ga[0] == "admin" && !empty($ga[1])
+                 && isset($c['groups'][$g]['member']) && $c['groups'][$g]['member'])
+              {
+                $ret['subadmin'] = true;
+                break;
+              }
+            }
           }
         }
       }

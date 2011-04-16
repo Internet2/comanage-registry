@@ -18,6 +18,10 @@
    * permissions and limitations under the License.
    * 
    */
+  
+  // Group hierarchy separator. XXX This should probably be moved elsewhere.
+  global $group_sep;
+  $group_sep = ":";
 
   function generateCn($name)
   {
