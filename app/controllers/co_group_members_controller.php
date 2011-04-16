@@ -368,8 +368,10 @@
                                                           'conditions' => array('CoPersonSource.co_id' => $this->cur_co['Co']['id'])));
       $this->set('co_people', $coppl);
       */
+      $dbo = $this->CoGroupMember->getDataSource();
+      
       $this->paginate['joins'][] = array(
-        'table' => 'cm_co_person_sources',
+        'table' => $dbo->fullTableName($this->CoGroupMember->CoPerson->CoPersonSource),
         'alias' => 'CoPersonSource',
         'type' => 'INNER',
         'conditions' => array('CoPerson.id=CoPersonSource.co_person_id')

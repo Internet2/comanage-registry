@@ -204,8 +204,10 @@
             $ucos = $this->Co->find('all');
           else
           {
+            $dbo = $this->Co->getDataSource();
+
             $params = array(
-              'joins' => array(0 => array('table' => 'cm_co_person_sources',
+              'joins' => array(0 => array('table' => $dbo->fullTableName($this->Co->CoPersonSource),
                                           'alias' => 'CoPersonSource',
                                           'type' => 'INNER',
                                           'conditions' => array('Co.id=CoPersonSource.co_id'))),
