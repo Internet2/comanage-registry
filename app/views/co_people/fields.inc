@@ -169,6 +169,7 @@
       </td>
     <?php endif; ?>
     </tr>
+    <?php if(!empty($permissions['cous'])): ?>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'); ?><font class="required">*</font>
@@ -183,10 +184,6 @@
                                                    array('empty' => false))
                              : Sanitize::html($co_people[0]['CoPersonSource'][0]['Cou']['name']));
         ?>
-      </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_people[0]['OrgPerson']['edu_person_affiliation']); ?>
       </td>
     <?php endif; ?>
     </tr>
