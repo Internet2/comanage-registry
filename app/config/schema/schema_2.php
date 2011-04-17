@@ -1,5 +1,5 @@
 <?php 
-/* App schema generated on: 2011-03-30 12:46:28 : 1301503588*/
+/* App schema generated on: 2011-04-17 16:10:46 : 1303071046*/
 class AppSchema extends CakeSchema {
 	var $name = 'App';
 
@@ -104,7 +104,8 @@ class AppSchema extends CakeSchema {
 		'org_person_id' => array('type' => 'integer', 'null' => false),
 		'created' => array('type' => 'datetime', 'null' => true),
 		'modified' => array('type' => 'datetime', 'null' => true),
-		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_co_person_sources_i1' => array('unique' => false, 'column' => 'org_person_id'), 'cm_co_person_sources_i2' => array('unique' => false, 'column' => 'co_id')),
+		'cou_id' => array('type' => 'integer', 'null' => true),
+		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_co_person_sources_i1' => array('unique' => false, 'column' => 'org_person_id'), 'cm_co_person_sources_i2' => array('unique' => false, 'column' => 'co_id'), 'cm_co_person_sources_i3' => array('unique' => false, 'column' => 'cou_id'), 'cm_co_person_sources_i4' => array('unique' => false, 'column' => 'co_person_id')),
 		'tableParameters' => array()
 	);
 	var $cos = array(
@@ -115,6 +116,16 @@ class AppSchema extends CakeSchema {
 		'created' => array('type' => 'datetime', 'null' => true),
 		'modified' => array('type' => 'datetime', 'null' => true),
 		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_cos_name_key' => array('unique' => true, 'column' => 'name'), 'cm_cos_i1' => array('unique' => false, 'column' => 'name')),
+		'tableParameters' => array()
+	);
+	var $cous = array(
+		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 11, 'key' => 'primary'),
+		'co_id' => array('type' => 'integer', 'null' => false),
+		'name' => array('type' => 'string', 'null' => true, 'length' => 128),
+		'description' => array('type' => 'string', 'null' => true, 'length' => 128),
+		'created' => array('type' => 'datetime', 'null' => true),
+		'modified' => array('type' => 'datetime', 'null' => true),
+		'indexes' => array('PRIMARY' => array('unique' => true, 'column' => 'id'), 'cm_cous_co_id_key' => array('unique' => true, 'column' => array('co_id', 'name')), 'cm_cous_i1' => array('unique' => false, 'column' => 'co_id'), 'cm_cous_i2' => array('unique' => false, 'column' => 'name')),
 		'tableParameters' => array()
 	);
 	var $email_addresses = array(
