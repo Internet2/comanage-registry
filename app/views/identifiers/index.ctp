@@ -82,7 +82,7 @@
             
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html($a['Identifier']['identifier']) . '\', \'' . $html->url(array('controller' => 'identifiers', 'action' => 'delete', $a['Identifier']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($a['Identifier']['identifier'])) . '\', \'' . $html->url(array('controller' => 'identifiers', 'action' => 'delete', $a['Identifier']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

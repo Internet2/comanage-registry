@@ -58,7 +58,7 @@
                            array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html($o['Organization']['name']) . '\', \'' . $html->url(array('controller' => 'organizations', 'action' => 'delete', $o['Organization']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($o['Organization']['name'])) . '\', \'' . $html->url(array('controller' => 'organizations', 'action' => 'delete', $o['Organization']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

@@ -58,5 +58,25 @@
       $cn .= ($cn != "" ? ' ' : '') . $name['suffix'];
             
     return($cn);
-  }    
+  }
+  
+  function _jtxt($str)
+  {
+    // Escape a string so it is suitable for echoing into Javascript function parameters.
+    // Specifically, quotes are replaced with XML representations.
+    //
+    // Parameters:
+    // - str: String to be escaped
+    //
+    // Preconditions:
+    //     None
+    //
+    // Postconditions:
+    //     None
+    //
+    // Returns:
+    // - The escaped string
+    
+    return(str_replace(array("'", '"'), array('&apos;', '&quot;'), $str));
+  }
 ?>

@@ -64,7 +64,7 @@
                              array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'] && $c['Co']['name'] != 'COmanage')
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html($c['Co']['name']) . '\', \'' . $html->url(array('controller' => 'cos', 'action' => 'delete', $c['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['Co']['name'])) . '\', \'' . $html->url(array('controller' => 'cos', 'action' => 'delete', $c['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>
