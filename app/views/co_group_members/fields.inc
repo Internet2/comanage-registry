@@ -50,7 +50,7 @@
     echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
     echo $this->Form->hidden('id', array('default' => $this->data['CoGroupMember']['id'])). "\n";
     echo $this->Form->hidden('co_group_id', array('default' => $this->data['CoGroupMember']['co_group_id'])). "\n";
-    echo $this->Form->hidden('co_person_id', array('default' => $this->data['CoGroupMember']['co_person_id'])). "\n";
+    echo $this->Form->hidden('co_person_role_id', array('default' => $this->data['CoGroupMember']['co_person_role_id'])). "\n";
   }
 
   echo '

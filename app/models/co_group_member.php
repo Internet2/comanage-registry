@@ -25,13 +25,13 @@
     
     // Association rules from this model to other models
     var $belongsTo = array("CoGroup",                // A CoGroupMember is attached to one CoGroup
-                           "CoPerson");              // A CoGroupMember is attached to one CoPerson
+                           "CoPersonRole");          // A CoGroupMember is attached to one CoPersonRole
     
     // Default display field for cake generated views
-    var $displayField = "co_person_id";
+    var $displayField = "co_person_role_id";
     
     // Default ordering for find operations
-    var $order = array("co_person_id");
+    var $order = array("co_person_role_id");
     
     // Validation rules for table elements
     var $validate = array(

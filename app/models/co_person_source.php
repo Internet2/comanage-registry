@@ -5,7 +5,7 @@
    * Version: $Revision$
    * Date: $Date$
    *
-   * Copyright (C) 2010 University Corporation for Advanced Internet Development, Inc.
+   * Copyright (C) 2010-2011 University Corporation for Advanced Internet Development, Inc.
    * 
    * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
    * the License. You may obtain a copy of the License at
@@ -26,8 +26,8 @@
     // Association rules from this model to other models
     var $belongsTo = array("Co",                     // A CO Person Source is attached to one CO
                            "Cou",                    // A CO Person Source may be attached to a COU
-                           "CoPerson",               // A CO Person Source is attached to one OrgPerson
-                           "OrgPerson");             // A CO Person Source is attached to one CO Person
+                           "CoPersonRole",           // A CO Person Source is attached to one CO Person Role
+                           "OrgIdentity");           // A CO Person Source is attached to one Org Identity
     
     // Default display field for cake generated views
     var $displayField = "CoPersonSource.id";

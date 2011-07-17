@@ -29,13 +29,13 @@
   
   // Figure out a heading
   $h = "";
-
+  
   if(isset($d[0]['Name']))
     $h = _txt('op.edit-a', array(Sanitize::html(generateCn($d[0]['Name']))));
-  elseif(isset($d[0]['CoPerson']['Name']))
-    $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['CoPerson']['Name'])))) . " (" . _txt('co') . ")";
-  elseif(isset($d[0]['OrgPerson']['Name']))
-    $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['OrgPerson']['Name'])))) . " (" . _txt('co') . ")";
+  elseif(isset($d[0]['CoPersonRole']['Name']))
+    $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['CoPersonRole']['Name'])))) . " (" . _txt('co') . ")";
+  elseif(isset($d[0]['OrgIdentity']['Name']))
+    $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['OrgIdentity']['Name'])))) . " (" . _txt('org') . ")";
   else
     $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['name'])));
 ?>

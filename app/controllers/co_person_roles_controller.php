@@ -1,6 +1,6 @@
 <?php
   /*
-   * COmanage Gears CO Person Controller
+   * COmanage Gears CO Person Rolew Controller
    *
    * Version: $Revision$
    * Date: $Date$
@@ -21,8 +21,8 @@
   
   include APP."controllers/standard_controller.php";
 
-  class CoPeopleController extends StandardController {
-    var $name = "CoPeople";
+  class CoPersonRolesController extends StandardController {
+    var $name = "CoPersonRoles";
     var $components = array('RequestHandler',  // For REST
                             'Security',
                             'Session');
@@ -73,34 +73,34 @@
         {
           // Request for an individual
           
-          $cops = $this->CoPerson->CoPersonSource->findByCoPersonId($this->params['id']);
+          $cops = $this->CoPersonRole->CoPersonSource->findByCoPersonRoleId($this->params['id']);
           
           if(!empty($cops))
-            $this->cur_co = $this->CoPerson->CoPersonSource->Co->findById($cops['CoPersonSource']['co_id']);
+            $this->cur_co = $this->CoPersonRole->CoPersonSource->Co->findById($cops['CoPersonSource']['co_id']);
         }
         elseif(isset($this->params['url']['coid']))
         {
           // Request for all members of a CO
           
-          $this->cur_co = $this->CoPerson->CoPersonSource->Co->findById($this->params['url']['coid']);
+          $this->cur_co = $this->CoPersonRole->CoPersonSource->Co->findById($this->params['url']['coid']);
         }
         // We don't currently support requests for all CO people (regardless of CO).
         // To do so, we'd have to extract the CO ID on a per-CO person basis, which
         // wouldn't be terribly efficient.
       }
       
-      $c = $this->CoPerson->CoPersonSource->Co->CoExtendedAttribute->find('count',
-                                                                          array('conditions' =>
-                                                                                array('co_id' => $this->cur_co['Co']['id'])));
+      $c = $this->CoPersonRole->CoPersonSource->Co->CoExtendedAttribute->find('count',
+                                                                              array('conditions' =>
+                                                                                    array('co_id' => $this->cur_co['Co']['id'])));
       
       if($c > 0)
       {
         $cl = 'Co' . $this->cur_co['Co']['id'] . 'PersonExtendedAttribute';
         
-        $this->CoPerson->bindModel(array('hasOne' =>
-                                         array($cl => array('className' => $cl,
-                                                            'dependent' => true))),
-                                   false);
+        $this->CoPersonRole->bindModel(array('hasOne' =>
+                                             array($cl => array('className' => $cl,
+                                                                'dependent' => true))),
+                                       false);
       }
     }
   
@@ -144,10 +144,10 @@
     
     function compare($id)
     {
-      // Retrieve a CO and Org attributes for comparison.
+      // Retrieve CO and Org attributes for comparison.
       //
       // Parameters:
-      // - id: CO Person identifier
+      // - id: CO Person Role identifier
       //
       // Preconditions:
       // (1) <id> must exist
@@ -164,15 +164,15 @@
       // We'll just retrieve and set the Org Person, then invoke view.
       // (We could invoke edit instead, presumably.)
       
-      $cop = $this->CoPerson->CoPersonSource->findByCoPersonId($id);
+      $cop = $this->CoPersonRole->CoPersonSource->findByCoPersonRoleId($id);
       
       if(!empty($cop))
       {
-        $orgp = $this->CoPerson->CoPersonSource->OrgPerson->findById($cop['CoPersonSource']['org_person_id']);
+        $orgp = $this->CoPersonRole->CoPersonSource->OrgIdentity->findById($cop['CoPersonSource']['org_identity_id']);
         
         if(!empty($cop))
         {
-          $this->set("org_people", array(0 => $orgp));
+          $this->set("org_identities", array(0 => $orgp));
           
           $this->view($id);
         }
@@ -181,7 +181,7 @@
     
     function editself()
     {
-      // Determine our CO person ID and redirect to edit.
+      // Determine our CO person role ID and redirect to edit.
       //
       // Parameters:
       //   None
@@ -197,8 +197,8 @@
       
       $cmr = $this->calculateCMRoles();
       
-      if(isset($cmr['copersonid']))
-        $this->redirect(array('action' => 'edit', $cmr['copersonid'], 'co' => $this->cur_co['Co']['id']));
+      if(isset($cmr['copersonroleid']))
+        $this->redirect(array('action' => 'edit', $cmr['copersonroleid'], 'co' => $this->cur_co['Co']['id']));
       else
       {
         $this->Session->setFlash(_txt('op.cop.none'), '', array(), 'error');
@@ -255,7 +255,7 @@
       // Returns:
       //   Nothing
       
-      $orgp = $this->CoPerson->CoPersonSource->OrgPerson->findById($this->params['named']['orgpersonid']);
+      $orgp = $this->CoPersonRole->CoPersonSource->OrgIdentity->findById($this->params['named']['orgidentityid']);
       
       if(!empty($orgp))
       {
@@ -265,17 +265,17 @@
           $this->set('title_for_layout', _txt('op.inv-a', generateCn($orgp['Name'])));
         }
 
-        // Construct a CoPerson from the OrgPerson.  We only populate defaulted values.
+        // Construct a CoPersonRole from the OrgIdentity.  We only populate defaulted values.
         
         $cop['Name'] = $orgp['Name'];
-        $cop['CoPerson']['title'] = $orgp['OrgPerson']['title']; // XXX unclear that title should autopopulate
-        $cop['CoPersonSource'][0]['org_person_id'] = $orgp['OrgPerson']['id'];
+        $cop['CoPersonRole']['title'] = $orgp['OrgIdentity']['title']; // XXX unclear that title should autopopulate
+        $cop['CoPersonSource'][0]['org_identity_id'] = $orgp['OrgIdentity']['id'];
         
-        $this->set('co_people', array(0 => $cop));
+        $this->set('co_person_roles', array(0 => $cop));
       }
       else
       {
-        $this->Session->setFlash(_txt('op.orgp-unk-a', array($this->params['named']['orgpersonid'])), '', array(), 'error');
+        $this->Session->setFlash(_txt('op.orgp-unk-a', array($this->params['named']['orgidentityid'])), '', array(), 'error');
         $this->redirect(array('action' => 'index', 'co' => $this->cur_co['Co']['id']));
       }
     }
@@ -301,10 +301,10 @@
       // Is this our own record?
       $self = false;
       
-      if($cmr['comember'] && $cmr['copersonid'] &&
-         ((isset($this->params['pass'][0]) && ($cmr['copersonid'] == $this->params['pass'][0]))
+      if($cmr['comember'] && $cmr['copersonroleid'] &&
+         ((isset($this->params['pass'][0]) && ($cmr['copersonroleid'] == $this->params['pass'][0]))
           ||
-          ($this->action == 'editself' && isset($cmr['copersonid']))))
+          ($this->action == 'editself' && isset($cmr['copersonroleid']))))
         $self = true;
 
       // Construct the permission set for this user, which will also be passed to the view.
@@ -345,14 +345,14 @@
       
       // Determine which COUs a person can manage.
       if($cmr['cmadmin'] || $cmr['coadmin'])
-        $p['cous'] = $this->CoPerson->CoPersonSource->Cou->find("list",
-                                                                array("conditions" =>
-                                                                      array("co_id" => $this->cur_co['Co']['id'])));      
+        $p['cous'] = $this->CoPersonRole->CoPersonSource->Cou->find("list",
+                                                                    array("conditions" =>
+                                                                          array("co_id" => $this->cur_co['Co']['id'])));      
       elseif($cmr['subadmin'])
-        $p['cous'] = $this->CoPerson->CoPersonSource->Cou->find("list",
-                                                                array("conditions" =>
-                                                                      array("co_id" => $this->cur_co['Co']['id'],
-                                                                            "name" => $cmr['couadmin'])));
+        $p['cous'] = $this->CoPersonRole->CoPersonSource->Cou->find("list",
+                                                                    array("conditions" =>
+                                                                          array("co_id" => $this->cur_co['Co']['id'],
+                                                                                "name" => $cmr['couadmin'])));
       else
         $p['cous'] = array();
       
@@ -369,16 +369,16 @@
         {
           // If the target person is in a COU managed by the COU admin, grant permission
           
-          $dbo = $this->CoPerson->getDataSource();
+          $dbo = $this->CoPersonRole->getDataSource();
           
-          $tcous = $this->CoPerson->CoPersonSource->Cou->find("list",
-                                                              array("conditions" =>
-                                                                    array('CoPersonSource.co_person_id' => $this->params['pass'][0]),
-                                                                    "joins" =>
-                                                                    array(array('table' => $dbo->fullTableName($this->CoPerson->CoPersonSource),
-                                                                                'alias' => 'CoPersonSource',
-                                                                                'type' => 'INNER',
-                                                                                'conditions' => array('Cou.id=CoPersonSource.cou_id')))));
+          $tcous = $this->CoPersonRole->CoPersonSource->Cou->find("list",
+                                                                  array("conditions" =>
+                                                                        array('CoPersonSource.co_person_role_id' => $this->params['pass'][0]),
+                                                                        "joins" =>
+                                                                        array(array('table' => $dbo->fullTableName($this->CoPersonRole->CoPersonSource),
+                                                                                    'alias' => 'CoPersonSource',
+                                                                                    'type' => 'INNER',
+                                                                                    'conditions' => array('Cou.id=CoPersonSource.cou_id')))));
           
           $a = array_intersect($tcous, $p['cous']);
   
@@ -437,7 +437,7 @@
       if($this->action == 'add')
         $this->redirect(array('controller' => 'co_invites',
                               'action' => 'send',
-                              'copersonid' => $this->CoPerson->id,
+                              'copersonroleid' => $this->CoPersonRole->id,
                               'co' => $this->cur_co['Co']['id']));
       else
         parent::performRedirect();

@@ -57,8 +57,8 @@
           // We need to know if the user is an admin, or a collabmin for one or more COs.
           
           // Add more retrieval so we can get CO name
-          $this->User->OrgPerson->recursive = 2;
-          $orgp = $this->User->OrgPerson->findById($this->Session->read('Auth.User.org_person_id'));
+          $this->User->OrgIdentity->recursive = 2;
+          $orgp = $this->User->OrgIdentity->findById($this->Session->read('Auth.User.org_identity_id'));
           
           $this->Session->write('Auth.User.name', $orgp['Name']);
 
@@ -71,11 +71,11 @@
             $cos[ $c['Co']['name'] ] = array(
               'co_id' => $c['co_id'],
               'co_name' => $c['Co']['name'],
-              'co_person_id' => $c['co_person_id']
+              'co_person_role_id' => $c['co_person_role_id']
             );
             
             // Retrieve group memberships and attach them as well
-            $grps = $this->User->OrgPerson->CoPersonSource->CoPerson->CoGroupMember->findAllByCoPersonId($c['co_person_id']);
+            $grps = $this->User->OrgIdentity->CoPersonSource->CoPersonRole->CoGroupMember->findAllByCoPersonRoleId($c['co_person_role_id']);
 
             foreach($grps as $g)
             {

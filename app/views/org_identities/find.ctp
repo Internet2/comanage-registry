@@ -1,6 +1,6 @@
 <?php
   /*
-   * COmanage Gears Org Person Find View
+   * COmanage Gears Org Identity Find View
    *
    * Version: $Revision$
    * Date: $Date$
@@ -21,7 +21,7 @@
 ?>
 <h1 class="ui-state-default"><?php echo _txt('op.find.inv', array(Sanitize::html($cur_co['Co']['name']))); ?></h1>
 
-<table id="org_people" class="ui-widget">
+<table id="org_identities" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php echo $this->Paginator->sort(_txt('fd.name'), 'Name.family'); ?></th>
@@ -35,18 +35,18 @@
   
   <tbody>
     <?php $i = 0; ?>
-    <?php foreach ($org_people as $p): ?>
+    <?php foreach ($org_identities as $p): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td><?php echo $html->link(generateCn($p['Name']),
-                                 array('controller' => 'org_people', 'action' => 'view', $p['OrgPerson']['id'])); ?></td>
-      <td><?php echo Sanitize::html($p['OrgPerson']['o']); ?></td>
-      <td><?php echo Sanitize::html($p['OrgPerson']['title']); ?></td>
-      <td><?php echo Sanitize::html($p['OrgPerson']['edu_person_affiliation']); ?></td>
+                                 array('controller' => 'org_identities', 'action' => 'view', $p['OrgIdentity']['id'])); ?></td>
+      <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
+      <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
+      <td><?php echo Sanitize::html($p['OrgIdentity']['edu_person_affiliation']); ?></td>
       <td><?php foreach($p['EmailAddress'] as $ea) echo Sanitize::html($ea['mail']) . "<br />"; ?></td>
       <td><?php echo $html->link(_txt('op.inv'),
-                                 array('controller' => 'co_people',
+                                 array('controller' => 'co_person_roles',
                                        'action' => 'invite',
-                                       'orgpersonid' => $p['OrgPerson']['id'],
+                                       'orgidentityid' => $p['OrgIdentity']['id'],
                                        'co' => $cur_co['Co']['id']),
                                  array('class' => 'invitebutton')); ?></td>
     </tr>

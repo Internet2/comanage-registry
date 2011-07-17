@@ -64,31 +64,31 @@
       // Check that the IDs (CO, CO Person, Org Person) provided point to existing
       // entities.
 
-      if(empty($this->data['CoPersonSource']['co_person_id']))
+      if(empty($this->data['CoPersonSource']['co_person_role_id']))
       {
-        $this->restResultHeader(403, "CoPerson Does Not Exist");
+        $this->restResultHeader(403, "CoPersonRole Does Not Exist");
         return(false);
       }      
       
-      $a = $this->CoPersonSource->CoPerson->findById($this->data['CoPersonSource']['co_person_id']);
+      $a = $this->CoPersonSource->CoPersonRole->findById($this->data['CoPersonSource']['co_person_role_id']);
       
       if(empty($a))
       {
-        $this->restResultHeader(403, "CoPerson Does Not Exist");
+        $this->restResultHeader(403, "CoPersonRole Does Not Exist");
         return(false);
       }
       
-      if(empty($this->data['CoPersonSource']['org_person_id']))
+      if(empty($this->data['CoPersonSource']['org_identity_id']))
       {
-        $this->restResultHeader(403, "OrgPerson Does Not Exist");
+        $this->restResultHeader(403, "OrgIdentity Does Not Exist");
         return(false);
       }
       
-      $a = $this->CoPersonSource->OrgPerson->findById($this->data['CoPersonSource']['org_person_id']);
+      $a = $this->CoPersonSource->OrgIdentity->findById($this->data['CoPersonSource']['org_identity_id']);
       
       if(empty($a))
       {
-        $this->restResultHeader(403, "OrgPerson Does Not Exist");
+        $this->restResultHeader(403, "OrgIdentity Does Not Exist");
         return(false);
       }
       

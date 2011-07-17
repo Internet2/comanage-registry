@@ -107,11 +107,11 @@
         $cos = $this->Session->read('Auth.User.cos');
 
         // Member of current CO? (Platform admin wouldn't be)
-        if(isset($cos) && isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id']))
+        if(isset($cos) && isset($cos[ $this->cur_co['Co']['name'] ]['co_person_role_id']))
         {
           $a['CoGroupMember'] = array(
             'co_group_id' => $this->CoGroup->id,
-            'co_person_id' => $this->Session->read('Auth.User.co_person_id'),
+            'co_person_role_id' => $this->Session->read('Auth.User.co_person_role_id'),
             'owner' => true,
             'member' => true
           );
@@ -169,10 +169,10 @@
       if(!empty($cmr['copersonid']))
       {
         $own = $this->CoGroup->CoGroupMember->find('all', array('conditions' =>
-                                                                array('CoGroupMember.co_person_id' => $cmr['copersonid'],
+                                                                array('CoGroupMember.co_person_role_id' => $cmr['copersonroleid'],
                                                                       'CoGroupMember.owner' => true)));
         $member = $this->CoGroup->CoGroupMember->find('all', array('conditions' =>
-                                                             array('CoGroupMember.co_person_id' => $cmr['copersonid'],
+                                                             array('CoGroupMember.co_person_role_id' => $cmr['copersonroleid'],
                                                                    'CoGroupMember.member' => true)));
       }
       

@@ -488,25 +488,25 @@
 
         if($this->requires_person)
         {
-          if(!empty($this->params['url']['copersonid']))
+          if(!empty($this->params['url']['copersonroleid']))
           {
-            $t = $model->findAllByCoPersonId($this->params['url']['copersonid']);
+            $t = $model->findAllByCoPersonRoleId($this->params['url']['copersonroleid']);
             
             if(empty($t))
             {
-              $this->restResultHeader(404, "CO Person Unknown");
+              $this->restResultHeader(404, "CO Person Role Unknown");
               return;
             }
 
             $this->set($modelpl, $this->convertResponse($t));
           }
-          elseif(!empty($this->params['url']['orgpersonid']))
+          elseif(!empty($this->params['url']['orgidentityid']))
           {
-            $t = $model->findAllByOrgPersonId($this->params['url']['orgpersonid']);
+            $t = $model->findAllByOrgIdentityId($this->params['url']['orgidentityid']);
   
             if(empty($t))
             {
-              $this->restResultHeader(404, "Org Person Unknown");
+              $this->restResultHeader(404, "Org Identity Unknown");
               return;
             }
             
@@ -599,15 +599,15 @@
         
         if($this->requires_person)
         {
-          if(!empty($this->params['named']['copersonid']))
+          if(!empty($this->params['named']['copersonroleid']))
           {
-            $q = $req . ".co_person_id ='";
-            $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['copersonid'])));
+            $q = $req . ".co_person_role_id ='";
+            $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['copersonroleid'])));
           }
-          elseif(!empty($this->params['named']['orgpersonid']))
+          elseif(!empty($this->params['named']['orgidentityid']))
           {
-            $q = $req . ".org_person_id ='";
-            $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['orgpersonid'])));
+            $q = $req . ".org_identity_id ='";
+            $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['orgidentityid'])));
           }
           else
           {
@@ -649,6 +649,18 @@
                 
                 $this->paginate['conditions'] = array(
                   'CoPersonSource.co_id' => $this->cur_co['Co']['id']
+                );
+                
+                // XXX unclear this is the right default join since
+                // CoPersonRole is hardcoded, but it's also not clear what
+                // other "normal" view gets here
+                $this->paginate['joins'][] = array(
+                  'table' => 'cm_co_person_sources',
+                  'alias' => 'CoPersonSource',
+                  'type' => 'INNER',
+                  'conditions' => array(
+                    'CoPersonRole.id=CoPersonSource.co_person_role_id'
+                  )
                 );
               }
             }

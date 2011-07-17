@@ -36,12 +36,12 @@
   }
 
   $submit_label = "Add New Person";
-  echo $this->Form->create('OrgPerson',
+  echo $this->Form->create('OrgIdentity',
                            array('action' => 'selectvialdap',
                                  'inputDefaults' => array('label' => false, 'div' => false)));
 ?>
 
-<table id="add_org_person_via_ldap" class="ui-widget">
+<table id="add_org_identity_via_ldap" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>

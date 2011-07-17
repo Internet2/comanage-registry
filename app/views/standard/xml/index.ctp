@@ -40,12 +40,12 @@
           
           switch($k)
           {
-          case 'CoPersonId':
+          case 'CoPersonRoleId':
             $xd .= $this->Xml->elem("Person",
                                     array("Type" => "CO",
                                           "Id" => $m[$req][$k]));
             break;
-          case 'OrgPersonId':
+          case 'OrgIdentityId':
             $xd .= $this->Xml->elem("Person",
                                     array("Type" => "Org",
                                           "Id" => $m[$req][$k]));
@@ -57,7 +57,7 @@
         }
       }
         
-      if(($req == 'CoPerson' || $req == 'OrgPerson')
+      if(($req == 'CoPersonRole' || $req == 'OrgIdentity')
          && isset($m['Name']))
       {
         // We treat Name specially and copy it over
@@ -76,9 +76,9 @@
                                 $xn);
       }
 
-      if($req == 'CoPerson')
+      if($req == 'CoPersonRole')
       {
-        // For CO People, we need to check for extended attributes.
+        // For CO Person Roles, we need to check for extended attributes.
         
         foreach(array_keys($m) as $ak)
         {
@@ -87,7 +87,7 @@
             $xn = "";
             
             foreach(array_keys($m[$ak]) as $ea)
-              if(!in_array($ea, array('Id', 'CoPersonId', 'Created', 'Modified'))
+              if(!in_array($ea, array('Id', 'CoPersonRoleId', 'Created', 'Modified'))
                  && $m[$ak][$ea] != null)
                 $xn .= $this->Xml->elem($ea, null, $m[$ak][$ea]);
             

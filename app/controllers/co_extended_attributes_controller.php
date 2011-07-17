@@ -60,16 +60,16 @@
       
       $r = true;
       
-      // Reserved names are not permitted. Basically, this is anything in co_people or co_person_id.
+      // Reserved names are not permitted. Basically, this is anything in co_people or co_person_role_id.
       
-      if($name == 'co_person_id')
+      if($name == 'co_person_role_id')
         $r = false;
       
       if($r)
       {
         // Check co_people schema
         
-        if(isset($this->CoExtendedAttribute->Co->CoPersonSource->CoPerson->_schema[$name]))
+        if(isset($this->CoExtendedAttribute->Co->CoPersonSource->CoPersonRole->_schema[$name]))
           $r = false;
       }
       
@@ -263,7 +263,7 @@
 
           $sql = "CREATE TABLE " . $cotable . " (
                   id SERIAL PRIMARY KEY,
-                  co_person_id INTEGER REFERENCES " . $this->CoExtendedAttribute->tablePrefix . "co_people(id),
+                  co_person_role_id INTEGER REFERENCES " . $this->CoExtendedAttribute->tablePrefix . "co_person_roles(id),
                   created TIMESTAMP,
                   modified TIMESTAMP
                 );";

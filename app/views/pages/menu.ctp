@@ -19,7 +19,7 @@
    *
    */
 -->
-<h1 class="ui-state-default">COmanage COordinate</h1>
+<h1 class="ui-state-default">COmanage Registry</h1>
 
 <table id="mainmenu" width="100%">
   <tbody>
@@ -30,14 +30,14 @@
           if(isset($permissions['menu']['orgprofile']) && $permissions['menu']['orgprofile'])
           {
             echo $html->link("View My Home Identity",
-                             array('controller' => 'org_people', 'action' => 'view', $this->Session->read('Auth.User.org_person_id')),
+                             array('controller' => 'org_identities', 'action' => 'view', $this->Session->read('Auth.User.org_identity_id')),
                              array('class' => 'menuitembutton'));
           }
 
           if(isset($permissions['menu']['coprofile']) && $permissions['menu']['coprofile'])
           {
             echo $html->link("Manage My CO Identity",
-                             array('controller' => 'co_people', 'action' => 'editself'),
+                             array('controller' => 'co_person_roles', 'action' => 'editself'),
                              array('class' => 'menuitembutton'));
           }
 
@@ -53,17 +53,17 @@
       <!-- CO Operations -->
       <td width="33%" valign="top">
         <?php
-          if(isset($permissions['menu']['orgpeople']) && $permissions['menu']['orgpeople'])
+          if(isset($permissions['menu']['orgidentities']) && $permissions['menu']['orgidentities'])
           {
             echo $html->link("Organizational Identities",
-                             array('controller' => 'org_people', 'action' => 'index'),
+                             array('controller' => 'org_identities', 'action' => 'index'),
                              array('class' => 'menuitembutton'));
           }
           
           if(isset($permissions['menu']['cos']) && $permissions['menu']['cos'])
           {
             echo $html->link("My Population",
-                             array('controller' => 'co_people', 'action' => 'index'),
+                             array('controller' => 'co_person_roles', 'action' => 'index'),
                              array('class' => 'menuitembutton'));
           }
           

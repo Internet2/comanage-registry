@@ -1,6 +1,6 @@
 <?php
   /*
-   * COmanage Gears Organizational Person Controller
+   * COmanage Gears Organizational Identity Controller
    *
    * Version: $Revision$
    * Date: $Date$
@@ -21,9 +21,9 @@
 
   include APP."controllers/standard_controller.php";
 
-  class OrgPeopleController extends StandardController {
+  class OrgIdentitiesController extends StandardController {
     // Class name, used by Cake
-    var $name = "OrgPeople";
+    var $name = "OrgIdentities";
     
     // Cake Components used by this Controller
     var $components = array('RequestHandler',  // For REST
@@ -60,7 +60,7 @@
       // Set page title
       $this->set('title_for_layout', _txt('op.add.new', array(_txt('ct.' . $modelpl . '.1'))));
 
-      $this->set('organizations', $this->OrgPerson->Organization->find('all'));
+      $this->set('organizations', $this->OrgIdentity->Organization->find('all'));
     }
     
     function checkDeleteDependencies($curdata)
@@ -82,17 +82,17 @@
       // - true if dependency checks succeed, false otherwise.
       
       // We need to retrieve past the first order to get Name
-      $this->OrgPerson->CoPersonSource->recursive = 2;
+      $this->OrgIdentity->CoPersonSource->recursive = 2;
       
-      $coppl = $this->OrgPerson->CoPersonSource->findAllByOrgPersonId($this->OrgPerson->id);
+      $coppl = $this->OrgIdentity->CoPersonSource->findAllByOrgIdentityId($this->OrgIdentity->id);
 
       if(!empty($coppl))
       {
-        // The OrgPerson is a member of at least one CO.  This needs to be
+        // The OrgIdentity is a member of at least one CO.  This needs to be
         // manually resolved, since (eg) it may be desirable to associate the
-        // CO Person with a new OrgPerson (if, say, somebody changes affiliation).
+        // CO Person with a new OrgIdentity (if, say, somebody changes affiliation).
             
-        // Generate an array of CO Person ID and CO ID/Name or a message
+        // Generate an array of CO Person Role ID and CO ID/Name or a message
         // for the views to render.
             
         if($this->restful)
@@ -104,7 +104,7 @@
             $memberships[$coppl[$i]['Co']['id']] = $coppl[$i]['Co']['name'];
           }
               
-          $this->restResultHeader(403, "CoPerson Exists");
+          $this->restResultHeader(403, "CoPersonRole Exists");
           $this->set('memberships', $memberships);
         }
         else
@@ -115,7 +115,7 @@
             $cs .= ($i > 0 ? "," : "") . $coppl[$i]['Co']['name'];
           
           $this->Session->setFlash(_txt('er.comember',
-                                        array(generateCn($coppl[0]['OrgPerson']['Name']),
+                                        array(generateCn($coppl[0]['OrgIdentity']['Name']),
                                               Sanitize::html($cs))),
                                    '', array(), 'error');
         }
@@ -157,8 +157,8 @@
     
     function find()
     {
-      // Find an organizational person to add to the co $coid.  This method doesn't
-      // add or invite the person, but redirects back to co_person controller to
+      // Find an organizational identity to add to the co $coid.  This method doesn't
+      // add or invite the person, but redirects back to co_person_role controller to
       // handle that.
       //
       // Parameters (in $this->params):
@@ -168,7 +168,7 @@
       //     Nane
       //
       // Postconditions:
-      // (1) $org_people set on success, using pagination
+      // (1) $org_identities set on success, using pagination
       // (2) $cur_co set
       // (3) Session flash message updated (HTML) on suitable error
       //
@@ -180,13 +180,13 @@
 
       // XXX we currently don't validate $coid since we just pass it back to the
       // co_person controller, which will validate it
-      $this->set('cur_co', $this->OrgPerson->CoPersonSource->Co->findById($this->params['named']['co']));
+      $this->set('cur_co', $this->OrgIdentity->CoPersonSource->Co->findById($this->params['named']['co']));
 
       // Use server side pagination
-      $this->set('org_people', $this->paginate('OrgPerson'));
+      $this->set('org_identities', $this->paginate('OrgIdentity'));
 
       // Don't user server side pagination
-      //$this->set('org_people', $this->CoPerson->OrgPerson->find('all'));
+      //$this->set('org_identities', $this->CoPersonRole->OrgIdentity->find('all'));
     }
         
     function generateDisplayKey($c = null)
@@ -241,8 +241,8 @@
       // Is this our own record?
       $self = false;
 
-      if($cmr['user'] && $cmr['orgpersonid'] && isset($this->params['pass'][0])
-         && ($cmr['orgpersonid'] == $this->params['pass'][0]))
+      if($cmr['user'] && $cmr['orgidentityid'] && isset($this->params['pass'][0])
+         && ($cmr['orgidentityid'] == $this->params['pass'][0]))
         $self = true;
       
       // Construct the permission set for this user, which will also be passed to the view.
@@ -296,7 +296,7 @@
       //$this->Session->setFlash('"' . generateCn($this->data['Name']) . '" Added', '', array(), 'success');
       
       if($this->action == 'add')
-        $this->redirect(array('action' => 'edit', $this->OrgPerson->id));
+        $this->redirect(array('action' => 'edit', $this->OrgIdentity->id));
       else
         parent::performRedirect();
     }
@@ -312,7 +312,7 @@
       
       print_r($this->data);
       
-      $org = $this->OrgPerson->Organization->findById($this->data['OrgPerson']['organization']);
+      $org = $this->OrgIdentity->Organization->findById($this->data['OrgIdentity']['organization']);
       print_r($org['Organization']['directory']);
       
       // query ldap
@@ -329,7 +329,7 @@
           
           if($r)
           {
-            $sr = ldap_search($ds, $org['Organization']['searchbase'], "sn=" . $this->data['OrgPerson']['sn']);
+            $sr = ldap_search($ds, $org['Organization']['searchbase'], "sn=" . $this->data['OrgIdentity']['sn']);
             
             if($sr)
             {

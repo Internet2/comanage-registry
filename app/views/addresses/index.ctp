@@ -5,7 +5,7 @@
    * Version: $Revision$
    * Date: $Date$
    *
-   * Copyright (C) 2010 University Corporation for Advanced Internet Development, Inc.
+   * Copyright (C) 2010-2011 University Corporation for Advanced Internet Development, Inc.
    * 
    * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
    * the License. You may obtain a copy of the License at
@@ -27,8 +27,8 @@
       <th><?php echo $this->Paginator->sort(_txt('fd.address.1'), 'line1'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.type'), 'type'); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
-      <th><?php echo $this->Paginator->sort('Org Person', 'OrgPerson.Name.family'); ?></th>
-      <th><?php echo $this->Paginator->sort('CO Person', 'CoPerson.Name.family'); ?></th>
+      <th><?php echo $this->Paginator->sort('Org Identity', 'OrgIdentity.Name.family'); ?></th>
+      <th><?php echo $this->Paginator->sort('CO Person Role', 'CoPersonRole.Name.family'); ?></th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -49,23 +49,23 @@
       </td>
       <td>
         <?php
-          if(!empty($a['Address']['org_person_id']))
+          if(!empty($a['Address']['org_identity_id']))
           {
             // Generally, someone who has view permission on a telephone number can also see a person
             if($permissions['view'])
-              echo $html->link(generateCn($a['OrgPerson']['Name']),
-                               array('controller' => 'org_people', 'action' => 'view', $a['OrgPerson']['id'])) . "\n";
+              echo $html->link(generateCn($a['OrgIdentity']['Name']),
+                               array('controller' => 'org_identities', 'action' => 'view', $a['OrgIdentity']['id'])) . "\n";
           }
         ?>
       </td>
       <td>
         <?php
-          if(!empty($a['Address']['co_person_id']))
+          if(!empty($a['Address']['co_person_role_id']))
           {
             // Generally, someone who has view permission on a telephone number can also see a person
             if($permissions['view'])
-              echo $html->link(generateCn($a['CoPerson']['Name']),
-                               array('controller' => 'co_people', 'action' => 'view', $a['CoPerson']['id'])) . "\n";
+              echo $html->link(generateCn($a['CoPersonRole']['Name']),
+                               array('controller' => 'co_person_roles', 'action' => 'view', $a['CoPersonRole']['id'])) . "\n";
           }
         ?>
       </td>    

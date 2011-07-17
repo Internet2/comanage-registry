@@ -34,18 +34,18 @@
     
   if($e)
     echo $html->link(_txt('op.back'),
-                     array('controller' => 'org_people', 'action' => 'index'),
+                     array('controller' => 'org_identities', 'action' => 'index'),
                      array('class' => 'cancelbutton'));
   else
     echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'org_people', 'action' => 'index'),
+                           array('controller' => 'org_identities', 'action' => 'index'),
                            array('class' => 'backbutton')) . '
     ';
 ?>
 <br />
 <br />
 
-<table id="<?php echo $this->action; ?>_org_person" class="ui-widget">
+<table id="<?php echo $this->action; ?>_org_identity" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
@@ -60,7 +60,7 @@
         <?php
           echo $this->Form->hidden('Name.id');
           echo $this->Form->hidden('Name.type', array('default' => 'O'));
-          echo ($e ? $this->Form->input('Name.honorific') : Sanitize::html($org_people[0]['Name']['honorific']));
+          echo ($e ? $this->Form->input('Name.honorific') : Sanitize::html($org_identities[0]['Name']['honorific']));
         ?>
       </td>
     </tr>
@@ -69,7 +69,7 @@
         <?php echo _txt('fd.name.g'); ?><font class="required">*</font>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('Name.given') : Sanitize::html($org_people[0]['Name']['given'])); ?>
+        <?php echo ($e ? $this->Form->input('Name.given') : Sanitize::html($org_identities[0]['Name']['given'])); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -77,14 +77,14 @@
         <?php echo _txt('fd.name.m'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('Name.middle') : Sanitize::html($org_people[0]['Name']['middle'])); ?>
+        <?php echo ($e ? $this->Form->input('Name.middle') : Sanitize::html($org_identities[0]['Name']['middle'])); ?>
       </td>
     <tr class="line2">
       <td>
         <?php echo _txt('fd.name.f'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('Name.family') : Sanitize::html($org_people[0]['Name']['family'])); ?>
+        <?php echo ($e ? $this->Form->input('Name.family') : Sanitize::html($org_identities[0]['Name']['family'])); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -97,7 +97,7 @@
         ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('Name.suffix') : Sanitize::html($org_people[0]['Name']['suffix'])); ?>
+        <?php echo ($e ? $this->Form->input('Name.suffix') : Sanitize::html($org_identities[0]['Name']['suffix'])); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -110,11 +110,11 @@
           
           echo ($e ? $this->Form->select('edu_person_affiliation',
                                          $cm_texts[ $cm_lang ]['en.affil'],
-                                         (isset($org_people[0]['OrgPerson']['edu_person_affiliation'])
-                                          ? $org_people[0]['OrgPerson']['edu_person_affiliation']
+                                         (isset($org_identities[0]['OrgIdentity']['edu_person_affiliation'])
+                                          ? $org_identities[0]['OrgIdentity']['edu_person_affiliation']
                                           : "member"),
                                          array('empty' => false))
-                   : Sanitize::html($org_people[0]['OrgPerson']['edu_person_affiliation'])); ?>
+                   : Sanitize::html($org_identities[0]['OrgIdentity']['edu_person_affiliation'])); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -122,7 +122,7 @@
         <?php echo _txt('fd.title'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('title') : Sanitize::html($org_people[0]['OrgPerson']['title'])); ?>
+        <?php echo ($e ? $this->Form->input('title') : Sanitize::html($org_identities[0]['OrgIdentity']['title'])); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -130,7 +130,7 @@
         <?php echo _txt('fd.o'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('o') : Sanitize::html($org_people[0]['OrgPerson']['o'])); ?>
+        <?php echo ($e ? $this->Form->input('o') : Sanitize::html($org_identities[0]['OrgIdentity']['o'])); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -138,7 +138,7 @@
         <?php echo _txt('fd.ou'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('ou') : Sanitize::html($org_people[0]['OrgPerson']['ou'])); ?>
+        <?php echo ($e ? $this->Form->input('ou') : Sanitize::html($org_identities[0]['OrgIdentity']['ou'])); ?>
       </td>
     </tr>
     <?php if($this->action != "add"): ?>
@@ -150,9 +150,9 @@
         <?php
           if($e)
           {
-            if(isset($org_people[0]['Identifier']))
+            if(isset($org_identities[0]['Identifier']))
             {
-              foreach($org_people[0]['Identifier'] as $id)
+              foreach($org_identities[0]['Identifier'] as $id)
               {
                 // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                 echo '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
@@ -165,13 +165,13 @@
             }
               
             echo $html->link(_txt('op.add'),
-                             array('controller' => 'identifiers', 'action' => 'add', 'orgpersonid' => $org_people[0]['OrgPerson']['id']),
+                             array('controller' => 'identifiers', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
                              array('class' => 'addbutton'));
           }
           else
           {
-            if(isset($org_people[0]['Identifier']))
-              foreach($org_people[0]['Identifier'] as $id)
+            if(isset($org_identities[0]['Identifier']))
+              foreach($org_identities[0]['Identifier'] as $id)
                 echo Sanitize::html($id['identifier']) . " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
           }
         ?>
@@ -185,9 +185,9 @@
         <?php
           if($e)
           {
-            if(isset($org_people[0]['EmailAddress']))
+            if(isset($org_identities[0]['EmailAddress']))
             {
-              foreach($org_people[0]['EmailAddress'] as $ea)
+              foreach($org_identities[0]['EmailAddress'] as $ea)
               {
                 // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                 echo '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
@@ -200,13 +200,13 @@
             }
               
             echo $html->link(_txt('op.add'),
-                             array('controller' => 'email_addresses', 'action' => 'add', 'orgpersonid' => $org_people[0]['OrgPerson']['id']),
+                             array('controller' => 'email_addresses', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
                              array('class' => 'addbutton'));
           }
           else
           {
-            if(isset($org_people[0]['EmailAddress']))
-              foreach($org_people[0]['EmailAddress'] as $ea)
+            if(isset($org_identities[0]['EmailAddress']))
+              foreach($org_identities[0]['EmailAddress'] as $ea)
                 echo Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
           }
         ?>
@@ -220,9 +220,9 @@
         <?php
           if($e)
           {
-            if(isset($org_people[0]['TelephoneNumber']))
+            if(isset($org_identities[0]['TelephoneNumber']))
             {
-              foreach($org_people[0]['TelephoneNumber'] as $t)
+              foreach($org_identities[0]['TelephoneNumber'] as $t)
               {
                 // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                 echo '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['number'])) . '\', \'' . $html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
@@ -235,13 +235,13 @@
             }
               
             echo $html->link(_txt('op.add'),
-                             array('controller' => 'telephone_numbers', 'action' => 'add', 'orgpersonid' => $org_people[0]['OrgPerson']['id']),
+                             array('controller' => 'telephone_numbers', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
                              array('class' => 'addbutton'));
           }
           else
           {
-            if(isset($org_people[0]['TelephoneNumber']))
-              foreach($org_people[0]['TelephoneNumber'] as $t)
+            if(isset($org_identities[0]['TelephoneNumber']))
+              foreach($org_identities[0]['TelephoneNumber'] as $t)
                 echo Sanitize::html($t['number']) . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
           }
         ?>
@@ -255,9 +255,9 @@
         <?php
           if($e)
           {
-            if(isset($org_people[0]['Address']))
+            if(isset($org_identities[0]['Address']))
             {
-              foreach($org_people[0]['Address'] as $addr)
+              foreach($org_identities[0]['Address'] as $addr)
               {
                 // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                 echo '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['line1'])) . '\', \'' . $html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
@@ -270,13 +270,13 @@
             }
                 
             echo $html->link(_txt('op.add'),
-                             array('controller' => 'addresses', 'action' => 'add', 'orgpersonid' => $org_people[0]['OrgPerson']['id']),
+                             array('controller' => 'addresses', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
                              array('class' => 'addbutton'));
           }
           else
           {
-            if(isset($org_people[0]['Address']))
-              foreach($org_people[0]['Address'] as $addr)
+            if(isset($org_identities[0]['Address']))
+              foreach($org_identities[0]['Address'] as $addr)
                 echo Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
           }
         ?>

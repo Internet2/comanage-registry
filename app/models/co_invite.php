@@ -24,7 +24,7 @@
     var $name = "CoInvite";
     
     // Association rules from this model to other models
-    var $belongsTo = array("CoPerson");   // An invitation belongs to an organizational person
+    var $belongsTo = array("CoPersonRole");   // An invitation belongs to a CO Person Role
     
     // Default display field for cake generated views
     var $displayField = "invitation";
@@ -38,7 +38,7 @@
         'rule' => 'alphaNumeric',
         'required' => true
       ),
-      'co_person_id' => array(
+      'co_person_role_id' => array(
         'rule' => 'notEmpty',
         'required' => true
       )

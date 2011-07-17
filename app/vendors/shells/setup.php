@@ -22,7 +22,7 @@
   App::import('Core', 'ConnectionManager');
 
   class SetupShell extends Shell {
-    var $uses = array('Co', 'CoGroup', 'CoGroupMember', 'CoPerson', 'CoPersonSource', 'Identifier', 'OrgPerson');
+    var $uses = array('Co', 'CoGroup', 'CoGroupMember', 'CoPersonRole', 'CoPersonSource', 'Identifier', 'OrgIdentity');
     
     function main()
     {
@@ -45,16 +45,16 @@
       
       $this->out("- " . _txt('se.users.view'));
       $this->Identifier->query("CREATE VIEW " . $prefix . "users AS
-SELECT a.username as username, a.password as password, a.id as api_user_id, null as org_person_id
+SELECT a.username as username, a.password as password, a.id as api_user_id, null as org_identity_id
 FROM cm_api_users a
-UNION SELECT i.identifier as username, '*' as password, null as api_user_id, i.org_person_id as org_person_id
+UNION SELECT i.identifier as username, '*' as password, null as api_user_id, i.org_identity_id as org_identity_id
 FROM cm_identifiers i
 WHERE i.login=true;
 ");
       
       // We need the following:
       // - The COmanage CO
-      // - An OrgPerson representing the administrator
+      // - An OrgIdentity representing the administrator
       // - The administrator as member of the COmanage CO
       // - A login identifier for the administrator
       // - A group called 'admin' in the COmanage CO
@@ -75,12 +75,12 @@ WHERE i.login=true;
       $this->Co->save($co);
       $co_id = $this->Co->id;
 
-      // Create the OrgPerson
+      // Create the OrgIdentity
 
       $this->out("- " . _txt('se.db.op'));
       
       $op = array(
-        'OrgPerson' => array(
+        'OrgIdentity' => array(
           'edu_person_affiliation' => 'member'
         ),
         'Name' => array(
@@ -90,19 +90,19 @@ WHERE i.login=true;
         )
       );
       
-      if(!$this->OrgPerson->saveAll($op))
-        print_r($this->OrgPerson->invalidFields());
+      if(!$this->OrgIdentity->saveAll($op))
+        print_r($this->OrgIdentity->invalidFields());
       else
-        $op_id = $this->OrgPerson->id;
+        $op_id = $this->OrgIdentity->id;
 
-      // Add the OrgPerson's identifier
+      // Add the OrgIdentity's identifier
       
       $id = array(
         'Identifier' => array(
           'identifier'    => $user,
           'type'          => 'uid',
           'login'         => true,
-          'org_person_id' => $op_id
+          'org_identity_id' => $op_id
         )
       );
       
@@ -111,12 +111,12 @@ WHERE i.login=true;
       else
         $id_id = $this->Identifier->id;
 
-      // Add the OrgPerson to the CO
+      // Add the OrgIdentity to the CO
 
       $this->out("- " . _txt('se.db.cop'));
       
       $cop = array(
-        'CoPerson' => array(
+        'CoPersonRole' => array(
           'edu_person_affiliation' => 'staff',
           'status'                 => 'A'
         ),
@@ -127,14 +127,14 @@ WHERE i.login=true;
         )
       );
       
-      $this->CoPerson->saveAll($cop);
-      $cop_id = $this->CoPerson->id;
+      $this->CoPersonRole->saveAll($cop);
+      $cop_id = $this->CoPersonRole->id;
 
       $cops = array(
         'CoPersonSource' => array(
           'co_id'         => $co_id,
-          'co_person_id'  => $cop_id,
-          'org_person_id' => $op_id
+          'co_person_role_id'  => $cop_id,
+          'org_identity_id' => $op_id
         )
       );
 
@@ -158,12 +158,12 @@ WHERE i.login=true;
       $this->CoGroup->save($gr);
       $gr_id = $this->CoGroup->id;
       
-      // Add the CO Person to the admin group
+      // Add the CO Person Role to the admin group
       
       $grm = array(
         'CoGroupMember' => array(
           'co_group_id'   => $gr_id,
-          'co_person_id'  => $cop_id,
+          'co_person_role_id'  => $cop_id,
           'member'        => true,
           'owner'         => true
         )

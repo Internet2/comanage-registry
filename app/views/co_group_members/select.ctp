@@ -33,7 +33,7 @@
   ';
 ?>
 
-<table id="co_people" class="ui-widget">
+<table id="co_person_roles" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php echo $this->Paginator->sort(_txt('fd.name'), 'Name.family'); ?></th>
@@ -56,16 +56,16 @@
   
   <tbody>
     <?php $i = 0; ?>
-    <?php foreach ($co_people as $p): ?>
+    <?php foreach ($co_person_roles as $p): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td><?php echo Sanitize::html(generateCn($p['Name'])); ?></td>
-      <td><?php echo Sanitize::html($p['CoPerson']['ou']); ?></td>
-      <td><?php echo Sanitize::html($p['CoPerson']['title']); ?></td>
-      <td><?php echo Sanitize::html($p['CoPerson']['edu_person_affiliation']); ?></td>
+      <td><?php echo Sanitize::html($p['CoPersonRole']['ou']); ?></td>
+      <td><?php echo Sanitize::html($p['CoPersonRole']['title']); ?></td>
+      <td><?php echo Sanitize::html($p['CoPersonRole']['edu_person_affiliation']); ?></td>
       <td>
         <?php
-          echo $this->Form->hidden('CoGroupMember.'.$i.'.co_person_id',
-                                   array('default' => $p['CoPerson']['id'])) . "\n";
+          echo $this->Form->hidden('CoGroupMember.'.$i.'.co_person_role_id',
+                                   array('default' => $p['CoPersonRole']['id'])) . "\n";
           echo $this->Form->checkbox('CoGroupMember.'.$i.'.member') . _txt('fd.group.mem') . "\n";
           echo $this->Form->checkbox('CoGroupMember.'.$i.'.owner') . _txt('fd.group.own') . "\n";
         ?>

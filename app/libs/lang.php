@@ -30,7 +30,7 @@
   
   $cm_texts['en_US'] = array(
     // Application name
-    'coordinate' =>     'COmanage COordinate',
+    'coordinate' =>     'COmanage Registry',
     
     // What a CO is called (abbreviated)
     'co' =>             'CO',
@@ -60,8 +60,8 @@
     'ct.co_groups.pl' =>          'Groups',
     'ct.co_invites.1' =>          'Invite',
     'ct.co_invites.pl' =>         'Invites',
-    'ct.co_people.1' =>           'CO Person',
-    'ct.co_people.pl' =>          'CO People',
+    'ct.co_person_roles.1' =>     'CO Person Role',
+    'ct.co_person_roles.pl' =>    'CO Person Roles',
     'ct.cos.1' =>                 'CO',
     'ct.cos.pl' =>                'COs',
     'ct.cous.1' =>                'COU',
@@ -70,8 +70,8 @@
     'ct.email_addresses.pl' =>    'Email Addresses',
     'ct.identifiers.1' =>         'Identifier',
     'ct.identifiers.pl' =>        'Identifiers',
-    'ct.org_people.1' =>          'Organizational Person',
-    'ct.org_people.pl' =>         'Organizational People',
+    'ct.org_identities.1' =>      'Organizational Identity',
+    'ct.org_identities.pl' =>     'Organizational Identities',
     'ct.organizations.1' =>       'Organization',
     'ct.organizations.pl' =>      'Organizations',
     'ct.telephone_numbers.1' =>   'Telephone Number',
@@ -117,10 +117,11 @@
     'er.co.exists' =>   'A CO named "%1$s" already exists',
     'er.co.unk' =>      'Unknown CO',
     'er.comember' =>    '%1$s is a member of one or more COs (%2$s) and cannot be removed.',
-    'er.cop.nf' =>      'CO Person %1$s Not Found',
-    'er.cop.none' =>    'CO Person Not Provided',
-    'er.cop.unk' =>     'Unknown CO Person',
-    'er.cou.cop' =>     'There are still one or more CO people in the COU %1$s, and so it cannot be deleted.',
+    // XXX These should become er.copr
+    'er.cop.nf' =>      'CO Person Role %1$s Not Found',
+    'er.cop.none' =>    'CO Person Role Not Provided',
+    'er.cop.unk' =>     'Unknown CO Person Role',
+    'er.cou.cop' =>     'There are still one or more CO person role records in the COU %1$s, and so it cannot be deleted.',
     'er.delete' =>      'Delete Failed',
     'er.deleted-a' =>   'Deleted "%1$s"',
     'er.ea.alter' =>    'Failed to alter table for attribute',
@@ -139,8 +140,8 @@
     'er.notprov' =>     'Not Provided',
     'er.notprov.id' =>  '%1$s ID Not Provided',
     'er.reply.unk' =>   'Unknown Reply',
-    'er.orgp.nomail' => '%1$s (Org Person %2$s) has no known email address.<br />Add an email address and then resend the invitation.',
-    'er.orgp.unk-a' =>  'Unknown Org Person "%1$s"',
+    'er.orgp.nomail' => '%1$s (Org Identity %2$s) has no known email address.<br />Add an email address and then resend the invitation.',
+    'er.orgp.unk-a' =>  'Unknown Org Identity "%1$s"',
 
     // Fields
     'fd.actions' =>     'Actions',
@@ -245,9 +246,9 @@
     'se.cf.admin.sn' =>     'Enter administrator\'s family name',
     'se.cf.admin.user' =>   'Enter administrator\'s login username',
     'se.db.co' =>           'Creating COmanage CO',
-    'se.db.cop' =>          'Adding OrgPerson to CO',
+    'se.db.cop' =>          'Adding Org Identity to CO',
     'se.db.group' =>        'Creating COmanage admin group',
-    'se.db.op' =>           'Adding initial OrgPerson',
+    'se.db.op' =>           'Adding initial Org Identity',
     'se.done' =>            'Setup complete',
     'se.users.drop' =>      'Dropping users table',
     'se.users.view' =>      'Creating users view'

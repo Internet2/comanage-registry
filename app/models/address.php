@@ -24,8 +24,8 @@
     var $name = "Address";
     
     // Association rules from this model to other models
-    var $belongsTo = array("CoPerson",        // A telephone number may be attached to a CO person
-                           "OrgPerson");      // A telephone number may be attached to an org person
+    var $belongsTo = array("CoPersonRole",      // A telephone number may be attached to a CO person role
+                           "OrgIdentity");      // A telephone number may be attached to an Org identity
     
     // Default display field for cake generated views
     var $displayField = "line1";

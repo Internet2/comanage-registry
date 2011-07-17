@@ -104,8 +104,8 @@
       
       $admin = false;
       
-      if(($pids['copersonid'] && $cmr['coadmin'])
-         || ($pids['orgpersonid'] && $cmr['admin']))
+      if(($pids['copersonroleid'] && $cmr['coadmin'])
+         || ($pids['orgidentityid'] && $cmr['admin']))
         $admin = true;
       
       // Construct the permission set for this user, which will also be passed to the view.

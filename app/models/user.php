@@ -27,7 +27,7 @@
     var $name = "User";
     
     // Association rules from this model to other models
-    var $belongsTo = array("OrgPerson");      // A user may be attached to an org person
+    var $belongsTo = array("OrgIdentity");      // A user may be attached to an Org Identity
     // XXX User also belongsTo ApiUser, but that isn't a formal model yet
     
     // Default display field for cake generated views

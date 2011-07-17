@@ -46,10 +46,10 @@
     ';
   
   // Migrate the target person from a named argument to a form field
-  if(isset($this->params['named']['copersonid']))
-    echo $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->params['named']['copersonid']))) . "\n";
-  elseif(isset($this->params['named']['orgpersonid']))
-    echo $this->Form->hidden('org_person_id', array('default' => Sanitize::html($this->params['named']['orgpersonid']))) . "\n";
+  if(isset($this->params['named']['copersonroleid']))
+    echo $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->params['named']['copersonroleid']))) . "\n";
+  elseif(isset($this->params['named']['orgidentityid']))
+    echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->params['named']['orgidentityid']))) . "\n";
     
   if(isset($this->params['named']['co']))
     echo $this->Form->hidden('co_id', array('default' => Sanitize::html($this->params['named']['co']))) . "\n";

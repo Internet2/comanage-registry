@@ -89,9 +89,9 @@
               'co_group_id' => (!empty($g['co_group_id'])
                                 ? $g['co_group_id']
                                 : $this->data['CoGroupMember']['co_group_id']),
-              'co_person_id' => (!empty($g['co_person_id'])
-                                 ? $g['co_person_id']
-                                 : $this->data['CoGroupMember']['co_person_id']),
+              'co_person_role_id' => (!empty($g['co_person_role_id'])
+                                      ? $g['co_person_role_id']
+                                      : $this->data['CoGroupMember']['co_person_role_id']),
               'member' => $g['member'],
               'owner' => $g['owner']
             );
@@ -177,15 +177,15 @@
 
       // Make sure the CO Person exists
       
-      $p = $this->CoGroupMember->CoPerson->findById($this->data['CoGroupMember']['co_person_id']);
+      $p = $this->CoGroupMember->CoPersonRole->findById($this->data['CoGroupMember']['co_person_role_id']);
       
       if(empty($p))
       {
         if($this->restful)
-          $this->restResultHeader(403, "CoPerson Does Not Exist");
+          $this->restResultHeader(403, "CoPersonRole Does Not Exist");
         else
         {
-          $this->Session->setFlash(_txt('er.cop.nf', array($this->data['CoGroupMember']['co_person_id'])), '', array(), 'error');
+          $this->Session->setFlash(_txt('er.cop.nf', array($this->data['CoGroupMember']['co_person_role_id'])), '', array(), 'error');
           $this->performRedirect();
         }
 
@@ -194,19 +194,19 @@
       
       if($this->action == 'add')
       {
-        // Make sure the CO Person isn't already in the Group
+        // Make sure the CO Person Role isn't already in the Group
         
         $x = $this->CoGroupMember->find('all', array('conditions' =>
                                                      array('CoGroupMember.co_group_id' => $this->data['CoGroupMember']['co_group_id'],
-                                                           'CoGroupMember.co_person_id' => $this->data['CoGroupMember']['co_person_id'])));
+                                                           'CoGroupMember.co_person_role_id' => $this->data['CoGroupMember']['co_person_role_id'])));
         
         if(!empty($x))
         {
           if($this->restful)
-            $this->restResultHeader(403, "CoPerson Already Member");
+            $this->restResultHeader(403, "CoPersonRole Already Member");
           else
           {
-            $this->Session->setFlash(_txt('er.grm.already', array($this->data['CoGroupMember']['co_person_id'],
+            $this->Session->setFlash(_txt('er.grm.already', array($this->data['CoGroupMember']['co_person_role_id'],
                                                                   $this->data['CoGroupMember']['co_group_id'])),
                                      '', array(), 'error');
             $this->performRedirect();
@@ -257,11 +257,11 @@
       elseif($this->action == 'select' && isset($this->params['named']['cogroup']))
         $gid = $this->params['named']['cogroup'];
 
-      if(isset($gid) && !empty($cmr['copersonid']))
+      if(isset($gid) && !empty($cmr['copersonroleid']))
       {
         $gm = $this->CoGroupMember->find('all', array('conditions' =>
                                                       array('CoGroupMember.co_group_id' => $gid,
-                                                            'CoGroupMember.co_person_id' => $cmr['copersonid'])));
+                                                            'CoGroupMember.co_person_role_id' => $cmr['copersonroleid'])));
         
         if(isset($gm[0]['CoGroupMember']['owner']) && $gm[0]['CoGroupMember']['owner'])
           $owner = true;
@@ -316,14 +316,14 @@
       
       $cop = null;  
       
-      if($this->action == 'add' && isset($this->data['CoGroupMember']['co_person_id']))
-        $cop = $this->data['CoGroupMember']['co_person_id'];
-      elseif($this->action == 'delete' && isset($this->params['named']['copersonid']))
-        $cop = $this->params['named']['copersonid'];
+      if($this->action == 'add' && isset($this->data['CoGroupMember']['co_person_role_id']))
+        $cop = $this->data['CoGroupMember']['co_person_role_id'];
+      elseif($this->action == 'delete' && isset($this->params['named']['copersonroleid']))
+        $cop = $this->params['named']['copersonroleid'];
         
       if(isset($cop))
       {
-        $this->redirect(array('controller' => 'co_people',
+        $this->redirect(array('controller' => 'co_person_roles',
                               'action' => 'edit',
                               $cop,
                               'co' => $this->cur_co['Co']['id']));
@@ -371,16 +371,16 @@
       $dbo = $this->CoGroupMember->getDataSource();
       
       $this->paginate['joins'][] = array(
-        'table' => $dbo->fullTableName($this->CoGroupMember->CoPerson->CoPersonSource),
+        'table' => $dbo->fullTableName($this->CoGroupMember->CoPersonRole->CoPersonSource),
         'alias' => 'CoPersonSource',
         'type' => 'INNER',
-        'conditions' => array('CoPerson.id=CoPersonSource.co_person_id')
+        'conditions' => array('CoPersonRole.id=CoPersonSource.co_person_role_id')
       );
       $this->paginate['conditions'] = array(
         'CoPersonSource.co_id' => $this->cur_co['Co']['id']
       );
       
-      $this->set('co_people', $this->paginate('CoPerson'));;
+      $this->set('co_person_roles', $this->paginate('CoPersonRole'));;
       
       if(isset($this->params['named']['cogroup']))
         $this->set('co_group', $this->CoGroupMember->CoGroup->findById($this->params['named']['cogroup']));

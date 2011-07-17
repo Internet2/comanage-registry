@@ -42,11 +42,11 @@
           
           switch($k)
           {
-          case 'CoPersonId':
+          case 'CoPersonRoleId':
             $a['Person'] = array('Type' => 'CO',
                                  'Id' => $m[$req][$k]);
             break;
-          case 'OrgPersonId':
+          case 'OrgIdentityId':
             $a['Person'] = array('Type' => 'Org',
                                  'Id' => $m[$req][$k]);
             break;
@@ -57,7 +57,7 @@
         }
       }
       
-      if(($req == 'CoPerson' || $req == 'OrgPerson')
+      if(($req == 'CoPersonRole' || $req == 'OrgIdentity')
          && isset($m['Name']))
       {
         // We treat Name specially and copy it over
@@ -70,16 +70,16 @@
         }      
       }
       
-      if($req == 'CoPerson')
+      if($req == 'CoPersonRole')
       {
-        // For CO People, we need to check for extended attributes.
+        // For CO Person Roles, we need to check for extended attributes.
         
         foreach(array_keys($m) as $ak)
         {
           if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak))
           {
             foreach(array_keys($m[$ak]) as $ea)
-              if(!in_array($ea, array('Id', 'CoPersonId', 'Created', 'Modified'))
+              if(!in_array($ea, array('Id', 'CoPersonRoleId', 'Created', 'Modified'))
                  && $m[$ak][$ea] != null)
                 $a['ExtendedAttributes'][$ea] = $m[$ak][$ea];
             

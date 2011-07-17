@@ -41,7 +41,7 @@
     ';
   }
 ?>
-<table id="<?php echo $this->action; ?>_co" class="ui-widget">
+<table id="<?php echo $this->action; ?>_organization" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>

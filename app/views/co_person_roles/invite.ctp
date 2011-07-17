@@ -18,11 +18,11 @@
    * permissions and limitations under the License.   *
    */
 -->
-<h1 class="ui-state-default"><?php echo _txt('op.inv-t', array(Sanitize::html(generateCn($co_people[0]['Name'])), Sanitize::html($cur_co['Co']['name']))); ?></h1>
+<h1 class="ui-state-default"><?php echo _txt('op.inv-t', array(Sanitize::html(generateCn($co_person_roles[0]['Name'])), Sanitize::html($cur_co['Co']['name']))); ?></h1>
 
 <?php
   $submit_label = _txt('op.inv.send');
-  echo $this->Form->create('CoPerson',
+  echo $this->Form->create('CoPersonRole',
                            array('action' => 'add',
                                  'inputDefaults' => array('label' => false, 'div' => false)));
   include("fields.inc");

@@ -196,7 +196,7 @@
         // Set page title
         $this->set('title_for_layout', _txt('op.select-a', array(_txt('ct.cos.1'))));
 
-        if($this->Session->check('Auth.User.org_person_id'))
+        if($this->Session->check('Auth.User.org_identity_id'))
         {
           // Retrieve the list of the user's COs, but for admins we want all COs
           
@@ -211,7 +211,7 @@
                                           'alias' => 'CoPersonSource',
                                           'type' => 'INNER',
                                           'conditions' => array('Co.id=CoPersonSource.co_id'))),
-              'conditions' => array('CoPersonSource.org_person_id' => $this->Session->read('Auth.User.org_person_id'))
+              'conditions' => array('CoPersonSource.org_identity_id' => $this->Session->read('Auth.User.org_identity_id'))
             );
             
             $ucos = $this->Co->find('all', $params);

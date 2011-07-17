@@ -21,7 +21,7 @@
 -->
 <h1 class="ui-state-default"><?php
   if($this->action == 'select')
-    echo _txt('op.gr.memadd', array($this->params['named']['copersonid']));
+    echo _txt('op.gr.memadd', array($this->params['named']['copersonroleid']));
   else
     echo _txt('ct.co_groups.pl');
 ?>
@@ -47,7 +47,7 @@
     // beforeFilter needs CO ID
     echo $this->Form->hidden('CoGroupMember.co_id', array('default' => $cur_co['Co']['id'])) . "\n";
     // Group ID must be global for isAuthorized
-    echo $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $this->params['named']['copersonid'])) . "\n";
+    echo $this->Form->hidden('CoGroupMember.co_person_role_id', array('default' => $this->params['named']['copersonroleid'])) . "\n";
   }
 ?>
 

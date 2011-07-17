@@ -1,6 +1,6 @@
 <?php
   /*
-   * COmanage Gears CO Person Model
+   * COmanage Gears CO Person Role Model
    *
    * Version: $Revision$
    * Date: $Date$
@@ -19,9 +19,9 @@
    *
    */
 
-  class CoPerson extends AppModel {
+  class CoPersonRole extends AppModel {
     // Define class name for cake
-    var $name = "CoPerson";
+    var $name = "CoPersonRole";
     
     // Association rules from this model to other models
     var $hasOne = array("CoInvite" =>                 // A person can have one invite (per CO)

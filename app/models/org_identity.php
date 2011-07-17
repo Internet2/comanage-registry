@@ -19,9 +19,9 @@
    *
    */
 
-  class OrgPerson extends AppModel {
+  class OrgIdentity extends AppModel {
     // Define class name for cake
-    var $name = "OrgPerson";
+    var $name = "OrgIdentity";
     
     // Association rules from this model to other models
     var $hasOne = array("Name" =>                     // A person can have one (preferred) name per Org

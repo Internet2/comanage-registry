@@ -1,6 +1,6 @@
 <!--
   /*
-   * COmanage Gears CO Person Index View
+   * COmanage Gears CO Person Role Index View
    *
    * Version: $Revision$
    * Date: $Date$
@@ -24,14 +24,14 @@
 <?php
   if($permissions['add'])
     echo $this->Html->link(_txt('op.inv'),
-                           array('controller' => 'org_people', 'action' => 'find', 'co' => $this->params['named']['co']),
+                           array('controller' => 'org_identities', 'action' => 'find', 'co' => $this->params['named']['co']),
                            array('class' => 'addbutton')) . '
     <br />
     <br />
     ';
 ?>
 
-<table id="co_people" class="ui-widget">
+<table id="co_person_roles" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php echo $this->Paginator->sort(_txt('fd.name'), 'Name.family'); ?></th>
@@ -48,40 +48,40 @@
   
   <tbody>
     <?php $i = 0; ?>
-    <?php foreach ($co_people as $p): ?>
+    <?php foreach ($co_person_roles as $p): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td><?php echo $html->link(generateCn($p['Name']),
-                                 array('controller' => 'co_people', 'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])); ?></td>
-      <td><?php echo Sanitize::html($p['CoPerson']['o']); ?></td>
+                                 array('controller' => 'co_person_roles', 'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id'])); ?></td>
+      <td><?php echo Sanitize::html($p['CoPersonRole']['o']); ?></td>
       <td><?php if(isset($p['CoPersonSource'][0]['Cou']['name'])) echo Sanitize::html($p['CoPersonSource'][0]['Cou']['name']); ?></td>
-      <td><?php echo Sanitize::html($p['CoPerson']['title']); ?></td>
-      <td><?php echo Sanitize::html($p['CoPerson']['edu_person_affiliation']); ?></td>
-      <td><?php if($p['CoPerson']['valid_from'] > 0) echo $this->Time->format('Y M d', $p['CoPerson']['valid_from']); ?></td>
-      <td><?php if($p['CoPerson']['valid_through'] > 0) echo $this->Time->format('Y M d', $p['CoPerson']['valid_through']); ?></td>
+      <td><?php echo Sanitize::html($p['CoPersonRole']['title']); ?></td>
+      <td><?php echo Sanitize::html($p['CoPersonRole']['edu_person_affiliation']); ?></td>
+      <td><?php if($p['CoPersonRole']['valid_from'] > 0) echo $this->Time->format('Y M d', $p['CoPersonRole']['valid_from']); ?></td>
+      <td><?php if($p['CoPersonRole']['valid_through'] > 0) echo $this->Time->format('Y M d', $p['CoPersonRole']['valid_through']); ?></td>
       <td>
         <?php
           global $status_t;
           
-          if(!empty($p['CoPerson']['status']) ) echo _txt('en.status', null, $p['CoPerson']['status']);
+          if(!empty($p['CoPersonRole']['status']) ) echo _txt('en.status', null, $p['CoPersonRole']['status']);
         ?>
       </td>
       <td>
         <?php
           if($permissions['compare'])
             echo $html->link(_txt('op.compare'),
-                             array('controller' => 'co_people', 'action' => 'compare', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                             array('controller' => 'co_person_roles', 'action' => 'compare', $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id']),
                              array('class' => 'comparebutton')) . "\n";
         
           if($permissions['edit'])
             echo $html->link(_txt('op.edit'),
-                             array('controller' => 'co_people', 'action' => 'edit', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                             array('controller' => 'co_person_roles', 'action' => 'edit', $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id']),
                              array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $html->url(array('controller' => 'co_people', 'action' => 'delete', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
+            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $html->url(array('controller' => 'co_person_roles', 'action' => 'delete', $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
             
-          if($permissions['invite'] && ($p['CoPerson']['status'] != 'A' && $p['CoPerson']['status'] != 'D'))
-            echo '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonid' => $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
+          if($permissions['invite'] && ($p['CoPersonRole']['status'] != 'A' && $p['CoPersonRole']['status'] != 'D'))
+            echo '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonroleid' => $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
         ?>
         <?php ; ?>
       </td>

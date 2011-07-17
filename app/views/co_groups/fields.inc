@@ -123,14 +123,14 @@
             {
               foreach($co_group_members as $c)
               {
-                foreach($c['CoPerson']['CoGroupMember'] as $g)
+                foreach($c['CoPersonRole']['CoGroupMember'] as $g)
                 {
                   // We get all the group memberships, but are only interested in the current group
                   if($g['co_group_id'] == $co_groups[0]['CoGroup']['id'])
                   {
                     if($dok)
-                      echo '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $g['co_person_id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                    echo $html->link(generateCn($c['CoPerson']['Name']), array('controller' => 'co_group_members', 'action' => 'edit', $g['id'], 'co' => $cur_co['Co']['id']));
+                      echo '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonroleid' => $g['co_person_role_id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                    echo $html->link(generateCn($c['CoPersonRole']['Name']), array('controller' => 'co_group_members', 'action' => 'edit', $g['id'], 'co' => $cur_co['Co']['id']));
                     echo "<br />\n";
                     break;
                   }
