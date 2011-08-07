@@ -25,12 +25,9 @@
     
     // Association rules from this model to other models
     var $belongsTo = array("Co");                   // A COU is attached to a CO
-
-/* XXX this throws badly formed SQL    
-    var $hasMany = array("CoPersonSource" =>         // A COU can relate to zero or more person sources
-                         array('dependent' => true));
-*/
     
+    var $hasMany = array("CoPersonRole");
+
     // Default display field for cake generated views
     var $displayField = "name";
     

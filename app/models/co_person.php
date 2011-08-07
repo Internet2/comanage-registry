@@ -1,6 +1,6 @@
 <?php
   /*
-   * COmanage Gears CO Model
+   * COmanage Gears CO Person Model
    *
    * Version: $Revision$
    * Date: $Date$
@@ -18,39 +18,38 @@
    * permissions and limitations under the License.
    *
    */
-  
-  class Co extends AppModel {
+
+  class CoPerson extends AppModel {
     // Define class name for cake
-    var $name = "Co";
+    var $name = "CoPerson";
     
     // Association rules from this model to other models
-    var $hasMany = array("CoExtendedAttribute" =>    // A CO has zero or more extended attributes
-                         array('dependent' => true),
-                         "CoGroup" =>                // A CO has zero or more groups
-                         array('dependent' => true),
-                         "CoPerson" =>               // A CO can have zero or more CO people
-                         array('dependent' => true),
-                         "Cou" =>                    // A CO has zero or more COUs
-                         array('dependent' => true));
+    var $belongsTo = array("Co");                    // A CO Person Source is attached to one CO
     
+    var $hasOne = array("CoInvite" =>                 // A person can have one invite (per CO)
+                        array('dependent' => true),
+                        "Name" =>                     // A person can have one (preferred) name per CO
+                        array('dependent' => true));  // This could change if Name became an MVPA    
+    
+    var $hasMany = array("CoGroupMember" =>           // A person can have one or more groups
+                         array('dependent' => true),
+                         "CoOrgIdentityLink" =>       // A person can have more than one org identity
+                         array('dependent' => true),
+                         "CoPersonRole" =>            // A person can have one or more person roles
+                         array('dependent' => true),
+                         "EmailAddress" =>            // A person can have one or more email address
+                         array('dependent' => true),
+                         "Identifier" =>              // A person can have many identifiers within a CO
+                         array('dependent' => true));
+
     // Default display field for cake generated views
-    var $displayField = "name";
+    var $displayField = "CoPerson.id";
     
     // Default ordering for find operations
-    var $order = array("Co.name");
+    var $order = array("CoPerson.id");
     
     // Validation rules for table elements
     var $validate = array(
-      'name' => array(
-        'rule' => 'notEmpty',
-        'required' => true,
-        'message' => 'A name must be provided'
-      ),
-      'status' => array(
-        'rule' => array('inList', array('A', 'I')),
-        'required' => true,
-        'message' => 'A valid status must be selected'
-      )
     );
     
     // Enum type hints

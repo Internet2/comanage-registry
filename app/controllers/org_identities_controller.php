@@ -82,9 +82,9 @@
       // - true if dependency checks succeed, false otherwise.
       
       // We need to retrieve past the first order to get Name
-      $this->OrgIdentity->CoPersonSource->recursive = 2;
+      $this->OrgIdentity->CoOrgIdentityLink->recursive = 2;
       
-      $coppl = $this->OrgIdentity->CoPersonSource->findAllByOrgIdentityId($this->OrgIdentity->id);
+      $coppl = $this->OrgIdentity->CoOrgIdentityLink->findAllByOrgIdentityId($curdata['OrgIdentity']['id']);
 
       if(!empty($coppl))
       {
@@ -92,7 +92,7 @@
         // manually resolved, since (eg) it may be desirable to associate the
         // CO Person with a new OrgIdentity (if, say, somebody changes affiliation).
             
-        // Generate an array of CO Person Role ID and CO ID/Name or a message
+        // Generate an array of CO Person ID and CO ID/Name or a message
         // for the views to render.
             
         if($this->restful)
@@ -101,10 +101,10 @@
             
           for($i = 0; $i < count($coppl); $i++)
           {
-            $memberships[$coppl[$i]['Co']['id']] = $coppl[$i]['Co']['name'];
+            $memberships[$coppl[$i]['CoPerson']['Co']['id']] = $coppl[$i]['CoPerson']['Co']['name'];
           }
               
-          $this->restResultHeader(403, "CoPersonRole Exists");
+          $this->restResultHeader(403, "CoPerson Exists");
           $this->set('memberships', $memberships);
         }
         else
@@ -112,7 +112,7 @@
           $cs = "";
           
           for($i = 0; $i < count($coppl); $i++)
-            $cs .= ($i > 0 ? "," : "") . $coppl[$i]['Co']['name'];
+            $cs .= ($i > 0 ? "," : "") . $coppl[$i]['CoPerson']['Co']['name'];
           
           $this->Session->setFlash(_txt('er.comember',
                                         array(generateCn($coppl[0]['OrgIdentity']['Name']),
@@ -180,7 +180,7 @@
 
       // XXX we currently don't validate $coid since we just pass it back to the
       // co_person controller, which will validate it
-      $this->set('cur_co', $this->OrgIdentity->CoPersonSource->Co->findById($this->params['named']['co']));
+      $this->set('cur_co', $this->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($this->params['named']['co']));
 
       // Use server side pagination
       $this->set('org_identities', $this->paginate('OrgIdentity'));

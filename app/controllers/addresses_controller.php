@@ -58,21 +58,52 @@
       $pids = $this->parsePersonID($this->data);
 
       // Is this our own record? ($cmr is what was authenticated, $pids what was requested)
+      // We needs to see if the requested person role ID belongs to the authenticated person.
       $self = false;
       
-      if($cmr['comember'] &&
-         // As of now, a person can only edit their CO data, not their Org data
-         (($pids['copersonroleid'] && $cmr['copersonroleid'] && ($pids['copersonroleid'] == $cmr['copersonroleid']))))
+      $copid = $this->Address->CoPersonRole->field('co_person_id', array('id' => $pids['copersonroleid']));
+        
+      if($copid && $copid == $cmr['copersonid'])
         $self = true;
-      
-      // If we're manipulating an Org Person, any CO admin can edit, but if we're
-      // manipulating a CO Person, only the CO admin can edit
+
+      // If we're manipulating an Org Person, any CO admin or COU admin can edit,
+      // but if we're manipulating a CO Person, only the CO admin or appropriate
+      // COU admin (an admin of the COU associated with the current record) can edit
       
       $admin = false;
       
-      if(($pids['copersonroleid'] && $cmr['coadmin'])
-         || ($pids['orgidentityid'] && $cmr['admin']))
+      if(($pids['copersonid'] && $cmr['coadmin'])
+         || ($pids['orgidentityid'] && ($cmr['admin'] || $cmr['coadmin'] || $cmr['subadmin'])))
         $admin = true;
+        
+      if(!$admin && $cmr['couadmin'])
+      {
+        // Current person is a COU admin, see if it's for this person role. There should
+        // be only one match, so we use 'first'.
+        
+        $dbo = $this->Address->getDataSource();
+        
+        $cou = $this->Address->CoPersonRole->Cou->find("first",
+                                                       array("joins" =>
+                                                             array(array('table' => $dbo->fullTableName($this->Address->CoPersonRole),
+                                                                         'alias' => 'CoPersonRole',
+                                                                         'type' => 'INNER',
+                                                                         'conditions' => array('Cou.id=CoPersonRole.cou_id'))),
+                                                             "conditions" =>
+                                                             array('CoPersonRole.id' => $pids['copersonroleid'])));
+        
+        if(isset($cou['Cou']['name']))
+        {
+          foreach($cmr['couadmin'] as $c)
+          {
+            if($c == $cou['Cou']['name'])
+            {
+              $admin = true;
+              break;
+            }
+          }
+        }
+      }
       
       // Construct the permission set for this user, which will also be passed to the view.
       $p = array();

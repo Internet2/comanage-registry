@@ -44,7 +44,7 @@
       $model = $this->$req;
       $modelid = $this->modelKey . "_id";
       $modelpl = Inflector::tableize($req);
-
+      
       if($this->restful)
       {
         // Reformat the request to HTTP POST format and validate it
@@ -211,6 +211,9 @@
       $req = $this->modelClass;
       $model = $this->$req;
 
+      if(isset($this->delete_recursion))
+        $model->recursive = $this->delete_recursion;
+        
       // Cache the name before deleting, and also check that $id exists
       
       $model->id = $id;
@@ -488,13 +491,43 @@
 
         if($this->requires_person)
         {
-          if(!empty($this->params['url']['copersonroleid']))
+          if(!empty($this->params['url']['copersonid']))
+          {
+            $t = $model->findAllByCoPersonId($this->params['url']['copersonid']);
+            
+            if(empty($t))
+            {
+              // We need to determine if copersonid is unknown or just
+              // has no objects attached to it
+              
+              $o = $model->CoPerson->findById($this->params['url']['copersonid']);
+              
+              if(empty($o))
+                $this->restResultHeader(404, "CO Person Unknown");
+              else
+                $this->restResultHeader(204, "CO Person Has No " . $req);
+              
+              return;
+            }
+
+            $this->set($modelpl, $this->convertResponse($t));
+          }
+          elseif(!empty($this->params['url']['copersonroleid']))
           {
             $t = $model->findAllByCoPersonRoleId($this->params['url']['copersonroleid']);
             
             if(empty($t))
             {
-              $this->restResultHeader(404, "CO Person Role Unknown");
+              // We need to determine if copersonroleid is unknown or just
+              // has no objects attached to it
+              
+              $o = $model->CoPersonRole->findById($this->params['url']['copersonroleid']);
+              
+              if(empty($o))
+                $this->restResultHeader(404, "CO Person Role Unknown");
+              else
+                $this->restResultHeader(204, "CO Person Role Has No " . $req);
+              
               return;
             }
 
@@ -506,7 +539,16 @@
   
             if(empty($t))
             {
-              $this->restResultHeader(404, "Org Identity Unknown");
+              // We need to determine if orgidentityid is unknown or just
+              // has no objects attached to it
+              
+              $o = $model->OrgIdentity->findById($this->params['url']['orgidentityid']);
+              
+              if(empty($o))
+                $this->restResultHeader(404, "Org Identity Unknown");
+              else
+                $this->restResultHeader(204, "Org Identity Has No " . $req);
+              
               return;
             }
             
@@ -530,14 +572,15 @@
             // For now, not specifying a CO is OK, we just retrieve all.
             // XXX need to do an authz check on this
   
-            if(isset($model->CoPersonSource))
+            if(isset($model->CoPerson))
             {
-              if(!$model->CoPersonSource->Co->findById($this->params['url']['coid']))
+              if(!$model->CoPerson->Co->findById($this->params['url']['coid']))
               {
                 $this->restResultHeader(404, "CO Unknown");
                 return;
               }
               
+              /*
               $dbo = $model->getDataSource();
               
               $params['joins'][] = array('table' => $dbo->fullTableName($model->CoPersonSource),
@@ -546,7 +589,9 @@
                                          'conditions' => array(
                                            $req.'.id=CoPersonSource.'.$modelid
                                         ));
-              $params['conditions'] = array('CoPersonSource.co_id' => $this->params['url']['coid']);
+              */
+              
+              $params['conditions'] = array('CoPerson.co_id' => $this->params['url']['coid']);
             }
             else
             {
@@ -565,10 +610,10 @@
             // For now, not specifying a COU is OK, we just retrieve all.
             // XXX need to do an authz check on this
   
-            if(isset($this->CoPersonSource))
+            if(isset($this->CoPersonRole))
             {
-              // Currently, only CoPersonSource will get here, so we don't also check for
-              // (eg) $model->CoPersonSource, and we don't need to do a join like above
+              // Currently, only CoPersonRole will get here, so we don't also check for
+              // (eg) $model->CoPersonRole, and we don't need to do a join like above
               
               if(!$model->Cou->findById($this->params['url']['couid']))
               {
@@ -621,55 +666,10 @@
         {
           if(isset($this->cur_co))
           {
-            if(isset($model->CoPersonSource))
-            {
-              if(!empty($this->cur_cous))
-              {
-                // If we're retrieving based on CoPersonSource and $this->cur_cous
-                // is set, only retrieve records relevant to the COUs specified
-                // (ie: those the COU Admin has access to)
-              
-                $dbo = $model->getDataSource();
-                
-                $this->paginate['conditions'] = array(
-                  'CoPersonSource.co_id' => $this->cur_co['Co']['id'],
-                  'Cou.name' => $this->cur_cous
-                );
-                
-                $this->paginate['joins'][] = array(
-                  'table' => $dbo->fullTableName($model->CoPersonSource->Cou),
-                  'alias' => 'Cou',
-                  'type' => 'INNER',
-                  'conditions' => array('CoPersonSource.cou_id=Cou.id')
-                );
-              }
-              else
-              {
-                // Otherwise retrieve "normally"
-                
-                $this->paginate['conditions'] = array(
-                  'CoPersonSource.co_id' => $this->cur_co['Co']['id']
-                );
-                
-                // XXX unclear this is the right default join since
-                // CoPersonRole is hardcoded, but it's also not clear what
-                // other "normal" view gets here
-                $this->paginate['joins'][] = array(
-                  'table' => 'cm_co_person_sources',
-                  'alias' => 'CoPersonSource',
-                  'type' => 'INNER',
-                  'conditions' => array(
-                    'CoPersonRole.id=CoPersonSource.co_person_role_id'
-                  )
-                );
-              }
-            }
-            else
-            {
-              $this->paginate['conditions'] = array(
-                $req.'.co_id' => $this->cur_co['Co']['id']
-              );
-            }
+            // Only retrieve members of the current CO
+            $this->paginate['conditions'] = array(
+              $req.'.co_id' => $this->cur_co['Co']['id']
+            );
           }
           
           $this->set($modelpl, $this->paginate($req));
@@ -751,7 +751,7 @@
         {
           // Set page title
           $this->set('title_for_layout', _txt('op.view-a', array(_txt('ct.' . $modelpl . '.1'))));
-
+          
           $this->set($modelpl, array(0 => $obj));
 
           if($this->requires_person)

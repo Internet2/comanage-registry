@@ -1,11 +1,11 @@
 <?php
   /*
-   * COmanage Gears CO Person Source Controller
+   * COmanage Gears CO Org Identity Link Controller
    *
    * Version: $Revision$
    * Date: $Date$
    *
-   * Copyright (C) 2010-2011 University Corporation for Advanced Internet Development, Inc.
+   * Copyright (C) 2011 University Corporation for Advanced Internet Development, Inc.
    * 
    * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
    * the License. You may obtain a copy of the License at
@@ -21,9 +21,9 @@
 
   include APP."controllers/standard_controller.php";
 
-  class CoPersonSourcesController extends StandardController {
+  class CoOrgIdentityLinksController extends StandardController {
    // Class name, used by Cake
-    var $name = "CoPersonSources";
+    var $name = "CoOrgIdentityLinks";
     
     // Cake Components used by this Controller
     var $components = array('RequestHandler',  // For REST
@@ -38,12 +38,6 @@
       )
     );
     
-    // This controller needs a CO to be set
-    var $requires_co = true;
-    
-    // This controller allows a COU to be set
-    var $allows_cou = true;
-
     function checkWriteDependencies($curdata = null)
     {
       // Perform any dependency checks required prior to a write (add/edit) operation.
@@ -61,30 +55,29 @@
       // Returns:
       // - true if dependency checks succeed, false otherwise.
 
-      // Check that the IDs (CO, CO Person, Org Person) provided point to existing
-      // entities.
+      // Check that the IDs (CO Person, Org Person) provided point to existing entities.
 
-      if(empty($this->data['CoPersonSource']['co_person_role_id']))
+      if(empty($this->data['CoOrgIdentityLink']['co_person_id']))
       {
-        $this->restResultHeader(403, "CoPersonRole Does Not Exist");
+        $this->restResultHeader(403, "CoPerson Does Not Exist");
         return(false);
       }      
       
-      $a = $this->CoPersonSource->CoPersonRole->findById($this->data['CoPersonSource']['co_person_role_id']);
+      $a = $this->CoOrgIdentityLink->CoPerson->findById($this->data['CoOrgIdentityLink']['co_person_id']);
       
       if(empty($a))
       {
-        $this->restResultHeader(403, "CoPersonRole Does Not Exist");
+        $this->restResultHeader(403, "CoPerson Does Not Exist");
         return(false);
       }
       
-      if(empty($this->data['CoPersonSource']['org_identity_id']))
+      if(empty($this->data['CoOrgIdentityLink']['org_identity_id']))
       {
         $this->restResultHeader(403, "OrgIdentity Does Not Exist");
         return(false);
       }
       
-      $a = $this->CoPersonSource->OrgIdentity->findById($this->data['CoPersonSource']['org_identity_id']);
+      $a = $this->CoOrgIdentityLink->OrgIdentity->findById($this->data['CoOrgIdentityLink']['org_identity_id']);
       
       if(empty($a))
       {

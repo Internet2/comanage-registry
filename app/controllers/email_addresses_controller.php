@@ -62,16 +62,17 @@
       
       if($cmr['comember'] &&
          // As of now, a person can only edit their CO data, not their Org data
-         (($pids['copersonroleid'] && $cmr['copersonroleid'] && ($pids['copersonroleid'] == $cmr['copersonroleid']))))
+         (($pids['copersonid'] && $cmr['copersonid'] && ($pids['copersonid'] == $cmr['copersonid']))))
         $self = true;
       
-      // If we're manipulating an Org Person, any CO admin can edit, but if we're
-      // manipulating a CO Person, only the CO admin can edit
+      // If we're manipulating an Org Person, any CO admin or COU admin can edit,
+      // but if we're manipulating a CO Person, only the CO admin or appropriate
+      // COU admin (an admin of a COU in the current CO) can edit
       
       $admin = false;
       
-      if(($pids['copersonroleid'] && $cmr['coadmin'])
-         || ($pids['orgidentityid'] && $cmr['admin']))
+      if(($pids['copersonid'] && ($cmr['coadmin'] || $cmr['couadmin']))
+         || ($pids['orgidentityid'] && ($cmr['admin'] || $cmr['coadmin'] || $cmr['subadmin'])))
         $admin = true;
       
       // Construct the permission set for this user, which will also be passed to the view.

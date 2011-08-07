@@ -23,8 +23,30 @@
   $model = $this->name;
   $req = Inflector::singularize($model);
   $modelpl = Inflector::tableize($req);
+  
+  // Since this is an add operation, we may not have any data.
+  // (Currently, only controllers like CoPersonRole prepopulate fields for rendering.)
+  
+  // Figure out a heading
+  $h = _txt('op.add.new', array(_txt('ct.'.$modelpl.'.1')));
+
+  if(isset($$modelpl))
+  {
+    // Get a pointer to our data
+    $d = $$modelpl;
+      
+    if(isset($d[0]['Name']))
+      $h .= " (" . Sanitize::html(generateCn($d[0]['Name'])) . ")";
+    elseif(isset($d[0]['CoPerson']['Name']))
+      $h .= " (" . Sanitize::html(generateCn($d[0]['CoPerson']['Name'])) . ")";
+    elseif(isset($d[0]['OrgIdentity']['Name']))
+      $h .= " (" . Sanitize::html(generateCn($d[0]['OrgIdentity']['Name'])) . ")";
+    // CO Person Role rendering gets some info from co_people
+    elseif(isset($co_people[0]['Name']))
+      $h .= " (" . Sanitize::html(generateCn($co_people[0]['Name'])) . ")";
+  }
 ?>
-<h1 class="ui-state-default"><?php echo _txt('op.add.new', array(_txt('ct.'.$modelpl.'.1'))); ?></h1>
+<h1 class="ui-state-default"><?php echo $h; ?></h1>
 
 <?php
   $submit_label = _txt('op.add');

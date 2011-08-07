@@ -147,7 +147,7 @@ class PagesController extends AppController {
       $p['menu']['cogroups'] = $cmr['user'];
       
       // Manage org identity data?
-      $p['menu']['orgidentities'] = $cmr['admin'];
+      $p['menu']['orgidentities'] = $cmr['admin'] || $cmr['subadmin'];
       
       // Manage any CO (or COU) population?
       $p['menu']['cos'] = $cmr['admin'] || $cmr['subadmin'];

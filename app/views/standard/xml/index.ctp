@@ -40,9 +40,14 @@
           
           switch($k)
           {
-          case 'CoPersonRoleId':
+          case 'CoPersonId':
             $xd .= $this->Xml->elem("Person",
                                     array("Type" => "CO",
+                                          "Id" => $m[$req][$k]));
+            break;
+          case 'CoPersonRoleId':
+            $xd .= $this->Xml->elem("Person",
+                                    array("Type" => "CoRole",
                                           "Id" => $m[$req][$k]));
             break;
           case 'OrgIdentityId':
@@ -57,7 +62,7 @@
         }
       }
         
-      if(($req == 'CoPersonRole' || $req == 'OrgIdentity')
+      if(($req == 'CoPerson' || $req == 'OrgIdentity')
          && isset($m['Name']))
       {
         // We treat Name specially and copy it over

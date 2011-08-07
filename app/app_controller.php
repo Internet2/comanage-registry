@@ -125,7 +125,7 @@
         elseif(isset($this->data['Co']['id']))
           $coid = $this->data['Co']['id'];
         elseif(isset($this->data[$this->modelClass]['co_id']))
-          $coid = $this->data[$this->modelClass]['co_id'];      
+          $coid = $this->data[$this->modelClass]['co_id'];
 
         if($coid == -1)
         {
@@ -141,39 +141,19 @@
           // XXX This "find the CO" isn't really ideal
           if(isset($model->Co))
             $coptr = $model->Co;
-          elseif(isset($model->CoPersonSource->Co))
-            $coptr = $model->CoPersonSource->Co;
+          elseif(isset($model->CoPerson->Co))
+            $coptr = $model->CoPerson->Co;
           elseif(isset($model->CoGroup->Co))
             $coptr = $model->CoGroup->Co;
-          elseif(isset($model->CoPersonRole->CoPersonSource->Co))
-            $coptr = $model->CoPersonRole->CoPersonSource->Co;
+          elseif(isset($model->CoOrgIdentityLink->CoPerson->Co))
+            $coptr = $model->CoOrgIdentityLink->CoPerson->Co;
             
-          if($coptr)
+          if(isset($coptr))
             $this->cur_co = $coptr->findById($coid);
           
           if(!empty($this->cur_co))
           {
             $this->set("cur_co", $this->cur_co);
-            
-            if($this->name == "CoPeople")
-            {
-              // XXX not clear why this should be here
-            
-              // Reconfigure Pagination
-            
-              $this->paginate['joins'] = array(
-                array('table' => 'cm_co_person_sources',
-                      'alias' => 'CoPersonSource',
-                      'type' => 'INNER',
-                      'conditions' => array(
-                        'CoPersonRole.id=CoPersonSource.co_person_role_id'
-                      )
-                )
-              );
-              $this->paginate['conditions'] = array(
-                'CoPersonSource.co_id' => $this->cur_co['Co']['id']
-              );
-            }
           }
           else
           {
@@ -199,9 +179,12 @@
 
         if($coid > -1)
         {
-          // At least for now, we don't need to do "find the Co pointer" like we
-          // did above
-          $this->cur_co = $model->CoPersonRole->CoPersonSource->Co->findById($coid);
+          // Miniature "find the Co pointer"
+          
+          if(isset($model->CoPerson))
+            $this->cur_co = $model->CoPerson->Co->findById($coid);
+          else
+            $this->cur_co = $model->CoPersonRole->CoPerson->Co->findById($coid);
         }
       }
       
@@ -270,6 +253,21 @@
         
         $this->params['named']['co'] = $this->cur_co['Co']['id'];
       }
+      
+      if(!$this->restful && ($this->requires_person || $req == 'CoPersonRole')
+         && !isset($this->params['named']['copersonid']))
+      {
+        // As above, but for a CO Person ID, CO Person Role ID, or Org Identity ID.
+        // We specifically check for CoPersonRole as it requires copersonid
+        // specifically, but not requires_person in general.
+        
+        // XXX this hasn't been tested and may not work or cover all cases
+
+        $p = $this->parsePersonID();
+        
+        if(isset($p['copersonid']))
+          $this->params['named']['copersonid'] = $p['copersonid'];
+      }
     }
     
     function calculateCMRoles()
@@ -298,7 +296,7 @@
       //   - user: Valid user in any CO (ie: to the platform)
       //   - apiuser: Valid API (REST) user (for now, API users are equivalent to cmadmins)
       //   - orgidentityid: Org Identity ID of current user (or false)
-      //   - copersonroleid: CO Person Role ID of current user in current CO (or false)
+      //   - copersonid: CO Person ID of current user in current CO (or false)
       
       global $group_sep;
       
@@ -312,12 +310,12 @@
         'user' => false,
         'apiuser' => false,
         'orgidentityid' => false,
-        'copersonroleid' => false
+        'copersonid' => false
       );
       
       // Retrieve session info
       $cos = $this->Session->read('Auth.User.cos');
-
+      
       if(isset($cos))
       {
         // Platform admin?
@@ -356,12 +354,12 @@
           }
           
           // Member of current CO?
-          if(isset($cos[ $this->cur_co['Co']['name'] ]['co_person_role_id']))
+          if(isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id']))
           {
-            $ret['copersonroleid'] = $cos[ $this->cur_co['Co']['name'] ]['co_person_role_id'];
+            $ret['copersonid'] = $cos[ $this->cur_co['Co']['name'] ]['co_person_id'];
             $ret['comember'] = true;
-            // Also store the co_person_role_id directly in the session to make it easier to find
-            $this->Session->write('Auth.User.co_person_role_id', $ret['copersonroleid']);
+            // Also store the co_person_id directly in the session to make it easier to find
+            $this->Session->write('Auth.User.co_person_id', $ret['copersonid']);
           }
         }
 
@@ -416,18 +414,21 @@
     
     function checkPersonID($redirectMode = "default", $data = null)
     {
-      // For Models that accept either a CO Person Role ID or an Org Identity ID,
-      // verify that a valid person ID was specified.  Also, generate an array
-      // suitable for redirecting back to the suitable controller.
+      // For Models that accept a CO Person ID, a CO Person Role ID, or an Org
+      // Identity ID, verify that a valid ID was specified.  Also, generate an
+      // array suitable for redirecting back to the controller.
       //
       // Parameters:
       // - redirectMode: "force" to force a redirect, "set" to set $redirect, or "default" to perform normal logic
-      // - data: Retrieved attribute, with $data[$model]['co_person_role_id'] or $data[$model]['org_identity_id'] set
+      // - data: Retrieved attribute, with $data[$model]['co_person_id'], $data[$model]['co_person_role_id'],
+      //         or $data[$model]['org_identity_id'] set
       //
       // Preconditions:
       // (1) One of the following must be set (or $data):
+      //     $this->params['named']['copersonid']
       //     $this->params['named']['copersonroleid']
       //     $this->params['named']['orgidentityid']
+      //     $this->data[$model]['co_person_id']
       //     $this->data[$model]['co_person_role_id']
       //     $this->data[$model]['org_identity_id']
       //
@@ -451,6 +452,7 @@
       // Find a person
       $pids = $this->parsePersonID($data);
       
+      $copid = $pids['copersonid'];
       $coprid = $pids['copersonroleid'];
       $orgiid = $pids['orgidentityid'];
       $co = null;
@@ -462,7 +464,27 @@
       elseif(!empty($this->data[$req]['co_id']))
         $co = $this->data[$req]['co_id'];
         
-      if($coprid != null)
+      if($copid != null)
+      {
+        $redirect['controller'] = 'co_people';
+
+        $x = $model->CoPerson->findById($copid);
+        
+        if(empty($x))
+        {
+          $redirect['action'] = 'index';
+          $rc = -1;
+        }
+        else
+        {
+          $redirect['action'] = 'edit';
+          $redirect[] = $copid;
+          if($co != null)
+            $redirect['co'] = $co;
+          $rc = 1;
+        }
+      }
+      elseif($coprid != null)
       {
         $redirect['controller'] = 'co_person_roles';
 
@@ -533,7 +555,7 @@
               $this->redirect($redirect);
               break;
             case 0:
-              $this->Session->setFlash("No CO Person Role or Org Identity specified", '', array(), 'error');            
+              $this->Session->setFlash("No CO Person, CO Person Role, or Org Identity specified", '', array(), 'error');            
               $this->redirect($redirect);
               break;
           }
@@ -804,7 +826,7 @@
       // If the XML doc represents a Person and has a Name attribute,
       // promote it up a level so saveAll sees it as a separate object
       
-      if(($req == 'CoPersonRole' || $req == 'OrgIdentity')
+      if(($req == 'CoPerson' || $req == 'OrgIdentity')
          && isset($this->data[$req]['name']))
       {
         global $name_ti;
@@ -831,10 +853,13 @@
         
       if($this->requires_person)
       {
-        if(!empty($this->data[$req]['person']) && isset($this->data[$req]['person']['type'])
+        if(!empty($this->data[$req]['person'])
+           && isset($this->data[$req]['person']['type'])
            && isset($this->data[$req]['person']['id']))
         {
           if($this->data[$req]['person']['type'] == 'CO')
+            $this->data[$req]['co_person_id'] = $this->data[$req]['person']['id'];
+          elseif($this->data[$req]['person']['type'] == 'CoRole')
             $this->data[$req]['co_person_role_id'] = $this->data[$req]['person']['id'];
           elseif($this->data[$req]['person']['type'] == 'Org')
             $this->data[$req]['org_identity_id'] = $this->data[$req]['person']['id'];
@@ -974,17 +999,19 @@
     
     function parsePersonID($data = null)
     {
-      // For Models that accept either a CO Person Role ID or an Org Identity ID,
+      // For Models that accept a CO Person ID, a CO Person Role ID or an Org Identity ID,
       // find the provided person ID.
       //
       // Parameters:
-      // - data: Retrieved attribute, with $data[$model]['co_person_role_id'] or
-      //         $data[$model]['org_identity_id'] set
+      // - data: Retrieved attribute, with $data[$model]['co_person_id'],
+      //         $data[$model]['co_person_role_id'], or $data[$model]['org_identity_id'] set
       //
       // Preconditions:
       // (1) One of the following must be set (or $data):
+      //     $this->params['named']['copersonid']
       //     $this->params['named']['copersonroleid']
       //     $this->params['named']['orgidentityid']
+      //     $this->data[$model]['co_person_id']
       //     $this->data[$model]['co_person_role_id']
       //     $this->data[$model]['org_identity_id']
       //
@@ -992,6 +1019,7 @@
       //     None
       //
       // Returns: An array with the following elements:
+      // - copersonid: CO Person ID if found, or null
       // - copersonroleid: CO Person Role ID if found, or null
       // - orgidentityid: Org Identity ID if found, or null
 
@@ -1000,17 +1028,24 @@
       $model = $this->$req;
 
       // Find a person
+      $copid  = null;
       $coprid  = null;
       $orgiid = null;
       
-      if(!empty($data[$req]['co_person_role_id']))
+      if(!empty($data[$req]['co_person_id']))
+        $copid = $data[$req]['co_person_id'];
+      elseif(!empty($data[$req]['co_person_role_id']))
         $coprid = $data[$req]['co_person_role_id'];
       elseif(!empty($data[$req]['org_identity_id']))
         $orgiid = $data[$req]['org_identity_id'];
+      elseif(!empty($this->params['named']['copersonid']))
+        $copid = $this->params['named']['copersonid'];
       elseif(!empty($this->params['named']['copersonroleid']))
         $coprid = $this->params['named']['copersonroleid'];
       elseif(!empty($this->params['named']['orgidentityid']))
         $orgiid = $this->params['named']['orgidentityid'];
+      elseif(!empty($this->data[$req]['co_person_id']))
+        $copid = $this->data[$req]['co_person_id'];
       elseif(!empty($this->data[$req]['co_person_role_id']))
         $coprid = $this->data[$req]['co_person_role_id'];
       elseif(!empty($this->data[$req]['org_identity_id']))
@@ -1025,13 +1060,17 @@
         
         $rec = $model->findById($this->params['pass'][0]);
         
-        if(isset($rec[$req]['co_person_role_id']))
+        if(isset($rec[$req]['co_person_id']))
+          $copid = $rec[$req]['co_person_id'];
+        elseif(isset($rec[$req]['co_person_role_id']))
           $coprid = $rec[$req]['co_person_role_id'];
         elseif(isset($rec[$req]['org_identity_id']))
           $orgiid = $rec[$req]['org_identity_id'];
       }
       
-      return(array("copersonroleid" => $coprid, "orgidentityid" => $orgiid));
+      return(array("copersonid" => $copid,
+                   "copersonroleid" => $coprid,
+                   "orgidentityid" => $orgiid));
     }
     
     function requestToUnderScore($a)

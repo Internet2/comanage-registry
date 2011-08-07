@@ -24,29 +24,19 @@
     var $name = "CoPersonRole";
     
     // Association rules from this model to other models
-    var $hasOne = array("CoInvite" =>                 // A person can have one invite (per CO)
-                        array('dependent' => true),
-                        "Name" =>                     // A person can have one (preferred) name per CO
-                        array('dependent' => true));  // This could change if Name became an MVPA    
+    var $belongsTo = array("Cou",             // A CO Org Person To is attached to one COU
+                           "CoPerson");       // A CO Org Person To is attached to one CO Person
     
     var $hasMany = array("Address" =>                 // A person can have one or more address
-                         array('dependent' => true),
-                         "CoGroupMember" =>           // A person can have one or more groups
-                         array('dependent' => true),
-                         "CoPersonSource" =>          // A person can originate from one or more source
-                         array('dependent' => true),
-                         "EmailAddress" =>            // A person can have one or more email address
-                         array('dependent' => true),
-                         "Identifier" =>              // A person can have many identifiers within a CO
                          array('dependent' => true),
                          "TelephoneNumber" =>         // A person can have one or more telephone numbers
                          array('dependent' => true));
 
     // Default display field for cake generated views
-    var $displayField = "Name.family";
+    var $displayField = "CoPersonRole.id";
     
     // Default ordering for find operations
-    var $order = array("Name.family", "Name.given");
+    var $order = array("CoPersonRole.id");
     
     // Validation rules for table elements
     var $validate = array(

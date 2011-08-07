@@ -24,7 +24,7 @@
   $e = false;
   $es = false;
 
-  if(($this->action == "invite" && $permissions['invite'])
+  if(($this->action == "add" && $permissions['add'])
       || ($this->action == "edit" && $permissions['edit']))
     $e = true;
 
@@ -39,24 +39,15 @@
   if($e)
   {
     echo $html->link(_txt('op.back'),
-                     array('controller' => 'co_person_roles', 'action' => 'index', 'co' => $cur_co['Co']['id']),
+                     array('controller' => 'co_people', 'action' => 'edit', $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
                      array('class' => 'cancelbutton'));
-    
-    if($this->action != "invite")
-    {
-      echo $html->link(_txt('ct.org_identities.1'),
-                     array('controller' => 'org_identities', 'action' => $this->action, $co_person_roles[0]['CoPersonSource'][0]['org_identity_id']),
-                     array('class' => 'linkbutton'));
-    }
     
     // This is for beforeFilter
     echo $this->Form->hidden('Co.id', array('default' => $cur_co['Co']['id'])). "\n";
-    // And this is to populate the cross reference
-    echo $this->Form->hidden('CoPersonSource.0.id'). "\n";
-    echo $this->Form->hidden('CoPersonSource.0.co_id', array('default' => $cur_co['Co']['id'])). "\n";
-    echo $this->Form->hidden('CoPersonSource.0.org_identity_id', array('default' => $co_person_roles[0]['CoPersonSource'][0]['org_identity_id'])). "\n";
-    // Default status is 'Pending'
-    echo $this->Form->hidden('status', array('default' => 'P')). "\n";
+    // And this is to link to the co person
+    echo $this->Form->hidden('co_person_id', array('default' => $co_people[0]['CoPerson']['id'])). "\n";
+    // Default status is 'Active'
+    echo $this->Form->hidden('status', array('default' => 'A')). "\n";
     
     echo '
     <br />
@@ -66,7 +57,7 @@
   else
   {
     echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_person_roles', 'action' => 'index', 'co' => $cur_co['Co']['id']),
+                           array('controller' => 'co_person_roles', 'action' => 'view', $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
                            array('class' => 'backbutton')) . '
     <br />
     <br />
@@ -85,90 +76,6 @@
       <th class="ui-state-default"><?php echo (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
     </tr>
     <?php endif; ?>
-    <tr class="line<?php echo ($l % 2); $l++; ?>">
-      <td>
-        <?php
-          echo _txt('fd.name.h');
-          
-          if($e)
-            echo " " . _txt('fd.name.h.desc');
-        ?>
-      </td>
-      <td>
-        <?php
-          echo $this->Form->hidden('Name.id');
-          echo $this->Form->hidden('Name.type', array('default' => 'P'));
-          echo ($e ? $this->Form->input('Name.honorific', array('default' => $co_person_roles[0]['Name']['honorific']))
-                   : Sanitize::html($co_person_roles[0]['Name']['honorific']));
-        ?>
-      </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_identities[0]['Name']['honorific']); ?>
-      </td>
-    <?php endif; ?>
-    </tr>
-    <tr class="line<?php echo ($l % 2); $l++; ?>">
-      <td>
-        <?php echo _txt('fd.name.g'); ?><font class="required">*</font>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('Name.given', array('default' => $co_person_roles[0]['Name']['given']))
-                       : Sanitize::html($co_person_roles[0]['Name']['given'])); ?>
-      </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_identities[0]['Name']['given']); ?>
-      </td>
-    <?php endif; ?>
-    </tr>
-    <tr class="line<?php echo ($l % 2); $l++; ?>">
-      <td>
-        <?php echo _txt('fd.name.m'); ?>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('Name.middle', array('default' => $co_person_roles[0]['Name']['middle']))
-                       : Sanitize::html($co_person_roles[0]['Name']['middle'])); ?>
-      </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_identities[0]['Name']['middle']); ?>
-      </td>
-    <?php endif; ?>
-    </tr>
-    <tr class="line<?php echo ($l % 2); $l++; ?>">
-      <td>
-        <?php echo _txt('fd.name.f'); ?>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('Name.family', array('default' => $co_person_roles[0]['Name']['family']))
-                       : Sanitize::html($co_person_roles[0]['Name']['family'])); ?>
-      </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_identities[0]['Name']['family']); ?>
-      </td>
-    <?php endif; ?>
-    </tr>
-    <tr class="line<?php echo ($l % 2); $l++; ?>">
-      <td>
-        <?php
-          echo _txt('fd.name.s');
-          
-          if($e)
-            echo " " . _txt('fd.name.s.desc');
-        ?>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('Name.suffix', array('default' => $co_person_roles[0]['Name']['suffix']))
-                       : Sanitize::html($co_person_roles[0]['Name']['suffix'])); ?>
-      </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_identities[0]['Name']['suffix']); ?>
-      </td>
-    <?php endif; ?>
-    </tr>
     <?php if(!empty($permissions['cous'])): ?>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
@@ -176,13 +83,13 @@
       </td>
       <td>
         <?php
-          echo (($e && !$es) ? $this->Form->select('CoPersonSource.0.cou_id',
+          echo (($e && !$es) ? $this->Form->select('cou_id',
                                                    $permissions['cous'],
-                                                   (isset($co_person_roles[0]['CoPersonSource'][0]['cou_id'])
-                                                    ? $co_person_roles[0]['CoPersonSource'][0]['cou_id']
+                                                   (isset($co_person_roles[0]['CoPersonRole']['cou_id'])
+                                                    ? $co_person_roles[0]['CoPersonRole']['cou_id']
                                                     : 0),
                                                    array('empty' => false))
-                             : Sanitize::html($co_person_roles[0]['CoPersonSource'][0]['Cou']['name']));
+                             : Sanitize::html($co_person_roles[0]['Cou']['name']));
         ?>
       </td>
     <?php endif; ?>
@@ -271,95 +178,7 @@
                     : (($co_person_roles[0]['CoPersonRole']['valid_through'] > 0) ? strftime("%F", strtotime($co_person_roles[0]['CoPersonRole']['valid_through'])) : "")); ?>
       </td>
     </tr>
-    <?php if($this->action != "invite"): ?>
-    <tr class="line<?php echo ($l % 2); $l++; ?>">
-      <td>
-        <?php echo _txt('fd.ids'); ?>
-      </td>
-      <td>
-        <?php
-          if($e && !$es)
-          {
-            if(isset($co_person_roles[0]['Identifier']))
-            {
-              foreach($co_person_roles[0]['Identifier'] as $id)
-              {
-                // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                echo '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                echo $html->link(_txt('op.edit'),
-                                 array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
-                                 array('class' => 'editbutton')) . "\n";
-                echo $html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
-                echo " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
-              }
-            }
-            
-            echo $html->link(_txt('op.add'),
-                             array('controller' => 'identifiers', 'action' => 'add', 'copersonroleid' => $co_person_roles[0]['CoPersonRole']['id'], 'co' => $cur_co['Co']['id']),
-                             array('class' => 'addbutton'));
-          }
-          else
-          {
-            if(isset($co_person_roles[0]['Identifier']))
-              foreach($co_person_roles[0]['Identifier'] as $id)
-                echo Sanitize::html($id['identifier']) . " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
-          }
-        ?>
-      </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php
-          if(isset($org_identities[0]['Identifier']))
-            foreach($org_identities[0]['Identifier'] as $id)
-              echo Sanitize::html($id['identifier']) . " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
-        ?>
-      </td>
-    <?php endif; ?>
-    </tr>
-    <tr class="line<?php echo ($l % 2); $l++; ?>">
-      <td>
-        <?php echo _txt('fd.mail'); ?>
-      </td>
-      <td>
-        <?php
-          if($e)
-          {
-            if(isset($co_person_roles[0]['EmailAddress']))
-            {
-              foreach($co_person_roles[0]['EmailAddress'] as $ea)
-              {
-                // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                echo '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                echo $html->link(_txt('op.edit'),
-                                 array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']),
-                                 array('class' => 'editbutton')) . "\n";
-                echo $html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
-                echo " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
-              }
-            }
-            
-            echo $html->link(_txt('op.add'),
-                             array('controller' => 'email_addresses', 'action' => 'add', 'copersonroleid' => $co_person_roles[0]['CoPersonRole']['id'], 'co' => $cur_co['Co']['id']),
-                             array('class' => 'addbutton'));
-          }
-          else
-          {
-            if(isset($co_person_roles[0]['EmailAddress']))
-              foreach($co_person_roles[0]['EmailAddress'] as $ea)
-                echo Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
-          }
-        ?>
-      </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php
-          if(isset($org_identities[0]['EmailAddress']))
-            foreach($org_identities[0]['EmailAddress'] as $ea)
-              echo Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
-        ?>
-      </td>
-    <?php endif; ?>
-    </tr>
+    <?php if($this->action != "add"): ?>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
         <?php echo _txt('fd.phone'); ?>
@@ -448,47 +267,7 @@
       </td>
     <?php endif; ?>
     </tr>
-    <tr class="line<?php echo ($l % 2); $l++; ?>">
-      <td>
-        <?php echo _txt('fd.groups'); ?>
-      </td>
-      <td>
-        <?php
-          if(isset($co_person_roles[0]['CoGroupMember']))
-          {
-            if($e && !$es)  // XXX !$es is probably the wrong permission here
-            {
-              if(isset($co_person_roles[0]['CoGroupMember']))
-              {
-                foreach($co_person_roles[0]['CoGroupMember'] as $g)
-                {
-                  // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                  echo '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($g['CoGroup']['name'])))) . '\', \'' . $html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'CoPersonRoleid' => $co_person_roles[0]['CoPersonRole']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                  echo $html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
-                  echo "<br />\n";
-                }
-              }
-                
-              echo $html->link(_txt('op.add'),
-                               array('controller' => 'co_groups', 'action' => 'select', 'copersonroleid' => $co_person_roles[0]['CoPersonRole']['id'], 'co' => $cur_co['Co']['id']),
-                               array('class' => 'addbutton'));
-            }
-            else
-            {
-              foreach($co_person_roles[0]['CoGroupMember'] as $g)
-              {
-                if($g['member'])
-                  echo Sanitize::html($g['CoGroup']['name']) . "<br />\n";
-                  
-                if($g['owner'])
-                  echo Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")<br />\n";
-              }
-            }
-          }
-        ?>
-      </td>
-    </tr>
-    <?php endif; ?>
+    <?php endif; // add ?>
     <?php
       // Check for extended attributes and render
       
@@ -510,14 +289,14 @@
           
           if($c['type'] == 'TIMESTAMP')
           {
-            echo ($e ? $this->Form->text($cl.'.'.$attr, array('class' => 'datepicker'))
-                     : (($co_person_roles[0][$cl][$attr] > 0) ? strftime("%F", strtotime($co_person_roles[0][$cl][$attr])) : ""));
+            echo ($e && !$es ? $this->Form->text($cl.'.'.$attr, array('class' => 'datepicker'))
+                             : (($co_person_roles[0][$cl][$attr] > 0) ? strftime("%F", strtotime($co_person_roles[0][$cl][$attr])) : ""));
           }
           else
           {
-            echo ($e ? $this->Form->input($cl.'.'.$attr,
-                                          isset($co_person_roles[0][$cl][$attr]) ? array('default' => $co_person_roles[0][$cl][$attr]) : array())
-                     : Sanitize::html($co_person_roles[0][$cl][$attr]));
+            echo ($e && !$es ? $this->Form->input($cl.'.'.$attr,
+                                                  isset($co_person_roles[0][$cl][$attr]) ? array('default' => $co_person_roles[0][$cl][$attr]) : array())
+                             : Sanitize::html($co_person_roles[0][$cl][$attr]));
           }
         ?>
       </td>

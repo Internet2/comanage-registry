@@ -64,22 +64,24 @@
 
           $cos = array();
           
-          foreach($orgp['CoPersonSource'] as $c)
+          foreach($orgp['CoOrgIdentityLink'] as $c)
           {
             // Create an entry in the session information for each CO the user is a member of
+            
+            $co = $this->User->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($c['CoPerson']['co_id']);
 
-            $cos[ $c['Co']['name'] ] = array(
-              'co_id' => $c['co_id'],
-              'co_name' => $c['Co']['name'],
-              'co_person_role_id' => $c['co_person_role_id']
+            $cos[ $co['Co']['name'] ] = array(
+              'co_id' => $co['Co']['id'],
+              'co_name' => $co['Co']['name'],
+              'co_person_id' => $c['co_person_id']
             );
             
             // Retrieve group memberships and attach them as well
-            $grps = $this->User->OrgIdentity->CoPersonSource->CoPersonRole->CoGroupMember->findAllByCoPersonRoleId($c['co_person_role_id']);
-
+            $grps = $this->User->OrgIdentity->CoOrgIdentityLink->CoPerson->CoGroupMember->findAllByCoPersonId($c['co_person_id']);
+            
             foreach($grps as $g)
             {
-              $cos[ $c['Co']['name'] ]['groups'][ $g['CoGroup']['name'] ] = array(
+              $cos[ $co['Co']['name'] ]['groups'][ $g['CoGroup']['name'] ] = array(
                 'co_group_id' => $g['CoGroup']['id'],
                 'name' => $g['CoGroup']['name'],
                 'member' => $g['CoGroupMember']['member'],

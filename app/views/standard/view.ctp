@@ -32,12 +32,17 @@
 
   if(isset($d[0]['Name']))
     $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['Name']))));
-  elseif(isset($d[0]['CoPersonRole']['Name']))
-    $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['CoPersonRole']['Name'])))) . " (" . _txt('co') . ")";
+  elseif(isset($d[0]['CoPerson']['Name']))
+    $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['CoPerson']['Name'])))) . " (" . _txt('co') . ")";
   elseif(isset($d[0]['OrgIdentity']['Name']))
     $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['OrgIdentity']['Name'])))) . " (" . _txt('co') . ")";
+  // CO Person Role rendering gets some info from co_people
+  elseif(isset($co_people[0]['Name']))
+    $h = _txt('op.edit-a', array(Sanitize::html(generateCn($co_people[0]['Name']))));
+  elseif(isset($d[0][$req]['line1']))
+    $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['line1'])));
   else
-    $h = _txt('op.view-a', array(Sanitize::html($d[0][$req]['name'])));
+    $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['name'])));
 ?>
 <h1 class="ui-state-default"><?php echo $h; ?></h1>
 

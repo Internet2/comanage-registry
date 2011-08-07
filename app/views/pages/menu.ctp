@@ -37,7 +37,7 @@
           if(isset($permissions['menu']['coprofile']) && $permissions['menu']['coprofile'])
           {
             echo $html->link("Manage My CO Identity",
-                             array('controller' => 'co_person_roles', 'action' => 'editself'),
+                             array('controller' => 'co_people', 'action' => 'editself'),
                              array('class' => 'menuitembutton'));
           }
 
@@ -63,7 +63,7 @@
           if(isset($permissions['menu']['cos']) && $permissions['menu']['cos'])
           {
             echo $html->link("My Population",
-                             array('controller' => 'co_person_roles', 'action' => 'index'),
+                             array('controller' => 'co_people', 'action' => 'index'),
                              array('class' => 'menuitembutton'));
           }
           

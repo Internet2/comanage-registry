@@ -42,8 +42,12 @@
           
           switch($k)
           {
+          case 'CoPersonId':
+            $a['Person'] = array('Type' => 'Co',
+                                 'Id' => $m[$req][$k]);
+            break;
           case 'CoPersonRoleId':
-            $a['Person'] = array('Type' => 'CO',
+            $a['Person'] = array('Type' => 'CoRole',
                                  'Id' => $m[$req][$k]);
             break;
           case 'OrgIdentityId':
@@ -57,7 +61,7 @@
         }
       }
       
-      if(($req == 'CoPersonRole' || $req == 'OrgIdentity')
+      if(($req == 'CoPerson' || $req == 'OrgIdentity')
          && isset($m['Name']))
       {
         // We treat Name specially and copy it over

@@ -67,7 +67,7 @@
       
       if($r)
       {
-        // Check co_people schema
+        // Check co_person_role schema
         
         if(isset($this->CoExtendedAttribute->Co->CoPersonSource->CoPersonRole->_schema[$name]))
           $r = false;

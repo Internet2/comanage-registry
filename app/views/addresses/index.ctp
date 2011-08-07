@@ -29,7 +29,7 @@
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
       <th><?php echo $this->Paginator->sort('Org Identity', 'OrgIdentity.Name.family'); ?></th>
       <th><?php echo $this->Paginator->sort('CO Person Role', 'CoPersonRole.Name.family'); ?></th>
-      <th>Actions</th>
+      <th><?php echo _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   

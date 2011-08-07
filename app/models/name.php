@@ -24,7 +24,7 @@
     var $name = "Name";
     
     // Association rules from this model to other models
-    var $belongsTo = array("CoPersonRole",         // A name is attached to a CO Person Role
+    var $belongsTo = array("CoPerson",             // A name is attached to a CO Person
                            "OrgIdentity");         // A name is attached to an Org Identity
     
     // Default display field for cake generated views

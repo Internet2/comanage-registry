@@ -58,18 +58,16 @@
       // Returns:
       // - true if dependency checks succeed, false otherwise.
       
-      // XXX we get to CoPersonSource via Co rather than directly because adding
-      // Cou HasMany CoPersonSource to cou.php model file throws bad SQL
-      $couppl = $this->Cou->Co->CoPersonSource->findAllByCouId($this->Cou->id);
+      $couppl = $this->Cou->CoPersonRole->findAllByCouId($curdata['Cou']['id']);
       
       if(!empty($couppl))
       {
         // A COU can't be removed if anyone is still a member of it.
         
         if($this->restful)
-          $this->restResultHeader(403, "CoPersonSource Exists");
+          $this->restResultHeader(403, "CoPersonRole Exists");
         else
-          $this->Session->setFlash(_txt('er.cou.cop', array($curdata['Cou']['name'])), '', array(), 'error');
+          $this->Session->setFlash(_txt('er.cou.copr', array($curdata['Cou']['name'])), '', array(), 'error');
         
         return(false);
       }

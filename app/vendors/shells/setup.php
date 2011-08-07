@@ -22,7 +22,7 @@
   App::import('Core', 'ConnectionManager');
 
   class SetupShell extends Shell {
-    var $uses = array('Co', 'CoGroup', 'CoGroupMember', 'CoPersonRole', 'CoPersonSource', 'Identifier', 'OrgIdentity');
+    var $uses = array('Co', 'CoGroup', 'CoGroupMember', 'CoOrgIdentityLink', 'CoPerson', 'CoPersonRole', 'Identifier', 'OrgIdentity');
     
     function main()
     {
@@ -112,13 +112,14 @@ WHERE i.login=true;
         $id_id = $this->Identifier->id;
 
       // Add the OrgIdentity to the CO
+      // (1) Create a CO Person
 
       $this->out("- " . _txt('se.db.cop'));
       
       $cop = array(
-        'CoPersonRole' => array(
-          'edu_person_affiliation' => 'staff',
-          'status'                 => 'A'
+        'CoPerson' => array(
+          'co_id'         => $co_id,
+          'status'        => 'A'
         ),
         'Name' => array(
           'given'   => $gn,
@@ -127,20 +128,34 @@ WHERE i.login=true;
         )
       );
       
-      $this->CoPersonRole->saveAll($cop);
-      $cop_id = $this->CoPersonRole->id;
-
-      $cops = array(
-        'CoPersonSource' => array(
-          'co_id'         => $co_id,
-          'co_person_role_id'  => $cop_id,
+      $this->CoPerson->saveAll($cop);
+      $cop_id = $this->CoPerson->id;
+      
+      // (2) Create a CO Person Role
+      
+      $copr = array(
+        'CoPersonRole' => array(
+          'co_person_id'           => $cop_id,
+          'edu_person_affiliation' => 'staff',
+          'status'                 => 'A'
+        )
+      );
+      
+      $this->CoPersonRole->save($copr);
+      $copr_id = $this->CoPersonRole->id;
+      
+      // (3) Add an Identity Link
+      
+      $coil = array(
+        'CoOrgIdentityLink' => array(
+          'co_person_id'    => $cop_id,
           'org_identity_id' => $op_id
         )
       );
-
-      $this->CoPersonSource->save($cops);
-      $cops_id = $this->CoPersonSource->id;
-            
+      
+      $this->CoOrgIdentityLink->save($coil);
+      $coil_id = $this->CoOrgIdentityLink->id;
+        
       // Create the COmanage admin group
       
       $this->out("- " . _txt('se.db.group'));
@@ -163,7 +178,7 @@ WHERE i.login=true;
       $grm = array(
         'CoGroupMember' => array(
           'co_group_id'   => $gr_id,
-          'co_person_role_id'  => $cop_id,
+          'co_person_id'  => $cop_id,
           'member'        => true,
           'owner'         => true
         )

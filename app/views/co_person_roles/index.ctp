@@ -42,7 +42,7 @@
       <th><?php echo $this->Paginator->sort(_txt('fd.valid.f'), 'valid_from'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.valid.u'), 'valid_through'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.status'), 'status'); ?></th>
-      <th>Actions</th>
+      <th><?php echo _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   

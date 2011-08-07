@@ -29,8 +29,8 @@
     
     var $hasMany = array("Address" =>                 // A person can have one or more address
                          array('dependent' => true),
-                         "CoPersonSource" =>          // A person can originate from one or more source
-                         array('dependent' => true),
+                         "CoOrgIdentityLink" =>       // An Org Identity can be attached to one or more CO Person
+                         array('dependent' => false), // Current design requires all links to be dropped manually
                          "EmailAddress" =>            // A person can have one or more email address
                          array('dependent' => true),
                          "Identifier" =>              // A person can have many identifiers within an organization

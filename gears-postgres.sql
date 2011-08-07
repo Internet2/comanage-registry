@@ -64,16 +64,44 @@ CREATE TABLE cm_org_identities (
   title VARCHAR(128),
   o VARCHAR(128),
   ou VARCHAR(128),
-  organization_id INTEGER REFERENCES cm_organizations(id),  // XXX not implemented
+  organization_id INTEGER REFERENCES cm_organizations(id),  -- XXX not implemented
   created TIMESTAMP,
   modified TIMESTAMP
 );
 -- XXX Add indices
 
+-- cm_co_people
+
+CREATE TABLE cm_co_people (
+  id SERIAL PRIMARY KEY,
+  co_id INTEGER NOT NULL REFERENCES cm_cos(id),
+  status VARCHAR(2),
+  created TIMESTAMP,
+  modified TIMESTAMP
+);
+
+CREATE INDEX cm_co_people_i1 ON cm_co_people (co_id);
+
+-- cm_co_org_identity_links
+
+CREATE TABLE cm_co_org_identity_links (
+  id SERIAL PRIMARY KEY,
+  co_person_id INTEGER NOT NULL REFERENCES cm_co_people(id),
+  org_identity_id INTEGER NOT NULL REFERENCES cm_org_identities(id),
+  created TIMESTAMP,
+  modified TIMESTAMP,
+  UNIQUE(co_person_id,org_identity_id)
+);
+
+CREATE INDEX cm_co_org_identity_links_i1 ON cm_co_org_identity_links (co_person_id);
+CREATE INDEX cm_co_org_identity_links_i2 ON cm_co_org_identity_links (org_identity_id);
+
 -- cm_co_person_roles
 
 CREATE TABLE cm_co_person_roles (
   id SERIAL PRIMARY KEY,
+  co_person_id INTEGER NOT NULL REFERENCES cm_co_people(id),
+  cou_id INTEGER REFERENCES cm_cous(id),
   edu_person_affiliation VARCHAR(32),
   title VARCHAR(128),
   o VARCHAR(128),
@@ -87,7 +115,6 @@ CREATE TABLE cm_co_person_roles (
 -- XXX Add indices
 
 -- cm_names
--- This isn't currently an MVPA, but could be by adding co_ and org_identity_id columns
 
 CREATE TABLE cm_names (
   id SERIAL PRIMARY KEY,
@@ -97,7 +124,7 @@ CREATE TABLE cm_names (
   family VARCHAR(128),
   suffix VARCHAR(32),
   type VARCHAR(2),
-  co_person_role_id INTEGER REFERENCES cm_co_person_roles(id),
+  co_person_id INTEGER REFERENCES cm_co_people(id),
   org_identity_id INTEGER REFERENCES cm_org_identities(id),
   created TIMESTAMP,
   modified TIMESTAMP
@@ -119,23 +146,6 @@ CREATE TABLE cm_co_extended_attributes (
 );
 -- XXX Add indices
 
--- cm_co_person_sources
-
-CREATE TABLE cm_co_person_sources (
-  id SERIAL PRIMARY KEY,
-  co_id INTEGER NOT NULL REFERENCES cm_cos(id),
-  co_person_role_id INTEGER NOT NULL REFERENCES cm_co_person_roles(id),
-  cou_id INTEGER REFERENCES cm_cous(id),
-  org_identity_id INTEGER NOT NULL REFERENCES cm_org_identities(id),
-  created TIMESTAMP,
-  modified TIMESTAMP
-);
-
-CREATE INDEX cm_co_person_sources_i1 ON cm_co_person_sources(org_identity_id);
-CREATE INDEX cm_co_person_sources_i2 ON cm_co_person_sources(co_id);
-CREATE INDEX cm_co_person_sources_i3 ON cm_co_person_sources(cou_id);
-CREATE INDEX cm_co_person_sources_i4 ON cm_co_person_sources(co_person_role_id);
-
 -- cm_identifiers
 
 CREATE TABLE cm_identifiers (
@@ -143,7 +153,7 @@ CREATE TABLE cm_identifiers (
   identifier VARCHAR(256) UNIQUE,
   type VARCHAR(32),
   login BOOLEAN,
-  co_person_role_id INTEGER REFERENCES cm_co_person_roles(id),
+  co_person_id INTEGER REFERENCES cm_co_people(id),
   org_identity_id INTEGER REFERENCES cm_org_identities(id),  
   created TIMESTAMP,
   modified TIMESTAMP
@@ -156,7 +166,7 @@ CREATE INDEX cm_identifiers_i2 ON cm_identifiers(identifier,type);
 
 CREATE TABLE cm_co_invites (
   id SERIAL PRIMARY KEY,
-  co_person_role_id INTEGER NOT NULL REFERENCES cm_co_person_roles(id),
+  co_person_id INTEGER NOT NULL REFERENCES cm_co_people(id),
   invitation VARCHAR(48) NOT NULL,
   mail VARCHAR(256),
   expires TIMESTAMP,
@@ -164,15 +174,15 @@ CREATE TABLE cm_co_invites (
   modified TIMESTAMP
 );
 
-CREATE INDEX cm_co_invites_i1 ON cm_co_invites (co_person_role_id);
+CREATE INDEX cm_co_invites_i1 ON cm_co_invites (co_person_id);
 CREATE INDEX cm_co_invites_i2 ON cm_co_invites (invitation);
 
 -- cm_addresses
 
 CREATE TABLE cm_addresses (
   id SERIAL PRIMARY KEY,
-  line_1 VARCHAR(128),
-  line_2 VARCHAR(128),
+  line1 VARCHAR(128),
+  line2 VARCHAR(128),
   locality VARCHAR(128),
   state VARCHAR(128),
   postal_code VARCHAR(16),
@@ -187,19 +197,19 @@ CREATE TABLE cm_addresses (
 CREATE INDEX cm_addresses_i1 ON cm_addresses(co_person_role_id);
 CREATE INDEX cm_addresses_i2 ON cm_addresses(org_identity_id);
 
--- cm_email addresses
+-- cm_email_addresses
 
 CREATE TABLE cm_email_addresses (
   id SERIAL PRIMARY KEY,
   mail VARCHAR(256),
   type VARCHAR(2),
-  co_person_role_id INTEGER REFERENCES cm_co_person_roles(id),
+  co_person_id INTEGER REFERENCES cm_co_people(id),
   org_identity_id INTEGER REFERENCES cm_org_identities(id),
   created TIMESTAMP,
   modified TIMESTAMP
 );
 
-CREATE INDEX cm_email_addresses_i1 ON cm_email_addresses(co_person_role_id);
+CREATE INDEX cm_email_addresses_i1 ON cm_email_addresses(co_person_id);
 CREATE INDEX cm_email_addresses_i2 ON cm_email_addresses(org_identity_id);
 
 -- cm_telephone_numbers
@@ -260,13 +270,13 @@ CREATE INDEX cm_co_groups_i2 ON cm_co_groups(name);
 CREATE TABLE cm_co_group_members (
   id SERIAL PRIMARY KEY,
   co_group_id INTEGER NOT NULL REFERENCES cm_co_groups(id),
-  co_person_role_id INTEGER NOT NULL REFERENCES cm_co_person_roles(id),
+  co_person_id INTEGER NOT NULL REFERENCES cm_co_people(id),
   member BOOLEAN,
   owner BOOLEAN,
   created TIMESTAMP,
   modified TIMESTAMP,
-  UNIQUE(co_group_id,co_person_role_id)
+  UNIQUE(co_group_id,co_person_id)
 );
 
 CREATE INDEX cm_co_group_members_i1 ON cm_co_group_members(co_group_id);
-CREATE INDEX cm_co_group_members_i2 ON cm_co_group_members(co_person_role_id);
+CREATE INDEX cm_co_group_members_i2 ON cm_co_group_members(co_person_id);

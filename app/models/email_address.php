@@ -24,8 +24,8 @@
     var $name = "EmailAddress";
     
     // Association rules from this model to other models
-    var $belongsTo = array("CoPersonRole",    // A telephone number may be attached to a CO Person Role
-                           "OrgIdentity");    // A telephone number may be attached to an Org Identity
+    var $belongsTo = array("CoPerson",        // An email address may be attached to a CO Person
+                           "OrgIdentity");    // An email address may be attached to an Org Identity
     
     // Default display field for cake generated views
     var $displayField = "mail";
@@ -36,11 +36,6 @@
     // Validation rules for table elements
     var $validate = array(
       // Don't require mail or type since $belongsTo saves won't validate if they're empty
-      /* XXX check syntax -- wrote this on the plane
-      'mail' => array(
-        'rule' => 'email'
-      )
-      */
     );
     
     // Enum type hints

@@ -1,6 +1,6 @@
 <?php
   /*
-   * COmanage Gears CO Person Source Model
+   * COmanage Gears CO Org Identity Link Model
    *
    * Version: $Revision$
    * Date: $Date$
@@ -19,21 +19,19 @@
    *
    */
 
-  class CoPersonSource extends AppModel {
+  class CoOrgIdentityLink extends AppModel {
     // Define class name for cake
-    var $name = "CoPersonSource";
+    var $name = "CoOrgIdentityLink";
     
     // Association rules from this model to other models
-    var $belongsTo = array("Co",                     // A CO Person Source is attached to one CO
-                           "Cou",                    // A CO Person Source may be attached to a COU
-                           "CoPersonRole",           // A CO Person Source is attached to one CO Person Role
-                           "OrgIdentity");           // A CO Person Source is attached to one Org Identity
+    var $belongsTo = array("CoPerson",           // A CO Org Identity Link is attached to one CO Person
+                           "OrgIdentity");       // A CO Org Identity Link is attached to one Org Identity
     
     // Default display field for cake generated views
-    var $displayField = "CoPersonSource.id";
+    var $displayField = "CoOrgIdentityLink.id";
     
     // Default ordering for find operations
-    var $order = array("CoPersonSource.id");
+    var $order = array("CoOrgIdentityLink.id");
     
     // Validation rules for table elements
     var $validate = array(

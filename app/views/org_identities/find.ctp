@@ -44,7 +44,7 @@
       <td><?php echo Sanitize::html($p['OrgIdentity']['edu_person_affiliation']); ?></td>
       <td><?php foreach($p['EmailAddress'] as $ea) echo Sanitize::html($ea['mail']) . "<br />"; ?></td>
       <td><?php echo $html->link(_txt('op.inv'),
-                                 array('controller' => 'co_person_roles',
+                                 array('controller' => 'co_people',
                                        'action' => 'invite',
                                        'orgidentityid' => $p['OrgIdentity']['id'],
                                        'co' => $cur_co['Co']['id']),

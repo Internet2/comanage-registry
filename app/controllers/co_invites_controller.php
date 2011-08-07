@@ -242,9 +242,9 @@
         {
           // Update CO Person
           
-          $this->CoInvite->CoPersonRole->id = $invite['CoPersonRole']['id'];
+          $this->CoInvite->CoPerson->id = $invite['CoPerson']['id'];
           
-          if($this->CoInvite->CoPersonRole->saveField('status', $confirm ? 'A' : 'X'))
+          if($this->CoInvite->CoPerson->saveField('status', $confirm ? 'A' : 'X'))
           {
             if($this->restful)
               $this->restResultHeader(200, "Deleted");
@@ -254,9 +254,9 @@
           else
           {
             if($this->restful)
-              $this->restResultHeader(400, "CoPersonRole Unknown");
+              $this->restResultHeader(400, "CoPerson Unknown");
             else
-              $this->Session->setFlash(_txt('er.cop.nf', $invite['CoPersonRole']['id']), '', array(), 'error');
+              $this->Session->setFlash(_txt('er.cop.nf', $invite['CoPerson']['id']), '', array(), 'error');
           }
         }
         else
@@ -308,9 +308,8 @@
         // Database foreign key constraints should prevent inconsistencies here, so extra
         // error checking shouldn't be needed
         
-        $invitee = $this->CoInvite->CoPersonRole->findById($invite['CoInvite']['co_person_role_id']);
-        $cops = $this->CoInvite->CoPersonRole->CoPersonSource->findByCoPersonRoleId($invitee['CoPersonRole']['id'], null, 'CoPersonSource.id');
-        $co = $this->CoInvite->CoPersonRole->CoPersonSource->Co->findById($cops['CoPersonSource']['co_id']);
+        $invitee = $this->CoInvite->CoPerson->findById($invite['CoInvite']['co_person_id']);
+        $co = $this->CoInvite->CoPerson->Co->findById($invitee['CoPerson']['co_id']);
         
         $this->set('cur_co', $co);
         $this->set('invite', $invite);
@@ -323,15 +322,15 @@
       // Send an invitation to the CO person $cpid
       //
       // Parameters (in $this->params['named'] for HTML or $this->params['url'] for REST):
-      // - copersonroleid: ID of CO Person Role to invite
+      // - copersonid: ID of CO Person to invite
       // - co: CO to invite to
       //
       // Preconditions:
-      // (1) $copersonroleid must exist
+      // (1) $copersonid must exist
       //
       // Postconditions:
       // (1) Email invitation sent to address on record (XXX not implemented)
-      // (2) $copersonroleid set to 'Invited' status
+      // (2) $copersonid set to 'Invited' status
       // (3) $cur_co set to current CO on success
       // (4) $invite set on success (HTML)
       // (5) $invitee set to CO Person on success (HTML)
@@ -341,7 +340,7 @@
       //
       // Returns:
       //   Nothing
-      
+        
       if($this->restful)
       {
         if(!$this->convertRequest())
@@ -364,15 +363,15 @@
           {
             // beforeFilter will check the CO for HTML, but not for REST
             
-            $this->cur_co = $this->CoInvite->CoPersonRole->CoPersonSource->Co->findById($this->data['CoInvite']['co_id']);
+            $this->cur_co = $this->CoInvite->CoPerson->Co->findById($this->data['CoInvite']['co_id']);
             
             if(!$this->cur_co)
               $fs['CoId'] = _txt('er.co.unk');
           }
           else
             $fs['CoId'] = _txt('er.notprov');
-          if(!isset($this->data['CoInvite']['co_person_role_id']))
-            $fs['CoPersonRoleId'] = _txt('er.notprov');
+          if(!isset($this->data['CoInvite']['co_person_id']))
+            $fs['CoPersonId'] = _txt('er.notprov');
           
           if(count($fs) > 0)
           {
@@ -382,7 +381,7 @@
           }
 
           $coid = $this->data['CoInvite']['co_id'];
-          $cpid = $this->data['CoInvite']['co_person_role_id'];
+          $cpid = $this->data['CoInvite']['co_person_id'];
         }
       }
       else
@@ -391,34 +390,40 @@
         $this->set('title_for_layout', _txt('op.inv.send'));
 
         $coid = $this->params['named']['co'];
-        $cpid = $this->params['named']['copersonroleid'];
+        $cpid = $this->params['named']['copersonid'];
       }
       
-      // Retrieve info about the Person Role
+      // Retrieve info about the Person
       
-      $cop = $this->CoInvite->CoPersonRole->findById($cpid);
+      $cop = $this->CoInvite->CoPerson->findById($cpid);
 
       if($cop)
       {
         // Toss any prior invitations for $cpid
   
-        $this->CoInvite->deleteAll(array("co_person_role_id" => $cpid));
+        $this->CoInvite->deleteAll(array("co_person_id" => $cpid));
 
         // Find the associated Org Identity to get an email address
         
-        $cops = $this->CoInvite->CoPersonRole->CoPersonSource->findByCoPersonRoleId($cpid, null, 'CoPersonSource.id');
-        $orgp = $this->CoInvite->CoPersonRole->CoPersonSource->OrgIdentity->findById($cops['CoPersonSource']['org_identity_id']);
+// XXX fix this getting link to get org identity
+        // This assumes one CO Person has exactly one CO Org Identity Link,
+        // which might be true now but probably won't always be true
+
+        $lnk = $this->CoInvite->CoPerson->CoOrgIdentityLink->findByCoPersonId($cpid);
+        
+        if(isset($lnk))
+          $orgp = $this->CoInvite->CoPerson->CoOrgIdentityLink->OrgIdentity->findById($lnk['CoOrgIdentityLink']['org_identity_id']);
         
         // XXX We only check org person. What if Org Identity has no address, but is officially
         // sourced (eg: via LDAP)?
         
-        if(count($orgp['EmailAddress']) > 0)
+        if(isset($orgp) && count($orgp['EmailAddress']) > 0)
         {
           // XXX There could be multiple email addresses, we'll use the first one
           // (but could allow the inviter to select one)
           
           // XXX make expiration time configurable      
-          $invite = array("CoInvite" => array('co_person_role_id' => $cpid,
+          $invite = array("CoInvite" => array('co_person_id' => $cpid,
                                               'invitation' => Security::generateAuthKey(),
                                               'mail' => $orgp['EmailAddress'][0]['mail'],
                                               'expires' => date('Y-m-d H:i:s', strtotime('+1 day'))));  // XXX date format may not be portable
@@ -432,9 +437,9 @@
             // Set CO Person status to I
             // XXX probably don't want to do this if status = A.  May need a new password reset status.
     
-            $this->CoInvite->CoPersonRole->id = $cpid;
+            $this->CoInvite->CoPerson->id = $cpid;
             
-            if($this->CoInvite->CoPersonRole->saveField('status', 'I'))
+            if($this->CoInvite->CoPerson->saveField('status', 'I'))
             {
               if($this->restful)
               {
@@ -457,7 +462,7 @@
                 $this->set('invalid_fields', $this->CoInvite->invalidFields());
               }
               else
-                $this->Session->setFlash($this->fieldsErrorToString($this->CoInvite->CoPersonRole->invalidFields()), '', array(), 'error');
+                $this->Session->setFlash($this->fieldsErrorToString($this->CoInvite->CoPerson->invalidFields()), '', array(), 'error');
             }
           }
           else
@@ -478,7 +483,7 @@
           else
           {
             $this->Session->setFlash(_txt('er.orgp.nomail', array(generateCn($orgp['Name']), $orgp['OrgIdentity']['id'])), '', array(), 'error');
-            $this->redirect(array('controller' => 'co_person_roles', 'action' => 'index', 'co' => $this->cur_co['Co']['id']));
+            $this->redirect(array('controller' => 'co_people', 'action' => 'index', 'co' => $this->cur_co['Co']['id']));
           }
         }
       }
@@ -487,7 +492,7 @@
         if($this->restful)
         {
           $this->restResultHeader(400, "Invalid Fields");
-          $this->set('invalid_fields', array('CoPersonRoleId' => _txt('er.cop.unk')));
+          $this->set('invalid_fields', array('CoPersonId' => _txt('er.cop.unk')));
         }
         else
           $this->Session->setFlash(_txt('er.cop.nf', array($cpid)), '', array(), 'error');

@@ -207,11 +207,15 @@
             $dbo = $this->Co->getDataSource();
 
             $params = array(
-              'joins' => array(0 => array('table' => $dbo->fullTableName($this->Co->CoPersonSource),
-                                          'alias' => 'CoPersonSource',
+              'joins' => array(0 => array('table' => $dbo->fullTableName($this->Co->CoPerson),
+                                          'alias' => 'CoPerson',
                                           'type' => 'INNER',
-                                          'conditions' => array('Co.id=CoPersonSource.co_id'))),
-              'conditions' => array('CoPersonSource.org_identity_id' => $this->Session->read('Auth.User.org_identity_id'))
+                                          'conditions' => array('Co.id=CoPerson.co_id')),
+                               1 => array('table' => $dbo->fullTableName($this->Co->CoPerson->CoOrgIdentityLink),
+                                          'alias' => 'CoOrgIdentityLink',
+                                          'type' => 'INNER',
+                                          'conditions' => array('CoPerson.id=CoOrgIdentityLink.co_person_id'))),
+              'conditions' => array('CoOrgIdentityLink.org_identity_id' => $this->Session->read('Auth.User.org_identity_id'))
             );
             
             $ucos = $this->Co->find('all', $params);
