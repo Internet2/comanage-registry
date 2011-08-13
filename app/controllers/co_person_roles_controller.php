@@ -139,16 +139,16 @@
         {
           // Request for an individual
           
-          $cops = $this->CoPersonRole->CoPersonSource->findByCoPersonRoleId($this->params['id']);
+          $cops = $this->CoPersonRole->CoPerson->findByCoPersonRoleId($this->params['id']);
           
           if(!empty($cops))
-            $this->cur_co = $this->CoPersonRole->CoPersonSource->Co->findById($cops['CoPersonSource']['co_id']);
+            $this->cur_co = $this->CoPersonRole->CoPerson->Co->findById($cops['CoPerson']['co_id']);
         }
         elseif(isset($this->params['url']['coid']))
         {
           // Request for all members of a CO
           
-          $this->cur_co = $this->CoPersonRole->CoPersonSource->Co->findById($this->params['url']['coid']);
+          $this->cur_co = $this->CoPersonRole->CoPerson->Co->findById($this->params['url']['coid']);
         }
         // We don't currently support requests for all CO people (regardless of CO).
         // To do so, we'd have to extract the CO ID on a per-CO person basis, which

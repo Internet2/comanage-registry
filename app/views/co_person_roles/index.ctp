@@ -36,7 +36,7 @@
     <tr class="ui-widget-header">
       <th><?php echo $this->Paginator->sort(_txt('fd.name'), 'Name.family'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.o'), 'o'); ?></th>
-      <th><?php echo $this->Paginator->sort(_txt('fd.cou'), 'CoPersonSource.Cou.ou'); ?></th>
+      <th><?php echo $this->Paginator->sort(_txt('fd.cou'), 'Cou.ou'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.title'), 'title'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.affiliation'), 'edu_person_affiliation'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.valid.f'), 'valid_from'); ?></th>
@@ -53,7 +53,7 @@
       <td><?php echo $html->link(generateCn($p['Name']),
                                  array('controller' => 'co_person_roles', 'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id'])); ?></td>
       <td><?php echo Sanitize::html($p['CoPersonRole']['o']); ?></td>
-      <td><?php if(isset($p['CoPersonSource'][0]['Cou']['name'])) echo Sanitize::html($p['CoPersonSource'][0]['Cou']['name']); ?></td>
+      <td><?php if(isset($p['CoPersonRole']['Cou']['name'])) echo Sanitize::html($p['CoPersonRole']['Cou']['name']); ?></td>
       <td><?php echo Sanitize::html($p['CoPersonRole']['title']); ?></td>
       <td><?php echo Sanitize::html($p['CoPersonRole']['edu_person_affiliation']); ?></td>
       <td><?php if($p['CoPersonRole']['valid_from'] > 0) echo $this->Time->format('Y M d', $p['CoPersonRole']['valid_from']); ?></td>

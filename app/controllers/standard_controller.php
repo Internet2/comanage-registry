@@ -580,17 +580,6 @@
                 return;
               }
               
-              /*
-              $dbo = $model->getDataSource();
-              
-              $params['joins'][] = array('table' => $dbo->fullTableName($model->CoPersonSource),
-                                         'alias' => 'CoPersonSource',
-                                         'type' => 'INNER',
-                                         'conditions' => array(
-                                           $req.'.id=CoPersonSource.'.$modelid
-                                        ));
-              */
-              
               $params['conditions'] = array('CoPerson.co_id' => $this->params['url']['coid']);
             }
             else

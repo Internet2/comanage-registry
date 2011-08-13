@@ -621,12 +621,8 @@
               // XXX This "find the CO" isn't really ideal
               if(isset($model->Co))
                 $coptr = $model->Co;
-              elseif(isset($model->CoPersonSource->Co))
-                $coptr = $model->CoPersonSource->Co;
               elseif(isset($model->CoGroup->Co))
                 $coptr = $model->CoGroup->Co;
-              elseif(isset($model->CoPersonRole->CoPersonSource->Co))
-                $coptr = $model->CoPersonRole->CoPersonSource->Co;
             
               if($coptr)
                 $this->cur_co = $coptr->findById($coid);
