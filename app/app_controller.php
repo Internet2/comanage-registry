@@ -927,9 +927,9 @@
               if(isset($model->validate[$k]['rule']) && $model->validate[$k]['rule'][0] == 'boolean')
               {
                 if($r[$m][$k])
-                  $rr[$m][$k] = "True";
+                  $rr[$m][$k] = (bool)true;
                 else
-                  $rr[$m][$k] = "False";
+                  $rr[$m][$k] = (bool)false;
               }
             }
           }

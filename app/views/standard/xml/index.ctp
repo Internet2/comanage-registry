@@ -34,7 +34,7 @@
       
       foreach(array_keys($m[$req]) as $k)
       {
-        if($m[$req][$k] != null)
+        if($m[$req][$k] !== null)
         {
           // Some attributes are treated specially
           
@@ -56,7 +56,12 @@
                                           "Id" => $m[$req][$k]));
             break;
           default:
-            $xd .= $this->Xml->elem($k, null, $m[$req][$k]);
+            if($m[$req][$k] === true)
+              $xd .= $this->Xml->elem($k, null, "True");
+            elseif($m[$req][$k] === false)
+              $xd .= $this->Xml->elem($k, null, "False");
+            else
+              $xd .= $this->Xml->elem($k, null, $m[$req][$k]);
             break;
           }
         }

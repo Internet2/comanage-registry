@@ -36,7 +36,7 @@
       
       foreach(array_keys($m[$req]) as $k)
       {
-        if($m[$req][$k] != null)
+        if($m[$req][$k] !== null)
         {
           // Some attributes are treated specially
           
