@@ -227,7 +227,12 @@
     <table width="100%">
       <tr>
         <td width="50%">
-          <?php echo $this->Html->image('comanage-logo.jpg', array('alt' => 'COmanage')); ?>
+          <?php
+            echo $this->Html->image('comanage-logo.jpg',
+                                    array('alt'     => 'COmanage',
+                                          'height'  => 42,
+                                          'width'   => 227));
+          ?>
         </td>
         <td width="50%">
           <div class="right">
