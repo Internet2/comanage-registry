@@ -331,7 +331,7 @@
         </td>
       </tr>
     </table>
-    <?php echo $this->element('sql_dump'); ?>
+    <?php if(Configure::read('debug') > 0) echo $this->element('sql_dump'); ?>
 
     <!-- Common UI components -->
   

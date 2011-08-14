@@ -33,7 +33,9 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 2);  // XXX need to set to 0 or 1 for content-type to be delivered correctly
+// This should always be 0 on any internet facing server. Note that at level 2
+// content-type is always text/html.
+	Configure::write('debug', 0);
 
 /**
  * CakePHP Log Level:
