@@ -123,6 +123,55 @@
       return(true);
     }
         
+    function checkWriteFollowups()
+    {
+      // Perform any followups following a write operation.  Note that if this
+      // method fails, it must return a warning or REST response, but that the
+      // overall transaction is still considered a success (add/edit is not
+      // rolled back).
+      // This method is intended to be overridden by model-specific controllers.
+      // 
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      // (1) $this->data holds request data
+      //
+      // Postconditions:
+      // (1) Session flash message updated (HTML) or HTTP status returned (REST) on error
+      //
+      // Returns:
+      // - true if dependency checks succeed, false otherwise.
+      
+      // Create an admin Group for the new CO. As of now, we don't try to populate
+      // it with the current user, since it may not be desirable for the current
+      // user (say, the CMP admin) to be a member of the new CO. See also CO-84.
+      
+      // Only do this via HTTP.
+      
+      if(!$this->restful && $this->action == 'add')
+      {
+        if(isset($this->Co->id))
+        {
+          $a['CoGroup'] = array(
+            'co_id' => $this->Co->id,
+            'name' => 'admin',
+            'description' => _txt('fd.group.desc.adm', array($this->data['Co']['name'])),
+            'open' => false,
+            'status' => 'A'
+          );
+          
+          if(!$this->Co->CoGroup->save($a))
+          {
+            $this->Session->setFlash(_txt('er.co.gr.admin'), '', array(), 'info');
+            return(false);
+          }
+        }
+      }
+
+      return(true);
+    }
+
     function isAuthorized()
     {
       // Authorization for this Controller, called by Auth component

@@ -61,7 +61,24 @@
       if(!isset($curdata)
          || ($curdata['CoGroup']['name'] != $this->data['CoGroup']['name']))
       {
+        // Disallow names beginning with 'admin' if the current user is not an admin
+        
+        if(!$this->viewVars['permissions']['admin'])
+        {
+          if($this->data['CoGroup']['name'] == 'admin'
+             || strncmp($this->data['CoGroup']['name'], 'admin:', 6) == 0)
+          {
+            if($this->restful)
+              $this->restResultHeader(403, "Name Reserved");
+            else
+              $this->Session->setFlash(_txt('er.gr.res'), '', array(), 'error');          
+    
+            return(false);
+          }
+        }
+        
         // Make sure name doesn't exist within this CO
+        
         $x = $this->CoGroup->find('all', array('conditions' =>
                                                array('CoGroup.name' => $this->data['CoGroup']['name'],
                                                      'CoGroup.co_id' => $this->cur_co['Co']['id'])));
@@ -183,6 +200,9 @@
       
       // Add a new Group?
       $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['comember']);
+      
+      // Create an admin Group?
+      $p['admin'] = ($cmr['cmadmin'] || $cmr['coadmin']);
       
       // Delete an existing Group?
       $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
