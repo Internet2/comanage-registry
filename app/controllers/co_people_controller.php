@@ -43,51 +43,6 @@
     var $view_recursion = 2;
     // We also need Name on delete
     var $delete_recursion = 2;
-
-    function beforeFilter()
-    {
-      // Callback before other controller methods are invoked or views are rendered.
-      //
-      // Parameters:
-      //   None
-      //
-      // Preconditions:
-      //     None
-      //
-      // Postconditions:
-      // (1) Parent called
-      //
-      // Returns:
-      //   Nothing
-      
-      parent::beforeFilter();
-      
-      // If there are any extended attributes defined for this CO,
-      // dynamically bind the CO table of attributes to the model.
-      
-      if($this->restful && !isset($this->cur_co))
-      {
-        // Calls to co_people via the REST controller won't have a CO set (except
-        // when retrieving all members of a CO) so we have to figure out the CO
-        // from the person requested.
-        
-        if(isset($this->params['id']))
-        {
-          // Request for an individual
-          
-          $this->cur_co = $this->CoPerson->Co->findById($this->params['id']);
-        }
-        elseif(isset($this->params['url']['coid']))
-        {
-          // Request for all members of a CO
-          
-          $this->cur_co = $this->CoPerson->Co->findById($this->params['url']['coid']);
-        }
-        // We don't currently support requests for all CO people (regardless of CO).
-        // To do so, we'd have to extract the CO ID on a per-CO person basis, which
-        // wouldn't be terribly efficient.
-      }
-    }
   
     function checkDeleteDependencies($curdata)
     {
