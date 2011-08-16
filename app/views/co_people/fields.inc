@@ -387,13 +387,13 @@
               <?php endif; // compare ?>
               <td><?php if(isset($r['title'])) echo Sanitize::html($r['title']); ?></td>
               <td><?php if(isset($r['edu_person_affiliation'])) echo Sanitize::html($r['edu_person_affiliation']); ?></td>
-              <td><?php if(isset($r['valid_from'])) echo $this->Time->format('Y M d', $r['valid_from']); ?></td>
-              <td><?php if(isset($r['valid_through'])) echo $this->Time->format('Y M d', $r['valid_through']); ?></td>
+              <td><?php if(isset($r['valid_from']) && $r['valid_from'] > 0) echo $this->Time->format('Y M d', $r['valid_from']); ?></td>
+              <td><?php if(isset($r['valid_through']) && $r['valid_through'] > 0) echo $this->Time->format('Y M d', $r['valid_through']); ?></td>
               <?php if($this->action != "compare"): ?>
               <td><?php if(isset($r['status'])) echo _txt('en.status', null, $r['status']); ?></td>
               <td>
                 <?php
-                  if(!isset($permissions['cous']) || $es ||
+                  if(!isset($permissions['cous']) || empty($permissions['cous']) || $es ||
                      (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous'])))
                   {
                     // COU Admins can only edit their own folks, so we need a bit of
