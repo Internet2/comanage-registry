@@ -58,7 +58,7 @@
       <th><?php echo $this->Paginator->sort(_txt('fd.desc'), 'description'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.open'), 'open'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.status'), 'status'); ?></th>
-      <th><?php echo _txt('fd.perms'); ?></th>
+      <th><?php echo _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
