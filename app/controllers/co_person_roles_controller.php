@@ -187,21 +187,24 @@
       // Returns:
       // - true if dependency checks succeed, false otherwise.
       
-      // Check that the COU ID provided points to an existing COU.
-
-      if(empty($this->data['CoPersonRole']['cou_id']))
+      if($this->restful && !empty($this->viewVars['permissions']['cous']))
       {
-        $this->restResultHeader(403, "COU Does Not Exist");
-        return(false);
-      }      
-      
-      $a = $this->CoPersonRole->Cou->findById($this->data['CoPersonRole']['cou_id']);
-
-      if(empty($a))
-      {
-        $this->restResultHeader(403, "COU Does Not Exist");
-        return(false);
-      }      
+        // Check that the COU ID provided points to an existing COU.
+  
+        if(empty($this->data['CoPersonRole']['cou_id']))
+        {
+          $this->restResultHeader(403, "COU Does Not Exist");
+          return(false);
+        }      
+        
+        $a = $this->CoPersonRole->Cou->findById($this->data['CoPersonRole']['cou_id']);
+  
+        if(empty($a))
+        {
+          $this->restResultHeader(403, "COU Does Not Exist");
+          return(false);
+        }
+      }
       
       if($this->restful && $curdata != null)
       {
