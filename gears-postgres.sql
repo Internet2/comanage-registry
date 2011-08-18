@@ -112,7 +112,9 @@ CREATE TABLE cm_co_person_roles (
   created TIMESTAMP,
   modified TIMESTAMP  
 );
--- XXX Add indices
+
+CREATE INDEX cm_co_person_roles_i1 ON cm_co_person_roles (co_person_id);
+CREATE INDEX cm_co_person_roles_i2 ON cm_co_person_roles (cou_id);
 
 -- cm_names
 
