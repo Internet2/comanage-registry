@@ -50,7 +50,31 @@
         // and (2) SERIAL isn't usable in an ALTER TABLE statement
         // So we continue on error
         $schema->ContinueOnError(true);
-        $sql = $schema->ParseSchema($this->params['root'] . '/app/config/schema/schema.xml');
+
+        // Parse the database XML schema from file unless we are targeting MySQL
+        // in which case we use an XSL style sheet to first modify the schema
+        // so that boolean columns are cast to TINYINT(1) and the cakePHP
+        // automagic works. See
+        //
+        // https://bugs.internet2.edu/jira/browse/CO-175
+        //
+        if ($db->config['driver'] != 'mysql')
+        {
+          $sql = $schema->ParseSchema($this->params['root'] . '/app/config/schema/schema.xml');
+        }
+        else
+        {
+          $xml = new DOMDocument;
+          $xml->load($this->params['root'] . '/app/config/schema/schema.xml');
+
+          $xsl = new DOMDocument;
+          $xsl->load($this->params['root'] . '/app/config/schema/boolean_mysql.xsl');
+
+          $proc = new XSLTProcessor;
+          $proc->importStyleSheet($xsl);
+
+          $sql = $schema->ParseSchemaString($proc->transformToXML($xml));
+        }
         
         switch($schema->ExecuteSchema($sql))
         {
