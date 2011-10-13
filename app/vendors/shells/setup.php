@@ -188,6 +188,13 @@ WHERE i.login=true;
       $grm_id = $this->CoGroupMember->id;
 
       $this->out(_txt('se.done'));
+
+      // Clear the models in the cache since the cm_users view
+      // was just created and will not otherwise appear in the cache.
+      //
+      // See https://bugs.internet2.edu/jira/browse/CO-191
+      clearCache(null, 'models');
+ 
     }
   }
 ?>
