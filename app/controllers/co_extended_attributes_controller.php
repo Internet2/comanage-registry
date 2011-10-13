@@ -176,6 +176,11 @@
       // Commit any changes
       $dbc->commit($this);
 
+      // Since the database representation of the models has been
+      // manipulated directly we need to clear the models in the cache.
+      // See https://bugs.internet2.edu/jira/browse/CO-171
+      clearCache(null, 'models');
+
       return(true);
     }
     
@@ -398,6 +403,11 @@
       // Commit any changes
       $dbc->commit($this);
       
+      // Since the database representation of the models has been
+      // manipulated directly we need to clear the models in the cache.
+      // See https://bugs.internet2.edu/jira/browse/CO-171
+      clearCache(null, 'models');
+
       return(true);
     }
     
