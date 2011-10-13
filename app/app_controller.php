@@ -93,8 +93,8 @@
 
       // Get a pointer to our model
       $req = $this->modelClass;
-      if($req != 'Page')          // Page doesn't have an actual model
-        $model = $this->$req;
+      if($req != 'Page' and $req != 'CakeError')          // Page doesn't have an actual model and
+        $model = $this->$req;                             // neither does CakeError.
 
       // First, determine if we're handling a RESTful request.
       // If so, we'll do a few things differently.
@@ -242,8 +242,8 @@
 
       // Get a pointer to our model
       $req = $this->modelClass;
-      if($req != 'Page')          // Page doesn't have an actual model
-        $model = $this->$req;
+      if($req != 'Page' and $req != 'CakeError')          // Page doesn't have an actual model and
+        $model = $this->$req;                             // neither does CakeError.
         
       if(!$this->restful && $this->requires_co && isset($this->cur_co) && !isset($this->params['named']['co']))
       {
