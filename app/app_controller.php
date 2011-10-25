@@ -58,16 +58,12 @@
       // - true if authentication and authorization is successful, false otherwise
         
       // Set the appropriate fields in $data, then hand off to Auth
-$this->log("rest user", 'debug');
       $data[ $this->Auth->fields['username'] ] = $args['username']; 
       $data[ $this->Auth->fields['password'] ] = $this->Auth->password($args['password']); 
-$this->log($args['username'], 'debug');
-$this->log($this->Auth->password($args['password']), 'debug');
 
       if($this->Auth->login($data)
          && $this->Auth->isAuthorized('controller', $this, $args['username']))
         return(true);
-$this->log("auth data is false", 'debug');
 
       $this->Security->blackHole($this, 'login'); 
       return(false);
