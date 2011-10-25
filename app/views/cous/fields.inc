@@ -20,6 +20,7 @@
    */
 -->
 <?php
+
   // Determine if fields are editable
   $e = false;
   
@@ -44,7 +45,7 @@
     <br />
     <br />
     ';
-  
+
   if(isset($this->params['named']['co']))
     echo $this->Form->hidden('co_id', array('default' => Sanitize::html($this->params['named']['co']))) . "\n";
 ?>
@@ -64,6 +65,14 @@
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('description') : Sanitize::html($cous[0]['Cou']['description'])); ?>
+      </td>
+    </tr>
+    <tr class="line1">
+      <td>
+        <?php echo _txt('fd.parent'); ?>
+      </td>
+      <td>
+        <?php echo ($e ? $this->Form->select('parent_id', $this->viewVars['parent_options']) : Sanitize::html($cous[0]['Cou']['parent_id'])); ?>
       </td>
     </tr>
     <tr>

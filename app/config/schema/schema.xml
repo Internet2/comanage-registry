@@ -50,6 +50,11 @@
     </field>
     <field name="name" type="C" size="128" />
     <field name="description" type="C" size="128" />
+    <field name="parent_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="lft" type="I" />
+    <field name="rght" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

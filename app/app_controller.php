@@ -58,13 +58,16 @@
       // - true if authentication and authorization is successful, false otherwise
         
       // Set the appropriate fields in $data, then hand off to Auth
-      
+$this->log("rest user", 'debug');
       $data[ $this->Auth->fields['username'] ] = $args['username']; 
       $data[ $this->Auth->fields['password'] ] = $this->Auth->password($args['password']); 
-      
+$this->log($args['username'], 'debug');
+$this->log($this->Auth->password($args['password']), 'debug');
+
       if($this->Auth->login($data)
          && $this->Auth->isAuthorized('controller', $this, $args['username']))
         return(true);
+$this->log("auth data is false", 'debug');
 
       $this->Security->blackHole($this, 'login'); 
       return(false);
@@ -212,18 +215,18 @@
   
         // Require login for all methods 
         $this->Security->requireLogin();
-          
+
         // But disable validation of POST data, which will be an XML document
         // (the security component doesn't know how to validate XML documents)
         $this->Security->validatePost = false;
       }
-      
+
       // We need to retrieve roles before returning to the relevant controller.
       // This disables auto redirect (with the expectation that we'll manually
       // redirect in login())
       $this->Auth->autoRedirect = false;
     }
-    
+
     function beforeRender()
     {
       // Callback after controller methods are invoked but before views are rendered.
@@ -244,7 +247,7 @@
       $req = $this->modelClass;
       if($req != 'Page' and $req != 'CakeError')          // Page doesn't have an actual model and
         $model = $this->$req;                             // neither does CakeError.
-        
+
       if(!$this->restful && $this->requires_co && isset($this->cur_co) && !isset($this->params['named']['co']))
       {
         // When a form is submitted but errors out, the CO passed via /co:##
@@ -299,7 +302,7 @@
       //   - copersonid: CO Person ID of current user in current CO (or false)
       
       global $group_sep;
-      
+
       $ret = array(
         'cmadmin' => false,
         'coadmin' => false,
@@ -321,7 +324,7 @@
         // Platform admin?
         if(isset($cos['COmanage']['groups']['admin']['member']))
           $ret['cmadmin'] = $cos['COmanage']['groups']['admin']['member'];
-        
+
         if(isset($this->cur_co))
         {
           // Admin of current CO?
@@ -344,12 +347,17 @@
                 $ret['couadmin'][] = $ga[1];
               }
             }
-            
+
             if(!empty($ret['couadmin']))
             {
+              // Include children
+              $this->loadModel('Cou');
+
+              $ret['couadmin'] = $this->Cou->childCous($ret['couadmin']);
+              sort($ret['couadmin']);
+
               // Promote the set of COUs so they are globally available
-              
-              $this->cur_cous = $ret['couadmin'];
+              $this->cur_cous =   $ret['couadmin'];
             }
           }
           
@@ -404,7 +412,7 @@
         $ret['apiuser'] = true;
         $ret['cmadmin'] = true;  // API users are currently platform admins
       }
-      
+
       // Org Person?
       if($this->Session->check('Auth.User.org_identity_id'))
         $ret['orgidentityid'] = $this->Session->read('Auth.User.org_identity_id');
@@ -981,7 +989,7 @@
       // - The assembled string
       
       $s = "";
-      
+
       foreach(array_keys($fs) as $f)
       {
         if(is_array($fs[$f]))

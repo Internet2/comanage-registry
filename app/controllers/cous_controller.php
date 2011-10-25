@@ -40,7 +40,36 @@
     
     // This controller needs a CO to be set
     var $requires_co = true;
-    
+
+    function beforeRender()
+    {
+      // Perform filtering of COU parent options for dropdown.
+      //
+      // Parameters:
+      //     None
+      //
+      // Preconditions:
+      //     None
+      //
+      // Postconditions:
+      //     None
+      //
+      // Returns:
+      //     None, sets parent_options
+
+      // Loop check only needed for the edit page, model does not know CO for new COUs
+      if($this->action == 'edit')
+      {
+        $options = $this->Cou->potentialParents($this->data['Cou']['id']);
+      }
+      else
+      {
+        $optionArrays = $this->Cou->findAllByCoId($this->cur_co['Co']['id']);
+        $options = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name');
+      }
+      $this->set('parent_options', $options);
+    }
+
     function checkDeleteDependencies($curdata)
     {
       // Perform any dependency checks required prior to a delete operation.
@@ -71,7 +100,69 @@
         
         return(false);
       }
+      // A COU can't be removed if it has children.
+      foreach($this->cur_co['Cou'] as $k => $v)
+      {
+        if($v['parent_id'] == $curdata['Cou']['id'])
+        {
+          if($this->restful)
+            $this->restResultHeader(403, "Child COU Exists");
+          else
+            $this->Session->setFlash(_txt('er.cou.child', array(Sanitize::html($curdata['Cou']['name']))), '', array(), 'error');
+
+          return(false);
+        }
+      }
         
+      return(true);
+    }
+
+    function checkWriteDependencies($curdata = null)
+    {
+      // Perform any dependency checks required prior to a write (add/edit) operation.
+      //
+      // Parameters:
+      // - For edit operations, $curdata will hold current data
+      //
+      // Preconditions:
+      // (1) $this->data holds request data
+      //
+      // Postconditions:
+      // (1) Session flash message updated (HTML) or HTTP status returned (REST) on error
+      //
+      // Returns:
+      // - true if dependency checks succeed, false otherwise.
+
+      // Parent COU must be in same CO as child
+
+      // Name of parent
+      $parentCou = $this->params['data']['Cou']['parent_id'];
+
+      if($parentCou != "")
+      {
+        if($this->action != 'add')
+        {
+          // Parent not found in CO
+          if(!($this->Cou->isCoMember($parentCou)))
+          {
+            if($this->restful)
+              $this->restResultHeader(403, "Wrong CO");
+            else
+              $this->Session->setFlash(_txt('er.cou.sameco', array($this->data['CoGroupMember']['co_group_id'])), '', array(), 'error');
+            return(false);
+          }
+
+          // Check if parent would cause a loop
+          if($this->Cou->isChildCou($this->viewVars['cur_co']['Cou']['id'], $parentCou) )
+          {
+             if($this->restful)
+               $this->restResultHeader(403, "Parent Would Create Cycle");
+             else
+               $this->Session->setFlash(_txt('er.cou.cycle', array($this->data['CoGroupMember']['co_group_id'])), '', array(), 'error');
+             return(false);
+          }
+        }
+      }
       return(true);
     }
 
