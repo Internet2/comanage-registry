@@ -36,19 +36,23 @@
  * Map resources for REST calls
  */
 
-Router::mapResources('addresses');
-Router::mapResources('co_extended_attributes');
-Router::mapResources('co_invites');
-Router::mapResources('co_groups');
-Router::mapResources('co_group_members');
-Router::mapResources('co_org_identity_links');
-Router::mapResources('co_people');
-Router::mapResources('co_person_roles');
-Router::mapResources('cos');
-Router::mapResources('cous');
-Router::mapResources('email_addresses');
-Router::mapResources('identifiers');
-Router::mapResources('org_identities');
-Router::mapResources('organizations');
-Router::mapResources('telephone_numbers');
+$controllerList = array(
+  'addresses',
+  'co_extended_attributes',
+  'co_invites',
+  'co_groups',
+  'co_group_members',
+  'co_org_identity_links',
+  'co_people',
+  'co_person_roles',
+  'cos',
+  'cous',
+  'email_addresses',
+  'identifiers',
+  'org_identities',
+  'organizations',
+  'telephone_numbers'
+);
+
+Router::mapResources($controllerList);
 Router::parseExtensions();
