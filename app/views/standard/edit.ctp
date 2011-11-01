@@ -42,6 +42,8 @@
     $h = _txt('op.edit-a', array(Sanitize::html(generateCn($co_people[0]['Name']))));
   elseif(isset($d[0][$req]['line1']))
     $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['line1'])));
+  elseif(isset($d[0][$req]['label']))
+    $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['label'])));
   else
     $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['name'])));
 ?>

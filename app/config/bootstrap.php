@@ -53,6 +53,6 @@ Inflector::rules('plural', array('irregular' => array('cou' => 'cous')));
 
 App::import('Core', 'Sanitize');
 
-include APP."libs/lang.php";
 include APP."libs/enum.php";
+include APP."libs/lang.php";
 include APP."libs/util.php";

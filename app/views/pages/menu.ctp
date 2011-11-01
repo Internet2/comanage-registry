@@ -80,6 +80,13 @@
                              array('controller' => 'cous', 'action' => 'index'),
                              array('class' => 'menuitembutton'));
           }
+          
+          if(isset($permissions['menu']['coef']) && $permissions['menu']['coef'])
+          {
+            echo $html->link("CO Enrollment Configuration",
+                             array('controller' => 'co_enrollment_flows', 'action' => 'index'),
+                             array('class' => 'menuitembutton'));
+          }
         ?>
       </td>
 
@@ -94,6 +101,10 @@
 
             echo $html->link("Organizations",
                              array('controller' => 'organizations', 'action' => 'index'),
+                             array('class' => 'menuitembutton'));
+            
+            echo $html->link("CMP Enrollment Configuration",
+                             array('controller' => 'cmp_enrollment_configurations', 'action' => 'select'),
                              array('class' => 'menuitembutton'));
           }
         ?>

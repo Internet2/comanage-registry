@@ -29,6 +29,9 @@
     
     var $hasMany = array("Address" =>                 // A person can have one or more address
                          array('dependent' => true),
+                         "CoPetition" =>
+                         array('dependent' => true,
+                               'foreignKey' => 'enrollee_co_person_role_id'),
                          "TelephoneNumber" =>         // A person can have one or more telephone numbers
                          array('dependent' => true));
 

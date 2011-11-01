@@ -89,10 +89,35 @@
       // Open the dialog
       $('#dialog').dialog('open');
     }
+    
+    function js_onload_call_hooks()
+    {
+      // On page load, call any defined initialization functions.
+      // Make sure function is defined before calling.
+      
+      if(window.js_local_onload)
+      {
+        js_local_onload();
+      }
+    }
+    
+    function js_onsubmit_call_hooks()
+    {
+      // On form submit, call any defined functions.
+      // Make sure function is defined before calling.
+      
+      if(window.js_local_onsubmit)
+      {
+        js_local_onsubmit();
+      }
+    }
 
     // jQuery stuff
     
     $(function() {
+      // Accordion
+      $(".accordion").accordion();
+      
       // Make all submit buttons pretty
       $("input:submit").button();
       
@@ -223,7 +248,7 @@
     <?php echo $scripts_for_layout ?>
   </head>
  
-  <body>
+  <body onload="js_onload_call_hooks()">
     <table width="100%">
       <tr>
         <td width="50%">

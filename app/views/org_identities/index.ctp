@@ -23,12 +23,9 @@
 
 <?php
   if($permissions['add'])
-    echo $this->Html->link(_txt('op.add.new', array(_txt('ct.org_identities.1'))),
-                           array('controller' => 'org_identities', 'action' => 'add'),
-                           array('class' => 'addbutton')) .
-    $this->Html->link('Add Person via LDAP',  // XXX need to I18N this
-                      array('controller' => 'org_identities', 'action' => 'addvialdap'),
-                      array('class' => 'addbutton')) . '
+    print $this->Html->link(_txt('op.add.new', array(_txt('ct.org_identities.1'))),
+                            array('controller' => 'org_identities', 'action' => 'add'),
+                            array('class' => 'addbutton')) . '
     <br />
     <br />
     ';

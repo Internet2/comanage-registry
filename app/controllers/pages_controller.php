@@ -158,6 +158,9 @@ class PagesController extends AppController {
       // Manage COU definitions?
       $p['menu']['cous'] = $cmr['admin'];
 
+      // Manage CO enrollment flow definitions?
+      $p['menu']['coef'] = $cmr['admin'];
+      
       // Admin COmanage?
       $p['menu']['admin'] = $cmr['cmadmin'];
       

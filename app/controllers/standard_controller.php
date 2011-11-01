@@ -447,7 +447,7 @@
       // Get a pointer to our model
       $req = $this->modelClass;
       $model = $this->$req;
-
+      
       if(isset($c[$req][$model->displayField]))
         return($c[$req][$model->displayField]);
       elseif(isset($this->data[$model->displayField]))
@@ -484,6 +484,9 @@
 
       if(isset($this->view_recursion))
         $model->recursive = $this->view_recursion;
+        
+      // XXX The various sub-filters here (eg: findByCoPersonId) should be merged into
+      // the new paginationConditions method.
 
       if($this->restful)
       {
@@ -653,17 +656,44 @@
         }
         else
         {
-          if(isset($this->cur_co))
-          {
-            // Only retrieve members of the current CO
-            $this->paginate['conditions'] = array(
-              $req.'.co_id' => $this->cur_co['Co']['id']
-            );
-          }
+          // Configure pagination
+          $this->paginate['conditions'] = $this->paginationConditions();
           
           $this->set($modelpl, $this->paginate($req));
         }
       }
+    }
+    
+    function paginationConditions()
+    {
+      // Determine the conditions for pagination of the index view, when rendered
+      // via the UI.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      //     None
+      //
+      // Postconditions:
+      //     None
+      //
+      // Returns:
+      // - An array suitable for use in $this->paginate
+      
+      // Get a pointer to our model
+      $req = $this->modelClass;
+      
+      if(isset($this->cur_co))
+      {
+        // Only retrieve members of the current CO
+        
+        return(array(
+          $req.'.co_id' => $this->cur_co['Co']['id']
+        ));
+      }
+
+      return(array());
     }
 
     function performRedirect()
@@ -685,7 +715,7 @@
       if($this->requires_person)
         $this->redirect($this->viewVars['redirect']);
       if(isset($this->cur_co))
-        $this->redirect(array('action' => 'index', 'co' => $this->cur_co['Co']['id']));
+        $this->redirect(array('action' => 'index', 'co' => Sanitize::html($this->cur_co['Co']['id'])));
       else
         $this->redirect(array('action' => 'index'));
     }

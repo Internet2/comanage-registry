@@ -210,7 +210,7 @@
     </field>
     <field name="name" type="C" size="64" />
     <field name="display_name" type="C" size="64" />
-    <field name="name" type="C" size="32" />
+    <field name="type" type="C" size="32" />
     <field name="indx" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -228,7 +228,7 @@
       <autoincrement />
     </field>
     <field name="identifier" type="C" size="256" />
-    <field name="type" type="C" size="32" />
+    <field name="type" type="C" size="2" />
     <field name="login" type="L" />
     <field name="co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
@@ -423,6 +423,199 @@
       <col>co_group_id</col>
       <col>co_person_id</col>
       <unique />
+    </index>
+  </table>
+  
+  <table name="cmp_enrollment_configurations">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="name" type="C" size="128">
+      <unique />
+    </field>
+    <field name="self_enroll" type="L" />
+    <field name="self_require_authn" type="L" />
+    <field name="admin_enroll" type="C" size="1" />
+    <field name="admin_confirm_email" type="L" />
+    <field name="admin_require_authn" type="L" />
+    <field name="attrs_from_ldap" type="L" />
+    <field name="attrs_from_saml" type="L" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <table name="cmp_enrollment_attributes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="cmp_enrollment_configuration_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cmp_enrollment_configurations(id)</constraint>
+    </field>
+    <field name="attribute" type="C" size="80">
+      <notnull />
+    </field>
+    <field name="type" type="C" size="2" />
+    <field name="required" type="I" />
+    <field name="ldap_name" type="C" size="80" />
+    <field name="saml_name" type="C" size="80" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_cmp_enrollment_attributes_i1">
+      <col>cmp_enrollment_configuration_id</col>
+    </index>
+  </table>
+  
+  <table name="co_enrollment_flows">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="self_enroll" type="L" />
+    <field name="admin_enroll" type="C" size="1" />
+    <field name="approval_required" type="L" />
+    <field name="early_provisioning_exec" type="C" size="128" />
+    <field name="provisioning_exec" type="C" size="128" />
+    <field name="notify_on_early_provision" type="C" size="128" />
+    <field name="notify_on_provision" type="C" size="128" />
+    <field name="notify_on_active" type="C" size="128" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_enrollment_flows_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="co_enrollment_attributes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="label" type="C" size="80">
+      <notnull />
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="attribute" type="C" size="80">
+      <notnull />
+    </field>
+    <field name="required" type="I" />
+    <field name="ordr" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_enrollment_attributes_i1">
+      <col>co_enrollment_flow_id</col>
+    </index>
+  </table>
+  
+  <table name="co_petitions">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="enrollee_org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="enrollee_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="enrollee_co_person_role_id" type="I">
+      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
+    </field>
+    <field name="petitioner_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="sponsor_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="approver_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_petitions_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_petitions_i2">
+      <col>cou_id</col>
+    </index>
+    <index name="co_petitions_i3">
+      <col>enrollee_org_identity_id</col>
+    </index>
+    <index name="co_petitions_i4">
+      <col>petitioner_co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="co_petition_attributes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_petition_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_petitions(id)</constraint>
+    </field>
+    <field name="co_enrollment_attribute_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_attributes(id)</constraint>
+    </field>
+    <field name="value" type="C" size="160" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_petition_attributes_i1">
+      <col>co_petition_id</col>
+    </index>
+  </table>
+  
+  <table name="co_petition_history_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_petition_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_petitions(id)</constraint>
+    </field>
+    <field name="actor_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="action" type="C" size="4" />
+    <field name="comment" type="C" size="160" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_petition_history_records_i1">
+      <col>co_petition_id</col>
     </index>
   </table>
 </schema>

@@ -31,6 +31,9 @@
                          array('dependent' => true),
                          "CoOrgIdentityLink" =>       // An Org Identity can be attached to one or more CO Person
                          array('dependent' => false), // Current design requires all links to be dropped manually
+                         "CoPetition" =>              // A person can have various roles for a petition
+                         array('dependent' => true,
+                               'foreignKey' => 'enrollee_org_identity_id'),
                          "EmailAddress" =>            // A person can have one or more email address
                          array('dependent' => true),
                          "Identifier" =>              // A person can have many identifiers within an organization

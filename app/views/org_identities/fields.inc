@@ -45,106 +45,105 @@
 <br />
 <br />
 
-<table id="<?php echo $this->action; ?>_org_identity" class="ui-widget">
+<?php
+  // The fields to render are determined by the CMP Enrollment Flow configuration,
+  // which is passed to us in $cmp_ef_attributes. The minor gotcha is that MVPAs
+  // allow multiple versions their attributes where the enrollment flow configuration
+  // interface doesn't currently allow for this (although it should). So we'll
+  // follow the config exactly on an add, but on an edit if the fields aren't pulled
+  // from LDAP or SAML we'll allow multiple. This will probably need to get rewritten
+  // at some point.
+  
+  // Track which models we've emitted hidden fields for
+  $emitted = array();
+  
+  $l = 1;
+?>
+<table id="<?php print $this->action; ?>_org_identity" class="ui-widget">
   <tbody>
-    <tr class="line1">
+    <?php foreach ($cmp_ef_attribute_order as $f): ?>
+    <?php
+      // Find this attribute in the CMP enrollment flow configuration
+      $a = find_ef_attribute($cmp_ef_attributes['CmpEnrollmentAttribute'], $f['attr'], $f['type']);
+      
+      // Skip this one if not found or not permitted
+      if(!$a || $a['required'] == RequiredEnum::NotPermitted)
+        continue;
+      
+      // Convert table:column into usable bits
+      if(preg_match('/:/', $f['attr']))
+      {
+        $attr = preg_split('/:/', $f['attr'], 2);
+        $m = Inflector::classify($attr[0]);  // names -> Name
+        
+        // Associated models must be referenced as Model.0.field for HABTM,
+        // or Model.field for HasOne
+        if(isset($f['assoc']) && $f['assoc'] != 'hasone')
+          $d = '.0.';
+        else
+          $d = '.';
+          
+        $fattr = $m.$d.$attr[1];
+        
+        // Create hidden fields for associated models
+        
+        if(!isset($emitted[$m]))
+        {
+          print $this->Form->hidden($m.$d.'id');
+          print $this->Form->hidden($m.$d.'type', array('default' => $f['type']));
+          
+          $emitted[$m] = true;
+        }
+      }
+      else
+      {
+        // Set up matching array
+        $attr[0] = 'org_identities';
+        $attr[1] = $f['attr'];
+        $m = Inflector::classify($attr[0]);  // names -> Name
+        $fattr = $attr[1];
+      }
+    ?>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php
-          echo _txt('fd.name.h');
+          print $f['label'];
           
-          if($e)
-            echo " " . _txt('fd.name.h.desc');
+          if($a['required'] == RequiredEnum::Required)
+            print '<font class="required">*</font>';
+          
+          if($e && isset($f['desc']))
+            print " " . $f['desc'];
         ?>
       </td>
       <td>
         <?php
-          echo $this->Form->hidden('Name.id');
-          echo $this->Form->hidden('Name.type', array('default' => 'O'));
-          echo ($e ? $this->Form->input('Name.honorific') : Sanitize::html($org_identities[0]['Name']['honorific']));
+          if(isset($f['select']))
+          {
+            // Render a select element
+            
+            print ($e ? $this->Form->select($fattr,
+                                            $f['select']['options'],
+                                            (isset($org_identities[0][$m][ $attr[1] ])
+                                             ? $org_identities[0][$m][ $attr[1] ]
+                                             : $f['select']['default']),
+                                            array('empty' => false))
+                      : Sanitize::html($org_identities[0][$m][ $attr[1] ]));
+          }
+          else
+          {
+            // Use default rendering
+            
+            print ($e ? $this->Form->input($fattr) : Sanitize::html($org_identities[0][$m][ $attr[1] ]));
+          }
         ?>
       </td>
     </tr>
-    <tr class="line2">
-      <td>
-        <?php echo _txt('fd.name.g'); ?><font class="required">*</font>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('Name.given') : Sanitize::html($org_identities[0]['Name']['given'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php echo _txt('fd.name.m'); ?>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('Name.middle') : Sanitize::html($org_identities[0]['Name']['middle'])); ?>
-      </td>
-    <tr class="line2">
-      <td>
-        <?php echo _txt('fd.name.f'); ?>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('Name.family') : Sanitize::html($org_identities[0]['Name']['family'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php
-          echo _txt('fd.name.s');
-          
-          if($e)
-            echo " " . _txt('fd.name.s.desc');
-        ?>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('Name.suffix') : Sanitize::html($org_identities[0]['Name']['suffix'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php echo _txt('fd.affiliation'); ?><font class="required">*</font>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          
-          echo ($e ? $this->Form->select('edu_person_affiliation',
-                                         $cm_texts[ $cm_lang ]['en.affil'],
-                                         (isset($org_identities[0]['OrgIdentity']['edu_person_affiliation'])
-                                          ? $org_identities[0]['OrgIdentity']['edu_person_affiliation']
-                                          : "member"),
-                                         array('empty' => false))
-                   : Sanitize::html($org_identities[0]['OrgIdentity']['edu_person_affiliation'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php echo _txt('fd.title'); ?>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('title') : Sanitize::html($org_identities[0]['OrgIdentity']['title'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php echo _txt('fd.o'); ?>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('o') : Sanitize::html($org_identities[0]['OrgIdentity']['o'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php echo _txt('fd.ou'); ?>
-      </td>
-      <td>
-        <?php echo ($e ? $this->Form->input('ou') : Sanitize::html($org_identities[0]['OrgIdentity']['ou'])); ?>
-      </td>
-    </tr>
+    <?php endforeach; ?>
     <?php if($this->action != "add"): ?>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.ids'); ?>
+        <?php print _txt('fd.ids'); ?>
       </td>
       <td>
         <?php
@@ -155,31 +154,31 @@
               foreach($org_identities[0]['Identifier'] as $id)
               {
                 // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                echo '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                echo $html->link(_txt('op.edit'),
-                                 array('controller' => 'identifiers', 'action' => 'edit', $id['id']),
-                                 array('class' => 'editbutton')) . "\n";
-                echo $html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id']));
-                echo " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
+                print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                print $html->link(_txt('op.edit'),
+                                  array('controller' => 'identifiers', 'action' => 'edit', $id['id']),
+                                  array('class' => 'editbutton')) . "\n";
+                print $html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id']));
+                print " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
               }
             }
               
-            echo $html->link(_txt('op.add'),
-                             array('controller' => 'identifiers', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
-                             array('class' => 'addbutton'));
+            print $html->link(_txt('op.add'),
+                              array('controller' => 'identifiers', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
+                              array('class' => 'addbutton'));
           }
           else
           {
             if(isset($org_identities[0]['Identifier']))
               foreach($org_identities[0]['Identifier'] as $id)
-                echo Sanitize::html($id['identifier']) . " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
+                print Sanitize::html($id['identifier']) . " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
           }
         ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.mail'); ?>
+        <?php print _txt('fd.mail'); ?>
       </td>
       <td>
         <?php
@@ -190,31 +189,31 @@
               foreach($org_identities[0]['EmailAddress'] as $ea)
               {
                 // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                echo '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
-                echo $html->link(_txt('op.edit'),
-                                 array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']),
-                                 array('class' => 'editbutton')) . "\n";
-                echo $html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']));
-                echo " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
+                print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
+                print $html->link(_txt('op.edit'),
+                                  array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']),
+                                  array('class' => 'editbutton')) . "\n";
+                print $html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']));
+                print " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
               }
             }
               
-            echo $html->link(_txt('op.add'),
-                             array('controller' => 'email_addresses', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
-                             array('class' => 'addbutton'));
+            print $html->link(_txt('op.add'),
+                              array('controller' => 'email_addresses', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
+                              array('class' => 'addbutton'));
           }
           else
           {
             if(isset($org_identities[0]['EmailAddress']))
               foreach($org_identities[0]['EmailAddress'] as $ea)
-                echo Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
+                print Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
           }
         ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.phone'); ?>
+        <?php print _txt('fd.phone'); ?>
       </td>
       <td>
         <?php
@@ -225,31 +224,31 @@
               foreach($org_identities[0]['TelephoneNumber'] as $t)
               {
                 // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                echo '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['number'])) . '\', \'' . $html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
-                echo $html->link(_txt('op.edit'),
-                                 array('controller' => 'telephone_numbers', 'action' => 'edit', $t['id']),
-                                 array('class' => 'editbutton')) . "\n";
-                echo $html->link($t['number'], array('controller' => 'telephone_numbers', 'action' => 'edit', $t['id']));
-                echo " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
+                print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['number'])) . '\', \'' . $html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
+                print $html->link(_txt('op.edit'),
+                                  array('controller' => 'telephone_numbers', 'action' => 'edit', $t['id']),
+                                  array('class' => 'editbutton')) . "\n";
+                print $html->link($t['number'], array('controller' => 'telephone_numbers', 'action' => 'edit', $t['id']));
+                print " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
               }
             }
               
-            echo $html->link(_txt('op.add'),
-                             array('controller' => 'telephone_numbers', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
-                             array('class' => 'addbutton'));
+            print $html->link(_txt('op.add'),
+                              array('controller' => 'telephone_numbers', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
+                              array('class' => 'addbutton'));
           }
           else
           {
             if(isset($org_identities[0]['TelephoneNumber']))
               foreach($org_identities[0]['TelephoneNumber'] as $t)
-                echo Sanitize::html($t['number']) . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
+                print Sanitize::html($t['number']) . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
           }
         ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.address'); ?>
+        <?php print _txt('fd.address'); ?>
       </td>
       <td>
         <?php
@@ -260,24 +259,24 @@
               foreach($org_identities[0]['Address'] as $addr)
               {
                 // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                echo '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['line1'])) . '\', \'' . $html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
-                echo $html->link(_txt('op.edit'),
-                                 array('controller' => 'addresses', 'action' => 'edit', $addr['id']),
-                                 array('class' => 'editbutton')) . "\n";
-                echo $html->link($addr['line1'], array('controller' => 'addresses', 'action' => 'edit', $addr['id']));
-                echo " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
+                print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['line1'])) . '\', \'' . $html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
+                print $html->link(_txt('op.edit'),
+                                  array('controller' => 'addresses', 'action' => 'edit', $addr['id']),
+                                  array('class' => 'editbutton')) . "\n";
+                print $html->link($addr['line1'], array('controller' => 'addresses', 'action' => 'edit', $addr['id']));
+                print " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
               }
             }
                 
-            echo $html->link(_txt('op.add'),
-                             array('controller' => 'addresses', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
-                             array('class' => 'addbutton'));
+            print $html->link(_txt('op.add'),
+                              array('controller' => 'addresses', 'action' => 'add', 'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
+                              array('class' => 'addbutton'));
           }
           else
           {
             if(isset($org_identities[0]['Address']))
               foreach($org_identities[0]['Address'] as $addr)
-                echo Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
+                print Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
           }
         ?>
       </td>
@@ -285,12 +284,12 @@
     <?php endif; ?>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
       </td>
       <td>
         <?php
           if($e)
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
         ?>
       </td>
     </tr>

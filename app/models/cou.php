@@ -31,9 +31,9 @@
       ),                                              // Also attached to a parent COU
     );
     
-    var $hasMany = array("CoPersonRole",
-                         "ChildCou" => array('className' => 'Cou','foreignKey'=>'parent_id'),
-                        );
+    var $hasMany = array("ChildCou" => array('className' => 'Cou','foreignKey'=>'parent_id'),
+                         "CoPersonRole",
+                         "CoPetition");
 
     // Default display field for cake generated views
     var $displayField = "name";

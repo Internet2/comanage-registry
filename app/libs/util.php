@@ -23,6 +23,45 @@
   global $group_sep;
   $group_sep = ":";
 
+  function find_ef_attribute($attrs, $attr, $type=null)
+  {
+    // Find an attribute within an array, specifically intended for working with
+    // Enrollment Flow Attributes.
+    //
+    // Parameters:
+    // - attrs: An indexed array (ie: [0], [1], [2], etc) of CMP Enrollment Flow Attributes
+    // - attr: The attribute to search for (ie: $attrs[#]['attribute'])
+    // - type: The type to search for (ie: $attrs[#]['type'])
+    //
+    // Preconditions:
+    //     None
+    //
+    // Postconditions:
+    //     None
+    //
+    // Returns:
+    // - An array equivalent to $attrs[#] matching $attr and $type, with an additional
+    //   field of '_index' corresponding to the position (#) the match was found at;
+    //   or false if not found
+    
+    foreach(array_keys($attrs) as $k)
+    {
+      if($attrs[$k]['attribute'] == $attr)
+      {
+        if(!defined($type)
+           || (defined($attrs[$k]['type'])
+               && $attrs[$k]['type'] == $type))
+        {
+          $ret = $attrs[$k];
+          $ret['_index'] = $k;
+          return($ret);
+        }
+      }
+    }
+    
+    return(false);
+  }
+        
   function generateCn($name)
   {
     // Assemble a common name from the array $name.

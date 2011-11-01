@@ -146,6 +146,8 @@
             $coptr = $model->CoGroup->Co;
           elseif(isset($model->CoOrgIdentityLink->CoPerson->Co))
             $coptr = $model->CoOrgIdentityLink->CoPerson->Co;
+          elseif(isset($model->CoEnrollmentFlow->Co))
+            $coptr = $model->CoEnrollmentFlow->Co;
             
           if(isset($coptr))
             $this->cur_co = $coptr->findById($coid);

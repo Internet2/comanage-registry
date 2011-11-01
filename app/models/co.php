@@ -24,11 +24,15 @@
     var $name = "Co";
     
     // Association rules from this model to other models
-    var $hasMany = array("CoExtendedAttribute" =>    // A CO has zero or more extended attributes
+    var $hasMany = array("CoEnrollmentFlow" =>       // A CO has zero or more enrollment flows
+                         array('dependent' => true),
+                         "CoExtendedAttribute" =>    // A CO has zero or more extended attributes
                          array('dependent' => true),
                          "CoGroup" =>                // A CO has zero or more groups
                          array('dependent' => true),
                          "CoPerson" =>               // A CO can have zero or more CO people
+                         array('dependent' => true),
+                         "CoPetition" =>             // A CO can have zero or more petitions
                          array('dependent' => true),
                          "Cou" =>                    // A CO has zero or more COUs
                          array('dependent' => true));
