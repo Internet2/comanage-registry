@@ -33,6 +33,7 @@ CREATE INDEX cm_cos_i1 ON cm_cos (name);
 CREATE TABLE cm_cous (
   id SERIAL PRIMARY KEY,
   co_id INTEGER NOT NULL REFERENCES cm_cos(id),
+  parent_cou_id INTEGER REFERENCES cm_cous(id),
   name VARCHAR(128),
   description VARCHAR(128),
   created TIMESTAMP,
@@ -153,7 +154,7 @@ CREATE TABLE cm_co_extended_attributes (
 CREATE TABLE cm_identifiers (
   id SERIAL PRIMARY KEY,
   identifier VARCHAR(256) UNIQUE,
-  type VARCHAR(32),
+  type VARCHAR(2),
   login BOOLEAN,
   co_person_id INTEGER REFERENCES cm_co_people(id),
   org_identity_id INTEGER REFERENCES cm_org_identities(id),  
@@ -282,3 +283,124 @@ CREATE TABLE cm_co_group_members (
 
 CREATE INDEX cm_co_group_members_i1 ON cm_co_group_members(co_group_id);
 CREATE INDEX cm_co_group_members_i2 ON cm_co_group_members(co_person_id);
+
+-- cm_cmp_enrollment_configurations
+
+CREATE TABLE cm_cmp_enrollment_configurations (
+  id SERIAL PRIMARY KEY,
+  name varchar(128),
+  self_enroll BOOLEAN,
+  self_require_authn BOOLEAN,
+  admin_enroll VARCHAR(1),
+  admin_confirm_email BOOLEAN,
+  admin_require_authn BOOLEAN,
+  attrs_from_ldap BOOLEAN,
+  attrs_from_saml BOOLEAN,
+  status VARCHAR(2),
+  created TIMESTAMP,
+  modified TIMESTAMP,
+  UNIQUE(name)
+);
+
+-- cm_cmp_enrollment_attributes
+
+CREATE TABLE cm_cmp_enrollment_attributes (
+  id SERIAL PRIMARY KEY,
+  cmp_enrollment_configuration_id INTEGER NOT NULL REFERENCES cm_cmp_enrollment_configurations(id),
+  attribute VARCHAR(80) NOT NULL,
+  type VARCHAR(2),
+  required INTEGER,
+  ldap_name VARCHAR(80),
+  saml_name VARCHAR(80),
+  created TIMESTAMP,
+  modified TIMESTAMP
+);
+
+CREATE INDEX cm_cmp_enrollment_attributes_i1 ON cm_cmp_enrollment_attributes(cmp_enrollment_configuration_id);
+
+-- cm_co_enrollment_flows
+
+CREATE TABLE cm_co_enrollment_flows (
+  id SERIAL PRIMARY KEY,
+  name varchar(128),
+  co_id INTEGER NOT NULL REFERENCES cm_cos(id),
+  self_enroll BOOLEAN,
+  admin_enroll VARCHAR(1),
+  approval_required BOOLEAN,
+  early_provisioning_exec varchar(128),
+  provisioning_exec varchar(128),
+  notify_on_early_provision varchar(256),
+  notify_on_provision varchar(256),
+  notify_on_active varchar(256),
+  status varchar(2),
+  created TIMESTAMP,
+  modified TIMESTAMP
+);
+
+CREATE INDEX cm_co_enrollment_flows_i1 ON cm_co_enrollment_flows(co_id);
+
+-- cm_co_enrollment_attributes
+
+CREATE TABLE cm_co_enrollment_attributes (
+  id SERIAL PRIMARY KEY,
+  co_enrollment_flow_id INTEGER NOT NULL REFERENCES cm_co_enrollment_flows(id)
+  label VARCHAR(80) NOT NULL,
+  description VARCHAR(256),
+  attribute VARCHAR(80) NOT NULL,
+  required INTEGER,
+  ordr INTEGER,
+  created TIMESTAMP,
+  modified TIMESTAMP
+);
+
+CREATE INDEX cm_co_enrollment_attributes_i1 ON cm_co_enrollment_attributes(co_enrollment_flow_id);
+
+-- cm_co_petitions
+
+CREATE TABLE cm_co_petitions (
+  id SERIAL PRIMARY KEY,
+  co_enrollment_flow_id INTEGER NOT NULL REFERENCES cm_co_enrollment_flows(id),
+  co_id INTEGER NOT NULL REFERENCES cm_cos(id),
+  cou_id INTEGER REFERENCES cm_cous(id),
+  enrollee_org_identity_id INTEGER REFERENCES cm_org_identities(id),
+  enrollee_co_person_id INTEGER REFERENCES cm_co_people(id),
+  enrollee_co_person_role_id INTEGER REFERENCES cm_co_person_roles(id),
+  petitioner_co_person_id INTEGER REFERENCES cm_co_people(id),
+  sponsor_co_person_id INTEGER REFERENCES cm_co_people(id),
+  approver_co_person_id INTEGER REFERENCES cm_co_people(id),
+  status VARCHAR(2),
+  created TIMESTAMP,
+  modified TIMESTAMP
+);
+
+CREATE INDEX cm_co_petitions_i1 ON cm_co_petitions(co_id);
+CREATE INDEX cm_co_petitions_i2 ON cm_co_petitions(cou_id);
+CREATE INDEX cm_co_petitions_i3 ON cm_co_petitions(enrollee_org_identity_id);
+CREATE INDEX cm_co_petitions_i4 ON cm_co_petitions(petitioner_co_person_id);
+
+-- cm_co_petition_attributes
+
+CREATE TABLE cm_co_petition_attributes (
+  id SERIAL PRIMARY KEY,
+  co_petition_id INTEGER NOT NULL REFERENCES cm_co_petitions(id),
+  co_enrollment_attribute_id INTEGER NOT NULL references cm_co_enrollment_attributes(id),
+  value VARCHAR(160),
+  created TIMESTAMP,
+  modified TIMESTAMP
+);
+
+CREATE INDEX cm_co_petition_attributes_i1 ON cm_co_petitions(co_petition_id);
+
+-- cm_co_petition_history_records
+
+CREATE TABLE cm_co_petition_history_records (
+  id SERIAL PRIMARY KEY,
+  co_petition_id INTEGER NOT NULL REFERENCES cm_co_petitions(id),
+  actor_co_person_id INTEGER REFERENCES cm_co_people(id),
+  action VARCHAR(4),
+  comment VARCHAR(160),
+  created TIMESTAMP,
+  modified TIMESTAMP
+);
+
+CREATE INDEX cm_co_petition_history_records_i1 ON cm_co_petitions(co_petition_id);
