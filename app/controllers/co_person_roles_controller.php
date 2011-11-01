@@ -234,9 +234,6 @@
       // Parameters:
       // - c: A cached object (eg: from prior to a delete)
       //
-      // Parameters:
-      //   None
-      //
       // Preconditions:
       //     None
       //
