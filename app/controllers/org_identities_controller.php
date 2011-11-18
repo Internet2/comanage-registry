@@ -211,11 +211,13 @@
       // Get a pointer to our model
       $req = $this->modelClass;
       $model = $this->$req;
-
+      
       if(isset($c[$req][$model->displayField]))
         return($c[$req][$model->displayField]);
       elseif(isset($this->data['Name']))
         return(generateCn($this->data['Name']));
+      elseif(isset($c['Name']))
+        return(generateCn($c['Name']));
       else
         return("(?)");
     }

@@ -217,6 +217,8 @@
         return($c[$req][$model->displayField]);
       if(isset($this->data['Name']))
         return(generateCn($this->data['Name']));
+      if(isset($c['Name']))
+        return(generateCn($c['Name']));
       else
         return("(?)");
     }
