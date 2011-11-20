@@ -166,7 +166,7 @@
       return(true);
     }
 
-    function checkWriteFollowups()
+    function checkWriteFollowups($curdata = null)
     {
       // Perform any followups following a write operation.  Note that if this
       // method fails, it must return a warning or REST response, but that the
@@ -175,7 +175,7 @@
       // This method is intended to be overridden by model-specific controllers.
       // 
       // Parameters:
-      //   None
+      // - For edit operations, $curdata will hold current data
       //
       // Preconditions:
       // (1) $this->data holds request data
@@ -184,7 +184,7 @@
       // (1) Session flash message updated (HTML) or HTTP status returned (REST) on error
       //
       // Returns:
-      // - true if dependency checks succeed, false otherwise.
+      // - true if followup checks succeed, false otherwise.
       
       // Create an admin Group for the new COU. As of now, we don't try to populate
       // it with the current user, since it may not be desirable for the current

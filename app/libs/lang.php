@@ -189,7 +189,9 @@
     'er.notprov.id' =>  '%1$s ID Not Provided',
     'er.reply.unk' =>   'Unknown Reply',
     'er.orgp.nomail' => '%1$s (Org Identity %2$s) has no known email address.<br />Add an email address and then resend the invitation.',
+    'er.orgp.pool' =>   'Failed to pool organizational identities',
     'er.orgp.unk-a' =>  'Unknown Org Identity "%1$s"',
+    'er.orgp.unpool' => 'Failed to unpool organizational identities',
 
     // Fields
     'fd.actions' =>     'Actions',
@@ -237,6 +239,10 @@
     'fd.ef.noep.desc' => 'Email address to notify upon execution of early provisioning',
     'fd.ef.nop' =>      'Notify On Provisioning',
     'fd.ef.nop.desc' => 'Email address to notify upon execution of provisioning',
+    'fd.ef.pool' =>     'Pool Organizational Identities',
+    'fd.ef.pool.desc' => 'If pooling is enabled, organizational identities -- as well as any attributes released by IdPs -- will be made available to all COs, regardless of which CO enrollment flows added them',
+    'fd.ef.pool.on.warn' => 'Enabling pooling will delete any existing links between organizational identities and the COs which created them (when you click Save). This operation cannot be undone.',
+    'fd.ef.pool.off.warn' => 'Disabling pooling will duplicate any organizational identities used by more than one CO (when you click Save). This operation cannot be undone.',
     'fd.ef.px' =>       'Provisioning Executable',
     'fd.ef.px.desc' =>  'Executable to call to initiate user provisioning',
     'fd.ef.saml' =>     'Enable SAML Attribute Extraction',

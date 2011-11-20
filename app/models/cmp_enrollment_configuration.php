@@ -23,6 +23,9 @@
     // Define class name for cake
     var $name = "CmpEnrollmentConfiguration";
     
+    // Add behaviors
+    var $actsAs = array('Containable');
+    
     // Association rules from this model to other models
     var $hasMany = array("CmpEnrollmentAttribute" =>   // A CMP Enrollment Configuration has many CMP Enrollment Attributes
                          array('dependent' => true));
@@ -214,6 +217,35 @@
               'label' => _txt('fd.country'),
               'assoc' => $address_assoc)
       ));
+    }
+    
+    function orgIdentitiesPooled()
+    {
+      // Determine if organizational identities are pooled in the default
+      // (ie: active) CMP Enrollment Configuration for this platform.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      // (1) Initial setup (performed by select()) has been completed
+      //
+      // Postconditions:
+      //     None
+      //
+      // Returns:
+      // - True if org identities are pooled, false otherwise.
+      
+      $r = $this->find('first',
+                       array('conditions' =>
+                             array('CmpEnrollmentConfiguration.name' => 'CMP Enrollment Configuration',
+                                   'CmpEnrollmentConfiguration.status' => StatusEnum::Active),
+                             // We don't need to pull attributes, just the configuration
+                             'contain' => false,
+                             'fields' =>
+                             array('CmpEnrollmentConfiguration.pool_org_identities')));
+      
+      return($r['CmpEnrollmentConfiguration']['pool_org_identities']);
     }
   }
 ?>

@@ -97,6 +97,9 @@
     <field name="organization_id" type="I">
       <constraint>REFERENCES cm_organizations(id)</constraint>
     </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
   </table>
@@ -238,15 +241,6 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
-    
-    <index name="identifiers_i1">
-      <col>identifier</col>
-      <unique />
-    </index>    
-    <index name="identifiers_i2">
-      <col>identifier</col>
-      <col>type</col>
-    </index>
   </table>
   
   <table name="co_invites">
@@ -441,6 +435,7 @@
     <field name="admin_require_authn" type="L" />
     <field name="attrs_from_ldap" type="L" />
     <field name="attrs_from_saml" type="L" />
+    <field name="pool_org_identities" type="L" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

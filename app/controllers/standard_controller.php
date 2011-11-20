@@ -165,7 +165,7 @@
       return(true);
     }
     
-    function checkWriteFollowups()
+    function checkWriteFollowups($curdata = null)
     {
       // Perform any followups following a write operation.  Note that if this
       // method fails, it must return a warning or REST response, but that the
@@ -174,7 +174,7 @@
       // This method is intended to be overridden by model-specific controllers.
       // 
       // Parameters:
-      //   None
+      // - For edit operations, $curdata will hold current data
       //
       // Preconditions:
       // (1) $this->data holds request data
@@ -183,7 +183,7 @@
       // (1) Session flash message updated (HTML) or HTTP status returned (REST) on error
       //
       // Returns:
-      // - true if dependency checks succeed, false otherwise.
+      // - true if followup checks succeed, false otherwise.
       
       return(true);      
     }
@@ -389,7 +389,7 @@
 
       if($model->saveAll($this->data))
       {
-        if(!$this->checkWriteFollowups())
+        if(!$this->checkWriteFollowups($curdata))
         {
           if(!$this->restful)
             $this->performRedirect();
@@ -402,7 +402,7 @@
         else
         {
           // Redirect to index view
-
+          
           $this->Session->setFlash(_txt('rs.updated', array(Sanitize::html($this->generateDisplayKey()))), '', array(), 'success');
           $this->performRedirect();
         }

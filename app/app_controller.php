@@ -180,10 +180,12 @@
 
         if($coid > -1)
         {
-          // Miniature "find the Co pointer"
+          // Miniature "find the CO pointer"
           
           if(isset($model->CoPerson))
             $this->cur_co = $model->CoPerson->Co->findById($coid);
+          elseif(isset($model->CoOrgIdentityLink->CoPerson->Co))
+            $this->cur_co = $model->CoOrgIdentityLink->CoPerson->Co;
           else
             $this->cur_co = $model->CoPersonRole->CoPerson->Co->findById($coid);
         }
@@ -525,6 +527,8 @@
         {
           $redirect['action'] = 'edit';
           $redirect[] = $orgiid;
+          if($co != null)
+            $redirect['co'] = $co;
           $rc = 1;
         }
       }

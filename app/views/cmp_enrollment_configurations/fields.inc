@@ -31,6 +31,37 @@
 ?>
 <script type="text/javascript">
   <!-- JS specific to these fields -->
+  // Keep track of the initial state of the pool setting so we know if we need to pop up a warning
+  var pool_check_init_state = 0;
+  
+  function confirm_pool_state_swap()
+  {
+    // Display a warning when swapping pool state to <on>.
+    
+    // Set the title of the dialog    
+    $("#dialog").dialog("option", "title", "<?php echo _txt('fd.ef.pool'); ?>");
+
+    // Set the body of the dialog
+    if(document.getElementById('CmpEnrollmentConfigurationPoolOrgIdentities').checked) {
+      $("#dialog-text").text("<?php echo _txt('fd.ef.pool.on.warn'); ?>");
+    } else {
+      $("#dialog-text").text("<?php echo _txt('fd.ef.pool.off.warn'); ?>");
+    }
+  
+    // Set the dialog buttons
+    $("#dialog").dialog("option",
+                        "buttons",
+                        {
+                          "<?php echo _txt('op.ok'); ?>": function() { $(this).dialog("close"); }
+                        });
+   
+    // Open the dialog, but only if we're switching away from the original state
+    if(pool_check_init_state !=
+       document.getElementById('CmpEnrollmentConfigurationPoolOrgIdentities').checked) {
+      $('#dialog').dialog('open');
+    }
+  }
+  
   function fields_update_gadgets()
   {
     // Enable or disable gadgets according to current state
@@ -85,6 +116,8 @@
   {
     // Local (to this view) initializations
     
+    pool_check_init_state = document.getElementById('CmpEnrollmentConfigurationPoolOrgIdentities').checked;
+      
     fields_update_gadgets();
   }
 </script>
@@ -177,6 +210,17 @@
             <?php print ($e
                          ? $this->Form->input('attrs_from_saml', array('onClick' => 'fields_update_gadgets()'))
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_saml'])); ?>
+          </td>
+        </tr>
+        <tr class="line2">
+          <td>
+            <b><?php print _txt('fd.ef.pool'); ?></b><br />
+            <font class="desc"><?php print _txt('fd.ef.pool.desc'); ?></font>
+          </td>
+          <td>
+            <?php print ($e
+                         ? $this->Form->input('pool_org_identities', array('onClick' => 'confirm_pool_state_swap()'))
+                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['pool_org_identities'])); ?>
           </td>
         </tr>
       </tbody>

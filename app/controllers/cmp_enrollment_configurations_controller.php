@@ -25,6 +25,9 @@
     // Class name, used by Cake
     var $name = "CmpEnrollmentConfigurations";
     
+    // When using additional controllers, we must also specify our own
+    var $uses = array('CmpEnrollmentConfiguration', 'OrgIdentity');
+    
     // Cake Components used by this Controller
     var $components = array('RequestHandler',  // For REST
                             'Security',
@@ -57,6 +60,63 @@
       // Set the list of attribute order for the view to render
       
       $this->set('cmp_ef_attribute_order', $this->CmpEnrollmentConfiguration->getStandardAttributeOrder());
+    }
+    
+    function checkWriteFollowups($curdata = null)
+    {
+      // Perform any followups following a write operation.  Note that if this
+      // method fails, it must return a warning or REST response, but that the
+      // overall transaction is still considered a success (add/edit is not
+      // rolled back).
+      // This method is intended to be overridden by model-specific controllers.
+      // 
+      // Parameters:
+      // - For edit operations, $curdata will hold current data
+      //
+      // Preconditions:
+      // (1) $this->data holds request data
+      //
+      // Postconditions:
+      // (1) Session flash message updated (HTML) or HTTP status returned (REST) on error
+      //
+      // Returns:
+      // - true if followup checks succeed, false otherwise.
+      
+      if($this->action == 'edit')
+      {
+        // Check to see if the pool org identities setting has been changed, and
+        // if so perform the appropriate updates. At the moment, we only do this
+        // on edit and not add since when we add the one and only CMP enrollment
+        // config there are no existing org identities.
+        
+        if(isset($curdata)
+           && ($curdata['CmpEnrollmentConfiguration']['pool_org_identities']
+               != $this->data['CmpEnrollmentConfiguration']['pool_org_identities']))
+        {
+          if($this->data['CmpEnrollmentConfiguration']['pool_org_identities'])
+          {
+            // Enable pooling
+            
+            if(!$this->OrgIdentity->pool())
+            {
+              $this->Session->setFlash(_txt('er.orgp.pool'), '', array(), 'info');
+              return(false);
+            }
+          }
+          else
+          {
+            // Disable pooling
+            
+            if(!$this->OrgIdentity->unpool())
+            {
+              $this->Session->setFlash(_txt('er.orgp.unpool'), '', array(), 'info');
+              return(false);
+            }
+          }
+        }
+      }
+      
+      return(true);
     }
     
     function isAuthorized()

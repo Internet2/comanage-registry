@@ -60,5 +60,182 @@
       // 'ou'
       // 'title'
     );
+    
+    function duplicate($orgId, $coId)
+    {
+      // Duplicate an Organizational Identity, including all of its related
+      // (has one/has many) models.
+      //
+      // Parameters:
+      // - orgId: Identifier of Org Identity to duplicate.
+      // - coId: CO to attach duplicate Org Identity to.
+      //
+      // Preconditions:
+      //     None
+      //
+      // Postconditions:
+      // (1) Duplicate identity created.
+      //
+      // Returns:
+      // - New Org Identity ID if successful, -1 otherwise.
+      
+      $ret = -1;
+      
+      // We need deep recursion to pull the various related models. Track the previous
+      // value so we can reset it after the find.
+      $oldRecursive = $this->recursive;
+      $this->recursive = 2;
+      
+      $src = $this->findById($orgId);
+      
+      $this->recursive = $oldRecursive;
+      
+      // Construct a new OrgIdentity explicitly copying the pieces we want (so as to
+      // avoid any random cruft that recursive=2 happens to pull with it).
+      
+      $new = array();
+      
+      foreach(array_keys($src['OrgIdentity']) as $k)
+      {
+        // Copy most fields
+        
+        if($k != 'id' && $k != 'co_id' && $k != 'created' && $k != 'modified')
+          $new['OrgIdentity'][$k] = $src['OrgIdentity'][$k];
+      }
+      
+      // Set the CO ID
+      $new['OrgIdentity']['co_id'] = $coId;
+      
+      // Copy most fields from most dependent models.
+      
+      foreach(array_keys($this->hasOne) as $m)
+      {
+        if($this->hasOne[$m]['dependent'])
+        {
+          foreach(array_keys($src[$m]) as $k)
+          {
+            if($k != 'id' && $k != 'created' && $k != 'modified')
+              $new[$m][$k] = $src[$m][$k];
+          }
+        }
+      }
+      
+      foreach(array_keys($this->hasMany) as $m)
+      {
+        if($this->hasMany[$m]['dependent'] && $m != 'CoPetition')
+        {
+          foreach(array_keys($src[$m]) as $k)
+          {
+            if($k != 'id' && $k != 'created' && $k != 'modified')
+              $new[$m][$k] = $src[$m][$k];
+          }
+        }
+      }
+      
+      $this->create();
+      $this->saveAll($new);
+      $ret = $this->id;
+      
+      return($ret);
+    }
+  
+    function pool()
+    {
+      // Pool Organizational Identities. This will delete all links from Org Identities
+      // to COs. No attempt is made to delete duplicate identities that may result from
+      // this operation. This operation cannot be undone.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      // (1) Organizational Identities are not pooled.
+      //
+      // Postconditions:
+      // (1) co_id values for Org Identities are deleted.
+      //
+      // Returns:
+      // - True if successful, false otherwise.
+      
+      return($this->updateAll(array('OrgIdentity.co_id' => null)));
+    }
+    
+    function unpool()
+    {
+      // Unpool Organizational Identities. This will link organizational identities
+      // to the COs which use them. If an Org Identity is referenced by more than
+      // one CO, it will be duplicated.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      // (1) Organizational Identities are pooled.
+      //
+      // Postconditions:
+      // (1) co_id values for Org Identities are assigned. If necessary, org
+      //     identities will be duplicated.
+      //
+      // Returns:
+      // - True if successful, false otherwise.
+      
+      // Retrieve all CO/Org Identity Links.
+      
+      $links = $this->CoOrgIdentityLink->find('all');
+      
+      // For each retrieved record, find the CO ID for the CO Identity and
+      // attach it to the Org Identity.
+      
+      foreach($links as $l)
+      {
+        $coId = $l['CoPerson']['co_id'];
+        $orgId = $l['CoOrgIdentityLink']['org_identity_id'];
+        
+        // Get the latest version of the Org Identity, even though it's available
+        // in $links
+        
+        $o = $this->findById($orgId);
+        
+        if(!isset($o['OrgIdentity']['co_id']) || !$o['OrgIdentity']['co_id'])
+        {
+          // co_id not yet set (ie: this org_identity is not yet linked to a CO),
+          // so we can just update this record
+          
+          $this->id = $orgId;
+          // Use co_id here and NOT OrgIdentity.co_id (per the docs)
+          $this->saveField('co_id', $coId);
+        }
+        else
+        {
+          // We've previously seen this org identity. First check to see if we've
+          // attached it to the same CO. (This shouldn't really happen since it
+          // implies the same person was added twice to the same CO.) If so, there's
+          // nothing to do.
+          
+          if($o['OrgIdentity']['co_id'] != $coId)
+          {
+            // Not the same CO. We need to duplicate the OrgIdentity (including all
+            // of it's dependent attributes like identifiers) and relink to the newly
+            // created identity.
+            
+            $newOrgId = $this->duplicate($orgId, $coId);
+            
+            if($newOrgId != -1)
+            {
+              // Update CoOrgIdentityLink
+              
+              $this->CoOrgIdentityLink->id = $l['CoOrgIdentityLink']['id'];
+              $this->CoOrgIdentityLink->saveField('org_identity_id', $newOrgId);
+            }
+            else
+            {
+              return(false);
+            }
+          }
+        }
+      }
+      
+      return(true);
+    }
   }
 ?>

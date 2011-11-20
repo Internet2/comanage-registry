@@ -25,6 +25,9 @@
     // Class name, used by Cake
     var $name = "OrgIdentities";
     
+    // When using additional controllers, we must also specify our own
+    var $uses = array('OrgIdentity', 'CmpEnrollmentConfiguration');
+    
     // Cake Components used by this Controller
     var $components = array('RequestHandler',  // For REST
                             'Security',
@@ -61,6 +64,61 @@
       $this->set('title_for_layout', _txt('op.add.new', array(_txt('ct.' . $modelpl . '.1'))));
 
       $this->set('organizations', $this->OrgIdentity->Organization->find('all'));
+    }
+    
+    function beforeFilter()
+    {
+      // Callback before other controller methods are invoked or views are rendered.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      //     None
+      //
+      // Postconditions:
+      // (1) Parent called
+      //
+      // Returns:
+      //   Nothing
+      
+      // This controller may or may not require a CO, depending on how
+      // the CMP Enrollment Configuration is set up. Check and adjust before
+      // beforeFilter is called.
+      
+      $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
+      
+      if(!$pool)
+      {
+        $this->requires_co = true;
+        
+        // Associate the CO model
+        $this->OrgIdentity->bindModel(array('belongsTo' => array('Co')));
+      }
+      
+      // The views will also need this
+      $this->set('pool_org_identities', $pool);
+      
+      parent::beforeFilter();
+    }
+    
+    function beforeRender()
+    {
+      // Callback after controller methods are invoked but before views are rendered.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      // (1) Request Handler component has set $this->params and/or $this->data
+      //
+      // Postconditions:
+      // (1) If a CO must be specifed, a named parameter may be set.
+      //
+      // Returns:
+      //   Nothing
+      
+      $this->set('cmp_ef_attribute_order', $this->CmpEnrollmentConfiguration->getStandardAttributeOrder());
     }
     
     function checkDeleteDependencies($curdata)
@@ -298,7 +356,9 @@
       //$this->Session->setFlash('"' . generateCn($this->data['Name']) . '" Added', '', array(), 'success');
       
       if($this->action == 'add')
-        $this->redirect(array('action' => 'edit', $this->OrgIdentity->id));
+        $this->redirect(array('action' => 'edit',
+                              $this->OrgIdentity->id,
+                              'co' => (isset($this->viewVars['cur_co']['Co']['id']) ? $this->viewVars['cur_co']['Co']['id'] : false)));
       else
         parent::performRedirect();
     }

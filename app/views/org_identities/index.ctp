@@ -24,7 +24,9 @@
 <?php
   if($permissions['add'])
     print $this->Html->link(_txt('op.add.new', array(_txt('ct.org_identities.1'))),
-                            array('controller' => 'org_identities', 'action' => 'add'),
+                            array('controller' => 'org_identities',
+                                  'action' => 'add',
+                                  'co' => ($pool_org_identities ? false : $this->params['named']['co'])),
                             array('class' => 'addbutton')) . '
     <br />
     <br />
@@ -49,7 +51,10 @@
     <?php foreach ($org_identities as $p): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td><?php echo $html->link(generateCn($p['Name']),
-                                 array('controller' => 'org_identities', 'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $p['OrgIdentity']['id'])); ?></td>
+                                 array('controller' => 'org_identities',
+                                       'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                       $p['OrgIdentity']['id'],
+                                       'co' => ($pool_org_identities ? false : $this->params['named']['co']))); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['ou']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
@@ -60,11 +65,14 @@
         <?php
           if($permissions['edit'])
             echo $html->link(_txt('op.edit'),
-                             array('controller' => 'org_identities', 'action' => 'edit', $p['OrgIdentity']['id']),
+                             array('controller' => 'org_identities',
+                                   'action' => 'edit',
+                                   $p['OrgIdentity']['id'],
+                                   'co' => ($pool_org_identities ? false : $this->params['named']['co'])),
                              array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html(generateCn($p['Name'])) . '\', \'' . $html->url(array('controller' => 'org_identities', 'action' => 'delete', $p['OrgIdentity']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html(generateCn($p['Name'])) . '\', \'' . $html->url(array('controller' => 'org_identities', 'action' => 'delete', $p['OrgIdentity']['id'], 'co' => ($pool_org_identities ? false : $this->params['named']['co']))) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>
