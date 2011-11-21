@@ -198,6 +198,7 @@
     'fd.address' =>     'Address',
     'fd.address.1' =>   'Address Line 1',
     'fd.address.2' =>   'Address Line 2',
+    'fd.admin' =>       'Administrator',
     'fd.affiliation' => 'Affiliation',
     'fd.an.desc' =>     'Alphanumeric characters only',
     'fd.attribute' =>   'Attribute',
@@ -351,7 +352,6 @@
     'se.db.group' =>        'Creating COmanage admin group',
     'se.db.op' =>           'Adding initial Org Identity',
     'se.done' =>            'Setup complete',
-    'se.users.drop' =>      'Dropping users table',
     'se.users.view' =>      'Creating users view'
   );
   

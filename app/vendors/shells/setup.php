@@ -39,9 +39,6 @@
 
       if(isset($db->config['prefix']))
         $prefix = $db->config['prefix'];
-
-      $this->out("- " . _txt('se.users.drop'));
-      $this->Identifier->query("DROP TABLE " . $prefix . "users");
       
       $this->out("- " . _txt('se.users.view'));
       $this->Identifier->query("CREATE VIEW " . $prefix . "users AS
@@ -68,25 +65,27 @@ WHERE i.login=true;
         'Co' => array(
           'name'        => 'COmanage',
           'description' => _txt('co.cm.desc'),
-          'status'      => 'A'
+          'status'      => StatusEnum::Active
         )
       );
       
       $this->Co->save($co);
       $co_id = $this->Co->id;
 
-      // Create the OrgIdentity
+      // Create the OrgIdentity. By default, Org Identities are not pooled, so
+      // we attach this org_identity to the new CO.
 
       $this->out("- " . _txt('se.db.op'));
       
       $op = array(
         'OrgIdentity' => array(
-          'edu_person_affiliation' => 'member'
+          'edu_person_affiliation' => 'member',
+          'co_id'                  => $co_id
         ),
         'Name' => array(
           'given'   => $gn,
           'family'  => $sn,
-          'type'    => 'O'
+          'type'    => NameEnum::Official
         )
       );
       
@@ -100,7 +99,7 @@ WHERE i.login=true;
       $id = array(
         'Identifier' => array(
           'identifier'    => $user,
-          'type'          => 'uid',
+          'type'          => IdentifierEnum::UID,
           'login'         => true,
           'org_identity_id' => $op_id
         )
@@ -119,12 +118,12 @@ WHERE i.login=true;
       $cop = array(
         'CoPerson' => array(
           'co_id'         => $co_id,
-          'status'        => 'A'
+          'status'        => StatusEnum::Active
         ),
         'Name' => array(
           'given'   => $gn,
           'family'  => $sn,
-          'type'    => 'P'
+          'type'    => NameEnum::Preferred
         )
       );
       
@@ -136,8 +135,9 @@ WHERE i.login=true;
       $copr = array(
         'CoPersonRole' => array(
           'co_person_id'           => $cop_id,
+          'title'                  => _txt('fd.admin'),
           'edu_person_affiliation' => 'staff',
-          'status'                 => 'A'
+          'status'                 => StatusEnum::Active
         )
       );
       
@@ -166,7 +166,7 @@ WHERE i.login=true;
           'name'        => 'admin',
           'description' => _txt('co.cm.gradmin'),
           'open'        => false,
-          'status'      => 'A'
+          'status'      => StatusEnum::Active
         )
       );
 
@@ -187,14 +187,13 @@ WHERE i.login=true;
       $this->CoGroupMember->save($grm);
       $grm_id = $this->CoGroupMember->id;
 
-      $this->out(_txt('se.done'));
-
       // Clear the models in the cache since the cm_users view
       // was just created and will not otherwise appear in the cache.
       //
       // See https://bugs.internet2.edu/jira/browse/CO-191
       clearCache(null, 'models');
- 
+      
+      $this->out(_txt('se.done'));
     }
   }
 ?>
