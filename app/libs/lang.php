@@ -155,7 +155,6 @@
     'er.co.unk' =>      'Unknown CO',
     'er.comember' =>    '%1$s is a member of one or more COs (%2$s) and cannot be removed.',
     'er.coumember' =>   '%1$s is a member of one or more COUs that you do not manage (%2$s) and cannot be removed.',
-    'er.cop.none' =>    'CO Person Not Provided',
     'er.cop.unk' =>     'Unknown CO Person',
     'er.cop.unk-a' =>   'Unknown CO Person "%1$s"',
     // XXX These should become er.copr (or tossed if not needed)

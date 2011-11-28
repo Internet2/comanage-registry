@@ -245,7 +245,7 @@
         // Set page title
         $this->set('title_for_layout', _txt('op.select-a', array(_txt('ct.cos.1'))));
 
-        if($this->Session->check('Auth.User.org_identity_id'))
+        if($this->Session->check('Auth.User.cos'))
         {
           // Retrieve the list of the user's COs, but for admins we want all COs
           
@@ -253,27 +253,25 @@
             $ucos = $this->Co->find('all');
           else
           {
-            $dbo = $this->Co->getDataSource();
-
-            $params = array(
-              'joins' => array(0 => array('table' => $dbo->fullTableName($this->Co->CoPerson),
-                                          'alias' => 'CoPerson',
-                                          'type' => 'INNER',
-                                          'conditions' => array('Co.id=CoPerson.co_id')),
-                               1 => array('table' => $dbo->fullTableName($this->Co->CoPerson->CoOrgIdentityLink),
-                                          'alias' => 'CoOrgIdentityLink',
-                                          'type' => 'INNER',
-                                          'conditions' => array('CoPerson.id=CoOrgIdentityLink.co_person_id'))),
-              'conditions' => array('CoOrgIdentityLink.org_identity_id' => $this->Session->read('Auth.User.org_identity_id'))
-            );
+            // Grab the COs from the session. We can't just use the session variable
+            // because it's not a complete retrieval of CO data.
             
-            $ucos = $this->Co->find('all', $params);
+            $cos = $this->Session->read('Auth.User.cos');
+            $coIds = array();
+            
+            foreach($cos as $co)
+            {
+              $coIds[] = $co['co_id'];
+            }
+            
+            $args['conditions']['id'] = $coIds;
+            $ucos = $this->Co->find('all', $args);
           }
           
           if(count($ucos) == 0)
           {
             // No memberships... could be because there are no COs
-  
+            
             $cos = $this->Co->find('all');
             
             if(count($cos) == 0)

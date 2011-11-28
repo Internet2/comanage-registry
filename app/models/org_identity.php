@@ -23,6 +23,9 @@
     // Define class name for cake
     var $name = "OrgIdentity";
     
+    // Add behaviors
+    var $actsAs = array('Containable');
+    
     // Association rules from this model to other models
     var $hasOne = array("Name" =>                     // A person can have one (preferred) name per Org
                         array('dependent' => true));  // This could change if Name became an MVPA

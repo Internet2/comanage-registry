@@ -53,52 +53,79 @@
       
         if($this->Auth->login($data))
         {
-          // We're logged in
-          // We need to know if the user is an admin, or a collabmin for one or more COs.
+          // We're logged in. Retrieve some information about the user and stuff it
+          // into the session.
           
-          // Add more retrieval so we can get CO name
-          $this->User->OrgIdentity->recursive = 2;
-          $orgp = $this->User->OrgIdentity->findById($this->Session->read('Auth.User.org_identity_id'));
-          
-          $this->Session->write('Auth.User.name', $orgp['Name']);
-
-          $cos = array();
-          
-          foreach($orgp['CoOrgIdentityLink'] as $c)
+          if(!$this->Session->check('Auth.User.api_user_id'))
           {
-            // Create an entry in the session information for each CO the user is a member of
+            // This is an Org Identity. Figure out which Org Identities this username
+            // (identifier) is associated with. First, pull the identifiers.
             
-            $co = $this->User->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($c['CoPerson']['co_id']);
-
-            $cos[ $co['Co']['name'] ] = array(
-              'co_id' => $co['Co']['id'],
-              'co_name' => $co['Co']['name'],
-              'co_person_id' => $c['co_person_id']
-            );
+            $this->loadModel('OrgIdentity');
+            $dbo = $this->OrgIdentity->getDataSource();
             
-            // Retrieve group memberships and attach them as well
-            $grps = $this->User->OrgIdentity->CoOrgIdentityLink->CoPerson->CoGroupMember->findAllByCoPersonId($c['co_person_id']);
+            $args['joins'][0]['table'] = $dbo->fullTableName($this->OrgIdentity->Identifier);
+            $args['joins'][0]['alias'] = 'Identifier';
+            $args['joins'][0]['type'] = 'INNER';
+            $args['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+            $args['conditions']['Identifier.identifier'] = $u;
+            $args['conditions']['Identifier.login'] = true;
+            // Through the magic of containable behaviors, we can get all the associated
+            // data we need in one clever find
+            $args['contain'][] = 'Name';
+            $args['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
+            $args['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
             
-            foreach($grps as $g)
+            $orgIdentities = $this->OrgIdentity->find('all', $args);
+            
+            // Grab the org IDs and CO information
+            $orgs = array();
+            $cos = array();
+            
+            foreach($orgIdentities as $o)
             {
-              $cos[ $co['Co']['name'] ]['groups'][ $g['CoGroup']['name'] ] = array(
-                'co_group_id' => $g['CoGroup']['id'],
-                'name' => $g['CoGroup']['name'],
-                'member' => $g['CoGroupMember']['member'],
-                'owner' => $g['CoGroupMember']['owner']
+              $orgs[] = array(
+                'org_id' => $o['OrgIdentity']['id'],
+                'co_id' => $o['OrgIdentity']['co_id']
               );
+              
+              foreach($o['CoOrgIdentityLink'] as $l)
+              {
+                // If org identities are pooled, OrgIdentity:co_id will be null, so look at
+                // the identity links to get the COs (via CO Person).
+                
+                $cos[ $l['CoPerson']['Co']['name'] ] = array(
+                  'co_id' => $l['CoPerson']['Co']['id'],
+                  'co_name' => $l['CoPerson']['Co']['name'],
+                  'co_person_id' => $l['co_person_id']
+                );
+                
+                // And assemble the Group Memberships
+                
+                foreach($l['CoPerson']['CoGroupMember'] as $gm)
+                {
+                  $cos[ $l['CoPerson']['Co']['name'] ]['groups'][ $gm['CoGroup']['name'] ] = array(
+                    'co_group_id' => $gm['co_group_id'],
+                    'name' => $gm['CoGroup']['name'],
+                    'member' => $gm['member'],
+                    'owner' => $gm['owner']
+                  );
+                }
+              }
             }
-            
+             
+            $this->Session->write('Auth.User.org_identities', $orgs);
             $this->Session->write('Auth.User.cos', $cos);
+            
+            // Pick a name. We don't really have a good heuristic for this, so for now we'll
+            // go with the first one returned, which was probably added first.
+            
+            $this->Session->write('Auth.User.name', $orgIdentities[0]['Name']);
           }
-          
-          // Auth.User.org_person_id
-          
-          // XXX get rid of this hardcoding
-          if($u == 'rest')
-            $this->Session->write('Auth.User.role', 'admin');
           else
-            $this->Session->write('Auth.User.role', 'member');
+          {
+            // This is an API user. We don't do anything special at the moment.
+          }
           
           $this->redirect($this->Auth->redirect());
         }

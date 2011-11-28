@@ -406,16 +406,16 @@
       if($this->Session->check('Auth.User.name'))
         $ret['user'] = true;
       
-      // API user?
+      // API user or Org Person?
       if($this->Session->check('Auth.User.api_user_id'))
       {
         $ret['apiuser'] = true;
         $ret['cmadmin'] = true;  // API users are currently platform admins
       }
-
-      // Org Person?
-      if($this->Session->check('Auth.User.org_identity_id'))
-        $ret['orgidentityid'] = $this->Session->read('Auth.User.org_identity_id');
+      else
+      {
+        $ret['orgidentities'] = $this->Session->read('Auth.User.org_identities');
+      }
 
       return($ret);
     }

@@ -301,9 +301,19 @@
       // Is this our own record?
       $self = false;
 
-      if($cmr['user'] && $cmr['orgidentityid'] && isset($this->params['pass'][0])
-         && ($cmr['orgidentityid'] == $this->params['pass'][0]))
-        $self = true;
+      if($cmr['user'] && $cmr['orgidentities'] && isset($this->params['pass'][0]))
+      {
+        // Walk through the list of org identities and see if this one matches
+        
+        foreach($cmr['orgidentities'] as $o)
+        {
+          if($o['org_id'] == $this->params['pass'][0])
+          {
+            $self = true;
+            break;
+          }
+        }
+      }
       
       // Construct the permission set for this user, which will also be passed to the view.
       $p = array();

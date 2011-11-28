@@ -28,7 +28,7 @@
       || ($this->action == "edit" && $permissions['edit']))
     $e = true;
 
-  if($this->action == "edit" && $permissions['editselfv'])
+  if($this->action == "edit" && $permissions['editself'])
     $es = true;
 
   // We shouldn't get here if we don't have at least read permission, but check just in case
@@ -45,7 +45,10 @@
     if($this->action != "invite")
     {
       echo $html->link(_txt('ct.org_identities.1'),
-                     array('controller' => 'org_identities', 'action' => ($e && !$es ? 'edit' : 'view'), $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id']),
+                     array('controller' => 'org_identities',
+                           'action' => ($e && !$es ? 'edit' : 'view'),
+                           $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'],
+                           'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
                      array('class' => 'linkbutton'));
     }
     

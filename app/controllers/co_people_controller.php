@@ -23,10 +23,16 @@
 
   class CoPeopleController extends StandardController {
     var $name = "CoPeople";
+    
     var $components = array('RequestHandler',  // For REST
                             'Security',
                             'Session');
+    
     var $helpers = array('Time');
+    
+    // When using additional controllers, we must also specify our own
+    var $uses = array('CoPerson', 'CmpEnrollmentConfiguration');
+    
     var $paginate = array(
       'limit' => 25,
       'order' => array(
@@ -43,7 +49,35 @@
     var $view_recursion = 2;
     // We also need Name on delete
     var $delete_recursion = 2;
-  
+    
+    function beforeFilter()
+    {
+      // Callback before other controller methods are invoked or views are rendered.
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      //     None
+      //
+      // Postconditions:
+      // (1) Parent called
+      //
+      // Returns:
+      //   Nothing
+      
+      // This controller may or may not require a CO, depending on how
+      // the CMP Enrollment Configuration is set up. Check and adjust before
+      // beforeFilter is called.
+      
+      // We need this to render links to the org identity (which may or may
+      // not need the co id carried).
+      
+      $this->set('pool_org_identities', $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
+      
+      parent::beforeFilter();
+    }
+    
     function checkDeleteDependencies($curdata)
     {
       // Perform any dependency checks required prior to a delete operation.
@@ -160,33 +194,6 @@
         $this->set("org_identities", $orgp);
         
         $this->view($id);
-      }
-    }
-    
-    function editself()
-    {
-      // Determine our CO Person ID and redirect to edit.
-      //
-      // Parameters:
-      //   None
-      //
-      // Preconditions:
-      // (1) User must be authenticated.
-      //
-      // Postconditions:
-      // (1) Redirect issued.
-      //
-      // Returns:
-      //   Nothing
-      
-      $cmr = $this->calculateCMRoles();
-      
-      if(isset($cmr['copersonid']))
-        $this->redirect(array('action' => 'edit', $cmr['copersonid'], 'co' => $this->cur_co['Co']['id']));
-      else
-      {
-        $this->Session->setFlash(_txt('er.cop.none'), '', array(), 'error');
-        $this->redirect(array('action' => 'index', 'co' => $this->cur_co['Co']['id']));
       }
     }
     
@@ -315,16 +322,9 @@
       // Edit an existing CO Person?
       $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin'] || $self);
 
-      // Are we trying to edit our own record?  If so, we need to track
-      // both permission for the controller to invoke the method ('editself'),
-      // and pass a hint to the view to tell it that an admin should be able
-      // to edit their own fields anyway ('editselfv'). Kind of confusing.
-      // Hopefully this can go away with a proper implementation of ACLs on
-      // fields.
-      
+      // Are we allowed to edit our own record?
       // If we're an admin, we act as an admin, not self.
-      $p['editself'] = $self;
-      $p['editselfv'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && !$cmr['subadmin'];
+      $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && !$cmr['subadmin'];
       
       // View all existing CO People (or a COU's worth)?
       $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);

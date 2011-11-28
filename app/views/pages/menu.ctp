@@ -27,18 +27,19 @@
       <!-- Person Operations -->
       <td width="33%" valign="top">
         <?php
-          if(isset($permissions['menu']['orgprofile']) && $permissions['menu']['orgprofile'])
-          {
-            echo $html->link("View My Home Identity",
-                             array('controller' => 'org_identities', 'action' => 'view', $this->Session->read('Auth.User.org_identity_id')),
-                             array('class' => 'menuitembutton'));
-          }
-
+          $cos = $this->Session->read('Auth.User.cos');
+          
           if(isset($permissions['menu']['coprofile']) && $permissions['menu']['coprofile'])
           {
-            echo $html->link("Manage My CO Identity",
-                             array('controller' => 'co_people', 'action' => 'editself'),
-                             array('class' => 'menuitembutton'));
+            foreach($cos as $co)
+            {
+              echo $html->link("Manage My " . $co['co_name'] . " Identity",
+                               array('controller' => 'co_people',
+                                     'action' => 'edit',
+                                     $co['co_person_id'],
+                                     'co' => $co['co_id']),
+                               array('class' => 'menuitembutton'));
+            }
           }
 
           if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups'])
@@ -46,6 +47,47 @@
             echo $html->link("View/Edit Groups",
                              array('controller' => 'co_groups', 'action' => 'index'),
                              array('class' => 'menuitembutton'));
+          }
+          
+          if(isset($permissions['menu']['orgprofile']) && $permissions['menu']['orgprofile'])
+          {
+            // A user can have more than one org identity (keyed to their COs) if pooling is
+            // disabled, so loop through as appropriate.
+            
+            $orgIdentities = $this->Session->read('Auth.User.org_identities');
+            
+            foreach($orgIdentities as $o)
+            {
+              if(isset($o['co_id']))
+              {
+                // Figure out the name of the CO
+                $coName = '?';
+                
+                foreach($cos as $co)
+                {
+                  if($co['co_id'] == $o['co_id'])
+                  {
+                    $coName = $co['co_name'];
+                    break;
+                  }
+                }
+                
+                echo $html->link("View My Home Identity As Known To " . $coName,
+                                 array('controller' => 'org_identities',
+                                       'action' => 'view',
+                                       $o['org_id'],
+                                       'co' => $o['co_id']),
+                                 array('class' => 'menuitembutton'));
+              }
+              else
+              {
+                echo $html->link("View My Home Identity",
+                                 array('controller' => 'org_identities',
+                                       'action' => 'view',
+                                       $o['org_id']),
+                                 array('class' => 'menuitembutton'));
+              }
+            }
           }
         ?>
       </td>

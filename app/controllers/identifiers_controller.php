@@ -38,48 +38,6 @@
       )
     );
     
-    function checkWriteDependencies($curdata = null)
-    {
-      // Perform any dependency checks required prior to a write (add/edit) operation.
-      // This method is intended to be overridden by model-specific controllers.
-      //
-      // Parameters:
-      // - For edit operations, $curdata will hold current data
-      //
-      // Preconditions:
-      // (1) $this->data holds request data
-      //
-      // Postconditions:
-      // (1) Session flash message updated (HTML) or HTTP status returned (REST) on error
-      //
-      // Returns:
-      // - true if dependency checks succeed, false otherwise.
-      
-      // Get a pointer to our model
-      $req = $this->modelClass;
-      $model = $this->$req;
-      
-      // Check that identifier isn't already in use
-      
-      if(!isset($curdata)
-         || ($curdata[$req]['identifier'] != $this->data[$req]['identifier']))
-      {
-        $x = $model->findByIdentifier($this->data[$req]['identifier']);
-      
-        if(!empty($x))
-        {
-          if($this->restful)
-            $this->restResultHeader(403, "Identifier In Use");
-          else
-            $this->Session->setFlash("The identifier '" . $this->data[$req]['identifier'] . "' already exists (ID: " . $x[$req]['id'] . ")", '', array(), 'error');          
-
-          return(false);
-        }
-      }
-        
-      return(true);
-    }
-    
     function isAuthorized()
     {
       // Authorization for this Controller, called by Auth component
