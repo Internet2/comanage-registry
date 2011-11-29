@@ -98,7 +98,8 @@
       // Check if the target person is a member of any COU that the current user
       // does not have permissions over. If so, fail.
       
-      foreach($curdata['CoPersonRole'] as $pr) {
+      foreach($curdata['CoPersonRole'] as $pr)
+      {
         if(isset($pr['cou_id']) && $pr['cou_id'] != "")
         {
           if(!isset($this->viewVars['permissions']['cous'][ $pr['cou_id'] ]))
@@ -152,7 +153,33 @@
         
         $this->data['Name']['id'] = $curdata['Name']['id'];
       }
-
+      
+      // Check that an org identity being added is not already a member of the CO.
+      // (A person can't be added to the same CO twice... that's what Person Roles
+      // are for.) Note the REST check is in co_org_identity_links_controller.
+      
+      if(!$curdata ||
+         ($this->data['CoOrgIdentityLink'][0]['org_identity_id']
+          != $curdata['CoOrgIdentityLink'][0]['org_identity_id']))
+      {
+        if($this->CoPerson->orgIdIsCoPerson($this->cur_co['Co']['id'],
+                                            $this->data['CoOrgIdentityLink'][0]['org_identity_id']))
+        {
+          $this->Session->setFlash(_txt('er.cop.member',
+                                   array(generateCn($this->data['Name']),
+                                         $this->cur_co['Co']['name'])),
+                                   '', array(), 'error');
+          
+          $redirect['controller'] = 'co_people';
+          $redirect['action'] = 'index';
+          $redirect['co'] = $this->cur_co['Co']['id'];
+          $this->redirect($redirect);
+          
+          // We won't actually accomplish anything with this return
+          return(false);
+        }
+      }
+      
       return(true);
     }
     
@@ -261,7 +288,6 @@
         // Construct a CoPerson from the OrgIdentity.  We only populate defaulted values.
         
         $cop['Name'] = $orgp['Name'];
-        $cop['CoPerson']['title'] = $orgp['OrgIdentity']['title']; // XXX unclear that title should autopopulate
         $cop['CoOrgIdentityLink'][0]['org_identity_id'] = $orgp['OrgIdentity']['id'];
         
         $this->set('co_people', array(0 => $cop));

@@ -54,18 +54,19 @@
       //
       // Returns:
       // - true if dependency checks succeed, false otherwise.
-
+      
       // Check that the IDs (CO Person, Org Person) provided point to existing entities.
-
+      
       if(empty($this->data['CoOrgIdentityLink']['co_person_id']))
       {
         $this->restResultHeader(403, "CoPerson Does Not Exist");
         return(false);
-      }      
+      }
       
-      $a = $this->CoOrgIdentityLink->CoPerson->findById($this->data['CoOrgIdentityLink']['co_person_id']);
+      $this->CoOrgIdentityLink->CoPerson->contain();
+      $coPerson = $this->CoOrgIdentityLink->CoPerson->findById($this->data['CoOrgIdentityLink']['co_person_id']);
       
-      if(empty($a))
+      if(empty($coPerson))
       {
         $this->restResultHeader(403, "CoPerson Does Not Exist");
         return(false);
@@ -77,11 +78,24 @@
         return(false);
       }
       
-      $a = $this->CoOrgIdentityLink->OrgIdentity->findById($this->data['CoOrgIdentityLink']['org_identity_id']);
+      // Can't contain OrgIdentity completely since Name is used for display
+      $this->CoOrgIdentityLink->OrgIdentity->contain('Name');
+      $orgIdentity = $this->CoOrgIdentityLink->OrgIdentity->findById($this->data['CoOrgIdentityLink']['org_identity_id']);
       
-      if(empty($a))
+      if(empty($orgIdentity))
       {
         $this->restResultHeader(403, "OrgIdentity Does Not Exist");
+        return(false);
+      }
+      
+      // Check that an org identity being added is not already a member of the CO.
+      // (A person can't be added to the same CO twice... that's what Person Roles
+      // are for.) Note the UI check is in co_people_controller.
+      
+      if($this->CoOrgIdentityLink->CoPerson->orgIdIsCoPerson($coPerson['CoPerson']['co_id'],
+                                                             $orgIdentity['OrgIdentity']['id']))
+      {
+        $this->restResultHeader(403, "OrgIdentity Already Linked");
         return(false);
       }
       

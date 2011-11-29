@@ -23,6 +23,9 @@
     // Define class name for cake
     var $name = "CoPerson";
     
+    // Add behaviors
+    var $actsAs = array('Containable');
+    
     // Association rules from this model to other models
     var $belongsTo = array("Co");                    // A CO Person Source is attached to one CO
     
@@ -76,5 +79,43 @@
     var $cm_enum_types = array(
       'status' => 'status_t'
     );
+    
+    function orgIdIsCoPerson($coId, $orgIdentityId)
+    {
+      // Determine if an org identity is already associated with a CO.
+      //
+      // Parameters:
+      // - coId: CO to check
+      // - orgIdentityId: Org Identity to check
+      //
+      // Preconditions:
+      //     None
+      //
+      // Postconditions:
+      //     None
+      //
+      // Returns:
+      // - true if $orgIdentityId is linked to $coId, false otherwise
+      
+      // Try to retrieve a link for this org identity id where the co person id
+      // is a member of this CO
+        
+      $dbo = $this->getDataSource();
+          
+      $args['joins'][0]['table'] = $dbo->fullTableName($this->CoOrgIdentityLink);
+      $args['joins'][0]['alias'] = 'CoOrgIdentityLink';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoOrgIdentityLink.co_person_id';
+      $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $orgIdentityId;
+      $args['conditions']['CoPerson.co_id'] = $coId;
+      $args['contain'] = false;
+      
+      $link = $this->find('first', $args);
+      
+      if($link)
+        return(true);
+      
+      return(false);
+    }
   }
 ?>

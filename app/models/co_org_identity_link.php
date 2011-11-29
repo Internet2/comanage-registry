@@ -23,6 +23,9 @@
     // Define class name for cake
     var $name = "CoOrgIdentityLink";
     
+    // Add behaviors
+    var $actsAs = array('Containable');
+    
     // Association rules from this model to other models
     var $belongsTo = array("CoPerson",           // A CO Org Identity Link is attached to one CO Person
                            "OrgIdentity");       // A CO Org Identity Link is attached to one Org Identity
