@@ -33,12 +33,12 @@
     <!-- Include the gears and jquery style sheets -->
     <?php echo $this->Html->css('gears'); ?>
     
-    <?php echo $this->Html->css('jquery/ui/css/start/jquery-ui-1.8.2.custom.css'); ?>
+    <?php echo $this->Html->css('jquery/ui/css/start/jquery-ui-1.8.16.custom.css'); ?>
 
     <!-- Get jquery code -->
-    <?php echo $this->Html->script('jquery/ui/js/jquery-1.4.2.min.js'); ?>
+    <?php echo $this->Html->script('jquery/ui/js/jquery-1.6.2.min.js'); ?>
     
-    <?php echo $this->Html->script('jquery/ui/js/jquery-ui-1.8.2.custom.min.js'); ?>
+    <?php echo $this->Html->script('jquery/ui/js/jquery-ui-1.8.16.custom.min.js'); ?>
 
     <!-- Common script code -->
     <script type="text/javascript">
