@@ -50,6 +50,15 @@
                            $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'],
                            'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
                      array('class' => 'linkbutton'));
+
+     // If demographics data does not exist, demographics controller will redirect to add
+      $args =  array('controller' => 'co_nsf_demographics',
+                     'action'     => 'editself',
+                     'co'         => ($pool_org_identities ? false : $cur_co['Co']['id']));
+      $classArg = array('class' => 'linkbutton');
+      print $html->link(_txt('ct.co_nsf_demographics.1'),
+                        $args,
+                        $classArg);
     }
     
     // Populate the cross reference

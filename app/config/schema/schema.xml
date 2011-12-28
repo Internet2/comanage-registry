@@ -613,4 +613,25 @@
       <col>co_petition_id</col>
     </index>
   </table>
+  
+  <table name="co_nsf_demographics">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <unique />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="gender" type="C" size="2" />
+    <field name="citizenship" type="C" size="2" />
+    <field name="ethnicity" type="C" size="2" />
+    <field name="race" type="C" size="5" />
+    <field name="disability" type="C" size="4" />
+    
+    <index name="demographics_i1">
+      <col>co_person_id</col>
+    </index>
+  </table>
 </schema>

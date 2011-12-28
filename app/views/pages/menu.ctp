@@ -40,6 +40,16 @@
                                      'co' => $co['co_id']),
                                array('class' => 'menuitembutton'));
             }
+            foreach($cos as $co)
+            {
+              $args = array('controller' => 'co_nsf_demographics',
+                            'action'     => 'editself',
+                            'co'         => $co['co_id']);
+              $classArgs = array('class' => 'menuitembutton');
+              print $html->link("View My Demographics As Known To " . $co['co_name'],
+                                $args,
+                                $classArgs);
+            }
           }
 
           if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups'])
@@ -128,6 +138,13 @@
             echo $html->link("CO Enrollment Configuration",
                              array('controller' => 'co_enrollment_flows', 'action' => 'index'),
                              array('class' => 'menuitembutton'));
+          }
+          
+          if(isset($permissions['menu']['co_nsf_demographics']) && $permissions['menu']['co_nsf_demographics'])
+          {
+             print $html->link("NSF Demographics",
+             array('controller' => 'co_nsf_demographics', 'action' => 'index'),
+             array('class' => 'menuitembutton'));
           }
         ?>
       </td>

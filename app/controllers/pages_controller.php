@@ -164,6 +164,12 @@ class PagesController extends AppController {
       // Admin COmanage?
       $p['menu']['admin'] = $cmr['cmadmin'];
       
+      // Manage NSF Demographics?
+      $p['menu']['co_nsf_demographics'] = $cmr['cmadmin'];
+      
+      // View/Edit own Demographics profile?
+      $p['menu']['nsfdemoprofile'] = $cmr['user'];
+
       $this->set('permissions', $p);
       return($p[$this->action]);
     }

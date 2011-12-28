@@ -66,6 +66,8 @@
     'ct.co_groups.pl' =>          'Groups',
     'ct.co_invites.1' =>          'Invite',
     'ct.co_invites.pl' =>         'Invites',
+    'ct.co_nsf_demographics.1'  => 'NSF Demographic',
+    'ct.co_nsf_demographics.pl' => 'NSF Demographics',
     'ct.co_people.1' =>           'CO Person',
     'ct.co_people.pl' =>          'CO People',
     'ct.co_person_roles.1' =>     'CO Person Role',
@@ -90,13 +92,13 @@
                               AdministratorEnum::CoAdmin => 'CO Admin',
                               AdministratorEnum::CoOrCouAdmin => 'CO or COU Admin'),
     
-    'en.affil' =>       array('faculty' => 'Faculty',
-                              'student' => 'Student',
-                              'staff' => 'Staff',
-                              'alum' => 'Alum',
-                              'member' => 'Member',
-                              'affiliate' => 'Affiliate',
-                              'employee' => 'Employee',
+    'en.affil' =>       array('faculty'         => 'Faculty',
+                              'student'         => 'Student',
+                              'staff'           => 'Staff',
+                              'alum'            => 'Alum',
+                              'member'          => 'Member',
+                              'affiliate'       => 'Affiliate',
+                              'employee'        => 'Employee',
                               'library-walk-in' => 'Library Walk-In'),
   
     'en.contact' =>     array(ContactEnum::Fax => 'Fax',
@@ -147,6 +149,38 @@
                               'S' => 'Suspended',
                               'X' => 'Declined'),
 
+    // Demographics
+    'en.nsf.gender' =>       array(NSFGenderEnum::Male   => 'Male',
+                                   NSFGenderEnum::Female => 'Female'),
+
+    'en.nsf.citizen' =>      array(NSFCitizenshipEnum::USCitizen           => 'U.S. Citizen',
+                                   NSFCitizenshipEnum::USPermanentResident => 'U.S. Permanent Resident',
+                                   NSFCitizenshipEnum::Other               => 'Other non-U.S. Citizen'),
+
+    'en.nsf.ethnic' =>       array(NSFEthnicityEnum::Hispanic    => 'Hispanic or Latino',
+                                   NSFEthnicityEnum::NotHispanic => 'Not Hispanic or Latino'),
+
+    'en.nsf.ethnic.desc' =>       array(NSFEthnicityEnum::Hispanic => 'A person of Mexican, Puerto Rican, Cuban, South or Central American, or other Spanish culture or origin, regardless of race',),
+
+
+    'en.nsf.race' =>         array(NSFRaceEnum::Asian          => 'Asian',
+                                   NSFRaceEnum::AmericanIndian => 'American Indian or Alaskan Native',
+                                   NSFRaceEnum::Black          => 'Black or African American',
+                                   NSFRaceEnum::NativeHawaiian => 'Native Hawaiian or Pacific Islander',
+                                   NSFRaceEnum::White          => 'White'
+                                  ),
+
+    'en.nsf.race.desc' =>         array(NSFRaceEnum::Asian          => 'A person having origins in any of the original peoples of the Far East, Southeast Asia, or the Indian subcontinent including, for example, Cambodia, China, India, Japan, Korea, Malaysia, Pakistan, the Philippine Islands, Thailand, and Vietnam',
+                                        NSFRaceEnum::AmericanIndian => 'A person having origins in any of the original peoples of North and South America (including Central America), and who maintains tribal affiliation or community attachment',
+                                        NSFRaceEnum::Black          => 'A person having origins in any of the black racial groups of Africa',
+                                        NSFRaceEnum::NativeHawaiian => 'A person having origins in any of the original peoples of Hawaii, Guan, Samoa, or other Pacific Islands',
+                                        NSFRaceEnum::White          => 'A person having origins in any of the original peoples of Europe, the Middle East, or North Africa'),
+
+    'en.nsf.disab' =>        array(NSFDisabilityEnum::Hearing  => 'Hearing Impaired',
+                                   NSFDisabilityEnum::Visual   => 'Visual Impaired',
+                                   NSFDisabilityEnum::Mobility => 'Mobility/Orthopedic Impairment',
+                                   NSFDisabilityEnum::Other    => 'Other Impairment'),
+
     // Errors
     'er.co.cm.edit' =>  'Cannot Edit COmanage CO',
     'er.co.cm.rm' =>    'Cannot Remove COmanage CO',
@@ -184,6 +218,7 @@
     'er.grm.none' =>    'No group memberships to add',
     'er.inv.exp' =>     'Invitation Expired',
     'er.inv.nf' =>      'Invitation Not Found',
+    'er.nd.already'  => 'NSF Demographic data already exists for this person',
     'er.notfound' =>    '%1$s "%2$s" Not Found',
     'er.notprov' =>     'Not Provided',
     'er.notprov.id' =>  '%1$s ID Not Provided',
@@ -211,6 +246,13 @@
     'fd.closed' =>      'Closed',
     'fd.cou' =>         'COU',
     'fd.country' =>     'Country',
+    // Demographics fields
+    'fd.de.persid'  =>  'Person ID',
+    'fd.de.gender'  =>  'Gender',
+    'fd.de.citizen' =>  'Citizenship',
+    'fd.de.ethnic'  =>  'Ethnicity',
+    'fd.de.race'    =>  'Race',
+    'fd.de.disab'   =>  'Disability',
     'fd.desc' =>        'Description',
     'fd.directory' =>   'Directory',
     'fd.domain' =>      'Domain',

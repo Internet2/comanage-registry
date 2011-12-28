@@ -38,6 +38,13 @@
     );*/
   }
   
+  class NSFCitizenshipEnum
+  {
+    const USCitizen            = 'US';
+    const USPermanentResident  = 'P';
+    const Other                = 'O';
+  }
+
   class ContactEnum
   {
     const Fax         = 'F';
@@ -65,7 +72,28 @@
       Forwarding  => "Forwarding"
     );*/
   }
-  
+
+  class NSFDisabilityEnum
+  {
+    const Hearing     = 'H';
+    const Visual      = 'V';
+    const Mobility    = 'M';
+    const Other       = 'O';
+
+  }
+
+  class NSFEthnicityEnum
+  {
+    const Hispanic    = 'H';
+    const NotHispanic = 'N';
+  }
+
+  class NSFGenderEnum
+  {
+    const Male        = 'M';
+    const Female      = 'F';
+  }
+
   class IdentifierEnum
   {
     const ePPN    = 'EP';
@@ -112,7 +140,16 @@
       Preferred => 'Preferred'
     );*/
   }
-  
+
+  class NSFRaceEnum
+  {
+    const Asian            = 'A';
+    const AmericanIndian   = 'I';
+    const Black            = 'B';
+    const NativeHawaiian   = 'N';
+    const White            = 'W';
+  }
+
   class RequiredEnum
   {
     const Required      = 1;
