@@ -20,6 +20,10 @@
    */
 -->
 <?php
+
+  // Globals
+  global $cm_lang, $cm_texts;
+
   // Determine if fields are editable
   $e = false;
   $es = false;
@@ -379,8 +383,8 @@
               </td>
               <td>
                 <?php
-                  if(isset($org_identities[0]['OrgIdentity']['edu_person_affiliation']))
-                    echo Sanitize::html($org_identities[0]['OrgIdentity']['edu_person_affiliation']);
+                  if(isset($org_identities[0]['OrgIdentity']['affiliation']))
+                    echo $cm_texts[ $cm_lang ]['en.affil'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
                 ?>
               </td>
             </tr>
@@ -398,7 +402,7 @@
               <td><?php if(isset($r['Cou']['name'])) echo Sanitize::html($r['Cou']['name']); ?></td>
               <?php endif; // compare ?>
               <td><?php if(isset($r['title'])) echo Sanitize::html($r['title']); ?></td>
-              <td><?php if(isset($r['edu_person_affiliation'])) echo Sanitize::html($r['edu_person_affiliation']); ?></td>
+              <td><?php if(isset($r['affiliation'])) echo $cm_texts[ $cm_lang ]['en.affil'][ $r['affiliation'] ]; ?></td>
               <td><?php if(isset($r['valid_from']) && $r['valid_from'] > 0) echo $this->Time->format('Y M d', $r['valid_from']); ?></td>
               <td><?php if(isset($r['valid_through']) && $r['valid_through'] > 0) echo $this->Time->format('Y M d', $r['valid_through']); ?></td>
               <?php if($this->action != "compare"): ?>

@@ -308,11 +308,11 @@
         );
       }
       
-      if(!defined_attribute($attrs, 'edu_person_affiliation'))
+      if(!defined_attribute($attrs, 'affiliation'))
       {
         $newattrs[]['CmpEnrollmentAttribute'] = array(
           'cmp_enrollment_configuration_id' => $fid,
-          'attribute'                       => 'edu_person_affiliation',
+          'attribute'                       => 'affiliation',
           'required'                        => RequiredEnum::Optional,
           'ldap_name'                       => 'edu_person_affiliation',
           'saml_name'                       => 'edu_person_affiliation'

@@ -43,8 +43,8 @@
     
     // Validation rules for table elements
     var $validate = array(
-      'edu_person_affiliation' => array(
-        'rule' => array('inList', array('faculty', 'student', 'staff', 'alum', 'member', 'affiliate', 'employee', 'library-walk-in')),
+      'affiliation' => array(
+        'rule' => array('inList', array('F','SU','SA','AL','M','AF','E','L')),
         'required' => true
       ),
       'status' => array(

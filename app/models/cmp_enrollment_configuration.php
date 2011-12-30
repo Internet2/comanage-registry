@@ -166,7 +166,7 @@
               'label' => _txt('fd.name.s'),
               'desc' => _txt('fd.name.s.desc'),
               'assoc' => $name_assoc),
-        array('attr' => 'edu_person_affiliation',
+        array('attr' => 'affiliation',
               'type' => null,
               'label' => _txt('fd.affiliation'),
               'select' => array('options' => $cm_texts[ $cm_lang ]['en.affil'],

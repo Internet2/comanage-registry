@@ -90,7 +90,7 @@
       <key />
       <autoincrement />
     </field>
-    <field name="edu_person_affiliation" type="C" size="32" />
+    <field name="affiliation" type="C" size="2" />
     <field name="title" type="C" size="128" />
     <field name="o" type="C" size="128" />
     <field name="ou" type="C" size="128" />
@@ -163,7 +163,7 @@
     <field name="cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
-    <field name="edu_person_affiliation" type="C" size="32" />
+    <field name="affiliation" type="C" size="2" />
     <field name="title" type="C" size="128" />
     <field name="o" type="C" size="128" />
     <field name="ou" type="C" size="128" />

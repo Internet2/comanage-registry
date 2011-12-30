@@ -18,6 +18,10 @@
    * permissions and limitations under the License.
    *
    */
+
+// Globals
+global $cm_lang, $cm_texts;
+
 ?>
 <h1 class="ui-state-default"><?php echo _txt('ct.org_identities.pl'); ?></h1>
 
@@ -40,7 +44,7 @@
       <th><?php echo $this->Paginator->sort(_txt('fd.o'), 'o'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.ou'), 'ou'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.title'), 'title'); ?></th>
-      <th><?php echo $this->Paginator->sort(_txt('fd.affiliation'), 'edu_person_affiliation'); ?></th>
+      <th><?php echo $this->Paginator->sort(_txt('fd.affiliation'), 'affiliation'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.orgid'), 'organization_id'); ?></th>
       <th><?php echo _txt('fd.actions'); ?></th>
     </tr>
@@ -58,7 +62,7 @@
       <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['ou']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
-      <td><?php echo Sanitize::html($p['OrgIdentity']['edu_person_affiliation']); ?></td>
+      <td><?php echo $cm_texts[ $cm_lang ]['en.affil'][$p['OrgIdentity']['affiliation']]; ?></td>
       <td><?php if($p['OrgIdentity']['organization_id'] != "") echo $html->link($p['OrgIdentity']['organization_id'],
                                                                               array('controller' => 'organizations', 'action' => 'view', $p['OrgIdentity']['organization_id'])); ?></td>
       <td>

@@ -79,7 +79,7 @@ WHERE i.login=true;
       
       $op = array(
         'OrgIdentity' => array(
-          'edu_person_affiliation' => 'member',
+          'affiliation' => 'M',
           'co_id'                  => $co_id
         ),
         'Name' => array(
@@ -136,7 +136,7 @@ WHERE i.login=true;
         'CoPersonRole' => array(
           'co_person_id'           => $cop_id,
           'title'                  => _txt('fd.admin'),
-          'edu_person_affiliation' => 'staff',
+          'affiliation' => 'SA',
           'status'                 => StatusEnum::Active
         )
       );

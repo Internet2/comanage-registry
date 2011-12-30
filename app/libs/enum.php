@@ -37,7 +37,19 @@
       CoAdmin       => "CoAdmin"
     );*/
   }
-  
+
+  class AffiliationEnum
+  {
+    const Faculty       = 'F';
+    const Student       = 'SU';
+    const Staff         = 'SA';
+    const Alum          = 'AL';
+    const Member        = 'M';
+    const Affiliate     = 'AF';
+    const Employee      = 'E';
+    const LibraryWalkIn = 'L';
+  }
+
   class NSFCitizenshipEnum
   {
     const USCitizen            = 'US';

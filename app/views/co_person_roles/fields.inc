@@ -20,6 +20,10 @@
    */
 -->
 <?php
+  
+  // Globals
+  global $cm_lang, $cm_texts;
+
   // Determine if fields are editable
   $e = false;
   $es = false;
@@ -102,18 +106,18 @@
         <?php
           global $cm_lang, $cm_texts;
           
-          echo (($e && !$es)? $this->Form->select('edu_person_affiliation',
+          echo (($e && !$es)? $this->Form->select('affiliation',
                                          $cm_texts[ $cm_lang ]['en.affil'],
-                                         (isset($co_person_roles[0]['CoPersonRole']['edu_person_affiliation'])
-                                          ? $co_person_roles[0]['CoPersonRole']['edu_person_affiliation']
-                                          : "member"),
+                                         (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
+                                          ? $co_person_roles[0]['CoPersonRole']['affiliation']
+                                          : "M"),
                                          array('empty' => false))
-                   : Sanitize::html($co_person_roles[0]['CoPersonRole']['edu_person_affiliation']));
+                   : $cm_texts[ $cm_lang ]['en.affil'][ $co_person_roles[0]['CoPersonRole']['affiliation']]);
         ?>
       </td>
     <?php if($this->action == "compare"): ?>
       <td>
-        <?php echo Sanitize::html($org_identities[0]['OrgIdentity']['edu_person_affiliation']); ?>
+        <?php echo $cm_texts[ $cm_lang ]['en.affil'][ $org_identities[0]['OrgIdentity']['affiliation']]; ?>
       </td>
     <?php endif; ?>
     </tr>

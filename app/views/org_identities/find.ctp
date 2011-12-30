@@ -27,7 +27,7 @@
       <th><?php echo $this->Paginator->sort(_txt('fd.name'), 'Name.family'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.o'), 'o'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.title'), 'title'); ?></th>
-      <th><?php echo $this->Paginator->sort(_txt('fd.affiliation'), 'edu_person_affiliation'); ?></th>
+      <th><?php echo $this->Paginator->sort(_txt('fd.affiliation'), 'affiliation'); ?></th>
       <th><?php echo _txt('fd.mail'); ?></th>
       <th><?php echo _txt('op.inv'); ?></th>
     </tr>
@@ -41,7 +41,9 @@
                                  array('controller' => 'org_identities', 'action' => 'view', $p['OrgIdentity']['id'])); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
-      <td><?php echo Sanitize::html($p['OrgIdentity']['edu_person_affiliation']); ?></td>
+      <td><?php   // Globals
+             global $cm_lang, $cm_texts;
+             echo $cm_texts[ $cm_lang ]['en.affil'][$p['OrgIdentity']['affiliation']]; ?></td>
       <td><?php foreach($p['EmailAddress'] as $ea) echo Sanitize::html($ea['mail']) . "<br />"; ?></td>
       <td><?php echo $html->link(_txt('op.inv'),
                                  array('controller' => 'co_people',

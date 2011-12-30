@@ -77,7 +77,7 @@
       
       // (1) Single valued attributes, generally attached to the Person Role
       
-      $ret['s:edu_person_affiliation'] = _txt('fd.affiliation');
+      $ret['s:affiliation'] = _txt('fd.affiliation');
       $ret['s:title'] = _txt('fd.title');
       $ret['s:o'] = _txt('fd.o');
       $ret['s:ou'] = _txt('fd.ou');

@@ -22,6 +22,10 @@
 <h1 class="ui-state-default"><?php echo $cur_co['Co']['name']; ?> People</h1>
 
 <?php
+
+  // Globals
+  global $cm_lang, $cm_texts;
+
   if($permissions['add'])
     echo $this->Html->link(_txt('op.inv'),
                            array('controller' => 'org_identities', 'action' => 'find', 'co' => $this->params['named']['co']),
@@ -38,7 +42,7 @@
       <th><?php echo $this->Paginator->sort(_txt('fd.o'), 'o'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.cou'), 'Cou.ou'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.title'), 'title'); ?></th>
-      <th><?php echo $this->Paginator->sort(_txt('fd.affiliation'), 'edu_person_affiliation'); ?></th>
+      <th><?php echo $this->Paginator->sort(_txt('fd.affiliation'), 'affiliation'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.valid.f'), 'valid_from'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.valid.u'), 'valid_through'); ?></th>
       <th><?php echo $this->Paginator->sort(_txt('fd.status'), 'status'); ?></th>
@@ -55,7 +59,7 @@
       <td><?php echo Sanitize::html($p['CoPersonRole']['o']); ?></td>
       <td><?php if(isset($p['CoPersonRole']['Cou']['name'])) echo Sanitize::html($p['CoPersonRole']['Cou']['name']); ?></td>
       <td><?php echo Sanitize::html($p['CoPersonRole']['title']); ?></td>
-      <td><?php echo Sanitize::html($p['CoPersonRole']['edu_person_affiliation']); ?></td>
+      <td><?php echo $cm_texts[ $cm_lang ]['en.affil'][ $p['CoPersonRole']['affiliation']]; ?></td>
       <td><?php if($p['CoPersonRole']['valid_from'] > 0) echo $this->Time->format('Y M d', $p['CoPersonRole']['valid_from']); ?></td>
       <td><?php if($p['CoPersonRole']['valid_through'] > 0) echo $this->Time->format('Y M d', $p['CoPersonRole']['valid_through']); ?></td>
       <td>

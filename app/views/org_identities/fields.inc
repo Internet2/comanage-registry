@@ -20,6 +20,10 @@
    */
 -->
 <?php
+
+  // Globals
+  global $cm_lang, $cm_texts;
+
   // Determine if fields are editable
   $e = false;
   
@@ -134,13 +138,13 @@
          <?php
            global $cm_lang, $cm_texts;
            
-           echo ($e ? $this->Form->select('edu_person_affiliation',
+           echo ($e ? $this->Form->select('affiliation',
                                           $cm_texts[ $cm_lang ]['en.affil'],
-                                          (isset($org_identities[0]['OrgIdentity']['edu_person_affiliation'])
-                                           ? $org_identities[0]['OrgIdentity']['edu_person_affiliation']
-                                           : "member"),
+                                          (isset($org_identities[0]['OrgIdentity']['affiliation'])
+                                           ? $org_identities[0]['OrgIdentity']['affiliation']
+                                           : "M"),
                                           array('empty' => false))
-                    : Sanitize::html($org_identities[0]['OrgIdentity']['edu_person_affiliation'])); ?>
+                    : $cm_texts[ $cm_lang ]['en.affil'][$org_identities[0]['OrgIdentity']['affiliation']]); ?>
        </td>
      </tr>
      <tr class="line1">
