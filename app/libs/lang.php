@@ -330,6 +330,8 @@
     'fd.required' =>    'Required',
     'fd.roles' =>       'Roles',
     'fd.searchbase' =>  'Search Base',
+    'fd.sponsor' =>     'Sponsor',
+    'fd.sponsor.desc' =>'(for continued membership)',
     'fd.state' =>       'State',
     'fd.status' =>      'Status',
     'fd.title' =>       'Title',

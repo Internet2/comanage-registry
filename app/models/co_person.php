@@ -117,5 +117,35 @@
       
       return(false);
     }
+
+    function sponsorList()
+    {
+      // Retrieves list of sponsors for display in dropdown
+      //
+      // Parameters:
+      //   None
+      //
+      // Preconditions:
+      //   None
+      //
+      // Postconditions:
+      //   None
+      //
+      // Returns:
+      // - Array with co_person id as keys and full name as values
+
+      // Query database for people
+
+      $args['contain'][] = 'Name';
+      $args['order'][] = 'Name.family ASC';
+      $nameData = $this->find('all', $args);
+
+      // Make data human readable for dropdown, keyed by id
+      foreach($nameData as $pers)
+      {
+        $drop[ $pers['CoPerson']['id'] ] = generateCn($pers['Name'], true);
+      }
+      return $drop;
+    }
   }
 ?>

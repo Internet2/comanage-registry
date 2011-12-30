@@ -160,6 +160,9 @@
       <notnull />
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
+    <field name="sponsor_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
     <field name="cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
@@ -177,6 +180,9 @@
       <col>co_person_id</col>
     </index>
     <index name="co_person_roles_i2">
+      <col>sponsor_co_person_id</col>
+    </index>
+    <index name="co_person_roles_i3">
       <col>cou_id</col>
     </index>
   </table>

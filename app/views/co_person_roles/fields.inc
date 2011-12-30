@@ -164,6 +164,22 @@
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
+        <?php echo _txt('fd.sponsor') . " ";
+              echo _txt('fd.sponsor.desc');
+        ?>
+      </td>
+      <td>
+        <?php echo (($e && !$es) ? $this->Form->select('sponsor_co_person_id', $sponsors) : Sanitize::html($sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ])); 
+        ?>
+      </td>
+    <?php if($this->action == "compare"): ?>
+      <td>
+        <?php echo Sanitize::html($org_identities[0]['OrgIdentity']['sponsor_co_person_id']); ?>
+      </td>
+    <?php endif; ?>
+    </tr>
+    <tr class="line<?php echo ($l % 2); $l++; ?>">
+      <td>
         <?php echo _txt('fd.valid.f'); if($e && !$es) echo " " . _txt('fd.valid.f.desc'); ?>
       </td>
       <td>

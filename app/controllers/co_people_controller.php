@@ -76,6 +76,9 @@
       $this->set('pool_org_identities', $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
       
       parent::beforeFilter();
+
+      // generate list of sponsors
+      $this->set('sponsors',$this->CoPerson->sponsorList());
     }
     
     function checkDeleteDependencies($curdata)
@@ -127,6 +130,7 @@
       
       return(true);
     }
+
 
     function checkWriteDependencies($curdata = null)
     {

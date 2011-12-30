@@ -62,12 +62,13 @@
     return(false);
   }
         
-  function generateCn($name)
+  function generateCn($name, $showHonorific = false)
   {
     // Assemble a common name from the array $name.
     //
     // Parameters:
     // - name: An array containing the attributes of a Name object
+    // - showHonorific: will return honorific as part of name when true
     //
     // Preconditions:
     //     None
@@ -82,7 +83,9 @@
 
     $cn = "";
     
-    // We ignore Honorific, but maybe we should offer an option to include
+    // Does not show honorific by default
+    if( $showHonorific && ($name['honorific'] != "") )
+      $cn .= ($cn != "" ? ' ' : '') . $name['honorific'];
     
     if($name['given'] != "")
       $cn .= ($cn != "" ? ' ' : '') . $name['given'];

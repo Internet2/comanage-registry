@@ -25,7 +25,16 @@
     
     // Association rules from this model to other models
     var $belongsTo = array("Cou",             // A CO Org Person To is attached to one COU
-                           "CoPerson");       // A CO Org Person To is attached to one CO Person
+                           "CoPerson"=> array(
+                             'className' => 'CoPerson',
+                             'foreignKey' => 'co_person_id'
+                           ),       // A CO Org Person To is attached to one CO Person
+                           
+                           "CoPerson" => array(
+                             'className' => 'CoPerson',
+                             'foreignKey' => 'sponsor_co_person_id'
+                           )        // foreign key to sponsor
+    );
     
     var $hasMany = array("Address" =>                 // A person can have one or more address
                          array('dependent' => true),

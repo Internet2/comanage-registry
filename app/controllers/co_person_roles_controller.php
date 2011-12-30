@@ -168,6 +168,9 @@
                                                                 'dependent' => true))),
                                        false);
       }
+
+      // generate list of sponsors
+      $this->set('sponsors',$this->CoPersonRole->CoPerson->sponsorList());
     }
   
     function checkWriteDependencies($curdata = null)
