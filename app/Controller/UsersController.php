@@ -1,0 +1,155 @@
+<?php
+/**
+ * COmanage Registry Users Controller
+ *
+ * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @link          http://www.internet2.edu/comanage COmanage Project
+ * @package       registry
+ * @since         COmanage Registry v0.1
+ * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * @version       $Id$
+ */
+
+class UsersController extends AppController {
+  public $name = 'Users';
+
+  public $components = array(
+    'Auth' => array(
+      'authenticate' => array(
+        'RemoteUser'
+      )
+    ),
+    'RequestHandler',
+    'Session'
+  );
+  
+  /**
+   * Login a user
+   * - precondition: User has been authenticated
+   * - precondition: Session updated with User information
+   * - postcondition: User logged in via Auth component
+   * - postcondition: Redirect to / issued
+   *
+   * @since  COmanage Registry v0.1
+   * @throws RuntimeException
+   * @return void
+   */
+  
+  public function login() {
+    if($this->Auth->login()) {
+      // At this point, Auth.User.username has been established by the Auth
+      // Controller, but nothing else. We now populate the rest of the user's
+      // session auth information.
+      
+      $u = $this->Session->read('Auth.User.username');
+      
+      if(!empty($u)) {
+        if(!$this->Session->check('Auth.User.api_user_id')) {
+          // This is an Org Identity. Figure out which Org Identities this username
+          // (identifier) is associated with. First, pull the identifiers.
+          
+          $this->loadModel('OrgIdentity');
+          
+          $args['joins'][0]['table'] = 'identifiers';
+          $args['joins'][0]['alias'] = 'Identifier';
+          $args['joins'][0]['type'] = 'INNER';
+          $args['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+          $args['conditions']['Identifier.identifier'] = $u;
+          $args['conditions']['Identifier.login'] = true;
+          // Through the magic of containable behaviors, we can get all the associated
+          // data we need in one clever find
+          $args['contain'][] = 'Name';
+          $args['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
+          $args['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
+          
+          $orgIdentities = $this->OrgIdentity->find('all', $args);
+          
+          // Grab the org IDs and CO information
+          $orgs = array();
+          $cos = array();
+          
+          foreach($orgIdentities as $o)
+          {
+            $orgs[] = array(
+              'org_id' => $o['OrgIdentity']['id'],
+              'co_id' => $o['OrgIdentity']['co_id']
+            );
+            
+            foreach($o['CoOrgIdentityLink'] as $l)
+            {
+              // If org identities are pooled, OrgIdentity:co_id will be null, so look at
+              // the identity links to get the COs (via CO Person).
+              
+              $cos[ $l['CoPerson']['Co']['name'] ] = array(
+                'co_id' => $l['CoPerson']['Co']['id'],
+                'co_name' => $l['CoPerson']['Co']['name'],
+                'co_person_id' => $l['co_person_id']
+              );
+              
+              // And assemble the Group Memberships
+              
+              foreach($l['CoPerson']['CoGroupMember'] as $gm)
+              {
+                $cos[ $l['CoPerson']['Co']['name'] ]['groups'][ $gm['CoGroup']['name'] ] = array(
+                  'co_group_id' => $gm['co_group_id'],
+                  'name' => $gm['CoGroup']['name'],
+                  'member' => $gm['member'],
+                  'owner' => $gm['owner']
+                );
+              }
+            }
+          }
+           
+          $this->Session->write('Auth.User.org_identities', $orgs);
+          $this->Session->write('Auth.User.cos', $cos);
+          
+          // Pick a name. We don't really have a good heuristic for this, so for now we'll
+          // go with the first one returned, which was probably added first.
+          
+          if(isset($orgIdentities[0]['Name'])) {
+            $this->Session->write('Auth.User.name', $orgIdentities[0]['Name']);
+          }
+        } else {
+          // This is an API user. We don't do anything special at the moment.
+        }
+      } else {
+        throw new RuntimeException("Found empty username at login");
+      }
+      
+      $this->redirect("/");
+    } else {
+      // We're probably here because the session timed out
+      $this->Session->setFlash(_txt('er.timeout'), '', array(), 'error');
+      $this->redirect("/");
+      //throw new RuntimeException("Failed to invoke Auth component login");
+    }
+  }
+  
+  /**
+   * Logout a user
+   * - precondition: User has been logged in
+   * - postcondition: Curret session auth information is deleted
+   * - postcondition: Redirect to / issued
+   *
+   * @since  COmanage Registry v0.1
+   * @return void
+   */
+  
+  public function logout() {
+    $this->Session->delete('Auth.User');
+    // XXX should redirect to /auth/logout/index.php to trip external logout
+    $this->redirect("/");
+  }
+}

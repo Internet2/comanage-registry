@@ -38,7 +38,31 @@
 	CakePlugin::routes();
 
 /**
+ * Enable REST. These *MUST* come before the default CakePHP routes.
+ */
+
+Router::mapResources(array(
+  'addresses',
+  'co_extended_attributes',
+  'co_invites',
+  'co_groups',
+  'co_group_members',
+  'co_org_identity_links',
+  'co_people',
+  'co_person_roles',
+  'cos',
+  'cous',
+  'email_addresses',
+  'identifiers',
+  'org_identities',
+  'organizations',
+  'telephone_numbers'
+));
+Router::parseExtensions();
+
+/**
  * Load the CakePHP default routes. Remove this if you do not want to use
  * the built-in default routes.
  */
 	require CAKE . 'Config' . DS . 'routes.php';
+

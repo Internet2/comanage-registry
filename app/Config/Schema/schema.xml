@@ -1,0 +1,643 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry Database Schema
+
+  Version: $Revision$
+  Date: $Date$
+
+  Copyright (C) 2010-2011 University Corporation for Advanced Internet Development, Inc.
+   
+  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+  the License. You may obtain a copy of the License at
+   
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software distributed under
+  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the specific language governing
+  permissions and limitations under the License.
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+  <table name="cos">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="description" type="C" size="128" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="cos_i1">
+      <col>name</col>
+      <unique />
+    </index>
+  </table>
+  
+  <table name="cous">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="description" type="C" size="128" />
+    <field name="parent_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="lft" type="I" />
+    <field name="rght" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="cous_i1">
+      <col>co_id</col>
+    </index>
+    <index name="cous_i2">
+      <col>name</col>
+    </index>
+    <index name="cous_i3">
+      <col>co_id</col>
+      <col>name</col>
+      <unique />
+    </index>
+  </table>
+  
+  <table name="organizations">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="name" type="C" size="256" />
+    <field name="domain" type="C" size="256" />
+    <field name="directory" type="C" size="256" />
+    <!-- searchbase probably doesn't belong here -->
+    <field name="search_base" type="C" size="256" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <table name="org_identities">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="affiliation" type="C" size="2" />
+    <field name="title" type="C" size="128" />
+    <field name="o" type="C" size="128" />
+    <field name="ou" type="C" size="128" />
+    <field name="organization_id" type="I">
+      <constraint>REFERENCES cm_organizations(id)</constraint>
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <table name="co_people">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_people_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="co_org_identity_links">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_org_identity_links_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="co_org_identity_links_i2">
+      <col>org_identity_id</col>
+    </index>
+    <index name="co_org_identity_links_i3">
+      <col>co_person_id</col>
+      <col>org_identity_id</col>
+      <unique />
+    </index>
+  </table>
+  
+  <table name="co_person_roles">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="sponsor_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="affiliation" type="C" size="2" />
+    <field name="title" type="C" size="128" />
+    <field name="o" type="C" size="128" />
+    <field name="ou" type="C" size="128" />
+    <field name="valid_from" type="T" />
+    <field name="valid_through" type="T" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_person_roles_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="co_person_roles_i2">
+      <col>sponsor_co_person_id</col>
+    </index>
+    <index name="co_person_roles_i3">
+      <col>cou_id</col>
+    </index>
+  </table>
+
+  <table name="names">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="honorific" type="C" size="32" />
+    <field name="given" type="C" size="128" />
+    <field name="middle" type="C" size="128" />
+    <field name="family" type="C" size="128" />
+    <field name="suffix" type="C" size="32" />
+    <field name="type" type="C" size="2" />
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <table name="co_extended_attributes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="64" />
+    <field name="display_name" type="C" size="64" />
+    <field name="type" type="C" size="32" />
+    <field name="indx" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="co_extended_attributes_i1">
+      <col>co_id</col>
+      <col>name</col>
+      <unique />
+    </index>
+  </table>
+  
+  <table name="identifiers">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="identifier" type="C" size="256" />
+    <field name="type" type="C" size="2" />
+    <field name="login" type="L" />
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <table name="co_invites">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="invitation" type="C" size="48">
+      <notnull />
+    </field>
+    <field name="mail" type="C" size="256" />
+    <field name="expires" type="T" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_invites_i1">
+      <col>co_person_id</col>
+    </index>    
+    <index name="co_invites_i2">
+      <col>invitation</col>
+    </index>    
+  </table>
+  
+  <table name="addresses">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="line1" type="C" size="128" />
+    <field name="line2" type="C" size="128" />
+    <field name="locality" type="C" size="128" />
+    <field name="state" type="C" size="128" />
+    <field name="postal_code" type="C" size="16" />
+    <field name="country" type="C" size="128" />
+    <field name="type" type="C" size="2" />
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="addresses_i1">
+      <col>co_person_role_id</col>
+    </index>    
+    <index name="addresses_i2">
+      <col>org_identity_id</col>
+    </index>    
+  </table>
+
+  <table name="email_addresses">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="mail" type="C" size="256" />
+    <field name="type" type="C" size="2" />
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="email_ddresses_i1">
+      <col>co_person_id</col>
+    </index>    
+    <index name="email_addresses_i2">
+      <col>org_identity_id</col>
+    </index>    
+  </table>
+
+  <table name="telephone_numbers">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="number" type="C" size="64" />
+    <field name="type" type="C" size="2" />
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="telephone_numbers_i1">
+      <col>co_person_role_id</col>
+    </index>    
+    <index name="telephone_numbers_i2">
+      <col>org_identity_id</col>
+    </index>    
+  </table>
+  
+  <table name="api_users">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="username" type="C" size="50" />
+    <field name="password" type="C" size="40" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="api_users_i1">
+      <col>username</col>
+    </index>    
+  </table>
+  
+  <table name="co_groups">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="description" type="C" size="256" />
+    <field name="open" type="L" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_groups_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_groups_i2">
+      <col>name</col>
+    </index>
+    <index name="co_groups_i3">
+      <col>co_id</col>
+      <col>name</col>
+      <unique />
+    </index>
+  </table>
+  
+  <table name="co_group_members">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_group_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="member" type="L" />
+    <field name="owner" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_group_members_i1">
+      <col>co_group_id</col>
+    </index>
+    <index name="co_group_members_i2">
+      <col>co_person_id</col>
+    </index>
+    <index name="co_group_members_i3">
+      <col>co_group_id</col>
+      <col>co_person_id</col>
+      <unique />
+    </index>
+  </table>
+  
+  <table name="cmp_enrollment_configurations">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="name" type="C" size="128">
+      <unique />
+    </field>
+    <field name="self_enroll" type="L" />
+    <field name="self_require_authn" type="L" />
+    <field name="admin_enroll" type="C" size="1" />
+    <field name="admin_confirm_email" type="L" />
+    <field name="admin_require_authn" type="L" />
+    <field name="attrs_from_ldap" type="L" />
+    <field name="attrs_from_saml" type="L" />
+    <field name="pool_org_identities" type="L" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <table name="cmp_enrollment_attributes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="cmp_enrollment_configuration_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cmp_enrollment_configurations(id)</constraint>
+    </field>
+    <field name="attribute" type="C" size="80">
+      <notnull />
+    </field>
+    <field name="type" type="C" size="2" />
+    <field name="required" type="I" />
+    <field name="ldap_name" type="C" size="80" />
+    <field name="saml_name" type="C" size="80" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_cmp_enrollment_attributes_i1">
+      <col>cmp_enrollment_configuration_id</col>
+    </index>
+  </table>
+  
+  <table name="co_enrollment_flows">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="self_enroll" type="L" />
+    <field name="admin_enroll" type="C" size="1" />
+    <field name="approval_required" type="L" />
+    <field name="early_provisioning_exec" type="C" size="128" />
+    <field name="provisioning_exec" type="C" size="128" />
+    <field name="notify_on_early_provision" type="C" size="128" />
+    <field name="notify_on_provision" type="C" size="128" />
+    <field name="notify_on_active" type="C" size="128" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_enrollment_flows_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="co_enrollment_attributes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="label" type="C" size="80">
+      <notnull />
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="attribute" type="C" size="80">
+      <notnull />
+    </field>
+    <field name="required" type="I" />
+    <field name="ordr" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_enrollment_attributes_i1">
+      <col>co_enrollment_flow_id</col>
+    </index>
+  </table>
+  
+  <table name="co_petitions">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="enrollee_org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="enrollee_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="enrollee_co_person_role_id" type="I">
+      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
+    </field>
+    <field name="petitioner_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="sponsor_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="approver_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_petitions_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_petitions_i2">
+      <col>cou_id</col>
+    </index>
+    <index name="co_petitions_i3">
+      <col>enrollee_org_identity_id</col>
+    </index>
+    <index name="co_petitions_i4">
+      <col>petitioner_co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="co_petition_attributes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_petition_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_petitions(id)</constraint>
+    </field>
+    <field name="co_enrollment_attribute_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_attributes(id)</constraint>
+    </field>
+    <field name="value" type="C" size="160" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_petition_attributes_i1">
+      <col>co_petition_id</col>
+    </index>
+  </table>
+  
+  <table name="co_petition_history_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_petition_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_petitions(id)</constraint>
+    </field>
+    <field name="actor_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="action" type="C" size="4" />
+    <field name="comment" type="C" size="160" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_petition_history_records_i1">
+      <col>co_petition_id</col>
+    </index>
+  </table>
+  
+  <table name="co_nsf_demographics">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <unique />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="gender" type="C" size="2" />
+    <field name="citizenship" type="C" size="2" />
+    <field name="ethnicity" type="C" size="2" />
+    <field name="race" type="C" size="5" />
+    <field name="disability" type="C" size="4" />
+    
+    <index name="demographics_i1">
+      <col>co_person_id</col>
+    </index>
+  </table>
+</schema>
