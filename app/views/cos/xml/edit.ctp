@@ -1,1 +1,0 @@
-../../standard/xml/edit.ctp
