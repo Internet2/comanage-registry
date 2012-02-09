@@ -73,10 +73,10 @@
         else
         {
           $xml = new DOMDocument;
-          $xml->load($this->params['root'] . '/Config/Schema/schema.xml');
+          $xml->load(APP . '/Config/Schema/schema.xml');
 
           $xsl = new DOMDocument;
-          $xsl->load($this->params['root'] . '/Config/Schema/boolean_mysql.xsl');
+          $xsl->load(APP . '/Config/Schema/boolean_mysql.xsl');
 
           $proc = new XSLTProcessor;
           $proc->importStyleSheet($xsl);
