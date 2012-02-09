@@ -144,9 +144,12 @@ class AppController extends Controller {
       $this->Security->csrfCheck = false;
     }
     
-    if($this->name == 'Pages' && (!$this->Session->check('Auth.User'))) {
+    if($this->name == 'Pages'
+       && $this->request->params['pass'][0] == 'home'
+       && (!$this->Session->check('Auth.User'))) {
       // Allow the front page to render without authentication. If there is an
       // authenticated user, we want Auth to run to set up authorizations.
+      
       $this->Auth->allow('*');
     }
   }
