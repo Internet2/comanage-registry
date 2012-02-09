@@ -25,4 +25,6 @@
 session_name("CAKEPHP");
 session_start();
 
+unset($_SESSION['Auth']['external']['user']);
+
 header("Location: " . "/registry/users/logout");
