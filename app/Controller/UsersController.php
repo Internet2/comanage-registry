@@ -36,6 +36,31 @@ class UsersController extends AppController {
   );
   
   /**
+   * Authorization for this Controller, called by Auth component
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: $permissions set with calculated permissions
+   *
+   * @since  COmanage Registry v0.4
+   * @return Array Permissions
+   */
+  
+  function isAuthorized() {
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+    
+    // Determine what operations this user can perform
+    
+    // Login?
+    $p['login'] = true;
+    
+    // Logout
+    $p['logout'] = true;
+
+    $this->set('permissions', $p);
+    return($p[$this->action]);
+  }
+  
+  /**
    * Login a user
    * - precondition: User has been authenticated
    * - precondition: Session updated with User information

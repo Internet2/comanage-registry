@@ -19,14 +19,10 @@
    *
    */
 
-  // Since this page isn't part of the framework, we need to reconfigure
-  // to access the Cake session
+// Since this page isn't part of the framework, we need to reconfigure
+// to access the Cake session
 
-  session_name("CAKEPHP");
-  session_start();
-?>
-<ol>
-<li>Log out of SSO</li>
-<li>Log out of Apache Module</li>
-<li><a href="<?php echo $_SESSION['Auth']['external']['return']; ?>">Logout of Cake</a></li>
-</ol>
+session_name("CAKEPHP");
+session_start();
+
+header("Location: " . "/registry/users/logout");
