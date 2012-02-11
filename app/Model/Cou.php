@@ -86,8 +86,8 @@ class Cou extends AppModel {
     )
   );
 
-// XXX tree behavior appears to be throwing database errors on add
-//  public $actsAs = array('Tree');
+  // XXX tree behavior appears to be throwing database errors on add (See CO-230)
+  public $actsAs = array('Tree');
 
   /**
    * Generates dropdown option list for html for a COU.
@@ -185,6 +185,10 @@ class Cou extends AppModel {
     $childrenArrays = $this->children($couBranch, false, 'id');
     $childrenList = Set::extract($childrenArrays, '{n}.Cou.id');
 
-    return(array_search($couNode, $childrenList));
+    // Check for NULL to avoid warning/error from array_search (See CO-240)
+    if($childrenList == NULL)
+      return false;
+    else
+      return(array_search($couNode, $childrenList));
   }
 }
