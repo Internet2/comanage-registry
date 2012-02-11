@@ -53,7 +53,8 @@ class Cou extends AppModel {
   public $displayField = "name";
   
   // Default ordering for find operations
-  public $order = array("Cou.name");
+  // This breaks with tree behavior, see https://bugs.internet2.edu/jira/browse/CO-230
+  //  public $order = array("Cou.name");
   
   // Validation rules for table elements
   public $validate = array(
@@ -86,7 +87,6 @@ class Cou extends AppModel {
     )
   );
 
-  // XXX tree behavior appears to be throwing database errors on add (See CO-230)
   public $actsAs = array('Tree');
 
   /**
