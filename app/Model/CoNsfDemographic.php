@@ -53,9 +53,10 @@ class CoNsfDemographic extends AppModel {
    */
   
   public function encodeOptions($d) {
-    $encoded['race'] = implode($d['race']);
-
-    $encoded['disability'] = implode($d['disability']);
+    if(is_array($d['race']))
+      $encoded['race'] = implode($d['race']);
+    if(is_array($d['disability']))
+      $encoded['disability'] = implode($d['disability']);
 
     return $encoded;
   }
