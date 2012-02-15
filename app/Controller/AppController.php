@@ -67,7 +67,7 @@ class AppController extends Controller {
   
   public function beforeFilter() {
     // Tell the Auth module to call the controller's isAuthorized() function.
-    $this->Auth->authorize = 'controller';
+    $this->Auth->authorize = array('Controller');
     
     // First, determine if we're handling a RESTful request.
     // If so, we'll do a few things differently.
