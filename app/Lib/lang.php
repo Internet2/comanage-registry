@@ -402,10 +402,14 @@ $cm_texts['en_US'] = array(
   'se.cf.admin.given' =>  'Enter administrator\'s given name',
   'se.cf.admin.sn' =>     'Enter administrator\'s family name',
   'se.cf.admin.user' =>   'Enter administrator\'s login username',
+  'se.cf.admin.salt' =>   'Enter >= 40 character security salt or blank for random',
+  'se.cf.admin.seed' =>   'Enter >= 29 digit security seed or blank for random',
   'se.db.co' =>           'Creating COmanage CO',
   'se.db.cop' =>          'Adding Org Identity to CO',
   'se.db.group' =>        'Creating COmanage admin group',
   'se.db.op' =>           'Adding initial Org Identity',
+  'se.security.salt' =>   'Creating security salt file',
+  'se.security.seed' =>   'Creating security seed file',
   'se.done' =>            'Setup complete',
   'se.users.view' =>      'Creating users view'
 );

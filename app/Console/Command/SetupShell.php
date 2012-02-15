@@ -35,6 +35,8 @@
       $gn = $this->in(_txt('se.cf.admin.given'));
       $sn = $this->in(_txt('se.cf.admin.sn'));
       $user = $this->in(_txt('se.cf.admin.user'));
+      $salt = $this->in(_txt('se.cf.admin.salt'));
+      $seed = $this->in(_txt('se.cf.admin.seed'));
 
       // Since we'll be doing some direct DB manipulation, find the table prefix
       $prefix = "";
@@ -189,6 +191,34 @@ WHERE i.login=true;
 
       $this->CoGroupMember->save($grm);
       $grm_id = $this->CoGroupMember->id;
+
+      // Create the security salt file using a random string
+      // if one was not entered.
+
+      $this->out("- " . _txt('se.security.salt'));
+
+      if (!$salt) {
+        $salt = str_repeat("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10);
+        $salt = str_shuffle($salt);
+        $salt = substr($salt, 0, 40);
+      }
+
+      $securitySaltFilename = APP . "/Config/security.salt";
+      file_put_contents($securitySaltFilename, $salt);
+
+      // Create the security seed file using a random string
+      // if one was not entered.
+
+      $this->out("- " . _txt('se.security.seed'));
+
+      if (!$seed) {
+        $seed = str_repeat("0123456789", 100);
+        $seed = str_shuffle($seed);
+        $seed = substr($seed, 0, 29);
+      }
+
+      $securitySeedFilename = APP . "/Config/security.seed";
+      file_put_contents($securitySeedFilename, $seed);
 
       // Clear the models in the cache since the cm_users view
       // was just created and will not otherwise appear in the cache.
