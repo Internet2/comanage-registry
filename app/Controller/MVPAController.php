@@ -58,7 +58,7 @@ class MVPAController extends StandardController {
       $this->requires_co = true;
       
       // Associate the CO model
-      $model->loadModel('Co');
+      $this->loadModel('Co');
     }
     
     // The views will also need this
