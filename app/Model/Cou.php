@@ -144,13 +144,19 @@ class Cou extends AppModel {
 
     // Get children
     $allChildren = array();
-    foreach($parentData as $parent)
+    if($parentData != NULL)
     {
-      $allChildren = array_merge($allChildren, $this->children($parent, false, 'name'));
+      foreach($parentData as $parent)
+      {
+        $allChildren = array_merge($allChildren, $this->children($parent, false, 'name'));
+      }
     }
     $allChildren = Set::extract($allChildren, '{n}.Cou.name');
 
-    return(array_merge($parentCou, $allChildren));
+    if($allChildren != NULL)
+      return(array_merge($parentCou, $allChildren));
+    else
+      return($parentCou);
   }
 
   /**
