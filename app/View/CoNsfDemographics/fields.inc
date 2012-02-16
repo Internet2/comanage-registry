@@ -119,19 +119,19 @@
       </td>
       <td>
         <?php
-          $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['citizenship'] : '');
+          $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['citizen'] : '');
           $attrs['empty'] = false;
           
           if($e) {
             print $this->Form->select('citizenship',
-                                      $cm_texts[ $cm_lang ]['en.nsf.citizenship'],
+                                      $cm_texts[ $cm_lang ]['en.nsf.citizen'],
                                       $attrs);
             
             if($this->Form->isFieldError('citizenship')) {
               print $this->Form->error('citizenship');
             }
           } else {
-            print _txt('en.nsf.citizenship', null, $CoNsfDemographics[0]['CoNsfDemographic']['citizenship']);
+            print _txt('en.nsf.citizen', null, $CoNsfDemographics[0]['CoNsfDemographic']['citizenship']);
           }
         ?>
       </td>
@@ -147,14 +147,14 @@
           
           if($e) {
             print $this->Form->select('ethnicity',
-                                      $cm_texts[ $cm_lang ]['en.nsf.ethnicity'],
+                                      $cm_texts[ $cm_lang ]['en.nsf.ethnic'],
                                       $attrs);
             
             if($this->Form->isFieldError('ethnicity')) {
               print $this->Form->error('ethnicity');
             }
           } else {
-            print _txt('en.nsf.ethnicity', null, $CoNsfDemographics[0]['CoNsfDemographic']['ethnicity']);
+            print _txt('en.nsf.ethnic', null, $CoNsfDemographics[0]['CoNsfDemographic']['ethnicity']);
           }
         ?>
       </td>
