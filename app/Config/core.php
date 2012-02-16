@@ -182,14 +182,54 @@
 	Configure::write('Security.level', 'medium');
 
 /**
- * A random string used in security hashing methods.
+ * Security.salt is a random string used in security hashing methods.
+ * It is read from the file app/Config/security.salt and should be at
+ * least 40 characters long. If the file is not present or readable
+ * a default is used but this is not recommended.
+ *
+ * During the COmanage Database setup the salt file is created.
  */
-	Configure::write('Security.salt', 'DYhG93b0qyJfIxfs2guUoUubWwvniR2G0FgaC9mi');
+    App::uses('CakeLog', 'Log');
+
+    $securitySaltFilename = APP . "Config/security.salt";
+
+    if(file_exists($securitySaltFilename)){
+      $handle = fopen($securitySaltFilename, "r");
+      $saltLine = fgets($handle);
+      fclose($handle);
+
+      $salt = trim($saltLine);
+      if (strlen($salt) < 40){
+        throw new ConfigureException("security salt must be 40 or more characters");
+      }
+      Configure::write('Security.salt', $salt);
+    } else {
+      Configure::write('Security.salt', 'DYhG93b0qyJfIxfs2guUoUubWwvniR2G0FgaC9mi');
+      CakeLog::write("warning", "The security salt file $securitySaltFilename is missing, default salt is being used");
+    }
 
 /**
- * A random numeric string (digits only) used to encrypt/decrypt strings.
+ * Security.cipherSeed is a random numeric string (digits only) used to encrypt/decrypt strings.
+ * It is read from the file app/Config/security.seed and should be at least 29 
+ * characters long. If the file is not present or readable a default is used
+ * but this is not recommended.
  */
-	Configure::write('Security.cipherSeed', '76859309657453542496849683645');
+    $securitySeedFilename = APP . "Config/security.seed";
+
+    if(file_exists($securitySeedFilename)){
+      $handle = fopen($securitySeedFilename, "r");
+      $seedLine = fgets($handle);
+      fclose($handle);
+
+      $seed = trim($seedLine);
+      if (strlen($seed) < 29){
+          throw new ConfigureException("security seed must be 29 or more digits");
+      }
+      Configure::write('Security.cipherSeed', $seed);
+    } else {
+      Configure::write('Security.cipherSeed', '76859309657453542496849683645');
+      CakeLog::write("warning", "The security seed file $securitySeedFilename is missing, default seed is being used");
+    }
 
 /**
  * Apply timestamps with the last modified time to static assets (js, css, images).
