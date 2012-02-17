@@ -68,11 +68,12 @@ class MVPAController extends StandardController {
     
     if($this->restful && $this->requires_co) {
       // For REST views, the CO isn't required by the data model since it's
-      // implied by the person ID. Unbind. We do this after beforeFilter()
+      // implied by the person ID. We can't unload the model (though we could
+      // figure out associations and $models->unbindModel), but we don't really
+      // need to as long as we flag requires_co=false. We do this after beforeFilter()
       // because $this->restful gets calculated there.
       
       $this->requires_co = false;
-      $model->unloadModel('Co');
     }
   }
 }
