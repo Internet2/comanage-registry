@@ -58,7 +58,7 @@
   // Set hidden defaults for CO and CoPerson id so users don't need to see it
   $args = array('default' => $cur_co['Co']['id']);
   print $this->Form->hidden('co_id', $args). "\n";
-  $args = array('default' => $this->request->params['named']['co_person_id']);
+  $args = array('default' => $this->request['data']['CoPerson']['id']);
   print $this->Form->hidden('co_person_id', $args). "\n";
 
   print "
@@ -119,7 +119,7 @@
       </td>
       <td>
         <?php
-          $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['citizen'] : '');
+          $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['citizenship'] : '');
           $attrs['empty'] = false;
           
           if($e) {

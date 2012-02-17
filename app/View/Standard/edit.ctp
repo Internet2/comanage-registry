@@ -47,8 +47,10 @@
     $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['line1'])));
   elseif(isset($d[0][$req]['label']))
     $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['label'])));
-  else
+  elseif(isset($d[0][$req]['name']))
     $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['name'])));
+  else
+    $h = _txt('op.edit');
 ?>
 <h1 class="ui-state-default"><?php echo $h; ?></h1>
 
