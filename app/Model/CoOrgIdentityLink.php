@@ -47,6 +47,9 @@ class CoOrgIdentityLink extends AppModel {
   public $order = array("CoOrgIdentityLink.id");
   
   // Validation rules for table elements
+  //
+  // 'required' => true for co_person_id and org_identity_id
+  // may be temporarily overridden during add() method of CoPeopleController.
   public $validate = array(
     'co_person_id' => array(
       'rule' => 'numeric',

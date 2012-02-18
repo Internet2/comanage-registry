@@ -249,6 +249,34 @@ class CoPeopleController extends StandardController {
   }
 
   /**
+   * Add the person identified by the Org Identity to the identified CO.
+   * - precondition: org_identity_id and co_id set in $this->request->params
+   *
+   * @since  COmanage Registry v0.4
+   * @return void
+   */
+
+  function add() {
+   // The parent add() method is overridden here so that for non REST calls
+   // the validation can be relaxed to allow the normal saveAll() call 
+   // in the parent add() method to complete without a validation error.
+   // If the validation is not relaxed so that co_person_id and org_identity_id
+   // are not required then the validation of all the tables before any updates
+   // will cause a validation error for the model CoOrgIdentityLink.
+
+    if(!$this->restful) {
+      $this->loadModel('CoOrgIdentityLink');
+
+      // dynamically relax the validation for the CoOrgIdentityLink model
+      $this->CoOrgIdentityLink->validate['co_person_id']['required'] = false;
+      $this->CoOrgIdentityLink->validate['org_identity_id']['required'] = false;
+    }
+
+    // call the add() method for the parent StandardController class
+    parent::add();
+  }
+
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
