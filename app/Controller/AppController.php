@@ -227,7 +227,8 @@ class AppController extends Controller {
             $this->loadModel('Cou');
 
             $ret['couadmin'] = $this->Cou->childCous($ret['couadmin']);
-            sort($ret['couadmin']);
+            if($ret['couadmin'] != NULL)
+              sort($ret['couadmin']);
 
             // Promote the set of COUs so they are globally available
             $this->cur_cous =   $ret['couadmin'];

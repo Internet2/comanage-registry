@@ -148,7 +148,9 @@ class Cou extends AppModel {
     {
       foreach($parentData as $parent)
       {
-        $allChildren = array_merge($allChildren, $this->children($parent, false, 'name'));
+        $thisChildren = $this->children($parent, false, 'name');
+        if($thisChildren != NULL)
+          $allChildren = array_merge($allChildren, $thisChildren);
       }
     }
     $allChildren = Set::extract($allChildren, '{n}.Cou.name');
