@@ -134,10 +134,11 @@ class CoNsfDemographicsController extends StandardController {
     }
 
     // Data doesn't already exist so encode for writing
-    $encoded = $this->CoNsfDemographic->encodeOptions($this->request->params['data']['CoNsfDemographic']);
-
-    $this->request->params['data']['CoNsfDemographic']['race']       = $encoded['race'];
-    $this->request->params['data']['CoNsfDemographic']['disability'] = $encoded['disability'];
+    $encoded = $this->CoNsfDemographic->encodeOptions($this->request->data['CoNsfDemographic']);
+    if(isset($encoded['race']))
+      $this->request->data['CoNsfDemographic']['race']     = $encoded['race'];
+    if(isset($encoded['disability']))
+    $this->request->data['CoNsfDemographic']['disability'] = $encoded['disability'];
 
     return true;
   }
