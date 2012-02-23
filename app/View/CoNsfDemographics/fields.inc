@@ -58,7 +58,7 @@
   // Set hidden defaults for CO and CoPerson id so users don't need to see it
   $args = array('default' => $cur_co['Co']['id']);
   print $this->Form->hidden('co_id', $args). "\n";
-  $args = array('default' => $this->request['data']['CoPerson']['id']);
+  $args = array('default' => $this->request->params['named']['co_person_id']);
   print $this->Form->hidden('co_person_id', $args). "\n";
 
   print "
