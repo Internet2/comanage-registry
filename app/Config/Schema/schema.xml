@@ -319,7 +319,7 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <index name="email_ddresses_i1">
+    <index name="email_addresses_i1">
       <col>co_person_id</col>
     </index>    
     <index name="email_addresses_i2">
