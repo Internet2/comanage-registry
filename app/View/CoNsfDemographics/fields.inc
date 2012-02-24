@@ -168,7 +168,7 @@
           $args = array('type'     => 'select',
                         'multiple' => 'checkbox',
                         'options'  => $optionDesc['race'],
-                        'selected' => $race_options
+                        'selected' => (isset($race_options) ? $race_options : array())
                        );
           print ($e ? $this->Form->input('race', $args)
                     : _txt('en.nsf.race',
@@ -186,7 +186,7 @@
           $args = array('type'     => 'select',
                         'multiple' => 'checkbox',
                         'options'  => $optionDesc['disability'],
-                        'selected' => $disability_options
+                        'selected' => (isset($disability_options) ? $disability_options : array())
                        );
           print ($e ? $this->Form->input('disability', $args)
                     : _txt('en.nsf.disab',
