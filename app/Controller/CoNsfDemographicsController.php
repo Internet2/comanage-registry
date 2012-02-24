@@ -89,7 +89,7 @@ class CoNsfDemographicsController extends StandardController {
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkWriteDependencies($curdata = null) {
+  function checkWriteDependencies($reqdata, $curdata = null) {
     // Look up id
     $cmr = $this->calculateCMRoles();
 
@@ -132,15 +132,54 @@ class CoNsfDemographicsController extends StandardController {
 
       return false;
     }
-
-    // Data doesn't already exist so encode for writing
-    $encoded = $this->CoNsfDemographic->encodeOptions($this->request->data['CoNsfDemographic']);
-    if(isset($encoded['race']))
-      $this->request->data['CoNsfDemographic']['race']     = $encoded['race'];
-    if(isset($encoded['disability']))
-    $this->request->data['CoNsfDemographic']['disability'] = $encoded['disability'];
-
     return true;
+  }
+
+  /**
+   * Convert data to prepare for saving to database
+   * - precondition: $this->request->data['CoNsfDemographic'] holds data to be saved
+   * - postcondition: $this->request->data['CoNsfDemographic'] is modified
+   *
+   * @since  COmanage Registry v0.4
+   */
+
+  function convertData(){
+    if(!empty($this->request->data))
+    {
+      // Data doesn't already exist so encode for writing
+      $encoded = $this->CoNsfDemographic->encodeOptions($this->request->data['CoNsfDemographic']);
+      if(isset($encoded['race']))
+        $this->request->data['CoNsfDemographic']['race']     = $encoded['race'];
+      if(isset($encoded['disability']))
+        $this->request->data['CoNsfDemographic']['disability'] = $encoded['disability'];
+    }
+  }
+
+  /**
+   * Override add of StandardController to convert data before calling it
+   * - precondition: $this->request->data['CoNsfDemographic'] holds data to be saved
+   * - postcondition: $this->request->data['CoNsfDemographic'] is modified
+   *
+   * @since  COmanage Registry v0.4
+   */
+
+  function add() {
+    $this->convertData();
+    parent::add();
+  }
+
+  /**
+   * Override edit of StandardController to convert data before calling it
+   * - precondition: $this->request->data['CoNsfDemographic'] holds data to be saved
+   * - postcondition: $this->request->data['CoNsfDemographic'] is modified
+   *
+   * @since  COmanage Registry v0.4
+   * @param int id
+   */
+
+  function edit($id) {
+    $this->convertData();
+    parent::edit($id);
   }
   
   /**
