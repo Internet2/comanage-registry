@@ -70,7 +70,7 @@ class CoPeopleController extends StandardController {
     parent::beforeFilter();
 
     // generate list of sponsors
-    $this->set('sponsors', $this->CoPerson->sponsorList());
+    $this->set('sponsors', $this->CoPerson->sponsorList($this->cur_co['Co']['id']));
   }
   
   /**

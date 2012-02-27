@@ -148,11 +148,14 @@ class CoPerson extends AppModel {
    * @return Array Array with co_person id as keys and full name as values
    */
   
-  public function sponsorList() {
+  public function sponsorList($co_id) {
     // Query database for people
+    $args = array(
+      'contain'    => array('Name'),
+      'order'      => array('Name.family ASC'),
+      'conditions' => array('CoPerson.co_id' => $co_id)
+    );
 
-    $args['contain'][] = 'Name';
-    $args['order'][] = 'Name.family ASC';
     $nameData = $this->find('all', $args);
 
     // Make data human readable for dropdown, keyed by id

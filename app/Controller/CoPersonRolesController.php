@@ -165,7 +165,7 @@ class CoPersonRolesController extends StandardController {
     }
 
     // generate list of sponsors
-    $this->set('sponsors',$this->CoPersonRole->CoPerson->sponsorList());
+    $this->set('sponsors',$this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
   }
 
   /**
