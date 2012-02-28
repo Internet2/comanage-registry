@@ -226,7 +226,7 @@ class AppController extends Controller {
             // Include children
             $this->loadModel('Cou');
 
-            $ret['couadmin'] = $this->Cou->childCous($ret['couadmin']);
+            $ret['couadmin'] = $this->Cou->childCous($ret['couadmin'], $this->cur_co['Co']['id']);
             if($ret['couadmin'] != NULL)
               sort($ret['couadmin']);
 

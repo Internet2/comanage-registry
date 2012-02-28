@@ -135,10 +135,10 @@ class Cou extends AppModel {
    * @return Array Names
    */
   
-  public function childCous($parentCou) {
+  public function childCous($parentCou, $co_id) {
     // Convert names to id numbers
-    // XXX COU names are not guaranteed to be unique
-    $conditions = array("Cou.name" => $parentCou);
+    $conditions = array("Cou.name"  => $parentCou,
+                        "Cou.co_id" => $co_id);
     $parentData = $this->find('all', array('conditions' => $conditions));
     $parentData = Set::extract($parentData, '{n}.Cou.id');
 
