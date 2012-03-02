@@ -229,9 +229,6 @@ class AppController extends Controller {
             $ret['couadmin'] = $this->Cou->childCous($ret['couadmin'], $this->cur_co['Co']['id']);
             if($ret['couadmin'] != NULL)
               sort($ret['couadmin']);
-
-            // Promote the set of COUs so they are globally available
-            $this->cur_cous =   $ret['couadmin'];
           }
         }
         
