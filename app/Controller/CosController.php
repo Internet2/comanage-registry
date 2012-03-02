@@ -247,8 +247,11 @@ class CosController extends StandardController {
           $r = array('controller' => $this->Session->read('co-select.controller'),
                      'action' => $this->Session->read('co-select.action'),
                      'co' => $ucos[0]['Co']['id']);
-  
-          $this->redirect(array_merge($r, $this->Session->read('co-select.args')));
+          
+          if($this->Session->check('co-select.args'))
+            $this->redirect(array_merge($r, $this->Session->read('co-select.args')));
+          else
+            $this->redirect($r);
         } else {
           // Multiple COs found
           
