@@ -246,29 +246,58 @@ class OrgIdentitiesController extends StandardController {
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
-    // Determine what operations this user can perform
+    // Determine what operations this user can perform. This varies according to
+    // whether or not organizational identities are pooled -- if they are, we need
+    // to restrict access to only org identities in the same CO.
     
-    // Add a new Org Person?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
-    // Via LDAP query?
-    $p['addvialdap'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
-    $p['selectvialdap'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+    $this->loadModel('CmpEnrollmentConfiguration');
     
-    // Delete an existing Org Person?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+    if($this->CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
+      // Add a new Org Person?
+      $p['add'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      
+      // Via LDAP query?
+      $p['addvialdap'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      $p['selectvialdap'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      
+      // Delete an existing Org Person?
+      $p['delete'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      
+      // Edit an existing Org Person?
+      $p['edit'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      
+      // Find an Org Person to add to a CO?
+      $p['find'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+  
+      // View all existing Org People?
+      $p['index'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      
+      // View an existing Org Person?
+      $p['view'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin'] || $self);
+    } else {
+      // Add a new Org Person?
+      $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+      
+      // Via LDAP query?
+      $p['addvialdap'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+      $p['selectvialdap'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+      
+      // Delete an existing Org Person?
+      $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+      
+      // Edit an existing Org Person?
+      $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+      
+      // Find an Org Person to add to a CO?
+      $p['find'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+  
+      // View all existing Org People?
+      $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+      
+      // View an existing Org Person?
+      $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']) || $self);
+    }
     
-    // Edit an existing Org Person?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
-    
-    // Find an Org Person to add to a CO?
-    $p['find'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
-
-    // View all existing Org People?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
-    
-    // View an existing Org Person?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin'] || $self);
-
     $this->set('permissions', $p);
     return($p[$this->action]);
   }

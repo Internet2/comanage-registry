@@ -253,7 +253,7 @@ class CoPersonRolesController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new CO Person Role?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
+    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     
     // Delete an existing CO Person Role?
     $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
@@ -263,10 +263,10 @@ class CoPersonRolesController extends StandardController {
 
     // Are we trying to edit our own record? 
     // If we're an admin, we act as an admin, not self.
-    $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && !$cmr['subadmin'];
+    $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && empty($cmr['couadmin']);
     
     // View all existing CO Person Roles (or a COU's worth)?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
+    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     
     // View an existing CO Person Role?
     $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
@@ -276,18 +276,15 @@ class CoPersonRolesController extends StandardController {
       $p['cous'] = $this->CoPersonRole->Cou->find("list",
                                                   array("conditions" =>
                                                         array("co_id" => $this->cur_co['Co']['id'])));      
-    elseif($cmr['subadmin'])
-      $p['cous'] = $this->CoPersonRole->Cou->find("list",
-                                                  array("conditions" =>
-                                                        array("co_id" => $this->cur_co['Co']['id'],
-                                                              "name" => $cmr['couadmin'])));
+    elseif(!empty($cmr['couadmin']))
+      $p['cous'] = $cmr['couadmin'];
     else
       $p['cous'] = array();
     
     // COUs are handled a bit differently. We need to authorize operations that
     // operate on a per-person basis accordingly.
     
-    if($cmr['subadmin'] && !empty($p['cous']))
+    if(!empty($cmr['couadmin']) && !empty($p['cous']))
     {
       if(!empty($this->request->params['pass'][0]))
       {

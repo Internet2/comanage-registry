@@ -59,11 +59,18 @@
       </td>
       <td>
         <?php
+          // Is this a person in a COU of the currently logged in person?
+          $myPerson = false;
+          
           foreach ($p['CoPersonRole'] as $pr) {
             // We look at COU here if set for the role
             if($permissions['edit']
-               && (!isset($pr['cou_id']) || isset($permissions['cous'][ $pr['cou_id'] ])))
-            {
+               && (!isset($pr['cou_id'])
+                   || $pr['cou_id'] == ''
+                   || in_array($pr['Cou']['name'], $permissions['cous'])))
+              $myPerson = true;
+              
+            if($myPerson) {
               echo $this->Html->link(_txt('op.edit'),
                                       array('controller' => 'co_person_roles',
                                             'action' => ($permissions['edit'] ? "edit" : "view"),
@@ -90,23 +97,27 @@
             echo $this->Html->link(_txt('op.compare'),
                                     array('controller' => 'co_people', 'action' => 'compare', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
                                     array('class' => 'comparebutton')) . "\n";
-        
-          if($permissions['edit'])
-            echo $this->Html->link(_txt('op.edit'),
-                                    array('controller' => 'co_people', 'action' => 'edit', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                    array('class' => 'editbutton')) . "\n";
+          
+          if($myPerson) {
+            // Edit actions are unavailable
             
-          if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'delete', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
-            
-          if($permissions['invite'] && ($p['CoPerson']['status'] != 'A' && $p['CoPerson']['status'] != 'D'))
-            echo '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonid' => $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
+            if($permissions['edit'])
+              echo $this->Html->link(_txt('op.edit'),
+                                      array('controller' => 'co_people', 'action' => 'edit', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                                      array('class' => 'editbutton')) . "\n";
+              
+            if($permissions['delete'])
+              echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'delete', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
+              
+            if($permissions['invite'] && ($p['CoPerson']['status'] != 'A' && $p['CoPerson']['status'] != 'D'))
+              echo '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonid' => $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
+          }
         ?>
         <?php ; ?>
       </td>
     </tr>
     <?php $i++; ?>
-    <?php endforeach; ?>
+    <?php endforeach; // $co_people ?>
   </tbody>
   
   <tfoot>

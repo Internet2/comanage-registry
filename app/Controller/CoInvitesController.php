@@ -164,7 +164,7 @@ class CoInvitesController extends AppController {
     $p['reply'] = true;
     
     // Send an invite? (HTML only)
-    $p['send'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
+    $p['send'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
 
     $this->set('permissions', $p);
     return($p[$this->action]);

@@ -303,9 +303,10 @@ class CoPeopleController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new CO Person?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
+    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['enroll'] = $p['add'];
     // Via invite?
-    $p['invite'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
+    $p['invite'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     
     // Compare CO attributes and Org attributes?
     $p['compare'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
@@ -314,20 +315,20 @@ class CoPeopleController extends StandardController {
     // A COU admin should be able to delete a CO Person, but not if they have any roles
     // associated with a COU the admin isn't responsible for. We'll catch that in
     // checkDeleteDependencies.
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
+    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     
     // Edit an existing CO Person?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin'] || $self);
+    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']) || $self);
 
     // Are we allowed to edit our own record?
     // If we're an admin, we act as an admin, not self.
-    $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && !$cmr['subadmin'];
+    $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && empty($cmr['couadmin']);
     
     // View all existing CO People (or a COU's worth)?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin']);
+    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     
     // View an existing CO Person?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['subadmin'] || $self);
+    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']) || $self);
     
     // Determine which COUs a person can manage.
     
@@ -335,18 +336,15 @@ class CoPeopleController extends StandardController {
       $p['cous'] = $this->CoPerson->CoPersonRole->Cou->find("list",
                                                             array("conditions" =>
                                                                   array("co_id" => $this->cur_co['Co']['id'])));      
-    elseif($cmr['subadmin'])
-      $p['cous'] = $this->CoPerson->CoPersonRole->Cou->find("list",
-                                                            array("conditions" =>
-                                                                  array("co_id" => $this->cur_co['Co']['id'],
-                                                                        "name" => $cmr['couadmin'])));
+    elseif(!empty($cmr['couadmin']))
+      $p['cous'] = $cmr['couadmin'];
     else
       $p['cous'] = array();
       
     // COUs are handled a bit differently. We need to authorize operations that
     // operate on a per-person basis accordingly.
     
-    if($cmr['subadmin'] && !empty($p['cous']))
+    if(!empty($cmr['couadmin']) && !empty($p['cous']))
     {
       if(!empty($this->request->params['pass'][0]))
       {
@@ -380,7 +378,8 @@ class CoPeopleController extends StandardController {
           // These permissions are person-level, and are probably not exactly right.
           // Specifically, delete could be problematic since a COU admin can't
           // delete a person with a COU role that the admin doesn't manage.
-          // For now, we'll catch that in checkDeleteDependencies.
+          // For now, we'll catch that in checkDeleteDependencies, and let the view
+          // worry about what to render by checking the list of COUs.
           
           $p['compare'] = true;
           $p['delete'] = true;
