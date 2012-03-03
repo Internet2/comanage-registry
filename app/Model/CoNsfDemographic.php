@@ -74,37 +74,44 @@ class CoNsfDemographic extends AppModel {
   
   public function extractOptions($d, $full = false) {
     global $cm_lang, $cm_texts;
+    $val = array();
 
     // Retrieve all possible options for race
     $raceOptions = $cm_texts[ $cm_lang ]['en.nsf.race'];
     $disabilityOptions = $cm_texts[ $cm_lang ]['en.nsf.disab'];
     
     // Extract selected values for race into array of single characters
-    $raceValues = str_split($d['race']);
+    if(isset($d['race']))
+    {
+      $raceValues = str_split($d['race']);
 
-    // Iterates through string
-    if($full)
-    {
-      foreach($raceValues as $c)
-        $val['race'][] = $raceOptions[$c];
-    }
-    else
-    {
-      foreach($raceValues as $c)
-        $val['race'][] = $c;
+      // Iterates through string
+      if($full)
+      {
+        foreach($raceValues as $c)
+          $val['race'][] = $raceOptions[$c];
+      }
+      else
+      {
+        foreach($raceValues as $c)
+          $val['race'][] = $c;
+      }
     }
 
     // Extract values for disability into array of single characters
-    $disValues = str_split($d['disability']);
+    if(isset($d['disability']))
+    {
+      $disValues = str_split($d['disability']);
 
-    // Iterates through string
+      // Iterates through string
 
-    if($full)
-      foreach($disValues as $c)
-        $val['disability'][] = $disabilityOptions[$c];
-    else
-      foreach($disValues as $c)
-        $val['disability'][] = $c;
+      if($full)
+        foreach($disValues as $c)
+          $val['disability'][] = $disabilityOptions[$c];
+      else
+        foreach($disValues as $c)
+          $val['disability'][] = $c;
+    }
 
     return $val;
   }
