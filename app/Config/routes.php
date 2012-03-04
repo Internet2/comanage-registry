@@ -47,6 +47,7 @@ Router::mapResources(array(
   'co_invites',
   'co_groups',
   'co_group_members',
+  'co_nsf_demographics',
   'co_org_identity_links',
   'co_people',
   'co_person_roles',
