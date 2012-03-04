@@ -37,12 +37,6 @@ class CoNsfDemographic extends AppModel {
   
   // Default ordering for find operations
   public $order = array("CoNsfDemographic.id");
-  
-  // Enum type hints
-  
-  public $cm_enum_types = array(
-    'status' => 'status_t'
-  );
 
   /**
    * Encode demographic attributes for edit.
