@@ -54,8 +54,10 @@ class CoNsfDemographicsController extends StandardController {
     {
       // Pass previously selected options
       $options = $this->CoNsfDemographic->extractOptions($this->data['CoNsfDemographic']);
-      $this->set('race_options', $options['race']);
-      $this->set('disability_options', $options['disability']);
+      if(isset($options['race']))
+        $this->set('race_options', $options['race']);
+      if(isset($options['disability']))
+        $this->set('disability_options', $options['disability']);
     }
 
     // Breaks out concatenated options for race and disability (without descriptions)
