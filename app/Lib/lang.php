@@ -199,6 +199,7 @@ $cm_texts['en_US'] = array(
   'er.cop.unk-a' =>   'Unknown CO Person "%1$s"',
   // XXX These should become er.copr (or tossed if not needed)
   'er.cop.nf' =>      'CO Person Role %1$s Not Found',
+  'er.copr.exists' => '%1$s has one or more CO Person Roles and cannot be removed.',
   'er.copr.none' =>   'CO Person Role Not Provided',
   'er.cou.copr' =>    'There are still one or more CO person role records in the COU %1$s, and so it cannot be deleted.',
   'er.cou.child' =>   'COUs with children can not be deleted',

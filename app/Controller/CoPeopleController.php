@@ -103,17 +103,41 @@ class CoPeopleController extends StandardController {
             }
           }
           
+          if($this->restful) {
+            // At the moment, we're unlikely to get here since REST authz is
+            // currently all or nothing.
+            
+            $this->restResultHeader(403, "CouPerson Exists In Unowned COU");
+          }
+          
           $this->Session->setFlash(_txt('er.coumember',
                                    array(generateCn($curdata['Name']),
                                          Sanitize::html($couname))),
                                    '', array(), 'error');
           
-          return(false);
+          return false;
         }
       }
     }
     
-    return(true);
+    // Check that the target person has no CO Person Roles. We do this check
+    // (which makes the above check slightly redundant) for two reasons:
+    // (1) to make it harder to accidentally blow away a record
+    // (2) the cascading delete will fail because we don't dynamically bind
+    //     Co#ExtendedAttributes here (but CoPersonRole does)
+    
+    if(!empty($curdata['CoPersonRole'])) {
+      if($this->restful)
+        $this->restResultHeader(403, "CoPersonRole Exists");
+      else
+        $this->Session->setFlash(_txt('er.copr.exists',
+                                      array(generateCn($curdata['Name']))),
+                                 '', array(), 'error');
+      
+      return false;
+    }
+    
+    return true;
   }
 
   /**

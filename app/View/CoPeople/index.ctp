@@ -116,7 +116,8 @@
                                       array('controller' => 'co_people', 'action' => 'edit', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
                                       array('class' => 'editbutton')) . "\n";
             
-            if($permissions['delete'])
+            // Can't delete a CO Person if they have any roles
+            if(empty($p['CoPersonRole']) && $permissions['delete'])
               echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'delete', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
               
             if($permissions['invite'] && ($p['CoPerson']['status'] != 'A' && $p['CoPerson']['status'] != 'D'))
