@@ -333,9 +333,7 @@ class CoPeopleController extends StandardController {
     // Determine which COUs a person can manage.
     
     if($cmr['cmadmin'] || $cmr['coadmin'])
-      $p['cous'] = $this->CoPerson->CoPersonRole->Cou->find("list",
-                                                            array("conditions" =>
-                                                                  array("co_id" => $this->cur_co['Co']['id'])));      
+      $p['cous'] = $this->CoPerson->CoPersonRole->Cou->allCous($this->cur_co['Co']['id'], 'names');
     elseif(!empty($cmr['couadmin']))
       $p['cous'] = $cmr['couadmin'];
     else

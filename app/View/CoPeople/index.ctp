@@ -48,8 +48,28 @@
     <?php $i = 0; ?>
     <?php foreach ($co_people as $p): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
-      <td><?php echo $this->Html->link(generateCn($p['Name']),
-                                      array('controller' => 'co_people', 'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])); ?></td>
+      <td>
+        <?php
+          // Is this a person in a COU of the currently logged in person?
+          $myPerson = false;
+          
+          // We look at COU here if set for the role
+          if($permissions['edit']
+             && (!isset($pr['cou_id'])
+                 || $pr['cou_id'] == ''
+                 || in_array($pr['Cou']['name'], $permissions['cous'])))
+            $myPerson = true;
+          
+          print $this->Html->link(generateCn($p['Name']),
+                                  array(
+                                    'controller' => 'co_people',
+                                    'action' => ($permissions['edit']
+                                                 ? 'edit'
+                                                 : ($permissions['view'] ? 'view' : '')),
+                                    $p['CoPerson']['id'],
+                                    'co' => $cur_co['Co']['id'])
+                                  );
+        ?></td>
       <td>
         <?php
           global $status_t;
@@ -59,17 +79,7 @@
       </td>
       <td>
         <?php
-          // Is this a person in a COU of the currently logged in person?
-          $myPerson = false;
-          
           foreach ($p['CoPersonRole'] as $pr) {
-            // We look at COU here if set for the role
-            if($permissions['edit']
-               && (!isset($pr['cou_id'])
-                   || $pr['cou_id'] == ''
-                   || in_array($pr['Cou']['name'], $permissions['cous'])))
-              $myPerson = true;
-              
             if($myPerson) {
               echo $this->Html->link(_txt('op.edit'),
                                       array('controller' => 'co_person_roles',
@@ -99,13 +109,13 @@
                                     array('class' => 'comparebutton')) . "\n";
           
           if($myPerson) {
-            // Edit actions are unavailable
+            // Edit actions are unavailable if not
             
             if($permissions['edit'])
               echo $this->Html->link(_txt('op.edit'),
                                       array('controller' => 'co_people', 'action' => 'edit', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
                                       array('class' => 'editbutton')) . "\n";
-              
+            
             if($permissions['delete'])
               echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'delete', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
               

@@ -90,6 +90,37 @@ class Cou extends AppModel {
   public $actsAs = array('Tree');
 
   /**
+   * Obtain all COUs within a specified CO.
+   *
+   * @since  COmanage Registry v0.4
+   * @param  integer CO ID
+   * @param  string Format, one of "names", "ids", or "hash" of id => name
+   * @return Array List or hash of member COUs, as specified by $format
+   */
+  
+  public function allCous($coId, $format="hash") {
+    $args['conditions']['Cou.co_id'] = $coId;
+    
+    $cous = $this->find("list", $args);
+    
+    if($cous) {
+      switch($format) {
+      case 'names':
+        return(array_values($cous));
+        break;
+      case 'ids':
+        return(array_keys($cous));
+        break;
+      default:
+        return($cous);
+        break;
+      }
+    }
+    
+    return(array());
+  }
+
+  /**
    * Generates dropdown option list for html for a COU.
    *
    * @since  COmanage Registry v0.3

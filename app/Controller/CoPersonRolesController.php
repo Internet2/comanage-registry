@@ -272,10 +272,11 @@ class CoPersonRolesController extends StandardController {
     $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
     
     // Determine which COUs a person can manage.
-    if($cmr['cmadmin'] || $cmr['coadmin'])
-      $p['cous'] = $this->CoPersonRole->Cou->find("list",
-                                                  array("conditions" =>
-                                                        array("co_id" => $this->cur_co['Co']['id'])));      
+    if($cmr['cmadmin'] || $cmr['coadmin']) {
+      // Note that here we get id => name while in CoPeopleController we just
+      // get a list of names. This is to generate the pop-up on the edit form.
+      $p['cous'] = $this->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
+    }
     elseif(!empty($cmr['couadmin']))
       $p['cous'] = $cmr['couadmin'];
     else
