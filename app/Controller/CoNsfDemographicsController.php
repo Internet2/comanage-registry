@@ -69,8 +69,10 @@ class CoNsfDemographicsController extends StandardController {
       {
         // Race and Disability
         $d = $this->CoNsfDemographic->extractOptions($demo['CoNsfDemographic'], true);
-        sort($d['race']);
-        sort($d['disability']);
+        if(isset($d['race']))
+          sort($d['race']);
+        if(isset($d['disability']))
+          sort($d['disability']);
 
         // Overwrite default viewVars
         $factoredDemo[$key]['CoNsfDemographic']['race']       = $d['race'];
