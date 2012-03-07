@@ -159,6 +159,8 @@ class CoPerson extends AppModel {
     $nameData = $this->find('all', $args);
 
     // Make data human readable for dropdown, keyed by id
+    $drop = array();
+
     foreach($nameData as $pers)
     {
       $drop[ $pers['CoPerson']['id'] ] = generateCn($pers['Name'], true);
