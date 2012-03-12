@@ -25,12 +25,13 @@
 <h1 class="ui-state-default"><?php print $title_for_layout; ?></h1>
 
 <?php
+print Security::hash("asdf", null, true);
   if($permissions['add'])
   {
     $args =  array('controller' => 'co_nsf_demographics',
                    'action'     => 'add');
     $classArgs = array('class' => 'addbutton');
-    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.demographics.1'),
+    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_nsf_demographics.1'),
                             $args,
                             $classArgs) . '
                                    <br />
