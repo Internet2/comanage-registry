@@ -37,6 +37,48 @@ class CoNsfDemographic extends AppModel {
   
   // Default ordering for find operations
   public $order = array("CoNsfDemographic.id");
+  
+  // Validation rules for table elements
+  public $validate = array(
+    'co_person_id' => array(
+      'rule' => 'numeric',
+      'allowEmpty' => false,
+      'message' => 'A CO Person ID must be provided'
+    ),
+    'gender' => array(
+      'rule' => array('inList', array(NSFGenderEnum::Male,
+                                      NSFGenderEnum::Female)),
+      'required' => false
+    ),
+    'citizenship' => array(
+      'rule' => array('inList', array(NSFCitizenshipEnum::USCitizen,
+                                      NSFCitizenshipEnum::USPermanentResident,
+                                      NSFCitizenshipEnum::Other)),
+      'required' => false
+    ),
+    'ethnicity' => array(
+      'rule' => array('inList', array(NSFEthnicityEnum::Hispanic,
+                                      NSFEthnicityEnum::NotHispanic)),
+      'required' => false
+    ),
+    'race' => array(
+      'rule' => array('inList', array(NSFRaceEnum::Asian,
+                                      NSFRaceEnum::AmericanIndian,
+                                      NSFRaceEnum::Black,
+                                      NSFRaceEnum::NativeHawaiian,
+                                      NSFRaceEnum::White)),
+      'required'   => false,
+      'allowEmpty' => true
+    ),
+    'disability' => array(
+      'rule' => array('inList', array(NSFDisabilityEnum::Hearing,
+                                      NSFDisabilityEnum::Visual,
+                                      NSFDisabilityEnum::Mobility,
+                                      NSFDisabilityEnum::Other)),
+      'required'   => false,
+      'allowEmpty' => true
+    )
+  );
 
   /**
    * Encode demographic attributes for edit.
