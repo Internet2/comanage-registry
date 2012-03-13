@@ -110,14 +110,15 @@ class CoNsfDemographic extends AppModel {
   
   public function extractOptions($d, $full = false) {
     global $cm_lang, $cm_texts;
-    $val = array();
+    $val['race'] = array();
+    $val['disability'] = array();
 
     // Retrieve all possible options for race
     $raceOptions = $cm_texts[ $cm_lang ]['en.nsf.race'];
     $disabilityOptions = $cm_texts[ $cm_lang ]['en.nsf.disab'];
     
     // Extract selected values for race into array of single characters
-    if(isset($d['race']))
+    if($d['race'] != NULL)
     {
       $raceValues = str_split($d['race']);
 
@@ -135,7 +136,7 @@ class CoNsfDemographic extends AppModel {
     }
 
     // Extract values for disability into array of single characters
-    if(isset($d['disability']))
+    if($d['disability'] != NULL)
     {
       $disValues = str_split($d['disability']);
 
