@@ -107,7 +107,6 @@ print Security::hash("asdf", null, true);
             print '<button class="deletebutton" title="'
                   . _txt('op.delete')
                   . '" onclick="javascript:js_confirm_delete(\''
-                  . _txt(Sanitize::html($c['CoNsfDemographic']['name']))
                   . '\', \''
                   . $this->Html->url($args)
                   . '\')";>'
