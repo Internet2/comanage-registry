@@ -317,12 +317,25 @@ class CoNsfDemographicsController extends StandardController {
    */
   
   function performRedirect() {
-    $args = array(
-      'controller' => 'co_people',
-      'action'     => 'edit',
-      'co'         => $this->cur_co['Co']['id'],
-      Sanitize::html($this->params['data']['CoNsfDemographic']['co_person_id'])
-    );
+    if(isset($this->params['data']['CoNsfDemographic']['co_person_id'])) {
+      // If person's id is available, redirect to the person's edit page
+      $args = array(
+        'controller' => 'co_people',
+        'action'     => 'edit',
+        'co'         => $this->cur_co['Co']['id'],
+        Sanitize::html($this->params['data']['CoNsfDemographic']['co_person_id'])
+      );
+    } elseif($this->viewVars['permissions']['index'] == true) {
+      // If the id is not available and we have permission to view index, go there
+      $args = array(
+        'controller' => 'co_nsf_demographics',
+        'action'     => 'index',
+        'co'         => $this->cur_co['Co']['id']
+      );
+    } else {
+      // Otherwise, just go to front page
+      $args = '/';
+    }
 
     $this->redirect($args);
   }
