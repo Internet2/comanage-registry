@@ -68,9 +68,21 @@ class CoPeopleController extends StandardController {
     $this->set('pool_org_identities', $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
     
     parent::beforeFilter();
+  }
 
-    // generate list of sponsors
-    $this->set('sponsors', $this->CoPerson->sponsorList($this->cur_co['Co']['id']));
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   * - precondition: Request Handler component has set $this->request
+   * - postcondition: Set $sponsors
+   *
+   * @since  COmanage Registry v0.4
+   */
+
+  function beforeRender() {
+    if(!$this->restful){
+      // generate list of sponsors
+      $this->set('sponsors', $this->CoPerson->sponsorList($this->cur_co['Co']['id']));
+    }
   }
   
   /**
