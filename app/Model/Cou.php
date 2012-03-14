@@ -215,19 +215,23 @@ class Cou extends AppModel {
    * Check if couNode is a child of couBranch.
    *
    * @since  COmanage Registry v0.3
-   * @param  Array Head of the branch to be searched
-   * @param  string Node to be looked for
+   * @param  integer Head of the branch to be searched
+   * @param  integer Node to be looked for
    * @return boolean True if child, false otherwise
    */
-  
+
   public function isChildCou($couBranch, $couNode) {
+
+    // Get list of all children of $couBranch
     $childrenArrays = $this->children($couBranch, false, 'id');
     $childrenList = Set::extract($childrenArrays, '{n}.Cou.id');
 
     // Check for NULL to avoid warning/error from array_search (See CO-240)
-    if($childrenList == NULL)
-      return false;
-    else
-      return(array_search($couNode, $childrenList));
+    if(($childrenList != NULL)
+      && (array_search($couNode, $childrenList) !== false)) {
+        // Node was found in the branch
+        return true;
+    }
+    return false;
   }
 }

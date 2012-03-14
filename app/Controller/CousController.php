@@ -164,7 +164,7 @@ class CousController extends StandardController {
         }
 
         // Check if parent would cause a loop
-        if($this->Cou->isChildCou($this->viewVars['cur_co']['Cou']['id'], $parentCou) )
+        if($this->Cou->isChildCou($reqdata['Cou']['id'], $parentCou))
         {
           if($this->restful)
             $this->restResultHeader(403, "Parent Would Create Cycle");
