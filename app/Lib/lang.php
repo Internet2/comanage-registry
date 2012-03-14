@@ -365,6 +365,7 @@ $cm_texts['en_US'] = array(
   'op.compare' =>     'Compare',
   'op.db.ok' =>       'Database schema update successful',
   'op.delete' =>      'Delete',
+  'op.delete.consfdemographics' => 'this NSF demographic entry',
   'op.delete.ok' =>   'Are you sure you wish to remove "%1$s"? This action cannot be undone.',
   'op.edit' =>        'Edit',
   'op.edit.ea' =>     'Edit Enrollment Attributes',
