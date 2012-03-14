@@ -91,9 +91,9 @@ class CoNsfDemographic extends AppModel {
   public function encodeOptions($d) {
     $encoded = array();
 
-    if(is_array($d['race']))
+    if(isset($d['race']) && is_array($d['race']))
       $encoded['race'] = implode($d['race']);
-    if(is_array($d['disability']))
+    if(isset($d['disability']) && is_array($d['disability']))
       $encoded['disability'] = implode($d['disability']);
 
     return $encoded;
@@ -118,7 +118,7 @@ class CoNsfDemographic extends AppModel {
     $disabilityOptions = $cm_texts[ $cm_lang ]['en.nsf.disab'];
     
     // Extract selected values for race into array of single characters
-    if($d['race'] != NULL)
+    if(isset($d['race']) && ($d['race'] != NULL))
     {
       $raceValues = str_split($d['race']);
 
@@ -136,7 +136,7 @@ class CoNsfDemographic extends AppModel {
     }
 
     // Extract values for disability into array of single characters
-    if($d['disability'] != NULL)
+    if(isset($d['disability']) && ($d['disability'] != NULL))
     {
       $disValues = str_split($d['disability']);
 

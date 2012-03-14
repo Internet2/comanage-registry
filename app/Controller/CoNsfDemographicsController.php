@@ -53,7 +53,11 @@ class CoNsfDemographicsController extends StandardController {
     if($this->action == 'edit')
     {
       // Pass previously selected options
-      $options = $this->CoNsfDemographic->extractOptions($this->data['CoNsfDemographic']);
+      if($this->restful)
+        $options = $this->CoNsfDemographic->extractOptions($this->request['data']['CoNsfDemographics'][0]);
+      else
+        $options = $this->CoNsfDemographic->extractOptions($this->data['CoNsfDemographic']);
+
       if(isset($options['race']))
         $this->set('race_options', $options['race']);
       if(isset($options['disability']))
@@ -94,15 +98,20 @@ class CoNsfDemographicsController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    // Look up id
-    $cmr = $this->calculateCMRoles();
+    // Look up id to check validity
+    if($this->restful) {
+      $personid = $this->request['data']['CoNsfDemographics'][0]['CoPersonId'];
+    } else {
+      $cmr = $this->calculateCMRoles();
+      $personid = $cmr['copersonid'];
+    }
 
-    // Is this a valid co person id?
     $args =  array(
       'conditions' => array(
-        'CoPerson.id' => $cmr['copersonid']
+        'CoPerson.id' => $personid
       )
     );
+
     $rowCount = $this->CoNsfDemographic->CoPerson->find('count', $args);
 
     // If not valid, return error
@@ -119,7 +128,7 @@ class CoNsfDemographicsController extends StandardController {
     // Does a row exist in the database for this id?
     $args =  array(
       'conditions' => array(
-        'CoNsfDemographic.co_person_id' => $cmr['copersonid'],
+        'CoNsfDemographic.co_person_id' => $personid,
         'CoPerson.co_id'                => $this->cur_co['Co']['id']
       )
     );
@@ -151,7 +160,11 @@ class CoNsfDemographicsController extends StandardController {
     if(!empty($this->request->data))
     {
       // Data doesn't already exist so encode for writing
-      $encoded = $this->CoNsfDemographic->encodeOptions($this->request->data['CoNsfDemographic']);
+      if($this->restful)
+        $encoded = $this->CoNsfDemographic->encodeOptions($this->request['data']['CoNsfDemographics'][0]);
+      else
+        $encoded = $this->CoNsfDemographic->encodeOptions($this->request->data['CoNsfDemographic']);
+
       if(isset($encoded['race']))
         $this->request->data['CoNsfDemographic']['race']     = $encoded['race'];
       if(isset($encoded['disability']))
