@@ -47,15 +47,16 @@ class CousController extends StandardController {
    */
   
   function beforeRender() {
+    // This loop is concerned with computing the options for parents 
+    // to display for a dropdown menu or similar for the GUI when the 
+    // user is editing or adding a COU.
+    //
+    // REST calls do not need to compute options for parents.
     if(!$this->restful) {
-      // XXX this doesn't work for REST calls
       // Loop check only needed for the edit page, model does not know CO for new COUs
-      if($this->action == 'edit')
-      {
+      if($this->action == 'edit') {
         $options = $this->Cou->potentialParents($this->request->data['Cou']['id']);
-      }
-      else
-      {
+      } else {
         $optionArrays = $this->Cou->findAllByCoId($this->cur_co['Co']['id']);
         $options = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name');
       }
@@ -79,8 +80,7 @@ class CousController extends StandardController {
   function checkDeleteDependencies($curdata) {
     $couppl = $this->Cou->CoPersonRole->findAllByCouId($curdata['Cou']['id']);
     
-    if(!empty($couppl))
-    {
+    if(!empty($couppl)) {
       // A COU can't be removed if anyone is still a member of it.
       
       if($this->restful)
@@ -91,22 +91,18 @@ class CousController extends StandardController {
       return(false);
     }
     // A COU can't be removed if it has children.
-    // XXX this doesn't work if restful
-    if(!$this->restful) {
-      foreach($this->cur_co['Cou'] as $k => $v)
-      {
-        if($v['parent_id'] == $curdata['Cou']['id'])
-        {
-          if($this->restful)
-            $this->restResultHeader(403, "Child COU Exists");
-          else
-            $this->Session->setFlash(_txt('er.cou.child', array(Sanitize::html($curdata['Cou']['name']))), '', array(), 'error');
-  
-          return(false);
-        }
-      }
+
+    $childCous = $curdata['ChildCou'];
+
+    if(!empty($childCous)) {
+      if($this->restful)
+        $this->restResultHeader(403, "Child COU Exists");
+      else
+        $this->Session->setFlash(_txt('er.cou.child', array(Sanitize::html($curdata['Cou']['name']))), '', array(), 'error');
+
+      return(false);
     }
-    
+
     return(true);
   }
 
@@ -144,10 +140,7 @@ class CousController extends StandardController {
     // Parent COU must be in same CO as child
 
     // Name of parent
-    if(!$this->restful) {
-      // XXX this won't be set via REST calls
-      $parentCou = $this->params['data']['Cou']['parent_id'];
-    }
+    $parentCou = $reqdata['Cou']['parent_id'];
 
     if(isset($parentCou) && $parentCou != "")
     {
