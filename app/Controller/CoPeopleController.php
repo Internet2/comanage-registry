@@ -82,25 +82,16 @@ class CoPeopleController extends StandardController {
     if(!$this->restful){
       // generate list of sponsors
       $this->set('sponsors', $this->CoPerson->sponsorList($this->cur_co['Co']['id']));
+      
+      // Determine if there are any Enrollment Flows for this CO and if so pass
+      // them to the view. Currently, we don't check for COU-specific flows. 
+      
+      $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+  //    $args['contain'][] = 'CoEnrollmentFlow';
+      
+      $this->loadModel('CoEnrollmentFlow');
+      $this->set('co_enrollment_flows', $this->CoEnrollmentFlow->find('all', $args));
     }
-  }
-  
-  /**
-   * Callback before views are rendered.
-   * - postcondition: $co_enrollment_flows set
-   *
-   * @since  COmanage Registry v0.5
-   */
-  
-  function beforeRender() {
-    // Determine if there are any Enrollment Flows for this CO and if so pass
-    // them to the view. Currently, we don't check for COU-specific flows. 
-    
-    $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-//    $args['contain'][] = 'CoEnrollmentFlow';
-    
-    $this->loadModel('CoEnrollmentFlow');
-    $this->set('co_enrollment_flows', $this->CoEnrollmentFlow->find('all', $args));
   }
   
   /**
