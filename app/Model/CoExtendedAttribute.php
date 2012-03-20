@@ -64,4 +64,36 @@ class CoExtendedAttribute extends AppModel {
       'rule' => array('boolean')
     )
   );
+  
+  /**
+   * Dynamically assemble validation rules for an extended attribute.
+   *
+   * @since  COmanage Registry v0.5
+   * @param  integer ID of Extended Attribute
+   * @return Array Validation rules, in the standard Cake format
+   */
+  
+  public function validationRules($id) {
+    $ret = array();
+    
+    // Pull the type of the attribute and put together a suitable array
+    
+    $extAttr = $this->findById($id);
+    
+    if($extAttr) {
+      switch($extAttr['CoExtendedAttribute']['type']) {
+      case ExtendedAttributeEnum::Integer:
+        $ret['rule'] = array('numeric');
+        break;
+      case ExtendedAttributeEnum::Timestamp:
+        $ret['rule'] = array('validateTimestamp');
+        break;
+      case ExtendedAttributeEnum::Varchar32:
+        $ret['rule'] = array('maxLength', 128);
+        break;
+      }
+    }
+    
+    return $ret;
+  }
 }

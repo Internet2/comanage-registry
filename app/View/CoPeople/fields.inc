@@ -116,7 +116,7 @@
             <tr class="line<?php echo ($l % 2); $l++; ?>">
               <th>
                 <?php
-                  echo _txt('fd.name.h');
+                  echo _txt('fd.name.honorific');
                   
                   if($e)
                     echo " " . _txt('fd.name.h.desc');
@@ -138,7 +138,7 @@
             </tr>
             <tr class="line<?php echo ($l % 2); $l++; ?>">
               <th>
-                <?php echo _txt('fd.name.g'); ?><font class="required">*</font>
+                <?php echo _txt('fd.name.given'); ?><font class="required">*</font>
               </th>
               <td>
                 <?php echo ($e ? $this->Form->input('Name.given', array('default' => $co_people[0]['Name']['given']))
@@ -152,7 +152,7 @@
             </tr>
             <tr class="line<?php echo ($l % 2); $l++; ?>">
               <th>
-                <?php echo _txt('fd.name.m'); ?>
+                <?php echo _txt('fd.name.middle'); ?>
               </th>
               <td>
                 <?php echo ($e ? $this->Form->input('Name.middle', array('default' => $co_people[0]['Name']['middle']))
@@ -166,7 +166,7 @@
             </tr>
             <tr class="line<?php echo ($l % 2); $l++; ?>">
               <th>
-                <?php echo _txt('fd.name.f'); ?>
+                <?php echo _txt('fd.name.family'); ?>
               </th>
               <td>
                 <?php echo ($e ? $this->Form->input('Name.family', array('default' => $co_people[0]['Name']['family']))
@@ -181,7 +181,7 @@
             <tr class="line<?php echo ($l % 2); $l++; ?>">
               <th>
                 <?php
-                  echo _txt('fd.name.s');
+                  echo _txt('fd.name.suffix');
                   
                   if($e)
                     echo " " . _txt('fd.name.s.desc');
@@ -244,7 +244,7 @@
             </tr>
             <tr class="line<?php echo ($l % 2); $l++; ?>">
               <th>
-                <?php echo _txt('fd.mail'); ?>
+                <?php echo _txt('fd.email_address.mail'); ?>
               </th>
               <td>
                 <?php

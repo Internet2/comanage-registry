@@ -441,6 +441,7 @@
     <field name="admin_require_authn" type="L" />
     <field name="attrs_from_ldap" type="L" />
     <field name="attrs_from_saml" type="L" />
+    <field name="attrs_from_coef" type="L" />
     <field name="pool_org_identities" type="L" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />

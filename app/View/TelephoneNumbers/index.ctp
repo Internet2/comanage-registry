@@ -27,7 +27,7 @@
 <table id="telephone_numbers" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('number', _txt('fd.phone')); ?></th>
+      <th><?php echo $this->Paginator->sort('number', _txt('fd.telephone_number.number')); ?></th>
       <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
       <th><?php echo $this->Paginator->sort('OrgIdentity.Name.family', 'Org Identity'); ?></th>

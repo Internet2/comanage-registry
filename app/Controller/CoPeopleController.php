@@ -86,6 +86,24 @@ class CoPeopleController extends StandardController {
   }
   
   /**
+   * Callback before views are rendered.
+   * - postcondition: $co_enrollment_flows set
+   *
+   * @since  COmanage Registry v0.5
+   */
+  
+  function beforeRender() {
+    // Determine if there are any Enrollment Flows for this CO and if so pass
+    // them to the view. Currently, we don't check for COU-specific flows. 
+    
+    $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+//    $args['contain'][] = 'CoEnrollmentFlow';
+    
+    $this->loadModel('CoEnrollmentFlow');
+    $this->set('co_enrollment_flows', $this->CoEnrollmentFlow->find('all', $args));
+  }
+  
+  /**
    * Perform any dependency checks required prior to a delete operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
@@ -119,7 +137,7 @@ class CoPeopleController extends StandardController {
             // At the moment, we're unlikely to get here since REST authz is
             // currently all or nothing.
             
-            $this->restResultHeader(403, "CouPerson Exists In Unowned COU");
+            $this->restResultHeader(499, "CouPerson Exists In Unowned COU");
           }
           
           $this->Session->setFlash(_txt('er.coumember',
@@ -140,7 +158,7 @@ class CoPeopleController extends StandardController {
     
     if(!empty($curdata['CoPersonRole'])) {
       if($this->restful)
-        $this->restResultHeader(403, "CoPersonRole Exists");
+        $this->restResultHeader(499, "CoPersonRole Exists");
       else
         $this->Session->setFlash(_txt('er.copr.exists',
                                       array(generateCn($curdata['Name']))),

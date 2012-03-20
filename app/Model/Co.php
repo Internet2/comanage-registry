@@ -42,7 +42,11 @@ class Co extends AppModel {
     // A CO can have zero or more petitions
     "CoPetition" => array('dependent' => true),
     // A CO has zero or more COUs
-    "Cou" => array('dependent' => true)
+    "Cou" => array('dependent' => true),
+    // A CO has zero or more OrgIdentities, depending on if they are pooled.
+    // It's OK to make the model dependent, because if they are pooled the
+    // link won't be there to delete.
+    "OrgIdentity" => array('dependent' => true)
   );
   
   // Default display field for cake generated views

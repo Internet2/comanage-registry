@@ -47,34 +47,36 @@ class Address extends AppModel {
   public $validate = array(
     // Don't require any element since $belongsTo saves won't validate if they're empty
     'line1' => array(
-      'rule' => '/.*/',
-      'required' => false
+      'rule' => array('maxLength', 128),
+      'required' => false,
+      'allowEmpty' => false
     ),
     'line2' => array(
-      'rule' => '/.*/',
+      'rule' => array('maxLength', 128),
       'required' => false
     ),
     'locality' => array(
-      'rule' => '/.*/',
+      'rule' => array('maxLength', 128),
       'required' => false
     ),
     'state' => array(
-      'rule' => '/.*/',
+      'rule' => array('maxLength', 128),
       'required' => false
     ),
     'postal_code' => array(
-      'rule' => '/.*/',
+      'rule' => array('maxLength', 16),
       'required' => false
     ),
     'country' => array(
-      'rule' => '/.*/',
+      'rule' => array('maxLength', 128),
       'required' => false
     ),
     'type' => array(
       'rule' => array('inList', array(ContactEnum::Home,
                                       ContactEnum::Office,
                                       ContactEnum::Postal)),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'co_person_role_id' => array(
       'rule' => 'numeric',

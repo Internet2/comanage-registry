@@ -49,25 +49,30 @@ class Name extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'honorific' => array(
-      'rule' => '/.*/',
-      'required' => false
+      'rule' => array('maxLength', 32),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'given' => array(
-      'rule' => 'notEmpty',
+      'rule' => array('maxLength', 128),
       'required' => true,
+      'allowEmpty' => false,
       'message' => 'A given name must be provided'
     ),
     'middle' => array(
-      'rule' => '/.*/',
-      'required' => false
+      'rule' => array('maxLength', 128),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'family' => array(
-      'rule' => '/.*/',
-      'required' => false
+      'rule' => array('maxLength', 128),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'suffix' => array(
-      'rule' => '/.*/',
-      'required' => false
+      'rule' => array('maxLength', 32),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'type' => array(
       'rule' => array('inList', array(NameEnum::Author,

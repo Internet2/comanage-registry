@@ -23,7 +23,7 @@
  */
 -->
 <?php
-  
+
   // Globals
   global $cm_lang, $cm_texts;
 
@@ -55,6 +55,9 @@
     echo $this->Form->hidden('co_person_id', array('default' => $co_people[0]['CoPerson']['id'])). "\n";
     // Default status is 'Active'
     echo $this->Form->hidden('status', array('default' => 'A')). "\n";
+    // Make sure ID gets carried over
+    if(isset($co_person_roles[0]['CoPersonRole']['id']))
+      print $this->Form->hidden('id', array('default' => $co_person_roles[0]['CoPersonRole']['id']));
     
     echo '
     <br />
@@ -224,7 +227,7 @@
     <?php if($this->action != "add"): ?>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.phone'); ?>
+        <?php echo _txt('fd.telephone_number.number'); ?>
       </td>
       <td>
         <?php

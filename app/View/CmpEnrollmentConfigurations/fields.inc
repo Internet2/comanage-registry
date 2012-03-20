@@ -225,6 +225,17 @@
         </tr>
         <tr class="line2">
           <td>
+            <b><?php print _txt('fd.ef.coef'); ?></b><br />
+            <font class="desc"><?php print _txt('fd.ef.coef.desc'); ?></font>
+          </td>
+          <td>
+            <?php print ($e
+                         ? $this->Form->input('attrs_from_coef')
+                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_coef'])); ?>
+          </td>
+        </tr>
+        <tr class="line1">
+          <td>
             <b><?php print _txt('fd.ef.pool'); ?></b><br />
             <font class="desc"><?php print _txt('fd.ef.pool.desc'); ?></font>
           </td>

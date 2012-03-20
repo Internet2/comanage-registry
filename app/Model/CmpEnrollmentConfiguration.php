@@ -141,24 +141,24 @@ class CmpEnrollmentConfiguration extends AppModel {
     return(array(
       array('attr' => 'names:honorific',
             'type' => NameEnum::Official,
-            'label' => _txt('fd.name.h'),
+            'label' => _txt('fd.name.honorific'),
             'desc' => _txt('fd.name.h.desc'),
             'assoc' => $name_assoc),
       array('attr' => 'names:given',
             'type' => NameEnum::Official,
-            'label' => _txt('fd.name.g'),
+            'label' => _txt('fd.name.given'),
             'assoc' => $name_assoc),
       array('attr' => 'names:middle',
             'type' => NameEnum::Official,
-            'label' => _txt('fd.name.m'),
+            'label' => _txt('fd.name.middle'),
             'assoc' => $name_assoc),
       array('attr' => 'names:family',
             'type' => NameEnum::Official,
-            'label' => _txt('fd.name.f'),
+            'label' => _txt('fd.name.family'),
             'assoc' => $name_assoc),
       array('attr' => 'names:suffix',
             'type' => NameEnum::Official,
-            'label' => _txt('fd.name.s'),
+            'label' => _txt('fd.name.suffix'),
             'desc' => _txt('fd.name.s.desc'),
             'assoc' => $name_assoc),
       array('attr' => 'affiliation',
@@ -181,37 +181,59 @@ class CmpEnrollmentConfiguration extends AppModel {
             'assoc' => $id_assoc),
       array('attr' => 'email_addresses:mail',
             'type' => ContactEnum::Office,
-            'label' => _txt('fd.mail'),
+            'label' => _txt('fd.email_address.mail'),
             'assoc' => $email_assoc),
       array('attr' => 'telephone_numbers:number',
             'type' => ContactEnum::Office,
-            'label' => _txt('fd.phone'),
+            'label' => _txt('fd.telephone_number.number'),
             'assoc' => $phone_assoc),
       array('attr' => 'addresses:line1',
             'type' => ContactEnum::Office,
-            'label' => _txt('fd.address.1'),
+            'label' => _txt('fd.address.line1'),
             'assoc' => $address_assoc),
       array('attr' => 'addresses:line2',
             'type' => ContactEnum::Office,
-            'label' => _txt('fd.address.2'),
+            'label' => _txt('fd.address.line2'),
             'assoc' => $address_assoc),
       array('attr' => 'addresses:locality',
             'type' => ContactEnum::Office,
-            'label' => _txt('fd.city'),
+            'label' => _txt('fd.address.locality'),
             'assoc' => $address_assoc),
       array('attr' => 'addresses:state',
             'type' => ContactEnum::Office,
-            'label' => _txt('fd.state'),
+            'label' => _txt('fd.address.state'),
             'assoc' => $address_assoc),
       array('attr' => 'addresses:postal_code',
             'type' => ContactEnum::Office,
-            'label' => _txt('fd.postal'),
+            'label' => _txt('fd.address.postal_code'),
             'assoc' => $address_assoc),
       array('attr' => 'addresses:country',
             'type' => ContactEnum::Office,
-            'label' => _txt('fd.country'),
+            'label' => _txt('fd.address.country'),
             'assoc' => $address_assoc)
     ));
+  }
+  
+  /**
+   * Determine if organizational identities may be provided by CO enrollment
+   * flows in the default (ie: active) CMP Enrollment Configuration for this platform.
+   * - precondition: Initial setup (performed by select()) has been completed
+   *
+   * @since  COmanage Registry v0.5
+   * @return boolean True if org identities may be provided by CO enrollment flows, false otherwise
+   */
+  
+  public function orgIdentitiesFromCOEF() {
+    $r = $this->find('first',
+                     array('conditions' =>
+                           array('CmpEnrollmentConfiguration.name' => 'CMP Enrollment Configuration',
+                                 'CmpEnrollmentConfiguration.status' => StatusEnum::Active),
+                           // We don't need to pull attributes, just the configuration
+                           'contain' => false,
+                           'fields' =>
+                           array('CmpEnrollmentConfiguration.attrs_from_coef')));
+    
+    return($r['CmpEnrollmentConfiguration']['attrs_from_coef']);
   }
   
   /**

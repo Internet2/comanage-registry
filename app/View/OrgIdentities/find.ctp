@@ -31,7 +31,7 @@
       <th><?php echo $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php echo $this->Paginator->sort('title', _txt('fd.title')); ?></th>
       <th><?php echo $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-      <th><?php echo _txt('fd.mail'); ?></th>
+      <th><?php echo _txt('fd.email_address.mail'); ?></th>
       <th><?php echo _txt('op.inv'); ?></th>
     </tr>
   </thead>

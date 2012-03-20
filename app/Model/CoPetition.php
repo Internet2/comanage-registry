@@ -26,6 +26,9 @@ class CoPetition extends AppModel {
   // Define class name for cake
   public $name = "CoPetition";
   
+  // Current schema version for API
+  public $version = "1.0";
+  
   // Association rules from this model to other models
   public $belongsTo = array(
     "ApproverCoPerson" => array(
@@ -40,7 +43,7 @@ class CoPetition extends AppModel {
       'foreignKey' => 'enrollee_co_person_id'
     ),
     "EnrolleeCoPersonRole" => array(
-      'className' => 'CoPerson',
+      'className' => 'CoPersonRole',
       'foreignKey' => 'enrollee_co_person_role_id'
     ),
     "EnrolleeOrgIdentity" => array(
@@ -70,8 +73,57 @@ class CoPetition extends AppModel {
   
   // Validation rules for table elements
   public $validate = array(
+    'co_enrollment_flow_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'co_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'cou_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'enrollee_org_identity_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'enrollee_co_person_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'enrollee_co_person_role_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'petitioner_co_person_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'sponsor_co_person_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'approver_co_person_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'status' => array(
-      'rule' => array('inList', array(StatusEnum::Active,
+      'rule' => array('inList', array(StatusEnum::Approved,
+                                      StatusEnum::Declined,
+                                      StatusEnum::Denied,
+                                      StatusEnum::Invited,
+                                      StatusEnum::Pending,
                                       StatusEnum::Suspended)),
       'required' => true,
       'message' => 'A valid status must be selected'

@@ -65,7 +65,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.mail'); ?>
+        <?php echo _txt('fd.email_address.mail'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('mail') : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>

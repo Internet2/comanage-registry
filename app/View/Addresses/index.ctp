@@ -28,7 +28,7 @@
 <table id="addresses" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('line1', _txt('fd.address.1')); ?></th>
+      <th><?php echo $this->Paginator->sort('line1', _txt('fd.address.line1')); ?></th>
       <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
       <th><?php echo $this->Paginator->sort('OrgIdentity.Name.family', 'Org Identity'); ?></th>

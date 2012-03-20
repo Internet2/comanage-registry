@@ -47,8 +47,9 @@ class Identifier extends AppModel {
   public $validate = array(
     // Don't require any element since $belongsTo saves won't validate if they're empty
     'identifier' => array(
-      'rule' => 'notEmpty',
-      'required' => false
+      'rule' => array('maxLength', 256),
+      'required' => false,
+      'allowEmpty' => false
     ),
     'type' => array(
       'rule' => array('inList', array(IdentifierEnum::ePPN,
@@ -56,7 +57,8 @@ class Identifier extends AppModel {
                                       IdentifierEnum::Mail,
                                       IdentifierEnum::OpenID,
                                       IdentifierEnum::UID)),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => false
     ),
     'login' => array(
       'rule' => array('boolean'),

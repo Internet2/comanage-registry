@@ -68,6 +68,9 @@ class CoEnrollmentFlowsController extends StandardController {
     // View all existing CO Enrollment Flows?
     $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
     
+    // Select a CO Enrollment Flow to create a petition from?
+    $p['select'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    
     // View an existing CO Enrollment Flow?
     $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin']);
 
@@ -92,5 +95,23 @@ class CoEnrollmentFlowsController extends StandardController {
                             'co' => $this->cur_co['Co']['id']));
     else
       parent::performRedirect();
+  }
+  
+  /**
+   * Select an enrollment flow to create a petition from.
+   * - postcondition: $co_enrollment_flows set
+   *
+   * @since  COmanage Registry v0.5
+   */
+  
+  function select() {
+    // Determine the Enrollment Flows for this CO and pass them to the view.
+    // Currently, we don't check for COU-specific flows. 
+    
+    // Set page title
+    $this->set('title_for_layout', _txt('ct.co_enrollment_flows.pl'));
+    
+    $this->paginate['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+    $this->set('co_enrollment_flows', $this->paginate('CoEnrollmentFlow'));
   }
 }

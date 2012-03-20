@@ -27,9 +27,9 @@
 <table id="identifiers" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('identifier', _txt('fd.id')); ?></th>
+      <th><?php echo $this->Paginator->sort('identifier', _txt('fd.identifier.identifier')); ?></th>
       <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
-      <th><?php echo $this->Paginator->sort('login', _txt('fd.login')); ?></th>
+      <th><?php echo $this->Paginator->sort('login', _txt('fd.identifier.login')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
       <th><?php echo $this->Paginator->sort('OrgIdentity.Name.family', 'Org Identity'); ?></th>
       <th><?php echo $this->Paginator->sort('CoPerson.Name.family', 'CO Person'); ?></th>

@@ -29,6 +29,9 @@ class CoEnrollmentFlow extends AppModel {
   // Current schema version for API
   public $version = "1.0";
   
+  // Add behaviors
+  public $actsAs = array('Containable');
+  
   // Association rules from this model to other models
   public $belongsTo = array("Co");     // A CO Enrollment Flow is attached to a CO
   
@@ -70,15 +73,15 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'notify_on_early_provision' => array(
       'rule' => 'email',
-      'required' => false
+      'allowEmpty' => true
     ),
     'notify_on_provision' => array(
       'rule' => 'email',
-      'required' => false
+      'allowEmpty' => true
     ),
     'notify_on_active' => array(
       'rule' => 'email',
-      'required' => false
+      'allowEmpty' => true
     ),
     'status' => array(
       'rule' => array('inList', array(StatusEnum::Active,

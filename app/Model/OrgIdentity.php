@@ -58,7 +58,12 @@ class OrgIdentity extends AppModel {
     "TelephoneNumber" => array('dependent' => true)
   );
 
-  public $belongsTo = array("Organization");       // A person may belong to an organization (if pre-defined)
+  public $belongsTo = array(
+    // A person may belong to an organization (if pre-defined)
+    "Organization",
+    // An Org Identity may belong to a CO, if not pooled
+    "Co"
+  );
   
   // Default display field for cake generated views
   public $displayField = "Name.family";
@@ -103,6 +108,10 @@ class OrgIdentity extends AppModel {
   );
   
   // Enum type hints
+  
+  public $cm_enum_txt = array(
+    'affiliation' => 'en.affil',
+  );
   
   public $cm_enum_types = array(
     'affiliation' => 'affil_t'

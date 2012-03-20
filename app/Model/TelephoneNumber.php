@@ -47,15 +47,17 @@ class TelephoneNumber extends AppModel {
   public $validate = array(
     // Don't require number or type since $belongsTo saves won't validate if they're empty
     'number' => array(
-      'rule' => '/.*/',    // cake has telephone number validation, but US only
-      'required' => false  // We allow any chars to cover things like "ext 2009"
+      'rule' => array('maxLength', 64),   // cake has telephone number validation, but US only
+      'required' => false,                // We allow any chars to cover things like "ext 2009"
+      'allowEmpty' => false
     ),
     'type' => array(
       'rule' => array('inList', array(ContactEnum::Fax,
                                       ContactEnum::Home,
                                       ContactEnum::Mobile,
                                       ContactEnum::Office)),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'co_person_role_id' => array(
       'rule' => 'numeric',

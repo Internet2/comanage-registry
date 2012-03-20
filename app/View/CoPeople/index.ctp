@@ -25,13 +25,21 @@
 <h1 class="ui-state-default"><?php echo $cur_co['Co']['name']; ?> People</h1>
 
 <?php
-  if($permissions['add'])
-    echo $this->Html->link(_txt('op.inv'),
-                           array('controller' => 'org_identities', 'action' => 'find', 'co' => $this->params['named']['co']),
-                           array('class' => 'addbutton')) . '
+  if($permissions['enroll'] && !empty($co_enrollment_flows)) {
+    print $this->Html->link(_txt('op.enroll'),
+                            array('controller' => 'co_enrollment_flows', 'action' => 'select', 'co' => $cur_co['Co']['id']),
+                            array('class' => 'addbutton')) . '
+    <br />
+    <br />
+    ';    
+  } elseif($permissions['add']) {
+    print $this->Html->link(_txt('op.inv'),
+                            array('controller' => 'org_identities', 'action' => 'find', 'co' => $cur_co['Co']['id']),
+                            array('class' => 'addbutton')) . '
     <br />
     <br />
     ';
+  }  
 ?>
 
 <table id="co_people" class="ui-widget">
@@ -96,6 +104,9 @@
             }
             else
               print $pr['title'];
+            
+            if(isset($pr['Cou']['name']))
+              print " (" . $pr['Cou']['name'] . ")";
             
             print "<br />\n";
           }

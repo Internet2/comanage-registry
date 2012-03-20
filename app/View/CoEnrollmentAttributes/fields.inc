@@ -35,8 +35,8 @@
     return(false);
     
   if($e)
-    print $this->Hhtml->link(_txt('op.cancel'),
-                              array('controller' => 'co_enrollment_attributes',
+    print $this->Html->link(_txt('op.cancel'),
+                             array('controller' => 'co_enrollment_attributes',
                                     'action' => 'index',
                                     'coef' => Sanitize::html($this->request->params['named']['coef'])),
                              array('class' => 'cancelbutton'));

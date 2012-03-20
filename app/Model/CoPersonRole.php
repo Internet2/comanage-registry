@@ -64,33 +64,39 @@ class CoPersonRole extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'co_person_id' => array(
-      'rule' => 'numeric',
+      'rule' => array('numeric'),
       'required' => true,
       'message' => 'A CO Person ID must be provided'
     ),
     'cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false
+      'rule' => array('numeric'),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'title' => array(
-      'rule' => '/.*/',
-      'required' => false
+      'rule' => array('maxLength', 128),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'o' => array(
-      'rule' => '/.*/',
-      'required' => false
+      'rule' => array('maxLength', 128),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'ou' => array(
-      'rule' => '/.*/',
-      'required' => false
+      'rule' => array('maxLength', 128),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'valid_from' => array(
-      'rule' => '/.*/',  // The 'date' rule is too constraining
-      'required' => false
+      'rule' => array('validateTimestamp'),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'valid_through' => array(
-      'rule' => '/.*/',  // The 'date' rule is too constraining
-      'required' => false
+      'rule' => array('validateTimestamp'),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'status' => array(
       'rule' => array('inList', array(StatusEnum::Active,
@@ -101,8 +107,9 @@ class CoPersonRole extends AppModel {
                                       StatusEnum::Declined))
     ),
     'sponsor_co_person_id' => array(
-      'rule' => '/.*/',  // Cake makes this required=true when numeric
-      'required' => false
+      'rule' => array('numeric'),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'affiliation' => array(
       'rule' => array('inList', array(AffiliationEnum::Faculty,
@@ -118,6 +125,11 @@ class CoPersonRole extends AppModel {
   );
   
   // Enum type hints
+  
+  public $cm_enum_txt = array(
+    'affiliation' => 'en.affil',
+    'status' => 'en.status'
+  );
   
   public $cm_enum_types = array(
     'affiliation' => 'affil_t',

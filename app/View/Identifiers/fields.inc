@@ -89,7 +89,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.id'); ?>
+        <?php echo _txt('fd.identifier.identifier'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('identifier', array('type' => 'text'))
@@ -98,8 +98,8 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.login'); ?><br />
-        <i><?php echo _txt('fd.login.desc'); ?></i>
+        <?php echo _txt('fd.identifier.login'); ?><br />
+        <i><?php echo _txt('fd.identifier.login.desc'); ?></i>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('login') : Sanitize::html($identifiers[0]['Identifier']['login'])); ?>

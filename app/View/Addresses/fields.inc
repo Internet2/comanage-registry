@@ -64,7 +64,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.address.1'); ?>
+        <?php echo _txt('fd.address.line1'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('line1') : Sanitize::html($addresses[0]['Address']['line1'])); ?>
@@ -72,7 +72,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.address.2'); ?>
+        <?php echo _txt('fd.address.line2'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('line2') : Sanitize::html($addresses[0]['Address']['line2'])); ?>
@@ -80,7 +80,7 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.city'); ?>
+        <?php echo _txt('fd.address.locality'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
@@ -88,7 +88,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.state'); ?>
+        <?php echo _txt('fd.address.state'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
@@ -96,7 +96,7 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.postal'); ?>
+        <?php echo _txt('fd.address.postal_code'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
@@ -104,7 +104,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.country'); ?>
+        <?php echo _txt('fd.address.country'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>

@@ -53,13 +53,6 @@ class AffiliationEnum
   const LibraryWalkIn = 'L';
 }
 
-class NSFCitizenshipEnum
-{
-  const USCitizen            = 'US';
-  const USPermanentResident  = 'P';
-  const Other                = 'O';
-}
-
 class ContactEnum
 {
   const Fax         = 'F';
@@ -86,6 +79,19 @@ class ContactEnum
     Postal      => "Postal",
     Forwarding  => "Forwarding"
   );*/
+}
+
+class ExtendedAttributeEnum {
+  const Integer   = 'INTEGER';
+  const Timestamp = 'TIMESTAMP';
+  const Varchar32 = 'VARCHAR(32)';
+}
+
+class NSFCitizenshipEnum
+{
+  const USCitizen            = 'US';
+  const USPermanentResident  = 'P';
+  const Other                = 'O';
 }
 
 class NSFDisabilityEnum
@@ -187,7 +193,9 @@ class RequiredEnum
 class StatusEnum
 {
   const Active    = 'A';
+  const Approved  = 'Y';
   const Deleted   = 'D';
+  const Denied    = 'N';
   const Invited   = 'I';
   const Pending   = 'P';
   const Suspended = 'S';
@@ -214,7 +222,8 @@ class StatusEnum
 
 // Old style enums below, deprecated
 // In order to switch away from them, AppController::convertRestPost
-// and checkRestPost must be rewritten
+// and checkRestPost must be rewritten, as well as Model/CoEnrollmentAttribute::enrollmentFlowAttributes.
+// See also new use of Model::validEnumsForSelect.
 
 global $affil_t, $affil_ti;
 global $contact_t, $contact_ti;
@@ -311,16 +320,20 @@ $status_t = array(
   'A' => 'Active',
   'D' => 'Deleted',
   'I' => 'Invited',
+  'N' => 'Denied',
   'P' => 'Pending',
   'S' => 'Suspended',
-  'X' => 'Declined'
+  'X' => 'Declined',
+  'Y' => 'Approved'
 );
 
 $status_ti = array(
   'Active' => 'A',
   'Deleted' => 'D',
   'Invited' => 'I',
+  'Denied' => 'N',
   'Pending' => 'P',
   'Suspended' => 'S',
-  'Declined' => 'X'
+  'Declined' => 'X',
+  'Approved' => 'Y'
 );

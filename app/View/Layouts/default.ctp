@@ -164,6 +164,12 @@
         text: false
       });
 
+      $(".forwardbutton").button({
+        icons: {
+          primary: 'ui-icon-circle-arrow-e'
+        }
+      });
+      
       $(".invitebutton").button({
         icons: {
           primary: 'ui-icon-mail-closed'

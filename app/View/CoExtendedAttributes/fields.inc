@@ -36,11 +36,11 @@
     
   if($e)
     echo $this->Html->link(_txt('op.cancel'),
-                            array('controller' => 'co_extended_attributes', 'action' => 'index', 'co' => $this->request->params['named']['co']),
+                            array('controller' => 'co_extended_attributes', 'action' => 'index', 'co' => $cur_co['Co']['Id']),
                             array('class' => 'cancelbutton'));
   else
     echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_extended_attributes', 'action' => 'index', 'co' => $this->request->params['named']['co']),
+                           array('controller' => 'co_extended_attributes', 'action' => 'index', 'co' => $cur_co['Co']['Id']),
                            array('class' => 'backbutton'));
     
   echo '
@@ -48,8 +48,7 @@
     <br />
     ';
 
-  if(isset($this->request->params['named']['co']))
-    echo $this->Form->hidden('co_id', array('default' => Sanitize::html($this->request->params['named']['co']))) . "\n";
+  echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['Id'])) . "\n";
 ?>
 <table id="<?php echo $this->action; ?>_co" class="ui-widget">
   <tbody>

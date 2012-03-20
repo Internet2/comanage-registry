@@ -65,7 +65,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.phone'); ?>
+        <?php echo _txt('fd.telephone_number.number'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('number') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['number'])); ?>

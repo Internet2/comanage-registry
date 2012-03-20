@@ -87,7 +87,7 @@
     <tr class="line1">
       <td>
         <?php
-        echo _txt('fd.name.h');
+        echo _txt('fd.name.honorific');
            
         if($e)
           echo " " . _txt('fd.name.h.desc');
@@ -103,7 +103,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.name.g'); ?><font class="required">*</font>
+        <?php echo _txt('fd.name.given'); ?><font class="required">*</font>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('Name.given') : Sanitize::html($org_identities[0]['Name']['given'])); ?>
@@ -111,14 +111,14 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.name.m'); ?>
+        <?php echo _txt('fd.name.middle'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('Name.middle') : Sanitize::html($org_identities[0]['Name']['middle'])); ?>
       </td>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.name.f'); ?>
+        <?php echo _txt('fd.name.family'); ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('Name.family') : Sanitize::html($org_identities[0]['Name']['family'])); ?>
@@ -127,7 +127,7 @@
     <tr class="line1">
       <td>
         <?php
-          echo _txt('fd.name.s');
+          echo _txt('fd.name.suffix');
            
           if($e)
             echo " " . _txt('fd.name.s.desc');
@@ -236,7 +236,7 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.mail'); ?>
+        <?php print _txt('fd.email_address.mail'); ?>
       </td>
       <td>
         <?php
@@ -280,7 +280,7 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.phone'); ?>
+        <?php print _txt('fd.telephone_number.number'); ?>
       </td>
       <td>
         <?php

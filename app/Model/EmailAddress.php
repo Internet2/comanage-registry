@@ -47,14 +47,16 @@ class EmailAddress extends AppModel {
   public $validate = array(
     // Don't require mail or type since $belongsTo saves won't validate if they're empty
     'mail' => array(
-      'rule' => 'email',
+      'rule' => array('email'),
       'required' => false,
+      'allowEmpty' => false,
       'message' => 'Please enter a valid email address'
     ),
     'type' => array(
       'rule' => array('inList', array(ContactEnum::Home,
                                       ContactEnum::Office)),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => false
     ),
     'co_person_id' => array(
       'rule' => 'numeric',

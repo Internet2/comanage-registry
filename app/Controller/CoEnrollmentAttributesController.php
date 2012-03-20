@@ -49,16 +49,20 @@ class CoEnrollmentAttributesController extends StandardController {
   function add() {
     if(!empty($this->request->data) &&
        (!isset($this->request->data['CoEnrollmentAttribute']['ordr'])
-        || $this->request->data['CoEnrollmentAttribute']['ordr'] == ''))
-    {
-      $args['fields'][] = "MAX(ordr)+1 as m";
+        || $this->request->data['CoEnrollmentAttribute']['ordr'] == '')) {
+      $args['fields'][] = "MAX(ordr) as m";
+      $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = Sanitize::paranoid($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id']);
       $args['order'][] = "m";
       
       $o = $this->CoEnrollmentAttribute->find('first', $args);
+      $n = 1;
       
-      // XXX this is broken in Cake 2
+      if(!empty($o)) {
+        $n = $o[0]['m'] + 1;
+      }
+      
       if(!empty($o))
-        $this->data['CoEnrollmentAttribute']['ordr'] = $o[0]['m'];
+        $this->request->data['CoEnrollmentAttribute']['ordr'] = $n;
     }
     
     parent::add();
