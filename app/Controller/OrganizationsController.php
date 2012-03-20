@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Organization Model
+ * COmanage Registry Organization Controller
  *
  * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
  * 
