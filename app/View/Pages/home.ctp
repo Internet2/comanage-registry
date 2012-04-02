@@ -122,6 +122,13 @@
                                     array('class' => 'menuitembutton'));
           }
           
+          if(isset($permissions['menu']['cos']) && $permissions['menu']['cos'])
+          {
+            print $this->Html->link("CO Petitions",
+                                    array('controller' => 'co_petitions', 'action' => 'index'),
+                                    array('class' => 'menuitembutton'));
+          }
+          
           if(isset($permissions['menu']['extattrs']) && $permissions['menu']['extattrs'])
           {
             print $this->Html->link("Extended Attributes",

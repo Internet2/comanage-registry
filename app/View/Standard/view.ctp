@@ -33,12 +33,16 @@
   // Figure out a heading
   $h = "";
 
+  // XXX This should probably get refactored into the models
   if(isset($d[0]['Name']))
     $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['Name']))));
   elseif(isset($d[0]['CoPerson']['Name']))
     $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['CoPerson']['Name'])))) . " (" . _txt('co') . ")";
   elseif(isset($d[0]['OrgIdentity']['Name']))
-    $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['OrgIdentity']['Name'])))) . " (" . _txt('co') . ")";
+    $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['OrgIdentity']['Name'])))) . " (" . _txt('org') . ")";
+  // For CO Petitions
+  elseif(isset($d[0]['EnrolleeCoPerson']['Name']))
+    $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['EnrolleeCoPerson']['Name'])))) . " (" . _txt('co') . ")";
   // CO Person Role rendering gets some info from co_people
   elseif(isset($co_people[0]['Name']))
     $h = _txt('op.view-a', array(Sanitize::html(generateCn($co_people[0]['Name']))));

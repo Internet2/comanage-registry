@@ -123,7 +123,7 @@ class CoEnrollmentAttribute extends AppModel {
     $extAttrs = $this->CoEnrollmentFlow->Co->CoExtendedAttribute->findAllByCoId($coid);
     
     foreach($extAttrs as $e)
-      $ret['x:' . $e['CoExtendedAttribute']['id'] . ':' . $e['CoExtendedAttribute']['name']] = $e['CoExtendedAttribute']['display_name'];
+      $ret['x:' . $e['CoExtendedAttribute']['name']] = $e['CoExtendedAttribute']['display_name'];
     
     $cmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
     
@@ -181,11 +181,6 @@ class CoEnrollmentAttribute extends AppModel {
       
       // See availableAttributes() for the various codes
       $attrCode = array_shift($a);
-      
-      if($attrCode == 'x') {
-        // Extended Attribute ID, needed to pull metadata about the extended attribute
-        $attrId = array_shift($a);
-      }
       
       // attribute name (as per availableAttributes)
       $attrName = array_shift($a);
@@ -283,7 +278,7 @@ class CoEnrollmentAttribute extends AppModel {
         } else {
           // Extended attributes
           
-          $attr['validate'] = $attrModel->validationRules($attrId);
+          $attr['validate'] = $attrModel->validationRules($efAttr['CoEnrollmentFlow']['co_id'], $attrName);
         }
         
         // Single valued attributes don't have types, so we can ignore $attrType

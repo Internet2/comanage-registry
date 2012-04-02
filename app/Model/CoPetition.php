@@ -29,6 +29,9 @@ class CoPetition extends AppModel {
   // Current schema version for API
   public $version = "1.0";
   
+  // Add behaviors
+  public $actsAs = array('Containable');
+  
   // Association rules from this model to other models
   public $belongsTo = array(
     "ApproverCoPerson" => array(
@@ -60,16 +63,18 @@ class CoPetition extends AppModel {
   
   public $hasMany = array(
     // A CO Petition has zero or more CO Petition Attributes
-    "CoPetitionAttribute",
+    "CoPetitionAttribute" => array('dependent' => true),
     // A CO Petition has zero or more CO Petition History Records
-    "CoPetitionHistoryRecords"
+    "CoPetitionHistoryRecord" => array('dependent' => true)
   );
   
   // Default display field for cake generated views
-  public $displayField = "id";
+  public $displayField = "CoPetition.id";
   
   // Default ordering for find operations
-  public $order = array("id");
+// XXX CO-296 Toss default order? id will be ambiguous in some queries, but CoPetition.id
+// breaks delete cascading since the model may be aliased to (eg) CoPetitionApprover.
+//  public $order = array("id");
   
   // Validation rules for table elements
   public $validate = array(

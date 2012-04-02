@@ -171,6 +171,14 @@ class NSFRaceEnum
   const White            = 'W';
 }
 
+class PetitionActionEnum
+{
+  const Approved = 'PY';
+  const Created  = 'PC';
+  const Declined = 'PX';
+  const Denied   = 'PN';
+}
+
 class RequiredEnum
 {
   const Required      = 1;

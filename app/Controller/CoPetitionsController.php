@@ -25,9 +25,11 @@
 App::uses("StandardController", "Controller");
 
 class CoPetitionsController extends StandardController {
-  var $name = "CoPetitions";
+  public $name = "CoPetitions";
   
-  var $paginate = array(
+  public $helpers = array('Time');
+  
+  public $paginate = array(
     'limit' => 25,
     'order' => array(
       'modified' => 'asc'
@@ -36,6 +38,20 @@ class CoPetitionsController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  // For rendering views, we need more information than just the various ID numbers
+  // stored in a petition.
+  public $view_contains = array(
+    'ApproverCoPerson' => 'Name',
+    'EnrolleeCoPerson' => 'Name',
+    'PetitionerCoPerson' => 'Name',
+    'SponsorCoPerson' => 'Name',
+    'CoPetitionHistoryRecord' => array(
+      'ActorCoPerson' => array(
+        'Name'
+      )
+    )
+  );
   
   /**
    * Add a CO Petition.
@@ -139,6 +155,8 @@ class CoPetitionsController extends StandardController {
       // so Cake doesn't get confused with attaching Names (to the Org Identity
       // vs the CO Person).
       
+      $orgData = array();
+      
       $this->loadModel('CmpEnrollmentConfiguration');
       
       if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
@@ -176,6 +194,7 @@ class CoPetitionsController extends StandardController {
       
       // Next, populate a CO Person and CO Person Role, statuses = pending.
       
+      $coData = array();
       $coData['EnrolleeCoPerson'] = $this->request->data['EnrolleeCoPerson'];
       $coData['EnrolleeCoPerson']['co_id'] = $this->cur_co['Co']['id'];
       $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
@@ -196,6 +215,7 @@ class CoPetitionsController extends StandardController {
         $fail = true;
       }
       
+      $coRoleData = array();
       $coRoleData['EnrolleeCoPersonRole'] = $this->request->data['EnrolleeCoPersonRole'];
       $coRoleData['EnrolleeCoPersonRole']['status'] = StatusEnum::Pending;
       $coRoleData['EnrolleeCoPersonRole']['co_person_id'] = $coPersonID;
@@ -220,7 +240,9 @@ class CoPetitionsController extends StandardController {
       // the data we save in the various saveAll() calls so the appropriate fields
       // are highlighted at once.
 
-      if(!$this->CoPetition->EnrolleeCoPersonRole->saveAll($coRoleData)) {
+      if($this->CoPetition->EnrolleeCoPersonRole->saveAll($coRoleData)) {
+        $coPersonRoleID = $this->CoPetition->EnrolleeCoPersonRole->id;
+      } else {
         // We need to fold any extended attribute validation errors into the CO Person Role
         // validation errors in order for FormHandler to be able to see them.
         
@@ -237,26 +259,273 @@ class CoPetitionsController extends StandardController {
         $fail = true;
       }
       
+      // From here, if any save fails it's probably a coding error since there are no
+      // form fields that need validation. (We're using data from above, for the most
+      // part). As such, if $fail gets set to true at any point, we don't need to
+      // continue save()ing data.
+      
       // Create a CO Org Identity Link
       
+      $coOrgLink = array();
       $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityID;
       $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonID;
       
-      if($this->CoPetition->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink)) {
-        // XXX Assemble the Petition, status = pending. We have most of the identifiers
+      if(!$this->CoPetition->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink)) {
+        $fail = true;
+      }
+      
+      $coPetitionID = null;
+      
+      if(!$fail) {
+        // Assemble the Petition, status = pending. We have most of the identifiers
         // we need from the above saves.
         
-        // Figure out the petitioner person ID. As of now, it as the authenticated
+        $coPetitionData = array();
+        $coPetitionData['CoPetition']['co_enrollment_flow_id'] = $this->enrollmentFlowID();
+        $coPetitionData['CoPetition']['co_id'] = $this->cur_co['Co']['id'];
+        
+        if(isset($coRoleData['EnrolleeCoPersonRole']['cou_id'])) {
+          $coPetitionData['CoPetition']['cou_id'] = $coRoleData['EnrolleeCoPersonRole']['cou_id'];
+        }
+        
+        $coPetitionData['CoPetition']['enrollee_org_identity_id'] = $orgIdentityID;
+        $coPetitionData['CoPetition']['enrollee_co_person_id'] = $coPersonID;
+        $coPetitionData['CoPetition']['enrollee_co_person_role_id'] = $coPersonRoleID;
+        
+        // Figure out the petitioner person ID. As of now, it is the authenticated
         // person completing the form. This could be NULL if a CMP admin who is not
         // a member of the CO initiates the petition.
         
         $petitioner = $this->Session->read('Auth.User.co_person_id');
         
-        // XXX Store a copy of the attributes in co_petition_attributes.
+        $coPetitionData['CoPetition']['petitioner_co_person_id'] = $petitioner;
+        $coPetitionData['CoPetition']['status'] = StatusEnum::Pending;
         
-        // XXX Add a co_petition_history_record.
-      } else {
-        $fail = true;
+        if($this->CoPetition->save($coPetitionData)) {
+          $coPetitionID = $this->CoPetition->id;
+        } else {
+          $fail = true;
+        }
+      }
+      
+      // Store a copy of the attributes in co_petition_attributes.
+      
+      if(!$fail) {
+        // In order to do this, we need to walk through the various submitted attributes
+        // and "flatten" them into a format suitable for this table. Start with org data.
+        
+        $petitionAttrs = array();
+        
+        // Pull a mapping of attributes to attribute IDs
+        
+        $mArgs = array();
+        $mArgs['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = $this->enrollmentFlowID();
+        $mArgs['fields'] = array('CoEnrollmentAttribute.attribute', 'CoEnrollmentAttribute.id');
+        $attrIDs = $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->find("list", $mArgs);
+          
+        if(isset($orgData['EnrolleeOrgIdentity'])) {
+          foreach(array_keys($orgData['EnrolleeOrgIdentity']) as $a) {
+            // We need to find the attribute ID for this attribute. If not found, we'll
+            // skip it (since it's probably something like co_id that we don't need to
+            // store here).
+            
+            if(isset($attrIDs['o:'.$a])
+               && isset($orgData['EnrolleeOrgIdentity'][$a])
+               && $orgData['EnrolleeOrgIdentity'][$a] != '') {
+              $petitionAttrs['CoPetitionAttribute'][] = array(
+                'co_petition_id' => $coPetitionID,
+                'co_enrollment_attribute_id' => $attrIDs['o:'.$a],
+                'attribute' => $a,
+                'value' => $orgData['EnrolleeOrgIdentity'][$a]
+              );
+            }
+          }
+          
+          foreach(array_keys($orgData) as $m) {
+            // Loop through the related models, which may or may not be hasMany.
+            
+            if($m == 'EnrolleeOrgIdentity')
+              continue;
+            
+            if(isset($orgData[$m]['co_enrollment_attribute_id'])) {
+              // hasOne
+              
+              foreach(array_keys($orgData[$m]) as $a) {
+                if($a != 'co_enrollment_attribute_id'
+                   && isset($orgData[$m][$a])
+                   && $orgData[$m][$a] != '') {
+                  $petitionAttrs['CoPetitionAttribute'][] = array(
+                    'co_petition_id' => $coPetitionID,
+                    'co_enrollment_attribute_id' => $orgData[$m]['co_enrollment_attribute_id'],
+                    'attribute' => $a,
+                    'value' => $orgData[$m][$a]
+                  );                  
+                }
+              }
+            } else {
+              // hasMany
+              
+              foreach(array_keys($orgData[$m]) as $i) {
+                foreach(array_keys($orgData[$m][$i]) as $a) {
+                  if($a != 'co_enrollment_attribute_id'
+                     && isset($orgData[$m][$i][$a])
+                     && $orgData[$m][$i][$a] != '') {
+                    $petitionAttrs['CoPetitionAttribute'][] = array(
+                      'co_petition_id' => $coPetitionID,
+                      'co_enrollment_attribute_id' => $orgData[$m][$i]['co_enrollment_attribute_id'],
+                      'attribute' => $a,
+                      'value' => $orgData[$m][$i][$a]
+                    );                  
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // CO Person doesn't currently have any direct attributes that we track.
+        // Move on to related model attributes.
+        
+        foreach(array_keys($coData) as $m) {
+          // Loop through the related models, which may or may not be hasMany.
+          
+          if($m == 'EnrolleeCoPerson')
+            continue;
+          
+          if(isset($coData[$m]['co_enrollment_attribute_id'])) {
+            // hasOne
+            
+            foreach(array_keys($coData[$m]) as $a) {
+              if($a != 'co_enrollment_attribute_id'
+                 && isset($coData[$m][$a])
+                 && $coData[$m][$a] != '') {
+                $petitionAttrs['CoPetitionAttribute'][] = array(
+                  'co_petition_id' => $coPetitionID,
+                  'co_enrollment_attribute_id' => $coData[$m]['co_enrollment_attribute_id'],
+                  'attribute' => $a,
+                  'value' => $coData[$m][$a]
+                );                  
+              }
+            }
+          } else {
+            // hasMany
+            
+            foreach(array_keys($coData[$m]) as $i) {
+              foreach(array_keys($coData[$m][$i]) as $a) {
+                if($a != 'co_enrollment_attribute_id'
+                   && isset($coData[$m][$i][$a])
+                   && $coData[$m][$i][$a] != '') {
+                  $petitionAttrs['CoPetitionAttribute'][] = array(
+                    'co_petition_id' => $coPetitionID,
+                    'co_enrollment_attribute_id' => $coData[$m][$i]['co_enrollment_attribute_id'],
+                    'attribute' => $a,
+                    'value' => $coData[$m][$i][$a]
+                  );                  
+                }
+              }
+            }
+          }
+        }
+        
+        // Finally, CO Person Role data
+        
+        if(isset($coRoleData['EnrolleeCoPersonRole'])) {
+          foreach(array_keys($coRoleData['EnrolleeCoPersonRole']) as $a) {
+            // We need to find the attribute ID for this attribute. If not found, we'll
+            // skip it (since it's probably something like co_id that we don't need to
+            // store here).
+            
+            if(isset($attrIDs['r:'.$a])
+               && isset($coRoleData['EnrolleeCoPersonRole'][$a])
+               && $coRoleData['EnrolleeCoPersonRole'][$a] != '') {
+              $petitionAttrs['CoPetitionAttribute'][] = array(
+                'co_petition_id' => $coPetitionID,
+                'co_enrollment_attribute_id' => $attrIDs['r:'.$a],
+                'attribute' => $a,
+                'value' => $coRoleData['EnrolleeCoPersonRole'][$a]
+              );
+            }
+          }
+          
+          foreach(array_keys($coRoleData) as $m) {
+            // Loop through the related models, which may or may not be hasMany.
+            
+            if($m == 'EnrolleeCoPersonRole')
+              continue;
+            
+            if(isset($coRoleData[$m]['co_enrollment_attribute_id'])) {
+              // hasOne
+              
+              foreach(array_keys($coRoleData[$m]) as $a) {
+                if($a != 'co_enrollment_attribute_id'
+                   && isset($coRoleData[$m][$a])
+                   && $coRoleData[$m][$a] != '') {
+                  $petitionAttrs['CoPetitionAttribute'][] = array(
+                    'co_petition_id' => $coPetitionID,
+                    'co_enrollment_attribute_id' => $coRoleData[$m]['co_enrollment_attribute_id'],
+                    'attribute' => $a,
+                    'value' => $coRoleData[$m][$a]
+                  );                  
+                }
+              }
+            } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)) {
+              // Extended Attribute
+              
+              foreach(array_keys($coRoleData[$m]) as $a) {
+                // We need to find the attribute ID for this attribute.
+                
+                if(isset($attrIDs['x:'.$a])
+                   && isset($coRoleData[$m][$a])
+                   && $coRoleData[$m][$a] != '') {
+                  $petitionAttrs['CoPetitionAttribute'][] = array(
+                    'co_petition_id' => $coPetitionID,
+                    'co_enrollment_attribute_id' => $attrIDs['x:'.$a],
+                    'attribute' => $a,
+                    'value' => $coRoleData[$m][$a]
+                  );                  
+                }
+              }
+            } else {
+              // hasMany
+              
+              foreach(array_keys($coRoleData[$m]) as $i) {
+                foreach(array_keys($coRoleData[$m][$i]) as $a) {
+                  if($a != 'co_enrollment_attribute_id'
+                     && isset($coRoleData[$m][$i][$a])
+                     && $coRoleData[$m][$i][$a] != '') {
+                    $petitionAttrs['CoPetitionAttribute'][] = array(
+                      'co_petition_id' => $coPetitionID,
+                      'co_enrollment_attribute_id' => $coRoleData[$m][$i]['co_enrollment_attribute_id'],
+                      'attribute' => $a,
+                      'value' => $coRoleData[$m][$i][$a]
+                    );                  
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // Finally, try to save. Note that saveMany doesn't expect the Model name as an array
+        // component, unlike all the other saves.
+        
+        if(!$this->CoPetition->CoPetitionAttribute->saveMany($petitionAttrs['CoPetitionAttribute'])) {
+          $fail = true;
+        }
+      }
+      
+      // Add a co_petition_history_record.
+      
+      if(!$fail) {
+        $coPetitionHistoryData = array();
+        $coPetitionHistoryData['CoPetitionHistoryRecord']['co_petition_id'] = $coPetitionID;
+        $coPetitionHistoryData['CoPetitionHistoryRecord']['actor_co_person_id'] = $petitioner;
+        $coPetitionHistoryData['CoPetitionHistoryRecord']['action'] = PetitionActionEnum::Created;
+        $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.create');
+        
+        if(!$this->CoPetition->CoPetitionHistoryRecord->save($coPetitionHistoryData)) {
+          $fail = true;
+        }
       }
       
       if(!$fail) {
@@ -313,11 +582,29 @@ class CoPetitionsController extends StandardController {
       // Set the enrollment flow ID to make it easier to carry forward through failed submissions
       $this->set('co_enrollment_flow_id', $this->enrollmentFlowID());
       
-      if(($this->action == 'add' || $this->action == 'edit')
-         && $this->request->is('get')) {
+      if(($this->action == 'add' || $this->action == 'edit' || $this->action == 'view')
+          && $this->request->is('get')) {
         // If we processed a post, this will have already been set.
         $this->set('co_enrollment_attributes',
                    $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($this->enrollmentFlowID()));
+      }
+      
+      if(($this->action == 'edit' || $this->action == 'view')
+          && $this->request->is('get')) {
+        // This information is already embedded in $co_petitions, but it's easier for the
+        // views to access it this way. Also, arguably $co_petitions needs some trimming
+        // via containable.
+        
+        $vArgs = array();
+        $vArgs['conditions']['CoPetitionAttribute.co_petition_id'] = $this->CoPetition->id;
+        $vArgs['fields'] = array(
+          'CoPetitionAttribute.attribute',
+          'CoPetitionAttribute.value',
+          'CoPetitionAttribute.co_enrollment_attribute_id'
+        );
+        $vAttrs = $this->CoPetition->CoPetitionAttribute->find("list", $vArgs);
+        
+        $this->set('co_petition_attribute_values', $vAttrs);
       }
     }
     

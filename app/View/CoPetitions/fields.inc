@@ -64,13 +64,65 @@
   // completed according to a configuration, not according to a model. This is a
   // lot of logic to embed in a view file, and plausibly this code should be
   // refactored at some point.
-  
-  // Start by enumerating over all attributes defined for the enrollment flow
-  // associated with this petition.
-  
-  // We do a series of <?php tags because we can't mix and match embedded tag styles
 ?>
-<table id="<?php echo $this->action; ?>_co_petition" class="ui-widget">
+
+<h2 class="ui-state-default"><?php print _txt('ct.co_petitions.1'); ?></h2>
+
+<table id="<?php print $this->action; ?>_co_petition" class="ui-widget">
+  <tbody>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <th><?php print _txt('fd.status'); ?></th>
+      <td><?php print _txt('en.status', null, $co_petitions[0]['CoPetition']['status']); ?></td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <th><?php print _txt('fd.petitioner'); ?></th>
+      <td>
+        <?php
+          if(isset($co_petitions[0]['PetitionerCoPerson']['Name'])) {
+            print generateCn($co_petitions[0]['PetitionerCoPerson']['Name']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <th><?php print _txt('fd.sponsor'); ?></th>
+      <td>
+        <?php
+          if(isset($co_petitions[0]['SponsorCoPerson']['Name'])) {
+            print generateCn($co_petitions[0]['SponsorCoPerson']['Name']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <th><?php print _txt('fd.approver'); ?></th>
+      <td>
+        <?php
+          if(isset($co_petitions[0]['ApproverCoPerson']['Name'])) {
+            print generateCn($co_petitions[0]['ApproverCoPerson']['Name']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <th><?php print _txt('fd.created'); ?></th>
+      <td><?php print $this->Time->nice($co_petitions[0]['CoPetition']['created']); ?></td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <th><?php print _txt('fd.modified'); ?></th>
+      <td><?php print $this->Time->nice($co_petitions[0]['CoPetition']['modified']); ?></td>
+    </tr>
+  </tbody>
+</table>
+
+<?php
+  // Enumerate over all attributes defined for the enrollment flow associated with this petition.
+  // We do a series of <?php tags because we can't mix and match embedded tag styles.
+?>
+
+<h2 class="ui-state-default"><?php print _txt('fd.attrs.pet'); ?></h2>
+
+<table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
   <tbody>
     <?php foreach ($co_enrollment_attributes as $ea): ?>
     <?php $fieldName = $ea['model'] . '.' . $ea['field']; ?>
@@ -82,7 +134,7 @@
         <?php
           // Emit the label for this field
           
-          print $ea['label'];
+          print "<b>" . $ea['label'] . "</b>";
           
           if($ea['required']) {
             print "<font class=\"required\">*</font>\n";
@@ -147,10 +199,21 @@
             
             print "\n";
           } else {
-            // Just emit the current value for this attribute
+            // Just emit the current value for this attribute, if set
             
-            // if $ruleType == 'inList'
-            //print $cm_texts[ $cm_lang ]['en.affil'][ $co_person_roles[0]['CoPersonRole']['affiliation']];
+            if(isset($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ])) {
+              switch($ruleType) {
+              case 'inList':
+                print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
+                break;
+              case 'validateTimestamp':
+                print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]);
+                break;
+              default:
+                print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                break;
+              }
+            }
           }
         ?>
       </td>
@@ -168,5 +231,27 @@
         ?>
       </td>
     </tr>
+  </tbody>
+</table>
+
+<h2 class="ui-state-default"><?php print _txt('fd.history.pt'); ?></h2>
+
+<table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
+  <tbody>
+    <tr>
+      <th class="ui-state-default"><?php print _txt('fd.action'); ?></th>
+      <th class="ui-state-default"><?php print _txt('fd.actor'); ?></th>
+      <th class="ui-state-default"><?php print _txt('fd.comment'); ?></th>
+      <th class="ui-state-default"><?php print _txt('fd.timestamp'); ?></th>
+    </tr>
+    
+    <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td><?php print $hr['action']; ?></td>
+      <td><?php print generateCn($hr['ActorCoPerson']['Name']); ?></td>
+      <td><?php print $hr['comment']; ?></td>
+      <td><?php print $this->Time->nice($hr['created']); ?></td>
+    </tr>
+    <?php endforeach; // CoPetitionHistoryRecord ?>
   </tbody>
 </table>

@@ -244,7 +244,9 @@ $cm_texts['en_US'] = array(
   'er.orgp.unpool' => 'Failed to unpool organizational identities',
 
   // Fields
+  'fd.action' =>      'Action',
   'fd.actions' =>     'Actions',
+  'fd.actor' =>       'Actor',
   'fd.address' =>     'Address',
   // The next set must be named fd.model.validation-field
   'fd.address.country' => 'Country',
@@ -256,14 +258,18 @@ $cm_texts['en_US'] = array(
   'fd.admin' =>       'Administrator',
   'fd.affiliation' => 'Affiliation',
   'fd.an.desc' =>     'Alphanumeric characters only',
+  'fd.approver' =>    'Approver',
   'fd.attribute' =>   'Attribute',
   'fd.attr.ldap' =>   'LDAP Name',
   'fd.attr.saml' =>   'SAML Name',
   'fd.attrs.cop' =>   'Person Attributes',
   'fd.attrs.copr' =>  'Role Attributes',
   'fd.attrs.org' =>   'Organizational Attributes',
+  'fd.attrs.pet' =>   'Petition Attributes',
   'fd.closed' =>      'Closed',
+  'fd.comment' =>     'Comment',
   'fd.cou' =>         'COU',
+  'fd.created' =>     'Created',
   // Demographics fields
   'fd.de.persid'  =>  'Person ID',
   'fd.de.gender'  =>  'Gender',
@@ -317,12 +323,14 @@ $cm_texts['en_US'] = array(
   // (End enrollment configuration fields)
   // This must be named fd.model.validation-field
   'fd.email_address.mail' => 'Email',
+  'fd.enrollee' =>    'Enrollee',
   'fd.false' =>       'False',
   'fd.group.desc.adm' => '%1$s Administrators',
   'fd.group.mem' =>   'Member',
   'fd.group.memin' => 'membership in "%1$s"',
   'fd.group.own' =>   'Owner',
   'fd.groups' =>      'Groups',
+  'fd.history.pt' =>  'Petition History',
   // The next set must be named fd.model.validation-field
   'fd.identifier.identifier' => 'Identifier',
   'fd.identifier.login' => 'Login',
@@ -330,6 +338,7 @@ $cm_texts['en_US'] = array(
   'fd.ids' =>         'Identifiers',
   'fd.index' =>       'Index',
   'fd.members' =>     'Members',
+  'fd.modified' =>    'Modified',
   'fd.name' =>        'Name',
   'fd.name.d' =>      'Display Name',
   'fd.name.h.desc' => '(Dr, Hon, etc)',
@@ -347,6 +356,7 @@ $cm_texts['en_US'] = array(
   'fd.ou' =>          'Department',
   'fd.parent' =>      'Parent COU',
   'fd.perms' =>       'Permissions',
+  'fd.petitioner' =>  'Petitioner',
   'fd.req' =>         '* denotes required field',
   'fd.required' =>    'Required',
   'fd.roles' =>       'Roles',
@@ -356,6 +366,7 @@ $cm_texts['en_US'] = array(
   'fd.status' =>      'Status',
   // This must be named fd.model.validation-field
   'fd.telephone_number.number' => 'Phone',
+  'fd.timestamp' =>   'Timestamp',
   'fd.title' =>       'Title',
   'fd.true' =>        'True',
   'fd.type' =>        'Type',
@@ -397,6 +408,7 @@ $cm_texts['en_US'] = array(
   'op.login' =>       'Login',
   'op.logout' =>      'Logout',
   'op.ok' =>          'OK',
+  'op.petition' =>    'Petition',
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',
   'op.remove' =>      'Remove',
   'op.save' =>        'Save',

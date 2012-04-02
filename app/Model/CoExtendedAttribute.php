@@ -69,16 +69,17 @@ class CoExtendedAttribute extends AppModel {
    * Dynamically assemble validation rules for an extended attribute.
    *
    * @since  COmanage Registry v0.5
-   * @param  integer ID of Extended Attribute
+   * @param  integer CO ID of attribute
+   * @param  integer Name of Extended Attribute
    * @return Array Validation rules, in the standard Cake format
    */
   
-  public function validationRules($id) {
+  public function validationRules($coId, $name) {
     $ret = array();
     
     // Pull the type of the attribute and put together a suitable array
     
-    $extAttr = $this->findById($id);
+    $extAttr = $this->findByCoIdAndName($coId, $name);
     
     if($extAttr) {
       switch($extAttr['CoExtendedAttribute']['type']) {

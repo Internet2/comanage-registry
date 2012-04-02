@@ -200,7 +200,14 @@
           primary: 'ui-icon-circle-triangle-e'
         },
       });
-
+      
+      $(".petitionbutton").button({
+        icons: {
+          primary: 'ui-icon-script'
+        },
+        text: false
+      });
+      
       // Datepickers
       
       $(".datepicker").datepicker({

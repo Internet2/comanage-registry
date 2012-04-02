@@ -422,6 +422,17 @@
                     // Currently, users can self-edit some role level attributes,
                     // so give them an edit button, too.
                     
+                    if($permissions['enroll']
+                       && $r['status'] == StatusEnum::Pending) {
+                      print $this->Html->link(_txt('op.petition'),
+                                              array('controller' => 'co_petitions',
+                                                    'action' => 'view',
+                                                    $r['CoPetition'][0]['id'],
+                                                    'co' => $r['CoPetition'][0]['co_id'],
+                                                    'coef' => $r['CoPetition'][0]['co_enrollment_flow_id']),
+                                              array('class' => 'petitionbutton'));
+                    }
+                    
                     if($permissions['edit'])
                       echo $this->Html->link(_txt('op.edit'),
                                        array('controller' => 'co_person_roles', 'action' => 'edit', $r['id'], 'co' => $cur_co['Co']['id']),

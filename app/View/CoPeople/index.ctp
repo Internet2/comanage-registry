@@ -89,18 +89,37 @@
         <?php
           foreach ($p['CoPersonRole'] as $pr) {
             if($myPerson) {
-              echo $this->Html->link(_txt('op.edit'),
-                                      array('controller' => 'co_person_roles',
-                                            'action' => ($permissions['edit'] ? "edit" : "view"),
-                                            $pr['id'],
-                                            'co' => $cur_co['Co']['id']),
-                                      array('class' => 'editbutton'));
-            
-              echo $this->Html->link($pr['title'],
-                                      array('controller' => 'co_person_roles',
-                                            'action' => ($permissions['edit'] ? "edit" : "view"),
-                                            $pr['id'],
-                                            'co' => $cur_co['Co']['id']));
+              if($permissions['enroll']
+                 && $pr['status'] == StatusEnum::Pending
+                 && !empty($pr['CoPetition'])) {
+                print $this->Html->link(_txt('op.petition'),
+                                        array('controller' => 'co_petitions',
+                                              'action' => 'view',
+                                              $pr['CoPetition'][0]['id'],
+                                              'co' => $pr['CoPetition'][0]['co_id'],
+                                              'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']),
+                                        array('class' => 'petitionbutton'));
+                
+                print $this->Html->link($pr['title'],
+                                        array('controller' => 'co_petitions',
+                                              'action' => 'view',
+                                              $pr['CoPetition'][0]['id'],
+                                              'co' => $pr['CoPetition'][0]['co_id'],
+                                              'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']));
+              } else {
+                print $this->Html->link(_txt('op.edit'),
+                                        array('controller' => 'co_person_roles',
+                                              'action' => ($permissions['edit'] ? "edit" : "view"),
+                                              $pr['id'],
+                                              'co' => $cur_co['Co']['id']),
+                                        array('class' => 'editbutton'));
+                
+                print $this->Html->link($pr['title'],
+                                        array('controller' => 'co_person_roles',
+                                              'action' => ($permissions['edit'] ? "edit" : "view"),
+                                              $pr['id'],
+                                              'co' => $cur_co['Co']['id']));
+              }
             }
             else
               print $pr['title'];
@@ -130,9 +149,12 @@
             // Can't delete a CO Person if they have any roles
             if(empty($p['CoPersonRole']) && $permissions['delete'])
               echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'delete', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
-              
-            if($permissions['invite'] && ($p['CoPerson']['status'] != 'A' && $p['CoPerson']['status'] != 'D'))
-              echo '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonid' => $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
+            
+            if($permissions['invite']
+               && ($p['CoPerson']['status'] != StatusEnum::Active
+                   && $p['CoPerson']['status'] != StatusEnum::Deleted)) {
+              print '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonid' => $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
+            }
           }
         ?>
         <?php ; ?>
