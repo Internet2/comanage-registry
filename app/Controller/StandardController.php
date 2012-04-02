@@ -684,12 +684,26 @@ class StandardController extends AppController {
     $req = $this->modelClass;
     $model = $this->$req;
     $modelpl = Inflector::tableize($req);
-
-    if(isset($this->view_recursion))
-      $model->recursive = $this->view_recursion;
-
+    
     $model->id = $id;
-    $obj = $model->read();
+    
+    if(isset($this->view_contains)) {
+      // New style: use containable behavior
+      
+      $args = array();
+      
+      $args['conditions'][$req.'.id'] = $id;
+      $args['contain'] = $this->view_contains;
+      
+      $obj = $model->find('first', $args);
+    } else {
+      // Old style: use recursion (if set)
+      
+      if(isset($this->view_recursion))
+        $model->recursive = $this->view_recursion;
+      
+      $obj = $model->read();
+    }
     
     if(empty($obj))
     {
