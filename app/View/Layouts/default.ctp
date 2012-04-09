@@ -142,7 +142,13 @@
           primary: 'ui-icon-circle-close'
         }
       });
-
+      
+      $(".checkbutton").button({
+        icons: {
+          primary: 'ui-icon-circle-check'
+        }
+      });
+      
       $(".comparebutton").button({
         icons: {
           primary: 'ui-icon-person'

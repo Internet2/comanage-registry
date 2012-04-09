@@ -45,4 +45,48 @@ class CoPetitionHistoryRecord extends AppModel {
   // Validation rules for table elements
   public $validate = array(
   );
+  
+  /**
+   * Create a CO Petition History Record.
+   *
+   * @since  COmanage Registry v0.5
+   * @param  Integer CO Petition ID
+   * @param  Integer Actor CO Person ID
+   * @param  PetitionActionEnum Action
+   * @param  String Comment (if not provided, default comment for $action is used)
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+  
+  function record($coPetitionID, $actorCoPersonID, $action, $comment=null) {
+    $coPetitionHistoryData = array();
+    $coPetitionHistoryData['CoPetitionHistoryRecord']['co_petition_id'] = $coPetitionID;
+    $coPetitionHistoryData['CoPetitionHistoryRecord']['actor_co_person_id'] = $actorCoPersonID;
+    $coPetitionHistoryData['CoPetitionHistoryRecord']['action'] = $action;
+    
+    if(isset($comment)) {
+      $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = $comment;
+    } else {
+      // Figure out a default value
+      
+      switch($action) {
+        case PetitionActionEnum::Approved:
+          $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.approve');
+          break;
+        case PetitionActionEnum::Created:
+          $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.create');
+          break;
+        case PetitionActionEnum::Denied:
+          $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.deny');
+          break;
+        default:
+          throw new InvalidArgumentException(_txt('er.unknown', array($action)));
+          break;
+      }
+    }
+    
+    if(!$this->save($coPetitionHistoryData)) {
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+  }
 }

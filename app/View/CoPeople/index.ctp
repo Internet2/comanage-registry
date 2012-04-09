@@ -62,6 +62,7 @@
           $myPerson = false;
           
           // We look at COU here if set for the role
+          // XXX this should really be calculated in the controller
           if($permissions['edit']
              && (!isset($pr['cou_id'])
                  || $pr['cou_id'] == ''
@@ -90,7 +91,7 @@
           foreach ($p['CoPersonRole'] as $pr) {
             if($myPerson) {
               if($permissions['enroll']
-                 && $pr['status'] == StatusEnum::Pending
+                 && $pr['status'] == StatusEnum::PendingApproval
                  && !empty($pr['CoPetition'])) {
                 print $this->Html->link(_txt('op.petition'),
                                         array('controller' => 'co_petitions',

@@ -100,11 +100,14 @@ class CoPersonRole extends AppModel {
     ),
     'status' => array(
       'rule' => array('inList', array(StatusEnum::Active,
+                                      StatusEnum::Approved,
+                                      StatusEnum::Declined,
                                       StatusEnum::Deleted,
+                                      StatusEnum::Denied,
                                       StatusEnum::Invited,
                                       StatusEnum::Pending,
-                                      StatusEnum::Suspended,
-                                      StatusEnum::Declined))
+                                      StatusEnum::PendingApproval,
+                                      StatusEnum::Suspended))
     ),
     'sponsor_co_person_id' => array(
       'rule' => array('numeric'),

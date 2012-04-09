@@ -173,10 +173,11 @@ class NSFRaceEnum
 
 class PetitionActionEnum
 {
-  const Approved = 'PY';
-  const Created  = 'PC';
-  const Declined = 'PX';
-  const Denied   = 'PN';
+  const Approved  = 'PY';
+  const Created   = 'PC';
+  const Declined  = 'PX';
+  const Denied    = 'PN';
+  const Finalized = 'PF';
 }
 
 class RequiredEnum
@@ -200,14 +201,15 @@ class RequiredEnum
 
 class StatusEnum
 {
-  const Active    = 'A';
-  const Approved  = 'Y';
-  const Deleted   = 'D';
-  const Denied    = 'N';
-  const Invited   = 'I';
-  const Pending   = 'P';
-  const Suspended = 'S';
-  const Declined  = 'X';
+  const Active          = 'A';
+  const Approved        = 'Y';
+  const Deleted         = 'D';
+  const Denied          = 'N';
+  const Invited         = 'I';
+  const Pending         = 'P';
+  const PendingApproval = 'PA';
+  const Suspended       = 'S';
+  const Declined        = 'X';
   /*
   public $from_api = array(
     "Active"    => Active,
@@ -325,23 +327,25 @@ $name_ti = array(
 );
 
 $status_t = array(
-  'A' => 'Active',
-  'D' => 'Deleted',
-  'I' => 'Invited',
-  'N' => 'Denied',
-  'P' => 'Pending',
-  'S' => 'Suspended',
-  'X' => 'Declined',
-  'Y' => 'Approved'
+  'A'  => 'Active',
+  'D'  => 'Deleted',
+  'I'  => 'Invited',
+  'N'  => 'Denied',
+  'P'  => 'Pending',
+  'PA' => 'PendingApproval',
+  'S'  => 'Suspended',
+  'X'  => 'Declined',
+  'Y'  => 'Approved'
 );
 
 $status_ti = array(
-  'Active' => 'A',
-  'Deleted' => 'D',
-  'Invited' => 'I',
-  'Denied' => 'N',
-  'Pending' => 'P',
-  'Suspended' => 'S',
-  'Declined' => 'X',
-  'Approved' => 'Y'
+  'Active'          => 'A',
+  'Deleted'         => 'D',
+  'Invited'         => 'I',
+  'Denied'          => 'N',
+  'Pending'         => 'P',
+  'PendingApproval' => 'PA',
+  'Suspended'       => 'S',
+  'Declined'        => 'X',
+  'Approved'        => 'Y'
 );

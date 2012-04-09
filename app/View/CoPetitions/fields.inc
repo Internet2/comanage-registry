@@ -72,7 +72,37 @@
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <th><?php print _txt('fd.status'); ?></th>
-      <td><?php print _txt('en.status', null, $co_petitions[0]['CoPetition']['status']); ?></td>
+      <td>
+        <?php
+          print _txt('en.status', null, $co_petitions[0]['CoPetition']['status']);
+          
+          if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval) {
+            if($permissions['approve']) {
+              print $this->Html->link(
+                _txt('op.approve'),
+                array('controller' => 'co_petitions',
+                      'action' => 'approve',
+                      $co_petitions[0]['CoPetition']['id'],
+                      'co' => $co_petitions[0]['CoPetition']['co_id'],
+                      'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
+                array('class' => 'checkbutton')
+              );
+            }
+            
+            if($permissions['deny']) {
+              print $this->Html->link(
+                _txt('op.deny'),
+                array('controller' => 'co_petitions',
+                      'action' => 'deny',
+                      $co_petitions[0]['CoPetition']['id'],
+                      'co' => $co_petitions[0]['CoPetition']['co_id'],
+                      'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
+                array('class' => 'cancelbutton')
+              );
+            }
+          }
+        ?>
+      </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <th><?php print _txt('fd.petitioner'); ?></th>

@@ -85,7 +85,8 @@ class CoPerson extends AppModel {
   public $displayField = "CoPerson.id";
   
   // Default ordering for find operations
-  public $order = array("CoPerson.id");
+// XXX CO-296 Toss default order?
+//  public $order = array("CoPerson.id");
   
   // Validation rules for table elements
   public $validate = array(
@@ -96,11 +97,14 @@ class CoPerson extends AppModel {
     ),
     'status' => array(
       'rule' => array('inList', array(StatusEnum::Active,
+                                      StatusEnum::Approved,
+                                      StatusEnum::Declined,
                                       StatusEnum::Deleted,
+                                      StatusEnum::Denied,
                                       StatusEnum::Invited,
                                       StatusEnum::Pending,
-                                      StatusEnum::Suspended,
-                                      StatusEnum::Declined)),
+                                      StatusEnum::PendingApproval,
+                                      StatusEnum::Suspended)),
       'required' => true,
       'message' => 'A valid status must be selected'
     )

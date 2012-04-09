@@ -33,6 +33,12 @@ class CoPetitionsController extends StandardController {
     'limit' => 25,
     'order' => array(
       'modified' => 'asc'
+    ),
+    'contain' => array(
+      'ApproverCoPerson' => 'Name',
+      'EnrolleeCoPerson' => 'Name',
+      'PetitionerCoPerson' => 'Name',
+      'SponsorCoPerson' => 'Name'
     )
   );
   
@@ -62,6 +68,7 @@ class CoPetitionsController extends StandardController {
    * - postcondition: $co_enrollment_attributes may be set.
    *
    * @since  COmanage Registry v0.5
+   * @throws RuntimeException
    */
   
   function add() {
@@ -147,7 +154,7 @@ class CoPetitionsController extends StandardController {
       // Start a transaction
       
       $dbc = $this->CoPetition->getDataSource();
-      $dbc->begin($this);
+      $dbc->begin();
       
       // We need to manually construct an Org Identity, at least for now until
       // they're populated some other way (eg: SAML/LDAP). We'll need to add a
@@ -197,7 +204,7 @@ class CoPetitionsController extends StandardController {
       $coData = array();
       $coData['EnrolleeCoPerson'] = $this->request->data['EnrolleeCoPerson'];
       $coData['EnrolleeCoPerson']['co_id'] = $this->cur_co['Co']['id'];
-      $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
+      $coData['EnrolleeCoPerson']['status'] = StatusEnum::PendingApproval;
       
       // Filter the data to pull related models up a level and, if optional and
       // not provided, drop the model entirely to avoid validation errors.
@@ -217,7 +224,7 @@ class CoPetitionsController extends StandardController {
       
       $coRoleData = array();
       $coRoleData['EnrolleeCoPersonRole'] = $this->request->data['EnrolleeCoPersonRole'];
-      $coRoleData['EnrolleeCoPersonRole']['status'] = StatusEnum::Pending;
+      $coRoleData['EnrolleeCoPersonRole']['status'] = StatusEnum::PendingApproval;
       $coRoleData['EnrolleeCoPersonRole']['co_person_id'] = $coPersonID;
       
       // Filter the data to pull related models up a level and, if optional and
@@ -299,7 +306,7 @@ class CoPetitionsController extends StandardController {
         $petitioner = $this->Session->read('Auth.User.co_person_id');
         
         $coPetitionData['CoPetition']['petitioner_co_person_id'] = $petitioner;
-        $coPetitionData['CoPetition']['status'] = StatusEnum::Pending;
+        $coPetitionData['CoPetition']['status'] = StatusEnum::PendingApproval;
         
         if($this->CoPetition->save($coPetitionData)) {
           $coPetitionID = $this->CoPetition->id;
@@ -517,19 +524,18 @@ class CoPetitionsController extends StandardController {
       // Add a co_petition_history_record.
       
       if(!$fail) {
-        $coPetitionHistoryData = array();
-        $coPetitionHistoryData['CoPetitionHistoryRecord']['co_petition_id'] = $coPetitionID;
-        $coPetitionHistoryData['CoPetitionHistoryRecord']['actor_co_person_id'] = $petitioner;
-        $coPetitionHistoryData['CoPetitionHistoryRecord']['action'] = PetitionActionEnum::Created;
-        $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.create');
-        
-        if(!$this->CoPetition->CoPetitionHistoryRecord->save($coPetitionHistoryData)) {
-          $fail = true;
+        try {
+          $this->CoPetition->CoPetitionHistoryRecord->record($coPetitionID,
+                                                             $petitioner,
+                                                             PetitionActionEnum::Created);
+        }
+        catch(Exception $e) {
+          $fail = false;
         }
       }
       
       if(!$fail) {
-        $dbc->commit($this);
+        $dbc->commit();
         
         $this->Session->setFlash(_txt('rs.pt.create'), '', array(), 'success');
         $this->performRedirect();
@@ -537,13 +543,38 @@ class CoPetitionsController extends StandardController {
         // Roll back and allow the form to re-render
         
         $this->Session->setFlash(_txt('er.fields'), '', array(), 'error');
-        $dbc->rollback($this);
+        $dbc->rollback();
       }
     } else {
       // REST API gets standard behavior
       
       parent::add();
     }
+  }
+  
+  /**
+   * Approve a petition.
+   * - precondition: $id must exist and be in 'Pending Approval' state
+   * - postcondition: On error, session flash message set
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.5
+   * @param  Integer Petition ID
+   */
+  
+  function approve($id) {
+    try {
+      $this->CoPetition->updatePetition($id,
+                                        StatusEnum::Approved,
+                                        $this->Session->read('Auth.User.co_person_id'));
+      
+      $this->Session->setFlash(_txt('rs.pt.approve'), '', array(), 'success');
+    }
+    catch(Exception $e) {
+      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+    }
+    
+    $this->performRedirect();
   }
   
   /**
@@ -612,6 +643,31 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Deny a petition.
+   * - precondition: $id must exist and be in 'Pending Approval' state
+   * - postcondition: On error, session flash message set
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.5
+   * @param  Integer Petition ID
+   */
+  
+  function deny($id) {
+    try {
+      $this->CoPetition->updatePetition($id,
+                                        StatusEnum::Denied,
+                                        $this->Session->read('Auth.User.co_person_id'));
+      
+      $this->Session->setFlash(_txt('rs.pt.deny'), '', array(), 'success');
+    }
+    catch (Exception $e) {
+      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+    }
+    
+    $this->performRedirect();
+  }
+  
+  /**
    * Determine the requested Enrollment Flow ID.
    * - precondition: An enrollment flow ID should be specified as a named query parameter or in form data.
    *
@@ -647,6 +703,10 @@ class CoPetitionsController extends StandardController {
     
     // Add a new CO Petition?
     $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    
+    // Approve a CO Petition?
+    $p['approve'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['deny'] = $p['approve'];
     
     // Delete an existing CO Petition?
     $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
