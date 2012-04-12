@@ -66,6 +66,7 @@
   // refactored at some point.
 ?>
 
+<?php if($this->action != 'add'): ?>
 <h2 class="ui-state-default"><?php print _txt('ct.co_petitions.1'); ?></h2>
 
 <table id="<?php print $this->action; ?>_co_petition" class="ui-widget">
@@ -144,6 +145,7 @@
     </tr>
   </tbody>
 </table>
+<?php endif; // action == add ?>
 
 <?php
   // Enumerate over all attributes defined for the enrollment flow associated with this petition.
@@ -264,6 +266,7 @@
   </tbody>
 </table>
 
+<?php if($this->action != 'add'): ?>
 <h2 class="ui-state-default"><?php print _txt('fd.history.pt'); ?></h2>
 
 <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
@@ -285,3 +288,4 @@
     <?php endforeach; // CoPetitionHistoryRecord ?>
   </tbody>
 </table>
+<?php endif; // action == add ?>
