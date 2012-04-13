@@ -63,6 +63,7 @@ class CousController extends StandardController {
       
       $this->set('parent_options', $options);
     }
+    parent::beforeRender();
   }
 
   /**

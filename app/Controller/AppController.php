@@ -153,6 +153,25 @@ class AppController extends Controller {
       $this->Auth->allow('*');
     }
   }
+
+  /**
+   * Callback before views are rendered.
+   * - precondition: None
+   * - postcondition: content and permissions for menu are set
+   *
+   * @since  COmanage Registry v0.5
+   */
+
+  function beforeRender() {
+
+    // Determine what is shown for menus
+    // Called before each render in case permissions change
+    if($this->restful != true
+       && $this->Session->check('Auth.User.org_identities')) {
+      $this->menuAuth();
+      $this->menuContent();
+    }
+  }
   
   /**
    * Determine which COmanage platform roles the current user has.
@@ -1033,5 +1052,104 @@ class AppController extends Controller {
     }
     
     $this->response->statusCode($status);
+  }
+
+  /**
+   * Called from beforeRender to set permissions for display in menus
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: permissions for menu are set
+   *
+   * @since  COmanage Registry v0.5
+   */
+
+  function menuAuth() {
+    $cmr = $this->calculateCMRoles();
+
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+    
+    // If permissions already exist, don't overwrite them
+    if(isset($this->viewVars['permissions']))
+      $p = $this->viewVars['permissions'];
+
+    // Determine what menu options this user can see
+
+    // View own (Org) profile?
+    $p['menu']['orgprofile'] = $cmr['user'];
+    
+    // View/Edit own (CO) profile?
+    $p['menu']['coprofile'] = $cmr['user'];
+    
+    // View/Edit CO groups?
+    $p['menu']['cogroups'] = $cmr['user'];
+    
+    // Manage org identity data?
+    $p['menu']['orgidentities'] = $cmr['admin'] || $cmr['subadmin'];
+    
+    // Manage any CO (or COU) population?
+    $p['menu']['cos'] = $cmr['admin'] || $cmr['subadmin'];
+
+    // Manage any CO (or COU) population?
+    $p['menu']['petitions'] = $cmr['admin'] || $cmr['subadmin'];
+    
+    // Manage CO extended attributes?
+    $p['menu']['extattrs'] = $cmr['admin'];
+    
+    // Manage COU definitions?
+    $p['menu']['cous'] = $cmr['admin'];
+
+    // Manage CO enrollment flow definitions?
+    $p['menu']['coef'] = $cmr['admin'];
+    
+    // Admin COmanage?
+    $p['menu']['admin'] = $cmr['cmadmin'];
+    
+    // Manage NSF Demographics?
+    $p['menu']['co_nsf_demographics'] = $cmr['cmadmin'];
+    
+    // View/Edit own Demographics profile?
+    $p['menu']['nsfdemoprofile'] = $cmr['user'];
+
+    $this->set('permissions', $p);
+  }
+
+  /**
+   * Called from beforeRender to set content for display in menus
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: content for menu are set
+   *
+   * @since  COmanage Registry v0.5
+   */
+
+  function menuContent() {
+    // Get org identity ID
+    $orgIDs = $this->Session->read('Auth.User.org_identities');
+
+    // Find name associated with that ID
+    $this->loadModel('OrgIdentity');
+    $orgName = $this->OrgIdentity->read('o',$orgIDs[0]['org_id']);
+
+    // Set for home ID name in menu
+    $menu['orgName'] = $orgName['OrgIdentity']['o'];
+
+    // Set the COs for display
+    if($this->viewVars['permissions']['menu']['admin']) {
+      // Show all active COs for admins
+      $this->loadModel('Co');
+      $params = array('conditions' => array('Co.status' => 'A'),
+                      'fields'     => array('Co.id', 'Co.name'),
+                      'recursive'  => false
+                     );
+      $codata = $this->Co->find('all', $params);
+
+      foreach($codata as $data)
+        $menu['cos'][ $data['Co']['id'] ] = $data['Co']['name'];
+    } elseif($this->Session->check('Auth.User.cos')) {
+      // Show only COs that a user is a member of
+      foreach($this->Session->read('Auth.User.cos') as $name => $data)
+        $menu['cos'][ $data['co_id'] ] = $data['co_name'];
+    }
+
+    $this->set('menuContent', $menu);
   }
 }

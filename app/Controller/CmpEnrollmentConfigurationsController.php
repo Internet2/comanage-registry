@@ -51,6 +51,7 @@ class CmpEnrollmentConfigurationsController extends StandardController {
     // Set the list of attribute order for the view to render
     
     $this->set('cmp_ef_attribute_order', $this->CmpEnrollmentConfiguration->getStandardAttributeOrder());
+    parent::beforeRender();
   }
   
   /**

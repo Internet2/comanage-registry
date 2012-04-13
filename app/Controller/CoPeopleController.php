@@ -92,6 +92,7 @@ class CoPeopleController extends StandardController {
       $this->loadModel('CoEnrollmentFlow');
       $this->set('co_enrollment_flows', $this->CoEnrollmentFlow->find('all', $args));
     }
+    parent::beforeRender();
   }
   
   /**

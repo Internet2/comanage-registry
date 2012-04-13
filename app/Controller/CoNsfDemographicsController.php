@@ -85,6 +85,7 @@ class CoNsfDemographicsController extends StandardController {
         $this->set('co_nsf_demographics', $factoredDemo);
       }
     }
+    parent::beforeRender();
   }
 
   /**

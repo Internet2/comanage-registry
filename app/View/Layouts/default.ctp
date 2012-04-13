@@ -35,13 +35,15 @@
 
     <!-- Include the gears and jquery style sheets -->
     <?php print $this->Html->css('comanage'); ?>
-    
-    <?php print $this->Html->css('jquery/ui/css/start/jquery-ui-1.8.16.custom.css'); ?>
+    <?php print $this->Html->css('body'); ?>
+    <?php print $this->Html->css('jquery/ui/css/custom-theme/jquery-ui-1.8.18.custom'); ?>
+    <?php print $this->Html->css('jquery/superfish-1.4.8/css/superfish'); ?>
+    <?php print $this->Html->css('menubar'); ?>
 
     <!-- Get jquery code -->
     <?php print $this->Html->script('jquery/ui/js/jquery-1.6.2.min.js'); ?>
-    
     <?php print $this->Html->script('jquery/ui/js/jquery-ui-1.8.16.custom.min.js'); ?>
+    <?php print $this->Html->script('jquery/superfish-1.4.8/js/superfish.js'); ?>
 
     <!-- Common script code -->
     <script type="text/javascript">
@@ -269,131 +271,103 @@
     <!-- Include external files and scripts -->
     <?php print $scripts_for_layout ?>
   </head>
- 
+
   <body onload="js_onload_call_hooks()">
-    <table width="100%">
-      <tr>
-        <td width="50%">
-          <?php
-            print $this->Html->image('comanage-logo.jpg',
-                                     array('alt'     => 'COmanage',
-                                           'height'  => 42,
-                                           'width'   => 227));
-          ?>
-          <font face="verdana">Registry</font>
-        </td>
-        <td width="50%">
-          <div class="right">
-            <table id="userlabel" class="ui-widget ui-widget-content ui-corner-all">
-              <thead>
-                <tr class="ui-widget-header">
-                  <th style="font-size:62.5%;">
-                    <?php
-                      if($this->Session->check('Auth.User'))
-                      {
-                        print "<div style='text-align:right'>" . generateCn($this->Session->read('Auth.User.name'));
-                        if(isset($cur_co))
-                          print " (" . $cur_co['Co']['name'] . ")";
-                        print "</div>\n";
-                      }
-                      else
-                        print _txt('au.not');
-                    ?>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <?php
-                      if($this->Session->check('Auth.User')) {
-                        if($this->params['controller'] != 'pages' && $this->params['action'] != 'menu') {
-                          print $this->Html->link(_txt('op.menu'),
-                                                  "/",
-                                                  array('class' => 'menubutton'));
-                        }
-                        
-                        print $this->Html->link(_txt('op.logout'),
-                                                array('controller' => 'auth', 'action' => 'logout'),
-                                                array('class' => 'logoutbutton'));
-                      }
-                      else {
-                        print $this->Html->link(_txt('op.login'),
-                                                array('controller' => 'auth', 'action' => 'login'),
-                                                array('class' => 'logoutbutton'));
-                      }
-                    ?>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+    <div class="header">
+      <div id="row1">
+        <div class="contentWidth">
+          <?php print $this->element('links'); ?>
+          <?php print $this->element('secondaryMenu'); ?>
+        </div>
+      </div>
+
+      <div id="row2" class="ui-widget-header">
+        <div class="contentWidth">
+          <div class="headerLeft">
+            <?php
+              if($this->Session->check('Auth.User'))
+                print $this->element('dropMenu');
+            ?>
           </div>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <?php
-            $f = $this->Session->flash('error');
-            
-            if($f && $f != "")
-            {
-              print '
-		<div class="ui-widget">
-                  <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-                    <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                      ' . $f . '
-                    </p>
-                  </div>
-		</div>
-                ';
-            }
+          <div class="headerRight">
+            <?php
+              // Clicking on the logo will take us to the front page
+              print $this->Html->link($this->Html->image('comanage-logo.png',
+                                                   array('alt'     => 'COmanage','height' => 50)),
+                                      '/',
+                                      array('escape' => false));
+            ?>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            $f = $this->Session->flash('info');
-            
-            if($f && $f != "")
-            {
-              print '
-		<div class="ui-widget">
-                  <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-                    <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                      ' . $f . '
-                    </p>
-                  </div>
-		</div>
-                ';
-            }
-            
-            $f = $this->Session->flash('success');
-            
-            if($f && $f != "")
-            {
-              print '
-		<div class="ui-widget">
-                  <div class="ui-state-active ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-                    <p><span class="ui-icon ui-icon-circle-check" style="float: left; margin-right: .3em;"></span>
-                      ' . $f . '
-                    </p>
-                  </div>
-		</div>
-                ';
-            }
-          ?>
+    <div id="content">
+      <div>
+        <?php
+          $f = $this->Session->flash('error');
+          
+          if($f && $f != "") {
+            print '
+              <div class="ui-widget">
+                <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
+                  <p>
+                    <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                    ' . $f . '
+                  </p>
+                </div>
+              </div>
+            ';
+          }
 
-          <?php print_r($this->Session->error()); ?>
-          <!-- Display view content -->
-          <?php print $content_for_layout ?>
-        </td>
-      </tr>
-    </table>
+          $f = $this->Session->flash('info');
+          
+          if($f && $f != "") {
+            print '
+              <div class="ui-widget">
+                <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+                  <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                    ' . $f . '
+                  </p>
+                </div>
+              </div>
+            ';
+          }
+          
+          $f = $this->Session->flash('success');
+          
+          if($f && $f != "") {
+            print '
+              <div class="ui-widget">
+                <div class="ui-state-active ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+                  <p><span class="ui-icon ui-icon-circle-check" style="float: left; margin-right: .3em;"></span>
+                    ' . $f . '
+                  </p>
+                </div>
+              </div>
+            ';
+          }
+        ?>
+
+        <?php print_r($this->Session->error()); ?>
+        <!-- Display view content -->
+        <?php print $content_for_layout ?>
+      </div>
+    </div>
     <?php if(Configure::read('debug') > 0) print $this->element('sql_dump'); ?>
 
     <!-- Common UI components -->
-  
+
     <div id="dialog" title="Confirm">
       <p>
         <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
         <span id="dialog-text"><?php print _txt('op.proceed.ok'); ?></span>
       </p>
     </div>
+
+    <div class="contentWidth">
+      <?php print $this->element('footer'); ?>
+    </div>
+
   </body>
 </html>

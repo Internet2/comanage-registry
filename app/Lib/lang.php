@@ -382,6 +382,15 @@ $cm_texts['en_US'] = array(
   'fd.valid.u.desc' =>  '(leave blank for indefinite validity)',
   'fd.yes' =>         'Yes',
 
+  // Menu
+  'me.account'         => 'My Account',
+  'me.changepassword'  => 'Change Password',
+  'me.for'             => 'For ',
+  'me.identity'        => 'Identity',
+  'me.label'           => 'Manage:',
+  'me.platform'        => 'Platform',
+  'me.population'      => 'My Population',
+
   // Operations
   'op.add' =>         'Add',
   'op.add-a' =>       'Add "%1$s"',

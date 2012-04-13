@@ -101,6 +101,8 @@ class OrgIdentitiesController extends StandardController {
   
   function beforeRender() {
     $this->set('cmp_ef_attribute_order', $this->CmpEnrollmentConfiguration->getStandardAttributeOrder());
+
+    parent::beforeRender();
   }
   
   /**
