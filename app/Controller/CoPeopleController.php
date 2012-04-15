@@ -261,6 +261,25 @@ class CoPeopleController extends StandardController {
   }
 
   /**
+   * Obtain all CO People, or perform a match
+   *
+   * @since  COmanage Registry v0.5
+   */
+
+  public function index() {
+    // We need to check if we're being asked to do a match via the REST API, and
+    // if so dispatch it. Otherwise, just invoke the standard behavior.
+    
+    if($this->restful
+       && (isset($this->request->query['given'])
+           || isset($this->request->query['family']))) {
+      $this->match();
+    } else {
+      parent::index();
+    }
+  }
+  
+  /**
    * Invite the person identified by the Org Identity to a CO.
    * - precondition: orgidentity and co set in $this->request->params
    * - postcondition: $co_people set
@@ -345,6 +364,10 @@ class CoPeopleController extends StandardController {
     // View all existing CO People (or a COU's worth)?
     $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     
+    // Match against existing CO People?
+    // Note this same permission exists in CO Petitions
+    $p['match'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    
     // View an existing CO Person?
     $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']) || $self);
     
@@ -407,6 +430,42 @@ class CoPeopleController extends StandardController {
     
     $this->set('permissions', $p);
     return($p[$this->action]);
+  }
+  
+  /**
+   * Perform a match against existing records.
+   *
+   * @since  COmanage Registry v0.5
+   */
+  
+  function match() {
+    $criteria['Name.given'] = "";
+    $criteria['Name.family'] = "";
+    
+    if($this->restful) {
+      if(isset($this->request->query['given'])) {
+        $criteria['Name.given'] = $this->request->query['given'];
+      }
+      if(isset($this->request->query['family'])) {
+        $criteria['Name.family'] = $this->request->query['family'];
+      }
+      
+      // XXX We didn't validate CO ID exists here. (This is normally done by
+      // StandardController.)
+      
+      $this->set('co_people',
+                 $this->convertResponse($this->CoPerson->match($this->request->query['coid'],
+                                                               $criteria)));
+    } else {
+      if(isset($this->params['named']['given'])) {
+        $criteria['Name.given'] = $this->params['named']['given'];
+      }
+      if(isset($this->params['named']['family'])) {
+        $criteria['Name.family'] = $this->params['named']['family'];
+      }
+      
+      $this->set('matches', $this->CoPerson->match($this->cur_co['Co']['id'], $criteria));
+    }
   }
 
   /**

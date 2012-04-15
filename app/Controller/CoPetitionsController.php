@@ -714,6 +714,10 @@ class CoPetitionsController extends StandardController {
     // Edit an existing CO Petition?
     $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     
+    // Match against existing CO People?
+    // Note this same permission exists in CO People
+    $p['match'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    
     // View all existing CO Petitions?
     $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
           

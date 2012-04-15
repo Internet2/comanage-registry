@@ -22,6 +22,23 @@
  * @version       $Id$
  */
 -->
+<script type="text/javascript">
+$(document).ready(function() {
+  $("input.matchable").keyup(function(event) {
+    if(event.which != 13) {
+      // 13 is enter/return... don't search on form submit
+      // XXX Don't hardcode fields here, or /registry prefix
+      $.ajax({
+        url: '/registry/co_people/match/co:<?php print $cur_co['Co']['id']; ?>'
+             + '/given:' + document.getElementById('EnrolleeCoPersonNameGiven').value
+             + '/family:' + document.getElementById('EnrolleeCoPersonNameFamily').value
+      }).done(function(data) {
+        $('div#results').html(data);
+      });
+    }
+  });
+});
+</script>
 <?php
 
   // Determine if fields are editable
@@ -154,6 +171,9 @@
 
 <h2 class="ui-state-default"><?php print _txt('fd.attrs.pet'); ?></h2>
 
+<div>
+  <div style="float:left;width:65%">
+
 <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
   <tbody>
     <?php foreach ($co_enrollment_attributes as $ea): ?>
@@ -225,7 +245,15 @@
               break;
             default:
               // Use default field
-              print $this->Form->input($fieldName);
+              if($permissions['match']
+                 && ($fieldName == 'EnrolleeCoPerson.Name.given'
+                     || $fieldName == 'EnrolleeCoPerson.Name.family')) {
+                # XXX Temp hack to enable real-time query. This should
+                # instead be enabled for fields with an appropriate flag.
+                print $this->Form->input($fieldName, array('class' => 'matchable'));
+              } else {
+                print $this->Form->input($fieldName);
+              }
               break;
             }
             
@@ -265,6 +293,14 @@
     </tr>
   </tbody>
 </table>
+
+  </div>
+</div>
+
+<div>
+  <div style="float:right;width:35%" id="results">
+  </div>
+</div>
 
 <?php if($this->action != 'add'): ?>
 <h2 class="ui-state-default"><?php print _txt('fd.history.pt'); ?></h2>
