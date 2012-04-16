@@ -25,9 +25,6 @@ $cos = $this->viewVars['menuContent']['cos'];
 ?>
 
 <div class="menubar">
-  <div class="label">
-    <?php print _txt('me.label'); ?>
-  </div>
   <ul class="sf-menu">
 
   <!-- Organizations Dropdown -->
@@ -189,51 +186,6 @@ $cos = $this->viewVars['menuContent']['cos'];
                      <a href="#">'._txt('me.identity').'</a>
                      <span class="sf-sub-indicator"> »</span>
                      <ul>';
-
-            if(isset($permissions['menu']['orgprofile']) && $permissions['menu']['orgprofile']) {
-              // A user can have more than one org identity (keyed to their COs) if pooling is
-              // disabled, so loop through as appropriate.
-
-              $orgIdentities = $this->Session->read('Auth.User.org_identities');
-
-              foreach ($orgIdentities as $o) {
-                // Not always available throughout the site so take backup set by menuContent in app_controller
-                if(!isset($org_identities[0]['OrgIdentity']['o']))
-                  $homeName = $menuContent['orgName'];
-                else
-                  $homeName = $org_identities[0]['OrgIdentity']['o'];
-
-                if(isset($o['co_id'])) {
-                  // Figure out the name of the CO
-                  $coName = "?";
-
-                  foreach ($mycos as $co) {
-                    if($co['co_id'] == $o['co_id']) {
-                      $coName = $co['co_name'];
-                      break;
-                    }
-                  }
-                  print "<li>";
-                    $args = array(
-                      'controller' => 'org_identities',
-                      'action' => 'view',
-                      $o['org_id'],
-                      'co' => $o['co_id']
-                    );
-                    print $this->Html->link(_txt('me.for') . $homeName, $args);
-                  print "</li>";
-                } else {
-                  print "<li>";
-                    $args = array(
-                      'controller' => 'org_identities',
-                      'action' => 'view',
-                      $o['org_id']
-                    );
-                    print $this->Html->link(_txt('me.for') . $homeName, $args);
-                  print "</li>";
-                }
-              }
-            }
             foreach ($mycos as $co) {
               print "<li>";
                 $args = array(

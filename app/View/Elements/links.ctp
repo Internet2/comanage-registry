@@ -25,7 +25,7 @@
   <ul>
     <li><a href="#">News</a></li>
     <li><a href="#">Support</a></li>
-    <li><a href="#">Directory</a></li>
+    <li><a href="/directory">Directory</a></li>
     <li><a href="#">Help</a></li>
   </ul>
 </div>
