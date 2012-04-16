@@ -25,7 +25,6 @@
 <h1 class="ui-state-default"><?php print $title_for_layout; ?></h1>
 
 <?php
-print Security::hash("asdf", null, true);
   if($permissions['add'])
   {
     $args =  array('controller' => 'co_nsf_demographics',
