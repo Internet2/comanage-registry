@@ -23,7 +23,10 @@
  */
 
 ?>
-<h1 class="ui-state-default"><?php echo _txt('ct.addresses.pl'); ?></h1>
+<?php
+  $params = array('title' => _txt('ct.addresses.pl'));
+  print $this->element("pageTitle", $params);
+?>
 
 <table id="addresses" class="ui-widget">
   <thead>
