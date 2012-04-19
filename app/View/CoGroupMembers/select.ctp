@@ -22,9 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php echo _txt('op.grm.add', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])); ?></h1>
-
 <?php
+  $params = array('title' => _txt('op.grm.add', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])));
+  print $this->element("pageTitle", $params);
+
   echo $this->Html->link(_txt('op.cancel'),
                          array('controller' => 'co_groups',
                                'action' => 'edit',

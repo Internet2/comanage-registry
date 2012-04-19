@@ -22,15 +22,17 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php
-  if($this->action == 'select')
-    echo _txt('op.gr.memadd', array($this->request->params['named']['copersonid']));
-  else
-    echo _txt('ct.co_groups.pl');
-?>
-</h1>
-
 <?php
+  if($this->action == 'select') {
+    $params = array('title' => _txt('op.gr.memadd',
+                                    array($this->request->params['named']['copersonid'])
+                                   )
+                   );
+  } else {
+    $params = array('title' => _txt('ct.co_groups.pl'));
+  }
+  print $this->element("pageTitle", $params);
+
   if($permissions['add'] && $this->action != 'select')
     echo $this->Html->link(_txt('op.add'),
                            array('controller' => 'co_groups', 'action' => 'add', 'co' => $this->request->params['named']['co']),

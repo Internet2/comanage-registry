@@ -22,7 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default">Invitation for <?php echo $cur_co['Co']['name']; ?> Sent to <?php echo generateCn($invitee['Name']); ?></h1>
+<?php
+  $params = array('title' => "Invitation for " . $cur_co['Co']['name'] . " Sent to " . generateCn($invitee['Name']));
+  print $this->element("pageTitle", $params);
+?>
 
 <p>
 Email would be sent to <b><?php echo $invite['CoInvite']['mail']; ?></b> with the URL

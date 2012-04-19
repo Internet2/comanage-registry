@@ -22,7 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php echo _txt('ct.identifiers.pl'); ?></h1>
+<?php
+  $params = array('title' => _txt('ct.identifiers.pl'));
+  print $this->element("pageTitle", $params);
+?>
 
 <table id="identifiers" class="ui-widget">
   <thead>

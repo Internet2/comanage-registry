@@ -22,7 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php echo _txt('op.select-a', array(_txt('ct.cos.1'))); ?></h1>
+<?php
+  $params = array('title' => _txt('op.select-a', array(_txt('ct.cos.1'))));
+  print $this->element("pageTitle", $params);
+?>
 
 <p>
   <?php echo _txt('co.select'); ?>

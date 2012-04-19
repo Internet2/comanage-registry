@@ -21,7 +21,10 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */-->
-<h1 class="ui-state-default"><?php print $title_for_layout; ?></h1>
+<?php
+  $params = array('title' => $title_for_layout);
+  print $this->element("pageTitle", $params);
+?>
 
 <table id="cous" class="ui-widget">
   <thead>

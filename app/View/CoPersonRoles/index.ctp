@@ -23,9 +23,9 @@
  */
 
 -->
-<h1 class="ui-state-default"><?php echo $cur_co['Co']['name']; ?> People</h1>
-
 <?php
+  $params = array('title' => $cur_co['Co']['name'] . "People");
+  print $this->element("pageTitle", $params);
 
   // Globals
   global $cm_lang, $cm_texts;

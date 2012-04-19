@@ -22,9 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php echo _txt('op.inv-t', array(Sanitize::html(generateCn($co_people[0]['Name'])), Sanitize::html($cur_co['Co']['name']))); ?></h1>
-
 <?php
+  $params = array('title' => _txt('op.inv-t', array(Sanitize::html(generateCn($co_people[0]['Name'])), Sanitize::html($cur_co['Co']['name']))));
+  print $this->element("pageTitle", $params);
+
   $submit_label = _txt('op.inv.send');
   echo $this->Form->create('CoPerson',
                            array('action' => 'add',

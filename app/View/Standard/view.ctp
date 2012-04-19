@@ -52,10 +52,10 @@
     $h = _txt('op.view-a', array(Sanitize::html($d[0][$req]['label'])));
   else
     $h = _txt('op.view-a', array(Sanitize::html($d[0][$req]['name'])));
-?>
-<h1 class="ui-state-default"><?php echo $h; ?></h1>
 
-<?php
+  $params = array('title' => $h);
+  print $this->element("pageTitle", $params);
+
   include(APP . "View/" . $model . "/fields.inc");
 
   // If user has edit permission, offer an edit button

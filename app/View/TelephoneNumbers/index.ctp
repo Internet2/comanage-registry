@@ -22,7 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php echo _txt('ct.telephone_numbers.pl'); ?></h1>
+<?php
+  $params = array('title' => _txt('ct.telephone_numbers.pl'));
+  print $this->element("pageTitle", $params);
+?>
 
 <table id="telephone_numbers" class="ui-widget">
   <thead>

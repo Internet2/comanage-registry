@@ -22,9 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php echo $title_for_layout; ?></h1>
-
 <?php
+  $params = array('title' => $title_for_layout);
+  print $this->element("pageTitle", $params);
+
   print $this->Html->link(_txt('op.back'),
                           array('controller' => 'co_enrollment_flows',
                                 'action' => ($permissions['edit'] ? 'edit' : 'view'),

@@ -19,9 +19,10 @@
    *
    */
 -->
-<h1 class="ui-state-default">Add a New Organizational Person</h1>
-
 <?php
+  $params = array('title' => "Add a New Organizational Person");
+  print $this->element("pageTitle", $params);
+
   // XXX this page needs I18N and maybe sanitize_html
 
   // Assemble list of organizations

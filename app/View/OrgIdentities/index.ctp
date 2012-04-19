@@ -25,10 +25,9 @@
 // Globals
 global $cm_lang, $cm_texts;
 
-?>
-<h1 class="ui-state-default"><?php echo _txt('ct.org_identities.pl'); ?></h1>
+  $params = array('title' => _txt('ct.org_identities.pl'));
+  print $this->element("pageTitle", $params);
 
-<?php
   if($permissions['add'])
     print $this->Html->link(_txt('op.add.new', array(_txt('ct.org_identities.1'))),
                             array('controller' => 'org_identities',

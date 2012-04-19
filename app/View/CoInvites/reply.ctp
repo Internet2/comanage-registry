@@ -22,7 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default">Invitation to <?php echo $cur_co['Co']['name']; ?></h1>
+<?php
+  $params = array('title' => "Invitation to " . $cur_co['Co']['name']);
+  print $this->element("pageTitle", $params);
+?>
 
 <p>
 Invitation for <b><?php echo generateCn($invitee['Name']); ?></b>

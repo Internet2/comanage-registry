@@ -47,10 +47,10 @@
     elseif(isset($co_people[0]['Name']))
       $h .= " (" . Sanitize::html(generateCn($co_people[0]['Name'])) . ")";
   }
-?>
-<h1 class="ui-state-default"><?php print $h; ?></h1>
 
-<?php
+  $params = array('title' => $h);
+  print $this->element("pageTitle", $params);
+
   $submit_label = _txt('op.add');
   
   print $this->Form->create(

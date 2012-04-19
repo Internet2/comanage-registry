@@ -22,9 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php print $title_for_layout; ?></h1>
-
 <?php
+  $params = array('title' => $title_for_layout);
+  print $this->element("pageTitle", $params);
+
   if($permissions['add'])
   {
     $args =  array('controller' => 'co_nsf_demographics',

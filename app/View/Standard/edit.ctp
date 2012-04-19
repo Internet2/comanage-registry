@@ -51,10 +51,10 @@
     $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['name'])));
   else
     $h = _txt('op.edit');
-?>
-<h1 class="ui-state-default"><?php echo $h; ?></h1>
 
-<?php
+  $params = array('title' => $h);
+  print $this->element("pageTitle", $params);
+
   $submit_label = _txt('op.save');
   echo $this->Form->create($req,
                            array('action' => 'edit',

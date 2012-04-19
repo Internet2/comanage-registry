@@ -19,9 +19,10 @@
    *
    */
 -->
-<h1 class="ui-state-default"><?php echo _txt('ct.organizations.pl'); ?></h1>
-
 <?php
+  $params = array('title' => _txt('ct.organizations.pl'));
+  print $this->element("pageTitle", $params);
+
   if($permissions['add'])
     echo $this->Html->link(_txt('op.add'),
                            array('controller' => 'organizations', 'action' => 'add'),

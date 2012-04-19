@@ -22,9 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php echo $cur_co['Co']['name']; ?> People</h1>
-
 <?php
+  $params = array('title' => $cur_co['Co']['name'] . " People");
+  print $this->element("pageTitle", $params);
+
   if($permissions['enroll'] && !empty($co_enrollment_flows)) {
     print $this->Html->link(_txt('op.enroll'),
                             array('controller' => 'co_enrollment_flows', 'action' => 'select', 'co' => $cur_co['Co']['id']),

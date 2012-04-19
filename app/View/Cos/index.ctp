@@ -22,9 +22,10 @@
  * @version       $Id$
  */
 -->
-<h1 class="ui-state-default"><?php print $title_for_layout; ?></h1>
-
 <?php
+  $params = array('title' => $title_for_layout);
+  print $this->element("pageTitle", $params);
+
   if($permissions['add'])
     print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.cos.1'),
                            array('controller' => 'cos', 'action' => 'add'),

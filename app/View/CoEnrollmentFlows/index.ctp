@@ -21,9 +21,10 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */-->
-<h1 class="ui-state-default"><?php echo $title_for_layout; ?></h1>
-
 <?php
+  $params = array('title' => $title_for_layout);
+  print $this->element("pageTitle", $params);
+
   if($permissions['add'])
     echo $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_enrollment_flows.1'),
                            array('controller' => 'co_enrollment_flows', 'action' => 'add', 'co' => $this->request->params['named']['co']),
