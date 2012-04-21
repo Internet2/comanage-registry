@@ -223,11 +223,13 @@ $cos = $this->viewVars['menuContent']['cos'];
           }
         ?>
 
-        <li>
-          <a href="#">
-            <?php print _txt('me.changepassword'); // XXX Needs to be implemented ?>
-          </a>
-        </li>
+        <!--  Needs to be implemented
+          <li>
+            <a href="#">
+              <?php print _txt('me.changepassword'); // XXX Needs to be implemented ?>
+            </a>
+          </li>
+        -->
       </ul>
     </li>
   </ul>
