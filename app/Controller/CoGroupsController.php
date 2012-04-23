@@ -270,8 +270,8 @@ class CoGroupsController extends StandardController {
    */
   
   function select() {
-    // Set page title
-    $this->set('title_for_layout', _txt('op.select-a', array(_txt('ct.co_groups.1'))));
+    // Set name for page title
+    $this->set('name_for_title', Sanitize::html(generateCn($this->Session->read('Auth.User.name'))));
 
     // XXX proper authz here is probably something like "(all open CO groups
     // and all CO groups that I own) that CO Person isn't already a member of)"

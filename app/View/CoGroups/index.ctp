@@ -25,7 +25,7 @@
 <?php
   if($this->action == 'select') {
     $params = array('title' => _txt('op.gr.memadd',
-                                    array($this->request->params['named']['copersonid'])
+                                    array($name_for_title)
                                    )
                    );
   } else {
