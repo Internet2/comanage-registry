@@ -273,12 +273,14 @@ class CoPetitionsController extends StandardController {
       
       // Create a CO Org Identity Link
       
-      $coOrgLink = array();
-      $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityID;
-      $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonID;
-      
-      if(!$this->CoPetition->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink)) {
-        $fail = true;
+      if(!$fail) {
+        $coOrgLink = array();
+        $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityID;
+        $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonID;
+        
+        if(!$this->CoPetition->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink)) {
+          $fail = true;
+        }
       }
       
       $coPetitionID = null;
