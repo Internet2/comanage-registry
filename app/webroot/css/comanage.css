@@ -18,43 +18,35 @@
  *
  */
 
-.desc {
-  font-size: small;
-  font-style: italic;
-}
+/* General */
 
 .hidden {
   display: none;
 }
 
-.largefont {
-  font: 200% "Trebuchet MS", sans-serif;
-}
+  /* Text */
+  
+  .largefont {
+    font: 200% "Trebuchet MS", sans-serif;
+  }
 
-/* 0 used for autoincrementing line counters */
-.line0 {
-  background-color: lightgray;
-}
+  .required {
+    color: red;
+  }
+  
+  .desc {
+    font-size: small;
+    font-style: italic;
+  }
+  
+  /* Positioning */
+  
+  .right {
+    float: right;
+  }
 
-.line1 {
-  background-color: #DDDDDD;
-}
 
-.line2 {
-  background-color: lightgray;
-}
-
-.menuitembutton {
-  width: 250px;
-}
-
-.required {
-  color: red;
-}
-
-.right {
-  float: right;
-}
+/* Body */
 
 body {
   font: 75% "Trebuchet MS", sans-serif;
@@ -62,92 +54,127 @@ body {
   margin: -12px auto 0 auto;
 }
 
-input.text {
-  margin-bottom:12px;
-  width:95%;
-  padding: .4em;
-}
+  /* Header */
+
+  .headerLeft {
+    float:left;
+    padding: 10px 0 0 0;
+  }
+
+  .headerRight {
+    float:right;
+    width:auto;
+  }
+
+  .header span {
+    float:left;
+    color:white;
+  }
+
+  .header .ui-icon {
+    position: relative;
+    top: -3px;
+  }
+
+  /* Content */
   
-fieldset {
-  margin-top:25px;
-}
+  #content {
+    width:960px;
+    margin-left:auto;
+    margin-right:auto;
+    overflow:hidden;
+  }
+
+    /* Overrides default h1 in cake.generic.css */
+    h1 {
+      padding:5px;
+    }
+
+    /* removes extra padding in lists of button links */
+    a.linkbutton:last-child {
+      padding-right:0px;
+    }
+
+    /* Tables */
+    
+    th, td {
+      padding:5px;
+    }
+    
+      /* zebra stripes for rows; 0 used for autoincrementing line counters */
+      .line0 {
+        background-color: lightgray;
+      }
+      .line1 {
+        background-color: #EEE;
+      }
+      .line2 {
+        background-color: #DDD;
+      }
+
+
+    .menuitembutton {
+      width: 250px;
+    }
+
+    /* Forms */
+    
+    input.text {
+      margin-bottom:12px;
+      width:95%;
+      padding: .4em;
+    }
+      
+    fieldset {
+      margin-top:25px;
+    }
+      
+    fieldset.borderless {
+      padding:0;
+      border:0;
+      margin-top:25px;
+    }
+      
+      /* For enrollment form */
+      #formbox {
+        background-color: #F3F4F3;
+        width:300px;
+        margin:10px;
+        padding:10px;
+      }
+
+      #formbox .title {
+        font-size:14px;
+      }
+
+      #CoPersonAddForm {
+        padding: 10px;
+        margin:10px;
+      }
+
+      #CoPersonAddForm div {
+        margin: 5px;
+        height: 20px;
+      }
+
+      #CoPersonAddForm input {
+       float:right;
+      }
+
+  /* Footer */
   
-fieldset.borderless {
-  padding:0;
-  border:0;
-  margin-top:25px;
-}
+  .footer {
+    margin:20px 0 0 0;
+    padding:10px;
+  }
 
+    .poweredByComanage {
+      padding:10px;
+      margin: 10px;
+      float:right;
+    }
 
-/* Header */
-
-#content {
-  width:960px;
-  margin-left:auto;
-  margin-right:auto;
-  overflow:hidden;
-}
-
-.headerLeft {
-  float:left;
-  padding: 10px 0 0 0;
-}
-
-.headerRight {
-  float:right;
-  width:auto;
-}
-
-.header span {
-  float:left;
-  color:white;
-}
-
-.header .ui-icon {
-  position: relative;
-  top: -3px;
-}
-
-/* Footer */
-
-.footer {
-  margin:20px 0 0 0;
-  padding:10px;
-}
-
-.poweredByComanage {
-  padding:10px;
-  margin: 10px;
-  float:right;
-}
-
-.poweredText {
-  margin:10px;
-  float:left;
-}
-
-/* For enrollment form */
-#formbox {
-  background-color: #F3F4F3;
-  width:300px;
-  margin:10px;
-  padding:10px;
-}
-
-#formbox .title {
-  font-size:14px;
-}
-
-#CoPersonAddForm {
-  padding: 10px;
-  margin:10px;
-}
-
-#CoPersonAddForm div {
-  margin: 5px;
-  height: 20px;
-}
-
-#CoPersonAddForm input {
- float:right;
-}
+    .poweredText {
+      margin:10px;
+      float:left;
+    }
