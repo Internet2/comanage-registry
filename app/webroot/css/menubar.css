@@ -26,171 +26,180 @@
 
   /*** header row 1 ***/
 
-.menubar {
-  margin:0;
-  padding:0;
-}
+  #row1 {
+    height:30px;
+    color:white;
+    background-color:#333333;
+  }
 
-.rightmenu {
-    float:right;
-}
+  .menubar {
+    margin:0;
+    padding:0;
+  }
 
-.menubar .label {
-  float:left;
-  margin:9px;
-}
+  .rightmenu {
+      float:right;
+  }
 
-#row1 {
-  height:30px;
-  color:white;
-  background-color:#333333;
-}
+  .menubar .label {
+    float:left;
+    margin:9px;
+  }
 
-#links li,
-#name {
-  float:left;
-  list-style:none;
-  margin:7px 5px 5px 5px;
-  padding: 0 0 0 9px;
-  border-left: 1px solid #666666;
-}
+  #links li,
+  #name {
+    float:left;
+    list-style:none;
+    margin:7px 5px 5px 5px;
+    padding: 0 0 0 9px;
+    border-left: 1px solid #666666;
+  }
 
-#row1 li:first-child,
-#secondaryMenu div {
-  border-left:none;
-} /* gets rid of first pipe */
+  #row1 li:first-child,
+  #secondaryMenu div {
+    border-left:none;
+  } /* gets rid of first pipe */
 
-#row1 li a,
-#row1 li a:visited {
-  color:#cccccc;
-  text-decoration: none;
-}
+  #row1 li a,
+  #row1 li a:visited {
+    color:#cccccc;
+    text-decoration: none;
+  }
 
-#row1 li a:hover {
-  color:white;
-}
+  #row1 li a:hover {
+    color:white;
+  }
 
-#links ul {
-  -webkit-padding-start: 0px;
-}  /* overrides default */
+  #links ul {
+    -webkit-padding-start: 0px;
+  }  /* overrides default */
 
-#secondaryMenu {
-  float:right;
-  margin-right: 5px;
-}
+    /*** Secondary Menu ***/
 
-#secondaryMenu div {
-  float:left;
-  color:#cccccc;
-}
+    #secondaryMenu {
+      float:right;
+      margin-right: 5px;
+    }
 
-.sf-menu a {
-  border:none;
-  padding:0;
-  color:#333333 !important;
-}/* override top line */
+    #secondaryMenu div {
+      float:left;
+      color:#cccccc;
+    }
+  
+      /*** Overrides for sf-menu ***/
 
-.sf-menu li:hover, .sf-menu li.sfHover,
-.sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active {
-  background:none;
-  outline:0;
-} /* overrides background blue*/
+      .sf-menu a {
+        border:none;
+        padding:0;
+        color:#333333 !important;
+      }/* override top line */
 
-.sf-menu li {
-  border:none;
-}/*overrides default line*/
+      .sf-menu li:hover, .sf-menu li.sfHover,
+      .sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active {
+        background:none;
+        outline:0;
+      } /* overrides background blue*/
 
-#notification ul {
-  padding:0;
-  margin:0;
-} /*overrides default excess space*/
+      .sf-menu li {
+        border:none;
+      }/*overrides default line*/
+      
+      .sf-menu li li {
+        background: none;
+        text-indent: 5px;
+        margin: -1px;
+      }  /*overrides default so background in ul can show through */
 
-#notification>ul>li {
-  background-color: #C33;
-  padding: 6px 7px 7px 7px;
-  border-radius: 5px;
-  margin: 2px 5px 5px 5px;
-  color: white;
-}
+    /*** Notification ***/
+    
+    #notification ul {
+      padding:0;
+      margin:0;
+    } /*overrides default excess space*/
 
-#notification span,
-#notification li a {
-  color:white;
-}
+    #notification>ul>li {
+      background-color: #C33;
+      padding: 6px 7px 7px 7px;
+      border-radius: 5px;
+      margin: 2px 5px 5px 5px;
+      color: white;
+    }
 
-#notification .ui-icon {
-  width:13px;
-  height:13px;
-  background-image: url(jquery/ui/css/start/images/ui-icons_ffffff_256x240.png);
-}
+    #notification span,
+    #notification li a {
+      color:white;
+    }
 
-#notification ul li ul {
-  height: auto;
-  padding: 12px 15px 15px 10px;
-  margin-left: -182px;
-  margin-top: -15px;
-  min-width: 200px;
-  display: block;
-}
+    #notification .ui-icon {
+      width:13px;
+      height:13px;
+      background-image: url(jquery/ui/css/start/images/ui-icons_ffffff_256x240.png);
+    }
 
-#notification ul li ul li:hover {
-  background:none;
-  color:black;
-}
+    #notification ul li ul {
+      height: auto;
+      padding: 12px 15px 15px 10px;
+      margin-left: -182px;
+      margin-top: -15px;
+      min-width: 200px;
+      display: block;
+    }
 
-#notification .sectionTitle {
-  margin: 0 5px 0 5px;
-  font-size: 14px;
-}
+    #notification ul li ul li:hover {
+      background:none;
+      color:black;
+    }
 
-#notification .names {
-  margin: 2px 5px 5px 15px;
-  line-height: 16px;
-  color: #333;
-}
+    #notification .sectionTitle {
+      margin: 0 5px 0 5px;
+      font-size: 14px;
+    }
 
-#notification .seemore {
-  text-align:right;
-  width:100%;
-  margin: 0 0 10px 0;
-}
+    #notification .names {
+      margin: 2px 5px 5px 15px;
+      line-height: 16px;
+      color: #333;
+    }
 
-#notification .titleColor,
-#notification ul li ul a {
-  color: #2B59BD !important;
-  background-color:auto !important;
-}
+    #notification .seemore {
+      text-align:right;
+      width:100%;
+      margin: 0 0 10px 0;
+    }
 
-#notification ul li ul a:hover {
-  color:#ce9b7f !important; 
-  background-color:auto !important;
-}
+    #notification .titleColor,
+    #notification ul li ul a {
+      color: #2B59BD !important;
+      background-color:auto !important;
+    }
 
-#notification .seeOther {
-  width:100%;
-  text-align:center;
-  margin: 10px 0 0 0;
-}
+    #notification ul li ul a:hover {
+      color:#ce9b7f !important; 
+      background-color:auto !important;
+    }
 
-.sf-menu li li {
-  background: none;
-  text-indent: 5px;
-  margin: -1px;
-}  /*overrides default so background in ul can show through */
+    #notification .seeOther {
+      width:100%;
+      text-align:center;
+      margin: 10px 0 0 0;
+    }
 
-#logout {
-  padding: 6px !important;
-  margin: 2px 5px 5px 5px !important;
-  background-color: #C33;
-  border-radius: 5px;
-}
+    /*** Logout button ***/
+    
+    #logout {
+      padding: 6px !important;
+      margin: 2px 5px 5px 5px !important;
+      background-color: #C33;
+      border-radius: 5px;
+    }
 
-#logout a {
-  color: white;
-  text-decoration:none;
-}
+    #logout a {
+      color: white;
+      text-decoration:none;
+    }
 
   /*** header row 2 ***/
+  
   #row2 {
     padding:10px;
     background-color:#edeeed;
@@ -200,6 +209,7 @@
     /*** dropdown menu ***/
 
       /*** level one ***/
+      
       .sf-menu ul {
         width: 200px;
       } /* overrides default width */
@@ -229,6 +239,7 @@
       }
 
         /*** level one only ***/
+        
         .menubar>ul>li {
           background: #F3F4F3;
           border:1px solid #d9dad9;
@@ -247,6 +258,7 @@
         }  /* special case for the extra span */
 
       /*** level two ***/
+      
       .sf-menu li li li {
         background: none;
       }  /* overrides default background so background in ul can show through */
