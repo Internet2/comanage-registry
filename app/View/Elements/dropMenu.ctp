@@ -21,7 +21,9 @@
  */
 
 // Load the list of COs
-$cos = $this->viewVars['menuContent']['cos'];
+if(isset($this->viewVars['menuContent']['cos']))
+  $cos = $this->viewVars['menuContent']['cos'];
+else $cos = array();
 ?>
 
 <div class="menubar">
