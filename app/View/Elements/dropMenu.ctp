@@ -90,6 +90,17 @@ else $cos = array();
                   print "</li>";
                 }
 
+                if(isset($permissions['menu']['exttypes']) && $permissions['menu']['exttypes']) {
+                  print "<li>";
+                    $args = array(
+                    'controller' => 'co_extended_types',
+                    'action' => 'index',
+                    'co' => $menuCoId
+                    );
+                    print $this->Html->link(_txt('ct.co_extended_types.pl'), $args);
+                  print "</li>";
+                }
+
                 if(isset($permissions['menu']['coef']) && $permissions['menu']['coef']) {
                   print "<li>";
                     $args = array(

@@ -52,11 +52,12 @@ class Identifier extends AppModel {
       'allowEmpty' => false
     ),
     'type' => array(
-      'rule' => array('inList', array(IdentifierEnum::ePPN,
-                                      IdentifierEnum::ePTID,
-                                      IdentifierEnum::Mail,
-                                      IdentifierEnum::OpenID,
-                                      IdentifierEnum::UID)),
+      'rule' => array('validateExtendedType',
+                      array(IdentifierEnum::ePPN,
+                            IdentifierEnum::ePTID,
+                            IdentifierEnum::Mail,
+                            IdentifierEnum::OpenID,
+                            IdentifierEnum::UID)),
       'required' => false,
       'allowEmpty' => false
     ),
@@ -77,6 +78,29 @@ class Identifier extends AppModel {
   // Enum type hints
   
   public $cm_enum_types = array(
-    'type' => 'identifier_t'
+    'status' => 'status_t'
   );
+  
+  /**
+   * Check if a given identifier type is in use by any members of a CO.
+   *
+   * @since  COmanage Registry v0.6
+   * @param  String Type of identifier (any default or extended type may be specified)
+   * @param  Integer CO ID
+   * @return Boolean True if the identifier type is in use, false otherwise
+   */
+  
+  public function typeInUse($identifierType, $coId) {
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['conditions']['Identifier.type'] = $identifierType;
+    $args['joins'][0]['table'] = 'co_people';
+    $args['joins'][0]['alias'] = 'CoPerson';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPerson.id=Identifier.co_person_id';
+    
+    // Need to unbind the related models so Cake generates the right SQL
+    $this->unbindModel(array('belongsTo' => array('CoPerson', 'OrgIdentity')));
+    
+    return (boolean)$this->find('count', $args);
+  }
 }

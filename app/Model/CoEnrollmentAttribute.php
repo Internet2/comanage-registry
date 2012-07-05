@@ -104,8 +104,12 @@ class CoEnrollmentAttribute extends AppModel {
     foreach(array_keys($cm_texts[ $cm_lang ]['en.name']) as $k)
       $ret['p:name:'.$k] = _txt('fd.name') . " (" . $cm_texts[ $cm_lang ]['en.name'][$k] . ", " . _txt('ct.co_people.1') . ")";
     
-    foreach(array_keys($cm_texts[ $cm_lang ]['en.identifier']) as $k)
-      $ret['p:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $cm_texts[ $cm_lang ]['en.identifier'][$k] . ", " . _txt('ct.co_people.1') . ")";
+    // Identifier types can be extended, and so require a bit of work to assemble
+    $coExtendedType = ClassRegistry::init('CoExtendedType');
+    $identifierTypes = $coExtendedType->active($coid, 'Identifier', 'list');
+    
+    foreach(array_keys($identifierTypes) as $k)
+      $ret['p:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $identifierTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
     
     foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.mail']) as $k)
       $ret['p:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $cm_texts[ $cm_lang ]['en.contact.mail'][$k] . ", " . _txt('ct.co_people.1') . ")";
@@ -370,13 +374,23 @@ class CoEnrollmentAttribute extends AppModel {
                                  &&
                                  !$attrModel->validate[$k]['allowEmpty']);
             
-            // We hide type
-            $attr['hidden'] = ($k == 'type' ? 1 : 0);
+            // We hide type and status
+            $attr['hidden'] = ($k == 'type' || $k == 'status' ? 1 : 0);
             
             if($attr['hidden']) {
-              // Populate a default value. For now, the only hidden attribute is type,
-              // so we can get away with just using $attrType.
-              $attr['default'] = $attrType;
+              // Populate a default value.
+              
+              switch($k) {
+                case 'type':
+                  // Just use $attrType
+                  $attr['default'] = $attrType;
+                  break;
+                case 'status':
+                  // For now, status is always set to Active
+                  $attr['default'] = StatusEnum::Active;
+                  break;
+              }
+              
             } else {
               // Label
               $attr['label'] = $efAttr['CoEnrollmentAttribute']['label'] . ": " . _txt('fd.' . $attrName . '.' . $k);

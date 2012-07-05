@@ -224,6 +224,23 @@ class CoPetition extends AppModel {
         
         $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['required'] = $efAttr['required'];
         $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['allowEmpty'] = !$efAttr['required'];
+        
+        // Temporary hack for CO-368. When the Petition save writes the Identifier model, the
+        // Identifier model has no way of receiving the CO ID. So for now we change the validation
+        // rule for validateExtendedType.
+        
+        if(isset($this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][0])
+           && $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][0] == 'validateExtendedType') {
+          // Change rule[0] to inList and rule[1] to the list as returned by CoExtendedType::active
+          
+          $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'] = array();
+          $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][] = 'inList';
+          
+          $coExtendedType = ClassRegistry::init('CoExtendedType');
+          $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][] = array_keys($coExtendedType->active($coId,
+                                                                                                            $m[1],
+                                                                                                            'list'));
+        }
       }
     }
     

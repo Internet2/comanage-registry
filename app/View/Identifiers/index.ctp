@@ -57,7 +57,7 @@
         ?>
       </td>
       <td>
-        <?php echo _txt('en.identifier', null, $a['Identifier']['type']); ?>
+        <?php echo $a['Identifier']['type']; ?>
       </td>
       <td>
         <?php echo ($a['Identifier']['login'] ? _txt('fd.true') : _txt('fd.false')); ?>

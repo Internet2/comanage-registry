@@ -119,6 +119,9 @@ class PagesController extends AppController {
 		// Manage CO extended attributes?
 		$p['menu']['extattrs'] = $cmr['admin'];
 		
+		// Manage CO extended typees?
+		$p['menu']['exttypes'] = $cmr['admin'];
+		
 		// Manage COU definitions?
 		$p['menu']['cous'] = $cmr['admin'];
 	  

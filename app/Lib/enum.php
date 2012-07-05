@@ -117,27 +117,11 @@ class NSFGenderEnum
 
 class IdentifierEnum
 {
-  const ePPN    = 'EP';
-  const ePTID   = 'ET';
-  const Mail    = 'M';
-  const OpenID  = 'OP';
-  const UID     = 'U';
-  /*
-  public $from_api = array(
-    "ePPN"    => ePPN,
-    "ePTID"   => ePTID,
-    "Mail"    => Mail,
-    "OpenID"  => OpenID,
-    "UID"     => UID
-  );
-  
-  public $to_api = array(
-    ePPN    => "ePPN",
-    ePTID   => "ePTID",
-    Mail    => "Mail",
-    OpenID  => "OpenID",
-    UID     => "UID"
-  );*/
+  const ePPN    = 'eppn';
+  const ePTID   = 'eptid';
+  const Mail    = 'mail';
+  const OpenID  = 'openid';
+  const UID     = 'uid';
 }
 
 class NameEnum
@@ -297,19 +281,19 @@ $extattr_ti = array(
 */
 
 $identifier_t = array(
-  'EP' => 'ePPN',
-  'ET' => 'ePTID',
-  'M' => 'Mail',
-  'OP' => 'OpenID',
-  'U' => 'UID'
+  'eppn' => 'ePPN',
+  'eptid' => 'ePTID',
+  'mail' => 'Mail',
+  'openid' => 'OpenID',
+  'uid' => 'UID'
 );
 
 $identifier_ti = array(
-  'ePPN' => 'EP',
-  'ePTID' => 'ET',
-  'Mail' => 'M',
-  'OpenID' => 'OP',
-  'UID' => 'U'
+  'ePPN' => 'eppn',
+  'ePTID' => 'eptid',
+  'Mail' => 'mail',
+  'OpenID' => 'openid',
+  'UID' => 'uid'
 );
 
 $name_t = array(

@@ -37,6 +37,22 @@ class IdentifiersController extends MVPAController {
   );
   
   /**
+   * Callback before other controller methods are invoked or views are rendered.
+   * - postcondition: Redirect may be issued
+   *
+   * @since  COmanage Registry v0.6
+   */
+  
+  function beforeFilter() {
+    parent::beforeFilter();
+    
+    // Identifier supports Extended Types. Figure out what types are defined
+    // in order for the views to render properly.
+    
+    $this->set('identifier_types', $this->Identifier->types($this->cur_co['Co']['id']));
+  }
+  
+  /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)

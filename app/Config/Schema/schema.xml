@@ -5,7 +5,7 @@
   Version: $Revision$
   Date: $Date$
 
-  Copyright (C) 2010-2011 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2010-2012 University Corporation for Advanced Internet Development, Inc.
    
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
   the License. You may obtain a copy of the License at
@@ -231,13 +231,39 @@
     </index>
   </table>
   
+  <table name="co_extended_types">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="attribute" type="C" size="32" />
+    <field name="name" type="C" size="32" />
+    <field name="display_name" type="C" size="64" />
+    <field name="status" type="C" size="2" />
+
+    <index name="co_extended_types_i1">
+      <col>co_id</col>
+      <col>attribute</col>
+    </index>
+
+    <index name="co_extended_types_i2">
+      <col>co_id</col>
+      <col>attribute</col>
+      <col>name</col>
+    </index>
+  </table>
+  
   <table name="identifiers">
     <field name="id" type="I">
       <key />
       <autoincrement />
     </field>
     <field name="identifier" type="C" size="256" />
-    <field name="type" type="C" size="2" />
+    <field name="type" type="C" size="32" />
     <field name="login" type="L" />
     <field name="co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
@@ -247,6 +273,12 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    
+    <index name="identifiers_i1">
+      <col>identifier</col>
+      <col>type</col>
+      <col>co_person_id</col>
+    </index>
   </table>
   
   <table name="co_invites">

@@ -63,6 +63,8 @@ $cm_texts['en_US'] = array(
   'ct.co_enrollment_flows.pl' => 'CO Enrollment Flows',
   'ct.co_extended_attributes.1'  => 'Extended Attribute',
   'ct.co_extended_attributes.pl' => 'Extended Attributes',
+  'ct.co_extended_types.1'  => 'Extended Type',
+  'ct.co_extended_types.pl' => 'Extended Types',
   'ct.co_group_members.1' =>    'Group Member',
   'ct.co_group_members.pl' =>   'Group Members',
   'ct.co_groups.1' =>           'Group',
@@ -194,6 +196,7 @@ $cm_texts['en_US'] = array(
   'er.co.exists' =>   'A CO named "%1$s" already exists',
   'er.co.gr.admin' => 'CO created, but failed to create initial admin group',
   'er.co.none' =>     'No COs found (did you run setup.php?)',
+  'er.co.specify' =>  'No CO Specified',
   'er.co.unk' =>      'Unknown CO',
   'er.co.unk-a' =>    'Unknown CO "%1$s"',
   'er.coef.unk' =>    'Unknown CO Enrollment Flow',
@@ -223,6 +226,9 @@ $cm_texts['en_US'] = array(
   'er.ea.table' =>    'Failed to create CO Extended Attribute table',
   'er.ea.table.d' =>  'Failed to drop CO Extended Attribute table',
   'er.efcf.init' =>   'Failed to set up initial CMP Enrollment Configuration',
+  'er.et.default' =>  'Failed to add default types',
+  'er.et.exists' =>   'An extended type named "%1$s" already exists',
+  'er.et.inuse' =>    'The extended type "%1$s" is in use by at least one attribute within this CO and cannot be removed.',
   'er.fields' =>      'Please recheck your submission',
   'er.gr.exists' =>   'A group named "%1$s" already exists within the CO',
   'er.gr.init' =>     'Group created, but failed to set initial owner/member',
@@ -246,6 +252,8 @@ $cm_texts['en_US'] = array(
   'er.orgp.unk-a' =>  'Unknown Org Identity "%1$s"',
   'er.orgp.unpool' => 'Failed to unpool organizational identities',
   'er.unknown' =>     'Unknown value "%1$s"',
+  
+  'et.default' =>     'There are no Extended Types currently defined for this attribute. The default types are currently in use. When you create a new Extended Type, the default types will automatically be added to this list.',
 
   // Fields
   'fd.action' =>      'Action',
@@ -291,6 +299,7 @@ $cm_texts['en_US'] = array(
   'fd.ea.label.desc' => 'The label to be displayed when prompting for this attribute as part of the enrollment process',
   'fd.ea.order' =>    'Order',
   'fd.ea.order.desc' => 'The order in which this attribute will be presented (leave blank to append at the end of the current attributes)',
+  'fd.et.forattr' =>  'For Attribute',
   'fd.ef.ae' =>       'Enable Administrator Enrollment',
   'fd.ef.ae.desc' =>  'If enabled, allow the specified type(s) of administrators to enroll organizational identities to the platform',
   'fd.ef.aea' =>      'Require Authentication For Administrator Enrollment',
@@ -466,7 +475,7 @@ $cm_texts['en_US'] = array(
  * @param  string Index of message to render
  * @param  array Substitutions for variables within localized text
  * @param  integer If <key> represents an array, the index of the corresponding message
- * @return void
+ * @return string Localized text
  */
 
 function _txt($key, $vars=null, $index=null)

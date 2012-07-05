@@ -44,6 +44,7 @@
 Router::mapResources(array(
   'addresses',
   'co_extended_attributes',
+  'co_extended_types',
   'co_invites',
   'co_groups',
   'co_group_members',

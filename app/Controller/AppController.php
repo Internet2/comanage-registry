@@ -63,6 +63,7 @@ class AppController extends Controller {
    *
    * @since  COmanage Registry v0.1
    * @throws UnauthorizedException (REST)
+   * @throws InvalidArgumentException
    */   
   
   public function beforeFilter() {
@@ -81,29 +82,25 @@ class AppController extends Controller {
       
       $this->restful = true;  
     }
-  
-    if($this->requires_co && !$this->restful) {
-      // Before we do anything else, check to see if a CO was provided if required.
-      // (It might impact our authz decisions.)  If not, redirect to COs controller.
+    
+    if(!$this->restful) {
+      // Before we do anything else, check to see if a CO was provided.
+      // (It might impact our authz decisions.) Note that some models (eg: MVPAs)
+      // might specify a CO, but might not. As of v0.6, we no longer redirect to
+      // cos/select if we don't find a CO but one is required. Instead, we throw
+      // an error.
+      
       // We can't check for RESTful here since $this->data isn't set yet for post data.
-        
+      
       // The CO might be specified as a named parameter "co" or posted as "Co.id"
       // or posted as "Model.co_id".
-
-      $coid = -1;
       
-      if(isset($this->params['named']['co']))
-        $coid = $this->params['named']['co'];
-      elseif(isset($this->request->data['Co']['id']))
-        $coid = $this->request->data['Co']['id'];
-      elseif(isset($this->request->data[$this->modelClass]['co_id']))
-        $coid = $this->request->data[$this->modelClass]['co_id'];
-
+      $coid = $this->parseCOID();
+      
       if($coid == -1) {
-        $this->Session->write('co-select.controller', $this->params['controller']);
-        $this->Session->write('co-select.action', $this->params['action']);
-        $this->Session->write('co-select.args', array_merge($this->params['named'], $this->params['pass']));
-        $this->redirect(array('controller' => 'cos', 'action' => 'select'));
+        if($this->requires_co) {
+          throw new InvalidArgumentException(_txt('er.co.specify'));
+        }
       } else {
         // Retrieve CO Object.  If this model doesn't have a direct relationship, we'll temporarily bind the model
         
@@ -113,11 +110,16 @@ class AppController extends Controller {
           
           $this->loadModel('Co');
         }
-
+        
         $this->cur_co = $this->Co->findById($coid);
         
         if(!empty($this->cur_co)) {
           $this->set("cur_co", $this->cur_co);
+          
+          if(isset($this->Identifier)) {
+            // XXX This is a hack for CO-368 and should not be relied upon.
+            $this->Identifier->coId = $coid;
+          }
         } else {
           $this->Session->setFlash(_txt('er.co.unk-a', array($coid)), '', array(), 'error');
           $this->redirect(array('controller' => 'cos', 'action' => 'select'));
@@ -502,10 +504,10 @@ class AppController extends Controller {
           return(false);
         }
         
-        // Check if a CO is required that one was specified.
+        // Try to find a CO, even if not required (some models may use it even if not required).
         // Note beforeFilter() may already have found a CO.
         
-        if($this->requires_co && !isset($this->cur_co)) {
+        if(!isset($this->cur_co)) {
           $coid = -1;
           
           if(isset($reqdata['CoId']))
@@ -514,38 +516,48 @@ class AppController extends Controller {
           if($coid == -1) {
             // The CO might be implied by another attribute
             
-            if(isset($reqdata['CoPersonId'])) {
+            if(isset($reqdata['Person']['Type']) && $reqdata['Person']['Type'] == 'CO') {
               $this->loadModel('CoPerson');
-              $cop = $this->CoPerson->findById($reqdata['CoPersonId']);
+              $cop = $this->CoPerson->findById($reqdata['Person']['Id']);
               
               // We've already pulled the CO data, so just set it rather than
               // re-retrieving it below
-              if(isset($cop['Co']))
+              if(isset($cop['Co'])) {
                 $this->cur_co['Co'] = $cop['Co'];
+                $coid = $this->cur_co['Co']['id'];
+              }
             }
           }
           
-          if(!isset($this->cur_co)) {
-            if($coid == -1) {
+          if(!isset($this->cur_co) && $coid != -1) {
+            // Retrieve CO Object.
+            
+            if(!isset($this->Co)) {
+              // There might be a CO object under another object (eg: CoOrgIdentityLink),
+              // but it's easier if we just explicitly load the model
+              
+              $this->loadModel('Co');
+            }
+            
+            $this->cur_co = $this->Co->findById($coid);
+            
+            if(empty($this->cur_co)) {
               $this->restResultHeader(403, "CO Does Not Exist");
               return(false);
-            } else {
-              // Retrieve CO Object.
-              
-              if(!isset($this->Co)) {
-                // There might be a CO object under another object (eg: CoOrgIdentityLink),
-                // but it's easier if we just explicitly load the model
-                
-                $this->loadModel('Co');
-              }
-              
-              $this->cur_co = $this->Co->findById($coid);
-  
-              if(empty($this->cur_co)) {
-                $this->restResultHeader(403, "CO Does Not Exist");
-                return(false);
-              }
             }
+          }
+          
+          if($this->requires_co && !isset($this->cur_co)) {
+            // If a CO is required and we didn't find one, bail
+            
+            $this->restResultHeader(403, "CO Does Not Exist");
+            return(false);
+          }
+          
+          if(($this->name == 'Identifiers') && isset($this->cur_co)) {
+            // XXX This is a hack for CO-368 and should not be relied upon.
+            $this->loadModel('Identifier');
+            $this->Identifier->coId = $coid;
           }
         }
          
@@ -903,6 +915,30 @@ class AppController extends Controller {
   }
   
   /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v0.6
+   * @return Integer The CO ID if found, or -1 if not
+   */
+  
+  function parseCOID() {
+    // Get a pointer to our model
+    $req = $this->modelClass;
+    
+    $coid = -1;
+    
+    if(isset($this->params['named']['co']))
+      $coid = $this->params['named']['co'];
+    elseif(isset($this->request->data['Co']['id']))
+      $coid = $this->request->data['Co']['id'];
+    elseif(isset($this->request->data[$req]['co_id']))
+      $coid = $this->request->data[$req]['co_id'];
+    
+    return $coid;
+  }
+  
+  /**
    * For Models that accept a CO Person ID, a CO Person Role ID or an Org Identity ID,
    * find the provided person ID.
    * - precondition: A copersonid, copersonroleid, or orgidentityid must be provided in $this->request (params or data)
@@ -1091,9 +1127,6 @@ class AppController extends Controller {
 
     // Manage any CO (or COU) population?
     $p['menu']['petitions'] = $cmr['admin'] || $cmr['subadmin'];
-    
-    // Manage CO extended attributes?
-    $p['menu']['extattrs'] = $cmr['admin'];
     
     // Manage COU definitions?
     $p['menu']['cous'] = $cmr['admin'];

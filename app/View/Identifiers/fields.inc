@@ -66,20 +66,20 @@
       </td>
       <td>
         <?php
-          global $identifier_t;
+          $attrs = array();
           $attrs['value'] = (isset($identifiers) ? $identifiers[0]['Identifier']['type'] : "");
           $attrs['empty'] = false;
           
           if($e) {
             print $this->Form->select('type',
-                                      $identifier_t,
+                                      $identifier_types,
                                       $attrs);
             
             if($this->Form->isFieldError('type')) {
               print $this->Form->error('type');
             }
           } else {
-            print Sanitize::html($identifier_t[ $identifiers[0]['Identifier']['type'] ]);
+            print $identifiers[0]['Identifier']['type'];
           }
         ?>
       </td>

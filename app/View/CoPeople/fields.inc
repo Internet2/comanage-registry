@@ -207,7 +207,7 @@
                                          array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
                                          array('class' => 'editbutton')) . "\n";
                         echo $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
-                        echo " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
+                        echo " (" . $id['type'] . ")<br />\n";
                       }
                     }
                     
@@ -219,7 +219,7 @@
                   {
                     if(isset($co_people[0]['Identifier']))
                       foreach($co_people[0]['Identifier'] as $id)
-                        echo Sanitize::html($id['identifier']) . " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
+                        echo Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
                   }
                 ?>
               </td>
@@ -228,7 +228,7 @@
                 <?php
                   if(isset($org_identities[0]['Identifier']))
                     foreach($org_identities[0]['Identifier'] as $id)
-                      echo Sanitize::html($id['identifier']) . " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
+                      echo Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
                 ?>
               </td>
             <?php endif; ?>

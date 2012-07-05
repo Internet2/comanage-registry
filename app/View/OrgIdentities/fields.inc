@@ -208,7 +208,7 @@
                                                            'action' => 'edit',
                                                            $id['id'],
                                                            'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
-                print " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
+                print " (" . $id['type'] . ")<br />\n";
               }
             }
               
@@ -223,7 +223,7 @@
           {
             if(isset($org_identities[0]['Identifier']))
               foreach($org_identities[0]['Identifier'] as $id)
-                print Sanitize::html($id['identifier']) . " (" . _txt('en.identifier', null, $id['type']) . ")<br />\n";
+                print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
           }
         ?>
       </td>
