@@ -112,7 +112,7 @@
               print $this->Form->error('status');
             }
           } else {
-            print _txt('en.status', null, $co_groups[0]['Co']['status']);
+            print _txt('en.status', null, $co_groups[0]['CoGroup']['status']);
           }
         ?>
       </td>
