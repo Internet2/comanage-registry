@@ -28,7 +28,7 @@ class OrgIdentitiesController extends StandardController {
   // Class name, used by Cake
   public $name = "OrgIdentities";
   
-  // When using additional controllers, we must also specify our own
+  // When using additional models, we must also specify our own
   public $uses = array('OrgIdentity', 'CmpEnrollmentConfiguration');
   
   public $paginate = array(
