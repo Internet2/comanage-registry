@@ -47,11 +47,7 @@
                                     'coef' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']),
                               array('class' => 'linkbutton'));
   }
-  else
-    echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_enrollment_flows', 'action' => 'index'),
-                           array('class' => 'backbutton'));
-    
+
   echo '
     <br />
     <br />

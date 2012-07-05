@@ -58,13 +58,7 @@ $(document).ready(function() {
       array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
       array('class' => 'cancelbutton')
     );
-  else
-    print $this->Html->link(
-      _txt('op.back'),
-      array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-      array('class' => 'backbutton')
-    );
-    
+
   echo '
     <br />
     <br />

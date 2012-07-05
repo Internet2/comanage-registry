@@ -39,14 +39,7 @@
                                   $this->request->data['CoGroupMember']['co_group_id'],
                                   'co' => $cur_co['Co']['id']),
                             array('class' => 'cancelbutton'));
-  else
-    echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_groups',
-                                 'action' => 'view',
-                                 $this->request->data['CoGroupMember']['co_group_id'],
-                                 'co' => $cur_co['Co']['id']),
-                           array('class' => 'backbutton'));
-  
+
   if($e)
   {
     // Populate the references

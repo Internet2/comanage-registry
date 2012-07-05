@@ -31,15 +31,6 @@
   if(!$e && !$permissions['view'])
     return(false);
     
-  if(!$e)
-  {
-    echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'organizations', 'action' => 'index'),
-                           array('class' => 'backbutton')) . '
-    <br />
-    <br />
-    ';
-  }
 ?>
 <table id="<?php echo $this->action; ?>_organization" class="ui-widget">
   <tbody>

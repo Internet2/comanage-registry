@@ -58,10 +58,6 @@
     echo $this->Html->link(_txt('op.cancel'),
                             array('controller' => 'co_groups', 'action' => 'index', 'co' => $cur_co['Co']['id']),
                             array('class' => 'cancelbutton'));
-  else
-    echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_groups', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                           array('class' => 'backbutton'));
     
   // Populate the reference
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";

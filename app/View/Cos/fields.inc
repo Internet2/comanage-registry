@@ -38,10 +38,6 @@
     echo $this->Html->link(_txt('op.cancel'),
                            array('controller' => 'cos', 'action' => 'index'),
                            array('class' => 'cancelbutton'));
-  else
-    echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'cos', 'action' => 'index'),
-                           array('class' => 'backbutton'));
     
   echo '
     <br />

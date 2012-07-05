@@ -44,16 +44,6 @@
                             $linkArgs,
                             $classArgs);
   }
-  else
-  {
-    $linkArgs = array(
-      'controller' => 'co_nsf_demographics',
-      'action'     => 'index');
-    $classArgs = array('class' => 'backbutton');
-    print $this->Html->link(_txt('op.back'),
-                            $linkArgs,
-                            $classArgs);
-  }
 
   // Set hidden defaults for CO and CoPerson id so users don't need to see it
   $args = array('default' => $cur_co['Co']['id']);

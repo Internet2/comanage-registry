@@ -45,7 +45,7 @@
 
   if($e)
   {
-    echo $this->Html->link(_txt('op.back'),
+    echo $this->Html->link(_txt('op.cancel'),
                           array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
                           array('class' => 'cancelbutton'));
     
@@ -76,15 +76,6 @@
     echo $this->Form->hidden('status', array('default' => 'P')). "\n";
     
     echo '
-    <br />
-    <br />
-    ';
-  }
-  else
-  {
-    echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                           array('class' => 'backbutton')) . '
     <br />
     <br />
     ';

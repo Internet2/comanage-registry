@@ -26,13 +26,6 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
-  print $this->Html->link(_txt('op.back'),
-                          array('controller' => 'co_enrollment_flows',
-                                'action' => ($permissions['edit'] ? 'edit' : 'view'),
-                                Sanitize::html($this->request->params['named']['coef']),
-                                'co' => $coid),
-                          array('class' => 'backbutton'));
-  
   if($permissions['add'])
     print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_enrollment_attributes.1'),
                             array('controller' => 'co_enrollment_attributes', 'action' => 'add', 'coef' => Sanitize::html($this->request->params['named']['coef'])),

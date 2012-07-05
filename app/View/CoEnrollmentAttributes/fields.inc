@@ -40,13 +40,7 @@
                                     'action' => 'index',
                                     'coef' => Sanitize::html($this->request->params['named']['coef'])),
                              array('class' => 'cancelbutton'));
-  else
-    print $this->Html->link(_txt('op.back'),
-                            array('controller' => 'co_enrollment_attributes',
-                                  'action' => 'index',
-                                  'coef' => Sanitize::html($this->request->params['named']['coef'])),
-                            array('class' => 'backbutton'));    
-    
+
   print '
     <br />
     <br />

@@ -42,12 +42,13 @@
   if($e)
   {
     print $this->Html->link(
-      _txt('op.back'),
-      array(
-        'controller' => 'org_identities',
-        'action' => 'index',
-        'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
-      ),
+      _txt('op.cancel'),
+      isset($redirect) ? $redirect
+                       : array(
+                         'controller' => 'org_identities',
+                         'action' => 'index',
+                         'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                       ),
       array('class' => 'cancelbutton')
     );
     
@@ -57,13 +58,6 @@
       echo $this->Form->hidden('OrgIdentity.co_id',
                                array('default' => $cur_co['Co']['id'])). "\n";
   }
-  else
-    echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'org_identities',
-                                 'action' => 'index',
-                                 'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                           array('class' => 'backbutton')) . '
-    ';
 ?>
 <br />
 <br />

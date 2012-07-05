@@ -38,17 +38,13 @@
     echo $this->Html->link(_txt('op.cancel'),
                             array('controller' => 'co_extended_attributes', 'action' => 'index', 'co' => $cur_co['Co']['Id']),
                             array('class' => 'cancelbutton'));
-  else
-    echo $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_extended_attributes', 'action' => 'index', 'co' => $cur_co['Co']['Id']),
-                           array('class' => 'backbutton'));
-    
+
   echo '
     <br />
     <br />
     ';
 
-  echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+  echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['Id'])) . "\n";
 ?>
 <table id="<?php echo $this->action; ?>_co" class="ui-widget">
   <tbody>

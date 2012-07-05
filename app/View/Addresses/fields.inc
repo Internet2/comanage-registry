@@ -37,10 +37,6 @@
     echo $this->Html->link(_txt('op.cancel'),
                            isset($redirect) ? $redirect : array('controller' => 'addresses', 'action' => 'index'),
                            array('class' => 'cancelbutton'));
-  else
-    echo $this->Html->link(_txt('op.back'),
-                           isset($redirect) ? $redirect : array('controller' => 'addresses', 'action' => 'index'),
-                           array('class' => 'backbutton'));
     
   echo '
     <br />
