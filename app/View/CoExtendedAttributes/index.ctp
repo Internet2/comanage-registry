@@ -1,8 +1,8 @@
 <!--
 /**
- * COmanage Registry CO Index View
+ * COmanage Registry CO Extended Attribute Index View
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -30,7 +30,7 @@
     echo $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_extended_attributes.1'),
                            array('controller' => 'co_extended_attributes',
                                  'action' => 'add',
-                                 'co' => $this->request->params['named']['co']),
+                                 'co' => $cur_co['Co']['id']),
                            array('class' => 'addbutton')) . '
     <br />
     <br />
@@ -58,7 +58,7 @@
                                   array('controller' => 'co_extended_attributes',
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                                         $c['CoExtendedAttribute']['id'],
-                                        'co' => $this->request->params['named']['co']));
+                                        'co' => $cur_co['Co']['id']));
         ?>
       </td>
       <td><?php echo Sanitize::html($c['CoExtendedAttribute']['display_name']); ?></td>
@@ -73,11 +73,11 @@
                                     array('controller' => 'co_extended_attributes',
                                           'action' => 'edit',
                                           $c['CoExtendedAttribute']['id'],
-                                          'co' => $this->request->params['named']['co']),
+                                          'co' => $cur_co['Co']['id']),
                                     array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoExtendedAttribute']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_extended_attributes', 'action' => 'delete', $c['CoExtendedAttribute']['id'], 'co' => $this->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
+            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoExtendedAttribute']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_extended_attributes', 'action' => 'delete', $c['CoExtendedAttribute']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

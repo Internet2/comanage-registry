@@ -36,9 +36,9 @@
     
   if($e)
     echo $this->Html->link(_txt('op.cancel'),
-                            array('controller' => 'co_extended_attributes', 'action' => 'index', 'co' => $cur_co['Co']['Id']),
+                            array('controller' => 'co_extended_attributes', 'action' => 'index', 'co' => $cur_co['Co']['id']),
                             array('class' => 'cancelbutton'));
-
+    
   echo '
     <br />
     <br />
@@ -46,7 +46,7 @@
 
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['Id'])) . "\n";
 ?>
-<table id="<?php echo $this->action; ?>_co" class="ui-widget">
+<table id="<?php echo $this->action; ?>_co_extended_attribute" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
