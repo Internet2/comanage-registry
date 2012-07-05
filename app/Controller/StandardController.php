@@ -129,7 +129,6 @@ class StandardController extends AppController {
   /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.
-   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
    * @since  COmanage Registry v0.1
    * @param  Array Request data
@@ -138,7 +137,7 @@ class StandardController extends AppController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    return(true);
+    return true;
   }
   
   /**
@@ -147,7 +146,6 @@ class StandardController extends AppController {
    * overall transaction is still considered a success (add/edit is not
    * rolled back).
    * This method is intended to be overridden by model-specific controllers.
-   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
    * @since  COmanage Registry v0.1
    * @param  Array Request data
@@ -156,7 +154,7 @@ class StandardController extends AppController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null) {
-    return(true);      
+    return true;      
   }
   
   /**
