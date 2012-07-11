@@ -22,6 +22,8 @@
  * @version       $Id$
  */
 
+App::uses('CakeEmail', 'Network/Email');
+
 class CoInvitesController extends AppController {
   // We don't extend StandardController because there's so much unique stuff going on here
   public $name = "CoInvites";
@@ -386,10 +388,37 @@ class CoInvitesController extends AppController {
 
         $this->CoInvite->create($invite);
         
-        if($this->CoInvite->save())
-        {
-          // XXX email the invitation, don't just render it
-  
+        if($this->CoInvite->save()) {
+          // Set up and send the invitation via email
+          $email = new CakeEmail('default');
+          $viewVariables = $invite;
+          $viewVariables['Co'] = $this->cur_co['Co'];
+
+          try {
+            $email->template('coinvite', 'basic')
+                  ->emailFormat('text')
+                  ->to($orgp['EmailAddress'][0]['mail'])
+                  ->viewVars($viewVariables)
+                  ->subject(_txt('em.invite.subject', array($this->cur_co['Co']['name'])));
+
+            // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
+            if(isset($this->viewVars['cur_co']['CoEnrollmentFlow'][0]['notify_from']))
+              $email->from($this->viewVars['cur_co']['CoEnrollmentFlow'][0]['notify_from']);
+
+            // Send the email
+            $email->send();
+
+            // Notify user of success
+            $this->Session->setFlash(_txt('em.invite.ok',
+                                          array($orgp['EmailAddress'][0]['mail'])),
+                                     '',
+                                     array(),
+                                     'success');
+
+          } catch(Exception $e) {
+            // Display error to user
+            $this->Session->setFlash($this->fieldsErrorToString($e), '', array(), 'error');
+          }
           // Set CO Person status to I
           // XXX probably don't want to do this if status = A.  May need a new password reset status.
   
@@ -453,5 +482,11 @@ class CoInvitesController extends AppController {
       else
         $this->Session->setFlash(_txt('er.cop.nf', array($cpid)), '', array(), 'error');
     }
+
+    // Redirect to My Population
+    $nextPage = array('controller' => 'co_people',
+                      'action'     => 'index',
+                      'co'         => $this->cur_co['Co']['id']);
+    $this->redirect($nextPage);
   }
 }

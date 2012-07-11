@@ -94,6 +94,12 @@ $cm_texts['en_US'] = array(
   'ct.telephone_numbers.1' =>   'Telephone Number',
   'ct.telephone_numbers.pl' =>  'Telephone Numbers',
 
+  // Email Messages
+  'em.invite.subject'        => 'Invitation to join %1$s',
+  'em.invite.body'           => 'You have been invited to join %1$s.  Please click the link below to accept or decline.',
+  'em.invite.ok'             => 'Invitation has been emailed to %1$s',
+  'em.invite.footer'         => 'This email was sent using %1$s.',
+
   // Enumerations, corresponding to enum.php
   'en.admin' =>       array(AdministratorEnum::NoAdmin => 'None',
                             AdministratorEnum::CoAdmin => 'CO Admin',
@@ -311,6 +317,8 @@ $cm_texts['en_US'] = array(
   'fd.ef.cf.cmp' =>   'Platform Enrollment Configuration',
   'fd.ef.coef' =>     'Enable Attributes Via CO Enrollment Flow',
   'fd.ef.coef.desc' => 'If enabled, allow organizational identity attributes to be collected via forms during CO enrollment flows (these attributes will be less authoritative than those obtained via LDAP or SAML)',
+  'fd.ef.efn'       => 'From Address for Notifications',
+  'fd.ef.efn.desc'  => 'Email address notifications will come from',
   'fd.ef.epx' =>      'Early Provisioning Executable',
   'fd.ef.epx.desc' => '(Need for this TBD)',
   'fd.ef.ldap' =>     'Enable LDAP Attribute Retrieval',

@@ -171,6 +171,17 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_active'])); ?>
       </td>
     </tr>
+    <tr class="line2">
+      <td>
+        <b><?php print _txt('fd.ef.efn'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.efn.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('notify_from')
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_from'])); ?>
+      </td>
+    </tr>
   </tbody>
 </table>
 <?php
