@@ -106,7 +106,7 @@
     // There appears to be an issue with Cake blackholing the request if text
     // fields are disabled (but not, strangely, if checkboxes or selects are
     // disabled). Renable these fields (in case they were disabled) to allow
-    // the form to submit.
+    // the form to submit. See CO-350.
     
     for(i = 0;i < 18;i++)
     {
