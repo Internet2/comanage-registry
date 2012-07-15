@@ -324,6 +324,13 @@ class StandardController extends AppController {
       }
       
       $data = $this->request->data;
+      
+      if(!isset($this->request->data[$req]['id'])) {
+        // Make sure ID is available in the request in case the form errors out and
+        // Cake needs to regenerate the POST target
+        
+        $this->request->data[$req]['id'] = $id;
+      }
     }
 
     if($this->requires_person)
