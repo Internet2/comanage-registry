@@ -265,6 +265,7 @@
     <field name="identifier" type="C" size="256" />
     <field name="type" type="C" size="32" />
     <field name="login" type="L" />
+    <field name="status" type="C" size="2" />
     <field name="co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
@@ -672,8 +673,53 @@
     <field name="race" type="C" size="5" />
     <field name="disability" type="C" size="4" />
     
-    <index name="demographics_i1">
+    <index name="co_nsf_demographics_i1">
       <col>co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="co_identifier_assignments">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="identifier_type" type="C" size="32">
+      <notnull />
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="login" type="L" />
+    <field name="algorithm" type="C" size="2" />
+    <field name="format" type="C" size="256" />
+    <field name="minimum" type="I" />
+    <field name="maximum" type="I" />
+    <field name="collision_resolution" type="C" size="64" />
+    <field name="exclusions" type="C" size="8" />
+    
+    <index name="co_identifier_assignments_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="co_sequential_identifier_assignments">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_identifier_assignment_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_identifier_assignments(id)</constraint>
+    </field>
+    <field name="affix" type="C" size="256" />
+    <field name="last" type="I" />
+  
+    <index name="co_sequential_identifier_assignments_i1">
+      <col>co_identifier_assignment_id</col>
+      <col>affix</col>
+      <unique />
     </index>
   </table>
 </schema>

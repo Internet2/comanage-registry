@@ -33,7 +33,7 @@
   // Figure out a heading
   $h = "";
 
-  // XXX This should probably get refactored into the models
+  // XXX This should probably get refactored into the models (duped in edit.ctp)
   if(isset($d[0]['Name']))
     $h = _txt('op.view-a', array(Sanitize::html(generateCn($d[0]['Name']))));
   elseif(isset($d[0]['CoPerson']['Name']))
@@ -50,8 +50,12 @@
     $h = _txt('op.view-a', array(Sanitize::html($d[0][$req]['line1'])));
   elseif(isset($d[0][$req]['label']))
     $h = _txt('op.view-a', array(Sanitize::html($d[0][$req]['label'])));
+  elseif(isset($d[0][$req]['name']))
+    $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['name'])));
+  elseif(isset($d[0][$req]['description']))
+    $h = _txt('op.edit-a', array(Sanitize::html($d[0][$req]['description'])));
   else
-    $h = _txt('op.view-a', array(Sanitize::html($d[0][$req]['name'])));
+    $h = _txt('op.view');
 
   $params = array('title' => $h);
   print $this->element("pageTitle", $params);

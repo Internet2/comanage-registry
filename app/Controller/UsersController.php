@@ -93,6 +93,9 @@ class UsersController extends AppController {
           $args['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
           $args['conditions']['Identifier.identifier'] = $u;
           $args['conditions']['Identifier.login'] = true;
+          // Join on identifiers that aren't deleted (including if they have no status)
+          $args['conditions']['OR'][] = 'Identifier.status IS NULL';
+          $args['conditions']['OR'][]['Identifier.status <>'] = StatusEnum::Deleted;
           // Through the magic of containable behaviors, we can get all the associated
           // data we need in one clever find
           $args['contain'][] = 'Name';

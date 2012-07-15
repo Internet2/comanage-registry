@@ -116,9 +116,15 @@ class AppController extends Controller {
         if(!empty($this->cur_co)) {
           $this->set("cur_co", $this->cur_co);
           
+          // XXX This is a hack for CO-368 and should not be relied upon.
           if(isset($this->Identifier)) {
-            // XXX This is a hack for CO-368 and should not be relied upon.
             $this->Identifier->coId = $coid;
+          }
+          if(isset($this->CoIdentifierAssignment)) {
+            $this->CoIdentifierAssignment->coId = $coid;
+          }
+          if(isset($this->CoPetition->EnrolleeCoPerson->Identifier)) {
+            $this->CoPetition->EnrolleeCoPerson->Identifier->coId = $coid;
           }
         } else {
           $this->Session->setFlash(_txt('er.co.unk-a', array($coid)), '', array(), 'error');
@@ -1127,6 +1133,9 @@ class AppController extends Controller {
 
     // Manage any CO (or COU) population?
     $p['menu']['petitions'] = $cmr['admin'] || $cmr['subadmin'];
+    
+    // Manage CO ID Assignment?
+    $p['menu']['idassign'] = $cmr['admin'];
     
     // Manage COU definitions?
     $p['menu']['cous'] = $cmr['admin'];

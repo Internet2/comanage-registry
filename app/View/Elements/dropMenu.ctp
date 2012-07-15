@@ -21,9 +21,7 @@
  */
 
 // Load the list of COs
-if(isset($this->viewVars['menuContent']['cos']))
-  $cos = $this->viewVars['menuContent']['cos'];
-else $cos = array();
+$cos = $this->viewVars['menuContent']['cos'];
 ?>
 
 <div class="menubar">
@@ -76,6 +74,17 @@ else $cos = array();
                     'co' => $menuCoId
                     );
                     print $this->Html->link(_txt('ct.co_petitions.pl'), $args);
+                  print "</li>";
+                }
+
+                if(isset($permissions['menu']['idassign']) && $permissions['menu']['idassign']) {
+                  print "<li>";
+                    $args = array(
+                    'controller' => 'co_identifier_assignments',
+                    'action' => 'index',
+                    'co' => $menuCoId
+                    );
+                    print $this->Html->link(_txt('ct.co_identifier_assignments.pl'), $args);
                   print "</li>";
                 }
 

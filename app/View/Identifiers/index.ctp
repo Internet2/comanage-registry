@@ -33,6 +33,7 @@
       <th><?php echo $this->Paginator->sort('identifier', _txt('fd.identifier.identifier')); ?></th>
       <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
       <th><?php echo $this->Paginator->sort('login', _txt('fd.identifier.login')); ?></th>
+      <th><?php echo $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
       <th><?php echo $this->Paginator->sort('OrgIdentity.Name.family', 'Org Identity'); ?></th>
       <th><?php echo $this->Paginator->sort('CoPerson.Name.family', 'CO Person'); ?></th>
@@ -61,6 +62,13 @@
       </td>
       <td>
         <?php echo ($a['Identifier']['login'] ? _txt('fd.true') : _txt('fd.false')); ?>
+      </td>
+      <td>
+        <?php
+          global $status_t;
+          
+          if(!empty($a['Identifier']['status'])) print _txt('en.status', null, $a['Identifier']['status']);
+        ?>
       </td>
       <td>
         <?php

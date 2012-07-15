@@ -115,6 +115,19 @@ class NSFGenderEnum
   const Female      = 'F';
 }
 
+class IdentifierAssignmentEnum
+{
+  const Random     = 'R';
+  const Sequential = 'S';
+}
+
+class IdentifierAssignmentExclusionEnum
+{
+  const Confusing     = 'C';
+  const Offensive     = 'O';
+  const Superstitious = 'S';
+}
+
 class IdentifierEnum
 {
   const ePPN    = 'eppn';
@@ -157,11 +170,12 @@ class NSFRaceEnum
 
 class PetitionActionEnum
 {
-  const Approved  = 'PY';
-  const Created   = 'PC';
-  const Declined  = 'PX';
-  const Denied    = 'PN';
-  const Finalized = 'PF';
+  const Approved            = 'PY';
+  const Created             = 'PC';
+  const Declined            = 'PX';
+  const Denied              = 'PN';
+  const Finalized           = 'PF';
+  const IdentifiersAssigned = 'IA';
 }
 
 class RequiredEnum

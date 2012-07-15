@@ -38,7 +38,10 @@
     echo $this->Html->link(_txt('op.cancel'),
                      isset($redirect) ? $redirect : array('controller' => 'identifiers', 'action' => 'index'),
                      array('class' => 'cancelbutton'));
-
+  else
+    echo $this->Html->link(_txt('op.back'),
+                           isset($redirect) ? $redirect : array('controller' => 'identifiers', 'action' => 'index'),
+                           array('class' => 'backbutton'));
     
   echo '
     <br />
@@ -100,6 +103,31 @@
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('login') : Sanitize::html($identifiers[0]['Identifier']['login'])); ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
+        <?php echo _txt('fd.status'); ?>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (isset($identifiers) ? $identifiers[0]['Identifier']['status'] : StatusEnum::Active);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('status',
+                                      $cm_texts[ $cm_lang ]['en.status'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('status')) {
+              print $this->Form->error('status');
+            }
+          } else {
+            print _txt('en.status', null, $identifiers[0]['Identifier']['status']);
+          }
+        ?>
       </td>
     </tr>
     <tr>

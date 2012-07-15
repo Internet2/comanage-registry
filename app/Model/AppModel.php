@@ -198,6 +198,39 @@ class AppModel extends Model {
   }
   
   /**
+   * Perform a find, but using SELECT ... FOR UPDATE syntax. This function should
+   * be called within a transaction.
+   *
+   * @since  COmanage Registry v0.6
+   * @param  Array Find conditions in the usual Cake format
+   * @param  Array List of fields to retrieve
+   * @param  Array Join conditions in the usual Cake format
+   * @return Array Result set as returned by Cake fetchAll() or read(), which isn't necessarily the same format as find()
+   */
+  
+  function findForUpdate($conditions, $fields, $joins = array()) {
+    $dbc = $this->getDataSource();
+    
+    $args['conditions'] = $conditions;
+    $args['fields'] = $dbc->fields($this, null, $fields);
+    $args['table'] = $dbc->fullTableName($this->useTable);
+    $args['alias'] = $this->alias;
+    // Don't allow joins to be NULL, make it an empty array if not set
+    $args['joins'] = ($joins ? $joins : array());
+    
+    // For the moment, we don't support these for no particular reason
+    $args['order'] = null;
+    $args['limit'] = null;
+    $args['group'] = null;
+    
+    // Appending to the generated query should be fairly portable.
+    
+    // We should perhaps be using read() and/or buildQuery() instead.
+    
+    return $dbc->fetchAll($dbc->buildStatement($args, $this) . " FOR UPDATE", array(), array('cache' => false));
+  }
+  
+  /**
    * For models that support Extended Types, obtain the valid types for the specified CO.
    *
    * @since  COmanage Registry v0.6

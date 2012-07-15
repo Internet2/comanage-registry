@@ -133,12 +133,18 @@
         }
       });
       
+      $(".autobutton").button({
+        icons: {
+          primary: 'ui-icon-script'
+        }
+      });
+      
       $(".backbutton").button({
         icons: {
           primary: 'ui-icon-circle-arrow-w'
         }
       });
-
+      
       $(".cancelbutton").button({
         icons: {
           primary: 'ui-icon-circle-close'

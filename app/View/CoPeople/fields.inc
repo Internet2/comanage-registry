@@ -45,7 +45,7 @@
 
   if($e)
   {
-    echo $this->Html->link(_txt('op.cancel'),
+    echo $this->Html->link(_txt('op.back'),
                           array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
                           array('class' => 'cancelbutton'));
     
@@ -80,10 +80,45 @@
     <br />
     ';
   }
+  else
+  {
+    echo $this->Html->link(_txt('op.back'),
+                           array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
+                           array('class' => 'backbutton')) . '
+    <br />
+    <br />
+    ';
+  }
   
   // Line number, for rendering
   $l = 1;
 ?>
+<script type="text/javascript">
+  <!-- JS specific to these fields -->
+  
+  function js_confirm_autogenerate(url)
+  {
+    // Generate a dialog box confirming the autogeneration of identifiers.
+    // On confirmation, forward to <url>, which executes the autogeneration.
+    
+    // Set the title of the dialog    
+    $("#dialog").dialog("option", "title", "<?php print _txt('op.id.auto'); ?>");
+    
+    // Set the body of the dialog
+    $("#dialog-text").text('<?php print _txt('op.id.auto.confirm'); ?>');
+    
+    // Set the dialog buttons
+    $("#dialog").dialog("option",
+                        "buttons",
+                        {
+                          "<?php print _txt('op.cancel'); ?>": function() { $(this).dialog("close"); },
+                          "<?php print _txt('op.id.auto'); ?>": function() { window.location=url; }
+                        });
+   
+    // Open the dialog
+    $('#dialog').dialog('open');
+  }
+</script>
 <table id="<?php echo $this->action; ?>_co_person" class="ui-widget">
   <tbody>
     <tr>
@@ -211,9 +246,19 @@
                       }
                     }
                     
-                    echo $this->Html->link(_txt('op.add'),
+                    print $this->Html->link(_txt('op.add'),
                                             array('controller' => 'identifiers', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                            array('class' => 'addbutton'));
+                                            array('class' => 'addbutton')) . "\n";
+                    
+                    print '<a
+                            class="autobutton"
+                            title="' . _txt('op.id.auto') . '"
+                            onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
+                                                                                                     'action' => 'assign',
+                                                                                                     'copersonid' => $co_people[0]['CoPerson']['id'],
+                                                                                                     'co' => $cur_co['Co']['id'])) . '\')";>'
+                            . _txt('op.id.auto')
+                            . "</a>\n";
                   }
                   else
                   {

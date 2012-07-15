@@ -669,7 +669,7 @@ class CoPetition extends AppModel {
       // Process the new status
       $fail = false;
       
-      // Start a tronsaction
+      // Start a transaction
       $dbc = $this->getDataSource();
       $dbc->begin();
       
@@ -737,6 +737,43 @@ class CoPetition extends AppModel {
           // else not a fail
         } else {
           $fail = true;
+        }
+      }
+      
+      // Maybe assign identifiers, but only for new approvals
+      
+      if(!$fail && $newStatus == StatusEnum::Approved) {
+        $coID = $this->field('co_id');
+        $coPersonID = $this->field('enrollee_co_person_id');
+        
+        if($coID && $coPersonID) {
+          $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID);
+          
+          if(!empty($res)) {
+            // See if any identifiers were assigned, and if so create a history record
+            $assigned = array();
+            
+            foreach(array_keys($res) as $idType) {
+              if($res[$idType] == 1) {
+                $assigned[] = $idType;
+              } elseif($res[$idType] != 2) {
+                // It'd probably be helpful if we caught this error somewhere...
+                $fail = true;
+              }
+            }
+            
+            if(!empty($assigned)) {
+              try {
+                $this->CoPetitionHistoryRecord->record($id,
+                                                       $actorCoPersonID,
+                                                       PetitionActionEnum::IdentifiersAssigned,
+                                                       _txt('rs.ia.ok') . " (" . implode(',', $assigned) . ")");
+              }
+              catch (Exception $e) {
+                $fail = true;
+              }
+            }
+          }
         }
       }
       
