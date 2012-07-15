@@ -85,6 +85,9 @@ class CoPetitionHistoryRecord extends AppModel {
       }
     }
     
+    // Call create since we might have multiple history records written in a transaction
+    $this->create($coPetitionHistoryData);
+    
     if(!$this->save($coPetitionHistoryData)) {
       throw new RuntimeException(_txt('er.db.save'));
     }
