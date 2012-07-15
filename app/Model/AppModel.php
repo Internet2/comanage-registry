@@ -48,12 +48,13 @@ class AppModel extends Model {
     if(isset($this->validate['type']['rule'])
        && is_array($this->validate['type']['rule'])
        && $this->validate['type']['rule'][0] == 'validateExtendedType'
-       && is_array($this->validate['type']['rule'][1])) {
+       && is_array($this->validate['type']['rule'][1])
+       && isset($this->validate['type']['rule'][1]['default'])) {
       // Figure out which language key to use. Note 'en' is the prefix for 'enum'
       // and NOT an abbreviation for 'english'.
       $langKey = 'en.' . Inflector::underscore($this->name);
       
-      foreach($this->validate['type']['rule'][1] as $name) {
+      foreach($this->validate['type']['rule'][1]['default'] as $name) {
         $ret[$name] = _txt($langKey, null, $name);
       }
     }
@@ -209,7 +210,7 @@ class AppModel extends Model {
     
     $CoExtendedType = ClassRegistry::init('CoExtendedType');
     
-    $extTypes = $CoExtendedType->active($this->coId, $this->name, 'all');
+    $extTypes = $CoExtendedType->active($coId, $this->name, 'all');
     
     if(!empty($extTypes)) {
       foreach($extTypes as $t) {
@@ -229,7 +230,7 @@ class AppModel extends Model {
    *
    * @since  COmanage Registry v0.6
    * @param  array Array of fields to validate
-   * @param  array Array of default values, if no extended types are defined
+   * @param  array Array with two keys: 'attribute' holding the attribute model name, and 'default' holding an Array of default values (for use if no extended types are defined)
    * @return boolean True if all field strings parses to a valid timestamp, false otherwise
    */
   
@@ -248,7 +249,7 @@ class AppModel extends Model {
     if(isset($this->coId)) {
       $CoExtendedType = ClassRegistry::init('CoExtendedType');
       
-      $extTypes = $CoExtendedType->active($this->coId, $this->name);
+      $extTypes = $CoExtendedType->active($this->coId, $d['attribute']);
     }
     // else some models can be used with Org Identities (ie: MVPA controllers). When used
     // with org identities, we currently don't support extended types.
@@ -256,7 +257,7 @@ class AppModel extends Model {
     if(empty($extTypes)) {
       // Use the default values
       
-      $extTypes = $d;
+      $extTypes = $d['default'];
     }
     
     foreach(array_keys($a) as $f) {

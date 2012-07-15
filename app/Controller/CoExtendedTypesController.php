@@ -256,11 +256,19 @@ class CoExtendedTypesController extends StandardController {
    */
   
   function paginationConditions() {
-    // Only retrieve types for the current attribute
+    // Only retrieve types for the current attribute and for the current CO
     
-    return(array(
-      'CoExtendedType.attribute' => $this->request->params['named']['attr']
-    ));
+    $ret = array();
+    
+    if(isset($this->cur_co)) {
+      $ret['CoExtendedType.co_id'] = $this->cur_co['Co']['id'];
+    }
+    
+    if(isset($this->request->params['named']['attr'])) {
+      $ret['CoExtendedType.attribute'] = $this->request->params['named']['attr'];
+    }
+    
+    return $ret;
   }
   
   /**
