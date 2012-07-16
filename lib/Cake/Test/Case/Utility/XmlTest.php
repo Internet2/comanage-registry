@@ -901,4 +901,22 @@ class XmlTest extends CakeTestCase {
 		$result = $obj->asXml();
 		$this->assertContains('mark &amp; mark', $result);
 	}
+
+/**
+ * Test that entity loading is disabled by default.
+ *
+ * @return void
+ */
+	public function testNoEntityLoading() {
+		$file = CAKE . 'VERSION.txt';
+		$xml = <<<XML
+<!DOCTYPE cakephp [
+	<!ENTITY payload SYSTEM "file://$file" >]>
+<request>
+	<xxe>&payload;</xxe>
+</request>
+XML;
+		$result = Xml::build($xml);
+		$this->assertEquals('', (string)$result->xxe);
+ 	}
 }
