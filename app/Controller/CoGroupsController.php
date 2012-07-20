@@ -164,6 +164,44 @@ class CoGroupsController extends StandardController {
   }
   
   /**
+   * Obtain all CO Groups.
+   * - postcondition: $<object>s set on success (REST or HTML), using pagination (HTML only)
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Session flash message updated (HTML) on suitable error
+   *
+   * @since  COmanage Registry v0.6
+   */
+  
+  function index() {
+    if($this->restful && !empty($this->params['url']['copersonid'])) {
+      // We need to retrieve via a join, which StandardController::index() doesn't
+      // currently support.
+      
+      try {
+        $groups = $this->CoGroup->findForCoPerson($this->params['url']['copersonid']);
+        
+        if(!empty($groups)) {
+          $this->set('co_groups', $groups);
+          
+          // We also need to pass member/ownership in these groups.
+          
+          $this->set('co_group_members',
+                     $this->CoGroup->CoGroupMember->findCoPersonGroupRoles($this->params['url']['copersonid']));
+        } else {
+          $this->restResultHeader(204, "CO Person Has No Groups");
+          return;
+        }
+      }
+      catch(InvalidArgumentException $e) {
+        $this->restResultHeader(404, "CO Person Unknown");
+        return;
+      }
+    } else {
+      parent::index();
+    }
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

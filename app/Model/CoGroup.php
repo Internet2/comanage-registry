@@ -43,6 +43,8 @@ class CoGroup extends AppModel {
   // Default ordering for find operations
   public $order = array("CoGroup.name");
   
+  public $actsAs = array('Containable');
+  
   // Validation rules for table elements
   public $validate = array(
     'co_id' => array(
@@ -75,4 +77,42 @@ class CoGroup extends AppModel {
   public $cm_enum_types = array(
     'status' => 'status_t'
   );
+  
+  /**
+   * Obtain all groups for a CO person.
+   *
+   * @since  COmanage Registry v0.6
+   * @param  Integer CO Person ID
+   * @param  Integer Maximium number of results to retrieve (or null)
+   * @param  Integer Offset to start retrieving results from (or null)
+   * @param  String Field to sort by (or null)
+   * @return Array Group information, as returned by find
+   */
+  
+  function findForCoPerson($coPersonId, $limit=null, $offset=null, $order=null) {
+    $args = array();
+    $args['joins'][0]['table'] = 'co_group_members';
+    $args['joins'][0]['alias'] = 'CoGroupMember';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
+    $args['conditions']['CoGroup.status'] = StatusEnum::Active;
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    $args['conditions']['OR']['CoGroupMember.member'] = 1;
+    $args['conditions']['OR']['CoGroupMember.owner'] = 1;
+    $args['contain'] = false;
+    
+    if($limit) {
+      $args['limit'] = $limit;
+    }
+    
+    if($offset) {
+      $args['offset'] = $offset;
+    }
+    
+    if($order) {
+      $args['order'] = $order;
+    }
+    
+    return $this->find('all', $args);
+  }
 }

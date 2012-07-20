@@ -43,6 +43,8 @@ class Identifier extends AppModel {
   // Default ordering for find operations
   public $order = array("identifier");
   
+  public $actsAs = array('Containable');
+  
   // Validation rules for table elements
   public $validate = array(
     // Don't require any element since $belongsTo saves won't validate if they're empty

@@ -251,6 +251,7 @@ $cm_texts['en_US'] = array(
   'er.ia.exists' =>   'The identifier "%1$s" is already in use',
   'er.ia.failed' =>   'Failed to find a unique identifier to assign',
   'er.ia.none' =>     'No identifier assignments configured',
+  'er.id.unk' =>      'Unknown Identifier',
   'er.inv.exp' =>     'Invitation Expired',
   'er.inv.nf' =>      'Invitation Not Found',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',

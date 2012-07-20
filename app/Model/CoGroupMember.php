@@ -42,6 +42,8 @@ class CoGroupMember extends AppModel {
   // Default ordering for find operations
   public $order = array("co_person_id");
   
+  public $actsAs = array('Containable');
+  
   // Validation rules for table elements
   public $validate = array(
     'co_group_id' => array(
@@ -59,4 +61,37 @@ class CoGroupMember extends AppModel {
       'rule' => array('boolean')
     )
   );
+  
+  /**
+   * Obtain the group roles for a CO person.
+   *
+   * @since  COmanage Registry v0.6
+   * @param  Integer CO Person ID
+   * @return Array An array of two array: group IDs for which the person is a member, and group IDs for which the person is an owner
+   */
+  
+  function findCoPersonGroupRoles($coPersonId) {
+    $ret = array(
+      'member' => array(),
+      'owner'  => array()
+    );
+    
+    $args = array();
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    $args['contain'] = false;
+    
+    $memberships = $this->find('all', $args);
+    
+    foreach($memberships as $m) {
+      if(isset($m['CoGroupMember']['member']) && $m['CoGroupMember']['member']) {
+        $ret['member'][] = $m['CoGroupMember']['co_group_id'];
+      }
+      
+      if(isset($m['CoGroupMember']['owner']) && $m['CoGroupMember']['owner']) {
+        $ret['owner'][] = $m['CoGroupMember']['co_group_id'];
+      }
+    }
+    
+    return $ret;
+  }
 }

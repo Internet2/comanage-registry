@@ -117,6 +117,93 @@ class CoPerson extends AppModel {
   );
   
   /**
+   * Obtain all people associated with a Group
+   *
+   * @since  COmanage Registry v0.6
+   * @param  Integer CO Group ID
+   * @param  Integer Maximium number of results to retrieve (or null)
+   * @param  Integer Offset to start retrieving results from (or null)
+   * @return Array CoPerson information, as returned by find (with some associated data)
+   */
+  
+  function findForCoGroup($coGroupId, $limit=null, $offset=null) {
+    $args = array();
+    $args['joins'][0]['table'] = 'co_group_members';
+    $args['joins'][0]['alias'] = 'CoGroupMember';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoGroupMember.co_person_id';
+    $args['conditions']['CoGroupMember.co_group_id'] = $coGroupId;
+    $args['conditions']['OR']['CoGroupMember.member'] = 1;
+    $args['conditions']['OR']['CoGroupMember.owner'] = 1;
+    // We use contain here to pull data for VootController
+    $args['contain'][] = 'Name';
+    $args['contain'][] = 'EmailAddress';
+    
+    if($limit) {
+      $args['limit'] = $limit;
+    }
+    
+    if($offset) {
+      $args['offset'] = $offset;
+    }
+    
+    return $this->find('all', $args);
+  }
+  
+  /**
+   * Obtain all CO Person IDs for an identifier.
+   *
+   * @since  COmanage Registry v0.6
+   * @param  String Identifier
+   * @param  String Identifier type (null for any type; not recommended)
+   * @return Array CO Person IDs
+   * @throws InvalidArgumentException
+   */
+  
+  function idsForIdentifier($identifier, $identifierType=null) {
+    // First pull the identifier record
+    
+    $args = array();
+    $args['conditions']['Identifier.identifier'] = $identifier;
+    $args['contain'] = false;
+    
+    if($identifierType) {
+      $args['conditions']['Identifier.type'] = $identifierType;
+    }
+    
+    // If identifierType is null, we might get more than one record, in which
+    // case we behave nondeterministically. We can't pull all records, since we
+    // might get multiple people. Better to supply a type.
+    $id = $this->Identifier->find('first', $args);
+    
+    if(!empty($id)) {
+      if(isset($id['Identifier']['co_person_id'])) {
+        // The identifier is attached to a CO Person, return that ID.
+        
+        return array($id['Identifier']['co_person_id']);
+      } else {
+        // Map the org identity to a CO person. We might pull more than one.
+        // In this case, it's OK since they come back to the same org person.
+        
+        $args = array();
+        $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $id['Identifier']['org_identity_id'];
+        $args['fields'][] = 'CoOrgIdentityLink.co_person_id';
+        $args['contain'] = false;
+        
+        $links = $this->CoOrgIdentityLink->find('list', $args);
+        
+        if(!empty($links)) {
+          return array_values($links);
+        }
+      }
+      
+      throw new InvalidArgumentException(_txt('er.cop.unk'));
+    } else {
+      throw new InvalidArgumentException(_txt('er.id.unk'));
+    }
+  }
+  
+  /**
    * Attempt to match existing records based on the provided criteria.
    *
    * @since  COmanage Registry v0.5

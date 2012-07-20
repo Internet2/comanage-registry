@@ -38,6 +38,25 @@
 	CakePlugin::routes();
 
 /**
+ * Experimental VOOT routing
+ */
+
+Router::connect(
+  '/voot/groups/:memberid/:groupid',
+  array('controller' => 'voot', 'action' => 'groups')
+);
+ 
+Router::connect(
+  '/voot/groups/:memberid',
+  array('controller' => 'voot', 'action' => 'groups')
+);
+
+Router::connect(
+  '/voot/people/:memberid/:groupid',
+  array('controller' => 'voot', 'action' => 'people')
+);
+ 
+/**
  * Enable REST. These *MUST* come before the default CakePHP routes.
  */
 
@@ -67,4 +86,3 @@ Router::parseExtensions();
  * the built-in default routes.
  */
 	require CAKE . 'Config' . DS . 'routes.php';
-
