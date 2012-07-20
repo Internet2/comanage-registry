@@ -29,7 +29,7 @@ class CoPeopleController extends StandardController {
   
   public $helpers = array('Time');
   
-  // When using additional controllers, we must also specify our own
+  // When using additional models, we must also specify our own
   public $uses = array('CoPerson', 'CmpEnrollmentConfiguration');
   
   public $paginate = array(
@@ -86,11 +86,19 @@ class CoPeopleController extends StandardController {
       // Determine if there are any Enrollment Flows for this CO and if so pass
       // them to the view. Currently, we don't check for COU-specific flows. 
       
+      $args = array();
       $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-  //    $args['contain'][] = 'CoEnrollmentFlow';
+      $args['contain'][] = false;
       
-      $this->loadModel('CoEnrollmentFlow');
-      $this->set('co_enrollment_flows', $this->CoEnrollmentFlow->find('all', $args));
+      $this->set('co_enrollment_flows', $this->Co->CoEnrollmentFlow->find('all', $args));
+      
+      // Determine if there are any identifier assignments for this CO.
+      
+      $args = array();
+      $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
+      $args['contain'][] = false;
+      
+      $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
     }
     parent::beforeRender();
   }

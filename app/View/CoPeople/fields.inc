@@ -250,15 +250,17 @@
                                             array('controller' => 'identifiers', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
                                             array('class' => 'addbutton')) . "\n";
                     
-                    print '<a
-                            class="autobutton"
-                            title="' . _txt('op.id.auto') . '"
-                            onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
-                                                                                                     'action' => 'assign',
-                                                                                                     'copersonid' => $co_people[0]['CoPerson']['id'],
-                                                                                                     'co' => $cur_co['Co']['id'])) . '\')";>'
-                            . _txt('op.id.auto')
-                            . "</a>\n";
+                    if(!empty($co_identifier_assignments)) {
+                      print '<a
+                              class="autobutton"
+                              title="' . _txt('op.id.auto') . '"
+                              onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
+                                                                                                       'action' => 'assign',
+                                                                                                       'copersonid' => $co_people[0]['CoPerson']['id'],
+                                                                                                       'co' => $cur_co['Co']['id'])) . '\')";>'
+                              . _txt('op.id.auto')
+                              . "</a>\n";
+                    }
                   }
                   else
                   {
