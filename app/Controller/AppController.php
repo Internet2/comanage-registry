@@ -1134,6 +1134,12 @@ class AppController extends Controller {
     // Manage any CO (or COU) population?
     $p['menu']['petitions'] = $cmr['admin'] || $cmr['subadmin'];
     
+    // Manage CO extended attributes?
+    $p['menu']['extattrs'] = $cmr['admin'];
+    
+    // Manage CO extended typees?
+    $p['menu']['exttypes'] = $cmr['admin'];
+    
     // Manage CO ID Assignment?
     $p['menu']['idassign'] = $cmr['admin'];
     

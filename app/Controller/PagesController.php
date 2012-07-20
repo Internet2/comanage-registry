@@ -96,50 +96,9 @@ class PagesController extends AppController {
 		$p = array();
 			    
 		// Permission to render this page
-		// We currently only route the main menu through here, so always allow display
+		// We currently only route the welcome page through here, so always allow display.
 		$p['display'] = true; 
 		
-		// Determine what menu options this user can see
-		
-		// View own (Org) profile?
-		$p['menu']['orgprofile'] = $cmr['user'];
-		
-		// View/Edit own (CO) profile?
-		$p['menu']['coprofile'] = $cmr['user'];
-		
-		// View/Edit CO groups?
-		$p['menu']['cogroups'] = $cmr['user'];
-		
-		// Manage org identity data?
-		$p['menu']['orgidentities'] = $cmr['admin'] || $cmr['subadmin'];
-		
-		// Manage any CO (or COU) population?
-		$p['menu']['cos'] = $cmr['admin'] || $cmr['subadmin'];
-		
-		// Manage CO extended attributes?
-		$p['menu']['extattrs'] = $cmr['admin'];
-		
-		// Manage CO extended typees?
-		$p['menu']['exttypes'] = $cmr['admin'];
-		
-		// Manage COU definitions?
-		$p['menu']['cous'] = $cmr['admin'];
-	  
-		// Manage CO enrollment flow definitions?
-		$p['menu']['coef'] = $cmr['admin'];
-		
-    // Manage CO identifier assignment definitions?
-    $p['menu']['idassign'] = $cmr['admin'];
-    
-    // Admin COmanage?
-		$p['menu']['admin'] = $cmr['cmadmin'];
-		
-		// Manage NSF Demographics?
-		$p['menu']['co_nsf_demographics'] = $cmr['cmadmin'];
-		
-		// View/Edit own Demographics profile?
-		$p['menu']['nsfdemoprofile'] = $cmr['user'];
-	  
 		$this->set('permissions', $p);
 		return($p[$this->action]);
 	}
