@@ -290,12 +290,18 @@ class AppModel extends Model {
     if(empty($extTypes)) {
       // Use the default values
       
-      $extTypes = $d['default'];
-    }
-    
-    foreach(array_keys($a) as $f) {
-      if(!isset($extTypes[ $a[$f] ])) {
-        return false;
+      foreach(array_keys($a) as $f) {
+        if(!in_array($a[$f], $d['default'])) {
+          return false;
+        }
+      }
+    } else {
+      // Check the extended types
+      
+      foreach(array_keys($a) as $f) {
+        if(!isset($extTypes[ $a[$f] ])) {
+          return false;
+        }
       }
     }
     
