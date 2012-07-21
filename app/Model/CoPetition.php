@@ -663,6 +663,12 @@ class CoPetition extends AppModel {
         $valid = true;
         $newCoPersonStatus = $newStatus;
       }
+      
+      // XXX This is temporary for CO-321 since there isn't currently a way for an approved people
+      // to become active. This should be dropped when a more workflow-oriented mechanism is implemented.
+      if($newStatus == StatusEnum::Approved) {
+        $newCoPersonStatus = StatusEnum::Active;
+      }
     }
     
     if($valid) {
