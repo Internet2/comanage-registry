@@ -51,13 +51,17 @@
             <span>
               <?php
                 // XXX placeholder until notifications is implemented
+                $notifArray['approval'] = array();
+                $notifArray['accepted'] = array();
+
+                /*
                 $notifArray['approval'] = array("Scott Koranda (UWM)",
                                    "Stuart Anderson (CalTech)",
                                    "Benn Oshrin (Internet2)");
-                //$notifArray['approval'] = array();
                 $notifArray['accepted'] = array("Scott Koranda (UWM)",
                                    "Stuart Anderson (CalTech)",
                                    "Heather Flanagan (Internet2)");
+                */
 
                 $notificationCount = count($notifArray['approval']) + count($notifArray['accepted']);
                 print $notificationCount ? $notificationCount : 0 ?>
