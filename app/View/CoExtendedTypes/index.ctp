@@ -37,7 +37,7 @@
 </div>
 <br />
 <?php endif; ?>
-<?
+<?php
   // XXX on select this input should reload /index/attr:foo
   print _txt('fd.et.forattr') .
         $this->Form->select('swapper',
