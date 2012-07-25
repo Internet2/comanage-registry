@@ -58,13 +58,30 @@ class VootController extends StandardController {
     // Run the auth check
     parent::beforeFilter();
     
-    if(isset($this->params['memberid'])) {
+    $memberid = isset($this->params['memberid']) ? $this->params['memberid'] : null;
+    $groupid = isset($this->params['groupid']) ? $this->params['groupid'] : null;
+    
+    if(isset($this->params['ext'])) {
+      // Because the non-VOOT API calls accept a formatting notation as an extension
+      // (eg: /cos.json, /co_people.xml) and the VOOT API calls don't, part of our
+      // identifier may have been parsed into an extension (eg: foo.internet2 / edu).
+      // Practically, this only applies to memberid at the moment since groupid is
+      // expected to be numeric, but we'll handle the groupid case anyway.
+      
+      if($memberid && !$groupid) {
+        $memberid .= "." . $this->params['ext'];
+      } elseif($groupid) {
+        $groupid .= "." . $this->params['ext'];
+      }
+    }
+    
+    if($memberid) {
       // Map the provided identifier to one or more CO Person IDs.
       
       try {
         // XXX We should really provide an identifier type. Instead, we'll just
         // take the first person returned.
-        $coppl = $this->CoPerson->idsForIdentifier($this->params['memberid'], null);
+        $coppl = $this->CoPerson->idsForIdentifier($memberid, null);
         
         if(!empty($coppl)) {
           $this->coPersonIdReq = $coppl[0];
@@ -86,8 +103,8 @@ class VootController extends StandardController {
     }
     
     // We just copy the Group ID if set
-    if(isset($this->params['groupid'])) {
-      $this->coGroupIdReq = $this->params['groupid'];
+    if($groupid) {
+      $this->coGroupIdReq = $groupid;
     }
   }
 
