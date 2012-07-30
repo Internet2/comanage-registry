@@ -417,7 +417,7 @@ class CoInvitesController extends AppController {
 
           } catch(Exception $e) {
             // Display error to user
-            $this->Session->setFlash($this->fieldsErrorToString($e), '', array(), 'error');
+            $this->Session->setFlash($e->getMessage(), '', array(), 'error');
           }
           // Set CO Person status to I
           // XXX probably don't want to do this if status = A.  May need a new password reset status.
