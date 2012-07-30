@@ -94,10 +94,8 @@ WHERE i.login=true;
         )
       );
       
-      if(!$this->OrgIdentity->saveAll($op))
-        print_r($this->OrgIdentity->invalidFields());
-      else
-        $op_id = $this->OrgIdentity->id;
+      $this->OrgIdentity->saveAll($op);
+      $op_id = $this->OrgIdentity->id;
 
       // Add the OrgIdentity's identifier
       
@@ -106,14 +104,13 @@ WHERE i.login=true;
           'identifier'    => $user,
           'type'          => IdentifierEnum::UID,
           'login'         => true,
-          'org_identity_id' => $op_id
+          'org_identity_id' => $op_id,
+          'status'        => StatusEnum::Active
         )
       );
       
-      if(!$this->Identifier->save($id))
-        print_r($this->Identifier->invalidFields());
-      else
-        $id_id = $this->Identifier->id;
+      $this->Identifier->save($id);
+      $id_id = $this->Identifier->id;
 
       // Add the OrgIdentity to the CO
       // (1) Create a CO Person
