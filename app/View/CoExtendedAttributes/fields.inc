@@ -44,7 +44,7 @@
     <br />
     ';
 
-  echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['Id'])) . "\n";
+  echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
 <table id="<?php echo $this->action; ?>_co_extended_attribute" class="ui-widget">
   <tbody>

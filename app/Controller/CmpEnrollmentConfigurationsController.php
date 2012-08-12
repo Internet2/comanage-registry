@@ -28,7 +28,7 @@ class CmpEnrollmentConfigurationsController extends StandardController {
   // Class name, used by Cake
   public $name = "CmpEnrollmentConfigurations";
   
-  // When using additional controllers, we must also specify our own
+  // When using additional models, we must also specify our own
   public $uses = array('CmpEnrollmentConfiguration', 'OrgIdentity');
   
   // Establish pagination parameters for HTML views
