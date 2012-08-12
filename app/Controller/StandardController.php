@@ -78,7 +78,8 @@ class StandardController extends AppController {
     // Finally, try to save
 
     if($model->saveAll($data)) {
-      if(!$this->checkWriteFollowups($data)) {
+      if(!$this->recordHistory('add', $data)
+         || !$this->checkWriteFollowups($data)) {
         if(!$this->restful) {
           $this->performRedirect();
         }
@@ -222,10 +223,12 @@ class StandardController extends AppController {
 
     if($model->delete($id))
     {
-      if($this->restful)
-        $this->restResultHeader(200, "Deleted");
-      else
-        $this->Session->setFlash(_txt('er.deleted-a', array(Sanitize::html($name))), '', array(), 'success');
+      if($this->recordHistory('delete', null, $op)) {
+        if($this->restful)
+          $this->restResultHeader(200, "Deleted");
+        else
+          $this->Session->setFlash(_txt('er.deleted-a', array(Sanitize::html($name))), '', array(), 'success');
+      }
     }
     else
     {              
@@ -359,8 +362,8 @@ class StandardController extends AppController {
 
     if($model->saveAll($data))
     {
-      if(!$this->checkWriteFollowups($data, $curdata))
-      {
+      if(!$this->recordHistory('edit', $data, $curdata)
+         || !$this->checkWriteFollowups($data, $curdata)) {
         if(!$this->restful)
           $this->performRedirect();
         
@@ -419,6 +422,23 @@ class StandardController extends AppController {
       return($this->request->data[$req][$model->displayField]);
     else
       return("(?)");
+  }
+  
+  /**
+   * Generate history records for a transaction. This method is intended to be
+   * overridden by model-specific controllers, and will be called from within a
+   * try{} block so that HistoryRecord->record() may be called without worrying
+   * about catching exceptions.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  public function generateHistory($action, $newdata, $olddata) {
+    return true;
   }
   
   /**
@@ -591,21 +611,26 @@ class StandardController extends AppController {
       
       if($this->requires_person)
       {
-        if(!empty($this->params['named']['copersonroleid']))
+        if(!empty($this->params['named']['copersonid']))
         {
-          $q = $req . ".co_person_role_id ='";
+          $q = $req . ".co_person_id = ";
+          $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['copersonid'])));
+        }
+        elseif(!empty($this->params['named']['copersonroleid']))
+        {
+          $q = $req . ".co_person_role_id = ";
           $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['copersonroleid'])));
         }
         elseif(!empty($this->params['named']['orgidentityid']))
         {
-          $q = $req . ".org_identity_id ='";
+          $q = $req . ".org_identity_id = ";
           $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['orgidentityid'])));
         }
         else
         {
           // Although requires_person is true, the UI sort of permits
           // retrieval of all items of a given type
-
+          
           $this->set($modelpl, $this->paginate($req));
         }
       }
@@ -657,7 +682,38 @@ class StandardController extends AppController {
     else
       $this->redirect(array('action' => 'index'));
   }
-
+  
+  /**
+   * Record history associated with an action. Note that, for now, failure to
+   * record history DOES NOT roll back the original request. This may change
+   * in a future release.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  function recordHistory($action, $newdata, $olddata=null) {
+    // This function handles the framework of recording history.
+    
+    try {
+      $this->generateHistory($action, $newdata, $olddata);
+    }
+    catch(Exception $e) {
+      if($this->restful) {
+        $this->restResultHeader(500, "Other Error: " . $e->getMessage());
+      } else {
+        $this->Session->setFlash($e->getMessage(), '', array(), 'info');
+      }
+      
+      return false;
+    }
+    
+    return true;
+  }
+  
   /**
    * Regenerate a form after validation/save fails.
    * This method is intended to be overridden.

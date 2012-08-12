@@ -223,6 +223,46 @@ class CoPersonRolesController extends StandardController {
   }
 
   /**
+   * Generate history records for a transaction. This method is intended to be
+   * overridden by model-specific controllers, and will be called from within a
+   * try{} block so that HistoryRecord->record() may be called without worrying
+   * about catching exceptions.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  public function generateHistory($action, $newdata, $olddata) {
+    switch($action) {
+      case 'add':
+        $this->CoPersonRole->HistoryRecord->record($newdata['CoPersonRole']['co_person_id'],
+                                                   $this->CoPersonRole->id,
+                                                   null,
+                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                   ActionEnum::CoPersonRoleAddedManual);
+        break;
+      case 'delete':
+        // We don't handle delete since the CO Person Role and its associated history
+        // is about to be deleted
+        break;
+      case 'edit':
+        $this->CoPersonRole->HistoryRecord->record($newdata['CoPersonRole']['co_person_id'],
+                                                   $this->CoPersonRole->id,
+                                                   null,
+                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                   ActionEnum::CoPersonRoleEditedManual,
+                                                   _txt('en.action', null, ActionEnum::CoPersonRoleEditedManual) . ": " .
+                                                   $this->changesToString($newdata, $olddata, array('CoPersonRole', 'ExtendedAttribute')));
+        break;
+    }
+    
+    return true;
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

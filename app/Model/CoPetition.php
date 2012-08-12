@@ -277,6 +277,19 @@ class CoPetition extends AppModel {
       
       if($this->EnrolleeOrgIdentity->saveAll($orgData)) {
         $orgIdentityID = $this->EnrolleeOrgIdentity->id;
+        
+        // Create a history record
+        try {
+          $this->EnrolleeOrgIdentity->HistoryRecord->record(null,
+                                                            null,
+                                                            $orgIdentityID,
+                                                            $petitionerId,
+                                                            ActionEnum::OrgIdAddedPetition);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException($e->getMessage());
+        }
       } else {
         // We don't fail immediately on error because we want to run validate on all
         // the data we save in the various saveAll() calls so the appropriate fields
@@ -305,6 +318,19 @@ class CoPetition extends AppModel {
     
     if($this->EnrolleeCoPerson->saveAll($coData)) {
       $coPersonID = $this->EnrolleeCoPerson->id;
+      
+      // Create a history record
+      try {
+        $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
+                                                       null,
+                                                       $orgIdentityID,
+                                                       $petitionerId,
+                                                       ActionEnum::CoPersonAddedPetition);
+      }
+      catch(Exception $e) {
+        $dbc->rollback();
+        throw new RuntimeException($e->getMessage());
+      }
     } else {
       // We don't fail immediately on error because we want to run validate on all
       // the data we save in the various saveAll() calls so the appropriate fields
@@ -335,6 +361,19 @@ class CoPetition extends AppModel {
     
     if($this->EnrolleeCoPersonRole->saveAll($coRoleData)) {
       $coPersonRoleID = $this->EnrolleeCoPersonRole->id;
+      
+      // Create a history record
+      try {
+        $this->EnrolleeCoPersonRole->HistoryRecord->record($coPersonID,
+                                                           $coPersonRoleID,
+                                                           $orgIdentityID,
+                                                           $petitionerId,
+                                                           ActionEnum::CoPersonRoleAddedPetition);
+      }
+      catch(Exception $e) {
+        $dbc->rollback();
+        throw new RuntimeException($e->getMessage());
+      }
     } else {
       // We need to fold any extended attribute validation errors into the CO Person Role
       // validation errors in order for FormHandler to be able to see them.
@@ -372,7 +411,20 @@ class CoPetition extends AppModel {
     $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityID;
     $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonID;
     
-    if(!$this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink)) {
+    if($this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink)) {
+      // Create a history record
+      try {
+        $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
+                                                       $coPersonRoleID,
+                                                       $orgIdentityID,
+                                                       $petitionerId,
+                                                       ActionEnum::CoPersonOrgIdLinked);
+      }
+      catch(Exception $e) {
+        $dbc->rollback();
+        throw new RuntimeException($e->getMessage());
+      }
+    } else {
       $dbc->rollback();
       throw new RuntimeException(_txt('er.db.save'));
     }
@@ -664,7 +716,7 @@ class CoPetition extends AppModel {
         $newCoPersonStatus = $newStatus;
       }
       
-      // XXX This is temporary for CO-321 since there isn't currently a way for an approved people
+      // XXX This is temporary for CO-321 since there isn't currently a way for an approved person
       // to become active. This should be dropped when a more workflow-oriented mechanism is implemented.
       if($newStatus == StatusEnum::Approved) {
         $newCoPersonStatus = StatusEnum::Active;
@@ -720,7 +772,23 @@ class CoPetition extends AppModel {
         
         if($coPersonRoleID) {
           $this->EnrolleeCoPersonRole->id = $coPersonRoleID;
+          $curCoPersonRoleStatus = $this->EnrolleeCoPersonRole->field('status');
           $this->EnrolleeCoPersonRole->saveField('status', $newCoPersonStatus);
+          
+          // Create a history record
+          try {
+            $this->EnrolleeCoPersonRole->HistoryRecord->record($this->field('enrollee_co_person_id'),
+                                                               $coPersonRoleID,
+                                                               null,
+                                                               $actorCoPersonID,
+                                                               ActionEnum::CoPersonRoleEditedPetition,
+                                                               _txt('en.action', null, ActionEnum::CoPersonRoleEditedPetition) . ": "
+                                                               . _txt('en.status', null, $curCoPersonRoleStatus) . " > "
+                                                               . _txt('en.status', null, $newCoPersonStatus));
+          }
+          catch(Exception $e) {
+            $fail = true;
+          }
         } else {
           $fail = true;
         }
@@ -739,6 +807,26 @@ class CoPetition extends AppModel {
           if(isset($curCoPersonStatus)
              && ($curCoPersonStatus == StatusEnum::PendingApproval)) {
             $this->EnrolleeCoPerson->saveField('status', $newCoPersonStatus);
+            
+            // Create a history record
+            try {
+              $newdata = array();
+              $olddata = array();
+              $newdata['CoPerson']['status'] = $newCoPersonStatus;
+              $olddata['CoPerson']['status'] = $curCoPersonStatus;
+              
+              $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
+                                                             null,
+                                                             null,
+                                                             $actorCoPersonID,
+                                                             ActionEnum::CoPersonEditedPetition,
+                                                             _txt('en.action', null, ActionEnum::CoPersonEditedPetition) . ": "
+                                                             . _txt('en.status', null, $curCoPersonStatus) . " > "
+                                                             . _txt('en.status', null, $newCoPersonStatus));
+            }
+            catch(Exception $e) {
+              $fail = true;
+            }
           }
           // else not a fail
         } else {

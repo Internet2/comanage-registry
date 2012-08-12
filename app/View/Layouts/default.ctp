@@ -184,6 +184,12 @@
         }
       });
       
+      $(".historybutton").button({
+        icons: {
+          primary: 'ui-icon-note'
+        }
+      });
+      
       $(".invitebutton").button({
         icons: {
           primary: 'ui-icon-mail-closed'

@@ -672,6 +672,8 @@
     <field name="ethnicity" type="C" size="2" />
     <field name="race" type="C" size="5" />
     <field name="disability" type="C" size="4" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
     
     <index name="co_nsf_demographics_i1">
       <col>co_person_id</col>
@@ -698,6 +700,8 @@
     <field name="maximum" type="I" />
     <field name="collision_resolution" type="C" size="64" />
     <field name="exclusions" type="C" size="8" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
     
     <index name="co_identifier_assignments_i1">
       <col>co_id</col>
@@ -715,11 +719,46 @@
     </field>
     <field name="affix" type="C" size="256" />
     <field name="last" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
   
     <index name="co_sequential_identifier_assignments_i1">
       <col>co_identifier_assignment_id</col>
       <col>affix</col>
       <unique />
+    </index>
+  </table>
+  
+  <table name="history_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="actor_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="action" type="C" size="4" />
+    <field name="comment" type="C" size="256" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_history_records_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="co_history_records_i2">
+      <col>co_person_role_id</col>
+    </index>
+    <index name="co_history_records_i3">
+      <col>org_identity_id</col>
     </index>
   </table>
 </schema>

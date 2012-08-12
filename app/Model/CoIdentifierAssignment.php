@@ -202,6 +202,21 @@ class CoIdentifierAssignment extends AppModel {
           
           if($this->Co->CoPerson->Identifier->save($identifierData)) {
             $ret = $this->Co->CoPerson->Identifier->id;
+            
+            // Create a history record
+            try {
+              $this->Co->CoPerson->HistoryRecord->record($coPerson['CoPerson']['id'],
+                                                         null,
+                                                         null,
+                                                         null,
+                                                         ActionEnum::IdentifierAutoAssigned,
+                                                         _txt('en.action', null, ActionEnum::IdentifierAutoAssigned) . ': '
+                                                         . $candidate . ' (' . $identifierData['Identifier']['type'] . ')');
+            }
+            catch(Exception $e) {
+              $dbc->rollback();
+              throw new RuntimeException(_txt('er.db.save'));
+            }
           } else {
             $dbc->rollback();
             throw new RuntimeException(_txt('er.db.save'));

@@ -21,7 +21,26 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
-  
+
+class ActionEnum
+{
+  // Codes beginning with 'X' (eg: 'XABC') are reserved for local use
+  const CoPersonAddedManual        = 'ACPM';
+  const CoPersonAddedPetition      = 'ACPP';
+  const CoPersonEditedManual       = 'ECPM';
+  const CoPersonEditedPetition     = 'ECPP';
+  const CoPersonRoleAddedManual    = 'ACRM';
+  const CoPersonRoleAddedPetition  = 'ACRP';
+  const CoPersonRoleDeletedManual  = 'DCRM';
+  const CoPersonRoleEditedManual   = 'ECRM';
+  const CoPersonRoleEditedPetition = 'ECRP';
+  const CoPersonOrgIdLinked        = 'LOCP';
+  const IdentifierAutoAssigned     = 'AIDA';
+  const OrgIdAddedManual           = 'AOIM';
+  const OrgIdAddedPetition         = 'AOIP';
+  const OrgIdEditedManual          = 'EOIM';
+}
+
 class AdministratorEnum
 {
   const NoAdmin       = 'N';

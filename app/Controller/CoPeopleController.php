@@ -269,6 +269,57 @@ class CoPeopleController extends StandardController {
   }
 
   /**
+   * Generate history records for a transaction. This method is intended to be
+   * overridden by model-specific controllers, and will be called from within a
+   * try{} block so that HistoryRecord->record() may be called without worrying
+   * about catching exceptions.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  public function generateHistory($action, $newdata, $olddata) {
+    switch($action) {
+      case 'add':
+        // We try to record an Org Identity ID, but this will only exist for non-REST operations
+        $this->CoPerson->HistoryRecord->record($this->CoPerson->id,
+                                               null,
+                                               (isset($newdata['CoOrgIdentityLink'][0]['org_identity_id'])
+                                               ? $newdata['CoOrgIdentityLink'][0]['org_identity_id'] : null),
+                                               $this->Session->read('Auth.User.co_person_id'),
+                                               ActionEnum::CoPersonAddedManual);
+        
+        if(!$this->restful) {
+          // Add a record indicating the link took place
+          $this->CoPerson->HistoryRecord->record($this->CoPerson->id,
+                                                 null,
+                                                 $newdata['CoOrgIdentityLink'][0]['org_identity_id'],
+                                                 $this->Session->read('Auth.User.co_person_id'),
+                                                 ActionEnum::CoPersonOrgIdLinked);
+        }
+        break;
+      case 'delete':
+        // We don't handle delete since the CO person and its associated history
+        // is about to be deleted
+        break;
+      case 'edit':
+        $this->CoPerson->HistoryRecord->record($this->CoPerson->id,
+                                               null,
+                                               $newdata['CoOrgIdentityLink'][0]['org_identity_id'],
+                                               $this->Session->read('Auth.User.co_person_id'),
+                                               ActionEnum::CoPersonEditedManual,
+                                               _txt('en.action', null, ActionEnum::CoPersonEditedManual) . ": " .
+                                               $this->changesToString($newdata, $olddata, array('CoPerson', 'Name')));
+        break;
+    }
+    
+    return true;
+  }
+  
+  /**
    * Obtain all CO People, or perform a match
    *
    * @since  COmanage Registry v0.5

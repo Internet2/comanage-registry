@@ -197,7 +197,7 @@
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.valid.f'); if($e && !$es) echo " " . _txt('fd.valid.f.desc'); ?>
+        <?php echo _txt('fd.valid_from'); if($e && !$es) echo " " . _txt('fd.valid_from.desc'); ?>
       </td>
       <td>
         <?php echo (($e && !$es)
@@ -207,7 +207,7 @@
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.valid.u'); if($e && !$es) echo " " . _txt('fd.valid.u.desc'); ?>
+        <?php echo _txt('fd.valid_through'); if($e && !$es) echo " " . _txt('fd.valid_through.desc'); ?>
       </td>
       <td>
         <?php echo (($e && !$es)

@@ -95,6 +95,44 @@ class CoOrgIdentityLinksController extends StandardController {
   }
   
   /**
+   * Generate history records for a transaction. This method is intended to be
+   * overridden by model-specific controllers, and will be called from within a
+   * try{} block so that HistoryRecord->record() may be called without worrying
+   * about catching exceptions.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  public function generateHistory($action, $newdata, $olddata) {
+    if($this->restful) {
+      switch($action) {
+        case 'add':
+          // We try to record an Org Identity ID, but this will only exist for non-REST operations
+          $this->CoOrgIdentityLink->CoPerson->HistoryRecord->record($newdata['CoOrgIdentityLink']['co_person_id'],
+                                                                    null,
+                                                                    $newdata['CoOrgIdentityLink']['org_identity_id'],
+                                                                    $this->Session->read('Auth.User.co_person_id'),
+                                                                    ActionEnum::CoPersonOrgIdLinked);
+          break;
+        case 'delete':
+          // As of v0.7, unlinking preceeds deletion of an identity/person that will therefore
+          // cause this history record to be deleted. As such, we don't record anything. This is
+          // subject to being revisited in a future release.
+          break;
+        case 'edit':
+          // As of v0.7, we don't really have a use case for editing a link.
+          break;
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

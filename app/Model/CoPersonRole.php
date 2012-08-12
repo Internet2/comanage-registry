@@ -51,6 +51,8 @@ class CoPersonRole extends AppModel {
       'dependent' => true,
       'foreignKey' => 'enrollee_co_person_role_id'
     ),
+    // It's probably not right to delete history records, but generally CO person roles shouldn't be deleted
+    "HistoryRecord" => array('dependent' => true),
     // A person can have one or more telephone numbers
     "TelephoneNumber" => array('dependent' => true)
   );
@@ -58,8 +60,9 @@ class CoPersonRole extends AppModel {
   // Default display field for cake generated views
   public $displayField = "CoPersonRole.id";
   
+// XXX CO-296 Toss default order?
   // Default ordering for find operations
-  public $order = array("CoPersonRole.id");
+  //  public $order = array("CoPersonRole.id");
   
   // Validation rules for table elements
   public $validate = array(

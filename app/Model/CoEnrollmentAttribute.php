@@ -96,8 +96,8 @@ class CoEnrollmentAttribute extends AppModel {
     $ret['r:title'] = _txt('fd.title') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['r:o'] = _txt('fd.o') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['r:ou'] = _txt('fd.ou') . " (" . _txt('ct.co_person_roles.1') . ")";
-    $ret['r:valid_from'] = _txt('fd.valid.f') . " (" . _txt('ct.co_person_roles.1') . ")";
-    $ret['r:valid_through'] = _txt('fd.valid.u') . " (" . _txt('ct.co_person_roles.1') . ")";
+    $ret['r:valid_from'] = _txt('fd.valid_from') . " (" . _txt('ct.co_person_roles.1') . ")";
+    $ret['r:valid_through'] = _txt('fd.valid_through') . " (" . _txt('ct.co_person_roles.1') . ")";
     
     // (2) Multi valued CO Person attributes (code=p)
     

@@ -87,6 +87,8 @@ $cm_texts['en_US'] = array(
   'ct.cous.pl' =>               'COUs',
   'ct.email_addresses.1' =>     'Email Address',
   'ct.email_addresses.pl' =>    'Email Addresses',
+  'ct.history_records.1' =>     'History Record',
+  'ct.history_records.pl' =>    'History Records',
   'ct.identifiers.1' =>         'Identifier',
   'ct.identifiers.pl' =>        'Identifiers',
   'ct.org_identities.1' =>      'Organizational Identity',
@@ -103,6 +105,24 @@ $cm_texts['en_US'] = array(
   'em.invite.footer'         => 'This email was sent using %1$s.',
 
   // Enumerations, corresponding to enum.php
+  // Default history comments
+  'en.action' =>   array(
+    ActionEnum::CoPersonAddedManual         => 'CO Person Created (Manual)',
+    ActionEnum::CoPersonAddedPetition       => 'CO Person Role Created (Petition)',
+    ActionEnum::CoPersonEditedManual        => 'CO Person Edited',
+    ActionEnum::CoPersonEditedPetition      => 'CO Person Edited (Petition)',
+    ActionEnum::CoPersonRoleAddedManual     => 'CO Person Role Created (Manual)',
+    ActionEnum::CoPersonRoleAddedPetition   => 'CO Person Role Created (Petition)',
+    ActionEnum::CoPersonRoleDeletedManual   => 'CO Person Role Deleted (Manual)',
+    ActionEnum::CoPersonRoleEditedManual    => 'CO Person Role Edited',
+    ActionEnum::CoPersonRoleEditedPetition  => 'CO Person Role Edited (Petition)',
+    ActionEnum::CoPersonOrgIdLinked         => 'CO Person and Org Identity Linked',
+    ActionEnum::IdentifierAutoAssigned      => 'Identifier Auto Assigned',
+    ActionEnum::OrgIdAddedManual            => 'Org Identity Created (Manual)',
+    ActionEnum::OrgIdAddedPetition          => 'Org Identity Created (Petition)',
+    ActionEnum::OrgIdEditedManual           => 'Org Identity Edited'
+  ),
+
   'en.admin' =>       array(AdministratorEnum::NoAdmin => 'None',
                             AdministratorEnum::CoAdmin => 'CO Admin',
                             AdministratorEnum::CoOrCouAdmin => 'CO or COU Admin'),
@@ -271,7 +291,7 @@ $cm_texts['en_US'] = array(
   
   'et.default' =>     'There are no Extended Types currently defined for this attribute. The default types are currently in use. When you create a new Extended Type, the default types will automatically be added to this list.',
 
-  // Fields
+  // Fields. Field names should match data model names to facilitate various auto-rendering.
   'fd.action' =>      'Action',
   'fd.actions' =>     'Actions',
   'fd.actor' =>       'Actor',
@@ -397,9 +417,10 @@ $cm_texts['en_US'] = array(
   'fd.name.family' => 'Family Name',
   'fd.name.suffix' => 'Suffix',
   'fd.no' =>          'No',
+  'fd.null' =>        'Null',
   'fd.o' =>           'Organization',
   'fd.open' =>        'Open',
-  'fd.orgid' =>       'Organization ID',
+  'fd.organization_id' => 'Organization ID',
   'fd.ou' =>          'Department',
   'fd.parent' =>      'Parent COU',
   'fd.perms' =>       'Permissions',
@@ -419,10 +440,10 @@ $cm_texts['en_US'] = array(
   'fd.type' =>        'Type',
   'fd.type.warn' =>   'After an extended attribute is created, its type may not be changed',
   'fd.untitled' =>    'Untitled',
-  'fd.valid.f' =>     'Valid From',
-  'fd.valid.f.desc' =>  '(leave blank for immediate validity)',
-  'fd.valid.u' =>     'Valid Through',
-  'fd.valid.u.desc' =>  '(leave blank for indefinite validity)',
+  'fd.valid_from' =>  'Valid From',
+  'fd.valid_from.desc' => '(leave blank for immediate validity)',
+  'fd.valid_through' => 'Valid Through',
+  'fd.valid_through.desc' => '(leave blank for indefinite validity)',
   'fd.yes' =>         'Yes',
 
   // Menu
@@ -456,6 +477,7 @@ $cm_texts['en_US'] = array(
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
   'op.gr.memadd' =>   'Add Person %1$s to Group',
   'op.grm.add' =>     'Add Person to %1$s Group %2$s',
+  'op.history' =>     'View History',
   'op.id.auto' =>     'Autogenerate Identifiers',
   'op.id.auto.confirm' => 'Are you sure you wish to autogenerate identifiers?',
   'op.inv' =>         'Invite',

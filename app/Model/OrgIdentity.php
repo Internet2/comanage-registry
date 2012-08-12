@@ -52,6 +52,8 @@ class OrgIdentity extends AppModel {
     ),
     // A person can have one or more email address
     "EmailAddress" => array('dependent' => true),
+    // It's probably not right to delete history records, but generally org identities shouldn't be deleted
+    "HistoryRecord" => array('dependent' => true),
     // A person can have many identifiers within an organization
     "Identifier" => array('dependent' => true),
     // A person can have one or more telephone numbers

@@ -74,25 +74,31 @@
     echo $this->Form->hidden('CoOrgIdentityLink.0.org_identity_id', array('default' => $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])). "\n";
     // Default status is 'Pending'
     echo $this->Form->hidden('status', array('default' => 'P')). "\n";
-    
-    echo '
-    <br />
-    <br />
-    ';
   }
   else
   {
     echo $this->Html->link(_txt('op.back'),
                            array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                           array('class' => 'backbutton')) . '
-    <br />
-    <br />
-    ';
+                           array('class' => 'backbutton'));
+  }
+  
+  if($this->action != "add" && $this->action != "invite") {
+    print $this->Html->link(
+      _txt('op.history'),
+      array(
+        'controller' => 'history_records',
+        'action' => 'index',
+        'copersonid' => $co_people[0]['CoPerson']['id']
+      ),
+      array('class' => 'historybutton')
+    );
   }
   
   // Line number, for rendering
   $l = 1;
 ?>
+<br />
+<br />
 <script type="text/javascript">
   <!-- JS specific to these fields -->
   
@@ -394,8 +400,8 @@
               <?php endif; // compare ?>
               <th><?php echo _txt('fd.title'); ?></th>
               <th><?php echo _txt('fd.affiliation'); ?></th>
-              <th><?php echo _txt('fd.valid.f'); ?></th>
-              <th><?php echo _txt('fd.valid.u'); ?></th>
+              <th><?php echo _txt('fd.valid_from'); ?></th>
+              <th><?php echo _txt('fd.valid_through'); ?></th>
               <?php if($this->action != "compare"): ?>
               <th><?php echo _txt('fd.status'); ?></th>
               <th><?php echo _txt('fd.actions'); ?></th>

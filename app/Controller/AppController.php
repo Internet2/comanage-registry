@@ -8,12 +8,12 @@
  * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       registry
  * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
@@ -138,6 +138,8 @@ class AppController extends Controller {
       
       $this->Auth->authenticate = array('Basic');
       
+//      debug(AuthComponent::password($_SERVER['PHP_AUTH_PW']));
+      
       if(!$this->Auth->login()) {
         $this->restResultHeader(401, "Unauthorized");
         // We force an exit here to prevent any views from rendering, but also
@@ -171,7 +173,6 @@ class AppController extends Controller {
    */
 
   function beforeRender() {
-
     // Determine what is shown for menus
     // Called before each render in case permissions change
     if($this->restful != true
@@ -318,6 +319,117 @@ class AppController extends Controller {
     return($ret);
   }
   
+  /**
+   * Compare two arrays and generate a string describing what changed, suitable for
+   * including in a history record.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  Array New data, in typical Cake format
+   * @param  Array Old data, in typical Cake format
+   * @param  Array Models to examine within new and old data
+   * @return String String describing changes
+   */
+    
+  public function changesToString($newdata, $olddata, $models) {
+    // We assume $newdata and $olddate are intended to have the same structure, however
+    // we require $models to be specified since different controllers may pull different
+    // levels of containable or recursion data, and so we don't know how many associated
+    // models will appear in $newdata and/or $olddata.
+    
+    $changes = array();
+    
+    foreach($models as $model) {
+      if($model == 'ExtendedAttribute') {
+        // Handle extended attributes differently, as usual
+        
+        if(isset($this->cur_co['CoExtendedAttribute'])) {
+          // First, calculate the real model name
+          $eaModel = "Co" . $this->cur_co['Co']['id'] . "PersonExtendedAttribute";
+          
+          foreach($this->cur_co['CoExtendedAttribute'] as $extAttr) {
+            $oldval = null;
+            $newval = null;
+            
+            // Grab the name of this attribute and lowercase it to match the data model
+            $eaName = strtolower($extAttr['name']);
+            $eaDisplayName = $extAttr['display_name'];
+            
+            // Try to find the attribute in the data
+            
+            if(isset($newdata[$eaModel][$eaName]) && ($newdata[$eaModel][$eaName] != "")) {
+              $newval = $newdata[$eaModel][$eaName];
+            }
+            
+            if(isset($olddata[$eaModel][$eaName]) && ($olddata[$eaModel][$eaName] != "")) {
+              $oldval = $olddata[$eaModel][$eaName];
+            }
+            
+            if(isset($newval) && !isset($oldval)) {
+              $changes[] = $eaDisplayName . ": " . _txt('fd.null') . " > " . $newval;
+            } elseif(!isset($newval) && isset($oldval)) {
+              $changes[] = $eaDisplayName . ": " . $oldval . " > " . _txt('fd.null');
+            } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
+              $changes[] = $eaDisplayName . ": " . $oldval . " > " . $newval;
+            }
+          }
+        }
+      } else {
+        // Generate the union of keys among old and new
+        
+        $attrs = array_unique(array_merge(array_keys($newdata[$model]), array_keys($olddata[$model])));
+        
+        foreach($attrs as $attr) {
+          // Skip some "housekeeping" keys
+          if($attr == 'id' || preg_match('/.*_id$/', $attr) || $attr == 'created' || $attr == 'modified') {
+            continue;
+          }
+          
+          // Skip nested arrays -- for now, we only deal with top level data
+          if((isset($newdata[$model][$attr]) && is_array($newdata[$model][$attr]))
+              || (isset($olddata[$model][$attr]) && is_array($olddata[$model][$attr]))) {
+            continue;
+          }
+          
+          $oldval = (isset($olddata[$model][$attr]) && $olddata[$model][$attr] != "") ? $olddata[$model][$attr] : null;
+          $newval = (isset($newdata[$model][$attr]) && $newdata[$model][$attr] != "") ? $newdata[$model][$attr] : null;
+          
+          // See if we're working with a type, and if so use the localized string instead
+          // (if we can find it)
+          
+          if(!isset($this->$model)) {
+            $this->loadModel($model);
+          }
+          
+          if(isset($this->$model) && isset($this->$model->cm_enum_txt[$attr])) {
+            $oldval = _txt($this->$model->cm_enum_txt[$attr], null, $oldval) . " (" . $oldval . ")";
+            $newval = _txt($this->$model->cm_enum_txt[$attr], null, $newval) . " (" . $newval . ")";
+          }
+          
+          // Find the localization of the field
+          
+          $ftxt = "(?)";
+          
+          if($model == 'Name' && $attr != 'type') {
+            // Treat name specially
+            $ftxt = _txt('fd.name.'.$attr);
+          } else {
+            $ftxt = _txt('fd.'.$attr);
+          }
+          
+          if(isset($newval) && !isset($oldval)) {
+            $changes[] = $ftxt . ": " . _txt('fd.null') . " > " . $newval;
+          } elseif(!isset($newval) && isset($oldval)) {
+            $changes[] = $ftxt . ": " . $oldval . " > " . _txt('fd.null');
+          } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
+            $changes[] = $ftxt . ": " . $oldval . " > " . $newval;
+          }
+        }
+      }
+    }
+    
+    return implode(';', $changes);
+  }
+
   /**
    * For Models that accept a CO Person ID, a CO Person Role ID, or an Org
    * Identity ID, verify that a valid ID was specified.  Also, generate an

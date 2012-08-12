@@ -72,11 +72,15 @@ class CoPerson extends AppModel {
     ),
     // A person can be an actor on a petition and generate history
     "CoPetitionHistoryRecord" => array(
-      'dependent' => true,
       'foreignKey' => 'actor_co_person_id'
     ),
     // A person can have one or more email address
     "EmailAddress" => array('dependent' => true),
+    // We allow dependent=true for co_person_id but not for actor_co_person_id (see CO-404).
+    "HistoryRecord" => array(
+      'dependent' => true,
+      'foreignKey' => 'co_person_id'
+    ),
     // A person can have many identifiers within a CO
     "Identifier" => array('dependent' => true)
   );

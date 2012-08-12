@@ -58,6 +58,18 @@
       echo $this->Form->hidden('OrgIdentity.co_id',
                                array('default' => $cur_co['Co']['id'])). "\n";
   }
+  
+  if($this->action != "add") {
+    print $this->Html->link(
+      _txt('op.history'),
+      array(
+        'controller' => 'history_records',
+        'action' => 'index',
+        'orgidentityid' => $org_identities[0]['OrgIdentity']['id']
+      ),
+      array('class' => 'historybutton')
+    );
+  }
 ?>
 <br />
 <br />

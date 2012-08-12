@@ -74,6 +74,7 @@ Router::mapResources(array(
   'cos',
   'cous',
   'email_addresses',
+  'history_records',
   'identifiers',
   'org_identities',
   'organizations',

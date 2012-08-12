@@ -47,8 +47,8 @@
       <th><?php echo $this->Paginator->sort('Cou.ou', _txt('fd.cou')); ?></th>
       <th><?php echo $this->Paginator->sort('title', _txt('fd.title')); ?></th>
       <th><?php echo $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-      <th><?php echo $this->Paginator->sort('valid_from', _txt('fd.valid.f')); ?></th>
-      <th><?php echo $this->Paginator->sort('valid_through', _txt('fd.valid.u')); ?></th>
+      <th><?php echo $this->Paginator->sort('valid_from', _txt('fd.valid_from')); ?></th>
+      <th><?php echo $this->Paginator->sort('valid_through', _txt('fd.valid_through')); ?></th>
       <th><?php echo $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <th><?php echo _txt('fd.actions'); ?></th>
     </tr>

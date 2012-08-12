@@ -47,7 +47,7 @@ global $cm_lang, $cm_texts;
       <th><?php echo $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
       <th><?php echo $this->Paginator->sort('title', _txt('fd.title')); ?></th>
       <th><?php echo $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-      <th><?php echo $this->Paginator->sort('organization_id', _txt('fd.orgid')); ?></th>
+      <th><?php echo $this->Paginator->sort('organization_id', _txt('fd.organization_id')); ?></th>
       <th><?php echo _txt('fd.actions'); ?></th>
     </tr>
   </thead>
