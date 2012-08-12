@@ -96,7 +96,8 @@ class Xml {
 		if (is_array($input) || is_object($input)) {
 			return self::fromArray((array)$input, $options);
 		} elseif (strpos($input, '<') !== false) {
-			return $dom;
+// This appears to be a bug and has been removed from releases past v2.0.5
+//			return $dom;
 			return self::_loadXml($input, $options);
 		} elseif (file_exists($input) || strpos($input, 'http://') === 0 || strpos($input, 'https://') === 0) {
 			$input = file_get_contents($input);
