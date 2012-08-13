@@ -216,7 +216,7 @@ $cos = $this->viewVars['menuContent']['cos'];
                   $co['co_person_id'],
                   'co' => $co['co_id']
                 );
-                print $this->Html->link(_txt('me.for') . $co['co_name'], $args);
+                print $this->Html->link(_txt('me.for', array($co['co_name'])), $args);
               print "</li>";
             }
             print '</ul>
@@ -236,7 +236,7 @@ $cos = $this->viewVars['menuContent']['cos'];
                   'action' => 'editself',
                   'co' => $co['co_id']
                 );
-                print $this->Html->link(_txt('me.for'). $co['co_name'], $args);
+                print $this->Html->link(_txt('me.for', array($co['co_name'])), $args);
               print "</li>";
             }
 

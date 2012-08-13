@@ -449,7 +449,7 @@ $cm_texts['en_US'] = array(
   // Menu
   'me.account'         => 'My Account',
   'me.changepassword'  => 'Change Password',
-  'me.for'             => 'For ',
+  'me.for'             => 'For %1$s',
   'me.identity'        => 'Identity',
   'me.label'           => 'Manage:',
   'me.platform'        => 'Platform',
