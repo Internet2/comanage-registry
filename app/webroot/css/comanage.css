@@ -161,6 +161,61 @@ body {
        float:right;
       }
 
+      /* 2-column layout */
+      .twocolumn{
+        border: solid gray 2px;
+        float: left;
+        margin: 0 30px 0 15px;
+        padding: 10px;
+        width: 365px;
+      }
+
+      .twocolumn .ui-widget-header{
+        padding:0 5px;
+        overflow:hidden;
+      }
+      .twocolumn .ui-widget-header div {
+        margin: 8px 0;
+        float:left;
+      }
+      
+      .twocolumn input[type="text"]{
+        width: 230px;
+      }
+
+      .additionalinfo{
+        padding: 5px;
+        margin: 0 0 5px 0;
+      }
+      .additionalinfo:last-child{
+        margin:0;
+      }
+
+      .additionalinfo>div{
+        background: none repeat scroll 0 0 #EEEEEE;
+        padding: 5px;
+        margin: 0 0 5px 0;
+        overflow:hidden;
+      }
+      .additionalinfo>div:last-child{
+        margin:0;
+      }
+      .additionalinfo>div div{
+        float: left;
+        padding: 7px 0 0 10px;
+      }
+
+      .additionalinfo div a{
+        float:left;
+      }
+      .additionalinfo div .ui-button{
+        float:right;
+      }
+
+      #OrgIdentityEditForm .addbutton{
+        float:right;
+      }
+
   /* Footer */
   
   .footer {
