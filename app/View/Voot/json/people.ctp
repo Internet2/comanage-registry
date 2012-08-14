@@ -55,8 +55,11 @@
       $people[] = array(
         'id'                    => $pid,
         'displayName'           => generateCn($p['Name']),
-        'givenName'             => $p['Name']['given'],
-        'familyName'            => $p['Name']['family'],
+        'name'                  => array(
+          'formatted'             => generateCn($p['Name']),
+          'givenName'             => $p['Name']['given'],
+          'familyName'            => $p['Name']['family'],
+        ),
         'emails'                => $email,
         'voot_membership_role'  => $grole
       );
