@@ -154,40 +154,42 @@ else
     </li>
 
     <!-- Platform Dropdown -->
-    <li class="dropMenu">
-      <a>
-        <span>
-          <?php print _txt('me.platform');?>
-        </span>
-        <span class="ui-icon ui-icon-carat-1-s"></span>
-      </a>
-      <ul>
-        <li>
-          <?php
-            $params = array('controller' => 'cos',
-                            'action'     => 'index'
-                           );
-            print $this->Html->link(_txt('ct.cos.pl'), $params);
-          ?>
-        </li>
-        <li>
-          <?php
-            $params = array('controller' => 'organizations',
-                            'action'     => 'index'
-                           );
-            print $this->Html->link(_txt('ct.organizations.pl'), $params);
-          ?>
-        </li>
-        <li>
-          <?php
-            $params = array('controller' => 'cmp_enrollment_configurations',
-                            'action'     => 'select'
-                           );
-            print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $params);
-          ?>
-        </li>
-      </ul>
-    </li>
+    <?php if($permissions['menu']['admin']): ?>
+      <li class="dropMenu">
+        <a>
+          <span>
+            <?php print _txt('me.platform');?>
+          </span>
+          <span class="ui-icon ui-icon-carat-1-s"></span>
+        </a>
+        <ul>
+          <li>
+            <?php
+              $params = array('controller' => 'cos',
+                              'action'     => 'index'
+                             );
+              print $this->Html->link(_txt('ct.cos.pl'), $params);
+            ?>
+          </li>
+          <li>
+            <?php
+              $params = array('controller' => 'organizations',
+                              'action'     => 'index'
+                             );
+              print $this->Html->link(_txt('ct.organizations.pl'), $params);
+            ?>
+          </li>
+          <li>
+            <?php
+              $params = array('controller' => 'cmp_enrollment_configurations',
+                              'action'     => 'select'
+                             );
+              print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $params);
+            ?>
+          </li>
+        </ul>
+      </li>
+    <?php endif; ?>
 
     <!-- Account Dropdown -->
     <li class="dropMenu">
