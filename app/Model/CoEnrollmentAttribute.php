@@ -105,8 +105,8 @@ class CoEnrollmentAttribute extends AppModel {
       $ret['p:name:'.$k] = _txt('fd.name') . " (" . $cm_texts[ $cm_lang ]['en.name'][$k] . ", " . _txt('ct.co_people.1') . ")";
     
     // Identifier types can be extended, and so require a bit of work to assemble
-    $coExtendedType = ClassRegistry::init('CoExtendedType');
-    $identifierTypes = $coExtendedType->active($coid, 'Identifier', 'list');
+    $Identifier = ClassRegistry::init('Identifier');
+    $identifierTypes = $Identifier->types($coid);
     
     foreach(array_keys($identifierTypes) as $k)
       $ret['p:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $identifierTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
@@ -144,8 +144,9 @@ class CoEnrollmentAttribute extends AppModel {
       foreach(array_keys($cm_texts[ $cm_lang ]['en.name']) as $k)
         $ret['i:name:'.$k] = _txt('fd.name') . " (" . $cm_texts[ $cm_lang ]['en.name'][$k] . ", " . _txt('ct.org_identities.1') . ")";
       
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.identifier']) as $k)
-        $ret['i:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $cm_texts[ $cm_lang ]['en.identifier'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+      // Handle extended types, using the same types as above
+      foreach(array_keys($identifierTypes) as $k)
+        $ret['i:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $identifierTypes[$k] . ", " . _txt('ct.org_identities.1') . ")";
       
       foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.address']) as $k)
         $ret['i:address:'.$k] = _txt('fd.address') . " (" . $cm_texts[ $cm_lang ]['en.contact.address'][$k] . ", " . _txt('ct.org_identities.1') . ")";

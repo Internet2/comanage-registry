@@ -230,16 +230,18 @@ class CoPetition extends AppModel {
         // rule for validateExtendedType.
         
         if(isset($this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][0])
-           && $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][0] == 'validateExtendedType') {
-          // Change rule[0] to inList and rule[1] to the list as returned by CoExtendedType::active
+           && $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][0] == 'validateExtendedType') {          
+          // Change rule[0] to inList and rule[1] to the list as returned by Model->types(). We need to retrieve
+          // the list before we start changing the validation rules, since Model->types() needs to know
+          // the default values.
+          
+          // Load the model this extended type applies to so we can figure out its instantiated types
+          $extTypeModel = ClassRegistry::init($m[1]);
+          $extTypeValues = $extTypeModel->types($coId);
           
           $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'] = array();
           $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][] = 'inList';
-          
-          $coExtendedType = ClassRegistry::init('CoExtendedType');
-          $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][] = array_keys($coExtendedType->active($coId,
-                                                                                                            $m[1],
-                                                                                                            'list'));
+          $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][] = array_keys($extTypeValues);
         }
       }
     }
