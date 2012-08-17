@@ -165,10 +165,10 @@ $(function() {
     <div id="tabs-name">
       <table>
         <tr>
-          <th class="ui-state-default"><?php print _txt('fd.attribute'); ?></th>
-          <th class="ui-state-default"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+          <th class="ui-widget-header"><?php print _txt('fd.attribute'); ?></th>
+          <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
           <?php if($this->action == "compare"): ?>
-              <th class="ui-state-default"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+              <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
           <?php endif; ?>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -274,7 +274,10 @@ $(function() {
           <table>
             <tbody>
               <tr>
-                <th class="ui-state-default"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                <?php if($e && !$es): ?>
+                  <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+                <?php endif; ?>
               </tr>
                 <?php
                   $l = 1;
@@ -289,13 +292,15 @@ $(function() {
                         print '">';
                         $l++;
                           print '<td>';
+                            print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
+                            print " (" . $id['type'] . ")";
+                          print '</td>';
+                          print '<td>';
                             // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                             print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $this->Html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                             print $this->Html->link(_txt('op.edit'),
                                              array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
-                                             array('class' => 'editbutton')) . "\n";
-                            print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
-                            print " (" . $id['type'] . ")<br />\n";
+                                             array('class' => 'editbutton'));
                           print '</td>';
                         print '</tr>';
                       }
@@ -319,27 +324,34 @@ $(function() {
                       }
                     }
                   }
+                  if($e && !$es)
+                  {
+                    print '<tr>';
+                      print '<td></td>';
+                      print '<td>';
+
+
+                        print $this->Html->link(_txt('op.add'),
+                                                array('controller' => 'identifiers', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                                                array('class' => 'addbutton')) . "\n";
+                      print '</td>';
+                    print '</tr>';
+                  }
                 ?>
              </tbody>
           </table>
         </div>
         <?php
-          if($e && !$es)
-          {
-            print $this->Html->link(_txt('op.add'),
-                                    array('controller' => 'identifiers', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                    array('class' => 'addbutton')) . "\n";
-            if(!empty($co_identifier_assignments)) {
-              print '<a
-                      class="autobutton"
-                      title="' . _txt('op.id.auto') . '"
-                      onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
-                                                                                               'action' => 'assign',
-                                                                                               'copersonid' => $co_people[0]['CoPerson']['id'],
-                                                                                               'co' => $cur_co['Co']['id'])) . '\')";>'
-                      . _txt('op.id.auto')
-                      . "</a>\n";
-            }
+          if(!empty($co_identifier_assignments)) {
+            print '<a
+                    class="autobutton"
+                    title="' . _txt('op.id.auto') . '"
+                    onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
+                                                                                             'action' => 'assign',
+                                                                                             'copersonid' => $co_people[0]['CoPerson']['id'],
+                                                                                             'co' => $cur_co['Co']['id'])) . '\')";>'
+                    . _txt('op.id.auto')
+                    . "</a>\n";
           }
         ?>
         <?php if($this->action == "compare"): ?>
@@ -347,7 +359,7 @@ $(function() {
             <table>
               <tbody>
                 <tr>
-                  <th class="ui-state-default"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+                  <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
                 </tr>
                 <?php
                   if(isset($org_identities[0]['Identifier']))
@@ -375,7 +387,10 @@ $(function() {
           <table>
             <tbody>
               <tr>
-                <th class="ui-state-default"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                <?php if($e && !$es): ?>
+                  <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+                <?php endif; ?>
               </tr>
               <?php
                 $l = 1;
@@ -390,14 +405,16 @@ $(function() {
                       $l++;
                       print '">';
                         print '<td>';
+                          print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
+                          print " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
+                        print '</td>';
+
+                        print '<td>';
                           // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                           print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $this->Html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                           print $this->Html->link(_txt('op.edit'),
                                                   array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']),
                                                   array('class' => 'editbutton')) . "\n";
-                          print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
-                          print " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
-
                         print '</td>';
                       print '</tr>';
                     }
@@ -415,11 +432,23 @@ $(function() {
                         $l++;
 
                         print '<td>';
-                          print Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
+                          print Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")\n";
                         print '</td>';
                       print '</tr>';
                     }
                   }
+                }
+                if($e)
+                {
+                   print '<tr>';
+                     print '<td></td>';
+                     print '<td>';
+
+                       print $this->Html->link(_txt('op.add'),
+                                           array('controller' => 'email_addresses', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                                           array('class' => 'addbutton'));
+                     print '</td>';
+                   print '</tr>';
                 }
               ?>
             </tbody>
@@ -433,7 +462,7 @@ $(function() {
             <table>
               <tbody>
                 <tr>
-                  <th class="ui-state-default"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+                  <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
                 </tr>
                 <?php
                   if(isset($org_identities[0]['EmailAddress']))
@@ -445,7 +474,7 @@ $(function() {
                       print '">';
                       $l++;
                         print '<td>';
-                          print Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
+                          print Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")\n";
                         print '</td>';
                       print '</tr>';
 
@@ -456,20 +485,15 @@ $(function() {
             </table>
           </div>
         <?php endif; // compare ?>
-        <?php
-          if($e)
-          {
-             print $this->Html->link(_txt('op.add'),
-                                     array('controller' => 'email_addresses', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                     array('class' => 'addbutton'));
-          }
-        ?>
       </div> <!-- tabs-email -->
       <div id="tabs-group">
         <div style="float:left;">
           <table>
             <tr>
-              <th class="ui-state-default"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+              <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+              <?php if($e && !$es): ?>
+                <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+              <?php endif; ?>
             </tr>
             <?php
               if(isset($co_people[0]['CoGroupMember']))
@@ -485,10 +509,12 @@ $(function() {
                       print '">';
                         $l++;
                         print '<td>';
+                          print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
+                        print '</td>';
+
+                        print '<td>';
                           // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                           print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($g['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'CoPersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                          print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
-                          print "<br />\n";
                         print '</td>';
                       print '</tr>';
                     }
@@ -512,20 +538,26 @@ $(function() {
                   }
                 }
               }
+              if(isset($co_people[0]['CoGroupMember']))
+              {
+                if($e && !$es)  // XXX !$es is probably the wrong permission here
+                {
+                  print '<tr>';
+                    print '<td></td>';
+                    print '<td>';
+
+                      print $this->Html->link(_txt('op.add'),
+                                              array('controller' => 'co_groups', 'action' => 'select', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                                              array('class' => 'addbutton'));
+                    print '</td>';
+                   print '</tr>';
+                  }
+                }
             ?>
           </table>
         </div>
         <?php
-          if(isset($co_people[0]['CoGroupMember']))
-          {
-            if($e && !$es)  // XXX !$es is probably the wrong permission here
-            {
-              print $this->Html->link(_txt('op.add'),
-                                      array('controller' => 'co_groups', 'action' => 'select', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                      array('class' => 'addbutton'));
-            }
-          }
-        ?>
+                  ?>
       </div> <!-- tabs-group -->
       <div id="tabs-role">
         <table>
@@ -537,25 +569,23 @@ $(function() {
                   <table id="<?php print $this->action; ?>_co_person_roles" class="ui-widget">
                     <tbody>
                       <tr class="line<?php print ($l % 2); $l++; ?>">
-                        <th></th>
                         <?php if($this->action == "compare"): ?>
-                          <th><?php print _txt('fd.o'); ?></th>
-                          <th><?php print _txt('fd.ou'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.ou'); ?></th>
                           <?php else: // compare ?>
-                          <th><?php print _txt('fd.cou'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.cou'); ?></th>
                           <?php endif; // compare ?>
-                          <th><?php print _txt('fd.title'); ?></th>
-                          <th><?php print _txt('fd.affiliation'); ?></th>
-                          <th><?php print _txt('fd.valid_from'); ?></th>
-                          <th><?php print _txt('fd.valid_through'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.title'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.valid_from'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.valid_through'); ?></th>
                           <?php if($this->action != "compare"): ?>
-                          <th><?php print _txt('fd.status'); ?></th>
-                          <th><?php print _txt('fd.actions'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.status'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                         <?php endif; // compare ?>
                       </tr>
                       <?php if($this->action == "compare"): ?>
                         <tr class="line<?php print ($l % 2); $l++; ?>">
-                          <td></td>
                           <td>
                             <?php
                               if(isset($org_identities[0]['OrgIdentity']['o']))
@@ -587,7 +617,6 @@ $(function() {
                         foreach($co_people[0]['CoPersonRole'] as $r):
                       ?>
                       <tr class="line<?php print ($l % 2); $l++; ?>">
-                        <td><?php print $rcnt; ?></td>
                         <?php if($this->action == "compare"): ?>
                         <td><?php if(isset($r['o'])) print Sanitize::html($r['o']); ?></td>
                         <td><?php if(isset($r['ou'])) print Sanitize::html($r['ou']); ?></td>
@@ -638,16 +667,21 @@ $(function() {
                         endforeach; // co_people
                       ?>
                       <?php if($this->action != "compare" && $e && !$es): ?>
-                      <tr class="line<?php print ($l % 2); $l++; ?>">
-                        <td></td>
-                        <td>
-                          <?php
-                            print $this->Html->link(_txt('op.add'),
-                                                    array('controller' => 'co_person_roles', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                                    array('class' => 'addbutton'));
-                          ?>
-                        </td>
-                      </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td>
+                            <?php
+                              print $this->Html->link(_txt('op.add'),
+                                                      array('controller' => 'co_person_roles', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                                                      array('class' => 'addbutton'));
+                            ?>
+                          </td>
+                        </tr>
                       <?php endif; // compare ?>
                     </tbody>
                   </table>
