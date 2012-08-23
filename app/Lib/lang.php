@@ -108,7 +108,7 @@ $cm_texts['en_US'] = array(
   // Default history comments
   'en.action' =>   array(
     ActionEnum::CoPersonAddedManual         => 'CO Person Created (Manual)',
-    ActionEnum::CoPersonAddedPetition       => 'CO Person Role Created (Petition)',
+    ActionEnum::CoPersonAddedPetition       => 'CO Person Created (Petition)',
     ActionEnum::CoPersonEditedManual        => 'CO Person Edited',
     ActionEnum::CoPersonEditedPetition      => 'CO Person Edited (Petition)',
     ActionEnum::CoPersonRoleAddedManual     => 'CO Person Role Created (Manual)',
@@ -260,7 +260,7 @@ $cm_texts['en_US'] = array(
   'er.et.default' =>  'Failed to add default types',
   'er.et.exists' =>   'An extended type named "%1$s" already exists',
   'er.et.inuse' =>    'The extended type "%1$s" is in use by at least one attribute within this CO and cannot be removed.',
-  'er.fields' =>      'Please recheck your submission',
+  'er.fields' =>      'Please recheck the highlighted fields',
   'er.gr.exists' =>   'A group named "%1$s" already exists within the CO',
   'er.gr.init' =>     'Group created, but failed to set initial owner/member',
   'er.gr.nf' =>       'Graup %1$s Not Found',

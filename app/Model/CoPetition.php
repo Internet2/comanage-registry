@@ -141,6 +141,82 @@ class CoPetition extends AppModel {
   );
   
   /**
+   * Adjust a model's validation rules for use in Petition validation.
+   * - postcondition: Model's validation rules are updated
+   *
+   * @since  COmanage Registry v0.7
+   * @param  String Model to be adjusted
+   * @param  Array Enrollment Flow attributes, as returned by CoEnrollmentAttribute::enrollmentFlowAttributes()
+   */
+  
+  public function adjustValidationRules($model, $efAttrs) {
+    // XXX With Cake 2.2 we can use dynamic validation rules instead of mucking around this way (CO-353)
+    
+    foreach($efAttrs as $efAttr) {
+      // The model might be something like EnrolleeCoPersonRole or EnrolleeCoPersonRole.Name
+      // or EnrolleeCoPersonRole.TelephoneNumber.0. However, since we only adjust validation
+      // rules for top-level attributes, the first type is the only one we care about.
+      
+      $m = explode('.', $efAttr['model'], 3);
+      
+      if(count($m) == 1) {
+        if($m[0] == $model) {
+          $this->$model->validate[ $efAttr['field'] ] = $efAttr['validate'];
+          
+          $this->$model->validate[ $efAttr['field'] ]['required'] = $efAttr['required'];
+          $this->$model->validate[ $efAttr['field'] ]['allowEmpty'] = !$efAttr['required'];
+        }
+      }
+    }
+  }
+  
+  /**
+   * Determine if a related Model is optional, and if so if it is empty (ie: not
+   * provided in the petition).
+   *
+   * @since  COmanage Registry v0.7
+   * @param  Integer CO Enrollment Attribute ID
+   * @param  Array Data for model
+   * @param  Array Enrollment Flow attributes, as returned by CoEnrollmentAttribute::enrollmentFlowAttributes()
+   * @return Boolean True if the Model is optional and if it is empty, false otherwise
+   */
+  
+  public function attributeOptionalAndEmpty($efAttrID, $data, $efAttrs) {
+    // Since when we're called createPetition has already pulled $efAttrs from the
+    // database, we traverse it looking for $efAttrID rather than do another database
+    // call for just the relevant records.
+    
+    foreach($efAttrs as $efAttr) {
+      // More than one entry can match a given attribute ID.
+      
+      if($efAttr['id'] != $efAttrID) {
+        // Skip this one, it's not the attribute ID we're looking for
+        continue;
+      }
+      
+      if($efAttr['hidden']) {
+        // Skip hidden fields because they aren't user-editable
+        continue;
+      }
+      
+      if($efAttr['required']) {
+        // We found a required flag, so stop
+        
+        return false;
+      }
+      
+      if(isset($data[ $efAttr['field'] ]) &&
+         $data[ $efAttr['field'] ] != "") {
+        // Field is set, so stop
+        
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Create a new CO Petition.
    *
    * @since  COmanage Registry v0.6
@@ -153,7 +229,7 @@ class CoPetition extends AppModel {
    * @throws RunTimeException
    */
   
-  function createPetition($enrollmentFlowID, $coId, $requestData, $petitionerId) {
+  public function createPetition($enrollmentFlowID, $coId, $requestData, $petitionerId) {
     // Don't cleverly rename this to create(), since there is already a create method
     // in the default Model.
     
@@ -164,13 +240,35 @@ class CoPetition extends AppModel {
     
     $orgIdentityID = null;
     $coPersonID = null;
+    $coPersonRoleID = null;
     
     // Track whether or not our processing was successful.
     
     $fail = false;
     
-    // Validate the data presented. Do this manually since enrollment flow rules may not match
-    // up with model rules. Start by pulling the enrollment attributes configuration.
+    // Track validation errors since XXX it's unclear what the magic strings are
+    // to get the errors to render in the form (when dealing with multiple of the
+    // same related model).
+    
+    $vErrors = "";
+    
+    // Start a transaction. We don't really need to save until we validate CO Person Role
+    // (which needs co_person_id), but for consistency we'll follow a validate/save/rollback-on-error
+    // pattern.
+    
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+    
+    // Walk through the request data and validate it manually. We have to do it this
+    // way because it's possible for an enrollment flow to define (say) two addresses,
+    // one of which is required and one of which is optional. (We can't just directly
+    // rely on Cake since enrollment flow rules may not match up with default model rules.)
+    
+    // We try validating all user provided data (ie: not the data we assemble ourselves,
+    // such as the Petition), even if some failed, in order to generate the full
+    // set of errors at once when re-rendering the petition form.
+    
+    // Start by pulling the enrollment attributes configuration.
     
     $efAttrs = $this->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($enrollmentFlowID);
     
@@ -181,81 +279,10 @@ class CoPetition extends AppModel {
     $fArgs['fields'] = array('CoEnrollmentAttribute.id', 'CoEnrollmentAttribute.required');
     $reqAttrs = $this->CoEnrollmentFlow->CoEnrollmentAttribute->find("list", $fArgs);
     
-    // For each defined attribute, update the loaded model validation definition to match
-    // the enrollment flow attribute definition. (The CoEnrollmentAttribute model has already
-    // done the logic to figure out what validation should really be.) We do this so that
-    // when we try saveAll later, the validation rules Cake checks match what the admin
-    // configured.
+    // Adjust validation rules for top level attributes only (OrgIdentity, CO Person, CO Person Role)
+    // and validate those models without validating the associated models.
     
-    foreach($efAttrs as $efAttr) {
-      // co_enrollment_attribute_id is a special attribute with no validation
-      if($efAttr['field'] == 'co_enrollment_attribute_id') continue;
-      
-      // The model might be something like EnrolleeCoPersonRole or EnrolleeCoPersonRole.Name
-      // or EnrolleeCoPersonRole.TelephoneNumber.0. Split and handle accordingly.
-      
-      $m = explode('.', $efAttr['model'], 3);
-      
-      if(count($m) == 1) {
-        $this->$m[0]->validate[ $efAttr['field'] ] = $efAttr['validate'];
-        
-        $this->$m[0]->validate[ $efAttr['field'] ]['required'] = $efAttr['required'];
-        $this->$m[0]->validate[ $efAttr['field'] ]['allowEmpty'] = !$efAttr['required'];
-      } else {
-        if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m[1])) {
-          // Extended attributes require a bit more work. First, dynamically bind
-          // the extended attribute to the model if we haven't already.
-          
-          if(!isset($this->EnrolleeCoPersonRole->$m[1])) {
-            $bArgs = array();
-            $bArgs['hasOne'][ $m[1] ] = array(
-              'className' => $m[1],
-              'dependent' => true
-            );
-            
-            $this->EnrolleeCoPersonRole->bindModel($bArgs, false);
-          }
-          
-          // Extended attributes generally won't have validate by Cake set since their models are
-          // dynamically bound, so grabbing validation rules from $efAttr is a win.
-        }
-        
-        $this->$m[0]->$m[1]->validate[ $efAttr['field'] ] = $efAttr['validate'];
-        
-        $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['required'] = $efAttr['required'];
-        $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['allowEmpty'] = !$efAttr['required'];
-        
-        // Temporary hack for CO-368. When the Petition save writes the Identifier model, the
-        // Identifier model has no way of receiving the CO ID. So for now we change the validation
-        // rule for validateExtendedType.
-        
-        if(isset($this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][0])
-           && $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][0] == 'validateExtendedType') {          
-          // Change rule[0] to inList and rule[1] to the list as returned by Model->types(). We need to retrieve
-          // the list before we start changing the validation rules, since Model->types() needs to know
-          // the default values.
-          
-          // Load the model this extended type applies to so we can figure out its instantiated types
-          $extTypeModel = ClassRegistry::init($m[1]);
-          $extTypeValues = $extTypeModel->types($coId);
-          
-          $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'] = array();
-          $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][] = 'inList';
-          $this->$m[0]->$m[1]->validate[ $efAttr['field'] ]['rule'][] = array_keys($extTypeValues);
-        }
-      }
-    }
-    
-    // Start a transaction
-    
-    $dbc = $this->getDataSource();
-    $dbc->begin();
-    
-    // We need to manually construct an Org Identity, at least for now until
-    // they're populated some other way (eg: SAML/LDAP). We'll need to add a
-    // reconciliation hook at some point. Save this prior to saving CO Person
-    // so Cake doesn't get confused with attaching Names (to the Org Identity
-    // vs the CO Person).
+    // We'll start building an array of org data to save as we validate the provided data.
     
     $orgData = array();
     
@@ -264,20 +291,49 @@ class CoPetition extends AppModel {
     if($CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
       // Platform is configured to pull org identities from the form.
       
-      $orgData['EnrolleeOrgIdentity'] = $requestData['EnrolleeOrgIdentity'];
+      // Assemble OrgIdentity attributes.
+      
+      $orgData['EnrolleeOrgIdentity'] = $this->EnrolleeOrgIdentity->filterModelAttributes($requestData['EnrolleeOrgIdentity']);
       
       // Attach this org identity to this CO (if appropriate)
       
       if(!$CmpEnrollmentConfiguration->orgIdentitiesPooled())
         $orgData['EnrolleeOrgIdentity']['co_id'] = $coId;
       
-      // Everything we need is in $this->request->data['EnrolleeOrgIdentity'].
-      // Filter the data to pull related models up a level and, if optional and
-      // not provided, drop the model entirely to avoid validation errors.
+      // Dynamically adjust validation rules according to the enrollment flow
+      $this->adjustValidationRules('EnrolleeOrgIdentity', $efAttrs);
       
-      $orgData = $this->EnrolleeOrgIdentity->filterRelatedModel($orgData, $reqAttrs);
+      // Manually validate OrgIdentity
+      $this->EnrolleeOrgIdentity->set($orgData);
       
-      if($this->EnrolleeOrgIdentity->saveAll($orgData)) {
+      // Make sure to use invalidFields(), which won't try to validate (possibly
+      // missing) related models.
+      $errFields = $this->EnrolleeOrgIdentity->invalidFields();
+      
+      if(!empty($errFields)) {
+        $fail = true;
+      }
+      
+      // Now validate related models
+      
+      $v = $this->validateRelated("EnrolleeOrgIdentity", $requestData, $orgData, $efAttrs);
+      
+      if($v) {
+        $orgData = $v;
+      } else {
+        $fail = true;
+      }
+    } else {
+      // The Org Identity will need to be populated via some other way,
+      // such as via attributes pulled during login.
+      
+      throw new RuntimeException("Not implemented");
+    }
+    
+    if(!$fail && !empty($orgData)) {
+      // Save the Org Identity. All the data is validated, so don't re-validate it.
+      
+      if($this->EnrolleeOrgIdentity->saveAssociated($orgData, array("validate" => false, "atomic" => true))) {
         $orgIdentityID = $this->EnrolleeOrgIdentity->id;
         
         // Create a history record
@@ -293,118 +349,129 @@ class CoPetition extends AppModel {
           throw new RuntimeException($e->getMessage());
         }
       } else {
-        // We don't fail immediately on error because we want to run validate on all
-        // the data we save in the various saveAll() calls so the appropriate fields
-        // are highlighted at once.
-        
-        $fail = true;
+        $dbc->rollback();
+        throw new RuntimeException(_txt('er.db.save'));
       }
-    } else {
-      // The Org Identity will need to be populated via some other way,
-      // such as via attributes pulled during login.
-      
-      throw new RuntimeException("Not implemented");
     }
     
-    // Next, populate a CO Person and CO Person Role, statuses = pending.
+    // Validate CO Person. As of this writing, there really isn't much to validate,
+    // but that could change.
     
     $coData = array();
-    $coData['EnrolleeCoPerson'] = $requestData['EnrolleeCoPerson'];
+    $coData['EnrolleeCoPerson'] = $this->EnrolleeCoPerson->filterModelAttributes($requestData['EnrolleeCoPerson']);
     $coData['EnrolleeCoPerson']['co_id'] = $coId;
     $coData['EnrolleeCoPerson']['status'] = StatusEnum::PendingApproval;
     
-    // Filter the data to pull related models up a level and, if optional and
-    // not provided, drop the model entirely to avoid validation errors.
+    // Dynamically adjust validation rules according to the enrollment flow
+    $this->adjustValidationRules('EnrolleeCoPerson', $efAttrs);
     
-    $coData = $this->EnrolleeCoPerson->filterRelatedModel($coData, $reqAttrs);
+    // Manually validate CoPerson
+    $this->EnrolleeCoPerson->create($coData);
     
-    if($this->EnrolleeCoPerson->saveAll($coData)) {
-      $coPersonID = $this->EnrolleeCoPerson->id;
-      
-      // Create a history record
-      try {
-        $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
-                                                       null,
-                                                       $orgIdentityID,
-                                                       $petitionerId,
-                                                       ActionEnum::CoPersonAddedPetition);
-      }
-      catch(Exception $e) {
-        $dbc->rollback();
-        throw new RuntimeException($e->getMessage());
-      }
-    } else {
-      // We don't fail immediately on error because we want to run validate on all
-      // the data we save in the various saveAll() calls so the appropriate fields
-      // are highlighted at once.
-      
+    // Make sure to use invalidFields(), which won't try to validate (possibly
+    // missing) related models.
+    $errFields = $this->EnrolleeCoPerson->invalidFields();
+    
+    if(!empty($errFields)) {
       $fail = true;
     }
     
+    // Now validate related models
+    
+    $v = $this->validateRelated("EnrolleeCoPerson", $requestData, $coData, $efAttrs);
+    
+    if($v) {
+      $coData = $v;
+    } else {
+      $fail = true;
+    }
+    
+    // Save the CO Person Data
+    
+    if(!$fail) {
+      if($this->EnrolleeCoPerson->saveAssociated($coData, array("validate" => false, "atomic" => true))) {
+        $coPersonID = $this->EnrolleeCoPerson->id;
+        
+        // Create a history record
+        try {
+          $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
+                                                         null,
+                                                         $orgIdentityID,
+                                                         $petitionerId,
+                                                         ActionEnum::CoPersonAddedPetition);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException($e->getMessage());
+        }
+      } else {
+        $dbc->rollback();
+        throw new RuntimeException(_txt('er.db.save'));
+      }
+    }
+      
+    // Validate CO Person Role
+    
     $coRoleData = array();
-    $coRoleData['EnrolleeCoPersonRole'] = $requestData['EnrolleeCoPersonRole'];
+    $coRoleData['EnrolleeCoPersonRole'] = $this->EnrolleeCoPersonRole->filterModelAttributes($requestData['EnrolleeCoPersonRole']);
     $coRoleData['EnrolleeCoPersonRole']['status'] = StatusEnum::PendingApproval;
     $coRoleData['EnrolleeCoPersonRole']['co_person_id'] = $coPersonID;
     
-    // Filter the data to pull related models up a level and, if optional and
-    // not provided, drop the model entirely to avoid validation errors.
+    // Dynamically adjust validation rules according to the enrollment flow
     
-    $coRoleData = $this->EnrolleeCoPersonRole->filterRelatedModel($coRoleData, $reqAttrs);
+    // XXX If we didn't generate a CO Person ID above for some reason, that validation will fail
+    // here. With dynamic validation rules in Cake 2.2 we could drop that rule. (CO-353)
+    $this->adjustValidationRules('EnrolleeCoPersonRole', $efAttrs);
     
-    foreach(array_keys($requestData['EnrolleeCoPersonRole']) as $m) {
-      if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)) {
-        // Pull the data up a level. We don't do the same filtering here since
-        // extended attributes are flat (ie: no related models).
-        
-        $coRoleData[$m] = $requestData['EnrolleeCoPersonRole'][$m];
-        unset($coRoleData['EnrolleeCoPersonRole'][$m]);
-      }
+    // Manually validate CoPersonRole
+    $this->EnrolleeCoPersonRole->set($coRoleData);
+    
+    // Make sure to use invalidFields(), which won't try to validate (possibly
+    // missing) related models.
+    $errFields = $this->EnrolleeCoPersonRole->invalidFields();
+    
+    if(!empty($errFields)) {
+      $fail = true;
     }
     
-    if($this->EnrolleeCoPersonRole->saveAll($coRoleData)) {
+    // Now validate related models. This will handle Extended Attributes as well.
+    
+    $v = $this->validateRelated("EnrolleeCoPersonRole", $requestData, $coRoleData, $efAttrs);
+    
+    if($v) {
+      $coRoleData = $v;
+    } else {
+      $fail = true;
+    }
+    
+    // We're done validating user data at this point, so we can fail if there were
+    // any validation errors.
+    
+    if($fail) {
+      $dbc->rollback();
+      throw new InvalidArgumentException(_txt('er.fields'));
+    }
+    
+    // Save the CO Person Role data
+    
+    if($this->EnrolleeCoPersonRole->saveAssociated($coRoleData, array("validate" => false, "atomic" => true))) {
       $coPersonRoleID = $this->EnrolleeCoPersonRole->id;
       
       // Create a history record
       try {
-        $this->EnrolleeCoPersonRole->HistoryRecord->record($coPersonID,
-                                                           $coPersonRoleID,
-                                                           $orgIdentityID,
-                                                           $petitionerId,
-                                                           ActionEnum::CoPersonRoleAddedPetition);
+        $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
+                                                       $coPersonRoleID,
+                                                       $orgIdentityID,
+                                                       $petitionerId,
+                                                       ActionEnum::CoPersonRoleAddedPetition);
       }
       catch(Exception $e) {
         $dbc->rollback();
         throw new RuntimeException($e->getMessage());
       }
     } else {
-      // We need to fold any extended attribute validation errors into the CO Person Role
-      // validation errors in order for FormHandler to be able to see them.
-      
-      foreach(array_keys($requestData['EnrolleeCoPersonRole']) as $m) {
-        if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)) {
-          $f = $this->EnrolleeCoPersonRole->$m->invalidFields();
-          
-          if(!empty($f)) {
-            $this->EnrolleeCoPersonRole->validationErrors[$m] = $f;
-          }
-        }
-      }
-      
-      // We don't fail immediately on error because we want to run validate on all
-      // the data we save in the various saveAll() calls so the appropriate fields
-      // are highlighted at once.
-      
-      $fail = true;
-    }
-    
-    if($fail) {
-      // From here, if any save fails it's probably a coding error since there are no
-      // form fields that need validation. (We're using data from above, for the most
-      // part). As such, if $fail gets set to true at any point, we don't need to
-      // continue save()ing data.
-      
       $dbc->rollback();
-      throw new InvalidArgumentException(_txt('er.fields'));
+      throw new RuntimeException(_txt('er.db.save'));
     }
     
     // Create a CO Org Identity Link
@@ -680,7 +747,7 @@ class CoPetition extends AppModel {
     
     $dbc->commit();
     
-    return($this->id);
+    return $this->id;
   }
 
   /**
@@ -885,6 +952,157 @@ class CoPetition extends AppModel {
       }
     } else {
       throw new InvalidArgumentException(_txt('er.pt.status', array($curStatus, $newStatus)));
+    }
+  }
+  
+  /**
+   * Validate related model data, and assemble it for saving.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  String Primary (parent) model
+   * @param  Array Request data, as submitted to createPetition()
+   * @param  Array Data assembled so far for saving (Validated data will be added to this array)
+   * @param  Array Enrollment Flow attributes, as returned by CoEnrollmentAttribute::enrollmentFlowAttributes()
+   * @param  Array Array of updated validated data, or null on validation error
+   */
+  
+  private function validateRelated($primaryModel, $requestData, $validatedData, $efAttrs) {
+    $ret = $validatedData;
+    $err = false;
+    
+    // Because the petition form includes skeletal information for related models
+    // (co_enrollment_attribute_id, type, etc), we don't need to worry about required
+    // models not being submitted if the petitioner doesn't complete the field.
+    
+    $relatedModels = $this->$primaryModel->filterRelatedModels($requestData[$primaryModel]);
+    
+    // We don't need to tweak the validation rules, but we do need to check if optional
+    // models are empty.
+    
+    // Extended Type validation should just magically work.
+    
+    if(isset($relatedModels['hasOne'])) {
+      foreach(array_keys($relatedModels['hasOne']) as $model) {
+        // Make sure validation only sees this model's data
+        $data = array();
+        $data[$model] = $relatedModels['hasOne'][$model];
+        
+        $this->$primaryModel->$model->set($data);
+        
+        // Make sure to use invalidFields(), which won't try to validate (possibly
+        // missing) related models.
+        $errFields = $this->$primaryModel->$model->invalidFields();
+        
+        if(!empty($errFields)) {
+          // These errors are going to get attached to $this->model by default, which means when
+          // the petition re-renders, FormHelper won't display them. They need to be attached to
+          // $this->$primaryModel, keyed as though they were validated along with $primaryModel.
+          // We'll fix that keying here.
+          
+          $this->$primaryModel->validationErrors[$model] = $errFields;
+          $err = true;
+        } else {
+          // Add this entry to the validated data being assembled
+          
+          $ret[$model] = $relatedModels['hasOne'][$model];
+        }
+      }
+    }
+    
+    if(isset($relatedModels['hasMany'])) {
+      foreach(array_keys($relatedModels['hasMany']) as $model) {
+        foreach(array_keys($relatedModels['hasMany'][$model]) as $instance) {
+          // Skip related models that are optional and empty
+          if(!$this->attributeOptionalAndEmpty($instance, $relatedModels['hasMany'][$model][$instance], $efAttrs)) {
+            // Make sure validation only sees this model's data
+            $data = array();
+            $data[$model] = $relatedModels['hasMany'][$model][$instance];
+            
+            $this->$primaryModel->$model->set($data);
+            
+            // Make sure to use invalidFields(), which won't try to validate (possibly
+            // missing) related models.
+            $errFields = $this->$primaryModel->$model->invalidFields();
+            
+            if(!empty($errFields)) {
+              // These errors are going to get attached to $this->model by default, which means when
+              // the petition re-renders, FormHelper won't display them. They need to be attached to
+              // $this->$primaryModel, keyed as though they were validated along with $primaryModel.
+              // We'll fix that keying here.
+              
+              $this->$primaryModel->validationErrors[$model][$instance] = $errFields;
+              $err = true;
+            } else {
+              // Add this entry to the $coData being assembled
+              
+              $ret[$model][$instance] = $relatedModels['hasMany'][$model][$instance];
+            }
+          }
+        }
+      }
+    }
+    
+    if(preg_match('/.*CoPersonRole$/', $primaryModel)) {
+      // Handle Extended Attributes specially, as usual. To find them, we have to walk
+      // the configured attributes.
+      
+      foreach($efAttrs as $efAttr) {
+        $m = explode('.', $efAttr['model'], 3);
+        
+        if(count($m) == 2
+           && preg_match('/Co[0-9]+PersonExtendedAttribute/', $m[1])) {
+          $model = $m[1];
+          
+          // First, dynamically bind the extended attribute to the model if we haven't already.
+          
+          if(!isset($this->$primaryModel->$model)) {
+            $bArgs = array();
+            $bArgs['hasOne'][ $model ] = array(
+              'className' => $model,
+              'dependent' => true
+            );
+            
+            $this->$primaryModel->bindModel($bArgs, false);
+          }
+          
+          // Extended attributes generally won't have validate by Cake set since their models are
+          // dynamically bound, so grabbing validation rules from $efAttr is a win.
+          
+          $this->$primaryModel->$m[1]->validate[ $efAttr['field'] ] = $efAttr['validate'];
+          $this->$primaryModel->$m[1]->validate[ $efAttr['field'] ]['required'] = $efAttr['required'];
+          $this->$primaryModel->$m[1]->validate[ $efAttr['field'] ]['allowEmpty'] = !$efAttr['required'];
+          
+          // Make sure validation only sees this model's data
+          $data = array();
+          $data[$model] = $relatedModels['extended'][$model];
+          
+          $this->$primaryModel->$model->set($data);
+          
+          // Make sure to use invalidFields(), which won't try to validate (possibly
+          // missing) related models.
+          $errFields = $this->$primaryModel->$model->invalidFields();
+          
+          if(!empty($errFields)) {
+            // These errors are going to get attached to $this->model by default, which means when
+            // the petition re-renders, FormHelper won't display them. They need to be attached to
+            // $this->$primaryModel, keyed as though they were validated along with $primaryModel.
+            // We'll fix that keying here.
+            
+            $this->$primaryModel->validationErrors[$model] = $errFields;
+            $err = true;
+          } else {
+            // Add this entry to the $coData being assembled
+            
+            $ret[$model] = $relatedModels['extended'][$model];
+          }
+        }
+      }
+    }
+    
+    if($err) {
+      return null;
+    } else {
+      return $ret;
     }
   }
 }

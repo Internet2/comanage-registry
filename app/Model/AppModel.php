@@ -61,140 +61,49 @@ class AppModel extends Model {
     
     return $ret;
   }
-
+  
   /**
-   * Filter a model's related data according, removing optional related models that
-   * weren't provided, and pulling the model up a level to prepare it for save().
+   * Filter a model's native attributes from its related models.
    *
-   * @since  COmanage Registry v0.5
+   * @since  COmanage Registry v0.7
    * @param  array Data to filter, as provided from a form submission
-   * @param  array List of attributes and required status, as obtained by CoEnrollmentAttribute->find("list", (id, required))
    * @return array Filtered data
    */
-  
-  function filterRelatedModel($data, $reqAttrs) {
-    $primaryModel = $this->alias;
-    
-    // hasone relations do not have an index ($data[$primarymodel][$model][$attribute])
-    foreach(array_keys($this->hasOne) as $eAttrName) {
-      if(isset($data[$primaryModel][$eAttrName])) {
-        if(isset($data[$primaryModel][$eAttrName]['co_enrollment_attribute_id'])) {
-          // Extended Attributes won't have an enrollment attribute id set. Even though
-          // they show up as hasOne, they really behave like part of the primary model,
-          // so we don't need to do this check.
-          
-          $allRequiredEmpty = true;
-          $eAttrId = $data[$primaryModel][$eAttrName]['co_enrollment_attribute_id'];
-          
-          if(!$reqAttrs[$eAttrId]) {
-            // Optional attribute according to the enrollment flow configuration.
-            // Walk through and see if required attributes present. If all required
-            // attributes are empty, consider the attribute to be not provided for
-            // validation purposes. (If any was provided, consider the attribute to
-            // be provided, and let validation determine if everything is OK.)
-            
-            foreach(array_keys($this->$eAttrName->validate) as $eAttrField) {
-              // We check both required and notEmpty, since we're currently transitioning from the former
-              // to the latter. We skip 'type' since it's a required field and the petition-generated
-              // forms generally provide it, but it's not an indication if a field is actually being
-              // filled in.
-              
-              if($eAttrField == 'type')
-                continue;
-              
-              if((isset($this->$eAttrName->validate[$eAttrField]['required'])
-                  && $this->$eAttrName->validate[$eAttrField]['required'])
-                 ||
-                 (isset($this->$eAttrName->validate[$eAttrField]['allowEmpty'])
-                  && !$this->$eAttrName->validate[$eAttrField]['allowEmpty'])) {
-                // $eAttrName:$eAttrField is required according to the model
-                
-                if(isset($data[$primaryModel][$eAttrName][$eAttrField])
-                   && $data[$primaryModel][$eAttrName][$eAttrField] != "") {
-                  $allRequiredEmpty = false;
-                  
-                  // Our work here is done
-                  break;
-                }
-              }
-            }
-            
-            if($allRequiredEmpty) {
-              // Pretend this attribute wasn't provided
-              
-              unset($data[$primaryModel][$eAttrName]);
-            }
-          }
-        }
-        
-        if(isset($data[$primaryModel][$eAttrName])) {
-          // Promote
-          $data[$eAttrName] = $data[$primaryModel][$eAttrName];
-          unset($data[$primaryModel][$eAttrName]);
-        }
-      }
-    }
-    
-    // hasmany relations are keyed with an index ($data[$primarymodel][$model][$index][$attribute])
-    foreach(array_keys($this->hasMany) as $eAttrName) {
-      if(isset($data[$primaryModel][$eAttrName])) {
-        foreach($data[$primaryModel][$eAttrName] as $eAttrData) {
-          $allRequiredEmpty = true;
-          $eAttrId = $eAttrData['co_enrollment_attribute_id'];
-          
-          if(!$reqAttrs[$eAttrId]) {
-            // Optional attribute according to the enrollment flow configuration.
-            // Walk through and see if required attributes present. If all required
-            // attributes are empty, consider the attribute to be not provided for
-            // validation purposes. (If any was provided, consider the attribute to
-            // be provided, and let validation determine if everything is OK.)
 
-            foreach(array_keys($this->$eAttrName->validate) as $eAttrField) {
-              // We check both required and notEmpty, since we're currently transitioning from the former
-              // to the latter. We skip 'type' and 'status' since it's a required field and the petition-generated
-              // forms generally provide it, but it's not an indication if a field is actually being
-              // filled in.
-              
-              if($eAttrField == 'type' || $eAttrField == 'status')
-                continue;
-              
-              if((isset($this->$eAttrName->validate[$eAttrField]['required'])
-                  && $this->$eAttrName->validate[$eAttrField]['required'])
-                 ||
-                 (isset($this->$eAttrName->validate[$eAttrField]['allowEmpty'])
-                  && !$this->$eAttrName->validate[$eAttrField]['allowEmpty'])) {
-                // $eAttrName:$eAttrField is required according to the model
-                
-                if(isset($data[$primaryModel][$eAttrName][$eAttrId][$eAttrField])
-                   && $data[$primaryModel][$eAttrName][$eAttrId][$eAttrField] != "") {
-                  $allRequiredEmpty = false;
-                  
-                  // Our work here is done
-                  break;
-                }
-              }
-            }
-            
-            if($allRequiredEmpty) {
-              // Pretend this attribute wasn't provided
-              
-              unset($data[$primaryModel][$eAttrName][$eAttrId]);
-            }
-          }
-        }
-        
-        // If there are any remaining attribute IDs, pull them up a level
-        
-        if(count(array_keys($data[$primaryModel][$eAttrName])) > 0) {
-          $data[$eAttrName] = $data[$primaryModel][$eAttrName];
-        }
-        
-        // Clean up
-        unset($data[$primaryModel][$eAttrName]);
+  public function filterModelAttributes($data) {
+    $ret = array();
+    
+    foreach(array_keys($data) as $k) {
+      if(isset($this->validate[$k])) {
+        $ret[$k] = $data[$k];
       }
     }
     
-    return($data);
+    return $ret;
+  }
+  
+  /**
+   * Filter a model's related models from its native attributes.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  array Data to filter, as provided from a form submission
+   * @return array Filtered data
+   */
+
+  public function filterRelatedModels($data) {
+    $ret = array();
+    
+    foreach(array_keys($data) as $k) {
+      if(isset($this->hasOne[$k])) {
+        $ret['hasOne'][$k] = $data[$k];
+      } elseif(isset($this->hasMany[$k])) {
+        $ret['hasMany'][$k] = $data[$k];
+      } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $k)) {
+        $ret['extended'][$k] = $data[$k];
+      }
+    }
+    
+    return $ret;
   }
   
   /**
