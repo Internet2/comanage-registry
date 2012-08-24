@@ -66,7 +66,7 @@ class DATABASE_CONFIG {
 		'login' => 'user',
 		'password' => 'password',
 		'database' => 'database_name',
-		'prefix' => '',
+		'prefix' => 'cm_',
 		//'encoding' => 'utf8',
 	);
 
@@ -77,7 +77,7 @@ class DATABASE_CONFIG {
 		'login' => 'user',
 		'password' => 'password',
 		'database' => 'test_database_name',
-		'prefix' => '',
+		'prefix' => 'cm_',
 		//'encoding' => 'utf8',
 	);
 }
