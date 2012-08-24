@@ -51,7 +51,7 @@
     <tr class="line1">
       <td>
         <?php echo _txt('fd.name'); ?><font class="required">*</font><br />
-        <i><?php echo _txt('fd.an.desc'); ?></i>
+        <i><?php echo _txt('fd.lan.desc'); ?></i>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('name') : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>

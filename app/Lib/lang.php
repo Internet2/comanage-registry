@@ -404,6 +404,7 @@ $cm_texts['en_US'] = array(
   'fd.identifier.login.desc' =>  'Allow this identifier to login to Registry',
   'fd.ids' =>         'Identifiers',
   'fd.index' =>       'Index',
+  'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
   'fd.members' =>     'Members',
   'fd.modified' =>    'Modified',
   'fd.name' =>        'Name',

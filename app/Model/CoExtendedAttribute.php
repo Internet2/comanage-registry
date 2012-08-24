@@ -46,9 +46,9 @@ class CoExtendedAttribute extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'name' => array(
-      'rule' => 'alphaNumeric',
+      'rule' => array('custom', '/^[a-z0-9]*$/'),
       'required' => true,
-      'message' => 'A name must be provided and consist of alphanumeric characters'
+      'message' => 'A name must be provided and consist of lowercase, alphanumeric characters'
     ),
     'display_name' => array(
       'rule' => 'notEmpty',
