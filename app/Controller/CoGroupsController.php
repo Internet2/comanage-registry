@@ -308,9 +308,19 @@ class CoGroupsController extends StandardController {
    */
   
   function select() {
-    // Set name for page title
-    $this->set('name_for_title', Sanitize::html(generateCn($this->Session->read('Auth.User.name'))));
-
+    // Lookup the person in question to find their name
+    
+    $args = array();
+    $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
+    $args['contain'] = 'Name';
+    
+    $coPerson = $this->CoGroup->CoGroupMember->CoPerson->find('first', $args);
+    
+    if(!empty($coPerson)) {
+      // Set name for page title
+      $this->set('name_for_title', Sanitize::html(generateCn($coPerson['Name'])));
+    }
+    
     // XXX proper authz here is probably something like "(all open CO groups
     // and all CO groups that I own) that CO Person isn't already a member of)"
     
