@@ -165,6 +165,9 @@ $(document).ready(function() {
 
 <h2 class="ui-state-default"><?php print _txt('fd.attrs.pet'); ?></h2>
 
+<div>
+  <div style="float:left;width:65%">
+
 <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
   <tbody>
     <?php foreach ($co_enrollment_attributes as $ea): ?>
@@ -284,6 +287,9 @@ $(document).ready(function() {
     </tr>
   </tbody>
 </table>
+
+  </div>
+</div>
 
 <div>
   <div style="float:right;width:35%" id="results">
