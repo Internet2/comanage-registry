@@ -369,12 +369,20 @@ $(function() {
                 print '</div>';
               }
             }
+
+            $linktarget = array('controller'    => 'identifiers',
+                                'action'        => 'add',
+                                'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                               );
+            $linkparams = array('class'  => 'addbutton',
+                                'target' => '_blank'
+                               );
+
             print $this->Html->link(_txt('op.add'),
-                        array('controller'    => 'identifiers',
-                              'action'        => 'add',
-                              'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                              'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                        array('class' => 'addbutton'));
+                                    $linktarget,
+                                    $linkparams
+                                   );
           }
           else
           {
@@ -420,12 +428,19 @@ $(function() {
               }
             }
 
+            $linktarget = array('controller'    => 'email_addresses',
+                                'action'        => 'add',
+                                'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                               );
+            $linkparams = array('class'  => 'addbutton',
+                                'target' => '_blank'
+                               );
+
             print $this->Html->link(_txt('op.add'),
-                                    array('controller'    => 'email_addresses',
-                                          'action'        => 'add',
-                                          'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                                          'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                                    array('class' => 'addbutton'));
+                                    $linktarget,
+                                    $linkparams
+                                   );
           }
           else
           {
@@ -472,12 +487,19 @@ $(function() {
               }
             }
 
-             print $this->Html->link(_txt('op.add'),
-                                    array('controller' => 'telephone_numbers',
-                                          'action' => 'add',
-                                          'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                                          'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                                    array('class' => 'addbutton'));
+            $linktarget = array('controller'    => 'telephone_numbers',
+                                'action'        => 'add',
+                                'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                               );
+            $linkparams = array('class'  => 'addbutton',
+                                'target' => '_blank'
+                               );
+
+            print $this->Html->link(_txt('op.add'),
+                                    $linktarget,
+                                    $linkparams
+                                   );
           }
           else
           {
@@ -523,11 +545,19 @@ $(function() {
               }
             }
 
+            $linktarget = array('controller'    => 'addresses',
+                                'action'        => 'add',
+                                'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                               );
+            $linkparams = array('class'  => 'addbutton',
+                                'target' => '_blank'
+                               );
+
             print $this->Html->link(_txt('op.add'),
-                                    array('controller'    => 'addresses', 'action' => 'add',
-                                          'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                                          'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                                    array('class' => 'addbutton'));
+                                    $linktarget,
+                                    $linkparams
+                                   );
           }
           else
           {
