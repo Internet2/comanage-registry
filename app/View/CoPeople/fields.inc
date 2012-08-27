@@ -77,11 +77,13 @@
   }
   else
   {
+    // Back button
     print $this->Html->link(_txt('op.back'),
                            array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
                            array('class' => 'backbutton'));
   }
   
+  // View History button
   if($this->action != "add" && $this->action != "invite") {
     print $this->Html->link(
       _txt('op.history'),
@@ -94,6 +96,19 @@
     );
   }
   
+  // Autogenerate Identifiers button
+  if(!empty($co_identifier_assignments)) {
+    print '<a
+            class="autobutton"
+            title="' . _txt('op.id.auto') . '"
+            onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
+                                                                                     'action' => 'assign',
+                                                                                     'copersonid' => $co_people[0]['CoPerson']['id'],
+                                                                                     'co' => $cur_co['Co']['id'])) . '\')";>'
+            . _txt('op.id.auto')
+            . "</a>\n";
+  }
+
   // Line number, for rendering
   $l = 1;
 ?>
@@ -346,19 +361,6 @@ $(function() {
              </tbody>
           </table>
         </div>
-        <?php
-          if(!empty($co_identifier_assignments)) {
-            print '<a
-                    class="autobutton"
-                    title="' . _txt('op.id.auto') . '"
-                    onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
-                                                                                             'action' => 'assign',
-                                                                                             'copersonid' => $co_people[0]['CoPerson']['id'],
-                                                                                             'co' => $cur_co['Co']['id'])) . '\')";>'
-                    . _txt('op.id.auto')
-                    . "</a>\n";
-          }
-        ?>
         <?php if($this->action == "compare"): ?>
           <div style="float:left">
             <table>
