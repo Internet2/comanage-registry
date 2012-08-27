@@ -60,8 +60,11 @@
   $params = array('title' => $h);
   print $this->element("pageTitle", $params);
 
-  include(APP . "View/" . $model . "/fields.inc");
+  print '<div style="float:left">';
+    include(APP . "View/" . $model . "/fields.inc");
+  print '</div>';
 
+  print '<div style = "float:right">';
   // If user has edit permission, offer an edit button
 
   if($permissions['edit'])
@@ -76,3 +79,4 @@
                           array('class' => 'editbutton'));
   }
 ?>
+</div>

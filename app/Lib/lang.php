@@ -408,6 +408,7 @@ $cm_texts['en_US'] = array(
   'fd.members' =>     'Members',
   'fd.modified' =>    'Modified',
   'fd.name' =>        'Name',
+  'fd.name.affil'  => 'Name and Affiliation',
   'fd.name.d' =>      'Display Name',
   'fd.name.h.desc' => '(Dr, Hon, etc)',
   'fd.name.s.desc' => '(Jr, III, etc)',

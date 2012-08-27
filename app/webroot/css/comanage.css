@@ -212,7 +212,8 @@ body {
         float:right;
       }
 
-      #OrgIdentityEditForm .addbutton{
+      #OrgIdentityEditForm .addbutton,
+      #view_org_identity .addbutton{
         float:right;
       }
 

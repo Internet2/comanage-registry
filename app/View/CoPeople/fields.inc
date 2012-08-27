@@ -164,13 +164,15 @@ $(function() {
     </ul>
     <div id="tabs-name">
       <table>
-        <tr>
-          <th class="ui-widget-header"><?php print _txt('fd.attribute'); ?></th>
-          <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-          <?php if($this->action == "compare"): ?>
-              <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
-          <?php endif; ?>
-        </tr>
+        <?php if($this->action == "compare"): ?>
+          <tr>
+            <th class="ui-widget-header"><?php print _txt('fd.attribute'); ?></th>
+            <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+            <?php if($this->action == "compare"): ?>
+                <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+            <?php endif; ?>
+          </tr>
+        <?php endif; ?>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <th>
             <?php
@@ -273,71 +275,74 @@ $(function() {
         <div style="float:left">
           <table>
             <tbody>
-              <tr>
-                <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-                <?php if($e && !$es): ?>
-                  <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
-                <?php endif; ?>
-              </tr>
-                <?php
-                  $l = 1;
-                  if($e && !$es)
+              <?php if($this->action == "compare"): ?>
+                <tr>
+                  <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                  <?php if($e && !$es): ?>
+                    <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+                  <?php endif; ?>
+                </tr>
+              <?php endif; ?>
+
+              <?php
+                $l = 1;
+                if($e && !$es)
+                {
+                  if(isset($co_people[0]['Identifier']))
                   {
-                    if(isset($co_people[0]['Identifier']))
+                    foreach($co_people[0]['Identifier'] as $id)
                     {
-                      foreach($co_people[0]['Identifier'] as $id)
-                      {
-                        print '<tr class="line';
-                        print ($l % 2);
-                        print '">';
-                        $l++;
-                          print '<td>';
-                            print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
-                            print " (" . $id['type'] . ")";
-                          print '</td>';
-                          print '<td>';
-                            // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                            print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $this->Html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                            print $this->Html->link(_txt('op.edit'),
-                                             array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
-                                             array('class' => 'editbutton'));
-                          print '</td>';
-                        print '</tr>';
-                      }
+                      print '<tr class="line';
+                      print ($l % 2);
+                      print '">';
+                      $l++;
+                        print '<td>';
+                          print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
+                          print " (" . $id['type'] . ")";
+                        print '</td>';
+                        print '<td>';
+                          // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                          print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $this->Html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                          print $this->Html->link(_txt('op.edit'),
+                                           array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
+                                           array('class' => 'editbutton'));
+                        print '</td>';
+                      print '</tr>';
                     }
                   }
-                  else
+                }
+                else
+                {
+                  if(isset($co_people[0]['Identifier']))
                   {
-                    if(isset($co_people[0]['Identifier']))
+                    foreach($co_people[0]['Identifier'] as $id)
                     {
-                      foreach($co_people[0]['Identifier'] as $id)
-                      {
 
-                        print '<tr class="line';
-                        print ($l % 2);
-                        print '">';
-                        $l++;
-                          print '<td>';
-                            print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
-                          print '</td>';
-                        print '</tr>';
-                      }
+                      print '<tr class="line';
+                      print ($l % 2);
+                      print '">';
+                      $l++;
+                        print '<td>';
+                          print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
+                        print '</td>';
+                      print '</tr>';
                     }
                   }
-                  if($e && !$es)
-                  {
-                    print '<tr>';
-                      print '<td></td>';
-                      print '<td>';
+                }
+                if($e && !$es)
+                {
+                  print '<tr>';
+                    print '<td></td>';
+                    print '<td>';
 
 
-                        print $this->Html->link(_txt('op.add'),
-                                                array('controller' => 'identifiers', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                                array('class' => 'addbutton')) . "\n";
-                      print '</td>';
-                    print '</tr>';
-                  }
-                ?>
+                      print $this->Html->link(_txt('op.add'),
+                                              array('controller' => 'identifiers', 'action' => 'add', 'copersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                                              array('class' => 'addbutton')) . "\n";
+                    print '</td>';
+                  print '</tr>';
+                }
+              ?>
              </tbody>
           </table>
         </div>
@@ -386,12 +391,14 @@ $(function() {
         <div style="float:left">
           <table>
             <tbody>
-              <tr>
-                <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-                <?php if($e && !$es): ?>
-                  <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
-                <?php endif; ?>
-              </tr>
+              <?php if($this->action == "compare"): ?>
+                <tr>
+                  <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                  <?php if($e && !$es): ?>
+                    <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+                  <?php endif; ?>
+                </tr>
+              <?php endif; ?>
               <?php
                 $l = 1;
                 if($e)
@@ -489,12 +496,14 @@ $(function() {
       <div id="tabs-group">
         <div style="float:left;">
           <table>
-            <tr>
-              <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-              <?php if($e && !$es): ?>
-                <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
-              <?php endif; ?>
-            </tr>
+            <?php if($this->action == "compare"): ?>
+              <tr>
+                <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                <?php if($e && !$es): ?>
+                  <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+                <?php endif; ?>
+              </tr>
+            <?php endif; ?>
             <?php
               if(isset($co_people[0]['CoGroupMember']))
               {
