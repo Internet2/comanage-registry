@@ -355,8 +355,7 @@ $(function() {
                                           'copersonid' => $co_people[0]['CoPerson']['id'],
                                           'co'         => $cur_co['Co']['id']
                                          );
-                      $linkparams = array('class'  => 'addbutton',
-                                          'target' => '_blank');
+                      $linkparams = array('class'  => 'addbutton');
                       print $this->Html->link(_txt('op.add'),
                                               $linktarget,
                                               $linkparams) . "\n";
@@ -464,8 +463,7 @@ $(function() {
                                           'copersonid' => $co_people[0]['CoPerson']['id'],
                                           'co'         => $cur_co['Co']['id']
                                          );
-                      $linkparams = array('class'  => 'addbutton',
-                                          'target' => '_blank');
+                      $linkparams = array('class'  => 'addbutton');
 
                       print $this->Html->link(_txt('op.add'),
                                                $linktarget,
@@ -576,8 +574,7 @@ $(function() {
                                           'copersonid' => $co_people[0]['CoPerson']['id'],
                                           'co'         => $cur_co['Co']['id']
                                          );
-                      $linkparams = array('class'  => 'addbutton',
-                                          'target' => '_blank');
+                      $linkparams = array('class'  => 'addbutton');
                       print $this->Html->link(_txt('op.add'),
                                               $linktarget,
                                               $linkparams) . "\n";
@@ -713,8 +710,7 @@ $(function() {
                                                   'copersonid' => $co_people[0]['CoPerson']['id'],
                                                   'co'         => $cur_co['Co']['id']
                                                  );
-                              $linkparams = array('class'  => 'addbutton',
-                                                  'target' => '_blank');
+                              $linkparams = array('class'  => 'addbutton');
 
                               print $this->Html->link(_txt('op.add'),
                                                       $linktarget,
