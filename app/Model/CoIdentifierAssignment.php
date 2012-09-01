@@ -379,11 +379,20 @@ class CoIdentifierAssignment extends AppModel {
             
             // Do the actual parameter replacement
             switch($format[$i]) {
+              case 'f':
+                $base .= sprintf("%.".$width."s", strtolower($name['family']));
+                break;
               case 'F':
                 $base .= sprintf("%.".$width."s", $name['family']);
                 break;
+              case 'g':
+                $base .= sprintf("%.".$width."s", strtolower($name['given']));
+                break;
               case 'G':
                 $base .= sprintf("%.".$width."s", $name['given']);
+                break;
+              case 'm':
+                $base .= sprintf("%.".$width."s", strtolower($name['middle']));
                 break;
               case 'M':
                 $base .= sprintf("%.".$width."s", $name['middle']);

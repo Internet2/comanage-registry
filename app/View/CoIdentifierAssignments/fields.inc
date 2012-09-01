@@ -162,9 +162,9 @@
           onchange="javascript:document.getElementById('CoIdentifierAssignmentFormat').value=this.value">
           <option value=""><?php print _txt('fd.ia.format.prefab'); ?></option>
           <option value=""><?php print _txt('fd.ia.format.p0'); ?></option>
-          <option value="(G).(F)[1:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p1'); ?></option>
-          <option value="(G)[1:.(M:1)].(F)[2:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p2'); ?></option>
-          <option value="(G:1)(M:1)(F:1)(#)@myvo.org"><?php print _txt('fd.ia.format.p3'); ?></option>
+          <option value="(g).(f)[1:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p1'); ?></option>
+          <option value="(g)[1:.(m:1)].(f)[2:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p2'); ?></option>
+          <option value="(g:1)(m:1)(f:1)(#)@myvo.org"><?php print _txt('fd.ia.format.p3'); ?></option>
         </select>
         <?php endif; ?>
       </td>
