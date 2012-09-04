@@ -59,6 +59,13 @@
     
     document.getElementById('CoIdentifierAssignmentMaximum').disabled =
       (document.getElementById('CoIdentifierAssignmentAlgorithm').value != 'R');
+    
+    if(document.getElementById('CoIdentifierAssignmentIdentifierType').value != 'mail') {
+      document.getElementById('CoIdentifierAssignmentEmailType').value = "";
+      document.getElementById('CoIdentifierAssignmentEmailType').disabled = true;
+    } else {
+      document.getElementById('CoIdentifierAssignmentEmailType').disabled = false;
+    }
   }
   
   function js_local_onload() {
@@ -74,6 +81,7 @@
     
     document.getElementById('CoIdentifierAssignmentMaximum').disabled = false;
     document.getElementById('CoIdentifierAssignmentMinimum').disabled = false;
+    document.getElementById('CoIdentifierAssignmentEmailType').disabled = false;
   }
 </script>
 <table id="<?php print $this->action; ?>_co_identifier_assignment" class="ui-widget">
@@ -97,6 +105,7 @@
           $attrs = array();
           $attrs['value'] = (isset($co_identifier_assignments) ? $co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type'] : "");
           $attrs['empty'] = false;
+          $attrs['onChange'] = 'fields_update_gadgets()';
           
           if($e) {
             print $this->Form->select('identifier_type',
@@ -114,6 +123,35 @@
     </tr>
     <tr class="line1">
       <td>
+        <b><?php print _txt('fd.ia.type.email'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ia.type.email.desc'); ?></font>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (isset($co_identifier_assignments)
+                             ? $co_identifier_assignments[0]['CoIdentifierAssignment']['email_type']
+                             : "");
+          $attrs['empty'] = true;
+          
+          if($e) {
+            // XXX There is some inconsistency here and in EmailAddress model/view as to which email types are actually permitted.
+            // Probably the best solution is to just rewrite emailaddress to support extended types. See also CO-106.
+            print $this->Form->select('email_type',
+                                      $cm_texts[ $cm_lang ]['en.contact'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('email_type')) {
+              print $this->Form->error('email_type');
+            }
+          } else {
+            print _txt('en.cpntact', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['email_type']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
         <b><?php print _txt('fd.identifier.login'); ?></b><br />
         <font class="desc"><?php print _txt('fd.identifier.login.desc'); ?></font>
       </td>
@@ -121,7 +159,7 @@
         <?php print ($e ? $this->Form->input('login') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['login'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line1">
       <td>
         <b><?php print _txt('fd.ia.algorithm'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ia.algorithm.desc'); ?></font>
@@ -149,7 +187,7 @@
         ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line2">
       <td>
         <b><?php print _txt('fd.ia.format'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ia.format.desc'); ?></font>
@@ -169,7 +207,7 @@
         <?php endif; ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line1">
       <td>
         <b><?php print _txt('fd.ia.minimum'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ia.minimum.desc'); ?></font>
@@ -178,7 +216,7 @@
         <?php print ($e ? $this->Form->input('minimum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line2">
       <td>
         <b><?php print _txt('fd.ia.maximum'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ia.maximum.desc'); ?></font>
@@ -187,7 +225,7 @@
         <?php print ($e ? $this->Form->input('maximum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line1">
       <td>
         <b><?php print _txt('fd.ia.exclusions'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ia.exclusions.desc'); ?></font>

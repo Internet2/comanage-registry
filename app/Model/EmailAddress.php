@@ -73,4 +73,26 @@ class EmailAddress extends AppModel {
   public $cm_enum_types = array(
     'type' => 'contact_t'
   );
+  
+  /**
+   * Determine if an email address of a given type is already assigned to a CO Person.
+   *
+   * IMPORTANT: This function should be called within a transaction to ensure
+   * actions taken based on availability are atomic.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  Integer CO Person ID
+   * @param  String Type of candidate email address
+   * @return Boolean True if an email address of the specified type is already assigned, false otherwise
+   */
+  
+  public function assigned($coPersonID, $emailType) {
+    $args = array();
+    $args['conditions']['EmailAddress.co_person_id'] = $coPersonID;
+    $args['conditions']['EmailAddress.type'] = $emailType;
+    
+    $r = $this->findForUpdate($args['conditions'], array('mail'));
+    
+    return !empty($r);
+  }
 }

@@ -58,6 +58,17 @@ class CoIdentifierAssignment extends AppModel {
       'required' => false,
       'allowEmpty' => false
     ),
+    'email_type' => array(
+      'rule' => array(
+        'inList',
+        array(
+          ContactEnum::Home,
+          ContactEnum::Office
+        )
+      ),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'description' => array(
       'rule' => '/.*/',
       'required' => false
@@ -120,13 +131,23 @@ class CoIdentifierAssignment extends AppModel {
   public function assign($coIdentifierAssignment, $coPersonID) {
     $ret = null;
     
+    // Determine if we are actually assigning an email address instead of an identifier.
+    $assignEmail = false;
+    
+    if($coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'] == 'mail'
+       && isset($coIdentifierAssignment['CoIdentifierAssignment']['email_type'])
+       && $coIdentifierAssignment['CoIdentifierAssignment']['email_type'] != '') {
+      $assignEmail = true;
+    }
+    
     // Begin a transaction. This is more because we need to ensure the integrity of
     // data between SELECT and INSERT/UPDATE than that we expect to rollback.
     
     $dbc = $this->getDataSource();
     $dbc->begin();
     
-    // See if the CO Person already has an identifier of this type, throw an error if so
+    // Find the CO Person.
+    
     $args = array();
     $args['conditions']['CoPerson.id'] = $coPersonID;
     $args['contain'][] = 'Name';
@@ -144,10 +165,18 @@ class CoIdentifierAssignment extends AppModel {
     // Check for the Identifier. If the person already has one of this sort,
     // don't generate a new one.
     
-    if($this->Co->CoPerson->Identifier->assigned($coPersonID,
-                                                 $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'])) {
-      $dbc->commit();
-      throw new OverflowException(_txt('er.ia.already'));
+    if($assignEmail) {
+      if($this->Co->CoPerson->EmailAddress->assigned($coPersonID,
+                                                     $coIdentifierAssignment['CoIdentifierAssignment']['email_type'])) {
+        $dbc->commit();
+        throw new OverflowException(_txt('er.ia.already'));
+      }
+    } else {
+      if($this->Co->CoPerson->Identifier->assigned($coPersonID,
+                                                   $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'])) {
+        $dbc->commit();
+        throw new OverflowException(_txt('er.ia.already'));
+      }
     }
     
     // Generate the new identifier. This requires several steps. First, substitute
@@ -189,20 +218,37 @@ class CoIdentifierAssignment extends AppModel {
                                                               $coIdentifierAssignment['CoIdentifierAssignment']['co_id'])) {
           // This one's good... insert it into the table and break the loop
           
-          $identifierData = array();
-          $identifierData['Identifier']['identifier'] = $candidate;
-          $identifierData['Identifier']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'];
-          $identifierData['Identifier']['login'] = $coIdentifierAssignment['CoIdentifierAssignment']['login'];
-          $identifierData['Identifier']['co_person_id'] = $coPerson['CoPerson']['id'];
-          $identifierData['Identifier']['status'] = StatusEnum::Active;
-          
-          // We need to call create to reset the model state since we're (possibly) doing multiple distinct
-          // saves against the same model.
-          $this->Co->CoPerson->Identifier->create($identifierData);
-          
-          if($this->Co->CoPerson->Identifier->save($identifierData)) {
-            $ret = $this->Co->CoPerson->Identifier->id;
+          if($assignEmail) {
+            $emailAddressData = array();
+            $emailAddressData['EmailAddress']['mail'] = $candidate;
+            $emailAddressData['EmailAddress']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['email_type'];
+            $emailAddressData['EmailAddress']['co_person_id'] = $coPerson['CoPerson']['id'];
             
+            // We need to call create to reset the model state since we're (possibly) doing multiple distinct
+            // saves against the same model.
+            $this->Co->CoPerson->EmailAddress->create($emailAddressData);
+            
+            if($this->Co->CoPerson->EmailAddress->save($emailAddressData)) {
+              $ret = $this->Co->CoPerson->EmailAddress->id;
+            }
+          } else {
+            $identifierData = array();
+            $identifierData['Identifier']['identifier'] = $candidate;
+            $identifierData['Identifier']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'];
+            $identifierData['Identifier']['login'] = $coIdentifierAssignment['CoIdentifierAssignment']['login'];
+            $identifierData['Identifier']['co_person_id'] = $coPerson['CoPerson']['id'];
+            $identifierData['Identifier']['status'] = StatusEnum::Active;
+            
+            // We need to call create to reset the model state since we're (possibly) doing multiple distinct
+            // saves against the same model.
+            $this->Co->CoPerson->Identifier->create($identifierData);
+            
+            if($this->Co->CoPerson->Identifier->save($identifierData)) {
+              $ret = $this->Co->CoPerson->Identifier->id;
+            }
+          }
+          
+          if($ret) {
             // Create a history record
             try {
               $this->Co->CoPerson->HistoryRecord->record($coPerson['CoPerson']['id'],
@@ -211,7 +257,9 @@ class CoIdentifierAssignment extends AppModel {
                                                          null,
                                                          ActionEnum::IdentifierAutoAssigned,
                                                          _txt('en.action', null, ActionEnum::IdentifierAutoAssigned) . ': '
-                                                         . $candidate . ' (' . $identifierData['Identifier']['type'] . ')');
+                                                         . $candidate . ' (' . $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type']
+                                                         . ($assignEmail ? ':'.$coIdentifierAssignment['CoIdentifierAssignment']['email_type'] : '')
+                                                         . ')');
             }
             catch(Exception $e) {
               $dbc->rollback();

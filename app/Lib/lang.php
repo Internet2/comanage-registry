@@ -398,6 +398,8 @@ $cm_texts['en_US'] = array(
   'fd.ia.maximum.desc' => 'The maximum value for randomly generated identifiers',
   'fd.ia.minimum' =>  'Minimum',
   'fd.ia.minimum.desc' => 'The minimum value for randomly generated identifiers, or the starting value for sequences',
+  'fd.ia.type.email' => 'Email Type',
+  'fd.ia.type.email.desc' => 'For Identifier Assignments applied to Type <i>Mail</i>, an Email Address (instead of an Identifier) will be created with this type (if not blank)',
   // The next set must be named fd.model.validation-field
   'fd.identifier.identifier' => 'Identifier',
   'fd.identifier.login' => 'Login',

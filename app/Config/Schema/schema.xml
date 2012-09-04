@@ -692,6 +692,7 @@
     <field name="identifier_type" type="C" size="32">
       <notnull />
     </field>
+    <field name="email_type" type="C" size="32" />
     <field name="description" type="C" size="256" />
     <field name="login" type="L" />
     <field name="algorithm" type="C" size="2" />
