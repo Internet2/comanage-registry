@@ -246,12 +246,6 @@ class CoPetition extends AppModel {
     
     $fail = false;
     
-    // Track validation errors since XXX it's unclear what the magic strings are
-    // to get the errors to render in the form (when dealing with multiple of the
-    // same related model).
-    
-    $vErrors = "";
-    
     // Start a transaction. We don't really need to save until we validate CO Person Role
     // (which needs co_person_id), but for consistency we'll follow a validate/save/rollback-on-error
     // pattern.
