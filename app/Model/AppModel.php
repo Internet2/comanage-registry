@@ -143,7 +143,7 @@ class AppModel extends Model {
    * For models that support Extended Types, obtain the valid types for the specified CO.
    *
    * @since  COmanage Registry v0.6
-   * @param  CO ID
+   * @param  Integer CO ID
    * @return Array Defined types (including defaults if no extended types) in key/value form suitable for select buttons.
    */
   
