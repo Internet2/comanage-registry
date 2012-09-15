@@ -46,7 +46,11 @@ class Cou extends AppModel {
       'foreignKey'=>'parent_id'
     ),
     "CoPersonRole",
-    "CoPetition"
+    "CoPetition",
+    "CoEnrollmentFlowAuthzCou" => array(
+      'className' => 'CoEnrollmentFlow',
+      'foreignKey' => 'authz_cou_id'
+    )
   );
 
   // Default display field for cake generated views
@@ -87,7 +91,7 @@ class Cou extends AppModel {
     )
   );
 
-  public $actsAs = array('Tree');
+  public $actsAs = array('Containable', 'Tree');
 
   /**
    * Obtain all COUs within a specified CO.

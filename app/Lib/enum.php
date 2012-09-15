@@ -100,6 +100,16 @@ class ContactEnum
   );*/
 }
 
+class EnrollmentAuthzEnum {
+  const CoAdmin       = 'CA';
+  const CoGroupMember = 'CG';
+  const CoOrCouAdmin  = 'A';
+  const CoPerson      = 'CP';
+  const CouAdmin      = 'UA';
+  const CouPerson     = 'UP';
+  const None          = 'N';
+}
+
 class ExtendedAttributeEnum {
   const Integer   = 'INTEGER';
   const Timestamp = 'TIMESTAMP';

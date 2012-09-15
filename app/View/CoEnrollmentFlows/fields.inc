@@ -55,6 +55,38 @@
   
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
+<script type="text/javascript">
+  <!-- JS specific to these fields -->
+  
+  function authz_update_gadgets() {
+    // Hide and show accordingly. Reset sub-popups to prevent superfluous data from
+    // being saved. (ie: we don't need a group ID if not setting authz to 'CG')
+    
+    document.getElementById('authzcoudiv').style.display = "none";
+    document.getElementById('authzgroupdiv').style.display = "none";
+    
+    var authz = document.getElementById('CoEnrollmentFlowAuthzLevel').value;
+    
+    // We set the values they way they're done below (as opposed to blanking them
+    // out first, like for the divs) so that changing between UA and UP does not
+    // blank out the selected COU.
+    
+    if(authz == 'CG') {
+      document.getElementById('authzgroupdiv').style.display = "block";
+      document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
+    } else if(authz == 'UA' || authz == 'UP') {
+      document.getElementById('authzcoudiv').style.display = "block";
+      document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
+    } else {
+      document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
+      document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
+    }
+  }
+  
+  function js_local_onload() {
+    authz_update_gadgets();
+  }
+</script>
 <table id="<?php print $this->action; ?>_co_enrollment_configuration" class="ui-widget">
   <tbody>
     <tr class="line1">
@@ -69,40 +101,101 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.ef.se'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ef.se.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('self_enroll')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['self_enroll'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <b><?php print _txt('fd.ef.ae'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ef.ae.desc'); ?></font>
+        <?php print _txt('fd.status'); ?><font class="required">*</font>
       </td>
       <td>
         <?php
           global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_enrollment_flows)
-                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['admin_enroll']
-                              : AdministratorEnum::NoAdmin);
+          $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] : StatusEnum::Active);
           $attrs['empty'] = false;
           
           if($e) {
-            print $this->Form->select('admin_enroll',
-                                      $cm_texts[ $cm_lang ]['en.admin'],
+            print $this->Form->select('status',
+                                      $cm_texts[ $cm_lang ]['en.status'],
                                       $attrs);
             
-            if($this->Form->isFieldError('admin_enroll')) {
-              print $this->Form->error('admin_enroll');
+            if($this->Form->isFieldError('status')) {
+              print $this->Form->error('status');
             }
           } else {
-            print _txt('en.admin', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['admin_enroll']);
+            print _txt('en.status', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['status']);
           }
         ?>
+      </td>
+    </tr>
+    <tr class="line1">
+      <td>
+        <b><?php print _txt('fd.ef.authz'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.authz.desc'); ?></font>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (isset($co_enrollment_flows)
+                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_level']
+                              : EnrollmentAuthzEnum::CoOrCouAdmin);
+          $attrs['empty'] = false;
+          $attrs['onChange'] = 'authz_update_gadgets()';
+          
+          if($e) {
+            print $this->Form->select('authz_level',
+                                      $cm_texts[ $cm_lang ]['en.enrollment.authz'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('authz_level')) {
+              print $this->Form->error('authz_level');
+            }
+          } else {
+            print _txt('en.enrollment.authz', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_level']);
+          }
+        ?>
+        <div id="authzgroupdiv" style="display:none">
+          <?php
+            if(!empty($co_groups)) {
+              $attrs = array();
+              $attrs['value'] = (isset($co_enrollment_flows)
+                                 ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_co_group_id']
+                                 : null);
+              $attrs['empty'] = true;
+              
+              if($e) {
+                print $this->Form->select('authz_co_group_id',
+                                          $co_groups,
+                                          $attrs);
+                
+                if($this->Form->isFieldError('authz_co_group_id')) {
+                  print $this->Form->error('authz_co_group_id');
+                }
+              } else {
+                print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_co_group_id'] ];
+              }
+            }
+          ?>
+        </div>
+        <div id="authzcoudiv" style="display:none">
+          <?php
+            if(!empty($cous)) {
+              $attrs = array();
+              $attrs['value'] = (isset($co_enrollment_flows)
+                                 ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_cou_id']
+                                 : null);
+              $attrs['empty'] = true;
+              
+              if($e) {
+                print $this->Form->select('authz_cou_id',
+                                          $cous,
+                                          $attrs);
+                
+                if($this->Form->isFieldError('authz_cou_id')) {
+                  print $this->Form->error('authz_cou_id');
+                }
+              } else {
+                print $cous[ $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_cou_id'] ];
+              }
+            }
+          ?>
+        </div>
       </td>
     </tr>
     <tr class="line2">

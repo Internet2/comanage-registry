@@ -515,8 +515,13 @@
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
-    <field name="self_enroll" type="L" />
-    <field name="admin_enroll" type="C" size="1" />
+    <field name="authz_level" type="C" size="2" />
+    <field name="authz_cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="authz_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
     <field name="approval_required" type="L" />
     <field name="early_provisioning_exec" type="C" size="128" />
     <field name="provisioning_exec" type="C" size="128" />

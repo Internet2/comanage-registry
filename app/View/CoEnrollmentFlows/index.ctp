@@ -26,9 +26,9 @@
   print $this->element("pageTitle", $params);
 
   if($permissions['add'])
-    echo $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_enrollment_flows.1'),
-                           array('controller' => 'co_enrollment_flows', 'action' => 'add', 'co' => $this->request->params['named']['co']),
-                           array('class' => 'addbutton')) . '
+    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_enrollment_flows.1'),
+                            array('controller' => 'co_enrollment_flows', 'action' => 'add', 'co' => $this->request->params['named']['co']),
+                            array('class' => 'addbutton')) . '
     <br />
     <br />
     ';
@@ -37,9 +37,10 @@
 <table id="cous" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('name', _txt('fd.name')); ?></th>
-      <th><?php echo $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
+      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+      <th><?php print $this->Paginator->sort('authz_level', _txt('fd.ef.authz')); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -49,21 +50,51 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          echo $this->Html->link($c['CoEnrollmentFlow']['name'],
+          print $this->Html->link($c['CoEnrollmentFlow']['name'],
                                   array('controller' => 'co_enrollment_flows',
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co']));
         ?>
       </td>
-      <td><?php echo Sanitize::html($c['CoEnrollmentFlow']['status']); ?></td>
+      <td><?php print _txt('en.status', null, $c['CoEnrollmentFlow']['status']); ?></td>
+      <td>
+        <?php
+          print _txt('en.enrollment.authz', null, $c['CoEnrollmentFlow']['authz_level']);
+          
+          if($c['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CoGroupMember) {
+            print " ("
+                  . $this->Html->link($c['CoEnrollmentFlow']['authz_co_group_id'],
+                                      array(
+                                       'controller' => 'co_groups',
+                                       'action' => 'view',
+                                       $c['CoEnrollmentFlow']['authz_co_group_id'],
+                                       'co' => $c['CoEnrollmentFlow']['co_id']
+                                      ))
+                  . ")";
+          }
+          
+          if($c['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CouAdmin
+             || $c['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CouPerson) {
+            print " ("
+                  . $this->Html->link($c['CoEnrollmentFlow']['authz_cou_id'],
+                                      array(
+                                       'controller' => 'cous',
+                                       'action' => 'view',
+                                       $c['CoEnrollmentFlow']['authz_cou_id'],
+                                       'co' => $c['CoEnrollmentFlow']['co_id']
+                                      ))
+                  . ")";
+          }
+        ?>
+      </td>
       <td>
         <?php
           if($permissions['edit'])
-            echo $this->Html->link(_txt('op.edit'),
+            print $this->Html->link(_txt('op.edit'),
                                     array('controller' => 'co_enrollment_flows', 'action' => 'edit', $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co']),
                                     array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoEnrollmentFlow']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_enrollment_flows', 'action' => 'delete', $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoEnrollmentFlow']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_enrollment_flows', 'action' => 'delete', $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>
@@ -74,8 +105,8 @@
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="3">
-        <?php echo $this->Paginator->numbers(); ?>
+      <th colspan="4">
+        <?php print $this->Paginator->numbers(); ?>
       </td>
     </tr>
   </tfoot>

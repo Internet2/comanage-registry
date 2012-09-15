@@ -248,18 +248,31 @@ class CoPetitionsController extends StandardController {
     
     // Determine what operations this user can perform
     
+    // Some operations are authorized according to the flow configuration.
+    $flowAuthorized = false;
+    
+    // If an enrollment flow was specified, check the authorization for that flow
+    
+    if(isset($this->request->named['coef'])) {
+      $flowAuthorized = $this->CoPetition->CoEnrollmentFlow->authorizeById($this->request->named['coef'],
+                                                                           $cmr['copersonid']);
+    }
+    
     // Add a new CO Petition?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['add'] = ($flowAuthorized
+                 && ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
     
     // Approve a CO Petition?
     $p['approve'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     $p['deny'] = $p['approve'];
     
     // Delete an existing CO Petition?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['delete'] = ($flowAuthorized
+                    && ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
     
     // Edit an existing CO Petition?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['edit'] = ($flowAuthorized
+                  && ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
     
     // Match against existing CO People?
     // Note this same permission exists in CO People
@@ -268,7 +281,8 @@ class CoPetitionsController extends StandardController {
     // View all existing CO Petitions?
     $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
           
-    // View an existing CO Petition?
+    // View an existing CO Petition? We allow the usual suspects to view a Petition, even
+    // if they don't have permission to edit it.
     $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
 
     $this->set('permissions', $p);

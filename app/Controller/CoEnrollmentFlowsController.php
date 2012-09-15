@@ -69,13 +69,76 @@ class CoEnrollmentFlowsController extends StandardController {
     $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
     
     // Select a CO Enrollment Flow to create a petition from?
-    $p['select'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    // Any logged in person can get to this page, however which enrollment flows they
+    // see will be determined dynamically.
+    $p['select'] = $cmr['user'];
     
     // View an existing CO Enrollment Flow?
     $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin']);
 
     $this->set('permissions', $p);
     return($p[$this->action]);
+  }
+  
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   * - precondition: Request Handler component has set $this->request->params
+   * - postcondition: $cous may be set.
+   * - postcondition: $co_groups may be set.
+   *
+   * @since  COmanage Registry v0.7
+   */
+  
+  function beforeRender() {
+    if(!$this->restful) {
+      $this->set('cous', $this->Co->Cou->allCous($this->cur_co['Co']['id'], "hash"));
+      
+      $args = array();
+      $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+      
+      $this->set('co_groups', $this->Co->CoGroup->find("list", $args));
+    }
+    
+    parent::beforeRender();
+  }
+  
+  /**
+   * Perform any dependency checks required prior to a write (add/edit) operation.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  Array Request data
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkWriteDependencies($reqdata, $curdata = null) {
+    // Make sure that a COU ID or CO Group ID was provided, if appropriate.
+    
+    if(isset($reqdata['CoEnrollmentFlow']['authz_level'])) {
+      if($reqdata['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CoGroupMember) {
+        if(!isset($reqdata['CoEnrollmentFlow']['authz_co_group_id'])
+           || $reqdata['CoEnrollmentFlow']['authz_co_group_id'] == "") {
+          $this->Session->setFlash(_txt('er.ef.authz.gr',
+                                        array(_txt('en.enrollment.authz', null, $reqdata['CoEnrollmentFlow']['authz_level']))),
+                                   '', array(), 'error');
+          
+          return false;
+        }
+      } elseif($reqdata['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CouAdmin
+               || $reqdata['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CouPerson) {
+        if(!isset($reqdata['CoEnrollmentFlow']['authz_cou_id'])
+           || $reqdata['CoEnrollmentFlow']['authz_cou_id'] == "") {
+          $this->Session->setFlash(_txt('er.ef.authz.cou',
+                                        array(_txt('en.enrollment.authz', null, $reqdata['CoEnrollmentFlow']['authz_level']))),
+                                   '', array(), 'error');
+          
+          return false;
+        }
+      }
+    }
+    
+    return true;
   }
   
   /**
@@ -111,7 +174,16 @@ class CoEnrollmentFlowsController extends StandardController {
     // Set page title
     $this->set('title_for_layout', _txt('ct.co_enrollment_flows.pl'));
     
+    // Determine which enrollment flows the current user can see
+    
+    // XXX As of Cake 2.3 (which we're not currently using), the paginate accepts the 'findtype' parameter
+    // instead of setting the 0'th index in the array.
+    $this->paginate[0] = 'authorized';
     $this->paginate['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+    // This parameter is for the custom find
+    $this->paginate['authorizeCoPersonId'] = $this->Session->read('Auth.User.co_person_id');
+    $this->paginate['contain'] = false;
+    
     $this->set('co_enrollment_flows', $this->paginate('CoEnrollmentFlow'));
   }
 }

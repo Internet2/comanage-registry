@@ -97,7 +97,7 @@ $cm_texts['en_US'] = array(
   'ct.organizations.pl' =>      'Organizations',
   'ct.telephone_numbers.1' =>   'Telephone Number',
   'ct.telephone_numbers.pl' =>  'Telephone Numbers',
-
+  
   // Email Messages
   'em.invite.subject'        => 'Invitation to join %1$s',
   'em.invite.body'           => 'You have been invited to join %1$s.  Please click the link below to accept or decline.',
@@ -157,6 +157,16 @@ $cm_texts['en_US'] = array(
                               ContactEnum::Home => 'Home',
                               ContactEnum::Mobile => 'Mobile',
                               ContactEnum::Office => 'Office'),
+
+  'en.enrollment.authz' => array(
+    EnrollmentAuthzEnum::CoAdmin        => 'CO Admin',
+    EnrollmentAuthzEnum::CoGroupMember  => 'CO Group Member',
+    EnrollmentAuthzEnum::CoOrCouAdmin   => 'CO or COU Admin',
+    EnrollmentAuthzEnum::CoPerson       => 'CO Person',
+    EnrollmentAuthzEnum::CouAdmin       => 'COU Admin',
+    EnrollmentAuthzEnum::CouPerson      => 'COU Person',
+    EnrollmentAuthzEnum::None           => 'None'
+  ),
   
   'en.extattr' =>     array(ExtendedAttributeEnum::Integer => 'Integer',
                             ExtendedAttributeEnum::Timestamp => 'Timestamp',
@@ -256,6 +266,8 @@ $cm_texts['en_US'] = array(
   'er.ea.index' =>    'Failed to update index for attribute',
   'er.ea.table' =>    'Failed to create CO Extended Attribute table',
   'er.ea.table.d' =>  'Failed to drop CO Extended Attribute table',
+  'er.ef.authz.cou' => 'A COU must be specified for authorization type "%1$s"',
+  'er.ef.authz.gr' => 'A group must be specified for authorization type "%1$s"',
   'er.efcf.init' =>   'Failed to set up initial CMP Enrollment Configuration',
   'er.et.default' =>  'Failed to add default types',
   'er.et.exists' =>   'An extended type named "%1$s" already exists',
@@ -336,14 +348,14 @@ $cm_texts['en_US'] = array(
   'fd.ea.order' =>    'Order',
   'fd.ea.order.desc' => 'The order in which this attribute will be presented (leave blank to append at the end of the current attributes)',
   'fd.et.forattr' =>  'For Attribute',
-  'fd.ef.ae' =>       'Enable Administrator Enrollment',
-  'fd.ef.ae.desc' =>  'If enabled, allow the specified type(s) of administrators to enroll organizational identities to the platform',
   'fd.ef.aea' =>      'Require Authentication For Administrator Enrollment',
   'fd.ef.aea.desc' => 'If administrator enrollment is enabled, require enrollees to authenticate to the platform in order to complete their enrollment',
   'fd.ef.aee' =>      'Require Email Confirmation For Administrator Enrollment',
   'fd.ef.aee.desc' => 'If administrator enrollment is enabled, require enrollees to confirm their email address in order to complete their enrollment',
   'fd.ef.appr' =>     'Require Approval For Enrollment',
   'fd.ef.appr.desc' => 'If administrator approval is required, a member of the appropriate <tt>admin.approvers</tt> group must approve the enrollment',
+  'fd.ef.authz' =>    'Enrollment Authorization',
+  'fd.ef.authz.desc' => 'Authorization required to execute this enrollment flow, see <a href="https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Configuration#RegistryEnrollmentFlowConfiguration-EnrollmentAuthorization">Enrollment Authorization</a> for details',
   'fd.ef.cf.cmp' =>   'Platform Enrollment Configuration',
   'fd.ef.coef' =>     'Enable Attributes Via CO Enrollment Flow',
   'fd.ef.coef.desc' => 'If enabled, allow organizational identity attributes to be collected via forms during CO enrollment flows (these attributes will be less authoritative than those obtained via LDAP or SAML)',
@@ -367,8 +379,6 @@ $cm_texts['en_US'] = array(
   'fd.ef.px.desc' =>  'Executable to call to initiate user provisioning',
   'fd.ef.saml' =>     'Enable SAML Attribute Extraction',
   'fd.ef.saml.desc' => 'If the enrollee is authenticated via a SAML IdP with attributes released, examine the SAML assertion for authoritative attributes',
-  'fd.ef.se' =>       'Enable Self Enrollment',
-  'fd.ef.se.desc' =>  'If enabled, allow enrollees to begin the enrollment process themselves',
   'fd.ef.sea' =>      'Require Authentication For Self Enrollment',
   'fd.ef.sea.desc' => 'If self enrollment is enabled, require enrollees who are self-enrolling to authenticate to the platform',
   // (End enrollment configuration fields)

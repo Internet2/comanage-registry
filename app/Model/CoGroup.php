@@ -32,7 +32,11 @@ class CoGroup extends AppModel {
   // Association rules from this model to other models
   public $hasMany = array(
     // A CoGroup has zero or more members
-    "CoGroupMember" => array('dependent' => true)
+    "CoGroupMember" => array('dependent' => true),
+    "CoEnrollmentFlowAuthzCoGroup" => array(
+      'className' => 'CoEnrollmentFlow',
+      'foreignKey' => 'authz_co_group_id'
+    )
   );
 
   public $belongsTo = array("Co");           // A CoGroup is attached to one CO
@@ -87,6 +91,7 @@ class CoGroup extends AppModel {
    * @param  Integer Offset to start retrieving results from (or null)
    * @param  String Field to sort by (or null)
    * @return Array Group information, as returned by find
+   * @todo   XXX Rewrite to a custom find type
    */
   
   function findForCoPerson($coPersonId, $limit=null, $offset=null, $order=null) {

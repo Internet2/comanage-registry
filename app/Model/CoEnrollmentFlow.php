@@ -32,8 +32,21 @@ class CoEnrollmentFlow extends AppModel {
   // Add behaviors
   public $actsAs = array('Containable');
   
+  // Custom find types
+  public $findMethods = array('authorized' => true);
+  
   // Association rules from this model to other models
-  public $belongsTo = array("Co");     // A CO Enrollment Flow is attached to a CO
+  public $belongsTo = array(
+    "CoEnrollmentFlowAuthzCoGroup" => array(
+      'className' => 'CoGroup',
+      'foreignKey' => 'authz_co_group_id'
+    ),
+    "CoEnrollmentFlowAuthzCou" => array(
+      'className' => 'Cou',
+      'foreignKey' => 'authz_cou_id'
+    ),
+    "Co"
+  );
   
   public $hasMany = array(
     // A CO Enrollment Flow has many CO Enrollment Attributes
@@ -88,4 +101,122 @@ class CoEnrollmentFlow extends AppModel {
                                       StatusEnum::Suspended))
     )
   );
+  
+  /**
+   * Obtain Enrollment Flows a given CO person is authorized to run.
+   * This method implements a Custom Find type.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  Integer CO Person ID
+   * @param  Integer CO ID
+   * @return Array CoEnrollmentFlow information, as returned by find
+   */
+  
+  protected function _findAuthorized($state, $query, $results = array()) {
+    if($state == 'before') {
+      // Called before the find is performed
+      
+      // We don't do anything special here
+      
+      return $query;
+    } elseif($state == 'after') {
+      // Called after the find is performed
+      
+      // Walk through the returned Enrollment Flows and see if the specified CO Person
+      // is authorized. If the CO Person is a CMP or CO Admin, they are always authorized.
+      
+      $filteredResults = array();
+      
+      foreach($results as $coEF) {
+        if($this->authorize($coEF, $query['authorizeCoPersonId'])) {
+          $filteredResults[] = $coEF;
+        }
+      }
+      
+      return $filteredResults;
+    }
+  }
+  
+  /**
+   * Determine if a CO Person is authorized to run an Enrollment Flow.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  Array CO Enrollment Flow, as returned by find
+   * @param  Integer CO Person ID
+   * @return Boolean True if the CO Person is authorized, false otherwise
+   */
+  
+  public function authorize($coEF, $coPersonId) {
+    $CoRole = ClassRegistry::init('CoRole');
+    
+    // If CO Person is a CO admin, they are always authorized
+    
+    if($CoRole->isCoAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
+      return true;
+    }
+    
+    switch($coEF['CoEnrollmentFlow']['authz_level']) {
+      case EnrollmentAuthzEnum::CoAdmin:
+        // We effectively already handled this, above
+        break;
+      case EnrollmentAuthzEnum::CoGroupMember:
+        if($CoRole->isCoGroupMember($coPersonId, $coEF['CoEnrollmentFlow']['co_id'], $coEF['CoEnrollmentFlow']['authz_co_group_id'])) {
+          return true;
+        }
+        break;
+      case EnrollmentAuthzEnum::CoOrCouAdmin:
+        if($CoRole->isCoOrCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
+          return true;
+        }
+        break;
+      case EnrollmentAuthzEnum::CoPerson:
+        if($CoRole->isCoPerson($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
+          return true;
+        }
+        break;
+      case EnrollmentAuthzEnum::CouAdmin:
+        if($CoRole->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'], $coEF['CoEnrollmentFlow']['authz_cou_id'])) {
+          return true;
+        }
+        break;
+      case EnrollmentAuthzEnum::CouPerson:
+        if($CoRole->isCouPerson($coPersonId, $coEF['CoEnrollmentFlow']['co_id'], $coEF['CoEnrollmentFlow']['authz_cou_id'])) {
+          return true;
+        }
+        break;
+      case EnrollmentAuthzEnum::None:
+        // No authz required
+        return true;
+        break;
+    }
+    
+    // No matching Authz found
+    return false;
+  }
+  
+  /**
+   * Determine if a CO Person is authorized to run an Enrollment Flow.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  Integer CO Enrollment Flow ID
+   * @param  Integer CO Person ID
+   * @return Boolean True if the CO Person is authorized, false otherwise
+   */
+  
+  public function authorizeById($coEfId, $coPersonId) {
+    // Retrieve the Enrollment Flow and pass it along
+    
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.id'] = $coEfId;
+    $args['conditions']['CoEnrollmentFlow.status'] = StatusEnum::Active;
+    $args['contain'] = false;
+    
+    $ef = $this->find('first', $args);
+    
+    if(empty($ef)) {
+      return false;
+    }
+    
+    return $this->authorize($ef, $coPersonId);
+  }
 }
