@@ -149,18 +149,17 @@ class UsersController extends AppController {
           if(isset($orgIdentities[0]['Name'])) {
             $this->Session->write('Auth.User.name', $orgIdentities[0]['Name']);
           }
+          
+          $this->redirect($this->Auth->redirect());
         } else {
           // This is an API user. We don't do anything special at the moment.
         }
       } else {
         throw new RuntimeException("Found empty username at login");
       }
-      
-      $this->redirect("/");
     } else {
       // We're probably here because the session timed out
-      $this->Session->setFlash(_txt('er.timeout'), '', array(), 'error');
-      $this->redirect("/");
+      $this->redirect("/auth/login");
       //throw new RuntimeException("Failed to invoke Auth component login");
     }
   }
