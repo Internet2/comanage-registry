@@ -287,8 +287,8 @@ class CoGroupMembersController extends StandardController {
     
     if($this->action == 'add' && isset($this->request->data['CoGroupMember']['co_person_id']))
       $cop = $this->request->data['CoGroupMember']['co_person_id'];
-    elseif($this->action == 'delete' && isset($this->request->params['named']['copersonid']))
-      $cop = $this->request->params['named']['copersonid'];
+    elseif($this->action == 'delete' && isset($this->request->params['named']['CoPersonid']))
+      $cop = $this->request->params['named']['CoPersonid'];
       
     if(isset($cop))
     {

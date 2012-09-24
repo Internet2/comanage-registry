@@ -243,9 +243,13 @@ class StandardController extends AppController {
       // Delete doesn't have a view, so we need to redirect back to index regardless of success
       
       if($this->requires_person)
+      {
         $this->checkPersonID("force", $op);
+      }
       else
+      {
         $this->performRedirect();
+      }
     }
   }
   
