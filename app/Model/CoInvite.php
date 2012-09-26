@@ -284,7 +284,7 @@ class CoInvite extends AppModel {
         }
         
         // Send the email
-//        $email->send();
+        $email->send();
       } catch(Exception $e) {
         throw new RuntimeException($e->getMessage());
       }
