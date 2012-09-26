@@ -126,9 +126,12 @@ class AppController extends Controller {
           if(isset($this->CoPetition->EnrolleeCoPerson->Identifier)) {
             $this->CoPetition->EnrolleeCoPerson->Identifier->coId = $coid;
           }
+          if(isset($this->CoInvite->CoPetition->EnrolleeCoPerson->Identifier)) {
+            $this->CoInvite->CoPetition->EnrolleeCoPerson->Identifier->coId = $coid;
+          }
         } else {
           $this->Session->setFlash(_txt('er.co.unk-a', array($coid)), '', array(), 'error');
-          $this->redirect(array('controller' => 'cos', 'action' => 'select'));
+          $this->redirect("/");
         }
       }
     }
@@ -1053,6 +1056,8 @@ class AppController extends Controller {
       $coid = $this->request->data['Co']['id'];
     elseif(isset($this->request->data[$req]['co_id']))
       $coid = $this->request->data[$req]['co_id'];
+    elseif(isset($this->impliedCoId))
+      $coid = $this->impliedCoId;
     
     return $coid;
   }
@@ -1243,7 +1248,10 @@ class AppController extends Controller {
     
     // Manage any CO (or COU) population?
     $p['menu']['cos'] = $cmr['admin'] || $cmr['subadmin'];
-
+    
+    // Select from available enrollment flows?
+    $p['menu']['enrollmentflows'] = $cmr['user'];
+    
     // Manage any CO (or COU) population?
     $p['menu']['petitions'] = $cmr['admin'] || $cmr['subadmin'];
     
@@ -1285,13 +1293,15 @@ class AppController extends Controller {
   function menuContent() {
     // Get org identity ID
     $orgIDs = $this->Session->read('Auth.User.org_identities');
-
-    // Find name associated with that ID
-    $this->loadModel('OrgIdentity');
-    $orgName = $this->OrgIdentity->read('o',$orgIDs[0]['org_id']);
-
-    // Set for home ID name in menu
-    $menu['orgName'] = $orgName['OrgIdentity']['o'];
+    
+    if(!empty($orgIDs)) {
+      // Find name associated with that ID
+      $this->loadModel('OrgIdentity');
+      $orgName = $this->OrgIdentity->read('o',$orgIDs[0]['org_id']);
+  
+      // Set for home ID name in menu
+      $menu['orgName'] = $orgName['OrgIdentity']['o'];
+    }
 
     // Set the COs for display
     if($this->viewVars['permissions']['menu']['admin']) {

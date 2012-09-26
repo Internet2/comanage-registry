@@ -69,6 +69,17 @@ else
                   print "</li>";
                 }
 
+                if(isset($permissions['menu']['enrollmentflows']) && $permissions['menu']['enrollmentflows']) {
+                  print "<li>";
+                    $args = array(
+                    'controller' => 'co_enrollment_flows',
+                    'action' => 'select',
+                    'co' => $menuCoId
+                    );
+                    print $this->Html->link(_txt('ct.co_enrollment_flows.pl'), $args);
+                  print "</li>";
+                }
+
                 if(isset($permissions['menu']['petitions']) && $permissions['menu']['petitions']) {
                   print "<li>";
                     $args = array(

@@ -22,11 +22,11 @@
  * @version       $Id$
  */
 
-App::uses('CakeEmail', 'Network/Email');
-
 class CoInvitesController extends AppController {
   // We don't extend StandardController because there's so much unique stuff going on here
   public $name = "CoInvites";
+  
+  public $helpers = array('Time');
   
   public $paginate = array(
     'limit' => 25,
@@ -50,6 +50,23 @@ class CoInvitesController extends AppController {
   }
   
   /**
+   * Confirm the requested invite, requiring authentication
+   * - precondition: $invite must exist, be valid, and attached to a valid CO person
+   * - postcondition: CO Person status set to 'Active' and/or CO Petition updated
+   * - postcondition: $inviteid deleted
+   * - postcondition: Session flash message updated (HTML)
+   *
+   * @since  COmanage Registry v0.7
+   * @param  Integer Invitation ID
+   */
+  
+  public function authconfirm($inviteid) {
+    // This behaves just like confirm(), except that authentication is required to get here.
+    
+    $this->process_invite($inviteid, true, $this->Session->read('Auth.User.username'));
+  }
+  
+  /**
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: Auth component is configured 
    *
@@ -60,7 +77,26 @@ class CoInvitesController extends AppController {
   function beforeFilter() {
     if($this->action == "send")
       $this->requires_co = true;
-
+    
+    if($this->action == "confirm" || $this->action == "authconfirm") {
+      // Identifier assignment requires the CO ID to be set, but since CO ID isn't
+      // provided as an explicit parameter, beforeFilter can't find it.
+      
+      $args = array();
+      $args['conditions']['CoInvite.invitation'] = $this->request->params['pass'][0];
+      $args['joins'][0]['table'] = 'co_invites';
+      $args['joins'][0]['alias'] = 'CoInvite';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoInvite.co_person_id';
+      $args['contain'] = false;
+      
+      $coPerson = $this->CoInvite->CoPerson->find('first', $args);
+      
+      if(isset($coPerson['CoPerson']['co_id'])) {
+        $this->impliedCoId = $coPerson['CoPerson']['co_id'];
+      }
+    }
+    
     // Since we're overriding, we need to call the parent to run the authz check
     parent::beforeFilter();
     
@@ -71,7 +107,7 @@ class CoInvitesController extends AppController {
   /**
    * Confirm the requested invite
    * - precondition: $invite must exist, be valid, and attached to a valid CO person
-   * - postcondition: CO Person status set to 'Active'
+   * - postcondition: CO Person status set to 'Active' and/or CO Petition updated
    * - postcondition: $inviteid deleted
    * - postcondition: Session flash message updated (HTML)
    *
@@ -152,6 +188,9 @@ class CoInvitesController extends AppController {
     
     // Send an invite? (REST only)
     $p['add'] = $cmr['apiuser'];
+    
+    // Confirm an invite? (HTML, auth reequired)
+    $p['authconfirm'] = true;
 
     // Confirm an invite? (HTML only)
     $p['confirm'] = true;
@@ -180,65 +219,63 @@ class CoInvitesController extends AppController {
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
    * @since  COmanage Registry v0.1
-   * @param Integer ID invitation
-   * @param Boolean If true, confirm the invitation; if false, decline it
+   * @param  Integer ID invitation
+   * @param  Boolean If true, confirm the invitation; if false, decline it
+   * @param  String Authenticated login identifier, if set
    */
   
-  function process_invite($inviteid, $confirm) {
-    if(!$this->restful)
-    {
+  function process_invite($inviteid, $confirm, $loginIdentifier=null) {
+    if(!$this->restful) {
       // Set page title
       $this->set('title_for_layout', _txt('op.inv.reply'));
     }
     
-    $invite = $this->CoInvite->findByInvitation($inviteid);
-    
-    if(!$invite)
-    {
-      if($this->restful)
-      {
-        $this->restResultHeader(404, "CoInvite Unknown");
-        return;
-      }
-      else
-        $this->Session->setFlash(_txt('er.inv.nf'), '', array(), 'error');
+    try {
+      $this->CoInvite->processReply($inviteid, $confirm, $loginIdentifier);
     }
-    else
-    {
-      // Check invite validity
-      
-      if(time() < strtotime($invite['CoInvite']['expires']))
-      {
-        // Update CO Person
-        
-        $this->CoInvite->CoPerson->id = $invite['CoPerson']['id'];
-        
-        if($this->CoInvite->CoPerson->saveField('status', $confirm ? 'A' : 'X'))
-        {
-          if($this->restful)
-            $this->restResultHeader(200, "Deleted");
-          else
-            $this->Session->setFlash($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), '', array(), 'success');
+    catch(InvalidArgumentException $e) {
+      if($this->restful) {
+        if($e->getMessage() == _txt('er.inv.nf')) {
+          $this->restResultHeader(404, "CoInvite Unknown");
+        } else {
+          $this->restResultHeader(400, "CoPerson Unknown");
         }
-        else
-        {
-          if($this->restful)
-            $this->restResultHeader(400, "CoPerson Unknown");
-          else
-            $this->Session->setFlash(_txt('er.cop.nf', $invite['CoPerson']['id']), '', array(), 'error');
+      } else {
+        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      }
+    }
+    catch(OutOfBoundsException $e) {
+      if($this->restful) {
+        $this->restResultHeader(403, "Expired");
+      } else {
+        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      }
+    }
+    catch(Exception $e) {
+      if($e->getMessage() == _txt('er.auth')) {
+        // This invitation requires authentication, so issue a redirect
+        $this->redirect(array('action' => 'authconfirm', $inviteid));
+        return;
+      } else {
+        if($this->restful) {
+          $this->restResultHeader(500, "Other Error");
+        } else {
+          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
         }
       }
-      else
-      {
-        if($this->restful)
-          $this->restResultHeader(403, "Expired");
-        else
-          $this->Session->setFlash(_txt('er.inv.exp'), '', array(), 'error');
+    }
+    
+    if($this->restful)
+      $this->restResultHeader(200, "Deleted");
+    else {
+      if($loginIdentifier) {
+        // If a login identifier was provided, force a logout
+        
+        $this->Session->setFlash(_txt('rs.pt.relogin'), '', array(), 'success');
+        $this->redirect("/auth/logout");
+      } else {
+        $this->Session->setFlash($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), '', array(), 'success');
       }
-
-      // Toss the invite
-
-      $this->CoInvite->delete($invite['CoInvite']['id']);
     }
   }
 
@@ -277,6 +314,43 @@ class CoInvitesController extends AppController {
       $this->set('cur_co', $co);
       $this->set('invite', $invite);
       $this->set('invitee', $invitee);
+      
+      // We also want to pull the enrollment flow and petition attributes, if appropriate
+      
+      if(isset($invite['CoPetition']['id'])) {
+        $args = array();
+        $args['conditions']['CoEnrollmentFlow.id'] = $invite['CoPetition']['co_enrollment_flow_id'];
+        $args['contain'][] = 'CoEnrollmentAttribute';
+        
+        $enrollmentFlow = $this->CoInvite->CoPetition->CoEnrollmentFlow->find('first', $args);
+        
+        $this->set('co_enrollment_flow', $enrollmentFlow);
+        
+        $this->set('co_enrollment_attributes',
+                   $this->CoInvite->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($invite['CoPetition']['co_enrollment_flow_id']));
+        
+        $pArgs = array();
+        $pArgs['conditions']['CoPetition.id'] = $invite['CoPetition']['id'];
+        $pArgs['contain'][] = 'CoPetitionHistoryRecord';
+        $pArgs['contain']['CoPetitionHistoryRecord'][0] = 'ActorCoPerson';
+        $pArgs['contain']['CoPetitionHistoryRecord']['ActorCoPerson'] = 'Name';
+        
+        $petition = $this->CoInvite->CoPetition->find('all', $pArgs);
+        
+        $this->set('co_petitions', $petition);
+        
+        $vArgs = array();
+        $vArgs['conditions']['CoPetitionAttribute.co_petition_id'] = $invite['CoPetition']['id'];
+        $vArgs['fields'] = array(
+          'CoPetitionAttribute.attribute',
+          'CoPetitionAttribute.value',
+          'CoPetitionAttribute.co_enrollment_attribute_id'
+        );
+        
+        $vAttrs = $this->CoInvite->CoPetition->CoPetitionAttribute->find("list", $vArgs);
+        
+        $this->set('co_petition_attribute_values', $vAttrs);
+      }
     }
   }
   
@@ -357,10 +431,6 @@ class CoInvitesController extends AppController {
 
     if($cop)
     {
-      // Toss any prior invitations for $cpid
-
-      $this->CoInvite->deleteAll(array("co_person_id" => $cpid));
-
       // Find the associated Org Identity to get an email address
       
 // XXX fix this getting link to get org identity
@@ -378,76 +448,40 @@ class CoInvitesController extends AppController {
       if(isset($orgp) && count($orgp['EmailAddress']) > 0)
       {
         // XXX There could be multiple email addresses, we'll use the first one
-        // (but could allow the inviter to select one)
+        // (but we could allow one to be selected)
         
-        // XXX make expiration time configurable      
-        $invite = array("CoInvite" => array('co_person_id' => $cpid,
-                                            'invitation' => Security::generateAuthKey(),
-                                            'mail' => $orgp['EmailAddress'][0]['mail'],
-                                            'expires' => date('Y-m-d H:i:s', strtotime('+1 day'))));  // XXX date format may not be portable
-
-        $this->CoInvite->create($invite);
+        try {
+          $this->CoInvite->send($cpid,
+                                $orgp['OrgIdentity']['id'],
+                                $this->Session->read('Auth.User.co_person_id'),
+                                $orgp['EmailAddress'][0]['mail'],
+                                isset($this->cur_co['CoEnrollmentFlow'][0]['notify_from'])
+                                ? $this->cur_co['CoEnrollmentFlow'][0]['notify_from']
+                                : null,
+                                $this->cur_co['Co']['name']);
+        }
+        catch(Exception $e) {
+          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        }
+      
+        // Set CO Person status to I
+        // XXX probably don't want to do this if status = A.  May need a new password reset status.
         
-        if($this->CoInvite->save()) {
-          // Set up and send the invitation via email
-          $email = new CakeEmail('default');
-          $viewVariables = $invite;
-          $viewVariables['Co'] = $this->cur_co['Co'];
-
-          try {
-            $email->template('coinvite', 'basic')
-                  ->emailFormat('text')
-                  ->to($orgp['EmailAddress'][0]['mail'])
-                  ->viewVars($viewVariables)
-                  ->subject(_txt('em.invite.subject', array($this->cur_co['Co']['name'])));
-
-            // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
-            if(isset($this->viewVars['cur_co']['CoEnrollmentFlow'][0]['notify_from']))
-              $email->from($this->viewVars['cur_co']['CoEnrollmentFlow'][0]['notify_from']);
-
-            // Send the email
-            $email->send();
-
-            // Notify user of success
-            $this->Session->setFlash(_txt('em.invite.ok',
-                                          array($orgp['EmailAddress'][0]['mail'])),
-                                     '',
-                                     array(),
-                                     'success');
-
-          } catch(Exception $e) {
-            // Display error to user
-            $this->Session->setFlash($e->getMessage(), '', array(), 'error');
-          }
-          // Set CO Person status to I
-          // XXX probably don't want to do this if status = A.  May need a new password reset status.
-  
-          $this->CoInvite->CoPerson->id = $cpid;
-          
-          if($this->CoInvite->CoPerson->saveField('status', 'I'))
+        $this->CoInvite->CoPerson->id = $cpid;
+        
+        if($this->CoInvite->CoPerson->saveField('status', 'I'))
+        {
+          if($this->restful)
           {
-            if($this->restful)
-            {
-              // $this->restResultHeader(201, "Sent");
-              $this->restResultHeader(501, "Not Implemented");
-              $this->set('co_invite_id', $this->CoInvite->id);
-            }
-            else
-            {
-              $this->set('cur_co', $this->cur_co);
-              $this->set('invite', $this->CoInvite->findById($this->CoInvite->id));
-              $this->set('invitee', $cop);
-            }
+            // $this->restResultHeader(201, "Sent");
+            $this->restResultHeader(501, "Not Implemented");
+            $this->set('co_invite_id', $this->CoInvite->id);
           }
           else
           {
-            if($this->restful)
-            {
-              $this->restResultHeader(400, "Invalid Fields");
-              $this->set('invalid_fields', $this->CoInvite->invalidFields());
-            }
-            else
-              $this->Session->setFlash($this->fieldsErrorToString($this->CoInvite->CoPerson->invalidFields()), '', array(), 'error');
+            $this->set('cur_co', $this->cur_co);
+            $this->set('invite', $this->CoInvite->findById($this->CoInvite->id));
+            $this->set('invitee', $cop);
           }
         }
         else
@@ -458,7 +492,7 @@ class CoInvitesController extends AppController {
             $this->set('invalid_fields', $this->CoInvite->invalidFields());
           }
           else
-            $this->Session->setFlash($this->fieldsErrorToString($this->CoInvite->invalidFields()), '', array(), 'error');
+            $this->Session->setFlash($this->fieldsErrorToString($this->CoInvite->CoPerson->invalidFields()), '', array(), 'error');
         }
       }
       else

@@ -101,7 +101,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.status'); ?><font class="required">*</font>
+        <b><?php print _txt('fd.status'); ?></b><font class="required">*</font>
       </td>
       <td>
         <?php
@@ -200,6 +200,31 @@
     </tr>
     <tr class="line2">
       <td>
+        <b><?php print _txt('fd.ef.match'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.match.desc'); ?></font>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy'] : EnrollmentMatchPolicyEnum::Advisory);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('match_policy',
+                                      $cm_texts[ $cm_lang ]['en.enrollment.match'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('match_policy')) {
+              print $this->Form->error('match_policy');
+            }
+          } else {
+            print _txt('en.enrollment.match', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line1">
+      <td>
         <b><?php print _txt('fd.ef.appr'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ef.appr.desc'); ?></font>
       </td>
@@ -209,7 +234,29 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_required'])); ?>
       </td>
     </tr>
+    <tr class="line2">
+      <td>
+        <b><?php print _txt('fd.ef.ce'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.ce.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('confirm_email')
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['confirm_email'])); ?>
+      </td>
+    </tr>
     <tr class="line1">
+      <td>
+        <b><?php print _txt('fd.ef.authn'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.authn.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('require_authn')
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'])); ?>
+      </td>
+    </tr>
+    <tr class="line2">
       <td>
         <b><?php print _txt('fd.ef.epx'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ef.epx.desc'); ?></font>
@@ -220,7 +267,7 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['early_provisioning_exec'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line1">
       <td>
         <b><?php print _txt('fd.ef.px'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ef.px.desc'); ?></font>
@@ -231,7 +278,7 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['provisioning_exec'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line2">
       <td>
         <b><?php print _txt('fd.ef.noep'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ef.noep.desc'); ?></font>
@@ -242,7 +289,7 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_early_provision'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line1">
       <td>
         <b><?php print _txt('fd.ef.nop'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ef.nop.desc'); ?></font>
@@ -253,7 +300,7 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_provision'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line2">
       <td>
         <b><?php print _txt('fd.ef.noa'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ef.noa.desc'); ?></font>
@@ -264,7 +311,7 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_active'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line1">
       <td>
         <b><?php print _txt('fd.ef.efn'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ef.efn.desc'); ?></font>

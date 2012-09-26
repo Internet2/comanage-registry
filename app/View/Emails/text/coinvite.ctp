@@ -22,12 +22,12 @@
  * @version       $Id$
  */
 
-  print _txt('em.invite.body', array($this->viewVars['Co']['name']));
+  print _txt('em.invite.body', array($this->viewVars['co_name']));
 
   print '
   ';
 
-  $u = $this->Html->url(array('controller' => 'co_invites', 'action' => 'reply', $this->viewVars['CoInvite']['invitation']), true);
+  $u = $this->Html->url(array('controller' => 'co_invites', 'action' => 'reply', $this->viewVars['invite_id']), true);
   print $u;
 ?>
 

@@ -23,7 +23,7 @@
  */
 -->
 <?php
-  $params = array('title' => $cur_co['Co']['name'] . " People");
+  $params = array('title' => $cur_co['Co']['name'] . " People"); // XXX I18N
   print $this->element("pageTitle", $params);
 
   if($permissions['enroll'] && !empty($co_enrollment_flows)) {

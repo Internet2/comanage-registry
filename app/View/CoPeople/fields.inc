@@ -43,22 +43,13 @@
   if(!$e && !$permissions['view'])
     return(false);
 
-  if($e)
-  {
-    print $this->Html->link(_txt('op.back'),
-                          array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                          array('class' => 'cancelbutton'));
-    
-    if($this->action != "invite")
-    {
-      print $this->Html->link(_txt('ct.org_identities.1'),
-                            array('controller' => 'org_identities',
-                                  'action' => ($e && !$es ? 'edit' : 'view'),
-                                  $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'],
-                                  'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                            array('class' => 'linkbutton'));
-
-     // If demographics data does not exist, demographics controller will redirect to add
+  print $this->Html->link(_txt('op.back'),
+                        array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
+                        array('class' => 'backbutton'));
+  
+  if($this->action != "invite") {
+    if($e) {
+      // If demographics data does not exist, demographics controller will redirect to add
       $args =  array('controller' => 'co_nsf_demographics',
                      'action'     => 'editself',
                      'co'         => ($pool_org_identities ? false : $cur_co['Co']['id']));
@@ -66,47 +57,40 @@
       print $this->Html->link(_txt('ct.co_nsf_demographics.1'),
                               $args,
                               $classArg);
+      
+      // Autogenerate Identifiers button
+      if(!empty($co_identifier_assignments)) {
+        print '<a
+                class="autobutton"
+                title="' . _txt('op.id.auto') . '"
+                onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
+                                                                                         'action' => 'assign',
+                                                                                         'copersonid' => $co_people[0]['CoPerson']['id'],
+                                                                                         'co' => $cur_co['Co']['id'])) . '\')";>'
+                . _txt('op.id.auto')
+                . "</a>\n";
+      }
+      
+      // Populate the cross reference (used for when we're adding a new CO Person entry manually)
+      print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+      print $this->Form->hidden('CoOrgIdentityLink.0.id'). "\n";
+      print $this->Form->hidden('CoOrgIdentityLink.0.org_identity_id', array('default' => $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])). "\n";
+      // Default status is 'Pending'
+      echo $this->Form->hidden('status', array('default' => 'P')). "\n";
     }
     
-    // Populate the cross reference
-    print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
-    print $this->Form->hidden('CoOrgIdentityLink.0.id'). "\n";
-    print $this->Form->hidden('CoOrgIdentityLink.0.org_identity_id', array('default' => $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])). "\n";
-    // Default status is 'Pending'
-    echo $this->Form->hidden('status', array('default' => 'P')). "\n";
-  }
-  else
-  {
-    // Back button
-    print $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                           array('class' => 'backbutton'));
-  }
-  
-  // View History button
-  if($this->action != "add" && $this->action != "invite") {
-    print $this->Html->link(
-      _txt('op.history'),
-      array(
-        'controller' => 'history_records',
-        'action' => 'index',
-        'copersonid' => $co_people[0]['CoPerson']['id']
-      ),
-      array('class' => 'historybutton')
-    );
-  }
-  
-  // Autogenerate Identifiers button
-  if(!empty($co_identifier_assignments)) {
-    print '<a
-            class="autobutton"
-            title="' . _txt('op.id.auto') . '"
-            onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
-                                                                                     'action' => 'assign',
-                                                                                     'copersonid' => $co_people[0]['CoPerson']['id'],
-                                                                                     'co' => $cur_co['Co']['id'])) . '\')";>'
-            . _txt('op.id.auto')
-            . "</a>\n";
+    // View History button
+    if($this->action != "add") {
+      print $this->Html->link(
+        _txt('op.history'),
+        array(
+          'controller' => 'history_records',
+          'action' => 'index',
+          'copersonid' => $co_people[0]['CoPerson']['id']
+        ),
+        array('class' => 'historybutton')
+      );
+    }
   }
 
   // Line number, for rendering
@@ -140,14 +124,14 @@
     $('#dialog').dialog('open');
   }
 
-// Turn on Tabs
-$(function() {
+  // Turn on Tabs
+  $(function() {
     $( "#tabs" ).tabs();
   });
 </script>
 
 <div id="<?php print $this->action; ?>_co_person" style=" float:left; height:auto;">
-  <div id="tabs" style="min-height:350px; width:550px">
+  <div id="tabs" style="min-height:350px; min-width:550px">
     <ul>
       <li>
         <a href="#tabs-name">
@@ -173,6 +157,11 @@ $(function() {
         <li>
           <a href="#tabs-role">
             <?php print _txt('fd.attrs.copr'); ?>
+          </a>
+        </li>
+        <li>
+          <a href="#tabs-orgid">
+            <?php print _txt('ct.org_identities.pl'); ?>
           </a>
         </li>
       <?php endif; ?>
@@ -420,9 +409,10 @@ $(function() {
                       print '">';
                         print '<td>';
                           print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
-                          print " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
+                          print " (" . _txt('en.contact', null, $ea['type']) . ", "
+                          . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
                         print '</td>';
-
+                        
                         print '<td>';
                           // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                           print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $this->Html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
@@ -728,5 +718,76 @@ $(function() {
           </tbody>
         </table>
       </div> <!-- tabs-role -->
+      <div id="tabs-orgid">
+        <table>
+          <tbody>
+            <tr>
+              <td valign="top">
+                <!-- Org Identity Data -->
+                <table id="<?php print $this->action; ?>_org_identities" class="ui-widget">
+                  <tbody>
+                    <tr class="line<?php print ($l % 2); $l++; ?>">
+                      <th class="ui-widget-header"></th>
+                      <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
+                      <th class="ui-widget-header"><?php print _txt('fd.ou'); ?></th>
+                      <th class="ui-widget-header"><?php print _txt('fd.title'); ?></th>
+                      <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
+                      <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+                    </tr>
+                    <?php foreach($co_people[0]['CoOrgIdentityLink'] as $link): ?>
+                    <tr class="line<?php print ($l % 2); $l++; ?>">
+                      <td>
+                        <?php print $link['OrgIdentity']['id']; ?>
+                      </td>
+                      <td>
+                        <?php
+                          if(isset($link['OrgIdentity']['o']))
+                            print Sanitize::html($link['OrgIdentity']['o']);
+                        ?>
+                      </td>
+                      <td>
+                        <?php
+                          if(isset($link['OrgIdentity']['ou']))
+                            print Sanitize::html($link['OrgIdentity']['ou']);
+                        ?>
+                      </td>
+                      <td>
+                        <?php
+                          if(isset($link['OrgIdentity']['title']))
+                            print Sanitize::html($link['OrgIdentity']['title']);
+                        ?>
+                      </td>
+                      <td>
+                        <?php
+                          if(isset($link['OrgIdentity']['affiliation']))
+                            print $cm_texts[ $cm_lang ]['en.affil'][ $link['OrgIdentity']['affiliation'] ];
+                        ?>
+                      </td>
+                      <td>
+                        <?php
+                          print $this->Html->link(_txt('op.view'),
+                                                  array('controller' => 'org_identities',
+                                                        'action' => ($e && !$es ? 'edit' : 'view'),
+                                                        $link['OrgIdentity']['id'],
+                                                        'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
+                                                  array('class' => ($e && !$es ? 'editbutton' : 'viewbutton'))) . "\n";
+                          
+                          if($permissions['delete']
+                             && count($co_people[0]['CoOrgIdentityLink']) > 1) {
+                            // An Org Identity Link can only be removed if there is at least one other remaining
+                            
+                            print '<a class="unlinkbutton" title="' . _txt('op.unlink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.unlink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_org_identity_links', 'action' => 'delete', $link['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.unlink') . '</a>' . "\n";
+                          }
+                        ?>
+                      </td>
+                    </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div> <!-- tabs-orgid -->
     <?php endif; // if not invite ?>
 </div>

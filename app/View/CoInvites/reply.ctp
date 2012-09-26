@@ -22,28 +22,36 @@
  * @version       $Id$
  */
 -->
+<?php if(!empty($invite)): ?>
 <?php
-  $params = array('title' => "Invitation to " . $cur_co['Co']['name']);
+  $params = array('title' => _txt('fd.inv.to', array($cur_co['Co']['name'])));
   print $this->element("pageTitle", $params);
 ?>
 
-<p>
-Invitation for <b><?php echo generateCn($invitee['Name']); ?></b>
-</p>
+<h2 class="ui-state-default"><?php print _txt('fd.inv.for', array(generateCn($invitee['Name']))); ?></h2>
 
-<ul>
-  <li>
-<?php 
-  $u = $this->Html->url(array('controller' => 'co_invites', 'action' => 'confirm', $invite['CoInvite']['invitation']), true);
+<?php
+  print $this->Html->link(
+    _txt('op.accept'),
+    array('controller' => 'co_invites',
+          'action' => (isset($co_enrollment_flow['CoEnrollmentFlow']['require_authn'])
+                       && $co_enrollment_flow['CoEnrollmentFlow']['require_authn']) ? 'authconfirm' : 'confirm',
+          $invite['CoInvite']['invitation']),
+    array('class' => 'checkbutton')
+  );
+
+  print $this->Html->link(
+    _txt('op.decline'),
+    array('controller' => 'co_invites',
+          'action' => 'decline',
+          $invite['CoInvite']['invitation']),
+    array('class' => 'cancelbutton')
+  );
   
-  echo $this->Html->link('Confirm', $u);
+  $e = false;
+
+  if(isset($co_petitions)) {
+    include ("petition-attributes.inc");
+  }
 ?>
-  </li>
-  <li>
-<?php 
-  $u = $this->Html->url(array('controller' => 'co_invites', 'action' => 'decline', $invite['CoInvite']['invitation']), true);
-  
-  echo $this->Html->link('Decline', $u);
-?>
-  </li>
-</ul>
+<?php endif;

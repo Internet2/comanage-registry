@@ -73,15 +73,40 @@ class CoEnrollmentFlow extends AppModel {
       'required' => true,
       'message' => 'A CO ID must be provided'
     ),
-    'self_enroll' => array(
-      'rule' => array('boolean')
+    'authz_level' => array(
+      'rule' => array('inList',
+                      array(EnrollmentAuthzEnum::CoAdmin,
+                            EnrollmentAuthzEnum::CoGroupMember,
+                            EnrollmentAuthzEnum::CoOrCouAdmin,
+                            EnrollmentAuthzEnum::CoPerson,
+                            EnrollmentAuthzEnum::CouAdmin,
+                            EnrollmentAuthzEnum::CouPerson,
+                            EnrollmentAuthzEnum::None))
     ),
-    'admin_enroll' => array(
-      'rule' => array('inList', array(AdministratorEnum::NoAdmin,
-                                      AdministratorEnum::CoOrCouAdmin,
-                                      AdministratorEnum::CoAdmin))
+    'authz_cou_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'authz_co_group_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'match_policy' => array(
+      'rule' => array('inList',
+                      array(EnrollmentMatchPolicyEnum::Advisory,
+                            EnrollmentMatchPolicyEnum::Automatic,
+                            EnrollmentMatchPolicyEnum::None,
+                            EnrollmentMatchPolicyEnum::Self))
     ),
     'approval_required' => array(
+      'rule' => array('boolean')
+    ),
+    'confirm_email' => array(
+      'rule' => array('boolean')
+    ),
+    'require_authn' => array(
       'rule' => array('boolean')
     ),
     'notify_on_early_provision' => array(

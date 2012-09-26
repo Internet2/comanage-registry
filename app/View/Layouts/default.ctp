@@ -72,6 +72,28 @@
       $('#dialog').dialog('open');
     }
 
+    function js_confirm_generic(txt, url)
+    {
+      // Generate a dialog box confirming <txt>.  On confirmation, forward to <url>.
+
+      // Set the title of the dialog    
+      $("#dialog").dialog("option", "title", "<?php print _txt('op.confirm'); ?>" + " " + name);
+
+      // Set the body of the dialog
+      $("#dialog-text").text(txt);
+    
+      // Set the dialog buttons
+      $("#dialog").dialog("option",
+                          "buttons",
+                          {
+                            "<?php print _txt('op.cancel'); ?>": function() { $(this).dialog("close"); },
+                            "<?php print _txt('op.remove'); ?>": function() { window.location=url; }
+                          });
+     
+      // Open the dialog
+      $('#dialog').dialog('open');
+    }
+
     function js_confirm_reinvite(name, url)
     {
       // Generate a dialog box confirming a resend of an invitation to <name>.  On confirmation, forward to <url>, which executes the invite.
@@ -224,6 +246,20 @@
       $(".petitionbutton").button({
         icons: {
           primary: 'ui-icon-script'
+        },
+        text: false
+      });
+      
+      $(".unlinkbutton").button({
+        icons: {
+          primary: 'ui-icon-cancel'
+        },
+        text: false
+      });
+      
+      $(".viewbutton").button({
+        icons: {
+          primary: 'ui-icon-extlink'
         },
         text: false
       });

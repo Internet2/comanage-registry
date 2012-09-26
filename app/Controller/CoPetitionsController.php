@@ -72,25 +72,46 @@ class CoPetitionsController extends StandardController {
    */
   
   function add() {
-    if(!$this->restful && $this->request->is('post')) {
+    if(!$this->restful) {
       $enrollmentFlowID = $this->enrollmentFlowID();
-      
-      // Set the view var. We need this on both success and failure.
         
-      $this->set('co_enrollment_attributes',
-                 $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($enrollmentFlowID));
-      
-      try {
-        $this->CoPetition->createPetition($enrollmentFlowID,
-                                          $this->cur_co['Co']['id'],
-                                          $this->request->data,
-                                          $this->Session->read('Auth.User.co_person_id'));
+      if($this->request->is('post')) {
+        // Set the view var. We need this on both success and failure.
+          
+        $this->set('co_enrollment_attributes',
+                   $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($enrollmentFlowID));
         
-        $this->Session->setFlash(_txt('rs.pt.create'), '', array(), 'success');
-        $this->performRedirect();
-      }
-      catch(Exception $e) {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        try {
+          $this->CoPetition->createPetition($enrollmentFlowID,
+                                            $this->cur_co['Co']['id'],
+                                            $this->request->data,
+                                            $this->Session->read('Auth.User.co_person_id'));
+          
+          $matchPolicy = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
+                                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+          
+          $authnReq = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
+                                                                 array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+          
+          if($matchPolicy == EnrollmentMatchPolicyEnum::Self) {
+            if($authnReq) {
+              $this->Session->setFlash(_txt('rs.pt.login'), '', array(), 'success');
+              $this->redirect("/auth/logout");
+            } else {
+              // Not really clear where to send a self-enrollment person...
+              $this->Session->setFlash(_txt('rs.pt.create'), '', array(), 'success');
+              $this->redirect("/");
+            }
+          } else {
+            $this->Session->setFlash(_txt('rs.pt.create'), '', array(), 'success');
+            $this->performRedirect();
+          }
+        }
+        catch(Exception $e) {
+          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        }
+      } else {
+        parent::add();
       }
     } else {
       // REST API gets standard behavior
@@ -163,8 +184,34 @@ class CoPetitionsController extends StandardController {
       if(($this->action == 'add' || $this->action == 'edit' || $this->action == 'view')
           && $this->request->is('get')) {
         // If we processed a post, this will have already been set.
+        
+        $defaultValues = array();
+        
+        $enrollmentFlowID = $this->enrollmentFlowID();
+        
+        if($enrollmentFlowID) {
+          // Provide default values for name for self enrollment.
+          
+          $p['match_policy'] = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
+                                                                          array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+          
+          if($p['match_policy'] == EnrollmentMatchPolicyEnum::Self) {
+            $defName = $this->Session->read('Auth.User.name');
+            
+            if(!empty($defName)) {
+              // Populate select attributes only
+              $defaultValues['EnrolleeOrgIdentity.Name']['honorific'] = $defName['honorific'];
+              $defaultValues['EnrolleeOrgIdentity.Name']['given'] = $defName['given'];
+              $defaultValues['EnrolleeOrgIdentity.Name']['middle'] = $defName['middle'];
+              $defaultValues['EnrolleeOrgIdentity.Name']['family'] = $defName['family'];
+              $defaultValues['EnrolleeOrgIdentity.Name']['suffix'] = $defName['suffix'];
+            }
+          }
+        }
+        
         $this->set('co_enrollment_attributes',
-                   $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($this->enrollmentFlowID()));
+                   $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($this->enrollmentFlowID(),
+                                                                                                        $defaultValues));
       }
       
       if(($this->action == 'edit' || $this->action == 'view')
@@ -253,34 +300,42 @@ class CoPetitionsController extends StandardController {
     
     // If an enrollment flow was specified, check the authorization for that flow
     
-    if(isset($this->request->named['coef'])) {
-      $flowAuthorized = $this->CoPetition->CoEnrollmentFlow->authorizeById($this->request->named['coef'],
-                                                                           $cmr['copersonid']);
+    if($this->enrollmentFlowID() != -1) {
+      $flowAuthorized = $this->CoPetition->CoEnrollmentFlow->authorizeById($this->enrollmentFlowID(), $cmr['copersonid']);
     }
     
     // Add a new CO Petition?
-    $p['add'] = ($flowAuthorized
-                 && ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
+    $p['add'] = $flowAuthorized
+                // Or we have an index view
+                || ($this->enrollmentFlowID() == -1 & ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
     
     // Approve a CO Petition?
     $p['approve'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     $p['deny'] = $p['approve'];
     
     // Delete an existing CO Petition?
-    $p['delete'] = ($flowAuthorized
-                    && ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
+    // For now, this is restricted to CMP and CO Admins, until we have a better policy
+    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
     
     // Edit an existing CO Petition?
-    $p['edit'] = ($flowAuthorized
-                  && ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
+    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
     
-    // Match against existing CO People?
+    // Match against existing CO People? If the match policy is Advisory or Automatic, we
+    // allow matching to take place as long as $flowAuthorized is also true.
     // Note this same permission exists in CO People
-    $p['match'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    
+    $p['match_policy'] = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
+                                                                    array('CoEnrollmentFlow.id' => $this->enrollmentFlowID()));
+    $p['match'] = ($flowAuthorized &&
+                   ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
+                    || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     
     // View all existing CO Petitions?
     $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
-          
+    
+    // Resend invitations?
+    $p['resend'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    
     // View an existing CO Petition? We allow the usual suspects to view a Petition, even
     // if they don't have permission to edit it.
     $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
@@ -308,5 +363,37 @@ class CoPetitionsController extends StandardController {
     } else {
       parent::performRedirect();
     }
+  }
+  
+  /**
+   * Resend an invitation associated with a Petition.
+   * - precondition: Petition exists in a Pending Confirmation state
+   * - postcondition: Invitation sent
+   *
+   * @since  COmanage Registry v0.7
+   * @param  Integer CO Petition ID
+   */
+  
+  public function resend($id) {
+    $recipient = null;
+    
+    try {
+      $recipient = $this->CoPetition->resend($id);
+    }
+    catch(Exception $e) {
+      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+    }
+    
+    if($recipient) {
+      $this->Session->setFlash(_txt('rs.inv.sent', array($recipient)), '', array(), 'success');
+    }
+    
+    // Redirect back to index
+    
+    $this->redirect(array(
+      'controller' => 'co_petitions',
+      'action' => 'index',
+      'co' => $this->cur_co['Co']['id']
+    ));
   }
 }

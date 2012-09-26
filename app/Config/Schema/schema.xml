@@ -280,6 +280,12 @@
       <col>type</col>
       <col>co_person_id</col>
     </index>
+    
+    <index name="identifiers_i2">
+      <col>identifier</col>
+      <col>type</col>
+      <col>org_identity_id</col>
+    </index>
   </table>
   
   <table name="co_invites">
@@ -301,10 +307,16 @@
     
     <index name="co_invites_i1">
       <col>co_person_id</col>
-    </index>    
+    </index>
+    
     <index name="co_invites_i2">
       <col>invitation</col>
-    </index>    
+    </index>
+    
+    <index name="co_invites_i3">
+      <col>co_person_id</col>
+      <col>mail</col>
+    </index>
   </table>
   
   <table name="addresses">
@@ -343,6 +355,7 @@
     </field>
     <field name="mail" type="C" size="256" />
     <field name="type" type="C" size="2" />
+    <field name="verified" type="L" />
     <field name="co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
@@ -354,10 +367,13 @@
     
     <index name="email_addresses_i1">
       <col>co_person_id</col>
-    </index>    
+    </index>
     <index name="email_addresses_i2">
       <col>org_identity_id</col>
-    </index>    
+    </index>
+    <index name="email_addresses_i3">
+      <col>mars</col>
+    </index>
   </table>
 
   <table name="telephone_numbers">
@@ -522,7 +538,10 @@
     <field name="authz_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <field name="match_policy" type="C" size="2" />
     <field name="approval_required" type="L" />
+    <field name="verify_email" type="L" />
+    <field name="require_authn" type="L" />
     <field name="early_provisioning_exec" type="C" size="128" />
     <field name="provisioning_exec" type="C" size="128" />
     <field name="notify_on_early_provision" type="C" size="128" />
@@ -598,6 +617,9 @@
     <field name="approver_co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
+    <field name="co_invite_id" type="I">
+      <constraint>REFERENCES cm_co_invites(id)</constraint>
+    </field>
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -613,6 +635,9 @@
     </index>
     <index name="co_petitions_i4">
       <col>petitioner_co_person_id</col>
+    </index>
+    <index name="co_petitions_i5">
+      <col>co_invite_id</col>
     </index>
   </table>
   

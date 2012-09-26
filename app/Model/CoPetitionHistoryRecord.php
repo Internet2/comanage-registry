@@ -68,10 +68,14 @@ class CoPetitionHistoryRecord extends AppModel {
       $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = $comment;
     } else {
       // Figure out a default value
+      // XXX this should really use txt en.somethingorother like HistoryRecord::record()
       
       switch($action) {
         case PetitionActionEnum::Approved:
           $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.approve');
+          break;
+        case PetitionActionEnum::InviteConfirmed:
+          $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.confirm');
           break;
         case PetitionActionEnum::Created:
           $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.create');

@@ -425,7 +425,24 @@ class CoPeopleController extends StandardController {
     
     // Match against existing CO People?
     // Note this same permission exists in CO Petitions
-    $p['match'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    
+    // Some operations are authorized according to the flow configuration.
+    $flowAuthorized = false;
+    
+    // If an enrollment flow was specified, check the authorization for that flow
+    
+    $p['match'] = false;
+    
+    if(isset($this->request->named['coef'])) {
+      $flowAuthorized = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->authorizeById($this->request->named['coef'],
+                                                                                         $cmr['copersonid']);
+      
+      $p['match_policy'] = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->field('match_policy',
+                                                                                    array('CoEnrollmentFlow.id' => $this->request->named['coef']));
+      $p['match'] = ($flowAuthorized &&
+                     ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
+                      || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
+    }
     
     // View an existing CO Person?
     $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']) || $self);

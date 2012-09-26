@@ -413,7 +413,8 @@ $(function() {
                                                                'action' => 'edit',
                                                                $ea['id'],
                                                                'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
-                    print "&nbsp;(" . _txt('en.contact', null, $ea['type']) . ")";
+                    print "&nbsp;(" . _txt('en.contact', null, $ea['type']) . ", "
+                      . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")";
                   print '</div>';
 
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?

@@ -29,16 +29,23 @@ class ActionEnum
   const CoPersonAddedPetition      = 'ACPP';
   const CoPersonEditedManual       = 'ECPM';
   const CoPersonEditedPetition     = 'ECPP';
+  const CoPersonMatchedPetition    = 'MCPP';
   const CoPersonRoleAddedManual    = 'ACRM';
   const CoPersonRoleAddedPetition  = 'ACRP';
   const CoPersonRoleDeletedManual  = 'DCRM';
   const CoPersonRoleEditedManual   = 'ECRM';
   const CoPersonRoleEditedPetition = 'ECRP';
   const CoPersonOrgIdLinked        = 'LOCP';
+  const CoPersonOrgIdUnlinked      = 'UOCP';
+  const EmailAddressVerified       = 'EMLV';
   const IdentifierAutoAssigned     = 'AIDA';
+  const InvitationConfirmed        = 'INVC';
+  const InvitationDeclined         = 'INVD';
+  const InvitationSent             = 'INVS';
   const OrgIdAddedManual           = 'AOIM';
   const OrgIdAddedPetition         = 'AOIP';
   const OrgIdEditedManual          = 'EOIM';
+  const OrgIdEditedPetition        = 'EOIP';
 }
 
 class AdministratorEnum
@@ -108,6 +115,13 @@ class EnrollmentAuthzEnum {
   const CouAdmin      = 'UA';
   const CouPerson     = 'UP';
   const None          = 'N';
+}
+
+class EnrollmentMatchPolicyEnum {
+  const Advisory  = "A";
+  const Automatic = "M";
+  const None      = "N";
+  const Self      = "S";
 }
 
 class ExtendedAttributeEnum {
@@ -205,6 +219,8 @@ class PetitionActionEnum
   const Denied              = 'PN';
   const Finalized           = 'PF';
   const IdentifiersAssigned = 'IA';
+  const InviteConfirmed     = 'IC';
+  const InviteSent          = 'IS';
 }
 
 class RequiredEnum
@@ -228,15 +244,16 @@ class RequiredEnum
 
 class StatusEnum
 {
-  const Active          = 'A';
-  const Approved        = 'Y';
-  const Deleted         = 'D';
-  const Denied          = 'N';
-  const Invited         = 'I';
-  const Pending         = 'P';
-  const PendingApproval = 'PA';
-  const Suspended       = 'S';
-  const Declined        = 'X';
+  const Active              = 'A';
+  const Approved            = 'Y';
+  const Deleted             = 'D';
+  const Denied              = 'N';
+  const Invited             = 'I';
+  const Pending             = 'P';
+  const PendingApproval     = 'PA';
+  const PendingConfirmation = 'PC';
+  const Suspended           = 'S';
+  const Declined            = 'X';
   /*
   public $from_api = array(
     "Active"    => Active,

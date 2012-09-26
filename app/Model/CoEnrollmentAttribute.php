@@ -166,10 +166,11 @@ class CoEnrollmentAttribute extends AppModel {
    *
    * @since  COmanage Registry 0.5
    * @param  integer CO Enrollment Flow ID
+   * @param  Array Default values, keyed on Model name
    * @return Array Configured attributes and metadata
    */
   
-  public function enrollmentFlowAttributes($coef) {
+  public function enrollmentFlowAttributes($coef, $defaultValues=array()) {
     $attrs = array();
     
     // First, retrieve the configured attributes
@@ -244,6 +245,11 @@ class CoEnrollmentAttribute extends AppModel {
         
         // Field, in cake's Model.field
         $attr['field'] = $attrName;
+        
+        // See if there is a default value for this field
+        if(isset($defaultValues[ $attr['model'] ][ $attr['field'] ])) {
+          $attr['default'] = $defaultValues[ $attr['model'] ][ $attr['field'] ];
+        }
         
         // Attach the validation rules so the form knows how to render the field.
         if($attrCode == 'o') {
@@ -375,8 +381,8 @@ class CoEnrollmentAttribute extends AppModel {
                                  &&
                                  !$attrModel->validate[$k]['allowEmpty']);
             
-            // We hide type and status
-            $attr['hidden'] = ($k == 'type' || $k == 'status' ? 1 : 0);
+            // We hide type, status, and verified
+            $attr['hidden'] = ($k == 'type' || $k == 'status' || $k == 'verified' ? 1 : 0);
             
             if($attr['hidden']) {
               // Populate a default value.
@@ -389,6 +395,10 @@ class CoEnrollmentAttribute extends AppModel {
                 case 'status':
                   // For now, status is always set to Active
                   $attr['default'] = StatusEnum::Active;
+                  break;
+                case 'verified':
+                  // Verified defaults to false
+                  $attr['default'] = 0;
                   break;
               }
               
@@ -405,6 +415,11 @@ class CoEnrollmentAttribute extends AppModel {
             
             // Field, in cake's Model.field
             $attr['field'] = $k;
+            
+            // See if there is a default value for this field
+            if(isset($defaultValues[$m][$k])) {
+              $attr['default'] = $defaultValues[$m][$k];
+            }
             
             // Attach the validation rules so the form knows how to render the field.
             $attr['validate'] = $attrModel->validate[$k];

@@ -84,8 +84,7 @@ class OrgIdentity extends AppModel {
                                       AffiliationEnum::Affiliate,
                                       AffiliationEnum::Employee,
                                       AffiliationEnum::LibraryWalkIn)),
-      'required' => true,
-      'message' => 'A valid affiliation must be selected'
+      'required' => false
     ),
     'co_id' => array(
       'rule' => 'numeric',

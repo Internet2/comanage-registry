@@ -91,6 +91,14 @@
         ?>
       </td>
     </tr>
+    <tr class="line1">
+      <td>
+        <?php print _txt('fd.email_address.verified'); ?>
+      </td>
+      <td>
+        <?php print ($email_addresses[0]['EmailAddress']['verified'] ? _txt('fd.yes') : _txt('fd.no')); ?>
+      </td>
+    </tr>
     <tr>
       <td>
         <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />

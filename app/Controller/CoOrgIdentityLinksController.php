@@ -119,9 +119,14 @@ class CoOrgIdentityLinksController extends StandardController {
                                                                     ActionEnum::CoPersonOrgIdLinked);
           break;
         case 'delete':
-          // As of v0.7, unlinking preceeds deletion of an identity/person that will therefore
-          // cause this history record to be deleted. As such, we don't record anything. This is
-          // subject to being revisited in a future release.
+          // In most cases, unlinking preceeds deletion of an identity/person that will therefore
+          // cause this history record to be deleted. However, if multiple identities are linked
+          // to a person and one is deleted, we want to record that since it will probably stick around.
+          $this->CoOrgIdentityLink->CoPerson->HistoryRecord->record($olddata['CoOrgIdentityLink']['co_person_id'],
+                                                                    null,
+                                                                    $olddata['CoOrgIdentityLink']['org_identity_id'],
+                                                                    $this->Session->read('Auth.User.co_person_id'),
+                                                                    ActionEnum::CoPersonOrgIdUnlinked);
           break;
         case 'edit':
           // As of v0.7, we don't really have a use case for editing a link.
@@ -166,5 +171,28 @@ class CoOrgIdentityLinksController extends StandardController {
 
     $this->set('permissions', $p);
     return($p[$this->action]);
+  }
+  
+  /**
+   * Perform a redirect back to the controller's default view.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.1
+   */
+  
+  function performRedirect() {
+    // Generally speaking, this controller isn't called via the web interface.
+    // An exception is unlinking an org identity, so we redirect back to the CO Person.
+    
+    if(isset($this->CoOrgIdentityLink->data['CoPerson']['id'])) {
+      $this->redirect(array('controller' => 'co_people',
+                            'action' => 'edit',
+                            $this->CoOrgIdentityLink->data['CoPerson']['id'],
+                            'co' => Sanitize::html($this->cur_co['Co']['id'])));
+    } else {
+      $this->redirect(array('controller' => 'co_people',
+                            'action' => 'index',
+                            'co' => Sanitize::html($this->cur_co['Co']['id'])));
+    }
   }
 }

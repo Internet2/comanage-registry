@@ -1,6 +1,6 @@
-<?php
+<!--
 /**
- * COmanage Registry CO Invite HTML Email Template
+ * COmanage Registry CO Invite Authenticated Confirm View
  *
  * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -17,16 +17,8 @@
  * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.6
+ * @since         COmanage Registry v0.7
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
-
-  print _txt('em.invite.body', array($this->viewVars['co_name']));
-?>
-<br><br>
-<?php
-  $u = $this->Html->url(array('controller' => 'co_invites', 'action' => 'reply', $this->viewVars['invite_id']), true);
-  print $u;
-?>
-
+-->

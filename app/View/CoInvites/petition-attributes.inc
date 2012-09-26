@@ -1,0 +1,1 @@
+../CoPetitions/petition-attributes.inc

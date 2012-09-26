@@ -23,7 +23,7 @@
  */
 -->
 <?php
-  $params = array('title' => $cur_co['Co']['name'] . " People");
+  $params = array('title' => $cur_co['Co']['name'] . " Petitions"); // XXX I18N
   print $this->element("pageTitle", $params);
 
   if($permissions['add']) {
@@ -34,8 +34,6 @@
     <br />
     ';    
   }
-  
-//  debug($co_petitions);
 ?>
  
 <table id="co_people" class="ui-widget">
@@ -113,22 +111,22 @@
         <?php
           global $status_t;
           
-          if(!empty($p['EnrolleeCoPerson']['status'])) {
-            print _txt('en.status', null, $p['EnrolleeCoPerson']['status']);
+          if(!empty($p['CoPetition']['status'])) {
+            print _txt('en.status', null, $p['CoPetition']['status']);
           }
         ?>
       </td>
       <td>
         <?php
-          if(!empty($p['EnrolleeCoPerson']['created'])) {
-            print $this->Time->niceShort($p['EnrolleeCoPerson']['created']);
+          if(!empty($p['CoPetition']['created'])) {
+            print $this->Time->niceShort($p['CoPetition']['created']);
           }
         ?>
       </td>
       <td>
         <?php
-          if(!empty($p['EnrolleeCoPerson']['modified'])) {
-            print $this->Time->niceShort($p['EnrolleeCoPerson']['modified']);
+          if(!empty($p['CoPetition']['modified'])) {
+            print $this->Time->niceShort($p['CoPetition']['modified']);
           }
         ?>
       </td>
@@ -143,12 +141,25 @@
                                           'coef' => $p['CoPetition']['co_enrollment_flow_id']),
                                     array('class' => 'editbutton')) . "\n";
           }
+          
+          if($permissions['delete'])
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($p['CoPetition']['id'])) . '\', \'' . $this->Html->url(array('controller' => 'co_petitions', 'action' => 'delete', $p['CoPetition']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . "</button>\n";
+          
+          if($permissions['resend'] && $p['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
+            print $this->Html->link(_txt('op.inv.resend'),
+                                    array('controller' => 'co_petitions',
+                                          'action' => 'resend',
+                                          $p['CoPetition']['id'],
+                                          'co' => $cur_co['Co']['id'],
+                                          'coef' => $p['CoPetition']['co_enrollment_flow_id']),
+                                    array('class' => 'invitebutton')) . "\n";
+          }
         ?>
         <?php ; ?>
       </td>
     </tr>
     <?php $i++; ?>
-    <?php endforeach; // $co_people ?>
+    <?php endforeach; // $co_petitions ?>
   </tbody>
   
   <tfoot>
