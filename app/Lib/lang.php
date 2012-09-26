@@ -535,6 +535,7 @@ $cm_texts['en_US'] = array(
   'op.logout' =>      'Logout',
   'op.ok' =>          'OK',
   'op.petition' =>    'Petition',
+  'op.petition.create' => 'Create Petition',
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',
   'op.remove' =>      'Remove',
   'op.save' =>        'Save',

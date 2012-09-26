@@ -254,10 +254,10 @@ class CoPetition extends AppModel {
     
     // Determine an initial status. We don't jump straight to Active, since post-creation actions may be required for that.
     
-    $confirmEmail = $this->CoEnrollmentFlow->field('confirm_email',
+    $verifyEmail = $this->CoEnrollmentFlow->field('verify_email',
                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
     
-    $requireAuthn = $this->CoEnrollmentFlow->field('confirm_email',
+    $requireAuthn = $this->CoEnrollmentFlow->field('require_authn',
                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
     
     $approvalPolicy = $this->CoEnrollmentFlow->field('approval_required',
@@ -265,7 +265,7 @@ class CoPetition extends AppModel {
     
     $initialStatus = StatusEnum::Approved;
     
-    if($confirmEmail || $requireAuthn) {
+    if($verifyEmail || $requireAuthn) {
       $initialStatus = StatusEnum::PendingConfirmation;
     } elseif($approvalPolicy) {
       $initialStatus = StatusEnum::PendingApproval;
@@ -797,7 +797,7 @@ class CoPetition extends AppModel {
     
     // Send email invite if configured
     
-    if($confirmEmail) {
+    if($verifyEmail) {
       // We need an email address to send to. Since we don't have a mechanism for
       // picking from multiple at the moment, we just pick the first one provided
       // (which in most cases will be sufficient).

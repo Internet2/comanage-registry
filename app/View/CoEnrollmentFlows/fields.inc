@@ -241,8 +241,8 @@
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('confirm_email')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['confirm_email'])); ?>
+                     ? $this->Form->input('verify_email')
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verify_email'])); ?>
       </td>
     </tr>
     <tr class="line1">

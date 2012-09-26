@@ -1250,7 +1250,7 @@ class AppController extends Controller {
     $p['menu']['cos'] = $cmr['admin'] || $cmr['subadmin'];
     
     // Select from available enrollment flows?
-    $p['menu']['enrollmentflows'] = $cmr['user'];
+    $p['menu']['createpetition'] = $cmr['user'];
     
     // Manage any CO (or COU) population?
     $p['menu']['petitions'] = $cmr['admin'] || $cmr['subadmin'];
