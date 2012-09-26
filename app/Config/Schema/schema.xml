@@ -483,11 +483,6 @@
     <field name="name" type="C" size="128">
       <unique />
     </field>
-    <field name="self_enroll" type="L" />
-    <field name="self_require_authn" type="L" />
-    <field name="admin_enroll" type="C" size="1" />
-    <field name="admin_confirm_email" type="L" />
-    <field name="admin_require_authn" type="L" />
     <field name="attrs_from_ldap" type="L" />
     <field name="attrs_from_saml" type="L" />
     <field name="attrs_from_coef" type="L" />

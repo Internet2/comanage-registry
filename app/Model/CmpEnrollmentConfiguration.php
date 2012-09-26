@@ -49,23 +49,6 @@ class CmpEnrollmentConfiguration extends AppModel {
       'required' => true,
       'message' => 'A name must be provided'
     ),
-    'self_enroll' => array(
-      'rule' => array('boolean')
-    ),
-    'self_require_authn' => array(
-      'rule' => array('boolean')
-    ),
-    'admin_enroll' => array(
-      'rule' => array('inList', array(AdministratorEnum::NoAdmin,
-                                      AdministratorEnum::CoOrCouAdmin,
-                                      AdministratorEnum::CoAdmin))
-    ),
-    'admin_confirm_email' => array(
-      'rule' => array('boolean')
-    ),
-    'admin_require_authn' => array(
-      'rule' => array('boolean')
-    ),
     'attrs_from_ldap' => array(
       'rule' => array('boolean')
     ),

@@ -131,78 +131,6 @@
       <tbody>
         <tr class="line1">
           <td>
-            <b><?php print _txt('fd.ef.se'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.se.desc'); ?></font>
-          </td>
-          <td>
-            <?php print ($e
-                         ? $this->Form->input('self_enroll', array('onClick' => 'fields_update_gadgets()'))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['self_enroll'])); ?>
-          </td>
-        </tr>
-        <tr class="line2">
-          <td>
-            <b><?php print _txt('fd.ef.sea'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.sea.desc'); ?></font>
-          </td>
-          <td>
-            <?php print ($e
-                         ? $this->Form->input('self_require_authn', array('onClick' => 'fields_update_gadgets()'))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['self_require_authn'])); ?>
-          </td>
-        </tr>
-        <tr class="line1">
-          <td>
-            <b><?php print _txt('fd.ef.ae'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.ae.desc'); ?></font>
-          </td>
-          <td>
-            <?php
-              global $cm_lang, $cm_texts;
-              $attrs['value'] = (isset($cmp_enrollment_configurations)
-                                  ? $cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['admin_enroll']
-                                  : AdministratorEnum::NoAdmin);
-              $attrs['empty'] = false;
-              $attrs['onChange'] = 'fields_update_gadgets()';
-              
-              if($e) {
-                print $this->Form->select('admin_enroll',
-                                          $cm_texts[ $cm_lang ]['en.admin'],
-                                          $attrs);
-                
-                if($this->Form->isFieldError('admin_enroll')) {
-                  print $this->Form->error('admin_enroll');
-                }
-              } else {
-                print _txt('en.admin', null, $cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['admin_enroll']);
-              }
-            ?>
-          </td>
-        </tr>
-        <tr class="line2">
-          <td>
-            <b><?php print _txt('fd.ef.aee'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.aee.desc'); ?></font>
-          </td>
-          <td>
-            <?php print ($e
-                         ? $this->Form->input('admin_confirm_email', array('onClick' => 'fields_update_gadgets()'))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['admin_confirm_email'])); ?>
-          </td>
-        </tr>
-        <tr class="line1">
-          <td>
-            <b><?php print _txt('fd.ef.aea'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.aea.desc'); ?></font>
-          </td>
-          <td>
-            <?php print ($e
-                         ? $this->Form->input('admin_require_authn', array('onClick' => 'fields_update_gadgets()'))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['admin_require_authn'])); ?>
-          </td>
-        </tr>
-        <tr class="line2">
-          <td>
             <b><?php print _txt('fd.ef.ldap'); ?></b><br />
             <font class="desc"><?php print _txt('fd.ef.ldap.desc'); ?></font>
           </td>
@@ -212,7 +140,7 @@
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_ldap'])); ?>
           </td>
         </tr>
-        <tr class="line1">
+        <tr class="line2">
           <td>
             <b><?php print _txt('fd.ef.saml'); ?></b><br />
             <font class="desc"><?php print _txt('fd.ef.saml.desc'); ?></font>
@@ -223,7 +151,7 @@
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_saml'])); ?>
           </td>
         </tr>
-        <tr class="line2">
+        <tr class="line1">
           <td>
             <b><?php print _txt('fd.ef.coef'); ?></b><br />
             <font class="desc"><?php print _txt('fd.ef.coef.desc'); ?></font>
@@ -234,7 +162,7 @@
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_coef'])); ?>
           </td>
         </tr>
-        <tr class="line1">
+        <tr class="line2">
           <td>
             <b><?php print _txt('fd.ef.pool'); ?></b><br />
             <font class="desc"><?php print _txt('fd.ef.pool.desc'); ?></font>

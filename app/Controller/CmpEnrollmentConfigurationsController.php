@@ -169,11 +169,6 @@ class CmpEnrollmentConfigurationsController extends StandardController {
       
       $ef['CmpEnrollmentConfiguration'] = array(
         'name' => 'CMP Enrollment Configuration',
-        'self_enroll' => false,
-        'self_require_authn' => false,
-        'admin_enroll' => AdministratorEnum::CoAdmin,
-        'admin_confirm_email' => true,
-        'admin_require_authn' => false,
         'attrs_from_ldap' => false,
         'attrs_from_saml' => false,
         'status' => StatusEnum::Active
