@@ -24,10 +24,16 @@
 -->
 
 <script>
-// Turn on Tabs
 $(function() {
-    $( "#tabs" ).tabs();
-  });
+  // Turn on Tabs
+  var $tabs = $( "#tabs" ).tabs();
+  
+  // If returning to this page via redirect, open last used tab
+  <?php if(isset($this->request->params['named']['tab'])): ?>
+    var selectedtab = "<?php print($this->request->params['named']['tab']); ?>";
+    $tabs.tabs('select', '#tabs-' + selectedtab );
+  <?php endif; ?>
+});
 </script>
 
 <?php
@@ -236,7 +242,7 @@ $(function() {
                 if($e)
                 {
                   print '<div style="float:left; margin:0 10px 0 0;">';
-                  print $this->Form->submit($submit_label);
+                    print $this->Form->submit($submit_label);
                   print '</div>';
                   print $this->Html->link(_txt('op.cancel'),
                                           isset($redirect) ? $redirect
@@ -357,15 +363,17 @@ $(function() {
                                                            'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
                     print "&nbsp;(" . $id['type'] . ")\n";
                   print '</div>';
+                  print '<div>';
 
-                  // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                  print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $this->Html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'], 'co' => ($pool_org_identities ? false : $cur_co['Co']['id']))) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                  print $this->Html->link(_txt('op.edit'),
-                                    array('controller' => 'identifiers',
-                                          'action' => 'edit',
-                                          $id['id'],
-                                          'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                                    array('class' => 'editbutton')) . "\n";
+                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                    print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $this->Html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'], 'co' => ($pool_org_identities ? false : $cur_co['Co']['id']))) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                    print $this->Html->link(_txt('op.edit'),
+                                      array('controller' => 'identifiers',
+                                            'action' => 'edit',
+                                            $id['id'],
+                                            'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
+                                      array('class' => 'editbutton')) . "\n";
+                  print '</div>';
                 print '</div>';
               }
             }
@@ -375,9 +383,7 @@ $(function() {
                                 'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
                                 'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
                                );
-            $linkparams = array('class'  => 'addbutton',
-                                'target' => '_blank'
-                               );
+            $linkparams = array('class'  => 'addbutton');
 
             print $this->Html->link(_txt('op.add'),
                                     $linktarget,
@@ -416,7 +422,7 @@ $(function() {
                     print "&nbsp;(" . _txt('en.contact', null, $ea['type']) . ", "
                       . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")";
                   print '</div>';
-
+                  print '<div>';
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                   print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $this->Html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'], 'co' => ($pool_org_identities ? false : $cur_co['Co']['id']))) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
                   print $this->Html->link(_txt('op.edit'),
@@ -425,6 +431,7 @@ $(function() {
                                                 $ea['id'],
                                                 'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
                                           array('class' => 'editbutton')) . "\n";
+                  print '</div>';
                 print '</div>';
               }
             }
@@ -434,9 +441,7 @@ $(function() {
                                 'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
                                 'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
                                );
-            $linkparams = array('class'  => 'addbutton',
-                                'target' => '_blank'
-                               );
+            $linkparams = array('class'  => 'addbutton');
 
             print $this->Html->link(_txt('op.add'),
                                     $linktarget,
@@ -474,7 +479,7 @@ $(function() {
                                                       'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
                     print "&nbsp;(" . _txt('en.contact', null, $t['type']) . ")<br />\n";
                   print '</div>';
-
+                  print '<div>';
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                   print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['number'])) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'], 'co' => ($pool_org_identities ? false : $cur_co['Co']['id']))) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
 
@@ -484,6 +489,7 @@ $(function() {
                                                 $t['id'],
                                                 'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
                                           array('class' => 'editbutton')) . "\n";
+                  print '</div>';
                 print '</div>';
               }
             }
@@ -493,9 +499,7 @@ $(function() {
                                 'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
                                 'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
                                );
-            $linkparams = array('class'  => 'addbutton',
-                                'target' => '_blank'
-                               );
+            $linkparams = array('class'  => 'addbutton');
 
             print $this->Html->link(_txt('op.add'),
                                     $linktarget,
@@ -532,7 +536,7 @@ $(function() {
                                                                   'co'         => ($pool_org_identities ? false : $cur_co['Co']['id'])));
                     print "&nbsp;(" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
                   print '</div>';
-
+                  print '<div>';
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                   print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['line1'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'], 'co' => ($pool_org_identities ? false : $cur_co['Co']['id']))) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
 
@@ -542,6 +546,7 @@ $(function() {
                                                 $addr['id'],
                                                 'co'         => ($pool_org_identities ? false : $cur_co['Co']['id'])),
                                           array('class' => 'editbutton')) . "\n";
+                  print '</div>';
                 print '</div>';
               }
             }
@@ -551,9 +556,7 @@ $(function() {
                                 'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
                                 'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
                                );
-            $linkparams = array('class'  => 'addbutton',
-                                'target' => '_blank'
-                               );
+            $linkparams = array('class'  => 'addbutton');
 
             print $this->Html->link(_txt('op.add'),
                                     $linktarget,

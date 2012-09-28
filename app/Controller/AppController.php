@@ -202,7 +202,6 @@ class AppController extends Controller {
    * - apiuser: Valid API (REST) user (for now, API users are equivalent to cmadmins)
    * - orgidentityid: Org Identity ID of current user (or false)
    * - copersonid: CO Person ID of current user in current CO (or false)
-   * @todo   XXX Rewrite to use Model/CoRole authz calls
    */
   
   public function calculateCMRoles() {
@@ -472,6 +471,11 @@ class AppController extends Controller {
     elseif(!empty($this->request->data[$req]['co_id']))
       $co = $this->request->data[$req]['co_id'];
       
+    if($this->redirectTab != null)
+    {
+      $redirect['tab'] = $this->redirectTab;
+    }
+
     if($copid != null)
     {
       $redirect['controller'] = 'co_people';
@@ -571,6 +575,11 @@ class AppController extends Controller {
         }
       }
 
+      // Add in tab for pages that have tabbed redirects
+      if(isset($this->params['named']['tab']))
+      {
+        $redirect['tab'] = $this->params['named']['tab'];
+      }
       $this->set('redirect', $redirect);
     }
     

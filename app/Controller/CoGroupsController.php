@@ -134,6 +134,21 @@ class CoGroupsController extends StandardController {
   }
 
   /**
+   * Delete an Group Object
+   * - precondition: <id> must exist
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   * - postcondition: On success, all related data (any table with an <object>_id column) is deleted
+   *
+   * @since  COmanage Registry v0.7
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be deleted
+   */  
+  function delete($id) {
+    $this->redirectTab = 'group';
+
+    parent::delete($id);
+  }
+
+  /**
    * Update a CO Group.
    * - precondition: Model specific attributes in $this->request->data (optional)
    * - precondition: <id> must exist
@@ -360,4 +375,19 @@ class CoGroupsController extends StandardController {
     // Invoke the StandardController view
     parent::view($id);
   }
+
+  /**
+   * Perform a redirect back to the controller's default view.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.7
+   */
+  
+  function performRedirect() {
+
+    $this->redirectTab = 'group';
+
+    parent::performRedirect();
+  }
+
 }

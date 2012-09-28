@@ -35,7 +35,22 @@ class EmailAddressesController extends MVPAController {
       'mail' => 'asc'
     )
   );
-  
+
+  /**
+   * Delete an Email Address Object
+   * - precondition: <id> must exist
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   * - postcondition: On success, all related data (any table with an <object>_id column) is deleted
+   *
+   * @since  COmanage Registry v0.7
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be deleted
+   */  
+  function delete($id) {
+    $this->redirectTab = 'email';
+
+    parent::delete($id);
+  }
+
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
@@ -89,5 +104,18 @@ class EmailAddressesController extends MVPAController {
 
     $this->set('permissions', $p);
     return($p[$this->action]);
+  }
+
+  /**
+   * Perform a redirect back to the controller's default view.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.7
+   */
+  
+  function performRedirect() {
+    $this->redirectTab = 'email';
+
+    parent::performRedirect();
   }
 }

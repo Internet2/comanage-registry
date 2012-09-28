@@ -204,7 +204,22 @@ class CoGroupMembersController extends StandardController {
 
     return(true);
   }
-  
+ 
+  /**
+   * Delete a Co Group Members Object
+   * - precondition: <id> must exist
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   * - postcondition: On success, all related data (any table with an <object>_id column) is deleted
+   *
+   * @since  COmanage Registry v0.7
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be deleted
+   */  
+  function delete($id) {
+    $this->redirectTab = 'group';
+
+    parent::delete($id);
+  }
+ 
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
@@ -292,17 +307,23 @@ class CoGroupMembersController extends StandardController {
       
     if(isset($cop))
     {
-      $this->redirect(array('controller' => 'co_people',
-                            'action' => 'edit',
-                            $cop,
-                            'co' => $this->cur_co['Co']['id']));
+      $params = array('controller' => 'co_people',
+                      'action'     => 'edit',
+                      $cop,
+                      'co'         => $this->cur_co['Co']['id'],
+                      'tab'        => 'group'
+                     );
+      $this->redirect($params);
     }
     else
     {
-      $this->redirect(array('controller' => 'co_groups',
-                            'action' => 'edit',
-                            $this->request->data['CoGroupMember']['co_group_id'],
-                            'co' => $this->cur_co['Co']['id']));
+      $params = array('controller' => 'co_groups',
+                      'action'     => 'edit',
+                      $this->request->data['CoGroupMember']['co_group_id'],
+                      'co'         => $this->cur_co['Co']['id'],
+                      'tab'        => 'group'
+                     );
+      $this->redirect($params);
     }
   }
 

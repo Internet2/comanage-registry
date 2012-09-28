@@ -43,13 +43,22 @@
   if(!$e && !$permissions['view'])
     return(false);
 
-  print $this->Html->link(_txt('op.back'),
-                        array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                        array('class' => 'backbutton'));
-  
-  if($this->action != "invite") {
-    if($e) {
-      // If demographics data does not exist, demographics controller will redirect to add
+  if($e)
+  {
+    print $this->Html->link(_txt('op.back'),
+                          array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
+                          array('class' => 'cancelbutton'));
+    
+    if($this->action != "invite")
+    {
+      print $this->Html->link(_txt('ct.org_identities.1'),
+                            array('controller' => 'org_identities',
+                                  'action' => ($e && !$es ? 'edit' : 'view'),
+                                  $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'],
+                                  'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
+                            array('class' => 'linkbutton'));
+
+     // If demographics data does not exist, demographics controller will redirect to add
       $args =  array('controller' => 'co_nsf_demographics',
                      'action'     => 'editself',
                      'co'         => ($pool_org_identities ? false : $cur_co['Co']['id']));
@@ -79,19 +88,34 @@
       echo $this->Form->hidden('status', array('default' => 'P')). "\n";
     }
     
-    // View History button
-    if($this->action != "add") {
-      print $this->Html->link(
-        _txt('op.history'),
-        array(
-          'controller' => 'history_records',
-          'action' => 'index',
-          'copersonid' => $co_people[0]['CoPerson']['id']
-        ),
-        array('class' => 'historybutton')
-      );
-    }
+    // Populate the cross reference
+    print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    print $this->Form->hidden('CoOrgIdentityLink.0.id'). "\n";
+    print $this->Form->hidden('CoOrgIdentityLink.0.org_identity_id', array('default' => $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])). "\n";
+    // Default status is 'Pending'
+    echo $this->Form->hidden('status', array('default' => 'P')). "\n";
   }
+  else
+  {
+    // Back button
+    print $this->Html->link(_txt('op.back'),
+                           array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
+                           array('class' => 'backbutton'));
+  }
+  
+  // View History button
+  if($this->action != "add" && $this->action != "invite") {
+    print $this->Html->link(
+      _txt('op.history'),
+      array(
+        'controller' => 'history_records',
+        'action' => 'index',
+        'copersonid' => $co_people[0]['CoPerson']['id']
+      ),
+      array('class' => 'historybutton')
+    );
+  }
+  
 
   // Line number, for rendering
   $l = 1;
@@ -124,10 +148,16 @@
     $('#dialog').dialog('open');
   }
 
+$(function() {
   // Turn on Tabs
-  $(function() {
-    $( "#tabs" ).tabs();
-  });
+  var $tabs = $( "#tabs" ).tabs();
+  
+  // If returning to this page via redirect, open last used tab
+  <?php if(isset($this->request->params['named']['tab'])): ?>
+    var selectedtab = "<?php print($this->request->params['named']['tab']); ?>";
+    $tabs.tabs('select', '#tabs-' + selectedtab );
+  <?php endif; ?>
+});
 </script>
 
 <div id="<?php print $this->action; ?>_co_person" style=" float:left; height:auto;">
@@ -275,8 +305,12 @@
       <div style="clear:both;"></div>
     </div> <!-- tabs-name -->
     <?php if($this->action != "invite"): ?>
-      <div id="tabs-id">
-        <div style="float:left">
+      <div id="tabs-id" >
+        <?php print '<div style="float:left;';
+          if($this->action != 'compare')
+            print 'width:100%;" class="additionalinfo';
+          print '">';
+        ?>
           <table>
             <tbody>
               <?php if($this->action == "compare"): ?>
@@ -296,22 +330,19 @@
                   {
                     foreach($co_people[0]['Identifier'] as $id)
                     {
-                      print '<tr class="line';
-                      print ($l % 2);
-                      print '">';
-                      $l++;
-                        print '<td>';
+                      print '<div>';
+                        print '<div>';
                           print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
                           print " (" . $id['type'] . ")";
-                        print '</td>';
-                        print '<td>';
+                        print '</div>';
+                        print '<div>';
                           // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                           print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $this->Html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                           print $this->Html->link(_txt('op.edit'),
                                            array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
                                            array('class' => 'editbutton'));
-                        print '</td>';
-                      print '</tr>';
+                        print '</div>';
+                      print '</div>';
                     }
                   }
                 }
@@ -335,21 +366,15 @@
                 }
                 if($e && !$es)
                 {
-                  print '<tr>';
-                    print '<td></td>';
-                    print '<td>';
-
-                      $linktarget = array('controller' => 'identifiers',
-                                          'action'     => 'add',
-                                          'copersonid' => $co_people[0]['CoPerson']['id'],
-                                          'co'         => $cur_co['Co']['id']
-                                         );
-                      $linkparams = array('class'  => 'addbutton');
-                      print $this->Html->link(_txt('op.add'),
-                                              $linktarget,
-                                              $linkparams) . "\n";
-                    print '</td>';
-                  print '</tr>';
+                  $linktarget = array('controller' => 'identifiers',
+                                      'action'     => 'add',
+                                      'copersonid' => $co_people[0]['CoPerson']['id'],
+                                      'co'         => $cur_co['Co']['id']
+                                     );
+                  $linkparams = array('class'  => 'addbutton');
+                  print $this->Html->link(_txt('op.add'),
+                                          $linktarget,
+                                          $linkparams) . "\n";
                 }
               ?>
              </tbody>
@@ -384,7 +409,11 @@
         <?php endif; // compare ?>
       </div> <!-- tabs-id -->
       <div id="tabs-email">
-        <div style="float:left">
+        <?php print '<div style="float:left;';
+          if($this->action != 'compare')
+            print 'width:100%;" class="additionalinfo';
+          print '">';
+        ?>
           <table>
             <tbody>
               <?php if($this->action == "compare"): ?>
@@ -403,24 +432,20 @@
                   {
                     foreach($co_people[0]['EmailAddress'] as $ea)
                     {
-                      print '<tr class="line';
-                      print ($l % 2);
-                      $l++;
-                      print '">';
-                        print '<td>';
+                      print '<div>';
+                        print '<div>';
                           print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
                           print " (" . _txt('en.contact', null, $ea['type']) . ", "
                           . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
-                        print '</td>';
-                        
-                        print '<td>';
+                        print '</div>';
+                        print '<div>';
                           // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                           print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $this->Html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                           print $this->Html->link(_txt('op.edit'),
                                                   array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']),
                                                   array('class' => 'editbutton')) . "\n";
-                        print '</td>';
-                      print '</tr>';
+                        print '</div>';
+                      print '</div>';
                     }
                   }
                 }
@@ -444,22 +469,16 @@
                 }
                 if($e)
                 {
-                  print '<tr>';
-                    print '<td></td>';
-                    print '<td>';
+                  $linktarget = array('controller' => 'email_addresses',
+                                      'action'     => 'add',
+                                      'copersonid' => $co_people[0]['CoPerson']['id'],
+                                      'co'         => $cur_co['Co']['id']
+                                     );
+                  $linkparams = array('class'  => 'addbutton');
 
-                      $linktarget = array('controller' => 'email_addresses',
-                                          'action'     => 'add',
-                                          'copersonid' => $co_people[0]['CoPerson']['id'],
-                                          'co'         => $cur_co['Co']['id']
-                                         );
-                      $linkparams = array('class'  => 'addbutton');
-
-                      print $this->Html->link(_txt('op.add'),
-                                               $linktarget,
-                                               $linkparams);
-                    print '</td>';
-                  print '</tr>';
+                  print $this->Html->link(_txt('op.add'),
+                                           $linktarget,
+                                           $linkparams);
                 }
               ?>
             </tbody>
@@ -498,7 +517,7 @@
         <?php endif; // compare ?>
       </div> <!-- tabs-email -->
       <div id="tabs-group">
-        <div style="float:left;">
+        <div style="float:left;width:100%" class="additionalinfo">
           <table>
             <?php if($this->action == "compare"): ?>
               <tr>
@@ -517,19 +536,15 @@
                   {
                     foreach($co_people[0]['CoGroupMember'] as $g)
                     {
-                      print '<tr class="line';
-                      print ($l % 2);
-                      print '">';
-                        $l++;
-                        print '<td>';
+                      print '<div>';
+                        print '<div>';
                           print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
-                        print '</td>';
-
-                        print '<td>';
+                        print '</div>';
+                        print '<div>';
                           // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                           print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($g['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'CoPersonid' => $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                        print '</td>';
-                      print '</tr>';
+                        print '</div>';
+                      print '</div>';
                     }
                   }
                 }
@@ -555,28 +570,20 @@
               {
                 if($e && !$es)  // XXX !$es is probably the wrong permission here
                 {
-                  print '<tr>';
-                    print '<td></td>';
-                    print '<td>';
-                    
-                      $linktarget = array('controller' => 'co_groups',
-                                          'action'     => 'select',
-                                          'copersonid' => $co_people[0]['CoPerson']['id'],
-                                          'co'         => $cur_co['Co']['id']
-                                         );
-                      $linkparams = array('class'  => 'addbutton');
-                      print $this->Html->link(_txt('op.add'),
-                                              $linktarget,
-                                              $linkparams) . "\n";
-                    print '</td>';
-                   print '</tr>';
-                  }
+                  $linktarget = array('controller' => 'co_groups',
+                                      'action'     => 'select',
+                                      'copersonid' => $co_people[0]['CoPerson']['id'],
+                                      'co'         => $cur_co['Co']['id']
+                                     );
+                  $linkparams = array('class'  => 'addbutton');
+                  print $this->Html->link(_txt('op.add'),
+                                          $linktarget,
+                                          $linkparams) . "\n";
                 }
+              }
             ?>
           </table>
         </div>
-        <?php
-                  ?>
       </div> <!-- tabs-group -->
       <div id="tabs-role">
         <table>
