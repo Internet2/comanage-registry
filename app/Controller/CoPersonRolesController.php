@@ -346,7 +346,6 @@ class CoPersonRolesController extends StandardController {
         {
           // CO Person is a member of at least one COU that the COU admin manages
           
-          $p['compare'] = true;
           $p['delete'] = true;
           $p['edit'] = true;
           $p['view'] = true;
@@ -364,7 +363,6 @@ class CoPersonRolesController extends StandardController {
           // might be better to have separate render and action permissions --
           // but it'll do.
           
-          $p['compare'] = true;
           $p['delete'] = true;
           $p['edit'] = true;
           $p['view'] = true;

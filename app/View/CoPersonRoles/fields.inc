@@ -70,13 +70,6 @@
 ?>
 <table id="<?php echo $this->action; ?>_co_person_role" class="ui-widget">
   <tbody>
-    <?php if($this->action == "compare"): ?>
-    <tr>
-      <th class="ui-state-default"><?php echo _txt('fd.attribute'); ?></th>
-      <th class="ui-state-default"><?php echo Sanitize::html($cur_co['Co']['name']); ?></th>
-      <th class="ui-state-default"><?php echo (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
-    </tr>
-    <?php endif; ?>
     <?php if(!empty($permissions['cous'])): ?>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
@@ -129,11 +122,6 @@
           }
         ?>
       </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo $cm_texts[ $cm_lang ]['en.affil'][ $org_identities[0]['OrgIdentity']['affiliation']]; ?>
-      </td>
-    <?php endif; ?>
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
@@ -146,11 +134,6 @@
                                                                      : ""))
                                  : Sanitize::html($co_person_roles[0]['CoPersonRole']['title'])); ?>
       </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_identities[0]['OrgIdentity']['title']); ?>
-      </td>
-    <?php endif; ?>
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
@@ -160,11 +143,6 @@
         <?php echo (($e && !$es) ? $this->Form->input('o', array('default' => $cur_co['Co']['name']))
                                  : Sanitize::html($co_person_roles[0]['CoPersonRole']['o'])); ?>
       </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_identities[0]['OrgIdentity']['o']); ?>
-      </td>
-    <?php endif; ?>
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
@@ -173,11 +151,6 @@
       <td>
         <?php echo (($e && !$es) ? $this->Form->input('ou') : Sanitize::html($co_person_roles[0]['CoPersonRole']['ou'])); ?>
       </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_identities[0]['OrgIdentity']['ou']); ?>
-      </td>
-    <?php endif; ?>
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
@@ -189,11 +162,6 @@
         <?php echo (($e && !$es) ? $this->Form->select('sponsor_co_person_id', $sponsors) : Sanitize::html($sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ])); 
         ?>
       </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php echo Sanitize::html($org_identities[0]['OrgIdentity']['sponsor_co_person_id']); ?>
-      </td>
-    <?php endif; ?>
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
@@ -250,15 +218,6 @@
           }
         ?>
       </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php
-          if(isset($org_identities[0]['TelephoneNumber']))
-            foreach($org_identities[0]['TelephoneNumber'] as $t)
-              echo Sanitize::html($t['number']) . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
-        ?>
-      </td>
-    <?php endif; ?>
     </tr>
     <tr class="line<?php echo ($l % 2); $l++; ?>">
       <td>
@@ -294,15 +253,6 @@
           }
         ?>
       </td>
-    <?php if($this->action == "compare"): ?>
-      <td>
-        <?php
-          if(isset($org_identities[0]['Address']))
-            foreach($org_identities[0]['Address'] as $addr)
-              echo Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
-        ?>
-      </td>
-    <?php endif; ?>
     </tr>
     <?php endif; // add ?>
     <?php
