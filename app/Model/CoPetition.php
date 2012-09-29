@@ -134,7 +134,8 @@ class CoPetition extends AppModel {
                                       StatusEnum::Declined,
                                       StatusEnum::Denied,
                                       StatusEnum::Invited,
-                                      StatusEnum::PendingApproval)),
+                                      StatusEnum::PendingApproval,
+                                      StatusEnum::PendingConfirmation)),
       'required' => true,
       'message' => 'A valid status must be selected'
     )
