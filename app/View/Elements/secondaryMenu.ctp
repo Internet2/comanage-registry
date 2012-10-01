@@ -34,12 +34,17 @@
 </script>
 
 <div id="secondaryMenu" class="rightmenu">
-  <?php if($this->Session->check('Auth.User.name')) {
-    // Print the user's name
-    print '<div id="name">';
+  <?php
+    if($this->Session->check('Auth.User.name')) {
+      // Print the user's name
+      print '<div id="name">';
       print generateCn($this->Session->read('Auth.User.name'));
-    print '</div>';
-  } ?>
+      if($this->Session->check('Auth.User.username')) {
+        print ' (' . $this->Session->read('Auth.User.username') . ')';
+      }
+      print '</div>';
+    }
+  ?>
 
   <?php if($this->Session->check('Auth.User') != NULL) :
     // Notification Dropdown
