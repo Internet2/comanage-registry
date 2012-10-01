@@ -1257,7 +1257,6 @@ class CoPetition extends AppModel {
         
         if(!empty($identifier)) {
           // Make sure login flag is set
-              debug("mark3");
           
           if(!$identifier['Identifier']['login']) {
             $this->EnrolleeOrgIdentity->Identifier->id = $identifier['Identifier']['id'];
@@ -1274,7 +1273,7 @@ class CoPetition extends AppModel {
                                                              $orgId,
                                                              $actorCoPersonId,
                                                              ActionEnum::OrgIdEditedPetition,
-                                                             _txt('rs.pt.id.login', $loginIdentifier));
+                                                             _txt('rs.pt.id.login', array($loginIdentifier)));
             }
             catch(Exception $e) {
               throw new RuntimeException($e->getMessage());
@@ -1302,7 +1301,7 @@ class CoPetition extends AppModel {
                                                            $orgId,
                                                            $actorCoPersonId,
                                                            ActionEnum::OrgIdEditedPetition,
-                                                           _txt('rs.pt.id.attached', $loginIdentifier));
+                                                           _txt('rs.pt.id.attached', array($loginIdentifier)));
           }
           catch(Exception $e) {
             throw new RuntimeException($e->getMessage());
