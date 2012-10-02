@@ -202,6 +202,7 @@ class AppController extends Controller {
    * - apiuser: Valid API (REST) user (for now, API users are equivalent to cmadmins)
    * - orgidentityid: Org Identity ID of current user (or false)
    * - copersonid: CO Person ID of current user in current CO (or false)
+   * @todo   XXX Rewrite to use Model/CoRole authz calls
    */
   
   public function calculateCMRoles() {
