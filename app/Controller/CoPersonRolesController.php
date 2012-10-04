@@ -385,15 +385,14 @@ class CoPersonRolesController extends StandardController {
     // On add, redirect to edit view again so MVPAs are available.
     // For everything else, return to co_people
    
-    if($this->action == 'add'){
+    if($this->action == 'add') {
       $params = array('action' => 'edit',
                       $this->CoPersonRole->id,
                       'co'     => $this->cur_co['Co']['id'],
                       'tab'    => 'role'
                      );
       $this->redirect($params);
-    }else
-    {
+    } else {
       $params = array('controller' => 'co_people',
                       'action'     => 'edit',
                       $this->viewVars['co_people'][0]['CoPerson']['id'],

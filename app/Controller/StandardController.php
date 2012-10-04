@@ -686,15 +686,16 @@ class StandardController extends AppController {
 
     // Sets tab to be opened by co_people page via jquery
     if($this->viewVars['redirect']['controller'] == 'co_people'
-       || $this->viewVars['redirect']['controller'] == 'org_identities'
-      )
-    {
+       || $this->viewVars['redirect']['controller'] == 'org_identities') {
       if($this->redirectTab)
         $redirect['tab'] = $this->redirectTab;
     }
 
-    if($this->requires_person)
+    if($this->requires_person) {
+      $this->set('redirect', $redirect);
       $this->redirect($redirect);
+    }
+
     if(isset($this->cur_co))
       $this->redirect(array('action' => 'index', 'co' => Sanitize::html($this->cur_co['Co']['id'])));
     else
