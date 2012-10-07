@@ -153,7 +153,7 @@ class CoInvite extends AppModel {
           
           $this->CoPerson->id = $invite['CoPerson']['id'];
           
-          if(!$this->CoInvite->CoPerson->saveField('status', $confirm ? StatusEnum::Active : StatusEnum::Declined)) {
+          if(!$this->CoPerson->saveField('status', $confirm ? StatusEnum::Active : StatusEnum::Declined)) {
             $dbc->rollback();
             throw new RuntimeException(_txt('er.cop.nf', array($invite['CoPerson']['id'])));
           }
