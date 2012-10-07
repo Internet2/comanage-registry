@@ -79,13 +79,6 @@
                 . _txt('op.id.auto')
                 . "</a>\n";
       }
-      
-      // Populate the cross reference (used for when we're adding a new CO Person entry manually)
-      print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
-      print $this->Form->hidden('CoOrgIdentityLink.0.id'). "\n";
-      print $this->Form->hidden('CoOrgIdentityLink.0.org_identity_id', array('default' => $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])). "\n";
-      // Default status is 'Pending'
-      echo $this->Form->hidden('status', array('default' => 'P')). "\n";
     }
     
     // Populate the cross reference
