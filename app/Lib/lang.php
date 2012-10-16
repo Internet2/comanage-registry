@@ -568,6 +568,7 @@ $cm_texts['en_US'] = array(
   
   // Setup
   
+  'se.cache.done' =>      'Done clearing cache',
   'se.cf.admin.given' =>  'Enter administrator\'s given name',
   'se.cf.admin.sn' =>     'Enter administrator\'s family name',
   'se.cf.admin.user' =>   'Enter administrator\'s login username',
