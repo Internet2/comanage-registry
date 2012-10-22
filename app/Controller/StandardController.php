@@ -682,24 +682,23 @@ class StandardController extends AppController {
    */
   
   function performRedirect() {
-    $redirect = $this->viewVars['redirect'];
-
-    // Sets tab to be opened by co_people page via jquery
-    if($this->viewVars['redirect']['controller'] == 'co_people'
-       || $this->viewVars['redirect']['controller'] == 'org_identities') {
-      if($this->redirectTab)
-        $redirect['tab'] = $this->redirectTab;
-    }
-
     if($this->requires_person) {
+      $redirect = $this->viewVars['redirect'];
+      
+      // Sets tab to be opened by co_people page via jquery
+      if($this->viewVars['redirect']['controller'] == 'co_people'
+         || $this->viewVars['redirect']['controller'] == 'org_identities') {
+        if($this->redirectTab)
+          $redirect['tab'] = $this->redirectTab;
+      }
+      
       $this->set('redirect', $redirect);
       $this->redirect($redirect);
-    }
-
-    if(isset($this->cur_co))
+    } elseif(isset($this->cur_co)) {
       $this->redirect(array('action' => 'index', 'co' => Sanitize::html($this->cur_co['Co']['id'])));
-    else
+    } else {
       $this->redirect(array('action' => 'index'));
+    }
   }
   
   /**
