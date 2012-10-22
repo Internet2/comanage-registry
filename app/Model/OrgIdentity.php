@@ -70,8 +70,9 @@ class OrgIdentity extends AppModel {
   // Default display field for cake generated views
   public $displayField = "Name.family";
   
+// XXX CO-296
   // Default ordering for find operations
-  public $order = array("Name.family", "Name.given");
+//  public $order = array("Name.family", "Name.given");
   
   // Validation rules for table elements
   public $validate = array(
