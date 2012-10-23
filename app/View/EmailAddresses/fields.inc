@@ -96,7 +96,14 @@
         <?php print _txt('fd.email_address.verified'); ?>
       </td>
       <td>
-        <?php print ($email_addresses[0]['EmailAddress']['verified'] ? _txt('fd.yes') : _txt('fd.no')); ?>
+        <?php
+          // For an add, verified is by definition no and can't (currently, anyway) be set manually.
+          // This will be caught by $email_addresses being null.
+          
+          print (isset($email_addresses[0]['EmailAddress']['verified'])
+                 && $email_addresses[0]['EmailAddress']['verified']
+                 ? _txt('fd.yes') : _txt('fd.no'));
+        ?>
       </td>
     </tr>
     <tr>
