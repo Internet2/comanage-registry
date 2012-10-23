@@ -43,6 +43,9 @@ class CoGroupMembersController extends StandardController {
   // Edit and view need recursion so we get Name for rendering view
   public $edit_recursion = 2;
   public $view_recursion = 2;
+  
+  // We need to track the group ID under certain circumstances to enable performRedirect
+  private $gid = null;
 
   /**
    * Add one or more CO Group Members.
@@ -239,20 +242,21 @@ class CoGroupMembersController extends StandardController {
 
     $owner = false;
     $member = false;
-    $gid = null;
+    
+    // Store the group ID in the controller object since performRedirect may need it
     
     if($this->action == 'add' && isset($this->request->data['CoGroupMember']['co_group_id']))
-      $gid = $this->request->data['CoGroupMember']['co_group_id'];
+      $this->gid = $this->request->data['CoGroupMember']['co_group_id'];
     elseif(($this->action == 'delete' || $this->action == 'edit' || $this->action == 'view')
            && isset($this->request->params['pass'][0]))
-      $gid = $this->CoGroupMember->field('co_group_id', array('CoGroupMember.id' => $this->request->params['pass'][0]));
+      $this->gid = $this->CoGroupMember->field('co_group_id', array('CoGroupMember.id' => $this->request->params['pass'][0]));
     elseif($this->action == 'select' && isset($this->request->params['named']['cogroup']))
-      $gid = $this->request->params['named']['cogroup'];
+      $this->gid = $this->request->params['named']['cogroup'];
 
-    if(isset($gid) && !empty($cmr['copersonid']))
+    if(isset($this->gid) && !empty($cmr['copersonid']))
     {
       $gm = $this->CoGroupMember->find('all', array('conditions' =>
-                                                    array('CoGroupMember.co_group_id' => $gid,
+                                                    array('CoGroupMember.co_group_id' => $this->gid,
                                                           'CoGroupMember.co_person_id' => $cmr['copersonid'])));
       
       if(isset($gm[0]['CoGroupMember']['owner']) && $gm[0]['CoGroupMember']['owner'])
@@ -298,33 +302,35 @@ class CoGroupMembersController extends StandardController {
   function performRedirect() {
     // Figure out where to redirect back to based on how we were called
     
-    $cop = null;  
+    $cop = null;
     
     if($this->action == 'add' && isset($this->request->data['CoGroupMember']['co_person_id']))
       $cop = $this->request->data['CoGroupMember']['co_person_id'];
-    elseif($this->action == 'delete' && isset($this->request->params['named']['CoPersonid']))
-      $cop = $this->request->params['named']['CoPersonid'];
+    elseif($this->action == 'delete' && isset($this->request->params['named']['copersonid']))
+      $cop = $this->request->params['named']['copersonid'];
       
-    if(isset($cop))
-    {
+    if(isset($cop)) {
       $params = array('controller' => 'co_people',
                       'action'     => 'edit',
                       $cop,
                       'co'         => $this->cur_co['Co']['id'],
                       'tab'        => 'group'
                      );
-      $this->redirect($params);
-    }
-    else
-    {
+    } elseif(isset($this->gid)) {
       $params = array('controller' => 'co_groups',
                       'action'     => 'edit',
-                      $this->request->data['CoGroupMember']['co_group_id'],
-                      'co'         => $this->cur_co['Co']['id'],
-                      'tab'        => 'group'
+                      $this->gid,
+                      'co'         => $this->cur_co['Co']['id']
                      );
-      $this->redirect($params);
+    } else {
+      // A perhaps not ideal default, but we shouldn't get here
+      $params = array('controller' => 'co_groups',
+                      'action'     => 'index',
+                      'co'         => $this->cur_co['Co']['id']
+                     );
     }
+    
+    $this->redirect($params);
   }
 
   /**
