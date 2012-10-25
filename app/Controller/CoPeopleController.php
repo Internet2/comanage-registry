@@ -244,6 +244,44 @@ class CoPeopleController extends StandardController {
       $this->view($id);
     }
   }
+
+  /**
+   * Delete a CoPerson Object. WARNING: this method will delete all associated data.
+   * This method calls the StandardController delete() method after first temporarily changing
+   * model dependecies if necessary to compensate for data sources used for groups and group
+   * memberships that may not use SQL and support cascading deletes.
+   *
+   * - precondition: see StandardController
+   * - postcondition: see StandardController
+   * - postcondition: see StandardController
+   *
+   * @since  COmanage Registry v0.8
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be deleted
+   */
+  function delete($id) {
+    // If a data store for groups and group memberships is being used that
+    // is not a relational database supporting SQL then temporarily remove
+    // the model relationship to group memberships.
+    //
+    // May need to revisit at some point due to 
+    // https://bugs.internet2.edu/jira/browse/CO-444.
+    if (!Configure::read('COmanage.groupSqlDataSource')) {
+      $groupMembersLinkValue = $this->CoPerson->hasMany['CoGroupMember'];
+      unset($this->CoPerson->hasMany['CoGroupMember']);
+
+      // Use the parent method to do the delete.
+      $ret = parent::delete($id);
+
+      // TODO delete the memberships...
+
+      // Restore the model relationship to group memberships if it was deleted.
+      $this->CoPerson->hasMany['CoGroupMember'] = $groupMembersLinkValue;
+    } else {
+      // Use the parent method to do the delete.
+      $ret = parent::delete($id);
+    }
+    return $ret;
+  }
   
   /**
    * Generate a display key to be used in messages such as "Item Added".

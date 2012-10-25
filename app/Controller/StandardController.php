@@ -78,9 +78,17 @@ class StandardController extends AppController {
     if(!$this->checkWriteDependencies($data))
       return;
     
-    // Finally, try to save
+    // Finally, try to save. We need to do a non-atomic saveAll()
+    // when using the Grouper dataSource.
 
-    if($model->saveAll($data)) {
+    if (($req === 'CoGroup' or $req === 'CoGroupMember') and
+          Configure::read('Grouper.COmanage.useGrouperDataSource')) {
+      $atomic = false;
+    } else {
+      $atomic = true;
+    }
+
+    if($model->saveAll($data,array('atomic' => $atomic))) {
       if(!$this->recordHistory('add', $data)
          || !$this->checkWriteFollowups($data)) {
         if(!$this->restful) {
@@ -221,10 +229,19 @@ class StandardController extends AppController {
         $this->performRedirect();
       return;
     }
-    
-    // Remove the object
 
-    if($model->delete($id))
+    // Do not do a cascading delete if the model does not 
+    // use a SQL compatible data source.
+    $cascadeDelete = true;
+    if(property_exists($model->name, 'usesSqlDataSource')) {
+      if(!$model->usesSqlDataSource) {
+        $cascadeDelete = false;
+      } 
+    }
+      
+    // Remove the object.
+
+    if($model->delete($id, $cascadeDelete))
     {
       if($this->recordHistory('delete', null, $op)) {
         if($this->restful)
@@ -365,9 +382,18 @@ class StandardController extends AppController {
     if(!$this->checkWriteDependencies($data, $curdata))
       return;
     
-    // Finally, try to save
+    // Finally, try to save.
 
-    if($model->saveAll($data))
+    // Do not not require an atomic operation if the model does not 
+    // use a SQL compatible data source.
+    $atomic = true;
+    if(property_exists($model->name, 'usesSqlDataSource')) {
+      if(!$model->usesSqlDataSource) {
+        $atomic = false;
+      } 
+    }
+
+    if($model->saveAll($data, array('atomic' => $atomic)))
     {
       if(!$this->recordHistory('edit', $data, $curdata)
          || !$this->checkWriteFollowups($data, $curdata)) {

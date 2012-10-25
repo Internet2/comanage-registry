@@ -167,11 +167,41 @@ class CoGroupsController extends StandardController {
     
     if(!$this->restful && $this->request->is('get'))
     {
-      $this->CoGroup->CoGroupMember->recursive = 2;
-      $x = $this->CoGroup->CoGroupMember->find('all', array('conditions' =>
-                                                            array('CoGroupMember.co_group_id' => $id)));
+      // Retrieve the set of all group members but since the
+      // Grouper dataSource may be used and does not support
+      // recursion construct the necessary recursive information
+      // directly.
+      $allGroupMembers = $this->CoGroup->CoGroupMember->find('all', 
+                                                             array('conditions' =>
+                                                               array('CoGroupMember.co_group_id' => $id)
+                                                             )
+                                                            );
+
+      $this->loadModel('CoPerson');
+      $this->loadModel('Name');
       
-      $this->set('co_group_members', $x);
+      foreach($allGroupMembers as &$member) {
+        $coPersonId = $member['CoGroupMember']['co_person_id'];
+        $coPerson = $this->CoPerson->find('first', 
+                                          array(
+                                            'conditions' => 
+                                              array('CoPerson.id' => $coPersonId),
+                                            'recursive' => -1
+                                            )
+                                         );
+        $name = $this->Name->find('first', 
+                                  array(
+                                    'conditions' => 
+                                      array('Name.co_person_id' => $coPersonId),
+                                    'recursive' => -1
+                                  )
+                                 );
+        $coPerson['CoPerson']['CoGroupMember'] = array($member['CoGroupMember']);
+        $coPerson['CoPerson']['Name'] = $name['Name'];
+        $member = array_merge($member, $coPerson);
+      }
+      
+      $this->set('co_group_members', $allGroupMembers);
     }
     
     // Invoke the StandardController edit
@@ -300,7 +330,12 @@ class CoGroupsController extends StandardController {
       if(isset($member) && in_array($this->request->params['pass'][0], $p['member']))
         $p['view'] = true;
       
-      $g = $this->CoGroup->findById($this->request->params['pass'][0]);
+      $params = array(
+        'conditions' => array(
+          'CoGroup.id' => $this->request->params['pass'][0]
+          )
+        );
+      $g = $this->CoGroup->find('first', $params);
       
       if($g)
       {

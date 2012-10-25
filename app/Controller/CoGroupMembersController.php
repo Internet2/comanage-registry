@@ -95,7 +95,15 @@ class CoGroupMembersController extends StandardController {
       
       if(count($a['CoGroupMember']) > 0)
       {
-        if($this->CoGroupMember->saveAll($a['CoGroupMember']))
+        // When using the Grouper dataSource we need to set the
+        // atomic option for saveAll() to false.
+        if (Configure::read('Grouper.COmanage.useGrouperDataSource')) {
+          $atomic = false;
+        } else {
+          $atomic = true;
+        }
+
+        if($this->CoGroupMember->saveAll($a['CoGroupMember'], array('atomic' => $atomic)))
           $this->Session->setFlash(_txt('rs.added'), '', array(), 'success');
         else
           $this->Session->setFlash($this->fieldsErrorToString($this->CoGroupMember->invalidFields()), '', array(), 'error');
@@ -146,7 +154,11 @@ class CoGroupMembersController extends StandardController {
   function checkWriteDependencies($reqdata, $curdata = null) {
     // Make sure the Group exists
     
-    $g = $this->CoGroupMember->CoGroup->findById($reqdata['CoGroupMember']['co_group_id']);
+    $g = $this->CoGroupMember->CoGroup->find('first', 
+                                             array('conditions' => 
+                                              array('CoGroup.id' => $reqdata['CoGroupMember']['co_group_id'])
+                                             )
+                                            );
     
     if(empty($g))
     {
@@ -163,7 +175,11 @@ class CoGroupMembersController extends StandardController {
 
     // Make sure the CO Person exists
     
-    $p = $this->CoGroupMember->CoPerson->findById($reqdata['CoGroupMember']['co_person_id']);
+    $p = $this->CoGroupMember->CoPerson->find('first', 
+                                              array('conditions' => 
+                                               array('CoPerson.id' => $reqdata['CoGroupMember']['co_person_id'])
+                                              )
+                                             );
     
     if(empty($p))
     {
@@ -346,18 +362,44 @@ class CoGroupMembersController extends StandardController {
     // Set page title
     $this->set('title_for_layout', _txt('op.select-a', array(_txt('ct.co_group_members.1'))));
 
-    // Find available people
-    // XXX remove people already members
+    // Find all available CO people.
 
-    $dbo = $this->CoGroupMember->getDataSource();
-    
     $this->paginate['conditions'] = array(
       'co_id' => $this->cur_co['Co']['id']
     );
+    $allCoPeople = $this->paginate('CoPerson');
+
+    // Find all current group members and create an array 
+    // of the corresponding CO person Ids.
+    $groupId = $this->request->params['named']['cogroup'];
+    $allGroupMembers = $this->CoGroupMember->find('all', 
+                                                  array(
+                                                    'conditions' => 
+                                                        array('CoGroupMember.co_group_id' => $groupId),
+                                                    'recursive' => -1)
+                                                 );
+    $allGroupMembersCoPersonId = array();
+    foreach($allGroupMembers as $member){
+      $allGroupMembersCoPersonId[] = $member['CoGroupMember']['co_person_id'];
+    }
+
+    // Filter out CO people that are already members.
+    foreach($allCoPeople as $key => &$coPerson) {
+      if (in_array($coPerson['CoPerson']['id'], $allGroupMembersCoPersonId)) {
+        unset($allCoPeople[$key]);
+      }
+    }
+
+    $this->set('co_people', $allCoPeople);
     
-    $this->set('co_people', $this->paginate('CoPerson'));;
-    
-    if(isset($this->request->params['named']['cogroup']))
-      $this->set('co_group', $this->CoGroupMember->CoGroup->findById($this->request->params['named']['cogroup']));
+    // Also find the Group so that its details like name
+    // can be rendered.
+    $coGroup = $this->CoGroupMember->CoGroup->find('first', 
+                                                   array('conditions' => 
+                                                    array('CoGroup.id' => $groupId)
+                                                   )
+                                                  );
+
+    $this->set('co_group', $coGroup);
   }
 }

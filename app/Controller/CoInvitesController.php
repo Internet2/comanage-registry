@@ -517,10 +517,16 @@ class CoInvitesController extends AppController {
         $this->Session->setFlash(_txt('er.cop.nf', array($cpid)), '', array(), 'error');
     }
 
-    // Redirect to My Population
-    $nextPage = array('controller' => 'co_people',
-                      'action'     => 'index',
-                      'co'         => $this->cur_co['Co']['id']);
-    $this->redirect($nextPage);
+    $debug = Configure::read('debug');
+    if(!$debug) {
+      // Redirect to My Population when no debugging so that 
+      // user sees flash message that email was sent with invitation.
+      // Otherwise when debugging user will see link to the invitation
+      // to help debugging and testing.
+      $nextPage = array('controller' => 'co_people',
+                        'action'     => 'index',
+                        'co'         => $this->cur_co['Co']['id']);
+      $this->redirect($nextPage);
+    }
   }
 }

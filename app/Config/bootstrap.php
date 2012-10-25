@@ -67,6 +67,11 @@ Inflector::rules('plural', array('irregular' => array('cou' => 'cous')));
  *
  */
 
+// Always load the Grouper plugin whether or not it will be used.
+// Configuration of the plugin determines if it will be used.
+// See Plugin/Grouper/Config/bootstrap.php.
+CakePlugin::load('Grouper', array('bootstrap' => true));
+
 include APP."Lib/enum.php";
 include APP."Lib/lang.php";
 include APP."Lib/util.php";

@@ -43,13 +43,14 @@ class CoGroupMember extends AppModel {
   public $order = array("co_person_id");
   
   public $actsAs = array('Containable');
+
+  // If true the data source for the model uses a relational database
+  // backend and if false then the data source is something else, perhaps
+  // Grouper or similar.
+  public $usesSqlDataSource = true;
   
   // Validation rules for table elements
   public $validate = array(
-    'co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => true
-    ),
     'co_person_id' => array(
       'rule' => 'numeric',
       'required' => true
@@ -61,6 +62,32 @@ class CoGroupMember extends AppModel {
       'rule' => array('boolean')
     )
   );
+
+  /**
+   * Constructor
+   * - precondition:
+   * - postcondition:
+   *
+   * @since COmanage Directory 0.7
+   * @return instance
+   */
+  public function __construct($id = false, $table = null, $ds = null){
+
+    // Depending on the configuration use the Grouper
+    // plugin data source or the default data source.
+    if(Configure::read('Grouper.COmanage.useGrouperDataSource')) {
+      $this->useDbConfig = 'grouperCoGroupMember';
+    } 
+
+    // Depending on the configuration signal that we
+    // do not use a SQL relational database backend for the
+    // data source.
+    if (!Configure::read('COmanage.groupSqlDataSource')) {
+      $this->usesSqlDataSource = false;
+    } 
+    
+    parent::__construct($id, $table, $ds);
+  }
   
   /**
    * Obtain the group roles for a CO person.

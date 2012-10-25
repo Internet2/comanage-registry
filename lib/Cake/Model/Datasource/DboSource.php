@@ -1079,7 +1079,6 @@ class DboSource extends DataSource {
 				$this->_filterResults($resultSet, $model, $filtered);
 			}
 		}
-
 		if (!is_null($recursive)) {
 			$model->recursive = $_recursive;
 		}
@@ -1163,7 +1162,9 @@ class DboSource extends DataSource {
 								} else {
 									$db = ConnectionManager::getDataSource($deepModel->useDbConfig);
 								}
-								$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+								if (method_exists($db, 'queryAssociation')) {
+                  $db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+                }
 							}
 						}
 					}
@@ -1231,7 +1232,9 @@ class DboSource extends DataSource {
 									} else {
 										$db = ConnectionManager::getDataSource($deepModel->useDbConfig);
 									}
-									$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+									if (method_exists($db, 'queryAssociation')) {
+                    $db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+                  }
 								}
 							}
 						}

@@ -28,6 +28,9 @@
 ?>
 
 <p>
+You are seeing this text because <b>debug</b> is true in the configuration file <b>app/Config/core.php</b>.
+</p>
+<p>
 Email would be sent to <b><?php echo $invite['CoInvite']['mail']; ?></b> with the URL
 <br />
 <br />

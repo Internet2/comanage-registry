@@ -48,8 +48,7 @@
       if($dbc->Connect($db->config['host'],
                        $db->config['login'],
                        $db->config['password'],
-                       $db->config['database']))
-      {
+                       $db->config['database'])) {
         $schema = new adoSchema($dbc);
         $schema->setPrefix($db->config['prefix']);
         // ParseSchema is generating bad SQL for Postgres. eg:
@@ -66,12 +65,10 @@
         //
         // https://bugs.internet2.edu/jira/browse/CO-175
         //
-        if ($db_driver[1] != 'Mysql')
-        {
+        if ($db_driver[1] != 'Mysql') {
           $sql = $schema->ParseSchema(APP . '/Config/Schema/schema.xml');
         }
-        else
-        {
+        else {
           $xml = new DOMDocument;
           $xml->load(APP . '/Config/Schema/schema.xml');
 
@@ -84,8 +81,7 @@
           $sql = $schema->ParseSchemaString($proc->transformToXML($xml));
         }
         
-        switch($schema->ExecuteSchema($sql))
-        {
+        switch($schema->ExecuteSchema($sql)) {
         case 2: // !!!
           $this->out(_txt('op.db.ok'));
           break;
@@ -96,8 +92,7 @@
         
         $dbc->Disconnect();
       }
-      else
-      {
+      else {
         $this->out(_txt('er.db.connect', array($dbc->ErrorMsg())));
         exit;
       }

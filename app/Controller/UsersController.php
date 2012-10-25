@@ -128,18 +128,36 @@ class UsersController extends AppController {
               
               // And assemble the Group Memberships
               
-              foreach($l['CoPerson']['CoGroupMember'] as $gm)
-              {
-                $cos[ $l['CoPerson']['Co']['name'] ]['groups'][ $gm['CoGroup']['name'] ] = array(
-                  'co_group_id' => $gm['co_group_id'],
-                  'name' => $gm['CoGroup']['name'],
-                  'member' => $gm['member'],
-                  'owner' => $gm['owner']
+              $this->loadModel('CoGroupMember');
+              $this->loadModel('CoGroup');
+              
+              $params = array(
+                'conditions' => array(
+                  'CoGroupMember.co_person_id' => $l['co_person_id']
+                  )
                 );
+              $memberships = $this->CoGroupMember->find('all', $params);
+
+              foreach($memberships as $m){
+                $params = array(
+                  'conditions' => array(
+                    'CoGroup.id' => $m['CoGroupMember']['co_group_id']
+                    )
+                  );
+                $result = $this->CoGroup->find('first', $params);
+                $group = $result['CoGroup']; 
+                $this->log("group = " . print_r($group, true));
+
+                $cos[ $l['CoPerson']['Co']['name'] ]['groups'][ $group['name'] ] = array(
+                  'co_group_id' => $m['CoGroupMember']['co_group_id'],
+                  'name' => $group['name'],
+                  'member' => $m['CoGroupMember']['member'],
+                  'owner' => $m['CoGroupMember']['owner']
+                  );
               }
             }
           }
-           
+
           $this->Session->write('Auth.User.org_identities', $orgs);
           $this->Session->write('Auth.User.cos', $cos);
           
