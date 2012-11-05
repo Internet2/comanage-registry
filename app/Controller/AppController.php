@@ -222,10 +222,10 @@ class AppController extends Controller {
     );
     
     // Retrieve session info
-    $cos = $this->Session->read('Auth.User.cos');
     
-    if(isset($cos))
-    {
+    if($this->Session->check('Auth.User.cos')) {
+      $cos = $this->Session->read('Auth.User.cos');
+      
       // Platform admin?
       if(isset($cos['COmanage']['groups']['admin']['member']))
         $ret['cmadmin'] = $cos['COmanage']['groups']['admin']['member'];
@@ -310,13 +310,10 @@ class AppController extends Controller {
       $ret['user'] = true;
     
     // API user or Org Person?
-    if($this->Session->check('Auth.User.api_user_id'))
-    {
+    if($this->Session->check('Auth.User.api_user_id')) {
       $ret['apiuser'] = true;
       $ret['cmadmin'] = true;  // API users are currently platform admins
-    }
-    else
-    {
+    } elseif($this->Session->check('Auth.User.org_identities')) {
       $ret['orgidentities'] = $this->Session->read('Auth.User.org_identities');
     }
 

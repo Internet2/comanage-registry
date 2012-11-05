@@ -172,6 +172,13 @@ class CoEnrollmentFlow extends AppModel {
    */
   
   public function authorize($coEF, $coPersonId) {
+    // If no authz is required, return true before we bother with any other checks
+    
+    if($coEF['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None) {
+      // No authz required
+      return true;
+    }
+    
     $CoRole = ClassRegistry::init('CoRole');
     
     // If CO Person is a CO admin, they are always authorized
@@ -210,8 +217,7 @@ class CoEnrollmentFlow extends AppModel {
         }
         break;
       case EnrollmentAuthzEnum::None:
-        // No authz required
-        return true;
+        // We covered this already, above
         break;
     }
     

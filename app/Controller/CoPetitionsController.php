@@ -157,10 +157,21 @@ class CoPetitionsController extends StandardController {
       // Make sure we were given a valid enrollment flow
       
       $args['conditions']['CoEnrollmentFlow.id'] = $this->enrollmentFlowID();
-      $found = $this->CoPetition->CoEnrollmentFlow->find('count', $args);
+      $args['contain'] = false;
+      $ef = $this->CoPetition->CoEnrollmentFlow->find('first', $args);
       
-      if($found == 0) {
+      if(empty($ef)) {
         $this->Session->setFlash(_txt('er.coef.unk'), '', array(), 'error');
+      } elseif(isset($ef['CoEnrollmentFlow']['authz_level'])
+               && $ef['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None) {
+        // If this enrollment flow allows unauthenticated enrollments, drop the auth
+        // requirement. Only do this for add for the moment, since we don't currently
+        // know what it means for an unauthenticated enrollment to be edited without
+        // authentication.
+        
+        if($this->action == 'add' && $this->isAuthorized()) {
+          $this->Auth->allow('add');
+        }
       }
     }
     
