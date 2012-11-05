@@ -307,7 +307,7 @@ class CoPetitionsController extends StandardController {
     // Add a new CO Petition?
     $p['add'] = $flowAuthorized
                 // Or we have an index view
-                || ($this->enrollmentFlowID() == -1 & ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
+                || ($this->enrollmentFlowID() == -1 && ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
     
     // Approve a CO Petition?
     $p['approve'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
