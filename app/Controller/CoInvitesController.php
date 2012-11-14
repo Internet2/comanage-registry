@@ -275,6 +275,7 @@ class CoInvitesController extends AppController {
         $this->redirect("/auth/logout");
       } else {
         $this->Session->setFlash($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), '', array(), 'success');
+        $this->redirect("/");
       }
     }
   }
