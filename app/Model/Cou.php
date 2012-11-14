@@ -163,37 +163,47 @@ class Cou extends AppModel {
   }
 
   /**
-   * Takes an array of names and returns array of them and their descendant COUs.
+   * Obtain the child COUs of a COU.
    *
    * @since  COmanage Registry v0.3
-   * @param  Array COU(s) that need children listed
-   * @return Array Names
+   * @param  String Name of Parent COU
+   * @param  Integer CO ID for Parent COU
+   * @param  Boolean Whether or not to return $parentCou in the results
+   * @return Array List of COU IDs and Names
+   * @throws InvalidArgumentException
    */
   
-  public function childCous($parentCou, $co_id) {
-    // Convert names to id numbers
-    $conditions = array("Cou.name"  => $parentCou,
-                        "Cou.co_id" => $co_id);
-    $parentData = $this->find('all', array('conditions' => $conditions));
-    $parentData = Set::extract($parentData, '{n}.Cou.id');
-
-    // Get children
-    $allChildren = array();
-    if($parentData != NULL)
-    {
-      foreach($parentData as $parent)
-      {
-        $thisChildren = $this->children($parent, false, 'name');
-        if($thisChildren != NULL)
-          $allChildren = array_merge($allChildren, $thisChildren);
+  public function childCous($parentCou, $co_id, $includeParent=false) {
+    // Find $parentCou
+    
+    $args = array();
+    $args['conditions']['Cou.name'] = $parentCou;
+    $args['conditions']['Cou.co_id'] = $co_id;
+    $args['contain'] = false;
+    
+    $parent = $this->find('first', $args);
+    
+    // Find children
+    
+    if(isset($parent['Cou']['id'])) {
+      $children = $this->children($parent['Cou']['id'],
+                                  false,
+                                  array('id', 'name'));
+      
+      $ret = array();
+      
+      if($includeParent) {
+        $ret[ $parent['Cou']['id'] ] = $parent['Cou']['name'];
       }
+      
+      foreach($children as $child) {
+        $ret[ $child['Cou']['id'] ] = $child['Cou']['name'];
+      }
+      
+      return $ret;
+    } else {
+      throw new InvalidArgumentException(_txt('er.unknown'), array($parentCou));
     }
-    $allChildren = Set::extract($allChildren, '{n}.Cou.name');
-
-    if($allChildren != NULL)
-      return(array_merge($parentCou, $allChildren));
-    else
-      return($parentCou);
   }
 
   /**

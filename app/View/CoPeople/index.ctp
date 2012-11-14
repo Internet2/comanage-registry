@@ -59,17 +59,6 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          // Is this a person in a COU of the currently logged in person?
-          $myPerson = false;
-          
-          // We look at COU here if set for the role
-          // XXX this should really be calculated in the controller
-          if($permissions['edit']
-             && (!isset($pr['cou_id'])
-                 || $pr['cou_id'] == ''
-                 || in_array($pr['Cou']['name'], $permissions['cous'])))
-            $myPerson = true;
-          
           print $this->Html->link(generateCn($p['Name']),
                                   array(
                                     'controller' => 'co_people',
@@ -90,7 +79,19 @@
       <td>
         <?php
           foreach ($p['CoPersonRole'] as $pr) {
-            if($myPerson) {
+            // The current user can edit this role if they have general edit
+            // permission and (1) there is no COU defined or (2) there is a COU
+            // defined and the user can manage that COU.
+            
+            $myPersonRole = false;
+            
+            if($permissions['edit']) {
+              if(empty($pr['cou_id']) || isset($permissions['cous'][ $pr['cou_id'] ])) {
+                $myPersonRole = true;
+              }
+            }
+            
+            if($myPersonRole) {
               if($permissions['enroll']
                  && $pr['status'] == StatusEnum::PendingApproval
                  && !empty($pr['CoPetition'])) {
@@ -122,9 +123,9 @@
                                               $pr['id'],
                                               'co' => $cur_co['Co']['id']));
               }
-            }
-            else
+            } else{
               print $pr['title'];
+            }
             
             if(isset($pr['Cou']['name']))
               print " (" . $pr['Cou']['name'] . ")";
@@ -140,7 +141,8 @@
                                     array('controller' => 'co_people', 'action' => 'compare', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
                                     array('class' => 'comparebutton')) . "\n";
           
-          if($myPerson) {
+          if(true || $myPerson) {
+            // XXX for now, cou admins get all the actions, but see CO-505
             // Edit actions are unavailable if not
             
             if($permissions['edit'])

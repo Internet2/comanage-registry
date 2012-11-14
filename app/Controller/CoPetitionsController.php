@@ -318,10 +318,10 @@ class CoPetitionsController extends StandardController {
     // Add a new CO Petition?
     $p['add'] = $flowAuthorized
                 // Or we have an index view
-                || ($this->enrollmentFlowID() == -1 && ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin'])));
+                || ($this->enrollmentFlowID() == -1 && ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']));
     
     // Approve a CO Petition?
-    $p['approve'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['approve'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
     $p['deny'] = $p['approve'];
     
     // Delete an existing CO Petition?
@@ -329,7 +329,7 @@ class CoPetitionsController extends StandardController {
     $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
     
     // Edit an existing CO Petition?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
     
     // Match against existing CO People? If the match policy is Advisory or Automatic, we
     // allow matching to take place as long as $flowAuthorized is also true.
@@ -342,14 +342,14 @@ class CoPetitionsController extends StandardController {
                     || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     
     // View all existing CO Petitions?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
     
     // Resend invitations?
-    $p['resend'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['resend'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
     
     // View an existing CO Petition? We allow the usual suspects to view a Petition, even
     // if they don't have permission to edit it.
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
 
     $this->set('permissions', $p);
     return($p[$this->action]);

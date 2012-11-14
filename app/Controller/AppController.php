@@ -194,7 +194,8 @@ class AppController extends Controller {
    * @return Array An array with values of 'true' if the user has the specified role or 'false' otherwise, with possible keys of
    * - cmadmin: COmanage platform administrator
    * - coadmin: Administrator of the current CO
-   * - couadmin: Administrator of one or more COUs within the current CO (rather than set to true, the COUs are enumerated in an array)
+   * - couadmin: Administrator of one or more COUs within the current CO 
+   * - admincous: COUs for which user is an Administrator (list of COU IDs and Names)
    * - comember: Member of the current CO
    * - admin: Valid admin in any CO
    * - subadmin: Valid admin for any COU
@@ -202,16 +203,19 @@ class AppController extends Controller {
    * - apiuser: Valid API (REST) user (for now, API users are equivalent to cmadmins)
    * - orgidentityid: Org Identity ID of current user (or false)
    * - copersonid: CO Person ID of current user in current CO (or false)
-   * @todo   XXX Rewrite to use Model/CoRole authz calls
    */
   
   public function calculateCMRoles() {
+    // We basically translate from the currently logged in info as determined by
+    // UsersController to role information as determined by CoRole.
+    
     global $group_sep;
 
     $ret = array(
       'cmadmin' => false,
       'coadmin' => false,
       'couadmin' => false,
+      'admincous' => null,
       'comember' => false,
       'admin' => false,
       'subadmin' => false,
@@ -221,93 +225,65 @@ class AppController extends Controller {
       'copersonid' => false
     );
     
-    // Retrieve session info
+    $coId = $this->cur_co['Co']['id'];
+    $coPersonId = null;
+    $username = null;
     
-    if($this->Session->check('Auth.User.cos')) {
-      $cos = $this->Session->read('Auth.User.cos');
-      
-      // Platform admin?
-      if(isset($cos['COmanage']['groups']['admin']['member']))
-        $ret['cmadmin'] = $cos['COmanage']['groups']['admin']['member'];
-
-      if(isset($this->cur_co))
-      {
-        // Admin of current CO?
-        if(isset($cos[ $this->cur_co['Co']['name'] ]['groups']['admin']['member']))
-          $ret['coadmin'] = $cos[ $this->cur_co['Co']['name'] ]['groups']['admin']['member'];
-          
-        // Admin of COU within current CO?
-        if(isset($cos[ $this->cur_co['Co']['name'] ]['groups']))
-        {
-          // COU admins are members of groups named admin{sep}{COU} within the CO
-          
-          foreach(array_keys($cos[ $this->cur_co['Co']['name'] ]['groups']) as $g)
-          {
-            $ga = explode($group_sep, $g, 2);
-            
-            if($ga[0] == "admin" && !empty($ga[1])
-               && isset($cos[ $this->cur_co['Co']['name'] ]['groups'][$g]['member'])
-               && $cos[ $this->cur_co['Co']['name'] ]['groups'][$g]['member'])
-            {
-              $ret['couadmin'][] = $ga[1];
-            }
-          }
-
-          if(!empty($ret['couadmin']))
-          {
-            // Include children
-            $this->loadModel('Cou');
-
-            $ret['couadmin'] = $this->Cou->childCous($ret['couadmin'], $this->cur_co['Co']['id']);
-            if($ret['couadmin'] != NULL)
-              sort($ret['couadmin']);
-          }
-        }
-        
-        // Member of current CO?
-        if(isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id']))
-        {
-          $ret['copersonid'] = $cos[ $this->cur_co['Co']['name'] ]['co_person_id'];
-          $ret['comember'] = true;
-          // Also store the co_person_id directly in the session to make it easier to find
-          $this->Session->write('Auth.User.co_person_id', $ret['copersonid']);
-        }
-      }
-
-      // Admin of any CO?
-      foreach($cos as $c)
-      {
-        if(isset($c['groups']['admin']['member'])
-           && $c['groups']['admin']['member'])
-        {
-          $ret['admin'] = true;
-          break;
-        }
-      }
-      
-      // Admin of any COU?
-      foreach($cos as $c)
-      {
-        if(isset($c['groups']))
-        {
-          foreach(array_keys($c['groups']) as $g)
-          {
-            $ga = explode($group_sep, $g, 2);
-            
-            if($ga[0] == "admin" && !empty($ga[1])
-               && isset($c['groups'][$g]['member']) && $c['groups'][$g]['member'])
-            {
-              $ret['subadmin'] = true;
-              break;
-            }
-          }
-        }
-      }
+    if($this->Session->check('Auth.User.username')) {
+      $username = $this->Session->read('Auth.User.username');
     }
+    
+    // Use CoRole to perform various calculations
+    
+    $this->loadModel('CoRole');
+    
+    // Is this user a CMP admin?
+    
+    if($this->Session->check('Auth.User.username')) {
+      $ret['cmadmin'] = $this->CoRole->identifierIsCmpAdmin($username);
+    }
+    
+    // Figure out the revelant CO Person ID for the current user and the current CO
+    
+    $this->loadModel('CoPerson');
+    
+    // XXX We should pass an identifier type that was somehow configured (see also CoRole->identifierIs*Admin)
+    $coPersonId = $this->CoPerson->idForIdentifier($coId, $username, null, true);
+    
+    // Is this user a member of the current CO?
+    // We only want to populate $ret['copersonid'] if this CO Person ID is in the current CO
+    
+    if($this->CoRole->isCoPerson($coPersonId, $coId)) {
+      $ret['copersonid'] = $coPersonId;
+      $ret['comember'] = true;
+      
+      // Also store the co_person_id directly in the session to make it easier to find
+      $this->Session->write('Auth.User.co_person_id', $ret['copersonid']);
+    }
+    
+    if(isset($coPersonId) && isset($coId)) {
+      // Is this user an admin of the current CO?
+      
+      $ret['coadmin'] = $this->CoRole->isCoAdmin($coPersonId, $coId);
+      
+      // Is this user an admin of a COU within the current CO?
+      
+      $ret['admincous'] = $this->CoRole->couAdminFor($coPersonId, $coId);
+      $ret['couadmin'] = !empty($ret['admincous']);
+    }
+    
+    // Is the user an admin of any CO?
+    
+    $ret['admin'] = ($ret['coadmin'] || $this->CoRole->identifierIsCoAdmin($username));
+    
+    // Is the user a COU admin for any CO?
+    
+    $ret['subadmin'] = ($ret['couadmin'] || $this->CoRole->identifierIsCouAdmin($username));
 
     // Platform user?
-    if($this->Session->check('Auth.User.name'))
+    if($this->Session->check('Auth.User.name')) {
       $ret['user'] = true;
+    }
     
     // API user or Org Person?
     if($this->Session->check('Auth.User.api_user_id')) {
@@ -316,7 +292,7 @@ class AppController extends Controller {
     } elseif($this->Session->check('Auth.User.org_identities')) {
       $ret['orgidentities'] = $this->Session->read('Auth.User.org_identities');
     }
-
+    
     return($ret);
   }
   

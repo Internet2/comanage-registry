@@ -155,20 +155,48 @@ class CoPerson extends AppModel {
   }
   
   /**
-   * Obtain all CO Person IDs for an identifier.
+   * Obtain the CO Person ID for an identifier (which must be Active).
    *
    * @since  COmanage Registry v0.6
    * @param  String Identifier
    * @param  String Identifier type (null for any type; not recommended)
+   * @param  Boolean Login identifiers only
    * @return Array CO Person IDs
    * @throws InvalidArgumentException
    */
   
-  function idsForIdentifier($identifier, $identifierType=null) {
+  public function idForIdentifier($coId, $identifier, $identifierType=null, $login=false) {
+    // Notice confusing change in order of arguments due to which ones default to null/false
+    
+    try {
+      $coPersonIds = $this->idsForIdentifier($identifier, $identifierType, $login, $coId);
+    }
+    catch(Exception $e) {
+      throw new InvalidArgumentException($e->getMessage());
+    }
+    
+    return $coPersonIds[0];
+  }
+  
+  /**
+   * Obtain all CO Person IDs for an identifier (which must be Active).
+   *
+   * @since  COmanage Registry v0.6
+   * @param  String Identifier
+   * @param  String Identifier type (null for any type; not recommended)
+   * @param  Boolean Login identifiers only
+   * @param  Integer CO ID (null for all matching COs)
+   * @return Array CO Person IDs
+   * @throws InvalidArgumentException
+   */
+  
+  function idsForIdentifier($identifier, $identifierType=null, $login=false, $coId=null) {
     // First pull the identifier record
     
     $args = array();
     $args['conditions']['Identifier.identifier'] = $identifier;
+    $args['conditions']['Identifier.login'] = $login;
+    $args['conditions']['Identifier.status'] = StatusEnum::Active;
     $args['contain'] = false;
     
     if($identifierType) {

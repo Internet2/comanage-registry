@@ -114,7 +114,7 @@ class AddressesController extends MVPAController {
       
       if(isset($cou['Cou']['name']))
       {
-        foreach($cmr['couadmin'] as $c)
+        foreach(array_values($cmr['admincous']) as $c)
         {
           if($c == $cou['Cou']['name'])
           {

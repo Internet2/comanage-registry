@@ -293,7 +293,7 @@ class CoPersonRolesController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new CO Person Role?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
     
     // Delete an existing CO Person Role?
     $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
@@ -303,10 +303,10 @@ class CoPersonRolesController extends StandardController {
 
     // Are we trying to edit our own record? 
     // If we're an admin, we act as an admin, not self.
-    $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && empty($cmr['couadmin']);
+    $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && !$cmr['couadmin'];
     
     // View all existing CO Person Roles (or a COU's worth)?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || !empty($cmr['couadmin']));
+    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
     
     // View an existing CO Person Role?
     $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
@@ -317,15 +317,15 @@ class CoPersonRolesController extends StandardController {
       // get a list of names. This is to generate the pop-up on the edit form.
       $p['cous'] = $this->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
     }
-    elseif(!empty($cmr['couadmin']))
-      $p['cous'] = $cmr['couadmin'];
+    elseif(!empty($cmr['admincous']))
+      $p['cous'] = array_values($cmr['admincous']);
     else
       $p['cous'] = array();
     
     // COUs are handled a bit differently. We need to authorize operations that
     // operate on a per-person basis accordingly.
     
-    if(!empty($cmr['couadmin']) && !empty($p['cous']))
+    if($cmr['couadmin'] && !empty($p['cous']))
     {
       if(!empty($this->request->params['pass'][0]))
       {
