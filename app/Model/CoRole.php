@@ -120,10 +120,11 @@ class CoRole extends AppModel {
    * @param  Integer CO Person ID
    * @param  Integer CO ID
    * @param  Integer COU ID
+   * @param  Boolean Whether to check only active roles or all roles
    * @return Boolean True if the CO Person has a matching role, false otherwise
    */
   
-  protected function cachedPersonRoleCheck($coPersonId, $coId, $couId=null) {
+  protected function cachedPersonRoleCheck($coPersonId, $coId, $couId=null, $active=true) {
     // First check the cache
     
     if($couId) {
@@ -149,8 +150,10 @@ class CoRole extends AppModel {
     $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
     $args['conditions']['CoPerson.id'] = $coPersonId;
     $args['conditions']['CoPerson.co_id'] = $coId;
-    $args['conditions']['CoPerson.status'] = StatusEnum::Active;
-    $args['conditions']['CoPersonRole.status'] = StatusEnum::Active;
+    if($active) {
+      $args['conditions']['CoPerson.status'] = StatusEnum::Active;
+      $args['conditions']['CoPersonRole.status'] = StatusEnum::Active;
+    }
     if($couId) {
       $args['conditions']['CoPersonRole.cou_id'] = $couId;
     }
@@ -497,6 +500,37 @@ class CoRole extends AppModel {
     }
     
     return $this->cachedGroupCheck($coPersonId, $coId, "admin" . $group_sep . $couName);
+  }
+  
+  /**
+   * Determine if a CO Person is a COU Administrator for another CO Person.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Integer CO Person ID of potential COU Admin
+   * @param  Integer CO Person ID of subject
+   * @param  Integer CO ID
+   * @return Boolean True if the CO Person is a COU Administrator for the subject, false otherwise
+   */
+   
+  public function isCouAdminForCoPerson($coPersonId, $subjectCoPersonId, $coId) {
+    // First, pull the COUs for which $coPersonId is a COU admin
+    $adminCous = $this->couAdminFor($coPersonId, $coId);
+    
+    // Next, walk through the list seeing if $subjectCoPersonId is a member. We do
+    // one SQL query per COU, but an optimization that could be done is the query
+    // WHERE cou_id IN (array_keys($adminCous)).
+    
+    foreach(array_keys($adminCous) as $couId) {
+      // We accept statuses other than Active, since (eg) a COU Admin might want to view
+      // the history of someone who is pending or expired.
+      
+      if($this->cachedPersonRoleCheck($subjectCoPersonId, $coId, $couId, false)) {
+        // Match found, no need to continue
+        return true;
+      }
+    }
+    
+    return false;
   }
   
   /**

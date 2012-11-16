@@ -23,7 +23,6 @@
  */
 -->
 <?php
-
   // Globals
   global $cm_lang, $cm_texts;
 
@@ -103,7 +102,8 @@
       array(
         'controller' => 'history_records',
         'action' => 'index',
-        'copersonid' => $co_people[0]['CoPerson']['id']
+        'copersonid' => $co_people[0]['CoPerson']['id'],
+        'co' => $cur_co['Co']['id']
       ),
       array('class' => 'historybutton')
     );

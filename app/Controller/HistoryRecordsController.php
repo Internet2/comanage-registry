@@ -44,6 +44,7 @@ class HistoryRecordsController extends StandardController {
     'contain' => array(
       'ActorCoPerson.Name',
       'CoPerson.Name',
+      'CoPersonRole',
       'OrgIdentity.Name'
     )
   );
@@ -61,31 +62,56 @@ class HistoryRecordsController extends StandardController {
       // Set page title
       $this->set('title_for_layout', _txt('ct.history_records.pl'));
       
-      // We need an Org ID, CO Person ID to retrieve on. 
+      // We need an Org ID or a CO Person ID to retrieve on. We have to carefully craft our queries
+      // in order to pull only records that the current user is authorized to see.
       
       // Use server side pagination
       
       if(!empty($this->params['named']['copersonid'])) {
-        $this->set('history_records',
-                   $this->paginate('HistoryRecord',
-                                   array('HistoryRecord.co_person_id' => $this->params['named']['copersonid'])));
+        // CO Administrators can see all records, however COU Administrators can only see records
+        // with no CO Person Role ID or where the CO Person Role ID is in a COU they administer.
+        
+        $args = array();
+        $args['HistoryRecord.co_person_id'] = $this->params['named']['copersonid'];
+        
+        if(!empty($this->viewVars['permissions']['cous'])) {
+          // Pull records in the COUs this user can see, as well as those with no COU attached.
+          // Note a join isn't needed here because paginate+contain is already joining the right tables.
+          
+          $args['OR']['CoPersonRole.cou_id'] = array_keys($this->viewVars['permissions']['cous']);
+          $args['OR'][] = 'HistoryRecord.co_person_role_id IS NULL';
+        } else {
+          // This should catch the case where COUs aren't in use
+          $args[] = 'HistoryRecord.co_person_role_id IS NULL';
+        }
+        
+        $this->set('history_records', $this->paginate('HistoryRecord', $args));
       } elseif(!empty($this->params['named']['orgidentityid'])) {
         // Org ID is a bit tricky when org identities are pooled, because we shouldn't pull
         // history for that Org ID related to COs other than the current one.
+        // Note a join isn't needed here because paginate+contain is already joining the right tables.
         
         $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
         
-        $this->paginate['conditions'] = array('HistoryRecord.org_identity_id' => $this->params['named']['orgidentityid']);
+        $args = array();
+        $args['HistoryRecord.org_identity_id'] = $this->params['named']['orgidentityid'];
         
         if($pool) {
-          // XXX This should be replaced with a clever Cake query that joins CoPerson where
-          // co_people.co_id = $this->cur_co['Co']['id'], but for the moment that's not
-          // working, so we'll simply constrain to records with no CO Person associated.
-          
-          $this->paginate['conditions']['CoPerson.id'] = null;
+          $args['CoPerson.co_id'] = $this->cur_co['Co']['id'];
         }
         
-        $this->set('history_records', $this->paginate('HistoryRecord'));
+        if(!empty($this->viewVars['permissions']['cous'])) {
+          // Pull records in the COUs this user can see, as well as those with no COU attached.
+          // Note a join isn't needed here because paginate+contain is already joining the right tables.
+          
+          $args['OR']['CoPersonRole.cou_id'] = array_keys($this->viewVars['permissions']['cous']);
+          $args['OR'][] = 'HistoryRecord.co_person_role_id IS NULL';
+        } else {
+          // This should catch the case where COUs aren't in use
+          $args[] = 'HistoryRecord.co_person_role_id IS NULL';
+        }
+        
+        $this->set('history_records', $this->paginate('HistoryRecord', $args));
       } else {
         // Throw an error. This controller doesn't permit retrieve all history via the UI.
         
@@ -129,7 +155,16 @@ class HistoryRecordsController extends StandardController {
     
     // View history records?
     // We could allow $self to view own records, but for the moment we don't (for no specific reason)
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['index'] = $cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin'];
+    
+    // Determine which COUs a person can manage, needed for index() to filter records
+    
+    if($cmr['cmadmin'] || $cmr['coadmin'])
+      $p['cous'] = $this->CoPerson->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
+    elseif(!empty($cmr['admincous']))
+      $p['cous'] = $cmr['admincous'];
+    else
+      $p['cous'] = array();
     
     $this->set('permissions', $p);
     return($p[$this->action]);

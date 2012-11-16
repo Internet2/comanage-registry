@@ -68,7 +68,8 @@ $(function() {
       array(
         'controller' => 'history_records',
         'action' => 'index',
-        'orgidentityid' => $org_identities[0]['OrgIdentity']['id']
+        'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+        'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
       ),
       array('class' => 'historybutton')
     );
