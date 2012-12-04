@@ -35,7 +35,6 @@
 
     <!-- Include the gears and jquery style sheets -->
     <?php print $this->Html->css('comanage'); ?>
-    <?php print $this->Html->css('body'); ?>
     <?php print $this->Html->css('jquery/ui/css/custom-theme/jquery-ui-1.8.18.custom'); ?>
     <?php print $this->Html->css('jquery/superfish-1.4.8/css/superfish'); ?>
     <?php print $this->Html->css('menubar'); ?>
