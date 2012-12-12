@@ -64,6 +64,11 @@
     )
   );
   
-  include(APP . "View/" . $model . "/fields.inc");
+  if(!empty($this->plugin)) {
+    include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/fields.inc");
+  } else {
+    include(APP . "View/" . $model . "/fields.inc");
+  }
+  
   print $this->Form->end();
 ?>

@@ -207,7 +207,9 @@ class StandardController extends AppController {
       return;
     }
     
-    $op = $model->read();  // read() populates $this->request->data
+    // read() populates $this->request->data. Note it also resets any model associations
+    // set via bindModel().
+    $op = $model->read();
     
     if(empty($op))
     {

@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Default Layout
+ * COmanage Registry Language File
  *
  * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -81,6 +81,8 @@ $cm_texts['en_US'] = array(
   'ct.co_person_roles.pl' =>    'CO Person Roles',
   'ct.co_petitions.1' =>        'CO Petition',
   'ct.co_petitions.pl' =>       'CO Petitions',
+  'ct.co_provisioning_targets.1'  => 'Provisioning Target',
+  'ct.co_provisioning_targets.pl' => 'Provisioning Targets',
   'ct.cos.1' =>                 'CO',
   'ct.cos.pl' =>                'COs',
   'ct.cous.1' =>                'COU',
@@ -308,6 +310,7 @@ $cm_texts['en_US'] = array(
   'er.notprov.id' =>  '%1$s ID Not Provided',
   'er.person.noex' => 'Person does not exist',
   'er.person.none' => 'No CO Person, CO Person Role, or Org Identity specified',
+  'er.plugin.prov.none' => 'There are no suitable plugins available. No provisioning targets can be added.',
   'er.pt.status' =>   'Change of petition status from %1$s to %2$s is not permitted',
   'er.pt.resend.status' => 'Cannot resend an invitation not in Pending Confirmation status',
   'er.reply.unk' =>   'Unknown Reply',
@@ -466,6 +469,7 @@ $cm_texts['en_US'] = array(
   'fd.parent' =>      'Parent COU',
   'fd.perms' =>       'Permissions',
   'fd.petitioner' =>  'Petitioner',
+  'fd.plugin' =>      'Plugin',
   'fd.req' =>         '* denotes required field',
   'fd.required' =>    'Required',
   'fd.roles' =>       'Roles',
@@ -490,9 +494,11 @@ $cm_texts['en_US'] = array(
   // Menu
   'me.account'         => 'My Account',
   'me.changepassword'  => 'Change Password',
+  'me.configuration'   => 'Configuration',
   'me.for'             => 'For %1$s',
   'me.identity'        => 'Identity',
   'me.label'           => 'Manage:',
+  'me.people'          => 'People',
   'me.platform'        => 'Platform',
   'me.population'      => 'My Population',
 
@@ -506,8 +512,10 @@ $cm_texts['en_US'] = array(
   'op.begin' =>       'Begin',
   'op.cancel' =>      'Cancel',
   'op.compare' =>     'Compare',
+  'op.config' =>      'Configure',
   'op.confirm' =>     'Confirm',
   'op.db.ok' =>       'Database schema update successful',
+  'op.db.schema' =>   'Loading schema from file %1$s...',
   'op.decline' =>     'Decline',
   'op.delete' =>      'Delete',
   'op.delete.consfdemographics' => 'this NSF demographic entry',
@@ -584,6 +592,8 @@ $cm_texts['en_US'] = array(
   'se.users.view' =>      'Creating users view'
 );
 
+// Attempt to add in any definitions created by plugins
+
 /**
  * Render localized text
  *
@@ -618,5 +628,33 @@ function _txt($key, $vars=null, $index=null)
     break;
   default:
     return($s);
+  }
+}
+
+/**
+ * Bootstrap plugin texts
+ *
+ * @since  COmanage Registry v0.8
+ */
+
+
+function _bootstrap_plugin_txt()
+{
+  global $cm_lang, $cm_texts;
+  
+  $plugins = AppController::availablePlugins('all', 'simple', false);
+  
+  foreach($plugins as $plugin) {
+    $langfile = APP. '/Plugin/' . $plugin . '/Lib/lang.php';
+    
+    if(is_readable($langfile)) {
+      // Include the file
+      include $langfile;
+      
+      // And merge its texts for the current language
+      $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
+      
+      $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
+    }
   }
 }

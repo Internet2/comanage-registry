@@ -75,3 +75,5 @@ CakePlugin::load('Grouper', array('bootstrap' => true));
 include APP."Lib/enum.php";
 include APP."Lib/lang.php";
 include APP."Lib/util.php";
+
+CakePlugin::loadAll();

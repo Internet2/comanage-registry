@@ -49,45 +49,66 @@
                        $db->config['login'],
                        $db->config['password'],
                        $db->config['database'])) {
-        $schema = new adoSchema($dbc);
-        $schema->setPrefix($db->config['prefix']);
-        // ParseSchema is generating bad SQL for Postgres. eg:
-        //  ALTER TABLE cm_cos ALTER COLUMN id SERIAL
-        // which (1) should be ALTER TABLE cm_cos ALTER COLUMN id TYPE SERIAL
-        // and (2) SERIAL isn't usable in an ALTER TABLE statement
-        // So we continue on error
-        $schema->ContinueOnError(true);
-
-        // Parse the database XML schema from file unless we are targeting MySQL
-        // in which case we use an XSL style sheet to first modify the schema
-        // so that boolean columns are cast to TINYINT(1) and the cakePHP
-        // automagic works. See
-        //
-        // https://bugs.internet2.edu/jira/browse/CO-175
-        //
-        if ($db_driver[1] != 'Mysql') {
-          $sql = $schema->ParseSchema(APP . '/Config/Schema/schema.xml');
-        }
-        else {
-          $xml = new DOMDocument;
-          $xml->load(APP . '/Config/Schema/schema.xml');
-
-          $xsl = new DOMDocument;
-          $xsl->load(APP . '/Config/Schema/boolean_mysql.xsl');
-
-          $proc = new XSLTProcessor;
-          $proc->importStyleSheet($xsl);
-
-          $sql = $schema->ParseSchemaString($proc->transformToXML($xml));
-        }
+        // Plugins can have their own schema files, so we need to account for that
         
-        switch($schema->ExecuteSchema($sql)) {
-        case 2: // !!!
-          $this->out(_txt('op.db.ok'));
-          break;
-        default:
-          $this->out(_txt('er.db.schema'));
-          break;
+        $schemaSources = array_merge(array("."),
+                                     AppController::availablePlugins('all', 'simple', false));
+        
+        foreach($schemaSources as $schemaSource) {
+          $schemaFile = APP . '/Config/Schema/schema.xml';
+          
+          if($schemaSource != ".") {
+            // Use the Plugin schema file instead.
+            $schemaFile = APP . '/Plugin/' . $schemaSource . '/Config/Schema/schema.xml';
+            
+            // See if the file exists. If it doesn't, there's no schema to load.
+            if(!is_readable($schemaFile)) {
+              continue;
+            }
+          }
+          
+          $this->out(_txt('op.db.schema', array($schemaFile)));
+          
+          $schema = new adoSchema($dbc);
+          $schema->setPrefix($db->config['prefix']);
+          // ParseSchema is generating bad SQL for Postgres. eg:
+          //  ALTER TABLE cm_cos ALTER COLUMN id SERIAL
+          // which (1) should be ALTER TABLE cm_cos ALTER COLUMN id TYPE SERIAL
+          // and (2) SERIAL isn't usable in an ALTER TABLE statement
+          // So we continue on error
+          $schema->ContinueOnError(true);
+  
+          // Parse the database XML schema from file unless we are targeting MySQL
+          // in which case we use an XSL style sheet to first modify the schema
+          // so that boolean columns are cast to TINYINT(1) and the cakePHP
+          // automagic works. See
+          //
+          // https://bugs.internet2.edu/jira/browse/CO-175
+          //
+          if ($db_driver[1] != 'Mysql') {
+            $sql = $schema->ParseSchema($schemaFile);
+          }
+          else {
+            $xml = new DOMDocument;
+            $xml->load($schemaFile);
+  
+            $xsl = new DOMDocument;
+            $xsl->load(APP . '/Config/Schema/boolean_mysql.xsl');
+  
+            $proc = new XSLTProcessor;
+            $proc->importStyleSheet($xsl);
+  
+            $sql = $schema->ParseSchemaString($proc->transformToXML($xml));
+          }
+          
+          switch($schema->ExecuteSchema($sql)) {
+          case 2: // !!!
+            $this->out(_txt('op.db.ok'));
+            break;
+          default:
+            $this->out(_txt('er.db.schema'));
+            break;
+          }
         }
         
         $dbc->Disconnect();

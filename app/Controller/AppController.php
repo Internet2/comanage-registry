@@ -56,6 +56,47 @@ class AppController extends Controller {
   public $requires_person = false;
 
   /**
+   * Determine which plugins of a given type are available.
+   * - postcondition: Primary Plugin Models are loaded (if requested)
+   *
+   * @param  String Plugin type, or 'all' for all available plugins
+   * @param  String Format to return in: 'list' for list format (suitable for formhelper selects) or 'simple' for a simple list
+   * @param  Boolean Whether or not to load the models for the available plugins (may only be false if $pluginType is 'all')
+   * @since  COmanage Registry v0.8
+   * @return Array Available plugins
+   */
+  
+  public function availablePlugins($pluginType, $format='list', $loadModels=true) {
+    // Note the logic in this function is set as is in order that this can be called
+    // from the database console command. Be sure to retest that command if it changes.
+    
+    $ret = array();
+    
+    foreach(App::objects('plugin') as $p) {
+      if($pluginType != 'all' || $loadModels) {
+        $this->loadModel($p . "." . $p);
+      }
+      
+      if($pluginType == 'all'
+         || (isset($this->$p->cmPluginType) && $this->$p->cmPluginType == $pluginType)) {
+        // We do this so that formhelper returns the plugin name instead of a useless index position
+        
+        switch($format) {
+          case 'list':
+            $ret[$p] = $p;
+            break;
+          case 'simple':
+          default:
+            $ret[] = $p;
+            break;
+        }
+      }
+    }
+    
+    return($ret);
+  }
+  
+  /**
    * Callback before other controller methods are invoked or views are rendered.
    * - precondition:
    * - postcondition: Auth component is configured 
@@ -67,6 +108,11 @@ class AppController extends Controller {
    */   
   
   public function beforeFilter() {
+    // Load plugin specific texts. We have to do this here because when lang.php is
+    // processed by bootstrap.php, AppController isn't loaded yet.
+    // XXX CO-351 may take care of this.
+    _bootstrap_plugin_txt();
+    
     // Tell the Auth module to call the controller's isAuthorized() function.
     $this->Auth->authorize = array('Controller');
     
@@ -1230,6 +1276,8 @@ class AppController extends Controller {
     $p['menu']['orgidentities'] = $cmr['admin'] || $cmr['subadmin'];
     
     // Manage any CO (or COU) population?
+    // XXX This permission is somewhat confusingly named (implies cmp admin managing COs)
+    // as is 'admin' below (which really implies cmadmin)
     $p['menu']['cos'] = $cmr['admin'] || $cmr['subadmin'];
     
     // Select from available enrollment flows?
@@ -1252,6 +1300,9 @@ class AppController extends Controller {
 
     // Manage CO enrollment flow definitions?
     $p['menu']['coef'] = $cmr['admin'];
+    
+    // Manage CO provisioning targets?
+    $p['menu']['coprovtargets'] = $cmr['admin'];
     
     // Admin COmanage?
     $p['menu']['admin'] = $cmr['cmadmin'];
@@ -1303,7 +1354,16 @@ class AppController extends Controller {
       foreach($this->Session->read('Auth.User.cos') as $name => $data)
         $menu['cos'][ $data['co_id'] ] = $data['co_name'];
     }
-
+    
+    // Determine what menu contents plugins want available
+    $plugins = $this->availablePlugins('all', 'simple');
+    
+    foreach($plugins as $plugin) {
+      if(isset($this->$plugin->cmPluginMenus)) {
+        $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus;
+      }
+    }
+    
     $this->set('menuContent', $menu);
   }
 }

@@ -30,7 +30,7 @@ class CoPerson extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable', 'Provisioner');
   
   // Association rules from this model to other models
   public $belongsTo = array("Co");                    // A CO Person Source is attached to one CO

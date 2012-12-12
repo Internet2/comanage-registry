@@ -61,6 +61,10 @@
   echo $this->Form->create($req,
                            array('action' => 'edit',
                                  'inputDefaults' => array('label' => false, 'div' => false)));
-  include(APP . "View/" . $model . "/fields.inc");
+  if(!empty($this->plugin)) {
+    include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/fields.inc");
+  } else {
+    include(APP . "View/" . $model . "/fields.inc");
+  }
   echo $this->Form->end();
 ?>
