@@ -642,7 +642,7 @@ function _bootstrap_plugin_txt()
 {
   global $cm_lang, $cm_texts;
   
-  $plugins = AppController::availablePlugins('all', 'simple', false);
+  $plugins = AppController::availablePlugins();
   
   foreach($plugins as $plugin) {
     $langfile = APP. '/Plugin/' . $plugin . '/Lib/lang.php';

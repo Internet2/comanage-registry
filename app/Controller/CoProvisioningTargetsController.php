@@ -50,7 +50,7 @@ class CoProvisioningTargetsController extends StandardController {
   function beforeFilter() {
     parent::beforeFilter();
     
-    $plugins = $this->availablePlugins('provisioner');
+    $plugins = $this->loadAvailablePlugins('provisioner');
     
     // Bind the models so Cake can magically pull associated data
     

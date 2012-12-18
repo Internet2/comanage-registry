@@ -56,26 +56,36 @@ class AppController extends Controller {
   public $requires_person = false;
 
   /**
-   * Determine which plugins of a given type are available.
-   * - postcondition: Primary Plugin Models are loaded (if requested)
+   * Determine which plugins of a given type are available. This is a static function suitable for use
+   * before AppController is instantiated.
    *
    * @param  String Plugin type, or 'all' for all available plugins
-   * @param  String Format to return in: 'list' for list format (suitable for formhelper selects) or 'simple' for a simple list
-   * @param  Boolean Whether or not to load the models for the available plugins (may only be false if $pluginType is 'all')
    * @since  COmanage Registry v0.8
    * @return Array Available plugins
    */
   
-  public function availablePlugins($pluginType, $format='list', $loadModels=true) {
-    // Note the logic in this function is set as is in order that this can be called
-    // from the database console command. Be sure to retest that command if it changes.
+  public static function availablePlugins() {
+    // This function must be statically called by lang.php::_bootstrap_plugin_txt(), which under some
+    // circumstances is called before AppController has been instantiated.
     
+    return App::objects('plugin');
+  }
+  
+  /**
+   * Determine which plugins of a given type are available, and load them if not already loaded.
+   * - postcondition: Primary Plugin Models are loaded (if requested)
+   *
+   * @param  String Plugin type, or 'all' for all available plugins
+   * @param  String Format to return in: 'list' for list format (suitable for formhelper selects) or 'simple' for a simple list
+   * @since  COmanage Registry v0.8
+   * @return Array Available plugins
+   */
+  
+  public function loadAvailablePlugins($pluginType, $format='list') {
     $ret = array();
     
     foreach(App::objects('plugin') as $p) {
-      if($pluginType != 'all' || $loadModels) {
-        $this->loadModel($p . "." . $p);
-      }
+      $this->loadModel($p . "." . $p);
       
       if($pluginType == 'all'
          || (isset($this->$p->cmPluginType) && $this->$p->cmPluginType == $pluginType)) {
@@ -93,7 +103,7 @@ class AppController extends Controller {
       }
     }
     
-    return($ret);
+    return $ret;
   }
   
   /**
@@ -1356,7 +1366,7 @@ class AppController extends Controller {
     }
     
     // Determine what menu contents plugins want available
-    $plugins = $this->availablePlugins('all', 'simple');
+    $plugins = $this->loadAvailablePlugins('all', 'simple');
     
     foreach($plugins as $plugin) {
       if(isset($this->$plugin->cmPluginMenus)) {
