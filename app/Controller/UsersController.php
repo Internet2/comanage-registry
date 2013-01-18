@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Users Controller
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -57,7 +57,7 @@ class UsersController extends AppController {
     $p['logout'] = true;
 
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
   
   /**
@@ -70,6 +70,7 @@ class UsersController extends AppController {
    * @since  COmanage Registry v0.1
    * @throws RuntimeException
    * @return void
+   * @todo   A lot of the data pulled here should instead be referenced via calls to CoRole
    */
   
   public function login() {
@@ -157,6 +158,7 @@ class UsersController extends AppController {
               }
             }
           }
+          
 
           $this->Session->write('Auth.User.org_identities', $orgs);
           $this->Session->write('Auth.User.cos', $cos);

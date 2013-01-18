@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Invite Controller
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -179,7 +179,16 @@ class CoInvitesController extends AppController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
+    
+    $managed = false;
+    
+    if(!empty($roles['copersonid'])
+       && $this->action == 'send'
+       && !empty($this->request->params['named']['copersonid'])) {
+      $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                        $this->request->params['named']['copersonid']);
+    }
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
@@ -187,7 +196,7 @@ class CoInvitesController extends AppController {
     // Determine what operations this user can perform
     
     // Send an invite? (REST only)
-    $p['add'] = $cmr['apiuser'];
+    $p['add'] = $roles['apiuser'];
     
     // Confirm an invite? (HTML, auth reequired)
     $p['authconfirm'] = true;
@@ -199,16 +208,18 @@ class CoInvitesController extends AppController {
     $p['decline'] = true;
     
     // Confirm or decline an invite? (REST only)
-    $p['index'] = $cmr['apiuser'];
+    $p['index'] = $roles['apiuser'];
     
     // Reply to an invite? (HTML only)
     $p['reply'] = true;
     
     // Send an invite? (HTML only)
-    $p['send'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
-
+    
+    $p['send'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
   
   /**

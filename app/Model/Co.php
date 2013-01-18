@@ -29,6 +29,9 @@ class Co extends AppModel {
   // Current schema version for API
   public $version = "1.0";
   
+  // Add behaviors
+  public $actsAs = array('Containable');
+  
   // Association rules from this model to other models
   public $hasMany = array(
     // A CO has zero or more enrollment flows

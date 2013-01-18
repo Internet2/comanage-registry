@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CMP Enrollment Configuration Controller
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -113,7 +113,7 @@ class CmpEnrollmentConfigurationsController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
@@ -131,19 +131,19 @@ class CmpEnrollmentConfigurationsController extends StandardController {
     $p['delete'] = false;
     
     // Edit an existing CMP Enrollment Configuration?
-    $p['edit'] = $cmr['cmadmin'];
+    $p['edit'] = $roles['cmadmin'];
     
     // View all existing CMP Enrollment Configurations?
     $p['index'] = false;
     
     // Select a CMP Enrollment Configuration?
-    $p['select'] = $cmr['admin'];
+    $p['select'] = $roles['admin'];
     
     // View an existing CMP Enrollment Configuration?
     $p['view'] = false;
 
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
   
   /**

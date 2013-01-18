@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Controller
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -281,12 +281,23 @@ class CoPetitionsController extends StandardController {
    */
   
   function enrollmentFlowID() {
-    if(isset($this->request->params['named']['coef']))
-      return($this->request->params['named']['coef']);
-    elseif(isset($this->request->data['CoPetition']['co_enrollment_flow_id']))
-      return($this->request->data['CoPetition']['co_enrollment_flow_id']);
+    if(isset($this->request->params['pass'][0])) {
+      // Don't trust the coef parameter, but look up the enrollment flow
+      // associated with this ID
+      
+      $coef = $this->CoPetition->field('co_enrollment_flow_id',
+                                       array('CoPetition.id' => $this->request->params['pass'][0]));
+      
+      return ($coef ? $coef : -1);
+    } elseif(isset($this->request->params['named']['coef'])) {
+      return $this->request->params['named']['coef'];
+    } elseif(isset($this->request->data['CoPetition']['co_enrollment_flow_id'])) {
+      // We can trust this element since form tampering checks mean it's the
+      // same value the view emitted.
+      return $this->request->data['CoPetition']['co_enrollment_flow_id'];
+    }
     
-    return(-1);
+    return -1;
   }
   
   /**
@@ -299,37 +310,36 @@ class CoPetitionsController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
-    
-    // Determine what operations this user can perform
     
     // Some operations are authorized according to the flow configuration.
     $flowAuthorized = false;
     
     // If an enrollment flow was specified, check the authorization for that flow
     
-    if($this->enrollmentFlowID() != -1 && $cmr['copersonid']) {
-      $flowAuthorized = $this->CoPetition->CoEnrollmentFlow->authorizeById($this->enrollmentFlowID(), $cmr['copersonid']);
+    if($this->enrollmentFlowID() != -1 && $roles['copersonid']) {
+      $flowAuthorized = $this->CoPetition->CoEnrollmentFlow->authorizeById($this->enrollmentFlowID(), $roles['copersonid']);
     }
     
     // Add a new CO Petition?
-    $p['add'] = $flowAuthorized
-                // Or we have an index view
-                || ($this->enrollmentFlowID() == -1 && ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']));
+    $p['add'] = ($roles['cmadmin'] || $flowAuthorized);
     
     // Approve a CO Petition?
-    $p['approve'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
+    $p['approve'] = ($roles['cmadmin']
+                     || ($flowAuthorized && ($roles['coadmin'] || $roles['couadmin'])));
     $p['deny'] = $p['approve'];
     
     // Delete an existing CO Petition?
     // For now, this is restricted to CMP and CO Admins, until we have a better policy
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['delete'] = ($roles['cmadmin']
+                    || ($flowAuthorized && $roles['coadmin']));
     
     // Edit an existing CO Petition?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
+    $p['edit'] = ($roles['cmadmin']
+                  || ($flowAuthorized && ($roles['coadmin'] || $roles['couadmin'])));
     
     // Match against existing CO People? If the match policy is Advisory or Automatic, we
     // allow matching to take place as long as $flowAuthorized is also true.
@@ -342,17 +352,29 @@ class CoPetitionsController extends StandardController {
                     || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     
     // View all existing CO Petitions?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     // Resend invitations?
-    $p['resend'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
+    $p['resend'] = ($roles['cmadmin']
+                    || ($flowAuthorized && ($roles['coadmin'] || $roles['couadmin'])));
     
     // View an existing CO Petition? We allow the usual suspects to view a Petition, even
     // if they don't have permission to edit it.
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
-
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    
+    if($this->action == 'index' && $p['index']) {
+      // Assume the person also has permission to perform various other actions
+      // for purposes of rendering the view, though these assumptions are probably too generous.
+      
+      $p['add'] = true;  // This is really permission to run co_enrollment_flows/select
+      $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
+      $p['edit'] = true;
+      $p['resend'] = true;
+      $p['view'] = true;
+    }
+    
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
   
   /**

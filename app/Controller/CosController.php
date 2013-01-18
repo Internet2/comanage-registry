@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Controller
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -161,7 +161,7 @@ class CosController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
@@ -169,27 +169,22 @@ class CosController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new CO?
-    $p['add'] = $cmr['cmadmin'];
+    $p['add'] = $roles['cmadmin'];
     
     // Delete an existing CO?
-    $p['delete'] = $cmr['cmadmin'];
+    $p['delete'] = $roles['cmadmin'];
     
     // Edit an existing CO?
-    $p['edit'] = $cmr['cmadmin'];
+    $p['edit'] = $roles['cmadmin'];
     
     // View all existing COs?
-    $p['index'] = $cmr['cmadmin'];
-    
-    // Select a CO under which to operate?
-    $p['select'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['user']);
-    // Select from all COs, even if not a member?
-    $p['select-all'] = $cmr['cmadmin'];
+    $p['index'] = $roles['cmadmin'];
     
     // View an existing CO?
-    $p['view'] = $cmr['cmadmin'];
-
+    $p['view'] = $roles['cmadmin'];
+    
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
   
   /**

@@ -2,22 +2,24 @@
 /**
  * Application level Controller
  *
- * This file is application-wide controller file. You can put all
- * application-wide controller-related methods here.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  *
- * PHP 5
- *
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
- *
- * Licensed under The MIT License
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * @version       $Id$
  */
 
 App::uses('Controller', 'Controller');
@@ -37,6 +39,7 @@ class AppController extends Controller {
   // All controllers use these components
   public $components = array('Auth',
                              'RequestHandler', // For REST
+                             'Role',
                              'Security',
                              'Session');
   
@@ -185,6 +188,15 @@ class AppController extends Controller {
           if(isset($this->CoInvite->CoPetition->EnrolleeCoPerson->Identifier)) {
             $this->CoInvite->CoPetition->EnrolleeCoPerson->Identifier->coId = $coid;
           }
+          
+          // Perform a bit of a sanity check before we get any further
+          try {
+            $this->verifyRequestedId();
+          }
+          catch(InvalidArgumentException $e) {
+            $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+            $this->redirect("/");
+          }
         } else {
           $this->Session->setFlash(_txt('er.co.unk-a', array($coid)), '', array(), 'error');
           $this->redirect("/");
@@ -239,117 +251,6 @@ class AppController extends Controller {
       $this->menuAuth();
       $this->menuContent();
     }
-  }
-  
-  /**
-   * Determine which COmanage platform roles the current user has.
-   * - precondition: UsersController::login has run
-   * - postcondition: $this->cur_cous set or updated if current user is a subadmin but not an admin
-   *
-   * @since  COmanage Registry v0.1
-   * @return Array An array with values of 'true' if the user has the specified role or 'false' otherwise, with possible keys of
-   * - cmadmin: COmanage platform administrator
-   * - coadmin: Administrator of the current CO
-   * - couadmin: Administrator of one or more COUs within the current CO 
-   * - admincous: COUs for which user is an Administrator (list of COU IDs and Names)
-   * - comember: Member of the current CO
-   * - admin: Valid admin in any CO
-   * - subadmin: Valid admin for any COU
-   * - user: Valid user in any CO (ie: to the platform)
-   * - apiuser: Valid API (REST) user (for now, API users are equivalent to cmadmins)
-   * - orgidentityid: Org Identity ID of current user (or false)
-   * - copersonid: CO Person ID of current user in current CO (or false)
-   */
-  
-  public function calculateCMRoles() {
-    // We basically translate from the currently logged in info as determined by
-    // UsersController to role information as determined by CoRole.
-    
-    global $group_sep;
-
-    $ret = array(
-      'cmadmin' => false,
-      'coadmin' => false,
-      'couadmin' => false,
-      'admincous' => null,
-      'comember' => false,
-      'admin' => false,
-      'subadmin' => false,
-      'user' => false,
-      'apiuser' => false,
-      'orgidentityid' => false,
-      'copersonid' => false
-    );
-    
-    $coId = $this->cur_co['Co']['id'];
-    $coPersonId = null;
-    $username = null;
-    
-    if($this->Session->check('Auth.User.username')) {
-      $username = $this->Session->read('Auth.User.username');
-    }
-    
-    // Use CoRole to perform various calculations
-    
-    $this->loadModel('CoRole');
-    
-    // Is this user a CMP admin?
-    
-    if($this->Session->check('Auth.User.username')) {
-      $ret['cmadmin'] = $this->CoRole->identifierIsCmpAdmin($username);
-    }
-    
-    // Figure out the revelant CO Person ID for the current user and the current CO
-    
-    $this->loadModel('CoPerson');
-    
-    // XXX We should pass an identifier type that was somehow configured (see also CoRole->identifierIs*Admin)
-    $coPersonId = $this->CoPerson->idForIdentifier($coId, $username, null, true);
-    
-    // Is this user a member of the current CO?
-    // We only want to populate $ret['copersonid'] if this CO Person ID is in the current CO
-    
-    if($this->CoRole->isCoPerson($coPersonId, $coId)) {
-      $ret['copersonid'] = $coPersonId;
-      $ret['comember'] = true;
-      
-      // Also store the co_person_id directly in the session to make it easier to find
-      $this->Session->write('Auth.User.co_person_id', $ret['copersonid']);
-    }
-    
-    if(isset($coPersonId) && isset($coId)) {
-      // Is this user an admin of the current CO?
-      
-      $ret['coadmin'] = $this->CoRole->isCoAdmin($coPersonId, $coId);
-      
-      // Is this user an admin of a COU within the current CO?
-      
-      $ret['admincous'] = $this->CoRole->couAdminFor($coPersonId, $coId);
-      $ret['couadmin'] = !empty($ret['admincous']);
-    }
-    
-    // Is the user an admin of any CO?
-    
-    $ret['admin'] = ($ret['coadmin'] || $this->CoRole->identifierIsCoAdmin($username));
-    
-    // Is the user a COU admin for any CO?
-    
-    $ret['subadmin'] = ($ret['couadmin'] || $this->CoRole->identifierIsCouAdmin($username));
-
-    // Platform user?
-    if($this->Session->check('Auth.User.name')) {
-      $ret['user'] = true;
-    }
-    
-    // API user or Org Person?
-    if($this->Session->check('Auth.User.api_user_id')) {
-      $ret['apiuser'] = true;
-      $ret['cmadmin'] = true;  // API users are currently platform admins
-    } elseif($this->Session->check('Auth.User.org_identities')) {
-      $ret['orgidentities'] = $this->Session->read('Auth.User.org_identities');
-    }
-    
-    return($ret);
   }
   
   /**
@@ -1076,6 +977,130 @@ class AppController extends Controller {
   }
   
   /**
+   * Called from beforeRender to set permissions for display in menus
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: permissions for menu are set
+   *
+   * @since  COmanage Registry v0.5
+   */
+
+  function menuAuth() {
+    $roles = $this->Role->calculateCMRoles();
+    
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+    
+    // If permissions already exist, don't overwrite them
+    if(isset($this->viewVars['permissions']))
+      $p = $this->viewVars['permissions'];
+
+    // Determine what menu options this user can see
+
+    // View own (Org) profile?
+    $p['menu']['orgprofile'] = $roles['user'];
+    
+    // View/Edit own (CO) profile?
+    $p['menu']['coprofile'] = $roles['user'];
+    
+    // View/Edit CO groups?
+    $p['menu']['cogroups'] = $roles['user'];
+    
+    // Manage org identity data?
+    $p['menu']['orgidentities'] = $roles['admin'] || $roles['subadmin'];
+    
+    // Manage any CO (or COU) population?
+    // XXX This permission is somewhat confusingly named (implies cmp admin managing COs)
+    // as is 'admin' below (which really implies cmadmin)
+    $p['menu']['cos'] = $roles['admin'] || $roles['subadmin'];
+    
+    // Select from available enrollment flows?
+    $p['menu']['createpetition'] = $roles['user'];
+    
+    // Manage any CO (or COU) population?
+    $p['menu']['petitions'] = $roles['admin'] || $roles['subadmin'];
+    
+    // Manage CO extended attributes?
+    $p['menu']['extattrs'] = $roles['admin'];
+    
+    // Manage CO extended typees?
+    $p['menu']['exttypes'] = $roles['admin'];
+    
+    // Manage CO ID Assignment?
+    $p['menu']['idassign'] = $roles['admin'];
+    
+    // Manage COU definitions?
+    $p['menu']['cous'] = $roles['admin'];
+
+    // Manage CO enrollment flow definitions?
+    $p['menu']['coef'] = $roles['admin'];
+    
+    // Manage CO provisioning targets?
+    $p['menu']['coprovtargets'] = $roles['admin'];
+    
+    // Admin COmanage?
+    $p['menu']['admin'] = $roles['cmadmin'];
+    
+    // Manage NSF Demographics?
+    $p['menu']['co_nsf_demographics'] = $roles['cmadmin'];
+    
+    // View/Edit own Demographics profile?
+    $p['menu']['nsfdemoprofile'] = $roles['user'];
+
+    $this->set('permissions', $p);
+  }
+
+  /**
+   * Called from beforeRender to set content for display in menus
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: content for menu are set
+   *
+   * @since  COmanage Registry v0.5
+   */
+
+  function menuContent() {
+    // Get org identity ID
+    $orgIDs = $this->Session->read('Auth.User.org_identities');
+    
+    if(!empty($orgIDs)) {
+      // Find name associated with that ID
+      $this->loadModel('OrgIdentity');
+      $orgName = $this->OrgIdentity->read('o',$orgIDs[0]['org_id']);
+  
+      // Set for home ID name in menu
+      $menu['orgName'] = $orgName['OrgIdentity']['o'];
+    }
+
+    // Set the COs for display
+    if($this->viewVars['permissions']['menu']['admin']) {
+      // Show all active COs for admins
+      $this->loadModel('Co');
+      $params = array('conditions' => array('Co.status' => 'A'),
+                      'fields'     => array('Co.id', 'Co.name'),
+                      'recursive'  => false
+                     );
+      $codata = $this->Co->find('all', $params);
+
+      foreach($codata as $data)
+        $menu['cos'][ $data['Co']['id'] ] = $data['Co']['name'];
+    } elseif($this->Session->check('Auth.User.cos')) {
+      // Show only COs that a user is a member of
+      foreach($this->Session->read('Auth.User.cos') as $name => $data)
+        $menu['cos'][ $data['co_id'] ] = $data['co_name'];
+    }
+    
+    // Determine what menu contents plugins want available
+    $plugins = $this->loadAvailablePlugins('all', 'simple');
+    
+    foreach($plugins as $plugin) {
+      if(isset($this->$plugin->cmPluginMenus)) {
+        $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus;
+      }
+    }
+    
+    $this->set('menuContent', $menu);
+  }
+  
+  /**
    * For Models that accept a CO ID, find the provided CO ID.
    * - precondition: A coid must be provided in $this->request (params or data)
    *
@@ -1252,128 +1277,46 @@ class AppController extends Controller {
     
     $this->response->statusCode($status);
   }
-
-  /**
-   * Called from beforeRender to set permissions for display in menus
-   * - precondition: Session.Auth holds data used for authz decisions
-   * - postcondition: permissions for menu are set
-   *
-   * @since  COmanage Registry v0.5
-   */
-
-  function menuAuth() {
-    $cmr = $this->calculateCMRoles();
-
-    // Construct the permission set for this user, which will also be passed to the view.
-    $p = array();
-    
-    // If permissions already exist, don't overwrite them
-    if(isset($this->viewVars['permissions']))
-      $p = $this->viewVars['permissions'];
-
-    // Determine what menu options this user can see
-
-    // View own (Org) profile?
-    $p['menu']['orgprofile'] = $cmr['user'];
-    
-    // View/Edit own (CO) profile?
-    $p['menu']['coprofile'] = $cmr['user'];
-    
-    // View/Edit CO groups?
-    $p['menu']['cogroups'] = $cmr['user'];
-    
-    // Manage org identity data?
-    $p['menu']['orgidentities'] = $cmr['admin'] || $cmr['subadmin'];
-    
-    // Manage any CO (or COU) population?
-    // XXX This permission is somewhat confusingly named (implies cmp admin managing COs)
-    // as is 'admin' below (which really implies cmadmin)
-    $p['menu']['cos'] = $cmr['admin'] || $cmr['subadmin'];
-    
-    // Select from available enrollment flows?
-    $p['menu']['createpetition'] = $cmr['user'];
-    
-    // Manage any CO (or COU) population?
-    $p['menu']['petitions'] = $cmr['admin'] || $cmr['subadmin'];
-    
-    // Manage CO extended attributes?
-    $p['menu']['extattrs'] = $cmr['admin'];
-    
-    // Manage CO extended typees?
-    $p['menu']['exttypes'] = $cmr['admin'];
-    
-    // Manage CO ID Assignment?
-    $p['menu']['idassign'] = $cmr['admin'];
-    
-    // Manage COU definitions?
-    $p['menu']['cous'] = $cmr['admin'];
-
-    // Manage CO enrollment flow definitions?
-    $p['menu']['coef'] = $cmr['admin'];
-    
-    // Manage CO provisioning targets?
-    $p['menu']['coprovtargets'] = $cmr['admin'];
-    
-    // Admin COmanage?
-    $p['menu']['admin'] = $cmr['cmadmin'];
-    
-    // Manage NSF Demographics?
-    $p['menu']['co_nsf_demographics'] = $cmr['cmadmin'];
-    
-    // View/Edit own Demographics profile?
-    $p['menu']['nsfdemoprofile'] = $cmr['user'];
-
-    $this->set('permissions', $p);
-  }
-
-  /**
-   * Called from beforeRender to set content for display in menus
-   * - precondition: Session.Auth holds data used for authz decisions
-   * - postcondition: content for menu are set
-   *
-   * @since  COmanage Registry v0.5
-   */
-
-  function menuContent() {
-    // Get org identity ID
-    $orgIDs = $this->Session->read('Auth.User.org_identities');
-    
-    if(!empty($orgIDs)) {
-      // Find name associated with that ID
-      $this->loadModel('OrgIdentity');
-      $orgName = $this->OrgIdentity->read('o',$orgIDs[0]['org_id']);
   
-      // Set for home ID name in menu
-      $menu['orgName'] = $orgName['OrgIdentity']['o'];
-    }
+  /**
+   * Perform a sanity check on on a standard item identifier to verify it is part
+   * of the current CO.
+   * - precondition: cur_co is set
+   *
+   * @since  COmanage Registry v0.8
+   * @return Boolean True if sanity check is successful
+   * @throws InvalidArgumentException
+   */
 
-    // Set the COs for display
-    if($this->viewVars['permissions']['menu']['admin']) {
-      // Show all active COs for admins
-      $this->loadModel('Co');
-      $params = array('conditions' => array('Co.status' => 'A'),
-                      'fields'     => array('Co.id', 'Co.name'),
-                      'recursive'  => false
-                     );
-      $codata = $this->Co->find('all', $params);
-
-      foreach($codata as $data)
-        $menu['cos'][ $data['Co']['id'] ] = $data['Co']['name'];
-    } elseif($this->Session->check('Auth.User.cos')) {
-      // Show only COs that a user is a member of
-      foreach($this->Session->read('Auth.User.cos') as $name => $data)
-        $menu['cos'][ $data['co_id'] ] = $data['co_name'];
+  public function verifyRequestedId() {
+    if(empty($this->cur_co)) {
+      // We shouldn't get here without a CO defined
+      throw new LogicException(_txt('er.co.specify'));
     }
     
-    // Determine what menu contents plugins want available
-    $plugins = $this->loadAvailablePlugins('all', 'simple');
-    
-    foreach($plugins as $plugin) {
-      if(isset($this->$plugin->cmPluginMenus)) {
-        $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus;
+    // Specifically whitelist the actions we ignore
+    if(!$this->action != 'index' && $this->action != 'add') {
+      // Only act if a record ID parameter was passed
+      if(!empty($this->request->params['pass'][0])) {
+        $modelName = $this->modelClass;
+        // Make sure the model has been loaded
+        $this->loadModel($modelName);
+        
+        try {
+          $recordCoId = $this->$modelName->findCoForRecord($this->request->params['pass'][0]);
+        }
+        catch(InvalidArgumentException $e) {
+          throw new InvalidArgumentException($e->getMessage());
+        }
+        
+        if($recordCoId != $this->cur_co['Co']['id']) {
+          throw new InvalidArgumentException(_txt('er.co.mismatch',
+                                                  array($modelName,
+                                                        $this->request->params['pass'][0])));
+        }
       }
     }
     
-    $this->set('menuContent', $menu);
+    return true;
   }
 }

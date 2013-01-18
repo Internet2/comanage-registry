@@ -90,8 +90,6 @@ class PagesController extends AppController {
 	 */
 
 	public function isAuthorized() {
-		$cmr = $this->calculateCMRoles();
-	  
 		// Construct the permission set for this user, which will also be passed to the view.
 		$p = array();
 			    
@@ -100,6 +98,6 @@ class PagesController extends AppController {
 		$p['display'] = true; 
 		
 		$this->set('permissions', $p);
-		return($p[$this->action]);
+		return $p[$this->action];
 	}
 }

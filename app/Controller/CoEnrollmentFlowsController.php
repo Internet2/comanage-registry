@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Flows Controller
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -38,47 +38,6 @@ class CoEnrollmentFlowsController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
-  
-  /**
-   * Authorization for this Controller, called by Auth component
-   * - precondition: Session.Auth holds data used for authz decisions
-   * - postcondition: $permissions set with calculated permissions
-   *
-   * @since  COmanage Registry v0.3
-   * @return Array Permissions
-   */
-  
-  function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
-    
-    // Construct the permission set for this user, which will also be passed to the view.
-    $p = array();
-    
-    // Determine what operations this user can perform
-    
-    // Add a new CO Enrollment Flow?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    // Delete an existing CO Enrollment Flow?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    // Edit an existing CO Enrollment Flow?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    // View all existing CO Enrollment Flows?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    // Select a CO Enrollment Flow to create a petition from?
-    // Any logged in person can get to this page, however which enrollment flows they
-    // see will be determined dynamically.
-    $p['select'] = $cmr['user'];
-    
-    // View an existing CO Enrollment Flow?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-
-    $this->set('permissions', $p);
-    return($p[$this->action]);
-  }
   
   /**
    * Callback after controller methods are invoked but before views are rendered.
@@ -142,6 +101,47 @@ class CoEnrollmentFlowsController extends StandardController {
   }
   
   /**
+   * Authorization for this Controller, called by Auth component
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: $permissions set with calculated permissions
+   *
+   * @since  COmanage Registry v0.3
+   * @return Array Permissions
+   */
+  
+  function isAuthorized() {
+    $roles = $this->Role->calculateCMRoles();
+    
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+    
+    // Determine what operations this user can perform
+    
+    // Add a new CO Enrollment Flow?
+    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Delete an existing CO Enrollment Flow?
+    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Edit an existing CO Enrollment Flow?
+    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // View all existing CO Enrollment Flows?
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Select a CO Enrollment Flow to create a petition from?
+    // Any logged in person can get to this page, however which enrollment flows they
+    // see will be determined dynamically.
+    $p['select'] = $roles['user'];
+    
+    // View an existing CO Enrollment Flow?
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
+
+    $this->set('permissions', $p);
+    return $p[$this->action];
+  }
+  
+  /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
@@ -168,22 +168,29 @@ class CoEnrollmentFlowsController extends StandardController {
    */
   
   function select() {
-    // Determine the Enrollment Flows for this CO and pass them to the view.
-    // Currently, we don't check for COU-specific flows. 
-    
     // Set page title
     $this->set('title_for_layout', _txt('ct.co_enrollment_flows.pl'));
     
-    // Determine which enrollment flows the current user can see
+    // Start with a list of enrollment flows
     
-    // XXX As of Cake 2.3 (which we're not currently using), the paginate accepts the 'findtype' parameter
-    // instead of setting the 0'th index in the array.
-    $this->paginate[0] = 'authorized';
-    $this->paginate['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-    // This parameter is for the custom find
-    $this->paginate['authorizeCoPersonId'] = $this->Session->read('Auth.User.co_person_id');
-    $this->paginate['contain'] = false;
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+    $args['contain'][] = false;
     
-    $this->set('co_enrollment_flows', $this->paginate('CoEnrollmentFlow'));
+    $flows = $this->CoEnrollmentFlow->find('all', $args);
+    
+    // Walk through the list of flows and see which ones this user is authorized to run
+    
+    $authedFlows = array();
+    
+    foreach($flows as $f) {
+      // pass $role to model->authorize
+      
+      if($this->CoEnrollmentFlow->authorize($f, $this->Session->read('Auth.User.co_person_id'), $this->Role)) {
+        $authedFlows[] = $f;
+      }
+    }
+    
+    $this->set('co_enrollment_flows', $authedFlows);
   }
 }

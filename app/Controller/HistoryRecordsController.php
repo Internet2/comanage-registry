@@ -2,7 +2,7 @@
 /**
  * COmanage History Record Controller
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
@@ -141,7 +141,23 @@ class HistoryRecordsController extends StandardController {
     // are generally created by other parts of the application, invoking the model. To enforce
     // this, we simply don't set permission for most actions.
     
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
+    $pids = $this->parsePersonID($this->request->data);
+    
+    $managed = false;
+    
+    // For index views, we need to make sure the viewer has permission to see
+    // records associated with the requested person.
+    
+    if(!empty($roles['copersonid'])) {
+      if(!empty($pids['copersonid'])) {
+        $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                          $pids['copersonid']);
+      } elseif(!empty($pids['orgidentityid'])) {
+        $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
+                                                             $pids['orgidentityid']);
+      }
+    }
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
@@ -151,22 +167,25 @@ class HistoryRecordsController extends StandardController {
     // Add history records?
     // For now, this is only permitted via the REST API. Otherwise various operations trigger
     // history records, not user-driven views.
-    $p['add'] = ($this->restful && $cmr['cmadmin']);
+    $p['add'] = ($this->restful && $roles['cmadmin']);
     
     // View history records?
     // We could allow $self to view own records, but for the moment we don't (for no specific reason)
-    $p['index'] = $cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin'];
+    $p['index'] = ($roles['cmadmin']
+                   || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
-    // Determine which COUs a person can manage, needed for index() to filter records
-    
-    if($cmr['cmadmin'] || $cmr['coadmin'])
-      $p['cous'] = $this->CoPerson->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
-    elseif(!empty($cmr['admincous']))
-      $p['cous'] = $cmr['admincous'];
-    else
-      $p['cous'] = array();
+    if($this->action == 'index' && $p['index']) {
+      // Determine which COUs a person can manage, needed for index() to filter records
+      
+      if($roles['cmadmin'] || $roles['coadmin'])
+        $p['cous'] = $this->HistoryRecord->CoPerson->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
+      elseif(!empty($roles['admincous']))
+        $p['cous'] = $roles['admincous'];
+      else
+        $p['cous'] = array();
+    }
     
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
 }

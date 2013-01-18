@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Controller
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -256,17 +256,34 @@ class CoGroupsController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();                      // What was authenticated
-    $pids = $this->parsePersonID($this->request->data);    // What was requested
-
-    if(!empty($cmr['copersonid']))
-    {
+    $roles = $this->Role->calculateCMRoles();
+    
+    $own = array();
+    $member = array();
+    $managed = false;
+    $managedp = false;
+    $self = false;
+    
+    if(!empty($roles['copersonid'])) {
       $own = $this->CoGroup->CoGroupMember->find('all', array('conditions' =>
-                                                              array('CoGroupMember.co_person_id' => $cmr['copersonid'],
+                                                              array('CoGroupMember.co_person_id' => $roles['copersonid'],
                                                                     'CoGroupMember.owner' => true)));
       $member = $this->CoGroup->CoGroupMember->find('all', array('conditions' =>
-                                                           array('CoGroupMember.co_person_id' => $cmr['copersonid'],
+                                                           array('CoGroupMember.co_person_id' => $roles['copersonid'],
                                                                  'CoGroupMember.member' => true)));
+      
+      if(!empty($this->request->params['pass'][0])) {
+        $managed = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['pass'][0]);
+      }
+      
+      if(!empty($this->request->params['named']['copersonid'])) {
+        $managedp = $this->Role->isCoAdminForCoPerson($roles['copersonid'],
+                                                      $this->request->params['named']['copersonid']);
+        
+        if($roles['copersonid'] == $this->request->params['named']['copersonid']) {
+          $self = true;
+        }
+      }
     }
     
     // Construct the permission set for this user, which will also be passed to the view.
@@ -275,26 +292,55 @@ class CoGroupsController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new Group?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['comember']);
+    $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     
     // Create an admin Group?
-    $p['admin'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['admin'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Delete an existing Group?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['delete'] = ($roles['cmadmin'] || $managed);
     
     // Edit an existing Group?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['edit'] = ($roles['cmadmin'] || $managed);
     
-    // View all existing Group?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['comember']);
+    // View all existing Groups?
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+    
+    if($this->action == 'index' && $p['index']
+       && ($roles['cmadmin'] || $roles['coadmin'])) {
+      // Set all permissions for admins so index view links render.
+      
+      $p['delete'] = true;
+      $p['edit'] = true;
+      $p['view'] = true;
+    }
     
     // Select from a list of potential Groups to join?
-    // XXX review this
-    $p['select'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['user']);
+    $p['select'] = ($roles['cmadmin']
+                    || ($managedp && $roles['coadmin'])
+                    || $self);
     
     // View an existing Group?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['view'] = ($roles['cmadmin'] || $managed);
+
+    if($this->action == 'view'
+       && isset($this->request->params['pass'][0])) {
+      // Adjust permissions for members and open groups
+      
+      if(isset($member) && in_array($this->request->params['pass'][0], $p['member']))
+        $p['view'] = true;
+      
+      $params = array(
+        'conditions' => array(
+          'CoGroup.id' => $this->request->params['pass'][0]
+        )
+      );
+      $g = $this->CoGroup->find('first', $params);
+      
+      if($g && isset($g['CoGroup']['open']) && $g['CoGroup']['open']) {
+        $p['view'] = true;
+      }
+    }
 
     if(isset($own))
     {
@@ -315,37 +361,8 @@ class CoGroupsController extends StandardController {
         $p['member'][] = $g['CoGroupMember']['co_group_id'];
     }
 
-    if(($this->action == 'delete' || $this->action == 'edit' || $this->action == 'view')
-       && isset($this->request->params['pass'][0]))
-    {
-      // Adjust permissions for owners, members, and open groups
-
-      if(isset($own) && in_array($this->request->params['pass'][0], $p['owner']))
-      {
-        $p['delete'] = true;
-        $p['edit'] = true;
-        $p['view'] = true;
-      }
-      
-      if(isset($member) && in_array($this->request->params['pass'][0], $p['member']))
-        $p['view'] = true;
-      
-      $params = array(
-        'conditions' => array(
-          'CoGroup.id' => $this->request->params['pass'][0]
-          )
-        );
-      $g = $this->CoGroup->find('first', $params);
-      
-      if($g)
-      {
-        if(isset($g['CoGroup']['open']) && $g['CoGroup']['open'])
-          $p['view'] = true;
-      }
-    }
-
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
   
   /**

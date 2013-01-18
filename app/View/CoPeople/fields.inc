@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Fields
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -50,21 +50,34 @@
     
     if($this->action != "invite")
     {
-      print $this->Html->link(_txt('ct.org_identities.1'),
-                            array('controller' => 'org_identities',
-                                  'action' => ($e && !$es ? 'edit' : 'view'),
-                                  $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'],
-                                  'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                            array('class' => 'linkbutton'));
-
-     // If demographics data does not exist, demographics controller will redirect to add
-      $args =  array('controller' => 'co_nsf_demographics',
-                     'action'     => 'editself',
-                     'co'         => ($pool_org_identities ? false : $cur_co['Co']['id']));
-      $classArg = array('class' => 'linkbutton');
+      if(!empty($co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])) {
+        print $this->Html->link(_txt('ct.org_identities.1'),
+                                array('controller' => 'org_identities',
+                                      'action' => ($e && !$es ? 'edit' : 'view'),
+                                      $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'],
+                                      'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
+                                array('class' => 'linkbutton'));
+      }
+      
+      // Adjust the link to the NSF Demographics Controller according to whether or
+      // not data has been set.
+      
+      $l = array();
+      $l['controller'] = 'co_nsf_demographics';
+      
+      if(empty($co_people[0]['CoNsfDemographic']['id'])) {
+        $l['action'] = 'add';
+        $l['copersonid'] = $co_people[0]['CoPerson']['id'];
+      } else {
+        $l['action'] = 'edit';
+        $l[] = $co_people[0]['CoNsfDemographic']['id'];
+      }
+      
+      $l['co'] = $co_people[0]['CoPerson']['co_id'];
+      
       print $this->Html->link(_txt('ct.co_nsf_demographics.1'),
-                              $args,
-                              $classArg);
+                              $l,
+                              array('class' => 'linkbutton'));
       
       // Autogenerate Identifiers button
       if(!empty($co_identifier_assignments)) {
@@ -83,9 +96,11 @@
     // Populate the cross reference
     print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
     print $this->Form->hidden('CoOrgIdentityLink.0.id'). "\n";
-    print $this->Form->hidden('CoOrgIdentityLink.0.org_identity_id', array('default' => $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])). "\n";
+    if(!empty($co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])) {
+      print $this->Form->hidden('CoOrgIdentityLink.0.org_identity_id', array('default' => $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])). "\n";
+    }
     // Default status is 'Pending'
-    echo $this->Form->hidden('status', array('default' => 'P')). "\n";
+    print $this->Form->hidden('status', array('default' => 'P')). "\n";
   }
   else
   {

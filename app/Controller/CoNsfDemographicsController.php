@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO NSF Demographics Controller
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -38,6 +38,20 @@ class CoNsfDemographicsController extends StandardController {
   );
 
   public $requires_co = true;
+
+  /**
+   * Override add of StandardController to convert data before calling it
+   * - precondition: $this->request->data['CoNsfDemographic'] holds data to be saved
+   * - postcondition: $this->request->data['CoNsfDemographic'] is modified
+   *
+   * @since  COmanage Registry v0.4
+   */
+
+  function add() {
+    $this->convertData();
+    
+    parent::add();
+  }
 
   /**
    * Callback after controller methods are invoked but before views are rendered.
@@ -101,10 +115,9 @@ class CoNsfDemographicsController extends StandardController {
   function checkWriteDependencies($reqdata, $curdata = null) {
     // Look up id to check validity
     if($this->restful) {
-      $personid = $this->request['data']['CoNsfDemographics'][0]['CoPersonId'];
+      $personid = $reqdata['CoNsfDemographic'][0]['co_person_id'];
     } else {
-      $cmr = $this->calculateCMRoles();
-      $personid = $cmr['copersonid'];
+      $personid = $reqdata['CoNsfDemographic']['co_person_id'];
     }
 
     $args =  array(
@@ -123,7 +136,7 @@ class CoNsfDemographicsController extends StandardController {
       else
         $this->Session->setFlash(_txt('er.cop.unk'), '', array(), 'error');
 
-      return(false);
+      return false;
     }
 
     // Does a row exist in the database for this id?
@@ -146,6 +159,7 @@ class CoNsfDemographicsController extends StandardController {
 
       return false;
     }
+    
     return true;
   }
 
@@ -174,19 +188,6 @@ class CoNsfDemographicsController extends StandardController {
   }
 
   /**
-   * Override add of StandardController to convert data before calling it
-   * - precondition: $this->request->data['CoNsfDemographic'] holds data to be saved
-   * - postcondition: $this->request->data['CoNsfDemographic'] is modified
-   *
-   * @since  COmanage Registry v0.4
-   */
-
-  function add() {
-    $this->convertData();
-    parent::add();
-  }
-
-  /**
    * Override edit of StandardController to convert data before calling it
    * - precondition: $this->request->data['CoNsfDemographic'] holds data to be saved
    * - postcondition: $this->request->data['CoNsfDemographic'] is modified
@@ -197,52 +198,10 @@ class CoNsfDemographicsController extends StandardController {
 
   function edit($id) {
     $this->convertData();
+    
     parent::edit($id);
   }
   
-  /**
-   * Redirect to add if no record found.
-   * - postcondition: Redirect issued
-   * 
-   * @since  COmanage Registry v0.3
-   */
-
-  function editSelf() {
-    // Look up id
-    $cmr = $this->calculateCMRoles();
-
-    // Does a row exist in the database for this id?
-    $args =  array(
-      'conditions' => array(
-        'CoNsfDemographic.co_person_id' => $cmr['copersonid'],
-        'CoPerson.co_id'                => $this->cur_co['Co']['id']
-      )
-    );
-    $row = $this->CoNsfDemographic->find('first', $args);
-    $rowId = $row['CoNsfDemographic']['id'];
-
-    if(empty($rowId))
-    {
-      // No row exists, so add one
-      $args = array(
-        'action'       => 'add',
-        'co'           => $this->cur_co['Co']['id'],
-        'co_person_id' => $cmr['copersonid']
-      );
-    }
-    else
-    {
-      // Row found so edit it
-      $args = array(
-        'action' => 'edit',
-        $rowId,
-        'co'     => $this->cur_co['Co']['id']
-      );
-    }
-
-    $this->redirect($args);
-  }
-
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
@@ -253,55 +212,71 @@ class CoNsfDemographicsController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
-    $pids = $this->parsePersonID($this->request->data);
-
-    // Is this our own record?
+    $roles = $this->Role->calculateCMRoles();
+    
+    $managed = false;
     $self = false;
-
-    // If a row is passed in, get copersonid associated with this row
-    if(!empty($this->request->params['pass'][0]))
-    {
-      $args = array('conditions' => array('CoNsfDemographic.id' => $this->request->params['pass'][0]));
-      $row = $this->CoNsfDemographic->find('first', $args);
+    
+    if(!empty($roles['copersonid'])) {
+      if($this->action == 'add') {
+        // Find the CO Person ID
+        
+        $pid = null;
+        
+        if(!empty($this->request->params['named']['copersonid'])) {
+          $pid = $this->request->params['named']['copersonid'];
+        } elseif(!empty($this->request->data['CoNsfDemographic']['co_person_id'])) {
+          $pid = $this->request->data['CoNsfDemographic']['co_person_id'];
+        }
+        
+        if($pid) {
+          $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'], $pid);
+          
+          if($roles['copersonid'] == $pid) {
+            $self = true;
+          }
+        }
+      } elseif(!empty($this->request->params['pass'][0])) {
+        // Determine the CO Person associated with this entry
+        
+        $copid = $this->CoNsfDemographic->field('co_person_id', array('CoNsfDemographic.id' => $this->request->params['pass'][0]));
+        
+        if($copid) {
+          $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'], $copid);
+          
+          if($roles['copersonid'] == $copid) {
+            $self = true;
+          }
+        }
+      }
     }
-
-    // Can edit self if a member of the co and is not trying to edit someone else's record
-    if($cmr['comember'] 
-      && $cmr['copersonid'] 
-      && (!isset($this->request->params['pass'][0]) 
-          || ($cmr['copersonid'] == $row['CoNsfDemographic']['co_person_id'])))
-    {
-      $self = true;
-    }
-
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
-
-    // Determine what operations this user can perform
-
-    // Add a new Demographic?  Can be done if none exist yet
-    $args = array('conditions' => array('CoNsfDemographic.id' => $cmr['copersonid']));
-    $row = $this->CoNsfDemographic->find('first', $args);
-
-    // Can only add a new one if admin or row doesn't already exist
-    $p['add'] = ($cmr['cmadmin'] || $cmr['admin'] || ($self && empty($row)));
-
-    // Delete an existing Demographic?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['admin'] || $self);
-
-    // Edit an existing Demographic?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['admin'] || $self);
-
-    // Edit own Demographic?
-    $p['editself'] = ($cmr['cmadmin'] || $cmr['admin'] || $self);
-
-    // View all existing Demographic?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['admin']);
-
-    // View an existing Demographic?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['admin'] || $self);
-
+    
+    // Add a new NSF Demographic Record?
+    $p['add'] = ($roles['cmadmin']
+                 || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                 || $self);
+    
+    // Delete an existing NSF Demographic Record?
+    $p['delete'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $self);
+    
+    // Edit an existing NSF Demographic Record?
+    $p['edit'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $self);
+    
+    // View all existing NSF Demographic Records?
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // View an existing NSF Demographic Record?
+    $p['view'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $self);
+    
     $this->set('permissions', $p);
     return $p[$this->action];
   }

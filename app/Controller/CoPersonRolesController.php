@@ -272,106 +272,95 @@ class CoPersonRolesController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     
     // Is this our own record?
     $self = false;
     
-    if($cmr['comember'] && $cmr['copersonid'] && isset($this->request->params['pass'][0]))
-    {
+    if($roles['comember'] && $roles['copersonid'] && isset($this->request->params['pass'][0])) {
       // We need to see if the person role ID passed in maps to the authenticated CO person
       
       $copid = $this->CoPersonRole->field('co_person_id', array('id' => $this->request->params['pass'][0]));
       
-      if($copid && $copid == $cmr['copersonid'])
+      if($copid && ($copid == $roles['copersonid']))
         $self = true;
     }
-
+    
+    // Is this a record we can manage?
+    $managed = false;
+    
+    if(!empty($roles['copersonid'])
+       && !empty($this->request->params['pass'][0])
+       && ($this->action == 'delete'
+           || $this->action == 'edit'
+           || $this->action == 'view')) {
+      $managed = $this->Role->isCoOrCouAdminForCoPersonRole($roles['copersonid'],
+                                                            $this->request->params['pass'][0]);
+    }
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
-    // Determine what operations this user can perform
-    
     // Add a new CO Person Role?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
-    
-    // Delete an existing CO Person Role?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    // Edit an existing CO Person Role?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
-
-    // Are we trying to edit our own record? 
-    // If we're an admin, we act as an admin, not self.
-    $p['editself'] = $self && !$cmr['cmadmin'] && !$cmr['coadmin'] && !$cmr['couadmin'];
-    
-    // View all existing CO Person Roles (or a COU's worth)?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
-    
-    // View an existing CO Person Role?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $self);
+    $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     // Determine which COUs a person can manage.
-    if($cmr['cmadmin'] || $cmr['coadmin']) {
+    if($roles['cmadmin'] || $roles['coadmin']) {
       // Note that here we get id => name while in CoPeopleController we just
       // get a list of names. This is to generate the pop-up on the edit form.
       $p['cous'] = $this->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
     }
-    elseif(!empty($cmr['admincous']))
-      $p['cous'] = array_values($cmr['admincous']);
+    elseif(!empty($roles['admincous']))
+      $p['cous'] = array_values($roles['admincous']);
     else
       $p['cous'] = array();
     
-    // COUs are handled a bit differently. We need to authorize operations that
-    // operate on a per-person basis accordingly.
+    // Delete an existing CO Person Role?
+    $p['delete'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
-    if($cmr['couadmin'] && !empty($p['cous']))
-    {
-      if(!empty($this->request->params['pass'][0]))
-      {
-        // If the target person is in a COU managed by the COU admin, grant permission
-        
-        $tcous = $this->CoPersonRole->Cou->find("list",
-                                                array("joins" =>
-                                                      array(array('table' => 'co_person_roles',
-                                                                  'alias' => 'CoPersonRole',
-                                                                  'type' => 'INNER',
-                                                                  'conditions' => array('Cou.id=CoPersonRole.cou_id'))),
-                                                      "conditions" =>
-                                                      array('CoPersonRole.id' => $this->request->params['pass'][0])));
-        
-        $a = array_intersect($tcous, $p['cous']);
+    // Edit an existing CO Person Role?
+    $p['edit'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $self);
 
-        if(!empty($a))
-        {
-          // CO Person is a member of at least one COU that the COU admin manages
-          
-          $p['delete'] = true;
-          $p['edit'] = true;
-          $p['view'] = true;
-        }
-      }
-      else
-      {
-        if($p['index'])
-        {
-          // We grant additional permissions so the appropriate buttons render
-          // on the assumption that any row that renders is for an individual
-          // that this COU admin can manage, and that anyway we'll check the
-          // authz on a per-person basis (the above portion of this if/else)
-          // when an individual is selected. This probably isn't ideal -- it
-          // might be better to have separate render and action permissions --
-          // but it'll do.
-          
-          $p['delete'] = true;
-          $p['edit'] = true;
-          $p['view'] = true;
-        }
-      }
+    // Are we trying to edit our own record? 
+    // If we're an admin, we act as an admin, not self.
+    $p['editself'] = $self && !$roles['cmadmin'] && !$roles['coadmin'] && !$roles['couadmin'];
+    
+    // View all existing CO Person Roles (or a COU's worth)?
+    $p['index'] = !$roles['cmadmin'] && !$roles['coadmin'] && !$roles['couadmin'];
+    
+    if($this->action == 'index' && $p['index']) {
+      // For rendering index, we currently assume that anyone who can view the
+      // index can manipulate all records. This is fine for CMP and CO admins,
+      // but a COU Admin can't edit role data for which they are not the admin.
+      // (See also CO-505.)
+      
+      // It might be nice to pull all the people in the COU and pass a list
+      // of CO Role IDs, but that would require pulling all the person role
+      // records twice (again later in StandardController::index()). Since
+      // $p['admincous'] has the appropriate COUs listed, will let the view
+      // do a bit of work when rendering.
+      
+      // These permissions are person-level, and are probably not exactly right.
+      // Specifically, delete could be problematic since a COU admin can't
+      // delete a person with a COU role that the admin doesn't manage.
+      // For now, we'll catch that in checkDeleteDependencies, and let the view
+      // worry about what to render by checking the list of COUs.
+      
+      $p['delete'] = true;
+      $p['edit'] = true;
+      $p['view'] = true;
     }
     
+    // View an existing CO Person Role?
+    $p['view'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $self);
+    
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
   
   /**

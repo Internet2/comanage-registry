@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO VOOT Controller **EXPERIMENTAL**
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -193,6 +193,26 @@ class VootController extends StandardController {
   }
   
   /**
+   * Authorization for this Controller, called by Auth component
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: $permissions set with calculated permissions
+   *
+   * @since  COmanage Registry v0.6
+   * @return Array Permissions
+   */
+  
+  function isAuthorized() {
+    $roles = $this->Roles->calculateCMRoles();
+    
+    // Perform various VOOT retrievals?
+    $p['groups'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+    $p['people'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+    
+    $this->set('permissions', $p);
+    return $p[$this->action];
+  }
+  
+  /**
    * Obtain CO People as per a VOOT request.
    * - postcondition: $co_people, $co_group_members, $co_group_owners set (REST)
    * - postcondition: HTTP status returned (REST)
@@ -230,25 +250,5 @@ class VootController extends StandardController {
     } else {
       $this->restResultHeader(400, "Bad Request");
     }
-  }
-  
-  /**
-   * Authorization for this Controller, called by Auth component
-   * - precondition: Session.Auth holds data used for authz decisions
-   * - postcondition: $permissions set with calculated permissions
-   *
-   * @since  COmanage Registry v0.6
-   * @return Array Permissions
-   */
-  
-  function isAuthorized() {
-    $cmr = $this->calculateCMRoles();                      // What was authenticated
-    
-    // Perform various VOOT retrievals?
-    $p['groups'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['comember']);
-    $p['people'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['comember']);
-    
-    $this->set('permissions', $p);
-    return($p[$this->action]);
   }
 }

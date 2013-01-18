@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Controller
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -266,19 +266,29 @@ class OrgIdentitiesController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
+    
+    // Is this a record we (can) manage?
+    $managed = false;
+    
+    if(isset($roles['copersonid'])
+       && $roles['copersonid']
+       && isset($this->request->params['pass'][0])
+       && ($this->action == 'delete'
+           || $this->action == 'edit'
+           || $this->action == 'view')) {
+      $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
+                                                           $this->request->params['pass'][0]);
+    }
     
     // Is this our own record?
     $self = false;
-
-    if($cmr['user'] && $cmr['orgidentities'] && isset($this->request->params['pass'][0]))
-    {
+    
+    if($roles['user'] && $roles['orgidentities'] && isset($this->request->params['pass'][0])) {
       // Walk through the list of org identities and see if this one matches
       
-      foreach($cmr['orgidentities'] as $o)
-      {
-        if($o['org_id'] == $this->request->params['pass'][0])
-        {
+      foreach($roles['orgidentities'] as $o) {
+        if($o['org_id'] == $this->request->params['pass'][0]) {
           $self = true;
           break;
         }
@@ -296,52 +306,65 @@ class OrgIdentitiesController extends StandardController {
     
     if($this->CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
       // Add a new Org Person?
-      $p['add'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      $p['add'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
       // Via LDAP query?
-      $p['addvialdap'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
-      $p['selectvialdap'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      $p['addvialdap'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
+      $p['selectvialdap'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
       // Delete an existing Org Person?
-      $p['delete'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      $p['delete'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
       // Edit an existing Org Person?
-      $p['edit'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      $p['edit'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
       // Find an Org Person to add to a CO?
-      $p['find'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      $p['find'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
   
       // View all existing Org People?
-      $p['index'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin']);
+      $p['index'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
       // View an existing Org Person?
-      $p['view'] = ($cmr['cmadmin'] || $cmr['admin'] || $cmr['subadmin'] || $self);
+      $p['view'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin'] || $self);
     } else {
       // Add a new Org Person?
-      $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
+      $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       
       // Via LDAP query?
-      $p['addvialdap'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
-      $p['selectvialdap'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
+      $p['addvialdap'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+      $p['selectvialdap'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       
       // Delete an existing Org Person?
-      $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
+      $p['delete'] = ($roles['cmadmin']
+                      || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
       
       // Edit an existing Org Person?
-      $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
+      $p['edit'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
       
       // Find an Org Person to add to a CO?
-      $p['find'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
-  
+      $p['find'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+      
       // View all existing Org People?
-      $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin']);
+      $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+      
+      if($this->action == 'index' && $p['index']) {
+        // For rendering index, we currently assume that anyone who can view the
+        // index can manipulate all records. This is probably right.
+        
+        $p['delete'] = true;
+        $p['edit'] = true;
+        $p['view'] = true;
+      }
       
       // View an existing Org Person?
-      $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $cmr['couadmin'] || $self);
+      $p['view'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $self);
     }
     
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
 
   /**
@@ -370,6 +393,7 @@ class OrgIdentitiesController extends StandardController {
     //  Sanitize::html
     //  I18N
     //  Set title_for_layout
+    // or just clean this out (along with add via ldap)
     
     // Query LDAP according to the args received and present possible matches to add as new organizational people.
     

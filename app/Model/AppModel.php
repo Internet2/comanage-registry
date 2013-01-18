@@ -1,23 +1,25 @@
 <?php
 /**
- * Application model for Cake.
+ * Application level Model
  *
- * This file is application-wide model file. You can put all
- * application-wide model-related methods here.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  *
- * PHP 5
- *
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
- *
- * Licensed under The MIT License
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         CakePHP(tm) v 0.2.9
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
+ * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * @version       $Id$
  */
 
 App::uses('Model', 'Model');
@@ -107,6 +109,61 @@ class AppModel extends Model {
   }
   
   /**
+   * Obtain the CO ID for a record.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  integer Record to retrieve for
+   * @return integer Corresponding CO ID
+   * @throws RunTimeException
+   */
+  
+  public function findCoForRecord($id) {
+    // We need to find a corresponding CO ID, which may or may not be directly in the model.
+    
+    if(isset($this->validate['co_id'])) {
+      // This model directly references a CO
+      
+      return $this->field('co_id', array($this->alias.".id" => $id));
+    } elseif(isset($this->validate['co_person_id'])) {
+      // Find the CO via the CO Person
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'CoPerson';
+    
+      $cop = $this->find('first', $args);
+      
+      if(!empty($cop['CoPerson']['co_id'])) {
+        return $cop['CoPerson']['co_id'];
+      }
+    } elseif(isset($this->validate['co_person_role_id'])) {
+      // Find the CO via the CO Person via the CO Person Role
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'CoPersonRole';
+    
+      $copr = $this->find('first', $args);
+      
+      if(!empty($copr['CoPersonRole']['co_person_id'])) {
+        $args = array();
+        $args['conditions']['CoPersonRole.co_person_id'] = $copr['CoPersonRole']['co_person_id'];
+        $args['contain'][] = 'CoPerson';
+      
+        $cop = $this->CoPersonRole->find('first', $args);
+        
+        if(!empty($cop['CoPerson']['co_id'])) {
+          return $cop['CoPerson']['co_id'];
+        }
+      }
+    } else {
+      throw new LogicException(_txt('er.co.fail'));
+    }
+    
+    throw new RuntimeException(_txt('er.co.fail'));
+  }
+  
+  /**
    * Perform a find, but using SELECT ... FOR UPDATE syntax. This function should
    * be called within a transaction.
    *
@@ -117,7 +174,7 @@ class AppModel extends Model {
    * @return Array Result set as returned by Cake fetchAll() or read(), which isn't necessarily the same format as find()
    */
   
-  function findForUpdate($conditions, $fields, $joins = array()) {
+  public function findForUpdate($conditions, $fields, $joins = array()) {
     $dbc = $this->getDataSource();
     
     $args['conditions'] = $conditions;

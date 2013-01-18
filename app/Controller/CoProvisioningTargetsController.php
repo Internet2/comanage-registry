@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Provisioning Target Controller
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -95,6 +95,42 @@ class CoProvisioningTargetsController extends StandardController {
   }
   
   /**
+   * Authorization for this Controller, called by Auth component
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: $permissions set with calculated permissions
+   *
+   * @since  COmanage Registry v0.8
+   * @return Array Permissions
+   */
+  
+  function isAuthorized() {
+    $roles = $this->Role->calculateCMRoles();
+    
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+    
+    // Determine what operations this user can perform
+    
+    // Add a new CO Provisioning Target?
+    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Delete an existing CO Provisioning Target?
+    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Edit an existing CO Provisioning Target?
+    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // View all existing CO Provisioning Targets?
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // View an existing CO Provisioning Target?
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    $this->set('permissions', $p);
+    return $p[$this->action];
+  }
+  
+  /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
@@ -118,41 +154,5 @@ class CoProvisioningTargetsController extends StandardController {
     } else {
       parent::performRedirect();
     }
-  }
-  
-  /**
-   * Authorization for this Controller, called by Auth component
-   * - precondition: Session.Auth holds data used for authz decisions
-   * - postcondition: $permissions set with calculated permissions
-   *
-   * @since  COmanage Registry v0.8
-   * @return Array Permissions
-   */
-  
-  function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
-    
-    // Construct the permission set for this user, which will also be passed to the view.
-    $p = array();
-    
-    // Determine what operations this user can perform
-    
-    // Add a new CO Provisioning Target?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    // Delete an existing CO Provisioning Target?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    // Edit an existing CO Provisioning Target?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    // View all existing CO Provisioning Targets?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    // View an existing CO Provisioning Target?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
-    $this->set('permissions', $p);
-    return($p[$this->action]);
   }
 }

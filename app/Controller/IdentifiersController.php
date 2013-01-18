@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Identifiers Controller
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -209,7 +209,7 @@ class IdentifiersController extends MVPAController {
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkWriteFollowups($reqdata) {
+  function checkWriteFollowups($reqdata, $curdata = null) {
     $dbc = $this->Identifier->getDataSource();
     
     if(isset($this->cur_co)) {
@@ -245,44 +245,79 @@ class IdentifiersController extends MVPAController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     $pids = $this->parsePersonID($this->request->data);
     
-    // If we're manipulating an Org Person, any CO admin or COU admin can edit,
-    // but if we're manipulating a CO Person, only the CO admin or appropriate
-    // COU admin (an admin of a COU in the current CO) can edit
+    // In order to manipulate an identifier, the authenticated user must have permission
+    // over the associated Org Identity or CO Person. For add action, we accept
+    // the identifier passed in the URL, otherwise we lookup based on the record ID.
     
-    $admin = false;
+    $managed = false;
     
-    if(($pids['copersonid'] && ($cmr['coadmin'] || $cmr['couadmin']))
-       || ($pids['orgidentityid'] && ($cmr['admin'] || $cmr['coadmin'] || $cmr['subadmin'])))
-      $admin = true;
+    if(!empty($roles['copersonid'])) {
+      switch($this->action) {
+      case 'add':
+        if(!empty($pids['copersonid'])) {
+          $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                            $pids['copersonid']);
+        } elseif(!empty($pids['orgidentityid'])) {
+          $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
+                                                               $pids['orgidentityid']);
+        }
+        break;
+      case 'delete':
+      case 'edit':
+      case 'view':
+        if(!empty($this->request->params['pass'][0])) {
+          // look up $this->request->params['pass'][0] and find the appropriate co person id or org identity id
+          // then pass that to $this->Role->isXXX
+          $args = array();
+          $args['conditions']['Identifier.id'] = $this->request->params['pass'][0];
+          $args['contain'] = false;
+          
+          $identifier = $this->Identifier->find('first', $args);
+          
+          if(!empty($identifier['Identifier']['co_person_id'])) {
+            $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                              $identifier['Identifier']['co_person_id']);
+          } elseif(!empty($identifier['Identifier']['org_identity_id'])) {
+            $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
+                                                                 $identifier['Identifier']['org_identity_id']);
+          }
+        }
+        break;
+      }
+    }
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
-    // Determine what operations this user can perform
-    
     // Add a new Identifier?
-    $p['add'] = ($cmr['cmadmin'] || $admin);
+    $p['add'] = ($roles['cmadmin']
+                 || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
     // Assign (autogenerate) Identifiers?
-    $p['assign'] = ($cmr['cmadmin'] || $admin);
+    $p['assign'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
     // Delete an existing Identifier?
-    $p['delete'] = ($cmr['cmadmin'] || $admin);
+    $p['delete'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
     // Edit an existing Identifier?
-    $p['edit'] = ($cmr['cmadmin'] || $admin);
+    $p['edit'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
     // View all existing Identifier?
-    $p['index'] = ($cmr['cmadmin'] || $admin);
+    // Currently only supported via REST since there's no use case for viewing all
+    $p['index'] = $this->restful && ($roles['cmadmin'] || $roles['coadmin']);
     
     // View an existing Identifier?
-    $p['view'] = ($cmr['cmadmin'] || $admin);
-
+    $p['view'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
 
   /**
@@ -293,10 +328,8 @@ class IdentifiersController extends MVPAController {
    */
   
   function performRedirect() {
-
     $this->redirectTab = 'id';
-
+    
     parent::performRedirect();
   }
-
 }

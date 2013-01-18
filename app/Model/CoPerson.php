@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Model
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -36,6 +36,7 @@ class CoPerson extends AppModel {
   public $belongsTo = array("Co");                    // A CO Person Source is attached to one CO
   
   public $hasOne = array(
+    "CoNsfDemographic" => array('dependent' => true),
     // A person can have one invite (per CO)
     "CoInvite" => array('dependent' => true),
     // A person can have one (preferred) name per CO
@@ -198,6 +199,21 @@ class CoPerson extends AppModel {
     $args['conditions']['Identifier.login'] = $login;
     $args['conditions']['Identifier.status'] = StatusEnum::Active;
     $args['contain'] = false;
+    
+    if($coId != null) {
+      // Only pull records associated with this CO ID
+      
+      $args['joins'][0]['table'] = 'co_people';
+      $args['joins'][0]['alias'] = 'CoPerson';
+      $args['joins'][0]['type'] = 'LEFT';
+      $args['joins'][0]['conditions'][0] = 'Identifier.co_person_id=CoPerson.id';
+      $args['joins'][1]['table'] = 'org_identities';
+      $args['joins'][1]['alias'] = 'OrgIdentity';
+      $args['joins'][1]['type'] = 'LEFT';
+      $args['joins'][1]['conditions'][0] = 'Identifier.org_identity_id=OrgIdentity.id';
+      $args['conditions']['OR']['CoPerson.co_id'] = $coId;
+      $args['conditions']['OR']['OrgIdentity.co_id'] = $coId;
+    }
     
     if($identifierType) {
       $args['conditions']['Identifier.type'] = $identifierType;

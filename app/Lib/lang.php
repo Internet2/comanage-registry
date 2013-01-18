@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Language File
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -73,8 +73,8 @@ $cm_texts['en_US'] = array(
   'ct.co_groups.pl' =>          'Groups',
   'ct.co_invites.1' =>          'Invite',
   'ct.co_invites.pl' =>         'Invites',
-  'ct.co_nsf_demographics.1'  => 'NSF Demographic',
-  'ct.co_nsf_demographics.pl' => 'NSF Demographics',
+  'ct.co_nsf_demographics.1'  => 'NSF Demographic Record',
+  'ct.co_nsf_demographics.pl' => 'NSF Demographic Records',
   'ct.co_people.1' =>           'CO Person',
   'ct.co_people.pl' =>          'CO People',
   'ct.co_person_roles.1' =>     'CO Person Role',
@@ -217,8 +217,8 @@ $cm_texts['en_US'] = array(
                             StatusEnum::Suspended           => 'Suspended'),
 
   // Demographics
-  'en.nsf.gender' =>       array(NSFGenderEnum::Male   => 'Male',
-                                 NSFGenderEnum::Female => 'Female'),
+  'en.nsf.gender' =>       array(NSFGenderEnum::Female => 'Female',
+                                 NSFGenderEnum::Male   => 'Male'),
 
   'en.nsf.citizen' =>      array(NSFCitizenshipEnum::USCitizen           => 'U.S. Citizen',
                                  NSFCitizenshipEnum::USPermanentResident => 'U.S. Permanent Resident',
@@ -253,8 +253,10 @@ $cm_texts['en_US'] = array(
   'er.co.cm.edit' =>  'Cannot edit COmanage CO',
   'er.co.cm.rm' =>    'Cannot remove COmanage CO',
   'er.co.exists' =>   'A CO named "%1$s" already exists',
+  'er.co.fail' =>     'Unable to find CO',
   'er.co.gr.admin' => 'CO created, but failed to create initial admin group',
   'er.co.none' =>     'No COs found (did you run setup.php?)',
+  'er.co.mismatch' => 'Requested CO does not match CO of %1$s %2$s',
   'er.co.specify' =>  'No CO Specified',
   'er.co.unk' =>      'Unknown CO',
   'er.co.unk-a' =>    'Unknown CO "%1$s"',
@@ -293,7 +295,7 @@ $cm_texts['en_US'] = array(
   'er.fields' =>      'Please recheck the highlighted fields',
   'er.gr.exists' =>   'A group named "%1$s" already exists within the CO',
   'er.gr.init' =>     'Group created, but failed to set initial owner/member',
-  'er.gr.nf' =>       'Graup %1$s Not Found',
+  'er.gr.nf' =>       'Group %1$s Not Found',
   'er.gr.res' =>      'Groups named "admin" or prefixed "admin:" are reserved',
   'er.grm.already' => 'CO Person %1$s is already a member of group %2$s',
   'er.grm.none' =>    'No group memberships to add',

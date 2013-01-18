@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Email Addresses Controller
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -61,49 +61,86 @@ class EmailAddressesController extends MVPAController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     $pids = $this->parsePersonID($this->request->data);
-
-    // Is this our own record? ($cmr is what was authenticated, $pids what was requested)
+    
+    // In order to manipulate an email address, the authenticated user must have permission
+    // over the associated Org Identity or CO Person. For add action, we accept
+    // the identifier passed in the URL, otherwise we lookup based on the record ID.
+    
+    $managed = false;
+    
+    if(!empty($roles['copersonid'])) {
+      switch($this->action) {
+      case 'add':
+        if(!empty($pids['copersonid'])) {
+          $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                            $pids['copersonid']);
+        } elseif(!empty($pids['orgidentityid'])) {
+          $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
+                                                               $pids['orgidentityid']);
+        }
+        break;
+      case 'delete':
+      case 'edit':
+      case 'view':
+        if(!empty($this->request->params['pass'][0])) {
+          // look up $this->request->params['pass'][0] and find the appropriate co person id or org identity id
+          // then pass that to $this->Role->isXXX
+          $args = array();
+          $args['conditions']['EmailAddress.id'] = $this->request->params['pass'][0];
+          $args['contain'] = false;
+          
+          $emailaddress = $this->EmailAddress->find('first', $args);
+          
+          if(!empty($emailaddress['EmailAddress']['co_person_id'])) {
+            $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                              $emailaddress['EmailAddress']['co_person_id']);
+          } elseif(!empty($emailaddress['EmailAddress']['org_identity_id'])) {
+            $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
+                                                                 $emailaddress['EmailAddress']['org_identity_id']);
+          }
+        }
+        break;
+      }
+    }
+    
+    // It's not really clear that people should always be able to edit their own email addresses.
+    // For now, we won't enable self-service, pending requirements review. (See CO-92.)
+    
+    // Self is true if this is an add operation & the current user's own person role/org id is in the url
+    // OR for other operations the record is attached to the current user's person role/org id.
     $self = false;
-    
-    if($cmr['comember'] &&
-       // As of now, a person can only edit their CO data, not their Org data
-       (($pids['copersonid'] && $cmr['copersonid'] && ($pids['copersonid'] == $cmr['copersonid']))))
-      $self = true;
-    
-    // If we're manipulating an Org Person, any CO admin or COU admin can edit,
-    // but if we're manipulating a CO Person, only the CO admin or appropriate
-    // COU admin (an admin of a COU in the current CO) can edit
-    
-    $admin = false;
-    
-    if(($pids['copersonid'] && ($cmr['coadmin'] || $cmr['couadmin']))
-       || ($pids['orgidentityid'] && ($cmr['admin'] || $cmr['coadmin'] || $cmr['subadmin'])))
-      $admin = true;
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
-    // Determine what operations this user can perform
-    
     // Add a new Email Address?
-    $p['add'] = ($cmr['cmadmin'] || $admin || $self);
+    $p['add'] = ($roles['cmadmin']
+                 || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                 || $self);
     
     // Delete an existing Email Address?
-    $p['delete'] = ($cmr['cmadmin'] || $admin || $self);
+    $p['delete'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $self);
     
     // Edit an existing Email Address?
-    $p['edit'] = ($cmr['cmadmin'] || $admin || $self);
+    $p['edit'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $self);
     
     // View all existing Email Addresses?
-    $p['index'] = ($cmr['cmadmin'] || $admin);
+    // Currently only supported via REST since there's no use case for viewing all
+    $p['index'] = $this->restful && ($roles['cmadmin'] || $roles['coadmin']);
     
     // View an existing Email Address?
-    $p['view'] = ($cmr['cmadmin'] || $admin || $self);
-
+    $p['view'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $self);
+    
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
 
   /**

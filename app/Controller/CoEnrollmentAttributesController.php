@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attributes Controller
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -112,7 +112,7 @@ class CoEnrollmentAttributesController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
@@ -120,22 +120,22 @@ class CoEnrollmentAttributesController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new CO Enrollment Attribute?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Delete an existing CO Enrollment Attribute?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Edit an existing CO Enrollment Attribute?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View all existing CO Enrollment Attributes?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View an existing CO Enrollment Attributes?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
 
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
 
   /**

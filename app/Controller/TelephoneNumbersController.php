@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Telephone Numbers Controller
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -77,80 +77,89 @@ class TelephoneNumbersController extends MVPAController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     $pids = $this->parsePersonID($this->request->data);
-
-    // Is this our own record? ($cmr is what was authenticated, $pids what was requested)
-    // We needs to see if the requested person role ID belongs to the authenticated person.
-    $self = false;
     
-    $copid = $this->TelephoneNumber->CoPersonRole->field('co_person_id', array('id' => $pids['copersonroleid']));
-      
-    if($copid && $copid == $cmr['copersonid'])
-      $self = true;
+    // In order to manipulate an telephone number, the authenticated user must have permission
+    // over the associated Org Identity or CO Person Role. For add action, we accept
+    // the identifier passed in the URL, otherwise we lookup based on the record ID.
     
-    // If we're manipulating an Org Person, any CO admin or COU admin can edit,
-    // but if we're manipulating a CO Person, only the CO admin or appropriate
-    // COU admin (an admin of the COU associated with the current record) can edit
+    $managed = false;
     
-    $admin = false;
-    
-    if(($pids['copersonid'] && $cmr['coadmin'])
-       || ($pids['orgidentityid'] && ($cmr['admin'] || $cmr['coadmin'] || $cmr['subadmin'])))
-      $admin = true;
-      
-    if(!$admin && $cmr['couadmin'])
-    {
-      // Current person is a COU admin, see if it's for this person role. There should
-      // be only one match, so we use 'first'.
-      
-      $cou = $this->TelephoneNumber->CoPersonRole->Cou->find("first",
-                                                             array("joins" =>
-                                                                   array(array('table' => 'co_person_roles',
-                                                                               'alias' => 'CoPersonRole',
-                                                                               'type' => 'INNER',
-                                                                               'conditions' => array('Cou.id=CoPersonRole.cou_id'))),
-                                                                   "conditions" =>
-                                                                   array('CoPersonRole.id' => $pids['copersonroleid'])));
-      
-      if(isset($cou['Cou']['name']))
-      {
-        foreach(array_values($cmr['admincous']) as $c)
-        {
-          if($c == $cou['Cou']['name'])
-          {
-            $admin = true;
-            break;
+    if(!empty($roles['copersonid'])) {
+      switch($this->action) {
+      case 'add':
+        if(!empty($pids['copersonroleid'])) {
+          $managed = $this->Role->isCoOrCouAdminForCoPersonRole($roles['copersonid'],
+                                                                $pids['copersonroleid']);
+        } elseif(!empty($pids['orgidentityid'])) {
+          $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
+                                                               $pids['orgidentityid']);
+        }
+        break;
+      case 'delete':
+      case 'edit':
+      case 'view':
+        if(!empty($this->request->params['pass'][0])) {
+          // look up $this->request->params['pass'][0] and find the appropriate co person role id or org identity id
+          // then pass that to $this->Role->isXXX
+          $args = array();
+          $args['conditions']['TelephoneNumber.id'] = $this->request->params['pass'][0];
+          $args['contain'] = false;
+          
+          $number = $this->TelephoneNumber->find('first', $args);
+          
+          if(!empty($number['TelephoneNumber']['co_person_role_id'])) {
+            $managed = $this->Role->isCoOrCouAdminForCoPersonRole($roles['copersonid'],
+                                                                  $number['TelephoneNumber']['co_person_role_id']);
+          } elseif(!empty($number['TelephoneNumber']['org_identity_id'])) {
+            $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
+                                                                 $number['TelephoneNumber']['org_identity_id']);
           }
         }
+        break;
       }
     }
+    
+    // It's not really clear that people should always be able to edit their own telephone number.
+    // For now, we won't enable self-service, pending requirements review. (See CO-92.)
+    
+    // Self is true if this is an add operation & the current user's own person role/org id is in the url
+    // OR for other operations the record is attached to the current user's person role/org id.
+    $self = false;
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
-    // Determine what operations this user can perform
-    
     // Add a new Telephone Number?
-    $p['add'] = ($cmr['cmadmin'] || $admin || $self);
+    $p['add'] = ($roles['cmadmin']
+                 || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                 || $self);
     
     // Delete an existing Telephone Number?
-    $p['delete'] = ($cmr['cmadmin'] || $admin || $self);
+    $p['delete'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $self);
     
     // Edit an existing Telephone Number?
-    $p['edit'] = ($cmr['cmadmin'] || $admin || $self);
+    $p['edit'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $self);
     
-    // View all existing Telephone Number?
-    $p['index'] = ($cmr['cmadmin'] || $admin);
+    // View all existing Telephone Numbers?
+    // Currently only supported via REST since there's no use case for viewing all
+    $p['index'] = $this->restful && ($roles['cmadmin'] || $roles['coadmin']);
     
-    // View an existing Telephone Number?
-    $p['view'] = ($cmr['cmadmin'] || $admin || $self);
-
+    // View an existing TelephoneNumber?
+    $p['view'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $self);
+    
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
 
-    /**
+  /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
@@ -158,10 +167,8 @@ class TelephoneNumbersController extends MVPAController {
    */
   
   function performRedirect() {
-
     $this->redirectTab = 'phone';
-
+    
     parent::performRedirect();
   }
-
 }

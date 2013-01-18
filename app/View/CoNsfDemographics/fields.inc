@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO NSF Demographic Fields
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -49,16 +49,9 @@
   $args = array('default' => $cur_co['Co']['id']);
   print $this->Form->hidden('co_id', $args). "\n";
 
-  // Get Co Person ID
-  if(isset($this->request->params['named']['co_person_id']))
-  {
-    // For edit
-    $args = array('default' => $this->request->params['named']['co_person_id']);
-  }
-  else
-  {
-    // Get ID for add
-    $args = array('default' => $this->request->data['CoNsfDemographic']['co_person_id']);
+  if(isset($this->request->params['named']['copersonid'])) {
+    // Populate default CO Person ID for add
+    $args = array('default' => Sanitize::html($this->request->params['named']['copersonid']));
   }
 
   print $this->Form->hidden('co_person_id', $args). "\n";
@@ -90,7 +83,7 @@
 
   $emptyArg = array('empty' => true);
 ?>
-<table id="<?php print $this->action; ?>_co" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_nsf_demographic" class="ui-widget">
   <tbody>
     <tr class="line2">
       <td>
@@ -202,5 +195,5 @@
 
 <?php
   if($e)
-    print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+    print $this->Form->submit($submit_label);
 ?>

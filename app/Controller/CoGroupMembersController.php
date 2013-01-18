@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Member Controller
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -225,14 +225,15 @@ class CoGroupMembersController extends StandardController {
   }
  
   /**
-   * Delete a Co Group Members Object
+   * Delete a CO Group Members Object
    * - precondition: <id> must exist
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    * - postcondition: On success, all related data (any table with an <object>_id column) is deleted
    *
    * @since  COmanage Registry v0.7
    * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be deleted
-   */  
+   */
+  
   function delete($id) {
     $this->redirectTab = 'group';
 
@@ -249,15 +250,7 @@ class CoGroupMembersController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();             // What was authenticated
-
-    // Construct the permission set for this user, which will also be passed to the view.
-    $p = array();
-    
-    // Determine if the authenticated person is an owner or member of the associated group
-
-    $owner = false;
-    $member = false;
+    $roles = $this->Role->calculateCMRoles();             // What was authenticated
     
     // Store the group ID in the controller object since performRedirect may need it
     
@@ -268,12 +261,17 @@ class CoGroupMembersController extends StandardController {
       $this->gid = $this->CoGroupMember->field('co_group_id', array('CoGroupMember.id' => $this->request->params['pass'][0]));
     elseif($this->action == 'select' && isset($this->request->params['named']['cogroup']))
       $this->gid = $this->request->params['named']['cogroup'];
-
-    if(isset($this->gid) && !empty($cmr['copersonid']))
-    {
+    
+    $managed = false;
+    $owner = false;
+    $member = false;
+    
+    if(!empty($roles['copersonid']) && isset($this->gid)) {
+      $managed = $this->Role->isGroupManager($roles['copersonid'], $this->gid);
+      
       $gm = $this->CoGroupMember->find('all', array('conditions' =>
                                                     array('CoGroupMember.co_group_id' => $this->gid,
-                                                          'CoGroupMember.co_person_id' => $cmr['copersonid'])));
+                                                          'CoGroupMember.co_person_id' => $roles['copersonid'])));
       
       if(isset($gm[0]['CoGroupMember']['owner']) && $gm[0]['CoGroupMember']['owner'])
         $owner = true;
@@ -282,30 +280,31 @@ class CoGroupMembersController extends StandardController {
         $member = true;
     }
     
-    // Determine what operations this user can perform
-
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+    
     // Add a new member to a group?
     // XXX probably need to check if group is open here and in delete
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $owner);
+    $p['add'] = ($roles['cmadmin'] || $managed);
     
     // Delete a member from a group?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $owner);
+    $p['delete'] = ($roles['cmadmin'] || $managed);
     
     // Edit members of a group?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $owner);
+    $p['edit'] = ($roles['cmadmin'] || $managed);
     
     // View a list of members of a group?
     // This is for REST
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-
+    $p['index'] = ($this->restful && ($roles['cmadmin'] || $roles['coadmin']));
+    
     // Select from a list of potential members to add?
-    $p['select'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $owner);
+    $p['select'] = ($roles['cmadmin'] || $managed);
     
     // View members of a group?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin'] || $owner || $member);
-
+    $p['view'] = ($roles['cmadmin'] || $managed || $member);
+    
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
   
   /**
