@@ -422,8 +422,11 @@ class CmpEnrollmentConfigurationsController extends StandardController {
       );
     }
     
-    if(!empty($newattrs))
+    if(0 && !empty($newattrs))
     {
+      // XXX We don't need CMP Enrollment Attributes anymore. This can probably
+      // all be pulled. (See also CO-290.)
+      
       $this->CmpEnrollmentConfiguration->CmpEnrollmentAttribute->SaveAll($newattrs);
     }
     
