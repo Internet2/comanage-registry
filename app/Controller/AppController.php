@@ -1069,7 +1069,11 @@ class AppController extends Controller {
       // Set for home ID name in menu
       $menu['orgName'] = $orgName['OrgIdentity']['o'];
     }
-
+    
+    // Determine if Org Identities are pooled
+    $this->loadModel('CmpEnrollmentConfiguration');
+    $this->set('pool_org_identities', $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
+    
     // Set the COs for display
     if($this->viewVars['permissions']['menu']['admin']) {
       // Show all active COs for admins
