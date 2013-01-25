@@ -469,6 +469,7 @@ $cm_texts['en_US'] = array(
   'fd.organization_id' => 'Organization ID',
   'fd.ou' =>          'Department',
   'fd.parent' =>      'Parent COU',
+  'fd.people' =>      '%1$s People',
   'fd.perms' =>       'Permissions',
   'fd.petitioner' =>  'Petitioner',
   'fd.plugin' =>      'Plugin',
