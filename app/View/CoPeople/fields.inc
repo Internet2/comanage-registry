@@ -443,7 +443,7 @@ $(function() {
                       print '<div>';
                         print '<div>';
                           print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
-                          print " (" . _txt('en.contact', null, $ea['type']) . ", "
+                          print " (" . _txt('en.contact.mail', null, $ea['type']) . ", "
                           . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
                         print '</div>';
                         print '<div>';

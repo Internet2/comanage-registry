@@ -107,6 +107,13 @@ class ContactEnum
   );*/
 }
 
+class EmailAddressEnum {
+  const Delivery      = 'D';
+  const Forwarding    = 'F';
+  const Official      = 'O';
+  const Personal      = 'P';
+}
+
 class EnrollmentAuthzEnum {
   const CoAdmin       = 'CA';
   const CoGroupMember = 'CG';

@@ -158,9 +158,12 @@ $cm_texts['en_US'] = array(
                                  ContactEnum::Postal => 'Postal',
                                  ContactEnum::Forwarding => 'Forwarding'),
   
-  'en.contact.mail' =>     array(ContactEnum::Home => 'Home',
-                                 ContactEnum::Mobile => 'Mobile',
-                                 ContactEnum::Office => 'Office'),
+  'en.contact.mail' => array(
+    EmailAddressEnum::Delivery => 'Delivery',
+    EmailAddressEnum::Forwarding => 'Forwarding',
+    EmailAddressEnum::Official => 'Official',
+    EmailAddressEnum::Personal => 'Personal'
+  ),
   
   'en.contact.phone' => array(ContactEnum::Fax => 'Fax',
                               ContactEnum::Home => 'Home',
