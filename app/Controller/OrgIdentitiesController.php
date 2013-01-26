@@ -181,7 +181,8 @@ class OrgIdentitiesController extends StandardController {
 
     // Use server side pagination
     
-    if(isset($this->viewVars['pool_org_identities'])) {
+    if(!isset($this->viewVars['pool_org_identities'])
+       || !$this->viewVars['pool_org_identities']) {
       $this->set('org_identities',
                  $this->paginate('OrgIdentity',
                                  array("OrgIdentity.co_id" => $this->cur_co['Co']['id'])));
