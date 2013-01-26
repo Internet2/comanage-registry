@@ -113,7 +113,7 @@ class AppModel extends Model {
    *
    * @since  COmanage Registry v0.8
    * @param  integer Record to retrieve for
-   * @return integer Corresponding CO ID
+   * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
    * @throws RunTimeException
    */
   
@@ -136,6 +136,13 @@ class AppModel extends Model {
       if(!empty($cop['CoPerson']['co_id'])) {
         return $cop['CoPerson']['co_id'];
       }
+      
+      // Is this an MVPA where this is an org identity?
+      
+      if(empty($cop[ $this->alias ]['co_person_id'])
+         && !empty($cop[ $this->alias ]['org_identity_id'])) {
+        return null;
+      }
     } elseif(isset($this->validate['co_person_role_id'])) {
       // Find the CO via the CO Person via the CO Person Role
       
@@ -149,12 +156,19 @@ class AppModel extends Model {
         $args = array();
         $args['conditions']['CoPersonRole.co_person_id'] = $copr['CoPersonRole']['co_person_id'];
         $args['contain'][] = 'CoPerson';
-      
+        
         $cop = $this->CoPersonRole->find('first', $args);
         
         if(!empty($cop['CoPerson']['co_id'])) {
           return $cop['CoPerson']['co_id'];
         }
+      }
+      
+      // Is this an MVPA where this is an org identity?
+      
+      if(empty($copr[ $this->alias ]['co_person_id'])
+         && !empty($copr[ $this->alias ]['org_identity_id'])) {
+        return null;
       }
     } else {
       throw new LogicException(_txt('er.co.fail'));

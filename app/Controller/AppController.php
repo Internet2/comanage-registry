@@ -1313,7 +1313,10 @@ class AppController extends Controller {
           throw new InvalidArgumentException($e->getMessage());
         }
         
-        if($recordCoId != $this->cur_co['Co']['id']) {
+        // $recordCoId could be null if we're looking up an MVPA which is attached
+        // to an Org Identity. If so, that check passes.
+        
+        if($recordCoId && ($recordCoId != $this->cur_co['Co']['id'])) {
           throw new InvalidArgumentException(_txt('er.co.mismatch',
                                                   array($modelName,
                                                         $this->request->params['pass'][0])));
