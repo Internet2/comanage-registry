@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Default Layout
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -316,7 +316,11 @@
     </script>
     
     <!-- Include external files and scripts -->
-    <?php print $scripts_for_layout ?>
+    <?php
+      print $this->fetch('meta');
+      print $this->fetch('css');
+      print $this->fetch('script');
+    ?>
   </head>
 
   <body onload="js_onload_call_hooks()">
@@ -398,7 +402,7 @@
 
         <?php print_r($this->Session->error()); ?>
         <!-- Display view content -->
-        <?php print $content_for_layout ?>
+        <?php print $this->fetch('content'); ?>
       </div>
     </div>
     <?php if(Configure::read('debug') > 0) print $this->element('sql_dump'); ?>

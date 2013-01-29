@@ -126,6 +126,10 @@ class AppController extends Controller {
     // XXX CO-351 may take care of this.
     _bootstrap_plugin_txt();
     
+    // XXX CO-351 Placeholder
+    $this->Session->write('Config.language', 'eng');
+    Configure::write('Config.language', $this->Session->read('Config.language'));
+    
     // Tell the Auth module to call the controller's isAuthorized() function.
     $this->Auth->authorize = array('Controller');
     
@@ -231,7 +235,7 @@ class AppController extends Controller {
       // Allow the front page to render without authentication. If there is an
       // authenticated user, we want Auth to run to set up authorizations.
       
-      $this->Auth->allow('*');
+      $this->Auth->allow();
     }
   }
 

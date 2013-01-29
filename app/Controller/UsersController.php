@@ -146,15 +146,17 @@ class UsersController extends AppController {
                     )
                   );
                 $result = $this->CoGroup->find('first', $params);
-                $group = $result['CoGroup']; 
-                $this->log("group = " . print_r($group, true));
-
-                $cos[ $l['CoPerson']['Co']['name'] ]['groups'][ $group['name'] ] = array(
-                  'co_group_id' => $m['CoGroupMember']['co_group_id'],
-                  'name' => $group['name'],
-                  'member' => $m['CoGroupMember']['member'],
-                  'owner' => $m['CoGroupMember']['owner']
-                  );
+                
+                if(!empty($result)) {
+                  $group = $result['CoGroup'];
+                  
+                  $cos[ $l['CoPerson']['Co']['name'] ]['groups'][ $group['name'] ] = array(
+                    'co_group_id' => $m['CoGroupMember']['co_group_id'],
+                    'name' => $group['name'],
+                    'member' => $m['CoGroupMember']['member'],
+                    'owner' => $m['CoGroupMember']['owner']
+                    );
+                }
               }
             }
           }
@@ -170,7 +172,7 @@ class UsersController extends AppController {
             $this->Session->write('Auth.User.name', $orgIdentities[0]['Name']);
           }
           
-          $this->redirect($this->Auth->redirect());
+          $this->redirect($this->Auth->redirectUrl());
         } else {
           // This is an API user. We don't do anything special at the moment.
         }

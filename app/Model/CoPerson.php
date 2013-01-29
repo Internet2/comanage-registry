@@ -306,10 +306,11 @@ class CoPerson extends AppModel {
     
     $link = $this->find('first', $args);
     
-    if($link)
-      return(true);
+    if(!empty($link)) {
+      return true;
+    }
     
-    return(false);
+    return false;
   }
 
   /**

@@ -147,7 +147,10 @@ class CoNsfDemographicsController extends StandardController {
       )
     );
     $row = $this->CoNsfDemographic->find('first', $args);
-    $rowId = $row['CoNsfDemographic']['id'];
+    
+    if(!empty($row['CoNsfDemographic']['id'])) {
+      $rowId = $row['CoNsfDemographic']['id'];
+    }
 
     // If a row for a CoPerson Id already exists when trying to add a new row, throw error
     if(!empty($rowId) && ($this->action == 'add'))

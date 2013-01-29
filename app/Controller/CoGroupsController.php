@@ -337,7 +337,7 @@ class CoGroupsController extends StandardController {
       );
       $g = $this->CoGroup->find('first', $params);
       
-      if($g && isset($g['CoGroup']['open']) && $g['CoGroup']['open']) {
+      if(!empty($g) && isset($g['CoGroup']['open']) && $g['CoGroup']['open']) {
         $p['view'] = true;
       }
     }

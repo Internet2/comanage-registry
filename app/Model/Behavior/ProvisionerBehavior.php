@@ -31,7 +31,7 @@ class ProvisionerBehavior extends ModelBehavior {
    * @return boolean true on success, false on failure
    */
   
-  public function afterDelete($model) {
+  public function afterDelete(Model $model) {
     return true;
   }
   
@@ -44,7 +44,7 @@ class ProvisionerBehavior extends ModelBehavior {
    * @return boolean true on success, false on failure
    */
   
-  public function afterSave($Model, $created) {
+  public function afterSave(Model $model, $created) {
 //    debug($Model);
     
     return true;
