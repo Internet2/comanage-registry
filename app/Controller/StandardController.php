@@ -88,7 +88,7 @@ class StandardController extends AppController {
       $atomic = true;
     }
 
-    if($model->saveAll($data,array('atomic' => $atomic))) {
+    if($model->saveAll($data, array('atomic' => $atomic))) {
       if(!$this->recordHistory('add', $data)
          || !$this->checkWriteFollowups($data)) {
         if(!$this->restful) {
@@ -299,12 +299,6 @@ class StandardController extends AppController {
     if(isset($this->edit_recursion))
       $model->recursive = $this->edit_recursion;
 
-    if(!$this->restful)
-    {
-      // Set page title
-      $this->set('title_for_layout', _txt('op.edit-a', array(_txt('ct.' . $modelpl . '.1'))));
-    }
-
     // Make sure $id exists
     
     $curdata = $model->read();
@@ -322,6 +316,30 @@ class StandardController extends AppController {
       return;
     }
 
+    if(!$this->restful) {
+      // Set page title -- note we do similar logic in view()
+      
+      $t = _txt('ct.' . $modelpl . '.1');
+      
+      if(!empty($curdata['Name'])) {
+        $t = generateCn($curdata['Name']);
+      } elseif(!empty($curdata[$req][ $model->displayField ])) {
+        $t = $curdata[$req][ $model->displayField ];
+      }
+      
+      if($this->requires_person) {
+        if(!empty($curdata[$req]['co_person_id'])) {
+          $t .= " (" . _txt('ct.co_people.1') . ")";
+        } elseif(!empty($curdata[$req]['co_person_role_id'])) {
+          $t .= " (" . _txt('ct.co_person_roles.1') . ")";
+        } elseif(!empty($curdata[$req]['org_identity_id'])) {
+          $t .= " (" . _txt('ct.org_identities.1') . ")";
+        }
+      }
+      
+      $this->set('title_for_layout', _txt('op.edit-a', array($t)));
+    }
+    
     if($this->restful)
     {
       // Validate
@@ -812,32 +830,43 @@ class StandardController extends AppController {
       $obj = $model->read();
     }
     
-    if(empty($obj))
-    {
-      if($this->restful)
+    if(empty($obj)) {
+      if($this->restful) {
         $this->restResultHeader(404, $req . " Unknown");
-      else
-      {
+      } else {
         $this->Session->setFlash(_txt('er.notfound', array(_txt('ct.' . $modelpl . '.1'), $id)), '', array(), 'error');
         $this->performRedirect();
       }
-    }
-    else
-    {
-      if($this->restful)
-      {
+    } else {
+      if($this->restful) {
         $this->set($modelpl, $this->convertResponse(array(0 => $obj)));
         $this->restResultHeader(200, "OK");
-      }
-      else
-      {
-        // Set page title
-        $this->set('title_for_layout', _txt('op.view-a', array(_txt('ct.' . $modelpl . '.1'))));
+      } else {
+        // Set page title -- note we do similar logic in edit()
+        
+        $t = _txt('ct.' . $modelpl . '.1');
+        
+        if(!empty($obj['Name'])) {
+          $t = generateCn($obj['Name']);
+        } elseif(!empty($obj[$req][ $model->displayField ])) {
+          $t = $obj[$req][ $model->displayField ];
+        }
+          
+        if($this->requires_person) {
+          if(!empty($obj[$req]['co_person_id'])) {
+            $t .= " (" . _txt('ct.co_people.1') . ")";
+          } elseif(!empty($obj[$req]['co_person_role_id'])) {
+            $t .= " (" . _txt('ct.co_person_roles.1') . ")";
+          } elseif(!empty($obj[$req]['org_identity_id'])) {
+            $t .= " (" . _txt('ct.org_identities.1') . ")";
+          }
+        }
+        
+        $this->set('title_for_layout', _txt('op.view-a', array($t)));
         
         $this->set($modelpl, array(0 => $obj));
-
-        if($this->requires_person)
-        {
+        
+        if($this->requires_person) {
           // We need to call checkPersonID to set a redirect path.
           
           $this->checkPersonID("set", $obj);

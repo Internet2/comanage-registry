@@ -58,8 +58,7 @@ class CoPersonRolesController extends StandardController {
    */
   
   function add() {
-    if(!$this->restful && $this->request->is('get'))
-    {
+    if(!$this->restful && $this->request->is('get')) {
       // Create a stub person role. It's unclear that title should
       // autopopulate, and if it need not it's further unclear that we
       // really need to set this variable.
@@ -72,6 +71,10 @@ class CoPersonRolesController extends StandardController {
     }
     
     parent::add();
+    
+    // Append the person's name to the page title
+    $this->set('title_for_layout',
+               $this->viewVars['title_for_layout'] . " (" . generateCn($this->viewVars['co_people'][0]['Name']) . ")");
   }
 
   /**

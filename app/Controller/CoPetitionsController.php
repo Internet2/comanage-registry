@@ -245,6 +245,15 @@ class CoPetitionsController extends StandardController {
     }
     
     parent::beforeRender();
+    
+    // Possibly override the title
+    
+    if($this->action == 'view' || $this->action == 'edit') {
+      $this->set('title_for_layout',
+                 _txt('op.' . $this->action . '-f',
+                      array(_txt('ct.co_petitions.1'),
+                            generateCn($this->viewVars['co_petitions'][0]['EnrolleeCoPerson']['Name']))));
+    }
   }
   
   /**

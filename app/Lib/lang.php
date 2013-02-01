@@ -529,7 +529,7 @@ $cm_texts['en_US'] = array(
   'op.deny' =>        'Deny',
   'op.edit' =>        'Edit',
   'op.edit.ea' =>     'Edit Enrollment Attributes',
-  'op.edit-a' =>      'Edit "%1$s"',
+  'op.edit-a' =>      'Edit %1$s',
   'op.edit-f' =>      'Edit %1$s for %2$s',
   'op.enroll' =>      'Enroll',
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
@@ -558,7 +558,8 @@ $cm_texts['en_US'] = array(
   'op.unlink' =>      'Unlink',
   'op.unlink.confirm' => 'Are you sure you wish to unlink this identity?',
   'op.view' =>        'View',
-  'op.view-a' =>      'View "%1$s"',
+  'op.view-a' =>      'View %1$s',
+  'op.view-f' =>      'View %1$s for %2$s',
   
   // Results
   'rs.added' =>       'Added',

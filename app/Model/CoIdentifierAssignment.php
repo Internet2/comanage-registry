@@ -38,7 +38,7 @@ class CoIdentifierAssignment extends AppModel {
   public $hasMany = array("CoSequentialIdentifierAssignment");
   
   // Default display field for cake generated views
-  public $displayField = "identifier_type";
+  public $displayField = "description";
   
   // Validation rules for table elements
   public $validate = array(
