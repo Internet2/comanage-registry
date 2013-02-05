@@ -138,6 +138,9 @@ class CoGroupMembersController extends StandardController {
 
     if($this->restful)
       $this->requires_co = false;
+
+    // Sets tab to open for redirects back to tabbed pages
+    $this->redirectTab = 'email';
   }
   
   /**
@@ -223,23 +226,7 @@ class CoGroupMembersController extends StandardController {
 
     return(true);
   }
- 
-  /**
-   * Delete a CO Group Members Object
-   * - precondition: <id> must exist
-   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
-   * - postcondition: On success, all related data (any table with an <object>_id column) is deleted
-   *
-   * @since  COmanage Registry v0.7
-   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be deleted
-   */
-  
-  function delete($id) {
-    $this->redirectTab = 'group';
 
-    parent::delete($id);
-  }
- 
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
