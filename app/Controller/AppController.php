@@ -58,6 +58,9 @@ class AppController extends Controller {
   // Determine if controller requires a Person ID to be provided
   public $requires_person = false;
 
+  // Tab to flip to for pages with tabs
+  public $redirectTab = null;
+
   /**
    * Determine which plugins of a given type are available. This is a static function suitable for use
    * before AppController is instantiated.

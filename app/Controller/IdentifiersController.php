@@ -152,6 +152,10 @@ class IdentifiersController extends MVPAController {
     // in order for the views to render properly.
     
     $this->set('identifier_types', $this->Identifier->types($this->cur_co['Co']['id']));
+
+    // Sets tab to open for redirects
+    $this->redirectTab = 'id';
+    
   }
   
   /**
@@ -218,21 +222,6 @@ class IdentifiersController extends MVPAController {
     }
     
     return true;
-  }
- 
-  /**
-   * Delete an Identifiers Object
-   * - precondition: <id> must exist
-   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
-   * - postcondition: On success, all related data (any table with an <object>_id column) is deleted
-   *
-   * @since  COmanage Registry v0.7
-   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be deleted
-   */  
-  function delete($id) {
-    $this->redirectTab = 'id';
-
-    parent::delete($id);
   }
  
   /**
@@ -320,16 +309,4 @@ class IdentifiersController extends MVPAController {
     return $p[$this->action];
   }
 
-  /**
-   * Perform a redirect back to the controller's default view.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v0.7
-   */
-  
-  function performRedirect() {
-    $this->redirectTab = 'id';
-    
-    parent::performRedirect();
-  }
 }
