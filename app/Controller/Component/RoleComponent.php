@@ -261,6 +261,20 @@ class RoleComponent extends Component {
       $username = $this->Session->read('Auth.User.username');
     }
     
+    // API user or Org Person?
+    
+    if($this->Session->check('Auth.User.api_user_id')) {
+      $ret['apiuser'] = true;
+      $ret['cmadmin'] = true;  // API users are currently platform admins (CO-91)
+      
+      // Return here to avoid triggering a bunch of RoleComponent queries that
+      // may fail since api users are not currently enrolled in any CO.
+      
+      return $ret;
+    } elseif($this->Session->check('Auth.User.org_identities')) {
+      $ret['orgidentities'] = $this->Session->read('Auth.User.org_identities');
+    }
+    
     // Is this user a CMP admin?
     
     if($username != null) {
@@ -332,15 +346,6 @@ class RoleComponent extends Component {
     
     if($this->Session->check('Auth.User.name')) {
       $ret['user'] = true;
-    }
-    
-    // API user or Org Person?
-    
-    if($this->Session->check('Auth.User.api_user_id')) {
-      $ret['apiuser'] = true;
-      $ret['cmadmin'] = true;  // API users are currently platform admins
-    } elseif($this->Session->check('Auth.User.org_identities')) {
-      $ret['orgidentities'] = $this->Session->read('Auth.User.org_identities');
     }
     
     return $ret;
