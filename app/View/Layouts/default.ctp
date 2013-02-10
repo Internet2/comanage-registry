@@ -33,16 +33,16 @@
     <title><?php print _txt('coordinate') . ': ' . $title_for_layout?></title>
     <!-- link rel="shortcut icon" href="favicon.ico" type="image/x-icon" -->
 
-    <!-- Include the gears and jquery style sheets -->
+    <!-- Include the comanage and jquery style sheets -->
     <?php print $this->Html->css('comanage'); ?>
-    <?php print $this->Html->css('jquery/ui/css/custom-theme/jquery-ui-1.8.18.custom'); ?>
-    <?php print $this->Html->css('jquery/superfish-1.4.8/css/superfish'); ?>
+    <?php print $this->Html->css('jquery/ui/css/start/jquery-ui-1.10.0.custom'); ?>
+    <?php print $this->Html->css('jquery/superfish/css/superfish'); ?>
     <?php print $this->Html->css('menubar'); ?>
 
     <!-- Get jquery code -->
-    <?php print $this->Html->script('jquery/ui/js/jquery-1.6.2.min.js'); ?>
-    <?php print $this->Html->script('jquery/ui/js/jquery-ui-1.8.16.custom.min.js'); ?>
-    <?php print $this->Html->script('jquery/superfish-1.4.8/js/superfish.js'); ?>
+    <?php print $this->Html->script('jquery/ui/js/jquery-1.9.0.js'); ?>
+    <?php print $this->Html->script('jquery/ui/js/jquery-ui-1.10.0.custom.min.js'); ?>
+    <?php print $this->Html->script('jquery/superfish/js/superfish.js'); ?>
 
     <!-- Common script code -->
     <script type="text/javascript">
@@ -247,6 +247,12 @@
           primary: 'ui-icon-script'
         },
         text: false
+      });
+      
+      $(".provisionbutton").button({
+        icons: {
+          primary: 'ui-icon-gear'
+        }
       });
       
       $(".unlinkbutton").button({
