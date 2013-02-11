@@ -35,7 +35,7 @@
 
     <!-- Include the comanage and jquery style sheets -->
     <?php print $this->Html->css('comanage'); ?>
-    <?php print $this->Html->css('jquery/ui/css/start/jquery-ui-1.10.0.custom'); ?>
+    <?php print $this->Html->css('jquery/ui/css/comanage-theme/jquery-ui-1.10.0.custom'); ?>
     <?php print $this->Html->css('jquery/superfish/css/superfish'); ?>
     <?php print $this->Html->css('menubar'); ?>
 
