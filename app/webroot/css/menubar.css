@@ -5,7 +5,7 @@
  * Version: $Revision: 0 $
  * Date: $Date: 2011-11-01 10:05:17 -0700 (Tue, 01 Nov 2011) $
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -224,7 +224,7 @@
       .menubar a:hover,
       .sf-menu li:hover {
         color:#e6e6e6;
-        background:#999999;
+        background:#e5e267
       }
       
       .menubar a span {
@@ -236,7 +236,7 @@
       .menubar .ui-icon {
         width: 16px;
         height: 16px;
-        background-image: url(jquery/ui/css/start/images/ui-icons_056b93_256x240.png);
+        background-image: url(jquery/ui/css/comanage-theme/images/ui-icons_cd0a0a_256x240.png);
       }
 
         /*** level one only ***/
