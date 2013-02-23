@@ -53,23 +53,28 @@ class Address extends AppModel {
     ),
     'line2' => array(
       'rule' => array('maxLength', 128),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'locality' => array(
       'rule' => array('maxLength', 128),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'state' => array(
       'rule' => array('maxLength', 128),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'postal_code' => array(
       'rule' => array('maxLength', 16),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'country' => array(
       'rule' => array('maxLength', 128),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'type' => array(
       'rule' => array('inList', array(ContactEnum::Home,

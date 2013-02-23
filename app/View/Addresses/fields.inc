@@ -60,7 +60,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.address.line1'); ?>
+        <?php echo _txt('fd.address.line1'); ?><font class="required">*</font>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('line1') : Sanitize::html($addresses[0]['Address']['line1'])); ?>
