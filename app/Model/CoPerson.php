@@ -314,35 +314,6 @@ class CoPerson extends AppModel {
   }
 
   /**
-   * (Re)Provision a CO Person.
-   *
-   * @since  COmanage Registry v0.8
-   * @param  Integer CO Person ID to provision
-   * @throws InvalidArgumentException
-   */
-  
-  public function provision($coPersonId) {
-    // Pull the CO Person record and related data for provisioning.
-    // For now, all provisioning modules get the whole ball of data.
-    
-    $args = array();
-    $args['conditions']['CoPerson.id'] = $coPersonId;
-    
-    $coperson = $this->find('first', $args);
-    
-    if(!empty($coperson)) {
-      // XXX next: UI calls /provision
-      // Pull list of provisioning modules and invoke, passing $coperson
-      
-//      debug($coperson);
-    } else {
-      throw new InvalidArgumentException(_txt('er.cop.unk'));
-    }
-    
-    // Find the CO Provisioning targets for this CO
-  }
-  
-  /**
    * Determine the current status of the provisioning targets for this CO Person.
    *
    * @since  COmanage Registry v0.8

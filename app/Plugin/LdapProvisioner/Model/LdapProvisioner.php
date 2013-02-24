@@ -27,28 +27,5 @@ class LdapProvisioner extends AppModel {
   public $cmPluginType = "provisioner";
 
   // Expose Menu Items
-  public $cmPluginMenus = array(
-    /*
-    "cmp" => array("Plugin CMP Title" =>
-                   array('controller' => "ldap_provisioners",
-                         'action'     => "cmp")),
-    // These will automatically have CO ID appended
-    "cos" => array("Plugin CO Title" =>
-                   array('controller' => "ldap_provisioners",
-                         'action'     => "index")),
-    "copeople" => array("Plugin CO People Title" =>
-                        array('controller' => "ldap_provisioners",
-                              'action'     => "index2")),
-    "coconfig" => array("Plugin CO Config Title" =>
-                        array('controller' => "ldap_provisioners",
-                              'action'     => "config")),
-    // This will automatically have CO Person ID and CO ID appended
-    "coperson" => array("Plugin My Account Title" =>
-                        array('controller' => "ldap_records",
-                              'action'     => "view")),
-                              */
-  );
-  
-  // XXX do we need to add this?
-  public $useTable = false;
+  public $cmPluginMenus = array();
 }

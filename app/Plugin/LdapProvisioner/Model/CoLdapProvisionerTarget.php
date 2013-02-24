@@ -188,18 +188,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
    */
   
   public function provision($coProvisioningTargetData, $op, $coPersonData) {
-    /*
-    debug($coProvisioningTargetData);
-    debug($op);
-    debug($coPersonData);
-    */
-    
     // First figure out what to do
     $assigndn = false;
     $delete   = false;
     $add      = false;
     
-// XXX Implement or cut ticket to implement other operations
+    // XXX CO-548 - Implement the other ProvisioningActions
     switch($op) {
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
         $assigndn = true;
@@ -238,8 +232,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     // Assemble an LDAP record
     
-// XXX make this configurable, at least as per requirements for initial LIGO use cases (cut tickets?)
-// multi-valued attributes can be set via $attributes['mail'][0]
+    // XXX make this configurable, at least as per (CO-549)
+    // multi-valued attributes can be set via $attributes['mail'][0]
     $attributes = array();
     $attributes['objectclass'][] = 'top';
     $attributes['objectclass'][] = 'person';

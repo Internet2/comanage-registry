@@ -105,7 +105,6 @@ class CoLdapProvisionerTargetsController extends StandardController {
     // Delete an existing CO Provisioning Target?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
     
-// Is edit subject to co:x munging attack?
     // Edit an existing CO Provisioning Target?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
     
