@@ -101,7 +101,7 @@ global $cm_lang, $cm_texts;
     <tr class="ui-widget-header">
       <th colspan="7">
         <?php echo $this->Paginator->numbers(); ?>
-      </td>
+      </th>
     </tr>
   </tfoot>
 </table>

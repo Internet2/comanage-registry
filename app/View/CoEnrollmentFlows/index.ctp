@@ -107,7 +107,7 @@
     <tr class="ui-widget-header">
       <th colspan="4">
         <?php print $this->Paginator->numbers(); ?>
-      </td>
+      </th>
     </tr>
   </tfoot>
 </table>

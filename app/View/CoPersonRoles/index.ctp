@@ -102,7 +102,7 @@
     <tr class="ui-widget-header">
       <th colspan="9">
         <?php echo $this->Paginator->numbers(); ?>
-      </td>
+      </th>
     </tr>
   </tfoot>
 </table>

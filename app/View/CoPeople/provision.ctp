@@ -189,7 +189,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="4">
-      </td>
+      </th>
     </tr>
   </tfoot>
 </table>
