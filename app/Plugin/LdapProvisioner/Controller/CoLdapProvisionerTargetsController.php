@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO LDAP Provisioner Targets Controller
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -32,12 +32,39 @@ class CoLdapProvisionerTargetsController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'server' => 'asc'
+      'serverurl' => 'asc'
     )
   );
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  /**
+   * Perform any dependency checks required prior to a write (add/edit) operation.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Array Request data
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkWriteDependencies($reqdata, $curdata = null) {
+    // Make sure we can connect to the specified server
+    
+    try {
+      $this->CoLdapProvisionerTarget->verifyLdapServer($reqdata['CoLdapProvisionerTarget']['serverurl'],
+                                                       $reqdata['CoLdapProvisionerTarget']['binddn'],
+                                                       $reqdata['CoLdapProvisionerTarget']['password'],
+                                                       $reqdata['CoLdapProvisionerTarget']['basedn']);
+    }
+    catch(RuntimeException $e) {
+      $this->Session->setFlash($e->getMessage(), '', array(), 'error'); 
+      return false;
+    }
+    
+    return true;
+  }
   
   /**
    * Perform a redirect back to the controller's default view.
@@ -68,27 +95,25 @@ class CoLdapProvisionerTargetsController extends StandardController {
    */
   
   function isAuthorized() {
-    $cmr = $this->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
     // Determine what operations this user can perform
     
-    // Add a new CO Provisioning Target?
-    $p['add'] = ($cmr['cmadmin'] || $cmr['coadmin']);
-    
     // Delete an existing CO Provisioning Target?
-    $p['delete'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+// Is edit subject to co:x munging attack?
     // Edit an existing CO Provisioning Target?
-    $p['edit'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View all existing CO Provisioning Targets?
-    $p['index'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View an existing CO Provisioning Target?
-    $p['view'] = ($cmr['cmadmin'] || $cmr['coadmin']);
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return($p[$this->action]);

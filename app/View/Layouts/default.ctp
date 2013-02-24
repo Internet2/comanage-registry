@@ -252,7 +252,8 @@
       $(".provisionbutton").button({
         icons: {
           primary: 'ui-icon-gear'
-        }
+        },
+        text: false
       });
       
       $(".unlinkbutton").button({

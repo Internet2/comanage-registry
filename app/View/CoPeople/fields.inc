@@ -84,12 +84,16 @@
         print '<a
                 class="autobutton"
                 title="' . _txt('op.id.auto') . '"
-                onclick="javascript:js_confirm_autogenerate(\'' . $this->Html->url(array('controller' => 'identifiers',
-                                                                                         'action' => 'assign',
-                                                                                         'copersonid' => $co_people[0]['CoPerson']['id'],
-                                                                                         'co' => $cur_co['Co']['id'])) . '\')";>'
+                onclick="javascript:js_confirm_autogenerate()";>'
                 . _txt('op.id.auto')
                 . "</a>\n";
+      }
+      
+      // Provisioning status
+      if($permissions['provision']) {
+        print $this->Html->link(_txt('op.prov.view'),
+                                array('controller' => 'co_people', 'action' => 'provision', $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                                array('class' => 'historybutton')); // XXX This should use a different image
       }
     }
     
@@ -131,41 +135,47 @@
 <br />
 <br />
 <script type="text/javascript">
-  <!-- JS specific to these fields -->
+  <!-- /* JS specific to these fields */ -->
   
-  function js_confirm_autogenerate(url)
-  {
-    // Generate a dialog box confirming the autogeneration of identifiers.
-    // On confirmation, forward to <url>, which executes the autogeneration.
-    
-    // Set the title of the dialog    
-    $("#dialog").dialog("option", "title", "<?php print _txt('op.id.auto'); ?>");
-    
-    // Set the body of the dialog
-    $("#dialog-text").text('<?php print _txt('op.id.auto.confirm'); ?>');
-    
-    // Set the dialog buttons
-    $("#dialog").dialog("option",
-                        "buttons",
-                        {
-                          "<?php print _txt('op.cancel'); ?>": function() { $(this).dialog("close"); },
-                          "<?php print _txt('op.id.auto'); ?>": function() { window.location=url; }
-                        });
-   
-    // Open the dialog
-    $('#dialog').dialog('open');
+  function js_confirm_autogenerate() {
+    // Open the dialog to confirm autogeneration of identifiers
+    $('#autogenerate-dialog').dialog('open');
   }
 
-$(function() {
-  // Turn on Tabs
-  var $tabs = $( "#tabs" ).tabs();
-  
-  // If returning to this page via redirect, open last used tab
-  <?php if(isset($this->request->params['named']['tab'])): ?>
-    var selectedtab = "<?php print($this->request->params['named']['tab']); ?>";
-    $tabs.tabs('select', '#tabs-' + selectedtab );
-  <?php endif; ?>
-});
+  $(function() {
+    // Turn on Tabs
+    var $tabs = $( "#tabs" ).tabs();
+    
+    // If returning to this page via redirect, open last used tab
+    <?php if(isset($this->request->params['named']['tab'])): ?>
+      var selectedtab = "<?php print($this->request->params['named']['tab']); ?>";
+      $tabs.tabs('select', '#tabs-' + selectedtab );
+    <?php endif; ?>
+    
+    // Autogenerate dialog
+    $("#autogenerate-dialog").dialog({
+      autoOpen: false,
+      buttons: {
+        "<?php print _txt('op.cancel'); ?>": function() {
+          $(this).dialog("close");
+        },
+        "<?php print _txt('op.id.auto'); ?>": function() {
+          window.location="<?php print $this->Html->url(array('controller' => 'identifiers',
+                                                              'action' => 'assign',
+                                                              'copersonid' => $co_people[0]['CoPerson']['id'],
+                                                              'co' => $cur_co['Co']['id'])); ?>"
+        }
+      },
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+
+    });
+  });
 </script>
 
 <div id="<?php print $this->action; ?>_co_person" style=" float:left; height:auto;">
@@ -805,4 +815,8 @@ $(function() {
         </table>
       </div> <!-- tabs-orgid -->
     <?php endif; // if not invite ?>
+</div>
+
+<div id="autogenerate-dialog" title="<?php print _txt('op.id.auto'); ?>">
+  <?php print _txt('op.id.auto.confirm'); ?>
 </div>

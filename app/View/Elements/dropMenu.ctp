@@ -87,6 +87,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                   
                   if(isset($permissions['menu']['orgidentities']) && $permissions['menu']['orgidentities']) {
                     $args = array();
+                    $args['plugin'] = null;
                     $args['controller'] = 'org_identities';
                     $args['action'] = 'index';
                     
@@ -101,33 +102,36 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
   
                   if(isset($permissions['menu']['cos']) && $permissions['menu']['cos']) {
                     print "<li>";
-                      $args = array(
-                      'controller' => 'co_people',
-                      'action' => 'index',
-                      'co' => $menuCoId
-                      );
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_people';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
                       print $this->Html->link(_txt('me.population'), $args);
                     print "</li>";
                   }
   
                   if(isset($permissions['menu']['createpetition']) && $permissions['menu']['createpetition']) {
                     print "<li>";
-                      $args = array(
-                      'controller' => 'co_enrollment_flows',
-                      'action' => 'select',
-                      'co' => $menuCoId
-                      );
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_enrollment_flows';
+                      $args['action'] = 'select';
+                      $args['co'] = $menuCoId;
+                      
                       print $this->Html->link(_txt('op.petition.create'), $args);
                     print "</li>";
                   }
   
                   if(isset($permissions['menu']['petitions']) && $permissions['menu']['petitions']) {
                     print "<li>";
-                      $args = array(
-                      'controller' => 'co_petitions',
-                      'action' => 'index',
-                      'co' => $menuCoId
-                      );
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_petitions';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
                       print $this->Html->link(_txt('ct.co_petitions.pl'), $args);
                     print "</li>";
                   }
@@ -139,11 +143,12 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
 
                 if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
                   print "<li>";
-                    $args = array(
-                    'controller' => 'co_groups',
-                    'action' => 'index',
-                    'co' => $menuCoId
-                    );
+                    $args = array();
+                    $args['plugin'] = null;
+                    $args['controller'] = 'co_groups';
+                    $args['action'] = 'index';
+                    $args['co'] = $menuCoId;
+                    
                     print $this->Html->link(_txt('ct.co_groups.pl'), $args);
                   print "</li>";
                 }
@@ -158,66 +163,72 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
 
                     if(isset($permissions['menu']['coef']) && $permissions['menu']['coef']) {
                       print "<li>";
-                        $args = array(
-                        'controller' => 'co_enrollment_flows',
-                        'action' => 'index',
-                        'co' => $menuCoId
-                        );
+                        $args = array();
+                        $args['plugin'] = null;
+                        $args['controller'] = 'co_enrollment_flows';
+                        $args['action'] = 'index';
+                        $args['co'] = $menuCoId;
+                        
                         print $this->Html->link(_txt('ct.co_enrollment_flows.pl'), $args);
                       print "</li>";
                     }
     
                     if(isset($permissions['menu']['cous']) && $permissions['menu']['cous']) {
                       print "<li>";
-                        $args = array(
-                        'controller' => 'cous',
-                        'action' => 'index',
-                        'co' => $menuCoId
-                        );
+                        $args = array();
+                        $args['plugin'] = null;
+                        $args['controller'] = 'cous';
+                        $args['action'] = 'index';
+                        $args['co'] = $menuCoId;
+                        
                         print $this->Html->link(_txt('ct.cous.pl'), $args);
                       print "</li>";
                     }
 
                     if(isset($permissions['menu']['extattrs']) && $permissions['menu']['extattrs']) {
                       print "<li>";
-                        $args = array(
-                        'controller' => 'co_extended_attributes',
-                        'action' => 'index',
-                        'co' => $menuCoId
-                        );
+                        $args = array();
+                        $args['plugin'] = null;
+                        $args['controller'] = 'co_extended_attributes';
+                        $args['action'] = 'index';
+                        $args['co'] = $menuCoId;
+                        
                         print $this->Html->link(_txt('ct.co_extended_attributes.pl'), $args);
                       print "</li>";
                     }
     
                     if(isset($permissions['menu']['exttypes']) && $permissions['menu']['exttypes']) {
                       print "<li>";
-                        $args = array(
-                        'controller' => 'co_extended_types',
-                        'action' => 'index',
-                        'co' => $menuCoId
-                        );
+                        $args = array();
+                        $args['plugin'] = null;
+                        $args['controller'] = 'co_extended_types';
+                        $args['action'] = 'index';
+                        $args['co'] = $menuCoId;
+                        
                         print $this->Html->link(_txt('ct.co_extended_types.pl'), $args);
                       print "</li>";
                     }
                     
                     if(isset($permissions['menu']['idassign']) && $permissions['menu']['idassign']) {
                       print "<li>";
-                        $args = array(
-                        'controller' => 'co_identifier_assignments',
-                        'action' => 'index',
-                        'co' => $menuCoId
-                        );
+                        $args = array();
+                        $args['plugin'] = null;
+                        $args['controller'] = 'co_identifier_assignments';
+                        $args['action'] = 'index';
+                        $args['co'] = $menuCoId;
+                        
                         print $this->Html->link(_txt('ct.co_identifier_assignments.pl'), $args);
                       print "</li>";
                     }
                     
                     if(isset($permissions['menu']['coprovtargets']) && $permissions['menu']['coprovtargets']) {
                       print "<li>";
-                        $args = array(
-                        'controller' => 'co_provisioning_targets',
-                        'action' => 'index',
-                        'co' => $menuCoId
-                        );
+                        $args = array();
+                        $args['plugin'] = null;
+                        $args['controller'] = 'co_provisioning_targets';
+                        $args['action'] = 'index';
+                        $args['co'] = $menuCoId;
+                        
                         print $this->Html->link(_txt('ct.co_provisioning_targets.pl'), $args);
                       print "</li>";
                     }
@@ -248,26 +259,32 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
         <ul>
           <li>
             <?php
-              $params = array('controller' => 'cos',
-                              'action'     => 'index'
-                             );
-              print $this->Html->link(_txt('ct.cos.pl'), $params);
+              $args = array();
+              $args['plugin'] = null;
+              $args['controller'] = 'cos';
+              $args['action'] = 'index';
+              
+              print $this->Html->link(_txt('ct.cos.pl'), $args);
             ?>
           </li>
           <li>
             <?php
-              $params = array('controller' => 'organizations',
-                              'action'     => 'index'
-                             );
-              print $this->Html->link(_txt('ct.organizations.pl'), $params);
+              $args = array();
+              $args['plugin'] = null;
+              $args['controller'] = 'organizations';
+              $args['action'] = 'index';
+              
+              print $this->Html->link(_txt('ct.organizations.pl'), $args);
             ?>
           </li>
           <li>
             <?php
-              $params = array('controller' => 'cmp_enrollment_configurations',
-                              'action'     => 'select'
-                             );
-              print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $params);
+              $args = array();
+              $args['plugin'] = null;
+              $args['controller'] = 'cmp_enrollment_configurations';
+              $args['action'] = 'select';
+              
+              print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $args);
             ?>
           </li>
           <?php render_plugin_menus($this->Html, $plugins, 'cmp', $menuCoId); ?>
@@ -300,6 +317,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
             foreach ($mycos as $co) {
               print "<li>";
                 $args = array(
+                  'plugin' => 'null',
                   'controller' => 'co_people',
                   'action' => 'edit',
                   $co['co_person_id'],
@@ -321,6 +339,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
             foreach ($mycos as $co) {
               print "<li>";
                 $args = array(
+                  'plugin' => null,
                   'controller' => 'co_nsf_demographics',
                   'action' => 'editself',
                   'co' => $co['co_id']

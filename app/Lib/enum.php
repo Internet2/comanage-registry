@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Enumerations
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -25,27 +25,29 @@
 class ActionEnum
 {
   // Codes beginning with 'X' (eg: 'XABC') are reserved for local use
-  const CoPersonAddedManual        = 'ACPM';
-  const CoPersonAddedPetition      = 'ACPP';
-  const CoPersonEditedManual       = 'ECPM';
-  const CoPersonEditedPetition     = 'ECPP';
-  const CoPersonMatchedPetition    = 'MCPP';
-  const CoPersonRoleAddedManual    = 'ACRM';
-  const CoPersonRoleAddedPetition  = 'ACRP';
-  const CoPersonRoleDeletedManual  = 'DCRM';
-  const CoPersonRoleEditedManual   = 'ECRM';
-  const CoPersonRoleEditedPetition = 'ECRP';
-  const CoPersonOrgIdLinked        = 'LOCP';
-  const CoPersonOrgIdUnlinked      = 'UOCP';
-  const EmailAddressVerified       = 'EMLV';
-  const IdentifierAutoAssigned     = 'AIDA';
-  const InvitationConfirmed        = 'INVC';
-  const InvitationDeclined         = 'INVD';
-  const InvitationSent             = 'INVS';
-  const OrgIdAddedManual           = 'AOIM';
-  const OrgIdAddedPetition         = 'AOIP';
-  const OrgIdEditedManual          = 'EOIM';
-  const OrgIdEditedPetition        = 'EOIP';
+  const CoPersonAddedManual         = 'ACPM';
+  const CoPersonAddedPetition       = 'ACPP';
+  const CoPersonEditedManual        = 'ECPM';
+  const CoPersonEditedPetition      = 'ECPP';
+  const CoPersonManuallyProvisioned = 'PCPM';
+  const CoPersonMatchedPetition     = 'MCPP';
+  const CoPersonProvisioned         = 'PCPA';
+  const CoPersonRoleAddedManual     = 'ACRM';
+  const CoPersonRoleAddedPetition   = 'ACRP';
+  const CoPersonRoleDeletedManual   = 'DCRM';
+  const CoPersonRoleEditedManual    = 'ECRM';
+  const CoPersonRoleEditedPetition  = 'ECRP';
+  const CoPersonOrgIdLinked         = 'LOCP';
+  const CoPersonOrgIdUnlinked       = 'UOCP';
+  const EmailAddressVerified        = 'EMLV';
+  const IdentifierAutoAssigned      = 'AIDA';
+  const InvitationConfirmed         = 'INVC';
+  const InvitationDeclined          = 'INVD';
+  const InvitationSent              = 'INVS';
+  const OrgIdAddedManual            = 'AOIM';
+  const OrgIdAddedPetition          = 'AOIP';
+  const OrgIdEditedManual           = 'EOIM';
+  const OrgIdEditedPetition         = 'EOIP';
 }
 
 class AdministratorEnum
@@ -228,6 +230,35 @@ class PetitionActionEnum
   const IdentifiersAssigned = 'IA';
   const InviteConfirmed     = 'IC';
   const InviteSent          = 'IS';
+}
+
+// The status of a provisioning plugin
+class ProvisionerStatusEnum
+{
+  const AutomaticMode       = 'A';
+  const Disabled            = 'X';
+  const ManualMode          = 'M';
+}
+
+// The action for which a plugin may want to act on
+class ProvisioningActionEnum
+{
+  const CoPersonAdded                 = 'PA';
+  const CoPersonDeleted               = 'PD';
+  const CoPersonEnteredGracePeriod    = 'PG';
+  const CoPersonExpired               = 'PX';
+  const CoPersonReprovisionRequested  = 'PR';
+  const CoPersonUnexpired             = 'PY';
+  const CoPersonUpdated               = 'PU';
+}
+
+// The status of a provisioned target
+class ProvisioningStatusEnum
+{
+  const NotProvisioned      = 'N';
+  const Provisioned         = 'P';
+  const Queued              = 'Q';
+  const Unknown             = 'X';
 }
 
 class RequiredEnum

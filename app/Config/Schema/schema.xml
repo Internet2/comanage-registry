@@ -802,7 +802,9 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <!-- XXX almost certainly need to create some indexes here -->
+    <index name="co_provisioning_targets_i1">
+      <col>co_id</col>
+    </index>
   </table>
   
   <table name="co_provisioning_queued_events">

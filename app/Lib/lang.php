@@ -113,7 +113,9 @@ $cm_texts['en_US'] = array(
     ActionEnum::CoPersonAddedPetition       => 'CO Person Created (Petition)',
     ActionEnum::CoPersonEditedManual        => 'CO Person Edited',
     ActionEnum::CoPersonEditedPetition      => 'CO Person Edited (Petition)',
+    ActionEnum::CoPersonManuallyProvisioned => 'CO Person Provisioned (Manual)',
     ActionEnum::CoPersonMatchedPetition     => 'CO Person Matched (Petition)',
+    ActionEnum::CoPersonProvisioned         => 'CO Person Provisioned',
     ActionEnum::CoPersonRoleAddedManual     => 'CO Person Role Created (Manual)',
     ActionEnum::CoPersonRoleAddedPetition   => 'CO Person Role Created (Petition)',
     ActionEnum::CoPersonRoleDeletedManual   => 'CO Person Role Deleted (Manual)',
@@ -218,7 +220,22 @@ $cm_texts['en_US'] = array(
                             StatusEnum::PendingApproval     => 'Pending Approval',
                             StatusEnum::PendingConfirmation => 'Pending Confirmation',
                             StatusEnum::Suspended           => 'Suspended'),
+  
+  'en.status.prov' => array(
+    ProvisionerStatusEnum::AutomaticMode  => 'Automatic Mode',
+    ProvisionerStatusEnum::ManualMode     => 'Manual Mode',
+    ProvisionerStatusEnum::Disabled       => 'Disabled'
+  ),
+  
+  'en.status.prov.desc' =>  'In automatic mode, provisioners are called automatically as needed.<br />In manual mode, an administrator must invoke the provisioner.',
 
+  'en.status.prov.target' => array(
+    ProvisioningStatusEnum::NotProvisioned => 'Not Provisioned',
+    ProvisioningStatusEnum::Provisioned    => 'Provisioned',
+    ProvisioningStatusEnum::Queued         => 'Queued',
+    ProvisioningStatusEnum::Unknown        => 'Unknown'
+  ),
+  
   // Demographics
   'en.nsf.gender' =>       array(NSFGenderEnum::Female => 'Female',
                                  NSFGenderEnum::Male   => 'Male'),
@@ -296,6 +313,7 @@ $cm_texts['en_US'] = array(
   'er.et.exists' =>   'An extended type named "%1$s" already exists',
   'er.et.inuse' =>    'The extended type "%1$s" is in use by at least one attribute within this CO and cannot be removed.',
   'er.fields' =>      'Please recheck the highlighted fields',
+  'er.file.write' =>  'Unable to open "%1$s" for writing',
   'er.gr.exists' =>   'A group named "%1$s" already exists within the CO',
   'er.gr.init' =>     'Group created, but failed to set initial owner/member',
   'er.gr.nf' =>       'Group %1$s Not Found',
@@ -315,7 +333,10 @@ $cm_texts['en_US'] = array(
   'er.notprov.id' =>  '%1$s ID Not Provided',
   'er.person.noex' => 'Person does not exist',
   'er.person.none' => 'No CO Person, CO Person Role, or Org Identity specified',
+  'er.plugin.fail' => 'Failed to load plugin "%1$s"',
   'er.plugin.prov.none' => 'There are no suitable plugins available. No provisioning targets can be added.',
+  // er.prov is a javascript string and so cannot take a parameter
+  'er.prov' =>        'Provisioning failed: ',
   'er.pt.status' =>   'Change of petition status from %1$s to %2$s is not permitted',
   'er.pt.resend.status' => 'Cannot resend an invitation not in Pending Confirmation status',
   'er.reply.unk' =>   'Unknown Reply',
@@ -476,6 +497,7 @@ $cm_texts['en_US'] = array(
   'fd.perms' =>       'Permissions',
   'fd.petitioner' =>  'Petitioner',
   'fd.plugin' =>      'Plugin',
+  'fd.prov.status.for' => 'Provisioning Status for %1$s',
   'fd.req' =>         '* denotes required field',
   'fd.required' =>    'Required',
   'fd.roles' =>       'Roles',
@@ -551,6 +573,10 @@ $cm_texts['en_US'] = array(
   'op.petition' =>    'Petition',
   'op.petition.create' => 'Create Petition',
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',
+  'op.prov' =>        'Provision',
+  'op.prov.confirm' => 'Are you sure you wish to (re)provision this record?',
+  'op.prov.view' =>   'Provisioned Services',
+  'op.prov.wait' =>   'Requesting provisioning, please wait...',
   'op.remove' =>      'Remove',
   'op.save' =>        'Save',
   'op.select' =>      'Select',
@@ -571,6 +597,8 @@ $cm_texts['en_US'] = array(
   'rs.inv.dec-a' =>   'Invitation to %1$s declined',
   'rs.inv.sent' =>    'Invitation sent to %1$s',
   'rs.mail.verified' => 'Email Address "%1$s" verified',
+  'rs.prov-a' =>      'Provisioned %1$s',
+  'rs.prov.ok' =>     'Provisioning completed successfully',
   'rs.pt.approve' =>  'Petition Approved',
   'rs.pt.confirm' =>  'Petition Confirmed',
   'rs.pt.create' =>   'Petition Created', 

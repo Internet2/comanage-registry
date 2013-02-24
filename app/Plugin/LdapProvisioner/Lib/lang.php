@@ -2,7 +2,7 @@
 /**
  * COmanage Registry LDAP Provisioner Plugin Language File
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
@@ -33,8 +33,20 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'ct.co_ldap_provisioner_targets.1'  => 'LDAP Provisioner Target',
   'ct.co_ldap_provisioner_targets.pl' => 'LDAP Provisioner Targets',
   
+  // Error messages
+  'er.ldapprovisioner.basedn'         => 'Base DN not found',
+  'er.ldapprovisioner.connect'        => 'Failed to connect to LDAP server',
+  'er.ldapprovisioner.dn.component'   => 'DN component %1$s not available',
+  'er.ldapprovisioner.dn.none'        => 'DN not found for CO Person %1$s',
+  
   // Plugin texts
-  'pl.ldapprovisioner.binddn'   => 'Bind DN',
-  'pl.ldapprovisioner.password' => 'Password',
-  'pl.ldapprovisioner.server'   => 'Server'
+  'pl.ldapprovisioner.basedn'         => 'Base DN',
+  'pl.ldapprovisioner.basedn.desc'    => 'Base DN to provision entries under',
+  'pl.ldapprovisioner.binddn'         => 'Bind DN',
+  'pl.ldapprovisioner.binddn.desc'    => 'DN to authenticate as to manage entries',
+  'pl.ldapprovisioner.info'           => 'The LDAP server must be available and the specified credentials must be valid before this configuration can be saved.',
+  'pl.ldapprovisioner.password'       => 'Password',
+  'pl.ldapprovisioner.password.desc'  => 'Password to use for authentication',
+  'pl.ldapprovisioner.serverurl'      => 'Server URL',
+  'pl.ldapprovisioner.serverurl.desc' => 'URL to connect to (<tt>ldap[s]://hostname[:port]</tt>)'
 );

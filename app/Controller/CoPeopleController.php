@@ -100,6 +100,7 @@ class CoPeopleController extends StandardController {
       
       $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
     }
+    
     parent::beforeRender();
   }
   
@@ -524,6 +525,10 @@ class CoPeopleController extends StandardController {
                       || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     }
     
+    // (Re)provision an existing CO Person?
+    $p['provision'] = ($roles['cmadmin']
+                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
     // View an existing CO Person?
     $p['view'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']))
@@ -595,6 +600,26 @@ class CoPeopleController extends StandardController {
                             'co' => $this->cur_co['Co']['id']));
     else
       parent::performRedirect();
+  }
+  
+  /**
+   * Obtain provisioning status for CO Person
+   *
+   * @param  integer CO Person ID
+   * @since  COmanage Registry v0.8
+   */
+  
+  function provision($id) {
+    if(!$this->restful) {
+      // Pull some data for the view to be able to render
+      $this->set('co_provisioning_status', $this->CoPerson->provisioningStatus($id));
+      
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $id;
+      $args['contain'][] = 'Name';
+      
+      $this->set('co_person', $this->CoPerson->find('first', $args));
+    }
   }
   
   /**

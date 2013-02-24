@@ -118,6 +118,8 @@ class AppModel extends Model {
    */
   
   public function findCoForRecord($id) {
+    if($this->alias == 'CakeError') return;
+    
     // We need to find a corresponding CO ID, which may or may not be directly in the model.
     
     if(isset($this->validate['co_id'])) {
@@ -169,6 +171,18 @@ class AppModel extends Model {
       if(empty($copr[ $this->alias ]['co_person_id'])
          && !empty($copr[ $this->alias ]['org_identity_id'])) {
         return null;
+      }
+    } elseif(isset($this->validate['co_provisioning_target_id'])) {
+      // Provisioning plugins will refer to a provisioning target
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'CoProvisioningTarget';
+    
+      $copt = $this->find('first', $args);
+      
+      if(!empty($copt['CoProvisioningTarget']['co_id'])) {
+        return $copt['CoProvisioningTarget']['co_id'];
       }
     } else {
       throw new LogicException(_txt('er.co.fail'));

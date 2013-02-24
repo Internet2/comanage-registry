@@ -5,7 +5,7 @@
   Version: $Revision$
   Date: $Date$
 
-  Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
    
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
   the License. You may obtain a copy of the License at
@@ -30,14 +30,37 @@
     <field name="co_provisioning_target_id" type="I">
       <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
     </field>
-    <field name="server" type="C" size="256" />
+    <field name="serverurl" type="C" size="256" />
     <field name="binddn" type="C" size="128" />
     <field name="password" type="C" size="64" />
+    <field name="basedn" type="C" size="128" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
     <index name="co_ldap_provisioner_targets_i1">
       <col>co_provisioning_target_id</col>
+      <unique />
+    </index>
+  </table>
+  
+  <table name="co_ldap_provisioner_dns">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_ldap_provisioner_target_id" type="I">
+      <constraint>REFERENCES cm_co_ldap_provisioner_targets(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="dn" type="C" size="256" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_ldap_provisioner_dns_i1">
+      <col>co_ldap_provisioner_target_id</col>
+      <col>co_person_id</col>
       <unique />
     </index>
   </table>

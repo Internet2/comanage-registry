@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Provisioning Target Model
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -48,12 +48,12 @@ class CoProvisioningTarget extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'description' => array(
-      'rule' => '/.*/',
+      'rule' => 'notEmpty',
       'required' => false
     ),
     'plugin' => array(
       // XXX This should be a dynamically generated list based on available plugins
-      'rule' => '/.*/',
+      'rule' => 'notEmpty',
       'required' => true,
       'message' => 'A plugin must be provided'
     ),
@@ -61,8 +61,9 @@ class CoProvisioningTarget extends AppModel {
       'rule' => array(
         'inList',
         array(
-          StatusEnum::Active,
-          StatusEnum::Suspended
+          ProvisionerStatusEnum::AutomaticMode,
+          ProvisionerStatusEnum::Disabled,
+          ProvisionerStatusEnum::ManualMode
         )
       ),
       'required' => true,

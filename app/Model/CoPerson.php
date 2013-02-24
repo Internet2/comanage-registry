@@ -314,6 +314,84 @@ class CoPerson extends AppModel {
   }
 
   /**
+   * (Re)Provision a CO Person.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Integer CO Person ID to provision
+   * @throws InvalidArgumentException
+   */
+  
+  public function provision($coPersonId) {
+    // Pull the CO Person record and related data for provisioning.
+    // For now, all provisioning modules get the whole ball of data.
+    
+    $args = array();
+    $args['conditions']['CoPerson.id'] = $coPersonId;
+    
+    $coperson = $this->find('first', $args);
+    
+    if(!empty($coperson)) {
+      // XXX next: UI calls /provision
+      // Pull list of provisioning modules and invoke, passing $coperson
+      
+//      debug($coperson);
+    } else {
+      throw new InvalidArgumentException(_txt('er.cop.unk'));
+    }
+    
+    // Find the CO Provisioning targets for this CO
+  }
+  
+  /**
+   * Determine the current status of the provisioning targets for this CO Person.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Integer CO Person ID
+   * @return Array Current status of provisioning targets
+   * @throws RuntimeException
+   */
+  
+  public function provisioningStatus($coPersonId) {
+    // First, obtain the list of active provisioning targets for this person's CO.
+    
+    $args = array();
+    $args['joins'][0]['table'] = 'co_people';
+    $args['joins'][0]['alias'] = 'CoPerson';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPerson.co_id=CoProvisioningTarget.co_id';
+    $args['conditions']['CoPerson.id'] = $coPersonId;
+    $args['conditions']['CoProvisioningTarget.status !='] = ProvisionerStatusEnum::Disabled;
+    $args['contain'] = false;
+    
+    $targets = $this->Co->CoProvisioningTarget->find('all', $args);
+    
+    if(!empty($targets)) {
+      // Next, for each target ask the relevant plugin for the status for this person.
+      
+      // We may end up querying the same Plugin more than once, so maintain a cache.
+      $plugins = array();
+      
+      for($i = 0;$i < count($targets);$i++) {
+        $pluginModelName = $targets[$i]['CoProvisioningTarget']['plugin']
+                         . ".Co" . $targets[$i]['CoProvisioningTarget']['plugin'] . "Target";
+        
+        if(!isset($plugins[ $pluginModelName ])) {
+          $plugins[ $pluginModelName ] = ClassRegistry::init($pluginModelName, true);
+          
+          if(!$plugins[ $pluginModelName ]) {
+            throw new RuntimeException(_txt('er.plugin.fail', array($pluginModelName)));
+          }
+        }
+        
+        $targets[$i]['status'] = $plugins[ $pluginModelName ]->status($targets[$i]['CoProvisioningTarget']['id'],
+                                                                      $coPersonId);
+      }
+    }
+    
+    return $targets;
+  }
+  
+  /**
    * Retrieve list of sponsors for display in dropdown.
    *
    * @since  COmanage Registry v0.3
