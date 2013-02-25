@@ -26,21 +26,33 @@
   $params = array('title' => _txt('fd.people', array($cur_co['Co']['name'])));
   print $this->element("pageTitle", $params);
 
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
+
   if($permissions['enroll'] && !empty($co_enrollment_flows)) {
-    print $this->Html->link(_txt('op.enroll'),
-                            array('controller' => 'co_enrollment_flows', 'action' => 'select', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';    
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-plus',
+      'title'   => _txt('op.enroll'),
+      'url'     => array(
+        'controller' => 'co_enrollment_flows',
+        'action'     => 'select',
+        'co'         => $cur_co['Co']['id']
+      )
+    );    
+
   } elseif($permissions['add']) {
-    print $this->Html->link(_txt('op.inv'),
-                            array('controller' => 'org_identities', 'action' => 'find', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-plus',
+      'title'   => _txt('op.inv'),
+      'url'     => array(
+        'controller' => 'org_identities', 
+        'action'     => 'find', 
+        'co'         => $cur_co['Co']['id']
+      )
+    );
   }  
+
+  $this->set('sidebarButtons', $sidebarButtons);
 ?>
 
 <table id="co_people" class="ui-widget">

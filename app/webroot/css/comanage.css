@@ -79,7 +79,8 @@ body {
   /* Content */
   
   #content {
-    width:960px;
+    min-width: 600px;
+    float: left;
     margin-left:auto;
     margin-right:auto;
     overflow:hidden;
@@ -225,6 +226,15 @@ body {
       #CoPersonRoleEditForm .addbutton{
         float:right;
       }
+
+  /* Sidebar (right) */
+  #sidebar {
+    float: left;
+    min-width: 200px;
+    min-height: 400px;
+    padding: 10px;
+    margin: 60px 0 0 0;
+  }
 
   /* Footer */
   

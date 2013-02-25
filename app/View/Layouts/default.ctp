@@ -320,6 +320,11 @@
         }
       });
     });
+
+    // Turn on the sidebar menus
+    $(function() {
+      $( "#menu" ).menu();
+    });
     </script>
     
     <!-- Include external files and scripts -->
@@ -412,6 +417,32 @@
         <?php print $this->fetch('content'); ?>
       </div>
     </div>
+
+    <?php
+      $sidebarButtons = $this->getVar('sidebarButtons');
+    
+      if($sidebarButtons != null):
+    ?>
+        <!-- Display sidebar for content -->
+        <div id="sidebar">
+          <ul id="menu">
+          <?php
+            foreach($sidebarButtons as $button => $link){
+              print '<li>'; 
+                print $this->Html->link(
+                  '<span class="ui-icon ui-icon-' 
+                    . $link['icon'] 
+                    . '"></span>'
+                    . $link['title'],
+                  $link['url'],
+                  array('escape' => FALSE)
+                ); // end of a
+              print '</li>';
+            }
+          ?>
+          </ul>
+        </div>
+    <?php endif; ?>
     <?php if(Configure::read('debug') > 0) print $this->element('sql_dump'); ?>
 
     <!-- Common UI components -->

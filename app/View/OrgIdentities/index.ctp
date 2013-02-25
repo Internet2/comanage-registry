@@ -28,15 +28,22 @@ global $cm_lang, $cm_texts;
   $params = array('title' => _txt('ct.org_identities.pl'));
   print $this->element("pageTitle", $params);
 
-  if($permissions['add'])
-    print $this->Html->link(_txt('op.add.new', array(_txt('ct.org_identities.1'))),
-                            array('controller' => 'org_identities',
-                                  'action' => 'add',
-                                  'co' => ($pool_org_identities ? false : $this->params['named']['co'])),
-                            array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+  if($permissions['add']) {
+    // Add button to sidebar
+    $sidebarButtons = $this->get('sidebarButtons');
+
+    $sidebarButtons[]  = array(
+      'icon'    => 'circle-plus',
+      'title'   => _txt('op.add.new', array(_txt('ct.org_identities.1'))),
+      'url'     => array(
+        'controller'    => 'org_identities',
+        'action' => 'add',
+        'co' => ($pool_org_identities ? false : $this->params['named']['co'])
+      )
+    );
+
+    $this->set('sidebarButtons', $sidebarButtons);
+  }
 ?>
 
 <table id="org_identities" class="ui-widget">

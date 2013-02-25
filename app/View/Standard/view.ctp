@@ -41,8 +41,8 @@
   }
   print '</div>';
 
-  print '<div style = "float:right">';
-  // If user has edit permission, offer an edit button
+  // If user has edit permission, offer an edit button in the sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
 
   if($permissions['edit'])
   {
@@ -51,9 +51,15 @@
     if(isset($this->params['named']['co']))
       $a['co'] = $this->params['named']['co'];
     
-    echo $this->Html->link(_txt('op.edit'),
-                          $a,
-                          array('class' => 'editbutton'));
+    // Add edit button to the sidebar
+    $sidebarButtons = $this->get('sidebarButtons');
+    $sidebarButtons[] = array(
+      'icon'    => 'pencil',
+      'title'   => _txt('op.edit'),
+      'url'     => $a
+    );
+
+    $this->set('sidebarButtons', $sidebarButtons);
+
   }
 ?>
-</div>

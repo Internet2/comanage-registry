@@ -62,23 +62,25 @@ $(function() {
                                array('default' => $cur_co['Co']['id'])). "\n";
   }
 
-  if($this->action != "add") {
-    print $this->Html->link(
-      _txt('op.history'),
-      array(
-        'controller' => 'history_records',
-        'action' => 'index',
-        'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-        'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
-      ),
-      array('class' => 'historybutton')
-    );
-  }
-?>
-<br />
-<br />
+  // Add links to sidebar
 
-<?php
+  if($this->action != "add") {
+    // Get any existing buttons
+    $sidebarButtons = $this->get('sidebarButtons');
+
+    $sidebarButtons[]  = array(
+      'icon'    => 'note',
+      'title'   => _txt('op.history'),
+      'url'     => array(
+        'controller'    => 'history_records',
+        'action'        => 'index',
+        'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+        'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
+      )
+    );
+
+    $this->set('sidebarButtons', $sidebarButtons);
+  }
 
   // The fields to render are determined by the CMP Enrollment Flow configuration,
   // which is passed to us in $cmp_ef_attributes. The minor gotcha is that MVPAs

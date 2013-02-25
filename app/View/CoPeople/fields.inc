@@ -42,23 +42,23 @@
   if(!$e && !$permissions['view'])
     return(false);
 
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
+  
   if($e)
   {
-    print $this->Html->link(_txt('op.back'),
-                          array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                          array('class' => 'cancelbutton'));
+    // Add related links to the sidebar
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-close',
+      'title'   => _txt('op.back'),
+      'url'     => array(
+        'controller' => 'co_people',
+        'action'     => 'index', 
+        'co'         => $cur_co['Co']['id'])
+    );
     
     if($this->action != "invite")
-    {
-      if(!empty($co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])) {
-        print $this->Html->link(_txt('ct.org_identities.1'),
-                                array('controller' => 'org_identities',
-                                      'action' => ($e && !$es ? 'edit' : 'view'),
-                                      $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'],
-                                      'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                                array('class' => 'linkbutton'));
-      }
-      
+    { 
       // Adjust the link to the NSF Demographics Controller according to whether or
       // not data has been set.
       
@@ -75,9 +75,11 @@
       
       $l['co'] = $co_people[0]['CoPerson']['co_id'];
       
-      print $this->Html->link(_txt('ct.co_nsf_demographics.1'),
-                              $l,
-                              array('class' => 'linkbutton'));
+      $sidebarButtons[] = array(
+        'icon'    => 'image',
+        'title'   => _txt('ct.co_nsf_demographics.1'),
+        'url'     => $l
+      );
       
       // Autogenerate Identifiers button
       if(!empty($co_identifier_assignments)) {
@@ -91,9 +93,16 @@
       
       // Provisioning status
       if($permissions['provision']) {
-        print $this->Html->link(_txt('op.prov.view'),
-                                array('controller' => 'co_people', 'action' => 'provision', $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                array('class' => 'historybutton')); // XXX This should use a different image
+        $sidebarButtons[] = array(
+          'icon'    => 'note',
+          'title'   => _txt('op.prov.view'),
+          'url'     => array(
+            'controller' => 'co_people', 
+            'action'     => 'provision', 
+            $co_people[0]['CoPerson']['id'], 
+            'co'         => $cur_co['Co']['id']
+          )
+        ); 
       }
     }
     
@@ -109,31 +118,37 @@
   else
   {
     // Back button
-    print $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                           array('class' => 'backbutton'));
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-arrow-w',
+      'title'   => _txt('op.back'),
+      'url'     => array(
+        'controller' => 'co_people', 
+        'action' => 'index', 
+        'co' => $cur_co['Co']['id'])
+    );
   }
   
   // View History button
   if($this->action != "add" && $this->action != "invite") {
-    print $this->Html->link(
-      _txt('op.history'),
-      array(
+    $sidebarButtons[] = array(
+      'icon'    => 'note',
+      'title'   => _txt('op.history'),
+      'url'     => array(
         'controller' => 'history_records',
         'action' => 'index',
         'copersonid' => $co_people[0]['CoPerson']['id'],
         'co' => $cur_co['Co']['id']
-      ),
-      array('class' => 'historybutton')
+      )
     );
   }
   
+  // Set buttons for rendering in sidebar  
+  $this->set('sidebarButtons', $sidebarButtons);
 
   // Line number, for rendering
   $l = 1;
 ?>
-<br />
-<br />
+
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->
   
@@ -815,6 +830,7 @@
         </table>
       </div> <!-- tabs-orgid -->
     <?php endif; // if not invite ?>
+  </div>
 </div>
 
 <div id="autogenerate-dialog" title="<?php print _txt('op.id.auto'); ?>">
