@@ -74,20 +74,24 @@ class Cou extends AppModel {
     ),
     'description' => array(
       'rule' => '/.*/',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'parent_id' => array(
       // Strangely, when specified is numeric cake decides to make required = true
       'rule' => '/[0-9]*/',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'lft' => array(
       'rule' => 'numeric',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'rght' => array(
       'rule' => 'numeric',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     )
   );
 

@@ -49,7 +49,8 @@ class CoProvisioningTarget extends AppModel {
     ),
     'description' => array(
       'rule' => 'notEmpty',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'plugin' => array(
       // XXX This should be a dynamically generated list based on available plugins

@@ -68,11 +68,13 @@ class EmailAddress extends AppModel {
     ),
     'co_person_id' => array(
       'rule' => 'numeric',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'org_identity_id' => array(
       'rule' => 'numeric',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   

@@ -111,14 +111,17 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'notify_on_early_provision' => array(
       'rule' => 'email',
+      'required' => false,
       'allowEmpty' => true
     ),
     'notify_on_provision' => array(
       'rule' => 'email',
+      'required' => false,
       'allowEmpty' => true
     ),
     'notify_on_active' => array(
       'rule' => 'email',
+      'required' => false,
       'allowEmpty' => true
     ),
     'status' => array(

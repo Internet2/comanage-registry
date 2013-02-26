@@ -71,7 +71,8 @@ class CoIdentifierAssignment extends AppModel {
     ),
     'description' => array(
       'rule' => '/.*/',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'login' => array(
       'rule' => array('boolean'),

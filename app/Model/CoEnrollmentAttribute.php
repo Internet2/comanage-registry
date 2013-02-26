@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Model
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -60,11 +60,13 @@ class CoEnrollmentAttribute extends AppModel {
     ),
     'ordr' => array(
       'rule' => 'numeric',
+      'required' => false,
       'allowEmpty' => true
     ),
     'description' => array(
       'rule' => '/.*/',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   

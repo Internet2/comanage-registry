@@ -57,11 +57,13 @@ class CoInvite extends AppModel {
     ),
     'mail' => array(
       'rule' => 'email',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'expires' => array(
       'rule' => '/.*/',  // The 'date' rule is too constraining
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   

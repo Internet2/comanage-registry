@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Model
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -85,27 +85,33 @@ class OrgIdentity extends AppModel {
                                       AffiliationEnum::Affiliate,
                                       AffiliationEnum::Employee,
                                       AffiliationEnum::LibraryWalkIn)),
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'co_id' => array(
       'rule' => 'numeric',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'o' => array(
       'rule' => '/.*/',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'organization_id' => array(
       'rule' => 'numeric',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'ou' => array(
       'rule' => '/.*/',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'title' => array(
       'rule' => '/.*/',
-      'required' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
   );
   
