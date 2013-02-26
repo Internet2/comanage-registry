@@ -212,22 +212,29 @@ class AppController extends Controller {
     }
     
     if($this->restful) {
-      // Set up basic auth and attempt to login the API user
+      // Set up basic auth and attempt to login the API user, unless we're already
+      // logged in (ie: via a cookie provided via an AJAX initiated REST call)
       
-      $this->Auth->authenticate = array('Basic');
-      
+      if(!$this->Session->check('Auth.User.username')) {
+        $this->Auth->authenticate = array('Basic');
+        
 //      debug(AuthComponent::password($_SERVER['PHP_AUTH_PW']));
-      
-      if(!$this->Auth->login()) {
-        $this->restResultHeader(401, "Unauthorized");
-        // We force an exit here to prevent any views from rendering, but also
-        // to prevent Cake from dumping the default layout
-        $this->response->send();
-        exit;
+        
+        // XXX It's unclear why, as of Cake 2.3, we need to manually initialize AuthComponent
+        $this->Auth->initialize($this);
+        
+        if(!$this->Auth->login()) {
+          $this->restResultHeader(401, "Unauthorized");
+          // We force an exit here to prevent any views from rendering, but also
+          // to prevent Cake from dumping the default layout
+          $this->response->send();
+          exit;
+        }
       }
       
-      // Disable validation of POST data, which will be an XML document
+      // Disable validation of POST data, which may be an XML document
       // (the security component doesn't know how to validate XML documents)
+// XXX should re-test this and maybe cut a JIRA
       $this->Security->validatePost = false;
       $this->Security->csrfCheck = false;
     }
@@ -1300,6 +1307,17 @@ class AppController extends Controller {
    */
 
   public function verifyRequestedId() {
+    if(!empty($this->request->params['plugin'])) {
+      // If we're accessing a plugin, Cake appears to not yet have loaded the associated
+      // model (probably because it's not defined in $uses anywhere), so force it to load.
+      
+      $m = Inflector::classify($this->request->params['plugin'])
+         . "."
+         . Inflector::classify($this->request->params['controller']);
+      
+      $this->loadModel($m);
+    }
+    
     if(empty($this->cur_co)) {
       // We shouldn't get here without a CO defined
       throw new LogicException(_txt('er.co.specify'));
