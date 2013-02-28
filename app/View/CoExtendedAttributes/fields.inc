@@ -34,15 +34,22 @@
   if(!$e && !$permissions['view'])
     return(false);
     
-  if($e)
-    echo $this->Html->link(_txt('op.cancel'),
-                            array('controller' => 'co_extended_attributes', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'cancelbutton'));
-    
-  echo '
-    <br />
-    <br />
-    ';
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
+  
+  if($e) {
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-close',
+      'title'   => _txt('op.cancel'),
+      'url'     => array(
+        'controller' => 'co_extended_attributes',
+        'action' => 'index',
+        'co' => $cur_co['Co']['id']
+      )
+    );
+  }
+
+  $this->set('sidebarButtons', $sidebarButtons);
 
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>

@@ -26,15 +26,22 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
-  if($permissions['add'])
-    echo $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_extended_attributes.1'),
-                           array('controller' => 'co_extended_attributes',
-                                 'action' => 'add',
-                                 'co' => $cur_co['Co']['id']),
-                           array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
+
+  if($permissions['add']){
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-plus',
+      'title'   => _txt('op.add') . ' ' . _txt('ct.co_extended_attributes.1'),
+      'url'     => array(
+        'controller' => 'co_extended_attributes',
+        'action' => 'add',
+        'co' => $cur_co['Co']['id']
+      )
+    );
+  }
+
+  $this->set('sidebarButtons', $sidebarButtons);
 ?>
 
 <table id="cos" class="ui-widget">

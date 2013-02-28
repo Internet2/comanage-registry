@@ -34,17 +34,23 @@
   if(!$e && !$permissions['view'])
     return(false);
     
-  if($e)
-    print $this->Html->link(_txt('op.cancel'),
-                             array('controller' => 'co_enrollment_attributes',
-                                    'action' => 'index',
-                                    'coef' => Sanitize::html($this->request->params['named']['coef'])),
-                             array('class' => 'cancelbutton'));
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
 
-  print '
-    <br />
-    <br />
-    ';
+  if($e) {
+    // Cancel Button
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-close',
+      'title'   => _txt('op.cancel'),
+      'url'     => array(
+        'controller' => 'co_enrollment_attributes',
+        'action' => 'index',
+        'coef' => Sanitize::html($this->request->params['named']['coef'])
+      )
+    );
+  }
+
+  $this->set('sidebarButtons', $sidebarButtons);
   
   print $this->Form->hidden('co_enrollment_flow_id', array('default' => Sanitize::html($this->request->params['named']['coef']))) . "\n";
 ?>

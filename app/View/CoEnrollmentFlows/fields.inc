@@ -33,25 +33,38 @@
   
   if(!$e && !$permissions['view'])
     return(false);
-    
+     
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
+
   if($e)
   {
-    echo $this->Html->link(_txt('op.cancel'),
-                            array('controller' => 'co_enrollment_flows', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'cancelbutton'));
+    // Cancel Button
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-close',
+      'title'   => _txt('op.cancel'),
+      'url'     => array(
+        'controller' => 'co_enrollment_flows', 
+        'action' => 'index', 
+        'co' => $cur_co['Co']['id']
+      )
+    );
     
-    if($this->action == "edit" && $permissions['edit'])
-      echo $this->Html->link(_txt('op.edit.ea'),
-                              array('controller' => 'co_enrollment_attributes',
-                                    'action' => 'index',
-                                    'coef' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']),
-                              array('class' => 'linkbutton'));
+    // Edit button
+    if($this->action == "edit" && $permissions['edit']){
+      $sidebarButtons[] = array(
+        'icon'    => 'pencil',
+        'title'   => _txt('op.edit.ea'),
+        'url'     => array(
+          'controller' => 'co_enrollment_attributes',
+          'action' => 'index',
+          'coef' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
+        )
+      );
+    }
   }
-
-  echo '
-    <br />
-    <br />
-    ';
+  
+  $this->set('sidebarButtons', $sidebarButtons);
   
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>

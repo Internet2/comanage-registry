@@ -26,21 +26,37 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
-  print $this->Html->link(_txt('op.back'),
-                          array('controller' => 'co_enrollment_flows',
-                                'action' => ($permissions['edit'] ? 'edit' : 'view'),
-                                Sanitize::html($this->request->params['named']['coef']),
-                                'co' => $coid),
-                          array('class' => 'backbutton')) . '
-  ';
+
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
+
+  // Cancel button
+  $sidebarButtons[] = array(
+    'icon'    => 'circle-close',
+    'title'   => _txt('op.back'),
+    'url'     => array(
+      'controller' => 'co_enrollment_flows',
+      'action' => ($permissions['edit'] ? 'edit' : 'view'),
+      Sanitize::html($this->request->params['named']['coef']),
+      'co' => $coid
+    )
+  );
   
-  if($permissions['add'])
-    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_enrollment_attributes.1'),
-                            array('controller' => 'co_enrollment_attributes', 'action' => 'add', 'coef' => Sanitize::html($this->request->params['named']['coef'])),
-                            array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+  // Add button
+  if($permissions['add']) {
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-plus',
+      'title'   => _txt('op.add') . ' ' . _txt('ct.co_enrollment_attributes.1'),
+      'url'     => array(
+        'controller' => 'co_enrollment_attributes', 
+        'action' => 'add', 
+        'coef' => Sanitize::html($this->request->params['named']['coef'])
+      )
+    );
+  }
+  
+  $this->set('sidebarButtons', $sidebarButtons);
+
 ?>
 
 <table id="cous" class="ui-widget">
