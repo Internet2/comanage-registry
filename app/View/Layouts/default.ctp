@@ -429,13 +429,26 @@
           <?php
             foreach($sidebarButtons as $button => $link){
               print '<li>'; 
+                // Clean data
+                $icontitle = '<span class="ui-icon ui-icon-' 
+                             . $link['icon'] 
+                             . '"></span>'
+                             . $link['title'];
+                 
+                $url = $link['url'];
+
+                $options = array_merge(array('escape' => FALSE),
+                                       (array)$link['options']
+                                      );
+
+                // Use the built in Cakephp popup
+                $popup = $link['popup'];
+                
                 print $this->Html->link(
-                  '<span class="ui-icon ui-icon-' 
-                    . $link['icon'] 
-                    . '"></span>'
-                    . $link['title'],
-                  $link['url'],
-                  array('escape' => FALSE)
+                  $icontitle,
+                  $url,
+                  $options,
+                  $popup
                 ); // end of a
               print '</li>';
             }

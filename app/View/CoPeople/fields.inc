@@ -83,12 +83,11 @@
       
       // Autogenerate Identifiers button
       if(!empty($co_identifier_assignments)) {
-        print '<a
-                class="autobutton"
-                title="' . _txt('op.id.auto') . '"
-                onclick="javascript:js_confirm_autogenerate()";>'
-                . _txt('op.id.auto')
-                . "</a>\n";
+        $sidebarButtons[] = array(
+            'icon'    => 'script',
+            'title'   => _txt('op.id.auto'),
+            'url'     => 'javascript:js_confirm_autogenerate();' // Does not work when added in options
+          );
       }
       
       // Provisioning status
