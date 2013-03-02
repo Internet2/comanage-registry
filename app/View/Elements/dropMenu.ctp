@@ -345,12 +345,12 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
 
                 // Adjust the link to the NSF Demographics Controller according to whether or
                 // not data has been set.
-                if(empty($co_people[0]['CoNsfDemographic']['id'])) {
+                if(empty($menuContent['CoNsfDemographic'][id])) {
                   $args['action'] = 'add';
-                  $args['copersonid'] = $co_people[0]['CoPerson']['id'];
+                  $args['copersonid'] = $mycos[0]['co_person_id'];
                 } else {
                   $args['action'] = 'edit';
-                  $args[] = $co_people[0]['CoNsfDemographic']['id'];
+                  $args[] = $menuContent['CoNsfDemographic']['id'];
                 }
 
                 print $this->Html->link(_txt('me.for', array($co['co_name'])), $args);

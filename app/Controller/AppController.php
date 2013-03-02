@@ -1114,6 +1114,12 @@ class AppController extends Controller {
         $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus;
       }
     }
+
+    // Determine user's own NSF Demographics id
+
+    $this->loadModel('CoPerson');
+    $persondata = $this->CoPerson->findById($orgIDs[0]['co_id']);
+    $menu['CoNsfDemographic']['id'] = $persondata['CoNsfDemographic']['id'];
     
     $this->set('menuContent', $menu);
   }
