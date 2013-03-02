@@ -341,9 +341,19 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                 $args = array(
                   'plugin' => null,
                   'controller' => 'co_nsf_demographics',
-                  'action' => 'editself',
-                  'co' => $co['co_id']
+                                    'co' => $co['co_id']
                 );
+
+                // Adjust the link to the NSF Demographics Controller according to whether or
+                // not data has been set.
+                if(empty($co_people[0]['CoNsfDemographic']['id'])) {
+                  $args['action'] = 'add';
+                  $args['copersonid'] = $co_people[0]['CoPerson']['id'];
+                } else {
+                  $args['action'] = 'edit';
+                  $args[] = $co_people[0]['CoNsfDemographic']['id'];
+                }
+
                 print $this->Html->link(_txt('me.for', array($co['co_name'])), $args);
               print "</li>";
             }
