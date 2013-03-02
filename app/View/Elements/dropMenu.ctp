@@ -317,7 +317,6 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
             foreach ($mycos as $co) {
               print "<li>";
                 $args = array(
-                  'plugin' => 'null',
                   'controller' => 'co_people',
                   'action' => 'edit',
                   $co['co_person_id'],
