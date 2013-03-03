@@ -345,7 +345,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
 
                 // Adjust the link to the NSF Demographics Controller according to whether or
                 // not data has been set.
-                if(empty($menuContent['CoNsfDemographic'][id])) {
+                if(empty($menuContent['CoNsfDemographic']['id'])) {
                   $args['action'] = 'add';
                   $args['copersonid'] = $mycos[0]['co_person_id'];
                 } else {
