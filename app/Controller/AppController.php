@@ -1102,7 +1102,7 @@ class AppController extends Controller {
         $menu['cos'][ $data['Co']['id'] ] = $data['Co']['name'];
     } elseif($this->Session->check('Auth.User.cos')) {
       // Show only COs that a user is a member of
-      foreach($this->Session->read('Auth.User.cos') as $name => $data)
+      foreach($this->Session->read('Auth.User.cos') as $name => $data){
         $menu['cos'][ $data['co_id'] ] = $data['co_name'];
     }
     
@@ -1115,12 +1115,28 @@ class AppController extends Controller {
       }
     }
 
-    // Determine user's own NSF Demographics id
-
-    $this->loadModel('CoPerson');
-    $persondata = $this->CoPerson->findById($orgIDs[0]['co_id']);
-    $menu['CoNsfDemographic']['id'] = $persondata['CoNsfDemographic']['id'];
+    // Determine user's own NSF Demographics ids
+    $this->loadModel('CoNsfDemographic');
     
+    foreach($this->Session->read('Auth.User.cos') as $name => $data){
+      // Grab co person id
+      $demodata = $this->CoNsfDemographic->findByCoPersonId($data['co_person_id']);
+
+      if(!empty($demodata)) {
+        // Edit if it already exists for this CO
+        $menu['CoNsfDemographic'][] = array('id'      => $demodata['CoNsfDemographic']['id'],
+                                            'action'  => 'edit',
+                                            'co_id'   => $data['co_id'],
+                                            'co_name' => $data['co_name']
+                                            );
+      } else {
+        // Add if it does not exist for this CO
+        $menu['CoNsfDemographic'][] = array('action'       => 'add',
+                                            'co_id'        => $data['co_id'],
+                                            'co_name'      => $data['co_name'],
+                                            'co_person_id' => $data['co_person_id']);
+      }
+    }
     $this->set('menuContent', $menu);
   }
   

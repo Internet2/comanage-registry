@@ -335,25 +335,29 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                      <span class="sf-sub-indicator"> »</span>
                      <ul>';
 
-            foreach ($mycos as $co) {
+            foreach ($menuContent['CoNsfDemographic'] as $d) {
               print "<li>";
                 $args = array(
                   'plugin' => null,
                   'controller' => 'co_nsf_demographics',
-                                    'co' => $co['co_id']
+                  'co'         => $d['co_id']
                 );
 
-                // Adjust the link to the NSF Demographics Controller according to whether or
-                // not data has been set.
-                if(empty($menuContent['CoNsfDemographic']['id'])) {
-                  $args['action'] = 'add';
-                  $args['copersonid'] = $co['co_person_id'];
-                } else {
-                  $args['action'] = 'edit';
-                  $args[] = $menuContent['CoNsfDemographic']['id'];
-                }
+                // If the record already exists, the id is needed for edit
+                if(isset($d['id']))
+                  $args[] = $d['id'];
 
-                print $this->Html->link(_txt('me.for', array($co['co_name'])), $args);
+                // Adjust the link to the NSF Demographics Controller according to 
+                // whether or not data has been set already.
+                $args['action'] = $d['action'];
+
+                // If the record does not exist, the person id is needed for add
+                if(isset($d['co_person_id']))
+                  $args['copersonid'] = $d['co_person_id'];
+
+                print $this->Html->link(_txt('me.for', array($d['co_name'])), 
+                                        $args
+                                       );
               print "</li>";
             }
 
