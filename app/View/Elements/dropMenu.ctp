@@ -347,7 +347,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                 // not data has been set.
                 if(empty($menuContent['CoNsfDemographic']['id'])) {
                   $args['action'] = 'add';
-                  $args['copersonid'] = $mycos[0]['co_person_id'];
+                  $args['copersonid'] = $co['co_person_id'];
                 } else {
                   $args['action'] = 'edit';
                   $args[] = $menuContent['CoNsfDemographic']['id'];
