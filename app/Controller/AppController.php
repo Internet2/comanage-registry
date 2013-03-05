@@ -1102,7 +1102,7 @@ class AppController extends Controller {
         $menu['cos'][ $data['Co']['id'] ] = $data['Co']['name'];
     } elseif($this->Session->check('Auth.User.cos')) {
       // Show only COs that a user is a member of
-      foreach($this->Session->read('Auth.User.cos') as $name => $data){
+      foreach($this->Session->read('Auth.User.cos') as $name => $data)
         $menu['cos'][ $data['co_id'] ] = $data['co_name'];
     }
     
@@ -1117,7 +1117,7 @@ class AppController extends Controller {
 
     // Determine user's own NSF Demographics ids
     $this->loadModel('CoNsfDemographic');
-    
+
     foreach($this->Session->read('Auth.User.cos') as $name => $data){
       // Grab co person id
       $demodata = $this->CoNsfDemographic->findByCoPersonId($data['co_person_id']);
