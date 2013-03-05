@@ -65,7 +65,7 @@ class CoNsfDemographic extends AppModel {
       'allowEmpty' => true
     ),
     'race' => array(
-      'rule' => array('inList', array(NSFRaceEnum::Asian,
+      'rule' => array('multiple', array(NSFRaceEnum::Asian,
                                       NSFRaceEnum::AmericanIndian,
                                       NSFRaceEnum::Black,
                                       NSFRaceEnum::NativeHawaiian,
@@ -74,7 +74,7 @@ class CoNsfDemographic extends AppModel {
       'allowEmpty' => true
     ),
     'disability' => array(
-      'rule' => array('inList', array(NSFDisabilityEnum::Hearing,
+      'rule' => array('multiple', array(NSFDisabilityEnum::Hearing,
                                       NSFDisabilityEnum::Visual,
                                       NSFDisabilityEnum::Mobility,
                                       NSFDisabilityEnum::Other)),
