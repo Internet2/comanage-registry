@@ -437,12 +437,15 @@
                  
                 $url = $link['url'];
 
-                $options = array_merge(array('escape' => FALSE),
-                                       (array)$link['options']
-                                      );
+                if(isset($link['options']))
+                  $options = (array)$link['options'];
+                $options['escape'] = FALSE;
 
                 // Use the built in Cakephp popup
-                $popup = $link['popup'];
+                if(isset($link['popup']))
+                  $popup = $link['popup'];
+                else
+                  $popup = null;
                 
                 print $this->Html->link(
                   $icontitle,
