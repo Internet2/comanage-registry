@@ -21,7 +21,18 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
+?>
+<script>
+  $(function() {
+    $( "#accordion" ).accordion({
+      collapsible: true,
+      active     : false
+    });
+  });
 
+</script>
+
+<?php
 // Globals
 global $cm_lang, $cm_texts;
 
@@ -45,7 +56,35 @@ global $cm_lang, $cm_texts;
     $this->set('sidebarButtons', $sidebarButtons);
   }
 ?>
+<div id="accordion">
+  <h3>Search</h3>
+  <div>
+    <?php print $this->Form->create('OrgIdentity',array('action'=>'search'));?>
+      <fieldset>
+        <legend><?php __('OrgIdentity Search');?></legend>
+    <?php
+        print $this->Form->input('Search.givenName');
+        print $this->Form->input('Search.familyName');
+        
+        print $this->Form->input('Search.organization');
+        print $this->Form->input('Search.department');
+        print $this->Form->input('Search.title');
 
+        $searchOptions = $cm_texts[ $cm_lang ]['en.affil'];
+        $formParams = array('options' => $searchOptions,
+                            'type'    => 'select',
+                            'empty'   => '',
+                            'label'   => 'Affiliation');
+        print $this->Form->input('Search.affiliation', $formParams);
+        print $this->Form->input('Search.organizationID');
+
+        print $this->Form->submit('Search');
+      ?>
+      </fieldset>
+  <?php print $this->Form->end();?>
+  </div>
+</div>
+ 
 <table id="org_identities" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">

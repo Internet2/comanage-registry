@@ -324,6 +324,8 @@ class OrgIdentitiesController extends StandardController {
   
       // View all existing Org People?
       $p['index'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
+      $p['search'] = $p['find'];
+
       
       // View an existing Org Person?
       $p['view'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin'] || $self);
@@ -345,6 +347,7 @@ class OrgIdentitiesController extends StandardController {
       
       // Find an Org Person to add to a CO?
       $p['find'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+      $p['search'] = $p['find'];
       
       // View all existing Org People?
       $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
@@ -369,6 +372,67 @@ class OrgIdentitiesController extends StandardController {
   }
 
   /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v0.8
+   * @return Array An array suitable for use in $this->paginate
+   */
+  
+  function paginationConditions() {
+    $pagcond = array();
+    
+    // Set page title
+    $this->set('title_for_layout', _txt('ct.org_identities.pl'));
+
+    // Use server side pagination
+
+    // Filter by given name
+    if(!empty($this->params['named']['Search.givenName'])) {
+      $searchterm = $this->params['named']['Search.givenName'];
+      $pagcond['Name.given LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by Family name
+    if(!empty($this->params['named']['Search.familyName'])) {
+      $searchterm = $this->params['named']['Search.familyName'];
+      $pagcond['Name.family LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by Organization
+    if(!empty($this->params['named']['Search.organization'])) {
+      $searchterm = $this->params['named']['Search.organization'];
+      $pagcond['OrgIdentity.o LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by given department
+    if(!empty($this->params['named']['Search.department'])) {
+      $searchterm = $this->params['named']['Search.department'];
+      $pagcond['OrgIdentity.ou LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by title
+    if(!empty($this->params['named']['Search.title'])) {
+      $searchterm = $this->params['named']['Search.title'];
+      $pagcond['OrgIdentity.title LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by affiliation
+    if(!empty($this->params['named']['Search.affiliation'])) {
+      $searchterm = $this->params['named']['Search.affiliation'];
+      $pagcond['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by Organization ID
+    if(!empty($this->params['named']['Search.organizationID'])) {
+      $searchterm = $this->params['named']['Search.organizationID'];
+      $pagcond['OrgIdentity.organization_id LIKE'] = "%$searchterm%";
+    }
+
+    return($pagcond);
+  }
+
+
+  /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
@@ -386,6 +450,22 @@ class OrgIdentitiesController extends StandardController {
                             'co' => (isset($this->viewVars['cur_co']['Co']['id']) ? $this->viewVars['cur_co']['Co']['id'] : false)));
     else
       parent::performRedirect();
+  }
+  
+  function search() {
+    // the page we will redirect to
+    $url['action'] = 'index';
+     
+    // build a URL will all the search elements in it
+    // the resulting URL will be 
+    // example.com/registry/org_identities/index/Search.givenName:albert/Search.familyName:einstein
+    foreach ($this->data['Search'] as $field=>$value){
+      if(!empty($value))
+        $url['Search.'.$field] = $value; 
+    }
+
+    // redirect the user to the url
+    $this->redirect($url, null, true);
   }
 
   function selectvialdap()
