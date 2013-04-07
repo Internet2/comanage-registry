@@ -34,6 +34,31 @@ App::uses('Model', 'Model');
  * @package       registry
  */
 class AppModel extends Model {
+  public function beforeDelete($cascade = true) {
+    if($cascade) {
+      // Load any plugins and figure out which (if any) have foreign keys to belongTo this model
+      
+      foreach(App::objects('plugin') as $p) {
+        $pluginModel = ClassRegistry::init($p . "." . $p);
+        
+        if(!empty($pluginModel->cmPluginHasMany)
+           && !empty($pluginModel->cmPluginHasMany[ $this->name ])) {
+          foreach($pluginModel->cmPluginHasMany[ $this->name ] as $fkModel) {
+            $assoc = array();
+            $assoc['hasMany'][ $fkModel ] = array(
+              'className' => $fkModel,
+              'dependent' => true
+            );
+            
+            $this->bindModel($assoc, false);
+          }
+        }
+      }
+    }
+    
+    return true;
+  }
+  
   /**
    * For models that support Extended Types, obtain the default types.
    *

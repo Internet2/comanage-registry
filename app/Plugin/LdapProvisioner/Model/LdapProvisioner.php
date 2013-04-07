@@ -28,4 +28,9 @@ class LdapProvisioner extends AppModel {
 
   // Expose Menu Items
   public $cmPluginMenus = array();
+  
+  // Document foreign keys
+  public $cmPluginHasMany = array(
+    "CoPerson" => array("CoLdapProvisionerDn")
+  );
 }

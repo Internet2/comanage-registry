@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO LDAP Provisioner Export Model
+ * COmanage Registry CO Changelog Provisioner Export Model
  *
  * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -30,7 +30,10 @@ class CoChangelogProvisionerExport extends AppModel {
   public $actsAs = array('Containable');
   
   // Association rules from this model to other models
-  public $belongsTo = array("ChangelogProvisioner.CoChangelogProvisionerTarget");
+  public $belongsTo = array(
+    "ChangelogProvisioner.CoChangelogProvisionerTarget",
+    "CoPerson"
+  );
     
   // Default display field for cake generated views
   public $displayField = "exporttime";

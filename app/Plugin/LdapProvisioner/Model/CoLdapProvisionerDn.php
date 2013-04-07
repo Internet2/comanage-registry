@@ -30,7 +30,10 @@ class CoLdapProvisionerDn extends AppModel {
   public $actsAs = array('Containable');
   
   // Association rules from this model to other models
-  public $belongsTo = array("LdapProvisioner.CoLdapProvisionerTarget");
+  public $belongsTo = array(
+    "LdapProvisioner.CoLdapProvisionerTarget",
+    "CoPerson"
+  );
     
   // Default display field for cake generated views
   public $displayField = "dn";
