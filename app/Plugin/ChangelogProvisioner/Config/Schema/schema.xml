@@ -55,7 +55,7 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <index name="co_changelog_provisioner_dns_i1">
+    <index name="co_changelog_provisioner_targets_i1">
       <col>co_changelog_provisioner_target_id</col>
       <col>co_person_id</col>
       <unique />
