@@ -29,6 +29,9 @@ class Name extends AppModel {
   // Current schema version for API
   public $version = "1.0";
   
+  // Add behaviors
+  public $actsAs = array('Provisioner');
+  
   // Association rules from this model to other models
   public $belongsTo = array(
     // A name is attached to a CO Person

@@ -195,8 +195,24 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     // XXX CO-548 - Implement the other ProvisioningActions
     switch($op) {
+      case ProvisioningActionEnum::CoPersonAdded:
+        $assigndn = true;
+        $delete = false;  // Arguably, this should be true to clear out any prior debris
+        $add = true;
+        break;
+      case ProvisioningActionEnum::CoPersonDeleted:
+        $assigndn = false;
+        $delete = true;
+        $add = false;
+        break;
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
         $assigndn = true;
+        $delete = true;
+        $add = true;
+        break;
+      case ProvisioningActionEnum::CoPersonUpdated:
+        $assigndn = true;  // An update may cause an existing person to be written to LDAP for the first time
+        // XXX This should really become a $modify
         $delete = true;
         $add = true;
         break;
@@ -260,8 +276,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     if(!empty($coPersonData['CoPersonRole'][0]['Address'][0]['postal_code'])) {
       $attributes['postalcode'] = $coPersonData['CoPersonRole'][0]['Address'][0]['postal_code'];
     }
-    if(!empty($coPersonData['CoPersonRole'][0]['TelephoneNumber'][0]['number'])) {
-      $attributes['telephonenumber'] = $coPersonData['CoPersonRole'][0]['TelephoneNumber'][0]['number'];
+    if(!empty($coPersonData['CoPersonRole'][0]['TelephoneNumber'])) {
+      foreach($coPersonData['CoPersonRole'][0]['TelephoneNumber'] as $t) {
+        $attributes['telephonenumber'][] = $t['number'];
+      }
     }
     if(!empty($coPersonData['EmailAddress'][0]['mail'])) {
       $attributes['mail'] = $coPersonData['EmailAddress'][0]['mail'];

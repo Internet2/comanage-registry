@@ -290,6 +290,7 @@ $cm_texts['en_US'] = array(
   'er.cop.nf' =>      'CO Person Role %1$s Not Found',
   'er.copr.exists' => '%1$s has one or more CO Person Roles and cannot be removed.',
   'er.copr.none' =>   'CO Person Role Not Provided',
+  'er.copt.unk' =>    'Unknown CO Provisioning Target',
   'er.cou.copr' =>    'There are still one or more CO person role records in the COU %1$s, and so it cannot be deleted.',
   'er.cou.child' =>   'COUs with children can not be deleted',
   'er.cou.cycle' =>   'Parent is a descendant.  Cycles are not permitted.',
@@ -337,6 +338,7 @@ $cm_texts['en_US'] = array(
   'er.plugin.prov.none' => 'There are no suitable plugins available. No provisioning targets can be added.',
   // er.prov is a javascript string and so cannot take a parameter
   'er.prov' =>        'Provisioning failed: ',
+  'er.prov.plugin' => 'Provisioning failed for %1$s: %2$s',
   'er.pt.status' =>   'Change of petition status from %1$s to %2$s is not permitted',
   'er.pt.resend.status' => 'Cannot resend an invitation not in Pending Confirmation status',
   'er.reply.unk' =>   'Unknown Reply',

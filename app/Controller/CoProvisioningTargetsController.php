@@ -217,78 +217,44 @@ class CoProvisioningTargetsController extends StandardController {
   function provision($id) {
     if($this->restful) {
       if(!empty($this->request->params['named']['copersonid'])) {
-        // Find the associated Provisioning Target record
+        // Make sure copersonid is in the same CO as $id
         
         $args = array();
+        $args['joins'][0]['table'] = 'co_people';
+        $args['joins'][0]['alias'] = 'CoPerson';
+        $args['joins'][0]['type'] = 'INNER';
+        $args['joins'][0]['conditions'][0] = 'CoProvisioningTarget.co_id=CoPerson.co_id';
         $args['conditions']['CoProvisioningTarget.id'] = $id;
-        // Since beforeFilter bound all the plugins, this find will pull the related
-        // models as well. However, to reduce the number of database queries should a
-        // large number of plugins be installed, we'll use containable behavior and
-        // make a second call for the plugin we want.
+        $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
         $args['contain'] = false;
         
-        $copt = $this->CoProvisioningTarget->find('first', $args);
+        if($this->CoProvisioningTarget->find('count', $args) < 1) {
+          $this->restResultHeader(404, "CoPerson Not Found");
+          return;
+        }
         
-        if(!empty($copt['CoProvisioningTarget']['plugin'])) {
-          $pluginName = $copt['CoProvisioningTarget']['plugin'];
-          $modelName = 'Co'. $pluginName . 'Target';
-          $pluginModelName = $pluginName . "." . $modelName;
-          
-          // We need to manually attach the model, although if we weren't using containable
-          // the above find would have done this automatically for us (under $this->CoProvisioningTarget).
-          $this->loadModel($pluginModelName);
-          
-          $args = array();
-          $args['conditions'][$modelName.'.co_provisioning_target_id'] = $id;
-          $args['contain'] = false;
-          
-          $pluginTarget = $this->$modelName->find('first', $args);
-          
-          if(!empty($pluginTarget)) {
-            $args = array();
-            $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
-            // Only pull related models relevant for provisioning
-            $args['contain'] = array(
-              'Co',
-              'CoGroupMember',
-              'CoOrgIdentityLink',
-              'CoPersonRole',
-              'CoPersonRole.Address',
-              'CoPersonRole.Cou',
-              'CoPersonRole.TelephoneNumber',
-              'EmailAddress',
-              'Identifier', 
-              'Name'
-            );
-            
-            $coPersonData = $this->CoProvisioningTarget->Co->CoPerson->find('first', $args);
-            
-            if(!empty($coPersonData)) {
-              try {
-                $this->$modelName->provision($pluginTarget,
-                                             ProvisioningActionEnum::CoPersonReprovisionRequested,
-                                             $coPersonData);
-                
-                $this->CoProvisioningTarget->Co->CoPerson->HistoryRecord->record(
-                  $coPersonData['CoPerson']['id'],
-                  null,
-                  null,
-                  $this->Session->read('Auth.User.co_person_id'),
-                  ActionEnum::CoPersonManuallyProvisioned,
-                  _txt('rs.prov-a', array($copt['CoProvisioningTarget']['description']))
-                );
-              }
-              catch(RuntimeException $e) {
-                $this->restResultHeader(500, $e->getMessage());
-              }
-            } else {
+        // Attach ProvisionerBehavior and manually invoke provisioning
+        
+        $this->CoProvisioningTarget->Co->CoPerson->Behaviors->load('Provisioner');
+        
+        try {
+          $this->CoProvisioningTarget->Co->CoPerson->manualProvision($id, $this->request->params['named']['copersonid']);
+        }
+        catch(InvalidArgumentException $e) {
+          switch($e->getMessage()) {
+            case _txt('er.cop.unk'):
               $this->restResultHeader(404, "CoPerson Not Found");
-            }
-          } else {
-            $this->restResultHeader(404, "CoProvisioningTarget Not Found");
+              break;
+            case _txt('er.copt.unk'):
+              $this->restResultHeader(404, "CoProvisioningTarget Not Found");
+              break;
+            default:
+              $this->restResultHeader(500, $e->getMessage());
+              break;
           }
-        } else {
-          $this->restResultHeader(404, "CoProvisioningTarget Not Found");
+        }
+        catch(RuntimeException $e) {
+          $this->restResultHeader(500, $e->getMessage());
         }
       } else {
         $this->restResultHeader(404, "CoPerson Not Found");

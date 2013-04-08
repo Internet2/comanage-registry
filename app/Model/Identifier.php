@@ -43,7 +43,7 @@ class Identifier extends AppModel {
   // Default ordering for find operations
   public $order = array("identifier");
   
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable', 'Provisioner');
   
   // Validation rules for table elements
   public $validate = array(
