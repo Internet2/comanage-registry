@@ -28,10 +28,14 @@
   // App::import doesn't handle this correctly
   require(APP . '/Vendor/adodb/adodb.inc.php');
   require(APP . '/Vendor/adodb/adodb-xmlschema03.inc.php');
+  
+  // On some installs, AppController isn't loaded by App::import
+  require(APP . '/Controller/AppController.php');
 
   class DatabaseShell extends AppShell {
     function main()
     {
+      print get_include_path();
       // Database schema management. We use adodb rather than Cake's native schema
       // management because the latter is lacking (foreign keys not migrated, hard
       // to do upgrades).
