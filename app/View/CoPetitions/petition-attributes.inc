@@ -106,6 +106,7 @@
               // Use default field
               
               $args = array();
+              $args['required'] = $ea['required'];
               
               // Use a provided default value, if one specified
               if(isset($ea['default'])) {
