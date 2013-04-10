@@ -198,10 +198,11 @@ class CoEnrollmentFlow extends AppModel {
    * @since  COmanage Registry v0.7
    * @param  Integer CO Enrollment Flow ID
    * @param  Integer CO Person ID
+   * @param  RoleComponent
    * @return Boolean True if the CO Person is authorized, false otherwise
    */
   
-  public function authorizeById($coEfId, $coPersonId) {
+  public function authorizeById($coEfId, $coPersonId, $Role) {
     // Retrieve the Enrollment Flow and pass it along
     
     $args = array();
@@ -215,6 +216,6 @@ class CoEnrollmentFlow extends AppModel {
       return false;
     }
     
-    return $this->authorize($ef, $coPersonId);
+    return $this->authorize($ef, $coPersonId, $Role);
   }
 }

@@ -516,7 +516,8 @@ class CoPeopleController extends StandardController {
     
     if(isset($this->request->named['coef'])) {
       $flowAuthorized = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->authorizeById($this->request->named['coef'],
-                                                                                         $roles['copersonid']);
+                                                                                         $roles['copersonid'],
+                                                                                         $this->Role);
       
       $p['match_policy'] = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->field('match_policy',
                                                                                     array('CoEnrollmentFlow.id' => $this->request->named['coef']));
