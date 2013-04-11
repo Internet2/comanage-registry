@@ -113,6 +113,7 @@ class CoPersonRole extends AppModel {
                                       StatusEnum::Invited,
                                       StatusEnum::Pending,
                                       StatusEnum::PendingApproval,
+                                      StatusEnum::PendingConfirmation,
                                       StatusEnum::Suspended))
     ),
     'sponsor_co_person_id' => array(

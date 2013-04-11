@@ -277,6 +277,9 @@ class CoEnrollmentAttribute extends AppModel {
             $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Cou->find('list', $args);
             $attr['validate']['rule'][0] = 'inList';
             $attr['validate']['rule'][1] = array_keys($attr['select']);
+            // As of Cake 2.1, inList doesn't work for integers unless you set strict to false
+            // https://cakephp.lighthouseapp.com/projects/42648/tickets/2770-inlist-doesnt-work-more-in-21
+            $attr['validate']['rule'][2] = false;
           } else {
             // Default behavior for all other attributes
             
