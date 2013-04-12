@@ -25,7 +25,7 @@
 class ChangelogProvisioner extends AppModel {
   // Required by COmanage Plugins
   // To enable this plugin, change the plugin type to "provisioner"
-  public $cmPluginType = "disabled-provisioner";
+  public $cmPluginType = "provisioner";
 
   // Expose Menu Items
   public $cmPluginMenus = array();

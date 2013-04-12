@@ -69,6 +69,7 @@
   {
     // Enable or disable gadgets according to current state
     
+// XXX clean this up    
     // Treat self_enroll values as a set
     document.getElementById('CmpEnrollmentConfigurationSelfRequireAuthn').disabled =
       !document.getElementById('CmpEnrollmentConfigurationSelfEnroll').checked;

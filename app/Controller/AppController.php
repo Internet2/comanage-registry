@@ -1346,7 +1346,10 @@ class AppController extends Controller {
     }
     
     // Specifically whitelist the actions we ignore
-    if(!$this->action != 'index' && $this->action != 'add') {
+    if(!$this->action != 'index'
+       && $this->action != 'add'
+       && !($this->modelClass == 'CoInvite'
+            && ($this->action == 'confirm' || $this->action == 'decline'))) {
       // Only act if a record ID parameter was passed
       if(!empty($this->request->params['pass'][0])) {
         $modelName = $this->modelClass;
