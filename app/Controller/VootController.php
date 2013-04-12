@@ -202,7 +202,7 @@ class VootController extends StandardController {
    */
   
   function isAuthorized() {
-    $roles = $this->Roles->calculateCMRoles();
+    $roles = $this->Role->calculateCMRoles();
     
     // Perform various VOOT retrievals?
     $p['groups'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
