@@ -284,6 +284,7 @@ class StatusEnum
 {
   const Active              = 'A';
   const Approved            = 'Y';
+  const Confirmed           = 'C';
   const Deleted             = 'D';
   const Denied              = 'N';
   const Invited             = 'I';

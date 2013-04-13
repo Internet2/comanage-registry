@@ -119,12 +119,11 @@ class CoInvite extends AppModel {
               }
             }
             
-            // Update status to Approved. If this petition requires approval, updateStatus()
-            // will detect that and change the status to PendingApproval instead.
+            // Update status to Confirmed. updateStatus() will promote to PendingApproval or whatever
             
             try {
               $this->CoPetition->updateStatus($invite['CoPetition']['id'],
-                                              StatusEnum::Approved,
+                                              StatusEnum::Confirmed,
                                               $invite['CoPetition']['enrollee_co_person_id']);
             }
             catch(Exception $e) {

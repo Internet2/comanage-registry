@@ -988,19 +988,24 @@ class CoPetition extends AppModel {
     
     if($curStatus == StatusEnum::PendingConfirmation) {
       // A Petition can go from Pending Confirmation to Pending Approval, Approved, or Denied.
+      // It can also go to Confirmed, though we'll override that.
       
       if($newStatus == StatusEnum::Approved
+         || $newStatus == StatusEnum::Confirmed
          || $newStatus == StatusEnum::Denied
          || $newStatus == StatusEnum::PendingApproval) {
         $valid = true;
       }
       
-      // If newStatus is Approved but approval is required, update to PendingApproval instead
+      // If newStatus is Confirmed, set to PendingApproval or Approved as necessary,
       // and create an additional history record.
       
-      if($newStatus == StatusEnum::Approved
-         && $enrollmentFlow['CoEnrollmentFlow']['approval_required']) {
-        $newPetitionStatus = StatusEnum::PendingApproval;
+      if($newStatus == StatusEnum::Confirmed) {
+        if($enrollmentFlow['CoEnrollmentFlow']['approval_required']) {
+          $newPetitionStatus = StatusEnum::PendingApproval;
+        } else {
+          $newPetitionStatus = StatusEnum::Approved;
+        }
         
         try {
           $this->CoPetitionHistoryRecord->record($id,
@@ -1027,11 +1032,11 @@ class CoPetition extends AppModel {
     $coPersonRoleID = $this->field('enrollee_co_person_role_id');    
     
     if($coPersonRoleID) {
-      $newCoPersonStatus = $newStatus;
+      $newCoPersonStatus = $newPetitionStatus;
       
       // XXX This is temporary for CO-321 since there isn't currently a way for an approved person
       // to become active. This should be dropped when a more workflow-oriented mechanism is implemented.
-      if($newStatus == StatusEnum::Approved) {
+      if($newPetitionStatus == StatusEnum::Approved) {
         $newCoPersonStatus = StatusEnum::Active;
       }
     }
@@ -1066,6 +1071,9 @@ class CoPetition extends AppModel {
         switch($newStatus) {
           case StatusEnum::Approved:
             $petitionAction = PetitionActionEnum::Approved;
+            break;
+          case StatusEnum::Confirmed:
+            $petitionAction = PetitionActionEnum::InviteConfirmed;
             break;
           case StatusEnum::Denied:
             $petitionAction = PetitionActionEnum::Denied;
@@ -1111,7 +1119,7 @@ class CoPetition extends AppModel {
         }
       }
       
-      // Maybe update CO Person state, but only if it's currently Pending Approval
+      // Maybe update CO Person state, but only if it's currently Pending Approval or Pending Confirmation
       
       if(!$fail && isset($newCoPersonStatus)) {
         $coPersonID = $this->field('enrollee_co_person_id');
@@ -1122,7 +1130,8 @@ class CoPetition extends AppModel {
           $curCoPersonStatus = $this->EnrolleeCoPerson->field('status');
           
           if(isset($curCoPersonStatus)
-             && ($curCoPersonStatus == StatusEnum::PendingApproval)) {
+             && ($curCoPersonStatus == StatusEnum::PendingApproval
+                 || $curCoPersonStatus == StatusEnum::PendingConfirmation)) {
             $this->EnrolleeCoPerson->saveField('status', $newCoPersonStatus);
             
             // Create a history record
@@ -1153,7 +1162,7 @@ class CoPetition extends AppModel {
       
       // Maybe assign identifiers, but only for new approvals
       
-      if(!$fail && $newStatus == StatusEnum::Approved) {
+      if(!$fail && $newPetitionStatus == StatusEnum::Approved) {
         $coID = $this->field('co_id');
         $coPersonID = $this->field('enrollee_co_person_id');
         
