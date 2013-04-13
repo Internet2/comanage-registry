@@ -1349,7 +1349,7 @@ class AppController extends Controller {
     if(!$this->action != 'index'
        && $this->action != 'add'
        && !($this->modelClass == 'CoInvite'
-            && ($this->action == 'confirm' || $this->action == 'decline'))) {
+            && ($this->action == 'authconfirm' || $this->action == 'confirm' || $this->action == 'decline'))) {
       // Only act if a record ID parameter was passed
       if(!empty($this->request->params['pass'][0])) {
         $modelName = $this->modelClass;
