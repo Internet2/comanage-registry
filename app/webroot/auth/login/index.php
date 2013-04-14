@@ -33,6 +33,11 @@ session_start();
 
 // Set the user
 
+if(empty($_SERVER['REMOTE_USER'])) {
+  print	"ERROR: REMOTE_USER is empty. Please check your configuration.";
+  exit;
+}
+
 $_SESSION['Auth']['external']['user'] = $_SERVER['REMOTE_USER'];
 
 header("Location: " . "/registry/users/login");
