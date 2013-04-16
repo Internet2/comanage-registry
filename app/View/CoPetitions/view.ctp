@@ -1,1 +1,0 @@
-../Standard/view.ctp
