@@ -33,7 +33,7 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
-  print '<div style="float:left">';
+  print '<div style="float:left;width:100%;">';
   if(!empty($this->plugin)) {
     include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/fields.inc");
   } else {

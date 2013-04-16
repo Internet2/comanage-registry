@@ -27,169 +27,167 @@
   
   $l = 1;
 ?>
-
-<div>
-  <div style="float:left">
   
 <h2 class="ui-state-default"><?php print _txt('fd.attrs.pet'); ?></h2>
-
-<table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
-  <tbody>
-    <?php foreach ($co_enrollment_attributes as $ea): ?>
-    <?php $fieldName = $ea['model'] . '.' . $ea['field']; ?>
-    <?php if($ea['hidden']): ?>
-    <?php print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n"; ?>
-    <?php else: ?>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php
-          // Emit the label for this field
-          
-          print "<b>" . $ea['label'] . "</b>";
-          
-          if($ea['required']) {
-            print "<font class=\"required\">*</font>\n";
-          }
-          
-          if(isset($ea['description'])
-             && $ea['description'] != "") {
-            print "</br>\n<font class=\"desc\">" . $ea['description'] . "</font>\n";
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          // Emit the field itself, according to the type of field
-          
-          // The type of validation rule can influence what we output.
-          $ruleType = 'default';
-          
-          if(isset($ea['validate']['rule'][0]))
-            $ruleType = $ea['validate']['rule'][0];
+<div>
+  <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
+    <tbody>
+      <?php foreach ($co_enrollment_attributes as $ea): ?>
+      <?php $fieldName = $ea['model'] . '.' . $ea['field']; ?>
+      <?php if($ea['hidden']): ?>
+      <?php print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n"; ?>
+      <?php else: ?>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <?php
+            // Emit the label for this field
             
-          // XXX need to retrieve current values for edit and view
-          
-          if($e) {
-            switch($ruleType) {
-            case 'inList':
-              // This is a select
-              $attrs = array();
-//              $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
-//                                 ? $co_person_roles[0]['CoPersonRole']['affiliation']
-//                                 : "M");
-              $attrs['empty'] = !$ea['required'];
-              
-              print $this->Form->select($fieldName,
-                                        $ea['select'],
-                                        $attrs);
-              
-              if($this->Form->isFieldError($fieldName)) {
-                print $this->Form->error($fieldName);
-              }
-              break;
-            case 'validateTimestamp':
-              // Handle dates specially to generate the popup calendar
-              $c = 'datepicker';
-              
-              if($ea['field'] == 'valid_from')
-                $c = 'datepicker-f';
-              elseif($ea['field'] == 'valid_until')
-                $c = 'datepicker-c';
-              
-              print $this->Form->text($fieldName, array('class' => $c));
-              
-              if($this->Form->isFieldError($fieldName)) {
-                print $this->Form->error($fieldName);
-              }
-              break;
-            default:
-              // Use default field
-              
-              $args = array();
-              $args['required'] = $ea['required'];
-              
-              // Use a provided default value, if one specified
-              if(isset($ea['default'])) {
-                $args['default'] = $ea['default'];
-              }
-              
-              if($permissions['match']
-                 && ($fieldName == 'EnrolleeCoPerson.Name.given'
-                     || $fieldName == 'EnrolleeCoPerson.Name.family')) {
-                # XXX Temp hack to enable real-time query. This should
-                # instead be enabled for fields with an appropriate flag.
-                $args['class'] = 'matchable';
-              }
-              
-              print $this->Form->input($fieldName, $args);
-              break;
+            print "<b>" . $ea['label'] . "</b>";
+            
+            if($ea['required']) {
+              print "<font class=\"required\">*</font>\n";
             }
             
-            print "\n";
-          } else {
-            // Just emit the current value for this attribute, if set
+            if(isset($ea['description'])
+               && $ea['description'] != "") {
+              print "</br>\n<font class=\"desc\">" . $ea['description'] . "</font>\n";
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            // Emit the field itself, according to the type of field
             
-            if(isset($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ])) {
+            // The type of validation rule can influence what we output.
+            $ruleType = 'default';
+            
+            if(isset($ea['validate']['rule'][0]))
+              $ruleType = $ea['validate']['rule'][0];
+              
+            // XXX need to retrieve current values for edit and view
+            
+            if($e) {
               switch($ruleType) {
               case 'inList':
-                print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
+                // This is a select
+                $attrs = array();
+  //              $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
+  //                                 ? $co_person_roles[0]['CoPersonRole']['affiliation']
+  //                                 : "M");
+                $attrs['empty'] = !$ea['required'];
+                
+                print $this->Form->select($fieldName,
+                                          $ea['select'],
+                                          $attrs);
+                
+                if($this->Form->isFieldError($fieldName)) {
+                  print $this->Form->error($fieldName);
+                }
                 break;
               case 'validateTimestamp':
-                print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]);
+                // Handle dates specially to generate the popup calendar
+                $c = 'datepicker';
+                
+                if($ea['field'] == 'valid_from')
+                  $c = 'datepicker-f';
+                elseif($ea['field'] == 'valid_until')
+                  $c = 'datepicker-c';
+                
+                print $this->Form->text($fieldName, array('class' => $c));
+                
+                if($this->Form->isFieldError($fieldName)) {
+                  print $this->Form->error($fieldName);
+                }
                 break;
               default:
-                print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                // Use default field
+                
+                $args = array();
+                $args['required'] = $ea['required'];
+                
+                // Use a provided default value, if one specified
+                if(isset($ea['default'])) {
+                  $args['default'] = $ea['default'];
+                }
+                
+                if($permissions['match']
+                   && ($fieldName == 'EnrolleeCoPerson.Name.given'
+                       || $fieldName == 'EnrolleeCoPerson.Name.family')) {
+                  # XXX Temp hack to enable real-time query. This should
+                  # instead be enabled for fields with an appropriate flag.
+                  $args['class'] = 'matchable';
+                }
+                
+                print $this->Form->input($fieldName, $args);
                 break;
               }
+              
+              print "\n";
+            } else {
+              // Just emit the current value for this attribute, if set
+              
+              if(isset($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ])) {
+                switch($ruleType) {
+                case 'inList':
+                  print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
+                  break;
+                case 'validateTimestamp':
+                  print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]);
+                  break;
+                default:
+                  print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                  break;
+                }
+              }
             }
-          }
-        ?>
-      </td>
-    </tr>
-    <?php endif; ?>
-    <?php endforeach; ?>
-    <tr>
-      <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
-      </td>
-      <td>
-        <?php
-          if($e)
-            print $this->Form->submit($submit_label);
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+          ?>
+        </td>
+      </tr>
+      <?php endif; ?>
+      <?php endforeach; ?>
+      <tr>
+        <td>
+          <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        </td>
+        <td>
+          <?php
+            if($e)
+              print $this->Form->submit($submit_label);
+          ?>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 <?php if($this->action != 'add'): ?>
 <h2 class="ui-state-default"><?php print _txt('fd.history.pt'); ?></h2>
-
-<table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
-  <tbody>
-    <tr>
-      <th class="ui-state-default"><?php print _txt('fd.action'); ?></th>
-      <th class="ui-state-default"><?php print _txt('fd.actor'); ?></th>
-      <th class="ui-state-default"><?php print _txt('fd.comment'); ?></th>
-      <th class="ui-state-default"><?php print _txt('fd.timestamp'); ?></th>
-    </tr>
-    
-    <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td><?php print $hr['action']; ?></td>
-      <td><?php print generateCn($hr['ActorCoPerson']['Name']); ?></td>
-      <td><?php print $hr['comment']; ?></td>
-      <td><?php print $this->Time->nice($hr['created']); ?></td>
-    </tr>
-    <?php endforeach; // CoPetitionHistoryRecord ?>
-  </tbody>
-</table>
+<div>
+  <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
+    <tbody>
+      <tr>
+        <th class="ui-state-default"><?php print _txt('fd.action'); ?></th>
+        <th class="ui-state-default"><?php print _txt('fd.actor'); ?></th>
+        <th class="ui-state-default"><?php print _txt('fd.comment'); ?></th>
+        <th class="ui-state-default"><?php print _txt('fd.timestamp'); ?></th>
+      </tr>
+      
+      <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td><?php print $hr['action']; ?></td>
+        <td><?php print generateCn($hr['ActorCoPerson']['Name']); ?></td>
+        <td><?php print $hr['comment']; ?></td>
+        <td><?php print $this->Time->nice($hr['created']); ?></td>
+      </tr>
+      <?php endforeach; // CoPetitionHistoryRecord ?>
+    </tbody>
+  </table>
+</div>
 <?php endif; // action == add ?>
 
-  </div>
-</div>
-
+<!-- begin 
 <div>
   <div style="float:right;width:35%" id="results">
   </div>
 </div>
+//-->
