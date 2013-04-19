@@ -226,7 +226,60 @@ class CoGroupMembersController extends StandardController {
 
     return(true);
   }
-
+  
+  /**
+   * Generate history records for a transaction. This method is intended to be
+   * overridden by model-specific controllers, and will be called from within a
+   * try{} block so that HistoryRecord->record() may be called without worrying
+   * about catching exceptions.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  public function generateHistory($action, $newdata, $olddata) {
+    switch($action) {
+      case 'add':
+        $this->CoGroupMember->CoPerson->HistoryRecord->record($olddata['CoGroupMember']['co_person_id'],
+                                                              null,
+                                                              null,
+                                                              $this->Session->read('Auth.User.co_person_id'),
+                                                              ActionEnum::CoGroupMemberAdded,
+                                                              _txt('rs.grm.added', array($olddata['CoGroup']['name'],
+                                                                                         $olddata['CoGroup']['id'],
+                                                                                         _txt($newdata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
+                                                                                         _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))));
+        break;
+      case 'delete':
+        $this->CoGroupMember->CoPerson->HistoryRecord->record($olddata['CoGroupMember']['co_person_id'],
+                                                              null,
+                                                              null,
+                                                              $this->Session->read('Auth.User.co_person_id'),
+                                                              ActionEnum::CoGroupMemberDeleted,
+                                                              _txt('rs.grm.deleted', array($olddata['CoGroup']['name'],
+                                                                                           $olddata['CoGroup']['id'])));
+        break;
+      case 'edit':
+        $this->CoGroupMember->CoPerson->HistoryRecord->record($olddata['CoGroupMember']['co_person_id'],
+                                                              null,
+                                                              null,
+                                                              $this->Session->read('Auth.User.co_person_id'),
+                                                              ActionEnum::CoGroupMemberEdited,
+                                                              _txt('rs.grm.edited', array($olddata['CoGroup']['name'],
+                                                                                          $olddata['CoGroup']['id'],
+                                                                                          _txt($olddata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
+                                                                                          _txt($olddata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'),
+                                                                                          _txt($newdata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
+                                                                                          _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))));
+        break;
+    }
+    
+    return true;
+  }
+  
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
