@@ -109,6 +109,9 @@ $cm_texts['en_US'] = array(
   // Enumerations, corresponding to enum.php
   // Default history comments
   'en.action' =>   array(
+    ActionEnum::CoGroupMemberAdded          => 'CO Group Member Added',
+    ActionEnum::CoGroupMemberEdited         => 'CO Group Member Edited',
+    ActionEnum::CoGroupMemberDeleted        => 'CO Group Member Deleted',
     ActionEnum::CoPersonAddedManual         => 'CO Person Created (Manual)',
     ActionEnum::CoPersonAddedPetition       => 'CO Person Created (Petition)',
     ActionEnum::CoPersonEditedManual        => 'CO Person Edited',
@@ -298,7 +301,7 @@ $cm_texts['en_US'] = array(
   'er.cou.gr.admin' => 'COU created, but failed to create initial admin group',
   'er.cou.sameco' =>  'COUs must be in the same CO',
   'er.delete' =>      'Delete Failed',
-  'er.deleted-a' =>   'Deleted "%1$s"',
+  'er.deleted-a' =>   'Deleted "%1$s"',  // XXX is this an er or an rs?
   'er.db.connect' =>  'Failed to connect to database: %1$s',
   'er.db.schema' =>   'Possibly failed to update database schema',
   'er.db.save' =>     'Database save failed',
@@ -320,6 +323,7 @@ $cm_texts['en_US'] = array(
   'er.gr.nf' =>       'Group %1$s Not Found',
   'er.gr.res' =>      'Groups named "admin" or prefixed "admin:" are reserved',
   'er.grm.already' => 'CO Person %1$s is already a member of group %2$s',
+  'er.grm.nf' =>      'Group Member %1$s Not Found',
   'er.grm.none' =>    'No group memberships to add',
   'er.ia.already' =>  'Identifier already assigned',
   'er.ia.exists' =>   'The identifier "%1$s" is already in use',
@@ -557,8 +561,9 @@ $cm_texts['en_US'] = array(
   'op.edit-f' =>      'Edit %1$s for %2$s',
   'op.enroll' =>      'Enroll',
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
-  'op.gr.memadd' =>   'Add %1$s to Group',
+  'op.gr.memadd' =>   'Manage %1$s Group Memberships',
   'op.grm.add' =>     'Add Person to %1$s Group %2$s',
+  'op.grm.manage' =>  'Manage My Group Memberships',
   'op.history' =>     'View History',
   'op.id.auto' =>     'Autogenerate Identifiers',
   'op.id.auto.confirm' => 'Are you sure you wish to autogenerate identifiers?',
@@ -592,6 +597,9 @@ $cm_texts['en_US'] = array(
   // Results
   'rs.added' =>       'Added',
   'rs.added-a' =>     '"%1$s" Added',
+  'rs.grm.added' =>   'Added to CO Group %1$s (%2$s) (member=%3$s, owner=%4$s)',
+  'rs.grm.deleted' => 'Removed from CO Group %1$s (%2$s)',
+  'rs.grm.edited' =>  'Edited CO Group Roles %1$s (%2$s) (from member=%3$s, owner=%4$s to member=%5$s, owner=%6$s)',
   'rs.ia.ok' =>       'Identifiers Assigned',
   'rs.inv.conf' =>    'Invitation Confirmed',
   'rs.inv.conf-a' =>  'Invitation to %1$s confirmed',
@@ -609,6 +617,7 @@ $cm_texts['en_US'] = array(
   'rs.pt.id.login' => 'Identifier "%1$s" flagged for login',
   'rs.pt.login' =>    'Petition Created. You have been logged out, and an activation URL has been sent to your email address. Please click the link in that email to continue.',
   'rs.pt.relogin' =>  'Petition Confirmed. You have been logged out, and will need to login again for your new identity to take effect.',
+  'rs.saved' =>       'Saved',
   'rs.updated' =>     '"%1$s" Updated',
   
   // Setup
@@ -662,6 +671,12 @@ function _txt($key, $vars=null, $index=null)
     break;
   case 4:
     return(sprintf($s, $vars[0], $vars[1], $vars[2], $vars[3]));
+    break;
+  case 5:
+    return(sprintf($s, $vars[0], $vars[1], $vars[2], $vars[3], $vars[4]));
+    break;
+  case 6:
+    return(sprintf($s, $vars[0], $vars[1], $vars[2], $vars[3], $vars[4], $vars[5]));
     break;
   default:
     return($s);

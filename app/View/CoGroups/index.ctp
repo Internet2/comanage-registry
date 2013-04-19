@@ -33,26 +33,35 @@
   }
   print $this->element("pageTitle", $params);
 
-  if($permissions['add'] && $this->action != 'select')
-    echo $this->Html->link(_txt('op.add'),
-                           array('controller' => 'co_groups', 'action' => 'add', 'co' => $this->request->params['named']['co']),
-                           array('class' => 'addbutton')) . '
+  if($permissions['add'] && $this->action != 'select') {
+    print $this->Html->link(_txt('op.add'),
+                            array('controller' => 'co_groups',
+                                  'action' => 'add',
+                                  'co' => $cur_co['Co']['id']),
+                            array('class' => 'addbutton'));
+    
+    print $this->Html->link(_txt('op.grm.manage'),
+                            array('controller' => 'co_groups',
+                                  'action' => 'select',
+                                  'copersonid' => $this->Session->read('Auth.User.co_person_id'),
+                                  'co' => $cur_co['Co']['id']),
+                            array('class' => 'linkbutton')) . '
     <br />
     <br />
     ';
-
-  if($permissions['edit'] && $this->action == 'select')
-  {
+  }
+  
+  if($permissions['select'] && $this->action == 'select') {
     // We're using slightly the wrong permission here... edit group instead of add group member
     // (though they work out the same)
-    echo $this->Form->create('CoGroupMember',
-                             array('action' => 'add',
-                                   'inputDefaults' => array('label' => false,
-                                                            'div' => false))) . "\n";
+    print $this->Form->create('CoGroupMember',
+                              array('action' => 'update',
+                                    'inputDefaults' => array('label' => false,
+                                                             'div' => false))) . "\n";
     // beforeFilter needs CO ID
-    echo $this->Form->hidden('CoGroupMember.co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+    print $this->Form->hidden('CoGroupMember.co_id', array('default' => $cur_co['Co']['id'])) . "\n";
     // Group ID must be global for isAuthorized
-    echo $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $this->request->params['named']['copersonid'])) . "\n";
+    print $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $this->request->params['named']['copersonid'])) . "\n";
   }
 ?>
 
@@ -110,18 +119,52 @@
       </td>
       <td>
         <?php
-          if($this->action == 'select')
-          {
-            if($permissions['select'])
-            {
-              echo $this->Form->hidden('CoGroupMember.'.$i.'.co_group_id',
-                                       array('default' => $c['CoGroup']['id'])) . "\n";
-              echo $this->Form->checkbox('CoGroupMember.'.$i.'.member') . _txt('fd.group.mem') . "\n";
-              echo $this->Form->checkbox('CoGroupMember.'.$i.'.owner') . _txt('fd.group.own') . "\n";
+          if($this->action == 'select') {
+            if($permissions['select']) {
+              print $this->Form->hidden('CoGroupMember.rows.'.$i.'.co_group_id',
+                                        array('default' => $c['CoGroup']['id'])) . "\n";
+              
+              // We toggle the disabled status of the checkbox based on a person's permissions.
+              // A CO(U) Admin can edit any membership or ownership.
+              // A group owner can edit any membership or ownership for that group.
+              // Anyone can add or remove themself from or two an open group.
+              
+              $gmID = null;
+              $isMember = false;
+              $isOwner = false;
+              
+              foreach($c['CoGroupMember'] as $cgm) {
+                // Walk the CoGroupMemberships for this CoGroup to find the target CO Person
+                if($cgm['co_person_id'] == $this->request->params['named']['copersonid']) {
+                  $gmID = $cgm['id'];
+                  $isMember = $cgm['member'];
+                  $isOwner = $cgm['owner'];
+                  break;
+                }
+              }
+              
+              if($gmID) {
+                // Populate the cross reference
+                print $this->Form->hidden('CoGroupMember.rows.'.$i.'.id',
+                                          array('default' => $gmID)) . "\n";
+              }
+              
+              print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
+                                          array('disabled' => !($permissions['selectany']
+                                                                || $c['CoGroup']['open']
+                                                                || $isMember
+                                                                || $isOwner),
+                                                'checked'    => $isMember))
+                    . _txt('fd.group.mem') . "\n";
+              
+              print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
+                                          array('disabled' => !($permissions['selectany']
+                                                                || $isOwner),
+                                                'checked'    => $isOwner))
+                    . _txt('fd.group.own') . "\n";
             }
           }
-          else
-          {
+          else {
             if($e)
               echo $this->Html->link(_txt('op.edit'),
                                array('controller' => 'co_groups', 'action' => 'edit', $c['CoGroup']['id'], 'co' => $this->request->params['named']['co']),
@@ -147,10 +190,11 @@
     <tr>
       <td>
         <?php
-          if($this->action == 'select')
-            echo $this->Form->submit(_txt('op.add'));
+          if($this->action == 'select') {
+            print $this->Form->submit(_txt('op.save'));
+          }
           
-          echo $this->Form->end();
+          print $this->Form->end();
         ?>
       </td>
     </tr>

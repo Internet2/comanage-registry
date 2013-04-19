@@ -284,6 +284,9 @@ class CoGroupMembersController extends StandardController {
     // This is for REST
     $p['index'] = ($this->restful && ($roles['cmadmin'] || $roles['coadmin']));
     
+    // Update accepts a CO Person's worth of potential group memberships and performs the appropriate updates
+    $p['update'] = ($roles['cmadmin'] || $roles['comember']);
+    
     // Select from a list of potential members to add?
     $p['select'] = ($roles['cmadmin'] || $managed);
     
@@ -387,5 +390,35 @@ class CoGroupMembersController extends StandardController {
                                                   );
 
     $this->set('co_group', $coGroup);
+  }
+  
+  /**
+   * Process an update to a CO Person's CO Group Memberships.
+   * - precondition: $this->request->params holds coperson
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.8
+   */
+  
+  public function update() {
+    if(!$this->restful) {
+      try {
+        $this->CoGroupMember->updateMemberships($this->request->data['CoGroupMember']['co_person_id'],
+                                                $this->request->data['CoGroupMember']['rows'],
+                                                $this->Session->read('Auth.User.co_person_id'));
+        
+        $this->Session->setFlash(_txt('rs.saved'), '', array(), 'success');
+      }
+      catch(Exception $e) {
+        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      }
+      
+      // Issue redirect
+      
+      $this->redirect(array('controller' => 'co_groups',
+                            'action'     => 'select',
+                            'copersonid' => $this->request->data['CoGroupMember']['co_person_id'],
+                            'co'         => $this->cur_co['Co']['id']));
+    }
   }
 }

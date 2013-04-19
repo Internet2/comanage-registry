@@ -267,12 +267,19 @@ class CoGroupsController extends StandardController {
     $self = false;
     
     if(!empty($roles['copersonid'])) {
-      $own = $this->CoGroup->CoGroupMember->find('all', array('conditions' =>
-                                                              array('CoGroupMember.co_person_id' => $roles['copersonid'],
-                                                                    'CoGroupMember.owner' => true)));
-      $member = $this->CoGroup->CoGroupMember->find('all', array('conditions' =>
-                                                           array('CoGroupMember.co_person_id' => $roles['copersonid'],
-                                                                 'CoGroupMember.member' => true)));
+      $args = array();
+      $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
+      $args['conditions']['CoGroupMember.owner'] = true;
+      $args['contain'] = false;
+      
+      $own = $this->CoGroup->CoGroupMember->find('all', $args);
+      
+      $args = array();
+      $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
+      $args['conditions']['CoGroupMember.member'] = true;
+      $args['contain'] = false;
+      
+      $member = $this->CoGroup->CoGroupMember->find('all', $args);
       
       if(!empty($this->request->params['pass'][0])) {
         $managed = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['pass'][0]);
@@ -317,14 +324,37 @@ class CoGroupsController extends StandardController {
       $p['view'] = true;
     }
     
+    if(isset($own)) {
+      // Set array of groups where person is owner
+      
+      $p['owner'] = array();
+      
+      foreach($own as $g) {
+        $p['owner'][] = $g['CoGroupMember']['co_group_id'];
+      }
+    }
+    
+    if(isset($member)) {
+      // Set array of groups where person is member
+      $p['member'] = array();
+      
+      foreach($member as $g) {
+        $p['member'][] = $g['CoGroupMember']['co_group_id'];
+      }
+    }
+    
     // Select from a list of potential Groups to join?
     $p['select'] = ($roles['cmadmin']
                     || ($managedp && $roles['coadmin'])
                     || $self);
     
+    // Select from any Group (not just open or owned)?
+    $p['selectany'] = ($roles['cmadmin']
+                       || ($managedp && $roles['coadmin']));
+    
     // View an existing Group?
     $p['view'] = ($roles['cmadmin'] || $managed);
-
+    
     if($this->action == 'view'
        && isset($this->request->params['pass'][0])) {
       // Adjust permissions for members and open groups
@@ -332,37 +362,17 @@ class CoGroupsController extends StandardController {
       if(isset($member) && in_array($this->request->params['pass'][0], $p['member']))
         $p['view'] = true;
       
-      $params = array(
-        'conditions' => array(
-          'CoGroup.id' => $this->request->params['pass'][0]
-        )
-      );
-      $g = $this->CoGroup->find('first', $params);
+      $args = array();
+      $args['conditions']['CoGroup.id'] = $this->request->params['pass'][0];
+      $args['contain'] = false;
+      
+      $g = $this->CoGroup->find('first', $args);
       
       if(!empty($g) && isset($g['CoGroup']['open']) && $g['CoGroup']['open']) {
         $p['view'] = true;
       }
     }
-
-    if(isset($own))
-    {
-      // Set array of groups where person is owner
-      
-      $p['owner'] = array();
-
-      foreach($own as $g)
-        $p['owner'][] = $g['CoGroupMember']['co_group_id'];
-    }
-
-    if(isset($member))
-    {
-      // Set array of groups where person is member
-      $p['member'] = array();
-
-      foreach($member as $g)
-        $p['member'][] = $g['CoGroupMember']['co_group_id'];
-    }
-
+    
     $this->set('permissions', $p);
     return $p[$this->action];
   }
