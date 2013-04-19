@@ -216,8 +216,8 @@ class CoGroupMember extends AppModel {
                                                        ActionEnum::CoGroupMemberEdited,
                                                        _txt('rs.grm.edited', array($grp['CoGroup']['name'],
                                                                                    $m['co_group_id'],
-                                                                                   _txt($grpMem['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
-                                                                                   _txt($grpMem['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'),
+                                                                                   _txt($curMember ? 'fd.yes' : 'fd.no'),
+                                                                                   _txt($curOwner ? 'fd.yes' : 'fd.no'),
                                                                                    _txt($member ? 'fd.yes' : 'fd.no'),
                                                                                    _txt($owner ? 'fd.yes' : 'fd.no'))));
               }
