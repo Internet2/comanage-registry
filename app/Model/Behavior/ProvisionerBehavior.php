@@ -35,12 +35,6 @@ class ProvisionerBehavior extends ModelBehavior {
    */
   
   public function beforeDelete(Model $model, $cascade = true) {
-    if(!$cascade) {
-      // If we're not cascading a delete, there really isn't anything for us to do
-      
-      return true;
-    }
-    
     // Note that in most cases this is just an edit. ie: deleting a telephone number is
     // CoPersonUpdated not CoPersonDeleted. In those cases, we can just call afterSave.
     
@@ -49,6 +43,8 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     // However, deleting a CoPerson needs to be handled specially.
+    // Note that $model->data is generally populated by StandardController::delete
+    // calling $model->read().
     
     if(!empty($model->data['CoPerson']['id'])) {
       // Invoke all provisioning plugins

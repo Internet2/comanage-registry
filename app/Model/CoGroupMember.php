@@ -170,7 +170,10 @@ class CoGroupMember extends AppModel {
             // If a (CO Group Member) id is specified but member and owner are
             // both false, delete the row and cut a history record.
             
-            if(!$this->delete($m['id'])) {
+            // Set $this->data so ProvisionerBehavior can run on beforeDelete()
+            $this->data = $grpMem;
+            
+            if(!$this->delete($m['id'], false)) {
               throw new RuntimeException(_txt('er.delete'));
             }
             
