@@ -1217,7 +1217,9 @@ class DboSource extends DataSource {
 								} else {
 									$db = ConnectionManager::getDataSource($deepModel->useDbConfig);
 								}
-								$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+								if (method_exists($db, 'queryAssociation')){
+									$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+								}
 							}
 						}
 					}
@@ -1291,7 +1293,9 @@ class DboSource extends DataSource {
 									} else {
 										$db = ConnectionManager::getDataSource($deepModel->useDbConfig);
 									}
-									$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+									if (method_exists($db, 'queryAssociation')) {
+										$db->queryAssociation($linkModel, $deepModel, $type1, $assoc1, $assocData1, $queryData, true, $fetch, $recursive - 1, $tmpStack);
+									}
 								}
 							}
 						}
