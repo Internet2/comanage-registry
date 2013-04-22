@@ -40,6 +40,9 @@ Configure::write('Grouper.user', 'GrouperSystem');
 Configure::write('Grouper.pass', 'XXXXXXXX');
 Configure::write('Grouper.basePath', 'grouper-system/servicesRest/v2_1_000/');
 
+// Only set to false if necessary for debugging and development.
+Configure::write('Grouper.sslVerifyPeer', true);
+
 Configure::write('Grouper.COmanage.baseStem', 'Reference:COmanageDataSource');
 Configure::write('Grouper.COmanage.grouperStemDelineator', ':');
 Configure::write('Grouper.COmanage.grouperStemDelineatorReplacement', '_');

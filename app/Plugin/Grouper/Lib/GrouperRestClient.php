@@ -45,7 +45,8 @@ class GrouperRestClient extends HttpSocket {
   function __construct($config = array(), $autoConnect = false) {
     parent::__construct($config, $autoConnect);
 
-    $this->httpSocket = new HttpSocket();
+    $this->sslVerifyPeer = Configure::read('Grouper.sslVerifyPeer');
+    $this->httpSocket = new HttpSocket(array('ssl_verify_peer' => $this->sslVerifyPeer));
     $this->defaultRequest = array(
       'method' => 'POST',
       'uri' => array(
