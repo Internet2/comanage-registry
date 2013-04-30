@@ -139,7 +139,9 @@ class CousController extends StandardController {
     // Parent COU must be in same CO as child
 
     // Name of parent
-    $parentCou = $reqdata['Cou']['parent_id'];
+    $parentCou = (!empty($reqdata['Cou']['parent_id']) 
+                  ? $reqdata['Cou']['parent_id']
+                  : "");
 
     if(isset($parentCou) && $parentCou != "")
     {

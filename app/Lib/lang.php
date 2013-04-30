@@ -381,6 +381,7 @@ $cm_texts['en_US'] = array(
   'fd.closed' =>      'Closed',
   'fd.comment' =>     'Comment',
   'fd.cou' =>         'COU',
+  'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',  
   'fd.created' =>     'Created',
   // Demographics fields
   'fd.de.persid'  =>  'Person ID',

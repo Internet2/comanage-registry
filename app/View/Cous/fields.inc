@@ -74,9 +74,19 @@
       </td>
       <td>
         <?php
-          print ($e ? $this->Form->select('parent_id', $this->viewVars['parent_options'])
-                    : Sanitize::html($cous[0]['Cou']['parent_id']));
-          
+          if($e) {
+            if (!empty($this->viewVars['parent_options'] )) {
+              // Print dropdown selector with COU options
+              print $this->Form->select('parent_id', $this->viewVars['parent_options']);
+            } else {
+              // Do not print empty selector
+              print _txt('fd.cou.nopar');
+            }
+          }
+          else {
+            print Sanitize::html($cous[0]['Cou']['parent_id']);
+          }
+
           if($this->Form->isFieldError('status')) {
             print $this->Form->error('status');
           }
