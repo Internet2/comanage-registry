@@ -365,101 +365,106 @@
       </div>
     </div>
 
-    <div id="content">
-      <div>
-        <?php
-          $f = $this->Session->flash('error');
-          
-          if($f && $f != "") {
-            print '
-              <div class="ui-widget">
-                <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
-                  <p>
-                    <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                    ' . $f . '
-                  </p>
-                </div>
+    <div id="flashMessages" class="contentWidth">
+      <?php
+        $f = $this->Session->flash('error');
+        
+        if($f && $f != "") {
+          print '
+            <div class="ui-widget">
+              <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
+                <p>
+                  <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                  ' . $f . '
+                </p>
               </div>
-            ';
-          }
+            </div>
+          ';
+        }
 
-          $f = $this->Session->flash('info');
-          
-          if($f && $f != "") {
-            print '
-              <div class="ui-widget">
-                <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-                  <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                    ' . $f . '
-                  </p>
-                </div>
+        $f = $this->Session->flash('info');
+        
+        if($f && $f != "") {
+          print '
+            <div class="ui-widget">
+              <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+                <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                  ' . $f . '
+                </p>
               </div>
-            ';
-          }
-          
-          $f = $this->Session->flash('success');
-          
-          if($f && $f != "") {
-            print '
-              <div class="ui-widget">
-                <div class="ui-state-active ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-                  <p><span class="ui-icon ui-icon-circle-check" style="float: left; margin-right: .3em;"></span>
-                    ' . $f . '
-                  </p>
-                </div>
+            </div>
+          ';
+        }
+        
+        $f = $this->Session->flash('success');
+        
+        if($f && $f != "") {
+          print '
+            <div class="ui-widget">
+              <div class="ui-state-active ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+                <p><span class="ui-icon ui-icon-circle-check" style="float: left; margin-right: .3em;"></span>
+                  ' . $f . '
+                </p>
               </div>
-            ';
-          }
-        ?>
+            </div>
+          ';
+        }
+      ?>
 
-        <?php print_r($this->Session->error()); ?>
-        <!-- Display view content -->
-        <?php print $this->fetch('content'); ?>
-      </div>
+      <?php print_r($this->Session->error()); ?>
     </div>
 
-    <?php
-      $sidebarButtons = $this->getVar('sidebarButtons');
-    
-      if($sidebarButtons != null):
-    ?>
-        <!-- Display sidebar for content -->
-        <div id="sidebar">
-          <ul id="menu">
-          <?php
-            foreach($sidebarButtons as $button => $link){
-              print '<li>'; 
-                // Clean data
-                $icontitle = '<span class="ui-icon ui-icon-' 
-                             . $link['icon'] 
-                             . '"></span>'
-                             . $link['title'];
-                 
-                $url = $link['url'];
+    <div id="main" class="contentWidth">
+      <div id="content">
+          <!-- Display view content -->
+          <?php print $this->fetch('content'); ?>
+      </div>
 
-                if(isset($link['options']))
-                  $options = (array)$link['options'];
-                $options['escape'] = FALSE;
+      <?php
+        $sidebarButtons = $this->getVar('sidebarButtons');
+      
+        if($sidebarButtons != null):
+      ?>
+          <!-- Display sidebar for content -->
+          <script>
+            $('#content').width('685');
+          </script>
+          <div id="sidebar">
+            <ul id="menu">
+            <?php
+              foreach($sidebarButtons as $button => $link){
+                print '<li>'; 
+                  // Clean data
+                  $icontitle = '<span class="ui-icon ui-icon-' 
+                               . $link['icon'] 
+                               . '"></span>'
+                               . $link['title'];
+                   
+                  $url = $link['url'];
 
-                // Use the built in Cakephp popup
-                if(isset($link['popup']))
-                  $popup = $link['popup'];
-                else
-                  $popup = null;
-                
-                print $this->Html->link(
-                  $icontitle,
-                  $url,
-                  $options,
-                  $popup
-                ); // end of a
-              print '</li>';
-            }
-          ?>
-          </ul>
-        </div>
-    <?php endif; ?>
-    <?php if(Configure::read('debug') > 0) print $this->element('sql_dump'); ?>
+                  if(isset($link['options']))
+                    $options = (array)$link['options'];
+                  $options['escape'] = FALSE;
+
+                  // Use the built in Cakephp popup
+                  if(isset($link['popup']))
+                    $popup = $link['popup'];
+                  else
+                    $popup = null;
+                  
+                  print $this->Html->link(
+                    $icontitle,
+                    $url,
+                    $options,
+                    $popup
+                  ); // end of a
+                print '</li>';
+              }
+            ?>
+            </ul>
+          </div>
+      <?php endif; ?>
+    </div>
 
     <!-- Common UI components -->
 
@@ -474,5 +479,10 @@
       <?php print $this->element('footer'); ?>
     </div>
 
+    <?php if(Configure::read('debug') > 0): ?> 
+      <div>
+        <?php print $this->element('sql_dump'); ?>
+      </div>
+    <?php endif; ?>
   </body>
 </html>
