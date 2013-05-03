@@ -76,7 +76,6 @@ global $cm_lang, $cm_texts;
                             'empty'   => '',
                             'label'   => 'Affiliation');
         print $this->Form->input('Search.affiliation', $formParams);
-        print $this->Form->input('Search.organizationID');
 
         print $this->Form->submit('Search');
       ?>
@@ -85,7 +84,7 @@ global $cm_lang, $cm_texts;
   </div>
 </div>
  
-<table id="org_identities" class="ui-widget">
+<table id="org_identities" class="ui-widget" style=" width:100%;">
   <thead>
     <tr class="ui-widget-header">
       <th><?php echo $this->Paginator->sort('Name.family', _txt('fd.name')); ?></th>
@@ -93,8 +92,7 @@ global $cm_lang, $cm_texts;
       <th><?php echo $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
       <th><?php echo $this->Paginator->sort('title', _txt('fd.title')); ?></th>
       <th><?php echo $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-      <th><?php echo $this->Paginator->sort('organization_id', _txt('fd.organization_id')); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th style="width:70px"><?php echo _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -115,10 +113,7 @@ global $cm_lang, $cm_texts;
       <td><?php echo Sanitize::html($p['OrgIdentity']['ou']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
       <td><?php if(isset($p['OrgIdentity']['affiliation'])) print _txt('en.affil', null, $p['OrgIdentity']['affiliation']); ?></td>
-      <td><?php if($p['OrgIdentity']['organization_id'] != "") print $this->Html->link($p['OrgIdentity']['organization_id'],
-                                                                                       array('controller' => 'organizations',
-                                                                                             'action' => 'view',
-                                                                                             $p['OrgIdentity']['organization_id'])); ?></td>
+      
       <td>
         <?php
           if($permissions['edit'])

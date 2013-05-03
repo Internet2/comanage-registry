@@ -422,12 +422,6 @@ class OrgIdentitiesController extends StandardController {
       $pagcond['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
     }
 
-    // Filter by Organization ID
-    if(!empty($this->params['named']['Search.organizationID'])) {
-      $searchterm = $this->params['named']['Search.organizationID'];
-      $pagcond['OrgIdentity.organization_id LIKE'] = "%$searchterm%";
-    }
-
     return($pagcond);
   }
 
