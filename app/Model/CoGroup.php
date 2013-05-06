@@ -75,8 +75,8 @@ class CoGroup extends AppModel {
       'rule' => array('boolean')
     ),
     'status' => array(
-      'rule' => array('inList', array(StatusEnum::Active,
-                                      StatusEnum::Suspended)),
+      'rule' => array('inList', array(SuspendableStatusEnum::Active,
+                                      SuspendableStatusEnum::Suspended)),
       'required' => true,
       'message' => 'A valid status must be selected'
     )

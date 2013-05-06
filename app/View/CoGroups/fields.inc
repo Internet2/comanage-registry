@@ -105,7 +105,7 @@
           
           if($e) {
             print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status'],
+                                      $cm_texts[ $cm_lang ]['en.status.susp'],
                                       $attrs);
             
             if($this->Form->isFieldError('status')) {

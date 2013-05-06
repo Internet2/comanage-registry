@@ -316,6 +316,12 @@ class StatusEnum
   );*/
 }
 
+class SuspendableStatusEnum
+{
+  const Active              = 'A';
+  const Suspended           = 'S';
+}
+
 // Old style enums below, deprecated
 // In order to switch away from them, AppController::convertRestPost
 // and checkRestPost must be rewritten, as well as Model/CoEnrollmentAttribute::enrollmentFlowAttributes.

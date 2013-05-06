@@ -239,6 +239,11 @@ $cm_texts['en_US'] = array(
     ProvisioningStatusEnum::Unknown        => 'Unknown'
   ),
   
+  'en.status.susp' => array(
+    SuspendableStatusEnum::Active              => 'Active',
+    SuspendableStatusEnum::Suspended           => 'Suspended'
+  ),
+  
   // Demographics
   'en.nsf.gender' =>       array(NSFGenderEnum::Female => 'Female',
                                  NSFGenderEnum::Male   => 'Male'),
