@@ -294,7 +294,8 @@ class CoGroupMembersController extends StandardController {
     
     // Store the group ID in the controller object since performRedirect may need it
     
-    if($this->action == 'add' && isset($this->request->data['CoGroupMember']['co_group_id']))
+    if(($this->action == 'add' || $this->action == 'updateGroup')
+       && isset($this->request->data['CoGroupMember']['co_group_id']))
       $this->gid = $this->request->data['CoGroupMember']['co_group_id'];
     elseif(($this->action == 'delete' || $this->action == 'edit' || $this->action == 'view')
            && isset($this->request->params['pass'][0]))
@@ -337,11 +338,14 @@ class CoGroupMembersController extends StandardController {
     // This is for REST
     $p['index'] = ($this->restful && ($roles['cmadmin'] || $roles['coadmin']));
     
+    // Select from a list of potential members to add?
+    $p['select'] = ($roles['cmadmin'] || $managed);
+    
     // Update accepts a CO Person's worth of potential group memberships and performs the appropriate updates
     $p['update'] = ($roles['cmadmin'] || $roles['comember']);
     
     // Select from a list of potential members to add?
-    $p['select'] = ($roles['cmadmin'] || $managed);
+    $p['updateGroup'] = ($roles['cmadmin'] || $managed);
     
     // View members of a group?
     $p['view'] = ($roles['cmadmin'] || $managed || $member);
@@ -401,48 +405,50 @@ class CoGroupMembersController extends StandardController {
    */
   
   function select() {
-    // Set page title
-    $this->set('title_for_layout', _txt('op.select-a', array(_txt('ct.co_group_members.1'))));
-
-    // Find all available CO people.
-
-    $this->paginate['conditions'] = array(
-      'co_id' => $this->cur_co['Co']['id']
-    );
-    $allCoPeople = $this->paginate('CoPerson');
-
-    // Find all current group members and create an array 
-    // of the corresponding CO person Ids.
-    $groupId = $this->request->params['named']['cogroup'];
-    $allGroupMembers = $this->CoGroupMember->find('all', 
-                                                  array(
-                                                    'conditions' => 
-                                                        array('CoGroupMember.co_group_id' => $groupId),
-                                                    'recursive' => -1)
-                                                 );
-    $allGroupMembersCoPersonId = array();
-    foreach($allGroupMembers as $member){
-      $allGroupMembersCoPersonId[] = $member['CoGroupMember']['co_person_id'];
-    }
-
-    // Filter out CO people that are already members.
-    foreach($allCoPeople as $key => &$coPerson) {
-      if (in_array($coPerson['CoPerson']['id'], $allGroupMembersCoPersonId)) {
-        unset($allCoPeople[$key]);
+    // Find all available CO people
+    
+    $args = array();
+    $args['joins'][0]['table'] = 'co_groups';
+    $args['joins'][0]['alias'] = 'CoGroup';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPerson.co_id=CoGroup.co_id';
+    $args['conditions']['CoGroup.id'] = $this->request->params['named']['cogroup'];
+    $args['order'][] = 'Name.family';
+    $args['contain'][] = 'Name';
+    
+    $this->set('co_people', $this->CoGroupMember->CoPerson->find('all', $args));
+    
+    // Find current group members/owners, and rehash to make it easier for the
+    // view to process
+    
+    $args = array();
+    $args['conditions']['CoGroupMember.co_group_id'] = $this->request->params['named']['cogroup'];
+    $args['recursive'] = -1;
+    
+    $coGroupMembers = $this->CoGroupMember->find('all', $args);
+    $coGroupRoles = array();
+    
+    foreach($coGroupMembers as $m) {
+      if(isset($m['CoGroupMember']['member']) && $m['CoGroupMember']['member']) {
+        // Make it easy to find the corresponding co_group_member:id
+        $coGroupRoles['members'][ $m['CoGroupMember']['co_person_id'] ] = $m['CoGroupMember']['id'];
+      }
+      
+      if(isset($m['CoGroupMember']['owner']) && $m['CoGroupMember']['owner']) {
+        // Make it easy to find the corresponding co_group_member:id
+        $coGroupRoles['owners'][ $m['CoGroupMember']['co_person_id'] ] = $m['CoGroupMember']['id'];
       }
     }
-
-    $this->set('co_people', $allCoPeople);
     
-    // Also find the Group so that its details like name
-    // can be rendered.
-    $coGroup = $this->CoGroupMember->CoGroup->find('first', 
-                                                   array('conditions' => 
-                                                    array('CoGroup.id' => $groupId)
-                                                   )
-                                                  );
-
-    $this->set('co_group', $coGroup);
+    $this->set('co_group_roles', $coGroupRoles);
+    
+    // Also find the Group so that its details like name can be rendered
+    
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $this->request->params['named']['cogroup'];
+    $args['contain'] = false;
+    
+    $this->set('co_group', $this->CoGroupMember->CoGroup->find('first', $args));
   }
   
   /**
@@ -471,6 +477,36 @@ class CoGroupMembersController extends StandardController {
       $this->redirect(array('controller' => 'co_groups',
                             'action'     => 'select',
                             'copersonid' => $this->request->data['CoGroupMember']['co_person_id'],
+                            'co'         => $this->cur_co['Co']['id']));
+    }
+  }
+  
+  /**
+   * Process an update to a CO Group's Memberships.
+   * - precondition: $this->request->params holds cogroup
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.8
+   */
+  
+  public function updateGroup() {
+    if(!$this->restful) {
+      try {
+        $this->CoGroupMember->updateGroupMemberships($this->request->data['CoGroupMember']['co_group_id'],
+                                                     $this->request->data['CoGroupMember']['rows'],
+                                                     $this->Session->read('Auth.User.co_person_id'));
+        
+        $this->Session->setFlash(_txt('rs.saved'), '', array(), 'success');
+      }
+      catch(Exception $e) {
+        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      }
+      
+      // Issue redirect
+      
+      $this->redirect(array('controller' => 'co_groups',
+                            'action'     => 'edit',
+                            $this->request->data['CoGroupMember']['co_group_id'],
                             'co'         => $this->cur_co['Co']['id']));
     }
   }

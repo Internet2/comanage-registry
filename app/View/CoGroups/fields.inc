@@ -117,49 +117,6 @@
         ?>
       </td>
     </tr>
-    <tr class="line1">
-      <td>
-        <?php echo _txt('fd.members'); ?>
-      </td>
-      <td>
-        <?php
-        
-          if(isset($co_group_members))
-          {
-            if($e)
-            {
-              foreach($co_group_members as $c)
-              {
-                foreach($c['CoPerson']['CoGroupMember'] as $g)
-                {
-                  // We get all the group memberships, but are only interested in the current group
-                  if($g['co_group_id'] == $co_groups[0]['CoGroup']['id'])
-                  {
-                    if($dok)
-                      echo '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $g['co_person_id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                    echo $this->Html->link(generateCn($c['CoPerson']['Name']), array('controller' => 'co_group_members', 'action' => 'edit', $g['id'], 'co' => $cur_co['Co']['id']));
-                    echo "<br />\n";
-                    break;
-                  }
-                }
-              }
-
-              echo $this->Html->link(_txt('op.add'),
-                                      array('controller' => 'co_group_members',
-                                            'action' => 'select',
-                                            'cogroup' => $co_groups[0]['CoGroup']['id'],
-                                            'co' => $cur_co['Co']['id']),
-                                      array('class' => 'addbutton'));
-            }
-            else
-            {
-              foreach($co_group_members as $c)
-                echo Sanitize::html(generateCn($c['CoPerson']['Name'])) . "<br />\n";
-            }
-          }
-        ?>
-      </td>
-    </tr>
     <tr>
       <td>
         <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
@@ -169,6 +126,54 @@
           if($e)
             echo $this->Form->submit($submit_label);
         ?>
+      </td>
+    </tr>
+    <tr class="line1">
+      <td>
+        <?php echo _txt('fd.members'); ?>
+      </td>
+      <td>
+      <?php
+        if(isset($co_group_members)) {
+          if($e) {
+            foreach($co_group_members as $c) {
+              foreach($c['CoPerson']['CoGroupMember'] as $g) {
+                // We get all the group memberships, but are only interested in the current group
+                if($g['co_group_id'] == $co_groups[0]['CoGroup']['id']) {
+                  if($dok) {
+                    print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $g['co_person_id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                  }
+                  print $this->Html->link(generateCn($c['CoPerson']['Name']),
+                                          array('controller' => 'co_group_members',
+                                                'action' => 'edit',
+                                                $g['id'],
+                                                'co' => $cur_co['Co']['id']));
+                  
+                  if($g['owner']) {
+                    if(!$g['member']) {
+                      print " " . _txt('fd.group.own.only');
+                    } else {
+                      print " " . _txt('fd.group.own');
+                    }
+                  }
+                  print "<br />\n";
+                  break;
+                }
+              }
+            }
+            
+            echo $this->Html->link(_txt('op.manage'),
+                                   array('controller' => 'co_group_members',
+                                         'action' => 'select',
+                                         'cogroup' => $co_groups[0]['CoGroup']['id'],
+                                         'co' => $cur_co['Co']['id']),
+                                   array('class' => 'linkbutton'));
+          } else {
+            foreach($co_group_members as $c)
+              echo Sanitize::html(generateCn($c['CoPerson']['Name'])) . "<br />\n";
+          }
+        }
+      ?>
       </td>
     </tr>
   </tbody>

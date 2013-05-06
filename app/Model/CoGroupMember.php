@@ -90,6 +90,39 @@ class CoGroupMember extends AppModel {
   }
   
   /**
+   * Obtain the member roles for a CO Group.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Integer CO Person ID
+   * @return Array An array of two array: CO Person IDs for the group's members, and CO Person IDs for the group's owners
+   */
+  
+  function findCoGroupRoles($coGroupId) {
+    $ret = array(
+      'member' => array(),
+      'owner'  => array()
+    );
+    
+    $args = array();
+    $args['conditions']['CoGroupMember.co_group_id'] = $coGroupId;
+    $args['contain'] = false;
+    
+    $memberships = $this->find('all', $args);
+    
+    foreach($memberships as $m) {
+      if(isset($m['CoGroupMember']['member']) && $m['CoGroupMember']['member']) {
+        $ret['member'][] = $m['CoGroupMember']['co_person_id'];
+      }
+      
+      if(isset($m['CoGroupMember']['owner']) && $m['CoGroupMember']['owner']) {
+        $ret['owner'][] = $m['CoGroupMember']['co_person_id'];
+      }
+    }
+    
+    return $ret;
+  }
+  
+  /**
    * Obtain the group roles for a CO person.
    *
    * @since  COmanage Registry v0.6
@@ -230,7 +263,7 @@ class CoGroupMember extends AppModel {
             }
           }
         } else {
-          // If id is not specified, that a role has been specified, make sure
+          // If id is not specified, but a role has been specified, make sure
           // the CO Person is not already in the group, that the group is in the
           // same CO as the CO Person, and add a new row.
           
@@ -275,6 +308,172 @@ class CoGroupMember extends AppModel {
               // already had a role in the group
               
               throw new LogicException(_txt('er.grm.already', array($coPersonId, $m['co_group_id'])));
+            }
+          }
+        }
+      }
+      
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Update the CO Group Memberships for a CO Group.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Integer CO Group ID
+   * @param  Array Array of CO Group Member attributes (id, co_person_id, member, owner)
+   * @param  Integer CO Person ID of requester
+   * @return Boolean True on success, false otherwise
+   * @throws LogicException
+   * @todo   Perhaps consolidate with updateMemberships (lots of duplicate code)
+   */
+  
+  public function updateGroupMemberships($coGroupId, $memberships, $requesterCoPersonId) {
+    if($coGroupId && !empty($memberships)) {
+      // First, pull the current group memberships.
+      
+      $curRoles = $this->findCoGroupRoles($coGroupId);
+      
+      // Pull the related group information
+      $args = array();
+      $args['conditions']['id'] = $coGroupId;
+      $args['contain'] = false;
+      
+      $grp = $this->CoGroup->find('first', $args);
+      
+      if(empty($grp)) {
+        throw new InvalidArgumentException(_txt('er.gr.nf', array($coGroupId)));
+      }
+      
+      foreach($memberships as $m) {
+        // Determine desired roles for this row
+        $member = isset($m['member']) && $m['member'];
+        $owner = isset($m['owner']) && $m['owner'];
+        
+        if(!empty($m['id'])) {
+          // There's already a corresponding CO Group Member record
+          $args = array();
+          $args['conditions']['id'] = $m['id'];
+          $args['contain'] = false;
+          
+          $grpMem = $this->find('first', $args);
+          
+          if(empty($grpMem)) {
+            throw new InvalidArgumentException(_txt('er.grm.nf', array($m['id'])));
+          }
+          
+          if(!$member && !$owner) {
+            // If a (CO Group Member) id is specified but member and owner are
+            // both false, delete the row and cut a history record.
+            
+            // Set $this->data so ProvisionerBehavior can run on beforeDelete()
+            $this->data = $grpMem;
+            
+            if(!$this->delete($m['id'], false)) {
+              throw new RuntimeException(_txt('er.delete'));
+            }
+            
+            // Cut a history record
+            
+            try {
+              $this->CoPerson->HistoryRecord->record($m['co_person_id'],
+                                                     null,
+                                                     null,
+                                                     $requesterCoPersonId,
+                                                     ActionEnum::CoGroupMemberDeleted,
+                                                     _txt('rs.grm.deleted', array($grp['CoGroup']['name'],
+                                                                                  $coGroupId)));
+            }
+            catch(Exception $e) {
+              throw new RuntimeException($e->getMessage());
+            }
+          } else {
+            // Otherwise, update the row if the member or owner are different than current.
+            
+            $curMember = isset($grpMem['CoGroupMember']['member']) && $grpMem['CoGroupMember']['member'];
+            $curOwner = isset($grpMem['CoGroupMember']['owner']) && $grpMem['CoGroupMember']['owner'];
+            
+            if(($member != $curMember) || ($owner != $curOwner)) {
+              $cogm = array();
+              $cogm['CoGroupMember']['id'] = $m['id'];
+              $cogm['CoGroupMember']['co_group_id'] = $coGroupId;
+              $cogm['CoGroupMember']['co_person_id'] = $m['co_person_id'];
+              $cogm['CoGroupMember']['member'] = $member;
+              $cogm['CoGroupMember']['owner'] = $owner;
+              
+              if(!$this->save($cogm)) {
+                throw new RuntimeException($this->validationErrors);
+              }
+              
+              // Cut a history record
+              
+              try {
+                $this->CoPerson->HistoryRecord->record($m['co_person_id'],
+                                                       null,
+                                                       null,
+                                                       $requesterCoPersonId,
+                                                       ActionEnum::CoGroupMemberEdited,
+                                                       _txt('rs.grm.edited', array($grp['CoGroup']['name'],
+                                                                                   $coGroupId,
+                                                                                   _txt($curMember ? 'fd.yes' : 'fd.no'),
+                                                                                   _txt($curOwner ? 'fd.yes' : 'fd.no'),
+                                                                                   _txt($member ? 'fd.yes' : 'fd.no'),
+                                                                                   _txt($owner ? 'fd.yes' : 'fd.no'))));
+              }
+              catch(Exception $e) {
+                throw new RuntimeException($e->getMessage());
+              }
+            }
+          }
+        } else {
+          // If id is not specified, but a role has been specified, make sure
+          // the CO Person is not already in the group, that the group is in the
+          // same CO as the CO Person, and add a new row.
+          
+          if($member || $owner) {
+            if(!in_array($m['co_person_id'], $curRoles['member'])
+              && !in_array($m['co_person_id'], $curRoles['owner'])) {
+              if($grp['CoGroup']['co_id']
+                 != $this->CoPerson->field('co_id', array('id' => $m['co_person_id']))) {
+                throw new InvalidArgumentException(_txt('er.co.mismatch', array("CoGroup", $coGroupId)));
+              }
+              
+              // We can finally add a new CoGroupMember
+              
+              $cogm = array();
+              $cogm['CoGroupMember']['co_group_id'] = $coGroupId;
+              $cogm['CoGroupMember']['co_person_id'] = $m['co_person_id'];
+              $cogm['CoGroupMember']['member'] = $member;
+              $cogm['CoGroupMember']['owner'] = $owner;
+              
+              if(!$this->save($cogm)) {
+                throw new RuntimeException($this->validationErrors);
+              }
+              
+              // Cut a history record
+              
+              try {
+                $this->CoPerson->HistoryRecord->record($m['co_person_id'],
+                                                       null,
+                                                       null,
+                                                       $requesterCoPersonId,
+                                                       ActionEnum::CoGroupMemberAdded,
+                                                       _txt('rs.grm.added', array($grp['CoGroup']['name'],
+                                                                                  $coGroupId,
+                                                                                  _txt($member ? 'fd.yes' : 'fd.no'),
+                                                                                  _txt($owner ? 'fd.yes' : 'fd.no'))));
+              }
+              catch(Exception $e) {
+                throw new RuntimeException($e->getMessage());
+              }
+            } else {
+              // We shouldn't get here since $m['id'] should have been set if the CO person
+              // already had a role in the group
+              
+              throw new LogicException(_txt('er.grm.already', array($m['co_person_id'], $coGroupId)));
             }
           }
         }
