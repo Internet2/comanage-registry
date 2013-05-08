@@ -192,15 +192,19 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $assigndn = false;
     $delete   = false;
     $add      = false;
+    $modify   = false;
     
-    // XXX CO-548 - Implement the other ProvisioningActions
     switch($op) {
       case ProvisioningActionEnum::CoPersonAdded:
+      case ProvisioningActionEnum::CoPersonUnexpired:
+        // Currently, unexpiration is treated the same as add, but that is subject to change
         $assigndn = true;
         $delete = false;  // Arguably, this should be true to clear out any prior debris
         $add = true;
         break;
       case ProvisioningActionEnum::CoPersonDeleted:
+      case ProvisioningActionEnum::CoPersonExpired:
+        // Currently, expiration is treated the same as delete, but that is subject to change
         $assigndn = false;
         $delete = true;
         $add = false;
@@ -211,10 +215,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $add = true;
         break;
       case ProvisioningActionEnum::CoPersonUpdated:
-        $assigndn = true;  // An update may cause an existing person to be written to LDAP for the first time
-        // XXX This should really become a $modify
-        $delete = true;
-        $add = true;
+        // An update may cause an existing person to be written to LDAP for the first time
+        // or for an unexpectedly removed entry to be replaced
+        $assigndn = true;  
+        $modify = true;
+        break;
+      case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
+        // We don't do anything on grace period
         break;
       default:
         throw new RuntimeException("Not Implemented");
@@ -262,27 +269,41 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $attributes['uid'] = $coPersonData['CoPerson']['id'];
     if(!empty($coPersonData['CoPersonRole'][0]['title'])) {
       $attributes['title'] = $coPersonData['CoPersonRole'][0]['title'];
+    } elseif($modify) {
+      $attributes['title'] = array();
     }
     if(!empty($coPersonData['CoPersonRole'][0]['Address'][0]['line1'])) {
       // XXX should concatenate line2, or implement CO-539 and convert newlines to $
       $attributes['street'] = $coPersonData['CoPersonRole'][0]['Address'][0]['line1'];
+    } elseif($modify) {
+      $attributes['street'] = array();
     }
     if(!empty($coPersonData['CoPersonRole'][0]['Address'][0]['locality'])) {
       $attributes['l'] = $coPersonData['CoPersonRole'][0]['Address'][0]['locality'];
+    } elseif($modify) {
+      $attributes['l'] = array();
     }
     if(!empty($coPersonData['CoPersonRole'][0]['Address'][0]['state'])) {
       $attributes['st'] = $coPersonData['CoPersonRole'][0]['Address'][0]['state'];
+    } elseif($modify) {
+      $attributes['st'] = array();
     }
     if(!empty($coPersonData['CoPersonRole'][0]['Address'][0]['postal_code'])) {
       $attributes['postalcode'] = $coPersonData['CoPersonRole'][0]['Address'][0]['postal_code'];
+    } elseif($modify) {
+      $attributes['postalcode'] = array();
     }
     if(!empty($coPersonData['CoPersonRole'][0]['TelephoneNumber'])) {
       foreach($coPersonData['CoPersonRole'][0]['TelephoneNumber'] as $t) {
         $attributes['telephonenumber'][] = $t['number'];
       }
+    } elseif($modify) {
+      $attributes['telephonenumber'] = array();
     }
     if(!empty($coPersonData['EmailAddress'][0]['mail'])) {
       $attributes['mail'] = $coPersonData['EmailAddress'][0]['mail'];
+    } elseif($modify) {
+      $attributes['mail'] = array();
     }
     
     // Bind to the server
@@ -290,7 +311,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $cxn = ldap_connect($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl']);
     
     if(!$cxn) {
-      throw new RuntimeException(_txt('er.ldapprovisioner.connect'), LDAP_CONNECT_ERROR);
+      throw new RuntimeException(_txt('er.ldapprovisioner.connect'), 0x5b /*LDAP_CONNECT_ERROR*/);
     }
     
     // Use LDAP v3 (this could perhaps become an option at some point)
@@ -305,6 +326,24 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     if($delete) {
       // Delete any previous entry. For now, ignore any error.
       @ldap_delete($cxn, $dn);
+    }
+    
+    if($modify) {
+      if(!@ldap_mod_replace($cxn, $dn, $attributes)) {
+        if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
+          // Change to an add operation. We call ourselves recursively because
+          // we need to recalculate $attributes. Modify wants array() to indicate
+          // an empty attribute, whereas Add throws an error if that is the case.
+          // As a side effect, we'll rebind to the LDAP server, but this should
+          // be a pretty rare event.
+          
+          $this->provision($coProvisioningTargetData,
+                           ProvisioningActionEnum::CoPersonAdded,
+                           $coPersonData);
+        } else {
+          throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
+        }
+      }
     }
     
     if($add) {
