@@ -31,7 +31,8 @@ $(function() {
   // If returning to this page via redirect, open last used tab
   <?php if(isset($this->request->params['named']['tab'])): ?>
     var selectedtab = "<?php print($this->request->params['named']['tab']); ?>";
-    $tabs.tabs('select', '#tabs-' + selectedtab );
+    // The next line is still broken, see CO-613
+    $tabs.tabs('option', 'active', '#tabs-' + selectedtab );
   <?php endif; ?>
 });
 </script>
