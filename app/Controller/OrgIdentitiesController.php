@@ -385,6 +385,10 @@ class OrgIdentitiesController extends StandardController {
     $this->set('title_for_layout', _txt('ct.org_identities.pl'));
 
     // Use server side pagination
+    
+    if($this->requires_co) {
+      $pagcond['OrgIdentity.co_id'] = $this->cur_co['Co']['id'];
+    }
 
     // Filter by given name
     if(!empty($this->params['named']['Search.givenName'])) {
