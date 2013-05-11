@@ -324,7 +324,7 @@ class OrgIdentitiesController extends StandardController {
   
       // View all existing Org People?
       $p['index'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
-      $p['search'] = $p['find'];
+      $p['search'] = $p['index'];
 
       
       // View an existing Org Person?
@@ -347,11 +347,11 @@ class OrgIdentitiesController extends StandardController {
       
       // Find an Org Person to add to a CO?
       $p['find'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
-      $p['search'] = $p['find'];
       
       // View all existing Org People?
       $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
-      
+      $p['search'] = $p['index'];
+
       if($this->action == 'index' && $p['index']) {
         // For rendering index, we currently assume that anyone who can view the
         // index can manipulate all records. This is probably right.
@@ -450,6 +450,12 @@ class OrgIdentitiesController extends StandardController {
       parent::performRedirect();
   }
   
+  /**
+   * Insert search parameters into URL for index.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.8
+   */
   function search() {
     // the page we will redirect to
     $url['action'] = 'index';

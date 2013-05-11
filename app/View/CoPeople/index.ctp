@@ -22,6 +22,15 @@
  * @version       $Id$
  */
 -->
+<script>
+  $(function() {
+    $( "#advancedSearch" ).accordion({
+      collapsible: true,
+      active     : false
+    });
+  });
+</script>
+
 <?php
   $params = array('title' => _txt('fd.people', array($cur_co['Co']['name'])));
   print $this->element("pageTitle", $params);

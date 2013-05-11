@@ -479,6 +479,8 @@ class CoPeopleController extends StandardController {
     
     // View all existing CO People (or a COU's worth)?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    $p['search'] = $p['index'];
+
     
     if($this->action == 'index' && $p['index']) {
       // For rendering index, we currently assume that anyone who can view the
@@ -585,6 +587,45 @@ class CoPeopleController extends StandardController {
   }
 
   /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v0.8
+   * @return Array An array suitable for use in $this->paginate
+   */
+  
+  function paginationConditions() {
+    $pagcond = array();
+    
+    // Set page title
+    $this->set('title_for_layout', _txt('ct.co_people.se'));
+
+    // Use server side pagination
+    
+    if($this->requires_co) {
+      $pagcond['Co.id'] = $this->cur_co['Co']['id'];
+    }
+
+    // Filter by given name
+    if(!empty($this->params['named']['Search.givenName'])) {
+      $searchterm = $this->params['named']['Search.givenName'];
+      $pagcond['Name.given LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by Family name
+    if(!empty($this->params['named']['Search.familyName'])) {
+      $searchterm = $this->params['named']['Search.familyName'];
+      $pagcond['Name.family LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by status
+    if(!empty($this->params['named']['Search.status'])) {
+      $searchterm = $this->params['named']['Search.status'];
+      $pagcond['CoPerson.status'] = $searchterm;
+    }
+ 
+    return($pagcond);
+  }
+  /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
@@ -645,5 +686,29 @@ class CoPeopleController extends StandardController {
     }
     
     return true;
+  }
+
+  /**
+   * Insert search parameters into URL for index.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.8
+   */
+  function search() {
+    // the page we will redirect to
+    $url['action'] = 'index';
+     
+    // build a URL will all the search elements in it
+    // the resulting URL will be 
+    // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
+    foreach ($this->data['Search'] as $field=>$value){
+      if(!empty($value))
+        $url['Search.'.$field] = $value; 
+    }
+    // Insert CO into URL
+    $url['co'] = $this->cur_co['Co']['id'];
+
+    // redirect the user to the url
+    $this->redirect($url, null, true);
   }
 }
