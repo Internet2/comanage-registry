@@ -34,7 +34,20 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
   // Association rules from this model to other models
   public $belongsTo = array("CoProvisioningTarget");
   
-  public $hasMany = array("LdapProvisioner.CoLdapProvisionerDn");
+  public $hasMany = array(
+    "CoLdapProvisionerDn" => array(
+      'className' => 'LdapProvisioner.CoLdapProvisionerDn',
+      'dependent' => true
+    ),
+    "CoLdapProvisionerAttribute" => array(
+      'className' => 'LdapProvisioner.CoLdapProvisionerAttribute',
+      'dependent' => true
+    ),
+    "CoLdapProvisionerAttrGrouping" => array(
+      'className' => 'LdapProvisioner.CoLdapProvisionerAttrGrouping',
+      'dependent' => true
+    )
+  );
   
   // Default display field for cake generated views
   public $displayField = "serverurl";
@@ -60,8 +73,304 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     ),
     'basedn' => array(
       'rule' => 'notEmpty'
+    ),
+    'oc_person' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_orgperson' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_inetorgperson' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_eduperson' => array(
+      'rule' => 'boolean'
     )
   );
+  
+  /**
+   * Assemble attributes for an LDAP record.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Array CO Provisioning Target data
+   * @param  Array CO Person Data used for provisioning
+   * @param  Boolean Whether or not this will be for a modify operation
+   * @param  Array Attributes used to generate the DN for this person, as returned by CoLdapProvisionerDn::dnAttributes
+   * @return Array Attribute data suitable for passing to ldap_add, etc
+   */
+  
+  protected function assembleAttributes($coProvisioningTargetData, $coPersonData, $modify, $dnAttributes) {
+    // Pull the attribute configuration
+    $args = array();
+    $args['conditions']['CoLdapProvisionerAttribute.co_ldap_provisioner_target_id'] = $coProvisioningTargetData['CoLdapProvisionerTarget']['id'];
+    $args['contain'] = false;
+    
+    $cAttrs = $this->CoLdapProvisionerAttribute->find('all', $args);
+    
+    // Rekey the attributes array on attribute name
+    
+    $configuredAttributes = array();
+    
+    foreach($cAttrs as $a) {
+      if(!empty($a['CoLdapProvisionerAttribute']['attribute'])) {
+        $configuredAttributes[ $a['CoLdapProvisionerAttribute']['attribute'] ] = $a['CoLdapProvisionerAttribute'];
+      }
+    }
+    
+    // Pull the attribute groupings
+    $args = array();
+    $args['conditions']['CoLdapProvisionerAttrGrouping.co_ldap_provisioner_target_id'] = $coProvisioningTargetData['CoLdapProvisionerTarget']['id'];
+    $args['contain'] = false;
+    
+    $cAttrGrs = $this->CoLdapProvisionerAttrGrouping->find('all', $args);
+    
+    // Rekey the attributes array on attribute name
+    
+    $configuredAttributeGroupings = array();
+    
+    foreach($cAttrGrs as $g) {
+      if(!empty($g['CoLdapProvisionerAttrGrouping']['grouping'])) {
+        $configuredAttributeGroupings[ $g['CoLdapProvisionerAttrGrouping']['grouping'] ] = $g['CoLdapProvisionerAttrGrouping'];
+      }
+    }
+    
+    // Marshalled attributes ready for export
+    $attributes = array();
+    
+    // Full set of supported attributes (not what's configured)
+    $supportedAttributes = $this->supportedAttributes();
+    
+    // Note we don't need to check for inactive status where relevant since
+    // ProvisionerBehavior will remove those from the data we get.
+    
+    foreach(array_keys($supportedAttributes) as $oc) {
+      // Iterate across objectclasses, looking for those that are required or enabled
+      
+      if($supportedAttributes[$oc]['objectclass']['required']
+         || (isset($coProvisioningTargetData['CoLdapProvisionerTarget']['oc_' . strtolower($oc)])
+             && $coProvisioningTargetData['CoLdapProvisionerTarget']['oc_' . strtolower($oc)])) {
+        $attributes['objectclass'][] = $oc;
+        
+        // Within the objectclass, iterate across the supported attributes looking
+        // for required or enabled attributes
+        
+        foreach(array_keys($supportedAttributes[$oc]['attributes']) as $attr) {
+          if($supportedAttributes[$oc]['attributes'][$attr]['required']
+             || (isset($configuredAttributes[$attr]['export'])
+                 && $configuredAttributes[$attr]['export'])) {
+            // Does this attribute support multiple values?
+            $multiple = (isset($supportedAttributes[$oc]['attributes'][$attr]['multiple'])
+                         && $supportedAttributes[$oc]['attributes'][$attr]['multiple']);
+            
+            // Is a type specified for this attribute via a grouping?
+            $targetType = null;
+            
+            if(!empty($supportedAttributes[$oc]['attributes'][$attr]['grouping'])) {
+              $grouping = $supportedAttributes[$oc]['attributes'][$attr]['grouping'];
+              
+              if(!empty($configuredAttributeGroupings[$grouping]['type'])) {
+                $targetType = $configuredAttributeGroupings[$grouping]['type'];
+              }
+            }
+            
+            // Or explicitly?
+            if(!$targetType && !empty($configuredAttributes[$attr]['type'])) {
+              $targetType = $configuredAttributes[$attr]['type'];
+            }
+            
+            switch($attr) {
+              // Name attributes
+              case 'cn':
+                // Currently only preferred name supported (CO-333)
+                $attributes[$attr] = generateCn($coPersonData['Name']);
+                break;
+              case 'givenName':
+                // Currently only preferred name supported (CO-333)
+                $attributes[$attr] = $coPersonData['Name']['given'];
+                break;
+              case 'sn':
+                // Currently only preferred name supported (CO-333)
+                $attributes[$attr] = $coPersonData['Name']['family'];
+                break;
+              // Attributes from CO Person Role
+              case 'eduPersonAffiliation':
+              case 'o':
+              case 'ou':
+              case 'title':
+                // Map the attribute to the column
+                $cols = array(
+                  'eduPersonAffiliation' => 'affiliation',
+                  'o' => 'o',
+                  'ou' => 'ou',
+                  'title' => 'title'
+                );
+                
+                // Walk through each role
+                $found = false;
+                
+                foreach($coPersonData['CoPersonRole'] as $r) {
+                  if(!empty($r[ $cols[$attr] ])) {
+                    if($attr == 'eduPersonAffiliation') {
+                      // Map back to the controlled vocabulary
+                      $attributes[$attr][] = _txt('en.affil', null, $r[ $cols[$attr] ]);
+                    } else {
+                      $attributes[$attr][] = $r[ $cols[$attr] ];
+                    }
+                    
+                    $found = true;
+                  }
+                  
+                  if(!$multiple && $found) {
+                    break;
+                  }
+                }
+                
+                if(!$found && $modify) {
+                  $attributes[$attr] = array();
+                }
+                break;
+              // Attributes from models attached to CO Person
+              case 'eduPersonPrincipalName':
+              case 'employeeNumber':
+              case 'mail':
+              case 'uid':
+                // Map the attribute to the model and column
+                $mods = array(
+                  'eduPersonPrincipalName' => 'Identifier',
+                  'employeeNumber' => 'Identifier',
+                  'mail' => 'EmailAddress',
+                  'uid' => 'Identifier'
+                );
+                
+                $cols = array(
+                  'eduPersonPrincipalName' => 'identifier',
+                  'employeeNumber' => 'identifier',
+                  'mail' => 'mail',
+                  'uid' => 'identifier'
+                );
+                
+                // Walk through each model instance
+                $found = false;
+                
+                if(isset($coPersonData[ $mods[$attr] ])) {
+                  foreach($coPersonData[ $mods[$attr] ] as $m) {
+                    // If a type is set, make sure it matches
+                    if(empty($targetType) || ($targetType == $m['type'])) {
+                      // And finally that the attribute itself is set
+                      if(!empty($m[ $cols[$attr] ])) {
+                        $attributes[$attr][] = $m[ $cols[$attr] ];
+                        $found = true;
+                      }
+                    }
+                    
+                    if(!$multiple && $found) {
+                      break;
+                    }
+                  }
+                  
+                  if(!$multiple && $found) {
+                    break;
+                  }
+                }
+                
+                if(!$found && $modify) {
+                  $attributes[$attr] = array();
+                }
+                break;
+              // Attributes from models attached to CO Person Role
+              case 'facsimileTelephoneNumber':
+              case 'l':
+              case 'mail':
+              case 'mobile':
+              case 'postalCode':
+              case 'st':
+              case 'street':
+              case 'telephoneNumber':
+                // Map the attribute to the model and column
+                $mods = array(
+                  'facsimileTelephoneNumber' => 'TelephoneNumber',
+                  'l' => 'Address',
+                  'mail' => 'EmailAddress',
+                  'mobile' => 'TelephoneNumber',
+                  'postalCode' => 'Address',
+                  'st' => 'Address',
+                  'street' => 'Address',
+                  'telephoneNumber' => 'TelephoneNumber'
+                );
+                
+                $cols = array(
+                  'facsimileTelephoneNumber' => 'number',
+                  'l' => 'locality',
+                  'mail' => 'mail',
+                  'mobile' => 'number',
+                  'postalCode' => 'postal_code',
+                  'st' => 'state',
+                  'street' => 'line1',
+                  'telephoneNumber' => 'number'
+                );
+                
+                // Walk through each role, each of which can have more than one
+                $found = false;
+                
+                foreach($coPersonData['CoPersonRole'] as $r) {
+                  if(isset($r[ $mods[$attr] ])) {
+                    foreach($r[ $mods[$attr] ] as $m) {
+                      // If a type is set, make sure it matches
+                      if(empty($targetType) || ($targetType == $m['type'])) {
+                        // And finally that the attribute itself is set
+                        if(!empty($m[ $cols[$attr] ])) {
+                          $attributes[$attr][] = $m[ $cols[$attr] ];
+                          $found = true;
+                        }
+                      }
+                      
+                      if(!$multiple && $found) {
+                        break;
+                      }
+                    }
+                    
+                    if(!$multiple && $found) {
+                      break;
+                    }
+                  }
+                }
+                
+                if(!$found && $modify) {
+                  $attributes[$attr] = array();
+                }
+                break;
+              // Group attributes
+              case 'isMemberOf':
+                foreach($coPersonData['CoGroupMember'] as $gm) {
+                  if(isset($gm['member']) && $gm['member']
+                     && !empty($gm['CoGroup']['name'])) {
+                    $attributes['isMemberOf'][] = $gm['CoGroup']['name'];
+                  }
+                }
+                break;
+              default:
+                throw new InternalErrorException("Unknown attribute: " . $attr);
+                break;
+            }
+          } elseif($modify) {
+            // In case this attribute is no longer being exported (but was previously),
+            // set an empty value to indicate delete
+            $attributes[$attr] = array();
+          }
+        }
+      }
+    }
+    
+    // Make sure the DN values are in the list
+    
+    foreach(array_keys($dnAttributes) as $a) {
+      if(empty($attributes[$a]) || !in_array($dnAttributes[$a], $attributes[$a])) {
+        $attributes[$a][] = $dnAttributes[$a];
+      }
+    }
+    
+    return $attributes;
+  }
   
   /**
    * Query an LDAP server.
@@ -243,7 +552,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       if($assigndn) {
         // If we don't have a DN, assign one
         
-        $dn = $this->CoLdapProvisionerDn->assignDn($coProvisioningTargetData, $coPersonData);
+        try {
+          $dn = $this->CoLdapProvisionerDn->assignDn($coProvisioningTargetData, $coPersonData);
+        }
+        catch(RuntimeException $e) {
+          throw new RuntimeException($e->getMessage());
+        }
       }
     } else {
       $dn = $dnRecord['CoLdapProvisionerDn']['dn'];
@@ -253,58 +567,19 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       throw new RuntimeException(_txt('er.ldapprovisioner.dn.none', array($coPersonData['CoPerson']['id'])));
     }
     
+    // Find out what attributes went into the DN to make sure they got populated into
+    // the attribute array
+    
+    try {
+      $dnAttributes = $this->CoLdapProvisionerDn->dnAttributes($coProvisioningTargetData, $dn);
+    }
+    catch(RuntimeException $e) {
+      throw new RuntimeException($e->getMessage());
+    }
+    
     // Assemble an LDAP record
     
-    // XXX make this configurable, at least as per (CO-549)
-    // multi-valued attributes can be set via $attributes['mail'][0]
-    $attributes = array();
-    $attributes['objectclass'][] = 'top';
-    $attributes['objectclass'][] = 'person';
-    $attributes['objectclass'][] = 'organizationalperson';
-    $attributes['objectclass'][] = 'inetorgperson';
-    // Note: RFC4519 requires sn and cn for person
-    $attributes['cn'] = generateCn($coPersonData['Name']);
-    $attributes['sn'] = $coPersonData['Name']['family'];
-    $attributes['givenname'] = $coPersonData['Name']['given'];
-    $attributes['uid'] = $coPersonData['CoPerson']['id'];
-    if(!empty($coPersonData['CoPersonRole'][0]['title'])) {
-      $attributes['title'] = $coPersonData['CoPersonRole'][0]['title'];
-    } elseif($modify) {
-      $attributes['title'] = array();
-    }
-    if(!empty($coPersonData['CoPersonRole'][0]['Address'][0]['line1'])) {
-      // XXX should concatenate line2, or implement CO-539 and convert newlines to $
-      $attributes['street'] = $coPersonData['CoPersonRole'][0]['Address'][0]['line1'];
-    } elseif($modify) {
-      $attributes['street'] = array();
-    }
-    if(!empty($coPersonData['CoPersonRole'][0]['Address'][0]['locality'])) {
-      $attributes['l'] = $coPersonData['CoPersonRole'][0]['Address'][0]['locality'];
-    } elseif($modify) {
-      $attributes['l'] = array();
-    }
-    if(!empty($coPersonData['CoPersonRole'][0]['Address'][0]['state'])) {
-      $attributes['st'] = $coPersonData['CoPersonRole'][0]['Address'][0]['state'];
-    } elseif($modify) {
-      $attributes['st'] = array();
-    }
-    if(!empty($coPersonData['CoPersonRole'][0]['Address'][0]['postal_code'])) {
-      $attributes['postalcode'] = $coPersonData['CoPersonRole'][0]['Address'][0]['postal_code'];
-    } elseif($modify) {
-      $attributes['postalcode'] = array();
-    }
-    if(!empty($coPersonData['CoPersonRole'][0]['TelephoneNumber'])) {
-      foreach($coPersonData['CoPersonRole'][0]['TelephoneNumber'] as $t) {
-        $attributes['telephonenumber'][] = $t['number'];
-      }
-    } elseif($modify) {
-      $attributes['telephonenumber'] = array();
-    }
-    if(!empty($coPersonData['EmailAddress'][0]['mail'])) {
-      $attributes['mail'] = $coPersonData['EmailAddress'][0]['mail'];
-    } elseif($modify) {
-      $attributes['mail'] = array();
-    }
+    $attributes = $this->assembleAttributes($coProvisioningTargetData, $coPersonData, $modify, $dnAttributes);
     
     // Bind to the server
     
@@ -359,6 +634,178 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // We rely on the LDAP server to manage last modify time
     
     return true;
+  }
+  
+  /**
+   * Obtain the list of attributes supported for export.
+   *
+   * @since  COmanage Registry v0.8
+   * @return Array Array of supported attributes
+   */
+  
+  public function supportedAttributes() {
+    // Attributes should be listed in the order they are to be rendered in.
+    // The outermost key is the object class. If the objectclass is flagged
+    // as required => false, it MUST have a corresponding column oc_FOO in
+    // the cm_co_ldap_provisioner_targets.
+    
+    $attributes = array(
+      'person' => array(
+        'objectclass' => array(
+          'required'    => true
+        ),
+        // RFC4519 requires sn and cn for person
+        // For now, CO Person is always attached to preferred name (CO-333)
+        'attributes' => array(
+          'sn' => array(
+            'required'    => true,
+            'multiple'    => false
+//            'multiple'    => true,
+//            'typekey'     => 'en.name',
+//            'defaulttype' => NameEnum::Official
+          ),
+          'cn' => array(
+            'required'    => true,
+            'multiple'    => false
+//            'multiple'    => true,
+//            'typekey'     => 'en.name',
+//            'defaulttype' => NameEnum::Official
+          )
+        )
+      ),
+      'organizationalPerson' => array(
+        'objectclass' => array(
+          'required'    => true
+        ),
+        'attributes' => array(
+          'title' => array(
+            'required'    => false,
+            'multiple'    => true
+          ),
+          'ou' => array(
+            'required'    => false,
+            'multiple'    => true
+          ),
+          'telephoneNumber' => array(
+            'required'    => false,
+            'multiple'    => true,
+            'typekey'     => 'en.contact.phone',
+            'defaulttype' => ContactEnum::Office
+          ),
+          'facsimileTelephoneNumber' => array(
+            'required'    => false,
+            'multiple'    => true,
+            'typekey'     => 'en.contact.phone',
+            'defaulttype' => ContactEnum::Fax
+          ),
+          'street' => array(
+            'required'    => false,
+            'grouping'    => 'address'
+          ),
+          'l' => array(
+            'required'    => false,
+            'grouping'    => 'address'
+          ),
+          'st' => array(
+            'required'    => false,
+            'grouping'    => 'address'
+          ),
+          'postalCode' => array(
+            'required'    => false,
+            'grouping'    => 'address'
+          )
+        ),
+        'groupings' => array(
+          'address'     => array (
+            'label'       => _txt('fd.address'),
+            'multiple'    => true,
+            'typekey'     => 'en.contact.address',
+            'defaulttype' => ContactEnum::Office
+          )
+        ),
+      ),
+      'inetOrgPerson' => array(
+        'objectclass' => array(
+          'required'    => true
+        ),
+        'attributes' => array(
+          // For now, CO Person is always attached to preferred name (CO-333)
+          'givenName' => array(
+            'required'    => false,
+            'multiple'    => false
+//            'multiple'    => true,
+//            'typekey'     => 'en.name',
+//            'defaulttype' => NameEnum::Official
+          ),
+          // And since there is only one name, there's no point in supporting displayName
+          /* 'displayName' => array(
+            'required'    => false,
+            'multiple'    => false,
+            'typekey'     => 'en.name',
+            'defaulttype' => NameEnum::Preferred
+          ),*/
+          'o' => array(
+            'required'    => false,
+            'multiple'    => true
+          ),
+          'mail' => array(
+            'required'    => false,
+            'multiple'    => true,
+            'typekey'     => 'en.contact.mail',
+            'defaulttype' => EmailAddressEnum::Official
+          ),
+          'mobile' => array(
+            'required'    => false,
+            'multiple'    => true,
+            'typekey'     => 'en.contact.phone',
+            'defaulttype' => ContactEnum::Mobile
+          ),
+          'employeeNumber' => array(
+            'required'    => false,
+            'multiple'    => false,
+            'extendedtype' => 'identifier_types',
+            'typekey'     => 'en.identifier',
+            'defaulttype' => IdentifierEnum::ePPN
+          ),
+          'uid' => array(
+            'required'    => false,
+            'multiple'    => false,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::UID
+          )
+        )
+      ),
+      'eduPerson' => array(
+        'objectclass' => array(
+          'required'    => false
+        ),
+        'attributes' => array(
+          'eduPersonAffiliation' => array(
+            'required'  => false,
+            'multiple'  => true
+          ),
+          'eduPersonPrincipalName' => array(
+            'required'  => false,
+            'multiple'  => false,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::ePPN
+          )
+        )
+      ),
+      'eduMember' => array(
+        'objectclass' => array(
+          'required'    => false
+        ),
+        'attributes' => array(
+          'isMemberOf' => array(
+            'required'  => true,
+            'multiple'  => true
+          )
+        )
+      )
+    );
+    
+    return $attributes;
   }
   
   /**

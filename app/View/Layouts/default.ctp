@@ -185,6 +185,12 @@
         text: false
       });
 
+      $(".configurebutton").button({
+        icons: {
+          primary: 'ui-icon-pencil'
+        }
+      });
+      
       $(".deletebutton").button({
         icons: {
           primary: 'ui-icon-circle-close'

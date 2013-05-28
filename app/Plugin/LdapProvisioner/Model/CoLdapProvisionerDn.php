@@ -66,7 +66,7 @@ class CoLdapProvisionerDn extends AppModel {
    */
   
   public function assignDn($coProvisioningTargetData, $coPersonData) {
-// XXX make this configurable (or cut a ticket)
+    // XXX make this configurable (CO-550)
     
     if(!isset($coPersonData['CoPerson']['id'])) {
       throw new RuntimeException(_txt('er.ldapprovisioner.dn.component', array("co_person_id")));
@@ -84,5 +84,34 @@ class CoLdapProvisionerDn extends AppModel {
     } else {
       throw new RuntimeException(_txt('er.db.save'));
     }
+  }
+  
+  /**
+   * Determine the attributes used to generate a DN.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Array CO Provisioning Target data
+   * @param  String DN
+   * @return Array Attribute/value pairs used to generate the DN, not including the base DN
+   * @throws RuntimeException
+   */
+  
+  public function dnAttributes($coProvisioningTargetData, $dn) {
+    // We assume dn is of the form attr1=val1, attr2=val2, basedn
+    // where based matches $coProvisioningTargetData. Strip off basedn
+    // and then split up the remaining string. Note we'll fail if the
+    // base DN changes. Currently, that would require manual cleanup.
+    
+    $ret = array();
+    
+    $attrs = explode(",", rtrim(str_replace($coProvisioningTargetData['CoLdapProvisionerTarget']['basedn'], "", $dn), " ,"));
+    
+    foreach($attrs as $a) {
+      $av = explode("=", $a, 2);
+      
+      $ret[ $av[0] ] = $av[1];
+    }
+    
+    return $ret;
   }
 }

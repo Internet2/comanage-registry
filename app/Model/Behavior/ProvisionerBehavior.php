@@ -38,39 +38,13 @@ class ProvisionerBehavior extends ModelBehavior {
    * @return boolean true on success, false on failure
    */
   
-  public function beforeDelete(Model $model, $cascade = true) {
+  public function afterDelete(Model $model) {
     // Note that in most cases this is just an edit. ie: deleting a telephone number is
     // CoPersonUpdated not CoPersonDeleted. In those cases, we can just call afterSave.
+    // CoPerson was already handled by beforeDelete().
     
     if($model->name != 'CoPerson') {
       return $this->afterSave($model, false);
-    }
-    
-    // However, deleting a CoPerson needs to be handled specially.
-    // Note that $model->data is generally populated by StandardController::delete
-    // calling $model->read().
-    
-    if(!empty($model->data['CoPerson']['id'])) {
-      // Invoke all provisioning plugins
-      
-      try {
-        $this->invokePlugins($model,
-                             $model->data['CoPerson']['id'],
-                             $model->data,
-                             ProvisioningActionEnum::CoPersonDeleted);
-      }    
-      // What we really want to do here is catch the result (success or exception)
-      // and set the appropriate session flash message, but we don't have access to
-      // the current session, and anyway that doesn't cover RESTful interactions.
-      // So instead we syslog (which is better than nothing).
-      catch(InvalidArgumentException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new InvalidArgumentException($e->getMessage());
-      }
-      catch(RuntimeException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new RuntimeException($e->getMessage());
-      }
     }
     
     return true;
@@ -157,6 +131,53 @@ class ProvisionerBehavior extends ModelBehavior {
     catch(RuntimeException $e) {
       syslog(LOG_ERR, $e->getMessage());
       //throw new RuntimeException($e->getMessage());
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Handle provisioning following (before) delete of Model.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Model $model Model instance.
+   * @return boolean true on success, false on failure
+   */
+  
+  public function beforeDelete(Model $model, $cascade = true) {
+    // Note that in most cases this is just an edit. ie: deleting a telephone number is
+    // CoPersonUpdated not CoPersonDeleted. However, in those cases we don't want to
+    // process anything until afterDelete().
+    
+    if($model->name != 'CoPerson') {
+      return true;
+    }
+    
+    // However, deleting a CoPerson needs to be handled specially.
+    // Note that $model->data is generally populated by StandardController::delete
+    // calling $model->read().
+    
+    if(!empty($model->data['CoPerson']['id'])) {
+      // Invoke all provisioning plugins
+      
+      try {
+        $this->invokePlugins($model,
+                             $model->data['CoPerson']['id'],
+                             $model->data,
+                             ProvisioningActionEnum::CoPersonDeleted);
+      }    
+      // What we really want to do here is catch the result (success or exception)
+      // and set the appropriate session flash message, but we don't have access to
+      // the current session, and anyway that doesn't cover RESTful interactions.
+      // So instead we syslog (which is better than nothing).
+      catch(InvalidArgumentException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new InvalidArgumentException($e->getMessage());
+      }
+      catch(RuntimeException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new RuntimeException($e->getMessage());
+      }
     }
     
     return true;

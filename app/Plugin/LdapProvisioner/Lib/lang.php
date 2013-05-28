@@ -37,9 +37,12 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'er.ldapprovisioner.basedn'         => 'Base DN not found',
   'er.ldapprovisioner.connect'        => 'Failed to connect to LDAP server',
   'er.ldapprovisioner.dn.component'   => 'DN component %1$s not available',
+  'er.ldapprovisioner.dn.noattr'      => 'DN attributes not found for CO Person %1$s',
   'er.ldapprovisioner.dn.none'        => 'DN not found for CO Person %1$s',
   
   // Plugin texts
+  'pl.ldapprovisioner.attrs'          => 'Attributes',
+  'pl.ldapprovisioner.attrs.desc'     => 'Attributes to export to this LDAP server',
   'pl.ldapprovisioner.basedn'         => 'Base DN',
   'pl.ldapprovisioner.basedn.desc'    => 'Base DN to provision entries under',
   'pl.ldapprovisioner.binddn'         => 'Bind DN',
@@ -47,6 +50,12 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'pl.ldapprovisioner.info'           => 'The LDAP server must be available and the specified credentials must be valid before this configuration can be saved.',
   'pl.ldapprovisioner.password'       => 'Password',
   'pl.ldapprovisioner.password.desc'  => 'Password to use for authentication',
+  'pl.ldapprovisioner.oc.enable'      => 'Enable <font style="font-family:monospace">%1$s</font> objectclass',
+  'pl.ldapprovisioner.opts'           => 'Attribute Options',
+  'pl.ldapprovisioner.opts.desc'      => 'XXX link to documentation',
+  'pl.ldapprovisioner.opt.lang'       => 'Enable attribute options for languages',
+  'pl.ldapprovisioner.opt.role'       => 'Enable attribute options for roles',
   'pl.ldapprovisioner.serverurl'      => 'Server URL',
-  'pl.ldapprovisioner.serverurl.desc' => 'URL to connect to (<tt>ldap[s]://hostname[:port]</tt>)'
+  'pl.ldapprovisioner.serverurl.desc' => 'URL to connect to (<font style="font-family:monospace">ldap[s]://hostname[:port]</font>)',
+  'pl.ldapprovisioner.types.all'      => 'All Types'
 );

@@ -173,6 +173,9 @@ class CoGroupMember extends AppModel {
       $curRoles = $this->findCoPersonGroupRoles($coPersonId);
       
       foreach($memberships as $m) {
+        // Reset model state between transactions
+        $this->create();
+        
         // Determine desired roles for this row
         $member = isset($m['member']) && $m['member'];
         $owner = isset($m['owner']) && $m['owner'];

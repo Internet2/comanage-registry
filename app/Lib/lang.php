@@ -233,7 +233,7 @@ $cm_texts['en_US'] = array(
     ProvisionerStatusEnum::Disabled       => 'Disabled'
   ),
   
-  'en.status.prov.desc' =>  'In automatic mode, provisioners are called automatically as needed.<br />In manual mode, an administrator must invoke the provisioner.',
+  'en.status.prov.desc' =>  'In automatic mode, provisioners are called automatically as needed<br />In manual mode, an administrator must invoke the provisioner',
 
   'en.status.prov.target' => array(
     ProvisioningStatusEnum::NotProvisioned => 'Not Provisioned',
@@ -513,6 +513,7 @@ $cm_texts['en_US'] = array(
   'fd.perms' =>       'Permissions',
   'fd.petitioner' =>  'Petitioner',
   'fd.plugin' =>      'Plugin',
+  'fd.plugin.ptwarn' => 'Once a Provisioning Target has been created, the Plugin cannot be changed',
   'fd.prov.status.for' => 'Provisioning Status for %1$s',
   'fd.req' =>         '* denotes required field',
   'fd.required' =>    'Required',

@@ -72,7 +72,8 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.plugin'); ?><font class="required">*</font>
+        <?php print _txt('fd.plugin'); ?><font class="required">*</font><br />
+        <font class="desc"><?php print _txt('fd.plugin.ptwarn'); ?></font>
       </td>
       <td>
         <?php
@@ -97,15 +98,15 @@
             $pl = Inflector::underscore(Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']));
             $plmodel = "Co" . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . "Target";
             
-            print " " . $this->Html->link(_txt('op.config'),
-                                          array(
-                                            'plugin' => $pl,
-                                            'controller' => 'co_' . $pl . '_targets',
-                                            'action' => 'edit',
-                                            $co_provisioning_targets[0][$plmodel]['id'],
-                                            'co' => $cur_co['Co']['id']
-                                          ),
-                                          array('class' => 'editbutton'));
+            print "<br />" . $this->Html->link(_txt('op.config'),
+                                               array(
+                                                 'plugin' => $pl,
+                                                 'controller' => 'co_' . $pl . '_targets',
+                                                 'action' => 'edit',
+                                                 $co_provisioning_targets[0][$plmodel]['id'],
+                                                 'co' => $cur_co['Co']['id']
+                                               ),
+                                               array('class' => 'configurebutton'));
           }
         ?>
       </td>
