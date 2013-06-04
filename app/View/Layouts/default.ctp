@@ -470,16 +470,18 @@
             </ul>
 
             <?php // Advanced Search (CO-139)
-              // Get a pointer to our model
-              $model = $this->name;
-              if(!empty($this->plugin)) {
-                $fileLocation = APP . "Plugin/" . $this->plugin . "/View/" . $model . "/search.inc";
-                if(file_exists($fileLocation))
-                  include($fileLocation);
-              } else {
-                $fileLocation = APP . "View/" . $model . "/search.inc";
-                if(file_exists($fileLocation))
-                  include($fileLocation);
+              if($permissions['search']) {
+                // Get a pointer to our model
+                $model = $this->name;
+                if(!empty($this->plugin)) {
+                  $fileLocation = APP . "Plugin/" . $this->plugin . "/View/" . $model . "/search.inc";
+                  if(file_exists($fileLocation))
+                    include($fileLocation);
+                } else {
+                  $fileLocation = APP . "View/" . $model . "/search.inc";
+                  if(file_exists($fileLocation))
+                    include($fileLocation);
+                }
               }
             ?>
           </div>
