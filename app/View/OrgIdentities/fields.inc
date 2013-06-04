@@ -25,14 +25,22 @@
 
 <script>
 $(function() {
+  // Ennumeration for tabs
+  var tabid = new Object();
+  tabid["name"]  = 0;
+  tabid["id"]    = 1;
+  tabid["email"] = 2;
+  tabid["phone"] = 3;
+  tabid["address"]  = 4;
+
   // Turn on Tabs
   var $tabs = $( "#tabs" ).tabs();
   
   // If returning to this page via redirect, open last used tab
   <?php if(isset($this->request->params['named']['tab'])): ?>
     var selectedtab = "<?php print($this->request->params['named']['tab']); ?>";
-    // The next line is still broken, see CO-613
-    $tabs.tabs('option', 'active', '#tabs-' + selectedtab );
+
+    $tabs.tabs('option', 'active', tabid[selectedtab] );
   <?php endif; ?>
 });
 </script>
