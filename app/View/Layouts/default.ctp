@@ -470,7 +470,7 @@
             </ul>
 
             <?php // Advanced Search (CO-139)
-              if($permissions['search']) {
+              if(isset($permissions['search']) && $permissions['search'] ) {
                 // Get a pointer to our model
                 $model = $this->name;
                 if(!empty($this->plugin)) {
