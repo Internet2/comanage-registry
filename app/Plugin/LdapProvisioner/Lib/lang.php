@@ -47,6 +47,7 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'pl.ldapprovisioner.basedn.desc'    => 'Base DN to provision entries under',
   'pl.ldapprovisioner.binddn'         => 'Bind DN',
   'pl.ldapprovisioner.binddn.desc'    => 'DN to authenticate as to manage entries',
+  'pl.ldapprovisioner.fd.useorgval'   => 'Use value from Organizational Identity',
   'pl.ldapprovisioner.info'           => 'The LDAP server must be available and the specified credentials must be valid before this configuration can be saved.',
   'pl.ldapprovisioner.password'       => 'Password',
   'pl.ldapprovisioner.password.desc'  => 'Password to use for authentication',

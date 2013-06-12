@@ -57,6 +57,9 @@ class CoLdapProvisionerAttribute extends AppModel {
     ),
     'export' => array(
       'rule' => 'boolean'
+    ),
+    'use_org_value' => array(
+      'rule' => 'boolean'
     )
   );
 }

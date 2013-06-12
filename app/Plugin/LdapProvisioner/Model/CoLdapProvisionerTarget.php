@@ -249,11 +249,30 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'uid' => 'identifier'
                 );
                 
+                $modelList = null;
+                
+                if(isset($configuredAttributes[$attr]['use_org_value'])
+                   && $configuredAttributes[$attr]['use_org_value']) {
+                  // Use organizational identity value for this attribute
+                  
+                  // It's unclear what to do here if there is more than one CoOrgIdentityLink...
+                  // which identity do we choose? For now, the first one.
+                  
+                  if(isset($coPersonData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ])) {
+                    $modelList =& $coPersonData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ];
+                  }
+                } elseif(isset($coPersonData[ $mods[$attr] ])) {
+                  // Use CO Person value for this attribute
+                  $modelList =& $coPersonData[ $mods[$attr] ];
+                }
+                // Next: if useorgvalue reference $coPersonData['CoOrgIdentityLink']['OrgIdentity'][ $mods[$attr] ] instead
+                // perhaps using =& to avoid copying arrays
+                
                 // Walk through each model instance
                 $found = false;
                 
-                if(isset($coPersonData[ $mods[$attr] ])) {
-                  foreach($coPersonData[ $mods[$attr] ] as $m) {
+                if(isset($modelList)) {
+                  foreach($modelList as $m) {
                     // If a type is set, make sure it matches
                     if(empty($targetType) || ($targetType == $m['type'])) {
                       // And finally that the attribute itself is set
@@ -787,6 +806,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'eduPersonPrincipalName' => array(
             'required'  => false,
             'multiple'  => false,
+            'alloworgvalue' => true,
             'extendedtype' => 'identifier_types',
             'defaulttype' => IdentifierEnum::ePPN
           )

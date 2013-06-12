@@ -80,6 +80,7 @@
     <field name="attribute" type="C" size="80" />
     <field name="type" type="C" size="32" />
     <field name="export" type="L" />
+    <field name="use_org_value" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

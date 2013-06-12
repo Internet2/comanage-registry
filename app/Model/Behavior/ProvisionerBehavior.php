@@ -369,6 +369,9 @@ class ProvisionerBehavior extends ModelBehavior {
       //'CoGroupMember',
       //'CoGroupMember.CoGroup',
       'CoOrgIdentityLink',
+      // We normally don't pull org identity data, but we'll make an exception
+      // for Identifier to be able to expose eppn
+      'CoOrgIdentityLink.OrgIdentity.Identifier',
       'CoPersonRole',
       'CoPersonRole.Address',
       'CoPersonRole.Cou',
@@ -379,7 +382,7 @@ class ProvisionerBehavior extends ModelBehavior {
     );
     
     $coPersonData = $coPersonModel->find('first', $args);
-
+    
     // Directly query for all group memberships instead of using
     // relations in order to support Grouper use cases.
     $coGroupMemberModel = new CoGroupMember();
