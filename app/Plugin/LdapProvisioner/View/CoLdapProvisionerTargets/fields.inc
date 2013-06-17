@@ -37,7 +37,19 @@
           }
         }
       }
+      
+      // And set the DN attribute name if empty (we have to do it this way since
+      // we're referencing an extended type and we won't know what the default value is)
+      
+      if(empty($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_attribute_name'])) {
+        print "set_dn_attribute_name()";
+      }
     ?>
+  }
+  
+  function set_dn_attribute_name() {
+    // Populate the DN attribute name field based on the current value of the DN identifier type
+    document.getElementById('dnIdentifierName').value = document.getElementById('dnIdentifierType').value;
   }
   
   function toggle_div(div) {
@@ -143,6 +155,39 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['password'])); ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
+        <?php print _txt('pl.ldapprovisioner.dntype'); ?><font class="required">*</font><br />
+        <font class="desc"><?php print _txt('pl.ldapprovisioner.dntype.desc'); ?></font>
+      </td>
+      <td>
+        <?php
+          $xval = "";
+          
+          if(isset($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_identifier_type'])) {
+            $xval = $co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_identifier_type'];
+          }
+          
+          print ($e ? $this->Form->select('dn_identifier_type',
+                                          $identifier_types,
+                                          array('id' => 'dnIdentifierType',
+                                                'value' => $xval,
+                                                'empty' => false,
+                                                'onchange' => 'set_dn_attribute_name()'))
+                    : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_identifier_type'])); ?>
+      </td>
+    </tr>
+    <tr class="line1">
+      <td>
+        <?php print _txt('pl.ldapprovisioner.dnattr'); ?><font class="required">*</font><br />
+        <font class="desc"><?php print _txt('pl.ldapprovisioner.dnattr.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('dn_attribute_name',
+                                             array('id' => 'dnIdentifierName'))
+                        : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_attribute_name'])); ?>
       </td>
     </tr>
     <tr class="line2">

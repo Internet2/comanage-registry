@@ -34,6 +34,9 @@
     <field name="binddn" type="C" size="128" />
     <field name="password" type="C" size="64" />
     <field name="basedn" type="C" size="128" />
+<!-- document these -->
+    <field name="dn_attribute_name" type="C" size="32" />
+    <field name="dn_identifier_type" type="C" size="32" />
     <field name="opt_lang" type="L" />
     <field name="opt_role" type="L" />
     <field name="oc_eduperson" type="L" />

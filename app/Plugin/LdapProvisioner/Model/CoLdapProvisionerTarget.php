@@ -71,6 +71,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     'password' => array(
       'rule' => 'notEmpty'
     ),
+    'dnattr' => array(
+      'rule' => 'notEmpty'
+    ),
     'basedn' => array(
       'rule' => 'notEmpty'
     ),
@@ -380,10 +383,33 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
     }
     
-    // Make sure the DN values are in the list
+    // Make sure the DN values are in the list (check case insensitively, in case
+    // the user-entered case used to build the DN doesn't match). First, map the
+    // outbound attributes to lowercase.
+    
+    $lcattributes = array();
+    
+    foreach(array_keys($attributes) as $a) {
+      $lcattributes[strtolower($a)] = $a;
+    }
+    
+    // Now walk through each DN attribute
     
     foreach(array_keys($dnAttributes) as $a) {
-      if(empty($attributes[$a]) || !in_array($dnAttributes[$a], $attributes[$a])) {
+      // Lowercase the attribute for comparison purposes
+      $lca = strtolower($a);
+      
+      if(isset($lcattributes[$lca])) {
+        // Map back to the mixed case version
+        $mca = $lcattributes[$lca];
+        
+        if(empty($attributes[$mca])
+           || !in_array($dnAttributes[$a], $attributes[$mca])) {
+          // Key isn't set, so store the value
+          $attributes[$a][] = $dnAttributes[$a];
+        }
+      } else {
+        // Key isn't set, so store the value
         $attributes[$a][] = $dnAttributes[$a];
       }
     }

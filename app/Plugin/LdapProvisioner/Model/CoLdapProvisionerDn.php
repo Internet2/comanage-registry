@@ -66,13 +66,41 @@ class CoLdapProvisionerDn extends AppModel {
    */
   
   public function assignDn($coProvisioningTargetData, $coPersonData) {
-    // XXX make this configurable (CO-550)
+    // Start by checking the DN configuration
     
-    if(!isset($coPersonData['CoPerson']['id'])) {
-      throw new RuntimeException(_txt('er.ldapprovisioner.dn.component', array("co_person_id")));
+    if(empty($coProvisioningTargetData['CoLdapProvisionerTarget']['dn_attribute_name'])
+       || empty($coProvisioningTargetData['CoLdapProvisionerTarget']['dn_identifier_type'])) {
+      // Throw an exception... these should be defined
+      throw new RuntimeException(_txt('er.ldapprovisioner.dn.config'));
     }
     
-    $dn = "uid=" . $coPersonData['CoPerson']['id'] . "," . $coProvisioningTargetData['CoLdapProvisionerTarget']['basedn'];
+    // Walk through available identifiers looking for a match
+    
+    $dn = "";
+    
+    foreach($coPersonData['Identifier'] as $identifier) {
+      if(!empty($identifier['type'])
+         && $identifier['type'] == $coProvisioningTargetData['CoLdapProvisionerTarget']['dn_identifier_type']
+         && !empty($identifier['identifier'])
+         && $identifier['status'] == StatusEnum::Active) {
+        // Match. We'll use the first active row found... it's undefined how to behave
+        // if multiple active identifiers of a given type are found. (We don't actually
+        // need to check for Status=Active since ProvisionerBehavior will filter out
+        // non-Active status.)
+        
+        $dn = $coProvisioningTargetData['CoLdapProvisionerTarget']['dn_attribute_name']
+            . "=" . $identifier['identifier']
+            . "," . $coProvisioningTargetData['CoLdapProvisionerTarget']['basedn'];
+        
+        break;
+      }
+    }
+    
+    if($dn == "") {
+      // We can't proceed without a DN
+      throw new RuntimeException(_txt('er.ldapprovisioner.dn.component',
+                                      array($coProvisioningTargetData['CoLdapProvisionerTarget']['dn_identifier_type'])));
+    }
     
     $dnRecord = array();
     $dnRecord['CoLdapProvisionerDn']['co_ldap_provisioner_target_id'] = $coProvisioningTargetData['CoLdapProvisionerTarget']['id'];
