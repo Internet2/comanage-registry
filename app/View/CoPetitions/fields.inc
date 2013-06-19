@@ -59,13 +59,6 @@ $(function() {
   if(!$e && !$permissions['view'])
     return(false);
     
-  if($e)
-    print $this->Html->link(
-      _txt('op.cancel'),
-      array('controller' => 'co_people', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-      array('class' => 'cancelbutton')
-    );
-    
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   

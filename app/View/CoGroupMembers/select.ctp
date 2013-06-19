@@ -26,15 +26,6 @@
   $params = array('title' => _txt('op.grm.edit', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])));
   print $this->element("pageTitle", $params);
 
-  echo $this->Html->link(_txt('op.cancel'),
-                         array('controller' => 'co_groups',
-                               'action' => 'edit',
-                               $co_group['CoGroup']['id'],
-                               'co' => $cur_co['Co']['id']),
-                         array('class' => 'cancelbutton')) . '
-  <br />
-  <br />
-  ';
 ?>
 
 <table id="co_people" class="ui-widget">

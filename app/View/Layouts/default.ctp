@@ -146,7 +146,8 @@
       
       // Make all submit buttons pretty
       $("input:submit").button();
-      
+      $("form .submit").css('float','left');
+
       // Other buttons
       $(".addbutton").button({
         icons: {
@@ -261,6 +262,9 @@
         },
         text: false
       });
+
+      $("button:reset").button();
+      $("button:reset").css('float', 'left');
       
       $(".unlinkbutton").button({
         icons: {
