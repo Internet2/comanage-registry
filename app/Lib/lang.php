@@ -597,6 +597,7 @@ $cm_texts['en_US'] = array(
   'op.prov.view' =>   'Provisioned Services',
   'op.prov.wait' =>   'Requesting provisioning, please wait...',
   'op.remove' =>      'Remove',
+  'op.reset' =>       'Reset Form',
   'op.save' =>        'Save',
   'op.select' =>      'Select',
   'op.select-a' =>    'Select a %1$s',

@@ -33,21 +33,6 @@
   
   if(!$e && !$permissions['view'])
     return false;
-    
-  if($e) {
-    print $this->Html->link(_txt('op.cancel'),
-                           array('controller' => 'co_provisioning_targets', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                           array('class' => 'cancelbutton'));
-  } else {
-    print $this->Html->link(_txt('op.back'),
-                           array('controller' => 'co_provisioning_targets', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                           array('class' => 'backbutton'));
-  }
-  
-  print '
-    <br />
-    <br />
-    ';
   
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
@@ -142,8 +127,11 @@
       </td>
       <td>
         <?php
-          if($e)
-            print $this->Form->submit($submit_label);
+          if($e) {
+            echo $this->Form->submit($submit_label);
+            print $this->Form->button(_txt('op.reset'), 
+                                      array('type'=>'reset'));
+          }
         ?>
       </td>
     </tr>

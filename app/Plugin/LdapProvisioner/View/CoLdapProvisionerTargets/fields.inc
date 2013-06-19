@@ -77,21 +77,6 @@
     $ptid = $co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['co_provisioning_target_id'];
   }
   
-  if($e) {
-    print $this->Html->link(_txt('op.cancel'),
-                           array('plugin' => null, 'controller' => 'co_provisioning_targets', 'action' => 'edit', $ptid, 'co' => $cur_co['Co']['id']),
-                           array('class' => 'cancelbutton'));
-  } else {
-    print $this->Html->link(_txt('op.back'),
-                           array('plugin' => null, 'controller' => 'co_provisioning_targets', 'action' => 'edit', $ptid, 'co' => $cur_co['Co']['id']),
-                           array('class' => 'backbutton'));
-  }
-  
-  print '
-    <br />
-    <br />
-    ';
-  
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   print $this->Form->hidden('co_provisioning_target_id', array('default' => $ptid)) . "\n";
   
@@ -425,8 +410,11 @@
       </td>
       <td>
         <?php
-          if($e)
-            print $this->Form->submit($submit_label);
+          if($e) {
+            echo $this->Form->submit($submit_label);
+            print $this->Form->button(_txt('op.reset'), 
+                                      array('type'=>'reset'));
+          }
         ?>
       </td>
     </tr>

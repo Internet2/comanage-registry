@@ -267,15 +267,10 @@ $(function() {
             </td>
             <td>
               <?php
-                if($e)
-                {
-                  print '<div style="float:left; margin:0 10px 0 0;">';
-                    print $this->Form->submit($submit_label);
-                  print '</div>';
-
-                  print $this->Html->link(_txt('op.cancel'),
-                                          array('controller' => 'co_people', 'action' => 'edit', $co_people[0]['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                          array('class' => 'cancelbutton'));
+                if($e) {
+                  echo $this->Form->submit($submit_label);
+                  print $this->Form->button(_txt('op.reset'), 
+                                            array('type'=>'reset'));
                 }
               ?>
             </td>

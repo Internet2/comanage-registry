@@ -35,18 +35,6 @@
   if(!$e && !$permissions['view'])
     return(false);
     
-  if($e)
-    print $this->Html->link(
-      _txt('op.cancel'),
-      array('controller' => 'cous', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-      array('class' => 'cancelbutton')
-    );
-    
-  echo '
-    <br />
-    <br />
-    ';
-    
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
@@ -99,8 +87,11 @@
       </td>
       <td>
         <?php
-          if($e)
+          if($e) {
             echo $this->Form->submit($submit_label);
+            print $this->Form->button(_txt('op.reset'), 
+                                      array('type'=>'reset'));
+          }
         ?>
       </td>
     </tr>

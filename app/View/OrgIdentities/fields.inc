@@ -256,14 +256,8 @@ $(function() {
                   print '<div style="float:left; margin:0 10px 0 0;">';
                     print $this->Form->submit($submit_label);
                   print '</div>';
-                  print $this->Html->link(_txt('op.cancel'),
-                                          isset($redirect) ? $redirect
-                                                           : array('controller' => 'org_identities',
-                                                                   'action' => 'index',
-                                                                   'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
-                                                                  ),
-                                          array('class' => 'cancelbutton')
-                                         );
+                  print $this->Form->button(_txt('op.reset'), 
+                                            array('type'=>'reset'));
                 }
               ?>
             </td>
