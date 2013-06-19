@@ -28,7 +28,6 @@
   $l = 1;
 ?>
   
-<h2 class="ui-state-default"><?php print _txt('fd.attrs.pet'); ?></h2>
 <div>
   <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
     <tbody>
@@ -162,30 +161,29 @@
     </tbody>
   </table>
 </div>
-
-<?php if($this->action != 'add'): ?>
-<h2 class="ui-state-default"><?php print _txt('fd.history.pt'); ?></h2>
-<div>
-  <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
-    <tbody>
-      <tr>
-        <th class="ui-state-default"><?php print _txt('fd.action'); ?></th>
-        <th class="ui-state-default"><?php print _txt('fd.actor'); ?></th>
-        <th class="ui-state-default"><?php print _txt('fd.comment'); ?></th>
-        <th class="ui-state-default"><?php print _txt('fd.timestamp'); ?></th>
-      </tr>
-      
-      <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
-      <tr class="line<?php print ($l % 2); $l++; ?>">
-        <td><?php print $hr['action']; ?></td>
-        <td><?php print generateCn($hr['ActorCoPerson']['Name']); ?></td>
-        <td><?php print $hr['comment']; ?></td>
-        <td><?php print $this->Time->nice($hr['created']); ?></td>
-      </tr>
-      <?php endforeach; // CoPetitionHistoryRecord ?>
-    </tbody>
-  </table>
 </div>
+<?php if($this->action != 'add'): ?>
+  <div id="tabs-history">
+    <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
+      <tbody>
+        <tr>
+          <th class="ui-state-default"><?php print _txt('fd.action'); ?></th>
+          <th class="ui-state-default"><?php print _txt('fd.actor'); ?></th>
+          <th class="ui-state-default"><?php print _txt('fd.comment'); ?></th>
+          <th class="ui-state-default"><?php print _txt('fd.timestamp'); ?></th>
+        </tr>
+        
+        <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <td><?php print $hr['action']; ?></td>
+          <td><?php print generateCn($hr['ActorCoPerson']['Name']); ?></td>
+          <td><?php print $hr['comment']; ?></td>
+          <td><?php print $this->Time->nice($hr['created']); ?></td>
+        </tr>
+        <?php endforeach; // CoPetitionHistoryRecord ?>
+      </tbody>
+    </table>
+  </div>
 <?php endif; // action == add ?>
 
 <!-- begin 
