@@ -100,7 +100,9 @@
     <tr>
       <td>
         <?php
-          print $this->Form->submit(_txt('op.save'));
+          $options = array('style' => 'float:left;');
+          print $this->Form->submit(_txt('op.save'), $options);
+
           print $this->Form->button(_txt('op.reset'), 
                                     array('type'=>'reset'));
           
