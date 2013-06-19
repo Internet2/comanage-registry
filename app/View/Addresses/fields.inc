@@ -32,16 +32,6 @@
   
   if(!$e && !$permissions['view'])
     return(false);
-    
-  if($e)
-    echo $this->Html->link(_txt('op.cancel'),
-                           isset($redirect) ? $redirect : array('controller' => 'addresses', 'action' => 'index'),
-                           array('class' => 'cancelbutton'));
-    
-  echo '
-    <br />
-    <br />
-    ';
   
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonroleid']))
@@ -136,8 +126,11 @@
       </td>
       <td>
         <?php
-          if($e)
+          if($e) {
             echo $this->Form->submit($submit_label);
+            print $this->Form->button(_txt('op.reset'), 
+                                      array('type'=>'reset'));
+          }
         ?>
       </td>
     </tr>

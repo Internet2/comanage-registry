@@ -54,18 +54,9 @@
   if(!$e && !$v)
     return(false);
     
-  if($e)
-    echo $this->Html->link(_txt('op.cancel'),
-                            array('controller' => 'co_groups', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'cancelbutton'));
-    
   // Populate the reference
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
 
-  echo '
-    <br />
-    <br />
-    ';
 ?>
 <table id="<?php echo $this->action; ?>_co_group" class="ui-widget">
   <tbody>
@@ -123,8 +114,11 @@
       </td>
       <td>
         <?php
-          if($e)
+          if($e) {
             echo $this->Form->submit($submit_label);
+            print $this->Form->button(_txt('op.reset'), 
+                                      array('type'=>'reset'));
+          }
         ?>
       </td>
     </tr>

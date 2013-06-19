@@ -246,6 +246,9 @@
   </div>
 </div>
 <?php
-  if($e)
+  if($e) {
     print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+    print $this->Form->button(_txt('op.reset'), 
+                              array('type'=>'reset'));
+  }
 ?>

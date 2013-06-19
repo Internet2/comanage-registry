@@ -33,23 +33,6 @@
   
   if(!$e && !$permissions['view'])
     return(false);
-    
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
-  
-  if($e) {
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-close',
-      'title'   => _txt('op.cancel'),
-      'url'     => array(
-        'controller' => 'co_extended_attributes',
-        'action' => 'index',
-        'co' => $cur_co['Co']['id']
-      )
-    );
-  }
-
-  $this->set('sidebarButtons', $sidebarButtons);
 
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
@@ -118,8 +101,11 @@
       </td>
       <td>
         <?php
-          if($e)
+          if($e) {
             echo $this->Form->submit($submit_label);
+            print $this->Form->button(_txt('op.reset'), 
+                                      array('type'=>'reset'));
+          }
         ?>
       </td>
     </tr>

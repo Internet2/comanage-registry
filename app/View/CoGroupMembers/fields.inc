@@ -33,14 +33,6 @@
     return(false);
     
   if($e)
-    echo $this->Html->link(_txt('op.cancel'),
-                            array('controller' => 'co_groups',
-                                  'action' => 'edit',
-                                  $this->request->data['CoGroupMember']['co_group_id'],
-                                  'co' => $cur_co['Co']['id']),
-                            array('class' => 'cancelbutton'));
-
-  if($e)
   {
     // Populate the references
     echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
@@ -48,11 +40,6 @@
     echo $this->Form->hidden('co_group_id', array('default' => $this->request->data['CoGroupMember']['co_group_id'])). "\n";
     echo $this->Form->hidden('co_person_id', array('default' => $this->request->data['CoGroupMember']['co_person_id'])). "\n";
   }
-
-  echo '
-    <br />
-    <br />
-    ';
 ?>
 <table id="<?php echo $this->action; ?>_co_group_member" class="ui-widget">
   <tbody>

@@ -37,19 +37,6 @@
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
 
-  if($e) {
-    // Cancel Button
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-close',
-      'title'   => _txt('op.cancel'),
-      'url'     => array(
-        'controller' => 'co_enrollment_attributes',
-        'action' => 'index',
-        'coef' => Sanitize::html($this->request->params['named']['coef'])
-      )
-    );
-  }
-
   $this->set('sidebarButtons', $sidebarButtons);
   
   print $this->Form->hidden('co_enrollment_flow_id', array('default' => Sanitize::html($this->request->params['named']['coef']))) . "\n";
@@ -143,6 +130,9 @@
   </tbody>
 </table>
 <?php
-  if($e)
+  if($e) {
     print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+    print $this->Form->button(_txt('op.reset'), 
+                              array('type'=>'reset'));
+  }
 ?>

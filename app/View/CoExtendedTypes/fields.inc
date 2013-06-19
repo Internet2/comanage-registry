@@ -40,19 +40,6 @@
   } else {
     $attr = $this->request->data['CoExtendedType']['attribute'];
   }
-  
-  if($e)
-    print $this->Html->link(_txt('op.cancel'),
-                            array('controller' => 'co_extended_types',
-                                  'action' => 'index',
-                                  'co' => $cur_co['Co']['id'],
-                                  'attr' => Sanitize::html($attr)),
-                            array('class' => 'cancelbutton'));
-    
-  print '
-    <br />
-    <br />
-    ';
     
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   print $this->Form->hidden('attribute', array('default' => Sanitize::html($attr))) . "\n";
@@ -117,8 +104,11 @@
       </td>
       <td>
         <?php
-          if($e)
-            print $this->Form->submit($submit_label);
+          if($e) {
+            echo $this->Form->submit($submit_label);
+            print $this->Form->button(_txt('op.reset'), 
+                                      array('type'=>'reset'));
+          }
         ?>
       </td>
     </tr>

@@ -34,17 +34,6 @@
   if(!$e && !$permissions['view'])
     return false;
 
-  if($e)
-  {
-    $linkArgs  = array(
-      'controller' => 'co_nsf_demographics',
-      'action'     => 'index');
-    $classArgs = array('class' => 'cancelbutton');
-    print $this->Html->link(_txt('op.cancel'),
-                            $linkArgs,
-                            $classArgs);
-  }
-
   // Set hidden defaults for CO and CoPerson id so users don't need to see it
   $args = array('default' => $cur_co['Co']['id']);
   print $this->Form->hidden('co_id', $args). "\n";
@@ -55,11 +44,6 @@
   }
 
   print $this->Form->hidden('co_person_id', $args). "\n";
-
-  print "
-    <br />
-    <br />
-    ";
 
   //globals
   global $cm_lang, $cm_texts;
@@ -194,6 +178,9 @@
 </table>
 
 <?php
-  if($e)
-    print $this->Form->submit($submit_label);
+  if($e) {
+    echo $this->Form->submit($submit_label);
+    print $this->Form->button(_txt('op.reset'), 
+                              array('type'=>'reset'));
+  }
 ?>

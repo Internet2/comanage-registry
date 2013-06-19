@@ -39,16 +39,6 @@
 
   if($e)
   {
-    // Cancel Button
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-close',
-      'title'   => _txt('op.cancel'),
-      'url'     => array(
-        'controller' => 'co_enrollment_flows', 
-        'action' => 'index', 
-        'co' => $cur_co['Co']['id']
-      )
-    );
     
     // Edit button
     if($this->action == "edit" && $permissions['edit']){
@@ -338,6 +328,9 @@
   </tbody>
 </table>
 <?php
-  if($e)
+  if($e) {
     print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+    print $this->Form->button(_txt('op.reset'), 
+                              array('type'=>'reset'));
+  }
 ?>

@@ -48,14 +48,6 @@
   if($e)
   {
     // Add related links to the sidebar
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-close',
-      'title'   => _txt('op.back'),
-      'url'     => array(
-        'controller' => 'co_people',
-        'action'     => 'index', 
-        'co'         => $cur_co['Co']['id'])
-    );
     
     if($this->action != "invite")
     { 
@@ -340,8 +332,11 @@
           </th>
           <td>
             <?php
-              if($e)
-                print $this->Form->submit($submit_label);
+              if($e) {
+                echo $this->Form->submit($submit_label);
+                print $this->Form->button(_txt('op.reset'), 
+                                          array('type'=>'reset'));
+              }
             ?>
           </td>
         </tr>

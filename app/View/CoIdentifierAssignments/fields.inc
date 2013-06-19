@@ -33,21 +33,6 @@
   
   if(!$e && !$permissions['view'])
     return(false);
-    
-  if($e) {
-    print $this->Html->link(_txt('op.cancel'),
-                            array('controller' => 'co_identifier_assignments', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'cancelbutton'));
-  } else {
-    print $this->Html->link(_txt('op.back'),
-                            array('controller' => 'co_identifier_assignments', 'action' => 'index', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'backbutton'));
-  }
-  
-  print '
-    <br />
-    <br />
-    ';
   
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
@@ -234,6 +219,9 @@
   </tbody>
 </table>
 <?php
-  if($e)
+  if($e) {
     print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+    print $this->Form->button(_txt('op.reset'), 
+                              array('type'=>'reset'));
+  }
 ?>
