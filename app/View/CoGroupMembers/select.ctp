@@ -101,6 +101,9 @@
       <td>
         <?php
           print $this->Form->submit(_txt('op.save'));
+          print $this->Form->button(_txt('op.reset'), 
+                                    array('type'=>'reset'));
+          
           print $this->Form->end();
         ?>
       </td>
