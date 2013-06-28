@@ -433,6 +433,9 @@
           <!-- Display sidebar for content -->
           <script>
             $('#content').width('685');
+            jQuery(window).load(function () {
+              $('#sidebar').height( $('#content').height() - 95);
+            });
           </script>
           <div id="sidebar">
             <ul id="menu">

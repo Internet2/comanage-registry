@@ -154,7 +154,7 @@ body {
       #advancedSearch select{
         float: right;
         clear: both;
-        width: 140px;
+        width: 130px;
         margin-left: 8px;
       }
 
@@ -260,10 +260,12 @@ body {
   /* Sidebar (right) */
   #sidebar {
     float: left;
-    min-width: 200px;
+    width: 247px;
     min-height: 400px;
     padding: 10px;
-    margin: 60px 0 0 0;
+    margin: 72px 0 0 4px;
+    border: 1px solid #4297d7;
+    background: #f5fafd;
   }
 
   /* Footer */
