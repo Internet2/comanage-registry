@@ -44,8 +44,23 @@
     <?php print $this->Html->script('jquery/ui/js/jquery-ui-1.10.0.custom.min.js'); ?>
     <?php print $this->Html->script('jquery/superfish/js/superfish.js'); ?>
 
+    <?php print $this->Html->script('jquery/noty/jquery.noty.js'); ?>
+    <?php print $this->Html->script('jquery/noty/layouts/top.js'); ?>
+    <?php print $this->Html->script('jquery/noty/themes/comanage.js'); ?>
+
     <!-- Common script code -->
     <script type="text/javascript">
+
+    function generateFlash(text, type) {
+      var n = noty({
+        text: text,
+        type: type,
+        dismissQueue: true,
+        layout: 'top',
+        theme: 'comanage'
+      });
+    }
+
     // Function to confirm delete and then hand off
   
     function js_confirm_delete(name, url)
@@ -335,6 +350,35 @@
     $(function() {
       $( "#menu" ).menu();
     });
+
+    $(function() {
+      <?php // Flash Messages
+        $f = $this->Session->flash('error');
+       
+        if($f && $f != "") {
+          print 'generateFlash( \''. $f . '\',"error");';
+        }
+
+        $f = $this->Session->flash('info');
+      
+        if($f && $f != "") {
+          print 'generateFlash( \''. $f . '\',"info");';
+        }
+        
+        $f = $this->Session->flash('success');
+        
+        if($f && $f != "") {
+          print 'generateFlash( \''. $f . '\',"success");';
+        }
+
+        $f = $this->Session->error();
+        
+        if($f && $f != "") {
+          print 'generateFlash( \''. $f . '\',"error");';
+        }
+      ?>
+    });
+
     </script>
     
     <!-- Include external files and scripts -->
@@ -373,55 +417,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div id="flashMessages" class="contentWidth">
-      <?php
-        $f = $this->Session->flash('error');
-        
-        if($f && $f != "") {
-          print '
-            <div class="ui-widget">
-              <div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
-                <p>
-                  <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-                  ' . $f . '
-                </p>
-              </div>
-            </div>
-          ';
-        }
-
-        $f = $this->Session->flash('info');
-        
-        if($f && $f != "") {
-          print '
-            <div class="ui-widget">
-              <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-                <p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-                  ' . $f . '
-                </p>
-              </div>
-            </div>
-          ';
-        }
-        
-        $f = $this->Session->flash('success');
-        
-        if($f && $f != "") {
-          print '
-            <div class="ui-widget">
-              <div class="ui-state-active ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-                <p><span class="ui-icon ui-icon-circle-check" style="float: left; margin-right: .3em;"></span>
-                  ' . $f . '
-                </p>
-              </div>
-            </div>
-          ';
-        }
-      ?>
-
-      <?php print_r($this->Session->error()); ?>
     </div>
 
     <div id="main" class="contentWidth">
