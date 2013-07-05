@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CMP Enrollment Attribute Fields
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -22,6 +22,112 @@
  * @version       $Id$
  */
 -->
+<script type="text/javascript">
+  function js_local_onload() {
+    toggle_attr_def_div();
+  }
+  
+  function ext_attr_type(attrname) {
+    // Determine the type of an extended attribute. We use PHP code to generate
+    // javascript based on the view variable $vv_ext_attr_types.
+    
+    switch(attrname) {
+    <?php foreach(array_keys($vv_ext_attr_types) as $xa): ?>
+      case "<?php print $xa; ?>":
+        return "<?php print $vv_ext_attr_types[$xa]; ?>";
+        break;
+    <?php endforeach; ?>
+    }
+    
+    // We shouldn't get here
+    return "UNKNOWN";
+  }
+  
+  function set_attr_def_from_date(datetype) {
+    // Offset date requires a + prefix
+    document.getElementById('CoEnrollmentAttributeDefault0Value').value =
+      (datetype == "offset" ? "+" : "") +
+      document.getElementById('def_date_val_' + datetype).value;
+  }
+  
+  function set_attr_def_date_radio(datetype) {
+    document.getElementById('def_date_' + datetype).checked=true;
+    set_attr_def_from_date(datetype)
+  }
+  
+  function set_attr_def_value(elementid) {
+    // Offset date requires a + prefix
+    document.getElementById('CoEnrollmentAttributeDefault0Value').value =
+      (elementid == "def_date_val_offset" ? "+" : "") +
+      document.getElementById(elementid).value
+  }
+  
+  function toggle_attr_def_div() {
+    // For now, only CO Person Role attributes (type 'r'), Organizational Identity
+    // attributes (type 'o'), or Extended Attributes (type 'x') can have default values.
+    
+    var curattr = document.getElementById('CoEnrollmentAttributeAttribute').value;
+    var attrtype = curattr[0];
+    
+    if(attrtype == "r" || attrtype == "o" || attrtype == "x") {
+      $("#attr_def_div").show("slide", { "direction" : "up" });
+      
+      // Adjust the gadgets shown
+      
+      $("#attr_def_val_div").hide();
+      $("#attr_def_val_affil_div").hide();
+      $("#attr_def_val_cou_div").hide();
+      $("#attr_def_val_date_div").hide();
+      
+      var curval = document.getElementById('CoEnrollmentAttributeDefault0Value').value;
+      
+      var curattrarr = curattr.split(":");
+      var curattrcode = curattrarr[0];
+      var curattrname = curattrarr[1];
+      
+      // if x:foo then pull foo and lookup in $vv_ext_attr_types to find type
+      // (write javascript array based on $vv_ext contents?)
+      
+      if((curattrcode == "o" || curattrcode == "r")
+         && curattrname == "affiliation") {
+        // Set current value before showing
+        document.getElementById('def_affil_val').value = curval;
+        $("#attr_def_val_affil_div").show("fade");
+      } else if(curattrcode == "r" && curattrname == "cou_id") {
+        // Set current value before showing
+        document.getElementById('def_cou_val').value = curval;
+        $("#attr_def_val_cou_div").show("fade");
+      } else if((curattrcode == "r"
+                 && (curattrname == "valid_from" || curattrname == "valid_through"))
+                ||
+                (curattrcode == "x"
+                 && ext_attr_type(curattrname) == "<?php print ExtendedAttributeEnum::Timestamp; ?>")) {
+        // Set current value before showing
+        var fixedre = /^[0-9]{4}\-[0-2][0-9]\-[0-9]{2}$/;   // YYYY-MM-DD
+        var nextre = /^[0-2][0-9]\-[0-9]{2}$/;              // MM-DD
+        var offsetre = /^\+[0-9]+$/;                        // +DD
+        
+        if(fixedre.test(curval)) {
+          document.getElementById('def_date_val_fixed').value = curval;
+          set_attr_def_date_radio('fixed');
+        } else if(nextre.test(curval)) {
+          document.getElementById('def_date_val_next').value = curval;
+          set_attr_def_date_radio('next');
+        } else if(offsetre.test(curval)) {
+          // Trim the leading plus (it will get added back to curval by set_attr_def_date_radio)
+          document.getElementById('def_date_val_offset').value = curval.replace("+", "");
+          set_attr_def_date_radio('offset');
+        }
+        
+        $("#attr_def_val_date_div").show("fade");
+      } else {
+        $("#attr_def_val_div").show();
+      }
+    } else {
+      $("#attr_def_div").hide("slide", { "direction" : "up" });
+    }
+  }
+</script>
 <?php
   // Determine if fields are editable
   $e = false;
@@ -39,12 +145,14 @@
 
   $this->set('sidebarButtons', $sidebarButtons);
   
-  print $this->Form->hidden('co_enrollment_flow_id', array('default' => Sanitize::html($this->request->params['named']['coef']))) . "\n";
+  // Populate cross references
+  print $this->Form->hidden('co_enrollment_flow_id', array('default' => $vv_coefid)) . "\n";
+  print $this->Form->hidden('CoEnrollmentAttributeDefault.0.id') . "\n";
 ?>
 <table id="<?php print $this->action; ?>_co_enrollment_attribute" class="ui-widget">
   <tbody>
     <tr class="line1">
-      <td>
+      <td width="50%"> <!-- force a width here and below so the two tables line up -->
         <b><?php print _txt('fd.ea.label'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ea.label.desc'); ?></font>
       </td>
@@ -61,7 +169,7 @@
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('description')
+                     ? $this->Form->input('description', array('size' => 40))
                      : Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['description'])); ?>
       </td>
     </tr>
@@ -75,10 +183,11 @@
                               ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']
                               : null);
           $attrs['empty'] = false;
+          $attrs['onchange'] = "toggle_attr_def_div()";
           
           if($e) {
             print $this->Form->select('attribute',
-                                      $available_attributes,
+                                      $vv_available_attributes,
                                       $attrs);
             
             if($this->Form->isFieldError('attribute')) {
@@ -129,6 +238,109 @@
     </tr>
   </tbody>
 </table>
+<div id="attr_def_div" style="display: none">
+  <table id="<?php print $this->action; ?>_co_enrollment_attribute_default" class="ui-widget">
+  <tbody>
+    <tr class="line2">
+      <td width="50%">
+        <b><?php print _txt('fd.ed.default'); ?></b><br />
+      </td>
+      <td>
+        <div id="attr_def_val_div">
+          <?php print ($e
+                       ? $this->Form->input('CoEnrollmentAttributeDefault.0.value', array('size' => 40))
+                       : Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'])); ?>
+        </div>
+        <div id="attr_def_val_affil_div">
+          <?php if($e): ?>
+            <select name="def_affil_val"
+                    id="def_affil_val"
+                    onchange="set_attr_def_value('def_affil_val')">
+              <option value=""></option>
+              <?php foreach(array_keys($vv_affiliations) as $k): ?>
+                <option value="<?php print Sanitize::html($k); ?>"><?php print Sanitize::html($vv_affiliations[$k]); ?></option>
+              <?php endforeach; ?>
+            </select>
+          <?php endif; ?>
+        </div>
+        <div id="attr_def_val_cou_div">
+          <?php if($e): ?>
+            <select name="def_cou_val"
+                    id="def_cou_val"
+                    onchange="set_attr_def_value('def_cou_val')">
+              <option value=""></option>
+              <?php foreach(array_keys($vv_cous) as $k): ?>
+                <option value="<?php print Sanitize::html($k); ?>"><?php print Sanitize::html($vv_cous[$k]); ?></option>
+              <?php endforeach; ?>
+            </select>
+          <?php endif; ?>
+        </div>
+        <div id="attr_def_val_date_div">
+          <?php if($e): ?>
+            <input name="def_date_type"
+                   id="def_date_fixed"
+                   type="radio"
+                   value="fixed"
+                   onchange="set_attr_def_from_date('fixed')"
+                   />
+              <?php print _txt('fd.ed.date.fixed'); ?>
+              <input name="def_date_val_fixed"
+                     id="def_date_val_fixed"
+                     class="datepicker"
+                     onclick="set_attr_def_date_radio('fixed')"
+                     onchange="set_attr_def_value('def_date_val_fixed')"
+                     />
+              <br />
+            <input name="def_date_type"
+                   id="def_date_next"
+                   type="radio"
+                   value="next"
+                   onchange="set_attr_def_from_date('next')"
+                   />
+              <?php print _txt('fd.ed.date.next'); ?>
+              <input name="def_date_val_next"
+                     id="def_date_val_next"
+                     size="12"
+                     class="datepicker-m"
+                     onclick="set_attr_def_date_radio('next')"
+                     onchange="set_attr_def_value('def_date_val_next')"
+                     />
+              <?php print _txt('fd.ed.date.next-note'); ?>
+              <br />
+              <input name="def_date_type"
+                   id="def_date_offset"
+                   size="6"
+                   type="radio"
+                   value="offset"
+                   onchange="set_attr_def_from_date('offset')"
+                   />
+              <input name="def_date_val_offset"
+                     id="def_date_val_offset"
+                     size="4"
+                     onclick="set_attr_def_date_radio('offset')"
+                     onkeyup="set_attr_def_value('def_date_val_offset')"
+                     />
+              <?php print _txt('fd.ed.date.offset'); ?>
+              <br />
+          <?php endif; ?>
+        </div>
+      </td>
+    </tr>
+    <tr class="line1">
+      <td>
+        <b><?php print _txt('fd.ed.modify'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ed.modify.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('CoEnrollmentAttributeDefault.0.modifiable',
+                                          array('default' => true))
+                     : ($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['modifiable']
+                        ? _txt('fd.yes') : _txt('fd.no'))); ?>
+      </td>
+    </tr>
+  </table>
+</div>
 <?php
   if($e) {
     print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));

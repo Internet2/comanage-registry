@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Petition Fields (used to display both petitions and petition-based invitations)
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
@@ -69,15 +69,17 @@
               switch($ruleType) {
               case 'inList':
                 // This is a select
-                $attrs = array();
-  //              $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
-  //                                 ? $co_person_roles[0]['CoPersonRole']['affiliation']
-  //                                 : "M");
-                $attrs['empty'] = !$ea['required'];
+                $args = array();
+                // Set a default value if provided
+                if(isset($ea['default'])) {
+                  $args['value'] = $ea['default'];
+                  $args['disabled'] = !$ea['modifiable'];
+                }
+                $args['empty'] = !$ea['required'];
                 
                 print $this->Form->select($fieldName,
                                           $ea['select'],
-                                          $attrs);
+                                          $args);
                 
                 if($this->Form->isFieldError($fieldName)) {
                   print $this->Form->error($fieldName);
@@ -92,7 +94,15 @@
                 elseif($ea['field'] == 'valid_until')
                   $c = 'datepicker-c';
                 
-                print $this->Form->text($fieldName, array('class' => $c));
+                $args = array();
+                $args['class'] = $c;
+                
+                if(isset($ea['default'])) {
+                  $args['default'] = $ea['default'];
+                  $args['disabled'] = !$ea['modifiable'];
+                }
+                
+                print $this->Form->text($fieldName, $args);
                 
                 if($this->Form->isFieldError($fieldName)) {
                   print $this->Form->error($fieldName);
@@ -107,6 +117,7 @@
                 // Use a provided default value, if one specified
                 if(isset($ea['default'])) {
                   $args['default'] = $ea['default'];
+                  $args['disabled'] = !$ea['modifiable'];
                 }
                 
                 if($permissions['match']

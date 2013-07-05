@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Index View
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -37,8 +37,8 @@
     'url'     => array(
       'controller' => 'co_enrollment_flows',
       'action' => ($permissions['edit'] ? 'edit' : 'view'),
-      Sanitize::html($this->request->params['named']['coef']),
-      'co' => $coid
+      $vv_coefid,
+      'co' => $vv_coid
     )
   );
   
@@ -50,7 +50,7 @@
       'url'     => array(
         'controller' => 'co_enrollment_attributes', 
         'action' => 'add', 
-        'coef' => Sanitize::html($this->request->params['named']['coef'])
+        'coef' => $vv_coefid
       )
     );
   }
@@ -77,20 +77,25 @@
         <?php
           print $this->Html->link($c['CoEnrollmentAttribute']['label'],
                                   array('controller' => 'co_enrollment_attributes',
-                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoEnrollmentAttribute']['id'], 'coef' => $this->request->params['named']['coef']));
+                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                        $c['CoEnrollmentAttribute']['id'],
+                                        'coef' => $vv_coefid));
         ?>
       </td>
-      <td><?php print $available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
+      <td><?php print $vv_available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
       <td><?php print Sanitize::html($c['CoEnrollmentAttribute']['ordr']); ?></td>
       <td>
         <?php
           if($permissions['edit'])
             print $this->Html->link(_txt('op.edit'),
-                                    array('controller' => 'co_enrollment_attributes', 'action' => 'edit', $c['CoEnrollmentAttribute']['id'], 'coef' => $this->request->params['named']['coef']),
+                                    array('controller' => 'co_enrollment_attributes',
+                                          'action' => 'edit',
+                                          $c['CoEnrollmentAttribute']['id'],
+                                          'coef' => $vv_coefid),
                                     array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'])
-            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoEnrollmentAttribute']['label'])) . '\', \'' . $this->Html->url(array('controller' => 'co_enrollment_attributes', 'action' => 'delete', $c['CoEnrollmentAttribute']['id'], 'coef' => $this->request->params['named']['coef'])) . '\')";>' . _txt('op.delete') . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoEnrollmentAttribute']['label'])) . '\', \'' . $this->Html->url(array('controller' => 'co_enrollment_attributes', 'action' => 'delete', $c['CoEnrollmentAttribute']['id'], 'coef' => $vv_coefid)) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

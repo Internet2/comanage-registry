@@ -76,8 +76,16 @@ class CoEnrollmentAttributesController extends StandardController {
    */
   
   function beforeFilter() {
+    global $cm_lang, $cm_texts;
+    
     parent::beforeFilter();
-
+    
+    // Sub optimally, we need to unlock add and edit so that the javascript form manipulation
+    // magic works. XXX It would be good to be more specific, and just call unlockField()
+    // on specific fields, but some initial testing does not make it obvious which
+    // fields need to be unlocked.
+    $this->Security->unlockedActions = array('add', 'edit');
+    
     // Strictly speaking, this controller doesn't require a CO except to redirect/render views.
     // Figure out the CO ID associated with the current enrollment flow. We'll specifically
     // not set $this->cur_co since it will break things like pagination setup.
@@ -90,16 +98,68 @@ class CoEnrollmentAttributesController extends StandardController {
       $coefid = $this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'];
     
     $this->CoEnrollmentAttribute->CoEnrollmentFlow->id = $coefid;
+    
+    $this->set('vv_coefid', Sanitize::html($coefid));
+    
     $coid = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('co_id');
-
+    
     if(!empty($coid))
     {
-      $this->set("coid", $coid);
+      $this->set('vv_coid', $coid);
       
       // Assemble the set of available attributes for the view to render
       
-      $this->set('available_attributes', $this->CoEnrollmentAttribute->availableAttributes($coid));
+      $this->set('vv_available_attributes', $this->CoEnrollmentAttribute->availableAttributes($coid));
+      
+      // And pull details of extended attributes so views can determine types
+      
+      $args = array();
+      $args['conditions']['co_id'] = $coid;
+      $args['fields'] = array('CoExtendedAttribute.name', 'CoExtendedAttribute.type');
+      $args['contain'] = false;
+      
+      $this->set('vv_ext_attr_types',
+                 $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoExtendedAttribute->find('list', $args));
+      
+      // Assemble the list of available COUs
+      
+      $this->set('vv_cous', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->Cou->allCous($coid));
+      
+      // Assemble the list of available affiliations
+      
+      $this->set('vv_affiliations', $cm_texts[ $cm_lang ]['en.affil']);
     }
+  }
+  
+  /**
+   * Perform any followups following a write operation.  Note that if this
+   * method fails, it must return a warning or REST response, but that the
+   * overall transaction is still considered a success (add/edit is not
+   * rolled back).
+   *
+   * @since  COmanage Registry v0.8.1
+   * @param  Array Request data
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkWriteFollowups($reqdata, $curdata = null) {
+    // Perform a quick check to see if the attribute can no longer have a default attribute.
+    // Currently, only types 'o', 'r', and 'x' can.
+    
+    if(!empty($curdata['CoEnrollmentAttributeDefault'][0]['id'])) {
+      // There is an existing default
+      
+      $attrinfo = explode(':', $reqdata['CoEnrollmentAttribute']['attribute']);
+      
+      if($attrinfo[0] != 'o' && $attrinfo[0] != 'r' && $attrinfo[0] != 'x') {
+        // Ignore return code
+        $this->CoEnrollmentAttribute->CoEnrollmentAttributeDefault->delete($curdata['CoEnrollmentAttributeDefault'][0]['id'],
+                                                                           false);
+      }
+    }
+    
+    return true;      
   }
   
   /**

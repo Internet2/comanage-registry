@@ -578,6 +578,26 @@
     </index>
   </table>
   
+  <table name="co_enrollment_attribute_defaults">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_attribute_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_attributes(id)</constraint>
+    </field>
+    <field name="affiliation" type="C" size="32" />
+    <field name="value" type="C" size="80" />
+    <field name="modifiable" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_enrollment_attribute_defaults_i1">
+      <col>co_enrollment_attribute_id</col>
+    </index>
+  </table>
+  
   <table name="co_petitions">
     <field name="id" type="I">
       <key />

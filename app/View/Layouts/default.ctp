@@ -317,6 +317,15 @@
         selectOtherMonths: true
       });
 
+      $(".datepicker-m").datepicker({
+        changeMonth: true,
+        dateFormat: "mm-dd",
+        numberOfMonths: 1,
+        showButtonPanel: false,
+        showOtherMonths: true,
+        selectOtherMonths: true
+      });
+
       $(".datepicker-u").datepicker({
         changeMonth: true,
         changeYear: true,

@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -29,10 +29,14 @@ class CoEnrollmentAttribute extends AppModel {
   // Current schema version for API
   public $version = "1.0";
   
+  // Add behaviors
+  public $actsAs = array('Containable');
+  
   // Association rules from this model to other models
   public $belongsTo = array("CoEnrollmentFlow");     // A CO Enrollment Attribute is part of a CO Enrollment Flow
   
   public $hasMany = array(
+    "CoEnrollmentAttributeDefault" => array('dependent' => true),
     // A CO Petition Attribute is defined by a CO Enrollment Attribute
     "CoPetitionAttribute" => array('dependent' => true)
   );
@@ -177,9 +181,13 @@ class CoEnrollmentAttribute extends AppModel {
     
     // First, retrieve the configured attributes
     
-    $efAttrs = $this->findAllByCoEnrollmentFlowId($coef,
-                                                  array(),
-                                                  array('CoEnrollmentAttribute.ordr' => 'asc'));
+    $args = array();
+    $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = $coef;
+    $args['order']['CoEnrollmentAttribute.ordr'] = 'asc';
+    $args['contain'][] = 'CoEnrollmentAttributeDefault';
+    $args['contain'][] = 'CoEnrollmentFlow';
+    
+    $efAttrs = $this->find('all', $args);
     
     foreach($efAttrs as $efAttr) {
       $attr = array();
@@ -248,9 +256,56 @@ class CoEnrollmentAttribute extends AppModel {
         // Field, in cake's Model.field
         $attr['field'] = $attrName;
         
-        // See if there is a default value for this field
+        // See if there is a default value for this field. If so, determine if it
+        // is modifiable.
+        
         if(isset($defaultValues[ $attr['model'] ][ $attr['field'] ])) {
+          // These are default values created by the Controller, eg for prepopulating Name.
+          // Currently, they are always modifiable.
           $attr['default'] = $defaultValues[ $attr['model'] ][ $attr['field'] ];
+          $attr['modifiable'] = true;
+        } elseif(!empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+          // These are the default values configured per-enrollment flow attribute
+          
+          if(($attrCode == 'r'
+              && ($attrName == 'valid_from' || $attrName == 'valid_through'))
+             ||
+             // Extended attribute of type Timestamp?
+             ($attrCode == 'x'
+              && ($attrModel->field('type',
+                                    array('co_id' => $efAttr['CoEnrollmentFlow']['co_id'],
+                                          'name' => $attrName)) == ExtendedAttributeEnum::Timestamp))) {
+            // For date types, convert to an actual date
+            
+            if(preg_match("/^[0-2][0-9]\-[0-9]{2}$/",
+                          $efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+              // MM-DD indicates next MM-DD. Rather than muck around with PHP date parsing,
+              // we'll see if {THISYEAR}-MM-DD is before now(). If it is, we'll increment
+              // the year.
+              
+              $curyear = date("Y");
+              $mmdd = explode("-", $efAttr['CoEnrollmentAttributeDefault'][0]['value'], 2);
+              
+              if(mktime(0, 0, 0, $mmdd[0], $mmdd[1], $curyear) < time()) {
+                $curyear++;
+              }
+              
+              $attr['default'] = $curyear . "-" . $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
+            } elseif(preg_match("/^\+[0-9]+$/",
+                                $efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+              // Format +## indicates days from today
+              
+              $attr['default'] = strftime("%F",
+                                          strtotime($efAttr['CoEnrollmentAttributeDefault'][0]['value'] . " days"));
+            } else {
+              // Just copy the string
+              $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
+            }
+          } else {
+            $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
+          }
+          
+          $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
         }
         
         // Attach the validation rules so the form knows how to render the field.
