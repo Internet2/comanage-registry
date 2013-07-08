@@ -93,16 +93,19 @@ class CoPetitionsController extends StandardController {
           $authnReq = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
                                                                  array('CoEnrollmentFlow.id' => $enrollmentFlowID));
           
-          if($matchPolicy == EnrollmentMatchPolicyEnum::Self) {
-            if($authnReq) {
-              $this->Session->setFlash(_txt('rs.pt.login'), '', array(), 'success');
-              $this->redirect("/auth/logout");
-            } else {
-              // Not really clear where to send a self-enrollment person...
-              $this->Session->setFlash(_txt('rs.pt.create'), '', array(), 'success');
-              $this->redirect("/");
-            }
+          $authzLevel = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
+                                                                   array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+          
+          if($authzLevel == EnrollmentAuthzEnum::None) {
+            // Not really clear where to send a self-enrollment person...
+            $this->Session->setFlash(_txt('rs.pt.create.self'), '', array(), 'success');
+            $this->redirect("/");
+          } elseif($authnReq && $matchPolicy == EnrollmentMatchPolicyEnum::Self) {
+            // Clear any session for account linking
+            $this->Session->setFlash(_txt('rs.pt.login'), '', array(), 'success');
+            $this->redirect("/auth/logout");
           } else {
+            // Standard redirect
             $this->Session->setFlash(_txt('rs.pt.create'), '', array(), 'success');
             $this->performRedirect();
           }

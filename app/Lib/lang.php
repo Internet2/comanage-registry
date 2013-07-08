@@ -632,6 +632,7 @@ $cm_texts['en_US'] = array(
   'rs.pt.approve' =>  'Petition Approved',
   'rs.pt.confirm' =>  'Petition Confirmed',
   'rs.pt.create' =>   'Petition Created', 
+  'rs.pt.create.self' => 'Petition Created. You may need to check your email for further information.', 
   'rs.pt.deny' =>     'Petition Denied',
   'rs.pt.id.attached' => 'Authenticated identifier "%1$s" attached to organizational identity',
   'rs.pt.id.login' => 'Identifier "%1$s" flagged for login',
