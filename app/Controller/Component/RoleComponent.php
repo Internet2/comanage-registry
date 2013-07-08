@@ -521,8 +521,9 @@ class RoleComponent extends Component {
       $coPersonIds = $CoPerson->idsForIdentifier($identifier, null, true);
     }
     catch(Exception $e) {
-      // At the moment, an exception will just result in us returning false
-      throw new InvalidArgumentException($e->getMessage());
+      // We probably have a newly enrolled person who has an identifier but not a full
+      // record yet. (ie: petition confirmation.) Just return false.
+      return false;
     }
     
     // We now have a list of CO Person IDs, and need to figure out which one correlates to the
