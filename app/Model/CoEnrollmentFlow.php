@@ -150,7 +150,8 @@ class CoEnrollmentFlow extends AppModel {
     
     // If CO Person is a CO admin, they are always authorized
     
-    if($Role->isCoAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
+    if($coPersonId
+       && $Role->isCoAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
       return true;
     }
     
@@ -159,27 +160,32 @@ class CoEnrollmentFlow extends AppModel {
         // We effectively already handled this, above
         break;
       case EnrollmentAuthzEnum::CoGroupMember:
-        if($Role->isCoGroupMember($coPersonId, $coEF['CoEnrollmentFlow']['authz_co_group_id'])) {
+        if($coPersonId
+           && $Role->isCoGroupMember($coPersonId, $coEF['CoEnrollmentFlow']['authz_co_group_id'])) {
           return true;
         } 
         break;
       case EnrollmentAuthzEnum::CoOrCouAdmin:
-        if($Role->isCoOrCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
+        if($coPersonId
+           && $Role->isCoOrCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
           return true;
         }
         break;
       case EnrollmentAuthzEnum::CoPerson:
-        if($Role->isCoPerson($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
+        if($coPersonId
+           && $Role->isCoPerson($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
           return true;
         }
         break;
       case EnrollmentAuthzEnum::CouAdmin:
-        if($Role->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id'])) {
+        if($coPersonId
+           && $Role->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id'])) {
           return true;
         }
         break;
       case EnrollmentAuthzEnum::CouPerson:
-        if($Role->isCouPerson($coPersonId, $coEF['CoEnrollmentFlow']['co_id'], $coEF['CoEnrollmentFlow']['authz_cou_id'])) {
+        if($coPersonId
+           && $Role->isCouPerson($coPersonId, $coEF['CoEnrollmentFlow']['co_id'], $coEF['CoEnrollmentFlow']['authz_cou_id'])) {
           return true;
         }
         break;

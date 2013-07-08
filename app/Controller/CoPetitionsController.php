@@ -329,7 +329,7 @@ class CoPetitionsController extends StandardController {
     
     // If an enrollment flow was specified, check the authorization for that flow
     
-    if($this->enrollmentFlowID() != -1 && $roles['copersonid']) {
+    if($this->enrollmentFlowID() != -1) {
       $flowAuthorized = $this->CoPetition->CoEnrollmentFlow->authorizeById($this->enrollmentFlowID(), $roles['copersonid'], $this->Role);
     }
     

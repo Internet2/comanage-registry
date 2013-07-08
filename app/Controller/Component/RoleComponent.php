@@ -38,6 +38,10 @@ class RoleComponent extends Component {
    */
   
   protected function cachedCoIdLookup($coPersonId) {
+    if(!$coPersonId) {
+      return false;
+    }
+    
     if(isset($this->cache['coperson'][$coPersonId]['co_id'])) {
       return $this->cache['coperson'][$coPersonId]['co_id'];
     }
@@ -65,6 +69,10 @@ class RoleComponent extends Component {
    */
   
   protected function cachedCoIdLookupByCoGroup($coGroupId) {
+    if(!$coGroupId) {
+      return false;
+    }
+    
     if(isset($this->cache['cogroup'][$coGroupId]['co_id'])) {
       return $this->cache['cogroup'][$coGroupId]['co_id'];
     }
@@ -115,6 +123,10 @@ class RoleComponent extends Component {
    */
   
   protected function cachedGroupGet($coPersonId, $groupName="", $searchParam="", $groupId=null, $owner=false) {
+    if(!$coPersonId) {
+      return false;
+    }
+    
     // First check the cache (note: $condKey is something like "CoGroup.name LIKE")
     
     $condKey = null;
@@ -169,6 +181,10 @@ class RoleComponent extends Component {
    */
   
   protected function cachedPersonRoleCheck($coPersonId, $coId, $couId=null, $active=true) {
+    if(!$coPersonId || !$coId) {
+      return false;
+    }
+    
     // First check the cache
     
     if($couId) {
@@ -367,6 +383,10 @@ class RoleComponent extends Component {
     $couNames = array();
     $childCous = array();
     
+    if(!$coPersonId) {
+      return array();
+    }
+    
     try {
       $coId = $this->cachedCoIdLookup($coPersonId);
     }
@@ -413,6 +433,10 @@ class RoleComponent extends Component {
   
   protected function identifierIsAdmin($identifier, $adminType) {
     global $group_sep;
+    
+    if(!$identifier) {
+      return false;
+    }
     
     // First check the cache
     
@@ -474,6 +498,10 @@ class RoleComponent extends Component {
    */
   
   public function identifierIsCmpAdmin($identifier) {
+    if(!$identifier) {
+      return false;
+    }
+    
     // First check the cache
     
     if(isset($this->cache['identifier'][$identifier]['cmpadmin'])) {
@@ -686,6 +714,10 @@ class RoleComponent extends Component {
    */
    
   public function isCoOrCouAdminForCoPersonRole($coPersonId, $subjectCoPersonRoleId) {
+    if(!$coPersonId) {
+      return false;
+    }
+    
     // Look up the CO Person ID for the subject and then hand off the request.
     
     $CoPersonRole = ClassRegistry::init('CoPersonRole');
@@ -715,6 +747,10 @@ class RoleComponent extends Component {
   public function isCoOrCouAdminForOrgIdentity($coPersonId, $subjectOrgIdentityId) {
     // A person is an admin if org identities are pooled or if the subject and the CO person
     // are in the CO. First check that they're even an admin at all.
+    
+    if(!$coPersonId || !$subjectOrgIdentityId) {
+      return false;
+    }
     
     if($this->isCoAdmin($coPersonId)
        || $this->isCouAdmin($coPersonId)) {
@@ -755,7 +791,8 @@ class RoleComponent extends Component {
     if($requireRole) {
       return $this->cachedPersonRoleCheck($coPersonId, $coId, null, true);
     } else {
-      
+      // What's supposed to go here?
+      throw new InternalErrorException("Not implemented (isCoPerson)");
     }
   }
   
@@ -820,6 +857,10 @@ class RoleComponent extends Component {
    */
    
   public function isCouAdminForCoPerson($coPersonId, $subjectCoPersonId) {
+    if(!$coPersonId) {
+      return false;
+    }
+    
     // Find the person's CO
     
     try {
@@ -874,6 +915,10 @@ class RoleComponent extends Component {
    */
   
   public function isGroupManager($coPersonId, $coGroupId) {
+    if(!$coPersonId || !$coGroupId) {
+      return false;
+    }
+    
     // A person is a group manager if (1) they are an owner of the group or (2) they
     // are a CO admin for the CO of the group. Currently, we do not treat COU admins as
     // superusers for groups.
