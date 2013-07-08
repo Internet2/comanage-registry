@@ -367,6 +367,7 @@ $cm_texts['en_US'] = array(
   'fd.action' =>      'Action',
   'fd.actions' =>     'Actions',
   'fd.actor' =>       'Actor',
+  'fd.actor.self' =>  'Self Signup',
   'fd.address' =>     'Address',
   // The next set must be named fd.model.validation-field
   'fd.address.country' => 'Country',
