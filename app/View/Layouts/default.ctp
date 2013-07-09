@@ -45,7 +45,7 @@
     <?php print $this->Html->script('jquery/superfish/js/superfish.js'); ?>
 
     <?php print $this->Html->script('jquery/noty/jquery.noty.js'); ?>
-    <?php print $this->Html->script('jquery/noty/layouts/top.js'); ?>
+    <?php print $this->Html->script('jquery/noty/layouts/topCenter.js'); ?>
     <?php print $this->Html->script('jquery/noty/themes/comanage.js'); ?>
 
     <!-- Common script code -->
@@ -56,7 +56,7 @@
         text: text,
         type: type,
         dismissQueue: true,
-        layout: 'top',
+        layout: 'topCenter',
         theme: 'comanage'
       });
     }
