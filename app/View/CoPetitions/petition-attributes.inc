@@ -32,7 +32,18 @@
   <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
     <tbody>
       <?php foreach ($co_enrollment_attributes as $ea): ?>
-      <?php $fieldName = $ea['model'] . '.' . $ea['field']; ?>
+      <?php if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
+              // Since disabled values don't submit with the form, convert them to hidden
+              // fields and change the fieldName for the visible attribute
+              
+              $hfieldName = $ea['model'] . '.' . $ea['field'];
+              $fieldName = $hfieldName . "-disabled";
+              
+              print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . "\n";
+            } else {
+              $fieldName = $ea['model'] . '.' . $ea['field'];
+            }
+      ?>
       <?php if($ea['hidden']): ?>
       <?php print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n"; ?>
       <?php else: ?>

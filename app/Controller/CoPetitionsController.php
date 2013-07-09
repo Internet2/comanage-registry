@@ -112,6 +112,7 @@ class CoPetitionsController extends StandardController {
         }
         catch(Exception $e) {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          parent::add();
         }
       } else {
         parent::add();
