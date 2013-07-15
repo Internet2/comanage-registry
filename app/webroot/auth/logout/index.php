@@ -5,7 +5,7 @@
    * Version: $Revision$
    * Date: $Date$
    *
-   * Copyright (C) 2010-2011 University Corporation for Advanced Internet Development, Inc.
+   * Copyright (C) 2010-2013 University Corporation for Advanced Internet Development, Inc.
    * 
    * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
    * the License. You may obtain a copy of the License at
@@ -25,6 +25,6 @@
 session_name("CAKEPHP");
 session_start();
 
-unset($_SESSION['Auth']['external']['user']);
+unset($_SESSION['Auth']);
 
 header("Location: " . "/registry/users/logout");
