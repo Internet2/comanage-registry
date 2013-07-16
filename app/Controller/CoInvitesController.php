@@ -471,6 +471,8 @@ class CoInvitesController extends AppController {
                                 ? $this->cur_co['CoEnrollmentFlow'][0]['notify_from']
                                 : null,
                                 $this->cur_co['Co']['name']);
+          
+          $this->Session->setFlash(_txt('em.invite.ok', $orgp['EmailAddress'][0]['mail']), '', array(), 'success');
         }
         catch(Exception $e) {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');
