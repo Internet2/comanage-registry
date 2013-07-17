@@ -213,7 +213,14 @@ class CoPerson extends AppModel {
       $args['joins'][1]['type'] = 'LEFT';
       $args['joins'][1]['conditions'][0] = 'Identifier.org_identity_id=OrgIdentity.id';
       $args['conditions']['OR']['CoPerson.co_id'] = $coId;
-      $args['conditions']['OR']['OrgIdentity.co_id'] = $coId;
+      
+      $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
+      
+      if($CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
+        $args['conditions']['OR'][] = 'OrgIdentity.co_id IS NULL';
+      } else {
+        $args['conditions']['OR']['OrgIdentity.co_id'] = $coId;
+      }
     }
     
     if($identifierType) {
@@ -238,6 +245,14 @@ class CoPerson extends AppModel {
         $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $id['Identifier']['org_identity_id'];
         $args['fields'][] = 'CoOrgIdentityLink.co_person_id';
         $args['contain'] = false;
+        
+        if($coId != null) {
+          $args['joins'][0]['table'] = 'co_people';
+          $args['joins'][0]['alias'] = 'CoPerson';
+          $args['joins'][0]['type'] = 'INNER';
+          $args['joins'][0]['conditions'][0] = 'CoOrgIdentityLink.co_person_id=CoPerson.id';
+          $args['conditions']['CoPerson.co_id'] = $coId;
+        }
         
         $links = $this->CoOrgIdentityLink->find('list', $args);
         
