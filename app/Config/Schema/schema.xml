@@ -847,4 +847,21 @@
     
     <!-- XXX almost certainly need to create some indexes here -->
   </table>
+
+  <table name="co_navigation_links">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="title" type="C" size="256" >
+      <notnull />
+    </field>
+    <field name="url" type="C" size="256" />
+    <field name="ordr" type="I" />
+    <field name="location" type="C" size="32" />
+  </table>
 </schema>
