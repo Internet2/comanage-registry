@@ -264,6 +264,7 @@ class AppController extends Controller {
        && $this->Session->check('Auth.User.org_identities')) {
       $this->menuAuth();
       $this->menuContent();
+      $this->getCoNavLinks();
     }
   }
   
@@ -989,6 +990,35 @@ class AppController extends Controller {
     
     return($s);
   }
+
+  /**
+   * Called from beforeRender to set CO-specific links
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: vv_CoNavLinks set
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+
+  function getCoNavLinks() {
+    // Determine this CO's navigation links
+    $coid = $this->parseCOID();
+
+    $this->loadModel('CoNavigationLink');
+
+    $params = array('conditions' => array('CoNavigationLink.co_id' => $coid),
+                    'fields'     => array('CoNavigationLink.title', 'CoNavigationLink.url'),
+                    'order'      => array('CoNavigationLink.ordr')
+    );
+    $colinkdata = $this->CoNavigationLink->find('all', $params);
+
+    // Build variable to set for view
+    $vv_CoNavLinks = array();
+
+    foreach ($colinkdata as $l) {
+      $vv_CoNavLinks[] = $l;
+    }
+    $this->set('vv_CoNavLinks', $vv_CoNavLinks);
+  }
   
   /**
    * Called from beforeRender to set permissions for display in menus
@@ -1047,7 +1077,10 @@ class AppController extends Controller {
 
     // Manage CO enrollment flow definitions?
     $p['menu']['coef'] = $roles['admin'];
-    
+  
+    // Manage CO Links?
+    $p['menu']['conavigationlinks'] = $roles['admin'];
+
     // Manage CO provisioning targets?
     $p['menu']['coprovtargets'] = $roles['admin'];
     

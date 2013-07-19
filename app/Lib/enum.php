@@ -192,6 +192,11 @@ class IdentifierEnum
   const UID     = 'uid';
 }
 
+class LinkLocationEnum
+{
+  const topBar  = 'topbar';
+}
+
 class NameEnum
 {
   const Author    = 'A';

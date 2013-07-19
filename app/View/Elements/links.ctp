@@ -27,6 +27,15 @@
     <li><a href="#">Support</a></li>
     <li><a href="/directory">Directory</a></li>
     <li><a href="#">Help</a></li>
+
+    <?php
+      if(isset($vv_CoNavLinks)) {
+        foreach($vv_CoNavLinks as $l){
+          print '<li><a href="' . $l['CoNavigationLink']['url'] . '">' . $l['CoNavigationLink']['title'] . '</a>'; 
+        }
+      }
+    ?>
+
   </ul>
 </div>
 

@@ -232,6 +232,18 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                         print $this->Html->link(_txt('ct.co_provisioning_targets.pl'), $args);
                       print "</li>";
                     }
+
+                    if(isset($permissions['menu']['conavigationlinks'])) {
+                      print "<li>";
+                        $args = array();
+                        $args['plugin'] = null;
+                        $args['controller'] = 'co_navigation_links';
+                        $args['action'] = 'index';
+                        $args['co'] = $menuCoId;
+                        
+                        print $this->Html->link(_txt('ct.co_navigation_links.pl'), $args);
+                      print "</li>";
+                    }
                     
                     render_plugin_menus($this->Html, $plugins, 'coconfig', $menuCoId);
                     

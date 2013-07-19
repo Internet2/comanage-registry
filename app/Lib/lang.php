@@ -72,6 +72,8 @@ $cm_texts['en_US'] = array(
   'ct.co_groups.1' =>           'Group',
   'ct.co_groups.pl' =>          'Groups',
   'ct.co_invites.1' =>          'Invite',
+  'ct.co_navigation_links.1' => 'Navigation Link',
+  'ct.co_navigation_links.pl' => 'Navigation Links',
   'ct.co_invites.pl' =>         'Invites',
   'ct.co_nsf_demographics.1'  => 'NSF Demographic Record',
   'ct.co_nsf_demographics.pl' => 'NSF Demographic Records',
@@ -247,6 +249,9 @@ $cm_texts['en_US'] = array(
     SuspendableStatusEnum::Suspended           => 'Suspended'
   ),
   
+  // Navigation links
+  'en.nav.location' =>     array(LinkLocationEnum::topBar => 'Top Bar'),
+
   // Demographics
   'en.nsf.gender' =>       array(NSFGenderEnum::Female => 'Female',
                                  NSFGenderEnum::Male   => 'Male'),
@@ -497,6 +502,10 @@ $cm_texts['en_US'] = array(
   'fd.inv.for' =>     'Invitation for %1$s',
   'fd.inv.to' =>      'Invitation to %1$s',
   'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
+  'fd.link.location' => 'Link Location',  
+  'fd.link.order' =>  'Link Order',
+  'fd.link.title' =>  'Link Title',
+  'fd.link.url' =>    'Link URL',
   'fd.members' =>     'Members',
   'fd.modified' =>    'Modified',
   'fd.name' =>        'Name',
