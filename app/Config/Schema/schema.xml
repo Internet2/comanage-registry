@@ -864,4 +864,18 @@
     <field name="ordr" type="I" />
     <field name="location" type="C" size="32" />
   </table>
+
+  <table name="navigation_links">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="title" type="C" size="256" >
+      <notnull />
+    </field>
+    <field name="url" type="C" size="256" />
+    <field name="ordr" type="I" />
+    <field name="location" type="C" size="32" />
+  </table>
 </schema>

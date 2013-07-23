@@ -34,7 +34,7 @@
     ';
 ?>
 
-<table id="cous" class="ui-widget">
+<table id="co_navigation_links" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('title', _txt('fd.link.title')); ?></th>

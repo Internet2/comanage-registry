@@ -87,9 +87,9 @@
       <td>
         <?php
           if($e) {
-            if (!empty($this->viewVars['vv_link_location_options'] )) {
-              // Print dropdown selector with COU options
-              print $this->Form->select('location', $this->viewVars['vv_link_location_options']);
+            if (!empty($this->viewVars['vv_co_link_location_options'] )) {
+              // Print dropdown selector with location options
+              print $this->Form->select('location', $this->viewVars['vv_co_link_location_options']);
             } 
           }
           else {

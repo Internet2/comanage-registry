@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Navigation Links Controller
+ * COmanage Registry Navigation Links Controller
  *
  * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -24,20 +24,17 @@
 
 App::uses("StandardController", "Controller");
   
-class CoNavigationLinksController extends StandardController {
+class NavigationLinksController extends StandardController {
   // Class name, used by Cake
-  public $name = "CoNavigationLinks";
+  public $name = "NavigationLinks";
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'CoNavigationLink.type_name' => 'asc'
+      'NavigationLink.type_name' => 'asc'
     )
   );
-  
-  // This controller needs a CO to be set
-  public $requires_co = true;
 
   /**
    * Get location options for view.
@@ -52,7 +49,7 @@ class CoNavigationLinksController extends StandardController {
 
     // Pass the location options
     $link_location_options = array(LinkLocationEnum::topBar => $cm_texts[ $cm_lang ]['en.nav.location'][LinkLocationEnum::topBar]);
-    $this->set('vv_co_link_location_options', $link_location_options);
+    $this->set('vv_link_location_options', $link_location_options);
 
     parent::beforeRender();
   }
@@ -74,20 +71,20 @@ class CoNavigationLinksController extends StandardController {
     
     // Determine what operations this user can perform
     
-    // Add a new CO link?
-    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+    // Add a new  link?
+    $p['add'] = ($roles['cmadmin'] );
     
-    // Delete an existing CO Link?
-    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
+    // Delete an existing  Link?
+    $p['delete'] = ($roles['cmadmin'] );
     
-    // Edit an existing CO Link?
-    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
+    // Edit an existing  Link?
+    $p['edit'] = ($roles['cmadmin'] );
     
-    // View all existing CO Links?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    // View all existing  Links?
+    $p['index'] = ($roles['cmadmin'] );
     
-    // View an existing CO Link?
-    $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
+    // View an existing  Link?
+    $p['view'] = ($roles['cmadmin'] );
 
     $this->set('permissions', $p);
     return $p[$this->action];

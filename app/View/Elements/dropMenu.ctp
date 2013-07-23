@@ -299,6 +299,16 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
               print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $args);
             ?>
           </li>
+          <li>
+            <?php
+              $args = array();
+              $args['plugin'] = null;
+              $args['controller'] = 'navigation_links';
+              $args['action'] = 'index';
+              
+              print $this->Html->link(_txt('ct.navigation_links.pl'), $args);
+            ?>
+          </li>
           <?php render_plugin_menus($this->Html, $plugins, 'cmp', $menuCoId); ?>
         </ul>
       </li>

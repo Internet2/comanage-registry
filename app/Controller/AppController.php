@@ -264,7 +264,7 @@ class AppController extends Controller {
        && $this->Session->check('Auth.User.org_identities')) {
       $this->menuAuth();
       $this->menuContent();
-      $this->getCoNavLinks();
+      $this->getNavLinks();
     }
   }
   
@@ -999,25 +999,44 @@ class AppController extends Controller {
    * @since  COmanage Registry v0.8.2
    */
 
-  function getCoNavLinks() {
+  function getNavLinks() {
+
+    // Get CMP-level navigation links 
+    $this->loadModel('NavigationLink');
+
+    $params = array('fields'     => array('NavigationLink.title', 'NavigationLink.url'),
+                    'order'      => array('NavigationLink.ordr')
+    );
+    $linkdata = $this->NavigationLink->find('all', $params);
+
+    // Build variable to set for view
+    $vv_NavLinks = array();
+
+    foreach ($linkdata as $l) {
+      $vv_NavLinks[] = $l;
+    }
+    $this->set('vv_NavLinks', $vv_NavLinks);
+
     // Determine this CO's navigation links
     $coid = $this->parseCOID();
 
-    $this->loadModel('CoNavigationLink');
+    if(!empty($coid)) {
+      $this->loadModel('CoNavigationLink');
 
-    $params = array('conditions' => array('CoNavigationLink.co_id' => $coid),
-                    'fields'     => array('CoNavigationLink.title', 'CoNavigationLink.url'),
-                    'order'      => array('CoNavigationLink.ordr')
-    );
-    $colinkdata = $this->CoNavigationLink->find('all', $params);
+      $params = array('conditions' => array('CoNavigationLink.co_id' => $coid),
+                      'fields'     => array('CoNavigationLink.title', 'CoNavigationLink.url'),
+                      'order'      => array('CoNavigationLink.ordr')
+      );
+      $colinkdata = $this->CoNavigationLink->find('all', $params);
 
-    // Build variable to set for view
-    $vv_CoNavLinks = array();
+      // Build variable to set for view
+      $vv_CoNavLinks = array();
 
-    foreach ($colinkdata as $l) {
-      $vv_CoNavLinks[] = $l;
+      foreach ($colinkdata as $l) {
+        $vv_CoNavLinks[] = $l;
+      }
+      $this->set('vv_CoNavLinks', $vv_CoNavLinks);
     }
-    $this->set('vv_CoNavLinks', $vv_CoNavLinks);
   }
   
   /**

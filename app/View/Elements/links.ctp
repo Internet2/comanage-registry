@@ -29,6 +29,12 @@
     <li><a href="#">Help</a></li>
 
     <?php
+      if(isset($vv_NavLinks)) {
+        foreach($vv_NavLinks as $l){
+          print '<li><a href="' . $l['NavigationLink']['url'] . '">' . $l['NavigationLink']['title'] . '</a>'; 
+        }
+      }
+
       if(isset($vv_CoNavLinks)) {
         foreach($vv_CoNavLinks as $l){
           print '<li><a href="' . $l['CoNavigationLink']['url'] . '">' . $l['CoNavigationLink']['title'] . '</a>'; 
