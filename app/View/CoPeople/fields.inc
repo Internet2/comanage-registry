@@ -718,10 +718,14 @@
                               }
                               if($permissions['edit'])
                                 print $this->Html->link(_txt('op.edit'),
-                                                 array('controller' => 'co_person_roles', 'action' => 'edit', $r['id'], 'co' => $cur_co['Co']['id']),
-                                                 array('class' => 'editbutton')) . "\n";
+                                                        array('controller' => 'co_person_roles', 'action' => 'edit', $r['id'], 'co' => $cur_co['Co']['id']),
+                                                        array('class' => 'editbutton')) . "\n";
                               if($permissions['delete'])
                                 print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($co_people[0]['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_person_roles', 'action' => 'delete', $r['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                            } elseif($permissions['view']) {
+                              print $this->Html->link(_txt('op.view'),
+                                                      array('controller' => 'co_person_roles', 'action' => 'view', $r['id'], 'co' => $cur_co['Co']['id']),
+                                                      array('class' => 'viewbutton')) . "\n";
                             }
                           ?>
                         </td>
