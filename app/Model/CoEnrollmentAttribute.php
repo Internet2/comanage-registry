@@ -71,6 +71,9 @@ class CoEnrollmentAttribute extends AppModel {
       'rule' => '/.*/',
       'required' => false,
       'allowEmpty' => true
+    ),
+    'copy_to_coperson' => array(
+      'rule' => 'boolean'
     )
   );
   

@@ -25,6 +25,7 @@
 <script type="text/javascript">
   function js_local_onload() {
     toggle_attr_def_div();
+    toggle_copy_to_coperson_div();
   }
   
   function ext_attr_type(attrname) {
@@ -127,6 +128,18 @@
       $("#attr_def_div").hide("slide", { "direction" : "up" });
     }
   }
+  
+  function toggle_copy_to_coperson_div() {
+    var curattr = document.getElementById('CoEnrollmentAttributeAttribute').value;
+    var attrtype = curattr[0];
+    
+    if(attrtype == "i") {
+      $("#copy_to_coperson_div").show("fade");
+    } else {
+      $("#copy_to_coperson_div").hide("fade");
+      document.getElementById('CoEnrollmentAttributeCopyToCoperson').checked=false;
+    }
+  }
 </script>
 <?php
   // Determine if fields are editable
@@ -183,7 +196,7 @@
                               ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']
                               : null);
           $attrs['empty'] = false;
-          $attrs['onchange'] = "toggle_attr_def_div()";
+          $attrs['onchange'] = "toggle_attr_def_div();toggle_copy_to_coperson_div();";
           
           if($e) {
             print $this->Form->select('attribute',
@@ -194,9 +207,18 @@
               print $this->Form->error('status');
             }
           } else {
-            print Sanitize::html($co_enrollment_flows[0]['CoEnrollmentAttribute']['attribute']);
+            print Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']);
           }
         ?>
+        <div id="copy_to_coperson_div" style="display: none">
+          <?php print ($e
+                       ? $this->Form->input('copy_to_coperson',
+                                            array('default' => false))
+                       : ($co_enrollment_attributes[0]['CoEnrollmentAttribute'][0]['copy_to_coperson']
+                          ? _txt('fd.yes') : _txt('fd.no')));
+                print _txt('fd.ea.attr.copy2cop');
+          ?>
+        </div>
       </td>
     </tr>
     <tr class="line2">

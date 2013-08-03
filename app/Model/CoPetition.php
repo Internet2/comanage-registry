@@ -299,6 +299,14 @@ class CoPetition extends AppModel {
     $fArgs['fields'] = array('CoEnrollmentAttribute.id', 'CoEnrollmentAttribute.required');
     $reqAttrs = $this->CoEnrollmentFlow->CoEnrollmentAttribute->find("list", $fArgs);
     
+    // Obtain a list of attributes that are to be copied to the CO Person (Role) from the Org Identity
+    
+    $cArgs = array();
+    $cArgs['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = $enrollmentFlowID;
+    $cArgs['conditions']['CoEnrollmentAttribute.copy_to_coperson'] = true;
+    $cArgs['fields'] = array('CoEnrollmentAttribute.id', 'CoEnrollmentAttribute.attribute');
+    $copyAttrs = $this->CoEnrollmentFlow->CoEnrollmentAttribute->find("list", $cArgs);
+    
     // Adjust validation rules for top level attributes only (OrgIdentity, CO Person, CO Person Role)
     // and validate those models without validating the associated models.
     
@@ -430,6 +438,19 @@ class CoPetition extends AppModel {
         $fail = true;
       }
       
+      // Loop through all EmailAddresses, Identifiers, and Names to see if there are any
+      // we should copy to the CO Person.
+      
+      foreach(array('EmailAddress', 'Identifier', 'Name') as $m) {
+        foreach(array_keys($orgData[$m]) as $a) {
+          // $a will be the co_enrollment_attribute:id, so we can tell different
+          // addresses apart
+          if(isset($copyAttrs[$a])) {
+            $coData[$m][$a] = $orgData[$m][$a];
+          }
+        }
+      }
+      
       // Save the CO Person Data
       
       if(!$fail) {
@@ -497,6 +518,19 @@ class CoPetition extends AppModel {
       if($fail) {
         $dbc->rollback();
         throw new InvalidArgumentException(_txt('er.fields'));
+      }
+      
+      // Loop through all Addresses and Telephone Numbers to see if there are any
+      // we should copy to the CO Person Role.
+      
+      foreach(array('Address', 'TelephoneNumber') as $m) {
+        foreach(array_keys($orgData[$m]) as $a) {
+          // $a will be the co_enrollment_attribute:id, so we can tell different
+          // addresses apart
+          if(isset($copyAttrs[$a])) {
+            $coRoleData[$m][$a] = $orgData[$m][$a];
+          }
+        }
       }
       
       // Save the CO Person Role data

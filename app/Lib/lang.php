@@ -47,7 +47,7 @@ $cm_texts['en_US'] = array(
   
   // COs Controllers
   'co.cm.gradmin' =>  'COmanage Platform Administrators',
-  'co.cm.desc' =>     'COmanage Gears Internal CO',
+  'co.cm.desc' =>     'COmanage Registry Internal CO',
   'co.init' =>        'No COs found, initial CO created',
   'co.nomember' =>    'You are not a member of any COs',
   'co.select' =>      'Select the CO you wish to work with.',
@@ -410,6 +410,7 @@ $cm_texts['en_US'] = array(
   'fd.directory' =>   'Directory',
   'fd.domain' =>      'Domain',
   // Enrollment configuration fields
+  'fd.ea.attr.copy2cop' => 'Copy this attribute to the CO Person record',
   'fd.ea.desc'    =>  'Description',
   'fd.ea.desc.desc' => 'Descriptive text to be displayed when prompting for this attribute (like this text you\'re reading now)',
   'fd.ea.label'   =>  'Label',

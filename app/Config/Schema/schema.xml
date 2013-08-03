@@ -570,6 +570,7 @@
     </field>
     <field name="required" type="I" />
     <field name="ordr" type="I" />
+    <field name="copy_to_coperson" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
