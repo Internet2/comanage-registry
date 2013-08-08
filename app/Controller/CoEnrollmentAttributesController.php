@@ -128,6 +128,10 @@ class CoEnrollmentAttributesController extends StandardController {
       // Assemble the list of available affiliations
       
       $this->set('vv_affiliations', $cm_texts[ $cm_lang ]['en.affil']);
+      
+      // Assemble the list of available Sponsors
+      
+      $this->set('vv_sponsors', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->sponsorList($coid));
     }
   }
   

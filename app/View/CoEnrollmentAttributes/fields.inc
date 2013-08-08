@@ -79,6 +79,7 @@
       $("#attr_def_val_affil_div").hide();
       $("#attr_def_val_cou_div").hide();
       $("#attr_def_val_date_div").hide();
+      $("#attr_def_val_sponsor_div").hide();
       
       var curval = document.getElementById('CoEnrollmentAttributeDefault0Value').value;
       
@@ -98,6 +99,10 @@
         // Set current value before showing
         document.getElementById('def_cou_val').value = curval;
         $("#attr_def_val_cou_div").show("fade");
+      } else if(curattrcode == "r" && curattrname == "sponsor_co_person_id") {
+        // Set current value before showing
+        document.getElementById('def_sponsor_val').value = curval;
+        $("#attr_def_val_sponsor_div").show("fade");
       } else if((curattrcode == "r"
                  && (curattrname == "valid_from" || curattrname == "valid_through"))
                 ||
@@ -344,6 +349,18 @@
                      />
               <?php print _txt('fd.ed.date.offset'); ?>
               <br />
+          <?php endif; ?>
+        </div>
+        <div id="attr_def_val_sponsor_div">
+          <?php if($e): ?>
+            <select name="def_sponsor_val"
+                    id="def_sponsor_val"
+                    onchange="set_attr_def_value('def_sponsor_val')">
+              <option value=""></option>
+              <?php foreach(array_keys($vv_sponsors) as $k): ?>
+                <option value="<?php print Sanitize::html($k); ?>"><?php print Sanitize::html($vv_sponsors[$k]); ?></option>
+              <?php endforeach; ?>
+            </select>
           <?php endif; ?>
         </div>
       </td>
