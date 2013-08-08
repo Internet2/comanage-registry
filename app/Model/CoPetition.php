@@ -442,11 +442,13 @@ class CoPetition extends AppModel {
       // we should copy to the CO Person.
       
       foreach(array('EmailAddress', 'Identifier', 'Name') as $m) {
-        foreach(array_keys($orgData[$m]) as $a) {
-          // $a will be the co_enrollment_attribute:id, so we can tell different
-          // addresses apart
-          if(isset($copyAttrs[$a])) {
-            $coData[$m][$a] = $orgData[$m][$a];
+        if(!empty($orgData[$m])) {
+          foreach(array_keys($orgData[$m]) as $a) {
+            // $a will be the co_enrollment_attribute:id, so we can tell different
+            // addresses apart
+            if(isset($copyAttrs[$a])) {
+              $coData[$m][$a] = $orgData[$m][$a];
+            }
           }
         }
       }
@@ -524,11 +526,13 @@ class CoPetition extends AppModel {
       // we should copy to the CO Person Role.
       
       foreach(array('Address', 'TelephoneNumber') as $m) {
-        foreach(array_keys($orgData[$m]) as $a) {
-          // $a will be the co_enrollment_attribute:id, so we can tell different
-          // addresses apart
-          if(isset($copyAttrs[$a])) {
-            $coRoleData[$m][$a] = $orgData[$m][$a];
+        if(!empty($orgData[$m])) {
+          foreach(array_keys($orgData[$m]) as $a) {
+            // $a will be the co_enrollment_attribute:id, so we can tell different
+            // addresses apart
+            if(isset($copyAttrs[$a])) {
+              $coRoleData[$m][$a] = $orgData[$m][$a];
+            }
           }
         }
       }
@@ -854,6 +858,12 @@ class CoPetition extends AppModel {
         $notifyFrom = $this->CoEnrollmentFlow->field('notify_from',
                                                      array('CoEnrollmentFlow.id' => $enrollmentFlowID));
         
+        $subjectTemplate = $this->CoEnrollmentFlow->field('verification_subject',
+                                                           array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
+        $bodyTemplate = $this->CoEnrollmentFlow->field('verification_body',
+                                                        array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
         $coName = $this->Co->field('name', array('Co.id' => $coId));
         
         $coInviteId = $this->CoInvite->send($coPersonID,
@@ -861,7 +871,9 @@ class CoPetition extends AppModel {
                                             $petitionerId,
                                             $toEmail,
                                             $notifyFrom,
-                                            $coName);
+                                            $coName,
+                                            $subjectTemplate,
+                                            $bodyTemplate);
         
         // Add the invite ID to the petition record
         

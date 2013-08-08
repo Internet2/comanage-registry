@@ -79,7 +79,7 @@ class CoInvite extends AppModel {
    * @throws RuntimeException
    */
   
-  function processReply($inviteId, $confirm, $loginIdentifier=null) {
+  public function processReply($inviteId, $confirm, $loginIdentifier=null) {
     $args = array();
     $args['conditions']['CoInvite.invitation'] = $inviteId;
     
@@ -233,6 +233,26 @@ class CoInvite extends AppModel {
   }
   
   /**
+   * Process a message template, replacing parameters with respective values.
+   * Note this function is for configured templates (ie: those loaded from the
+   * database) and not for Cake templates (ie: those loaded from View/Emails).
+   *
+   * @since  COmanage Registry v0.8.2
+   * @param  String Template text
+   * @param  Array Array of View Variables, used to replace parameters
+   * @return String Processed template
+   */
+  
+  protected function processTemplate($template, $viewVars) {
+    $searchKeys = array("(@CO_NAME)",
+                        "(@INVITE_URL)");
+    $replaceVals = array($viewVars['co_name'],
+                         Router::url(array('controller' => 'co_invites', 'action' => 'reply', $viewVars['invite_id']), true));
+    
+    return str_replace($searchKeys, $replaceVals, $template);
+  }
+  
+  /**
    * Create and send an invitation. Any existing invitation for the CO Person will be removed.
    *
    * @since  COmanage Registry v0.7
@@ -241,12 +261,14 @@ class CoInvite extends AppModel {
    * @param  Integer CO Person ID of actor sending the invite
    * @param  String Email Address to send the invite to
    * @param  String Email Address to send the invite from
-   * @param  String CO Name (to pass into invite) 
+   * @param  String CO Name (to pass into invite)
+   * @param  String Subject text (for configured templates stored in the database)
+   * @param  String Template text (for configured templates stored in the database)
    * @return Integer CO Invitation ID
    * @throws RuntimeException
    */
   
-  function send($coPersonId, $orgIdentityID, $actorPersonId, $toEmail, $fromEmail=null, $coName) {
+  public function send($coPersonId, $orgIdentityID, $actorPersonId, $toEmail, $fromEmail=null, $coName, $subject=null, $template=null) {
     // Toss any prior invitations for $coPersonId to $toEmail
     
     $this->deleteAll(array('co_person_id' => $coPersonId,
@@ -273,11 +295,26 @@ class CoInvite extends AppModel {
       $viewVariables['co_name'] = $coName;
       
       try {
-        $email->template('coinvite', 'basic')
-              ->emailFormat('text')
-              ->to($toEmail)
-              ->viewVars($viewVariables)
-              ->subject(_txt('em.invite.subject', array($coName)));
+        if($template) {
+          if($subject) {
+            $msgSubject = $this->processTemplate($subject, $viewVariables);
+          } else {
+            $msgSubject = _txt('em.invite.subject', array($coName));
+          }
+          
+          $msgBody = $this->processTemplate($template, $viewVariables);
+          
+          $email->emailFormat('text')
+                ->to($toEmail)
+                ->subject($msgSubject)
+                ->message($msgBody);
+        } else {
+          $email->template('coinvite', 'basic')
+                ->emailFormat('text')
+                ->to($toEmail)
+                ->viewVars($viewVariables)
+                ->subject(_txt('em.invite.subject', array($coName)));
+        }
         
         // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
         if($fromEmail) {

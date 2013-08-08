@@ -543,9 +543,11 @@
     <field name="notify_on_provision" type="C" size="128" />
     <field name="notify_on_active" type="C" size="128" />
     <field name="status" type="C" size="2" />
+    <field name="notify_from" type="C" size="256" />
+    <field name="verification_subject" type="C" size="256" />
+    <field name="verification_body" type="X" size="4000" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
-    <field name="notify_from" type="C" size="256" />
     
     <index name="co_enrollment_flows_i1">
       <col>co_id</col>

@@ -259,15 +259,16 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'])); ?>
       </td>
     </tr>
+<!--
     <tr class="line2">
       <td>
         <b><?php print _txt('fd.ef.epx'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ef.epx.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e
+        <?php /*print ($e
                      ? $this->Form->input('early_provisioning_exec')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['early_provisioning_exec'])); ?>
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['early_provisioning_exec']));*/ ?>
       </td>
     </tr>
     <tr class="line1">
@@ -276,9 +277,9 @@
         <font class="desc"><?php print _txt('fd.ef.px.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e
+        <?php /*print ($e
                      ? $this->Form->input('provisioning_exec')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['provisioning_exec'])); ?>
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['provisioning_exec'])); */?>
       </td>
     </tr>
     <tr class="line2">
@@ -287,9 +288,9 @@
         <font class="desc"><?php print _txt('fd.ef.noep.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e
+        <?php /*print ($e
                      ? $this->Form->input('notify_on_early_provision')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_early_provision'])); ?>
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_early_provision']));*/ ?>
       </td>
     </tr>
     <tr class="line1">
@@ -298,9 +299,9 @@
         <font class="desc"><?php print _txt('fd.ef.nop.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e
+        <?php /*print ($e
                      ? $this->Form->input('notify_on_provision')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_provision'])); ?>
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_provision']));*/ ?>
       </td>
     </tr>
     <tr class="line2">
@@ -309,11 +310,12 @@
         <font class="desc"><?php print _txt('fd.ef.noa.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e
+        <?php /*print ($e
                      ? $this->Form->input('notify_on_active')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_active'])); ?>
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_active']));*/ ?>
       </td>
     </tr>
+-->
     <tr class="line1">
       <td>
         <b><?php print _txt('fd.ef.efn'); ?></b><br />
@@ -323,6 +325,30 @@
         <?php print ($e
                      ? $this->Form->input('notify_from')
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_from'])); ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
+        <b><?php print _txt('fd.ef.vsub'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.vsub.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('verification_subject',
+                                          array('default' => _txt('em.invite.subject.ef')))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_subject'])); ?>
+      </td>
+    </tr>
+    <tr class="line1">
+      <td>
+        <b><?php print _txt('fd.ef.vbody'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.vbody.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('verification_body',
+                                          array('default' => _txt('em.invite.body.ef')))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_body'])); ?>
       </td>
     </tr>
   </tbody>

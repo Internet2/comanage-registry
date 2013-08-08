@@ -108,7 +108,12 @@ $cm_texts['en_US'] = array(
   
   // Email Messages
   'em.invite.subject'        => 'Invitation to join %1$s',
+  'em.invite.subject.ef'     => 'Invitation to join (@CO_NAME)',
   'em.invite.body'           => 'You have been invited to join %1$s.  Please click the link below to accept or decline.',
+  'em.invite.body.ef'        => 'You have been invited to join (@CO_NAME).
+Please click the link below to accept or decline.
+
+(@INVITE_URL)',
   'em.invite.ok'             => 'Invitation has been emailed to %1$s',
   'em.invite.footer'         => 'This email was sent using %1$s.',
 
@@ -440,7 +445,7 @@ $cm_texts['en_US'] = array(
   'fd.ef.cf.cmp' =>   'Platform Enrollment Configuration',
   'fd.ef.coef' =>     'Enable Attributes Via CO Enrollment Flow',
   'fd.ef.coef.desc' => 'If enabled, allow organizational identity attributes to be collected via forms during CO enrollment flows (these attributes will be less authoritative than those obtained via LDAP or SAML)',
-  'fd.ef.efn'       => 'From Address for Notifications',
+  'fd.ef.efn'       => 'From Address For Notifications',
   'fd.ef.efn.desc'  => 'Email address notifications will come from',
   'fd.ef.epx' =>      'Early Provisioning Executable',
   'fd.ef.epx.desc' => '(Need for this TBD)',
@@ -464,6 +469,10 @@ $cm_texts['en_US'] = array(
   'fd.ef.saml.desc' => 'If the enrollee is authenticated via a SAML IdP with attributes released, examine the SAML assertion for authoritative attributes',
   'fd.ef.sea' =>      'Require Authentication For Self Enrollment',
   'fd.ef.sea.desc' => 'If self enrollment is enabled, require enrollees who are self-enrolling to authenticate to the platform',
+  'fd.ef.vsub' =>     'Subject For Verification Email',
+  'fd.ef.vsub.desc' => 'Subject line for email message sent as part of verification step.',
+  'fd.ef.vbody' =>    'Verification Email Body',
+  'fd.ef.vbody.desc' => 'Body for email message sent as part of verification step. Max 4000 characters.',
   // (End enrollment configuration fields)
   // This must be named fd.model.validation-field
   'fd.email_address.mail' => 'Email',

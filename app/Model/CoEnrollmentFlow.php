@@ -103,12 +103,13 @@ class CoEnrollmentFlow extends AppModel {
     'approval_required' => array(
       'rule' => array('boolean')
     ),
-    'confirm_email' => array(
+    'verify_email' => array(
       'rule' => array('boolean')
     ),
     'require_authn' => array(
       'rule' => array('boolean')
     ),
+    /*
     'notify_on_early_provision' => array(
       'rule' => 'email',
       'required' => false,
@@ -123,6 +124,21 @@ class CoEnrollmentFlow extends AppModel {
       'rule' => 'email',
       'required' => false,
       'allowEmpty' => true
+    ),*/
+    'notify_from' => array(
+      'rule' => 'email',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'verification_subject' => array(
+      'rule' => 'notEmpty',
+      'required' => true,
+      'allowEmpty' => false
+    ),
+    'verification_body' => array(
+      'rule' => 'notEmpty',
+      'required' => true,
+      'allowEmpty' => false
     ),
     'status' => array(
       'rule' => array('inList', array(StatusEnum::Active,
