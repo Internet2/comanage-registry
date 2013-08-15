@@ -477,7 +477,9 @@ class CoEnrollmentAttribute extends AppModel {
               
             } else {
               // Label
-              $attr['label'] = $efAttr['CoEnrollmentAttribute']['label'] . ": " . _txt('fd.' . $attrName . '.' . $k);
+              $attr['group'] = $efAttr['CoEnrollmentAttribute']['label'];
+
+              $attr['label'] = _txt('fd.' . $attrName . '.' . $k);
               
               // Description
               $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
