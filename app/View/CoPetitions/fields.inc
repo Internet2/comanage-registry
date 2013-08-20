@@ -63,6 +63,39 @@ $(function() {
 </script>
 
 <?php
+  // Add links to sidebar
+
+  if($this->action != "add") {
+    // Get any existing buttons
+    $sidebarButtons = $this->get('sidebarButtons');
+
+    // Add button for related Org Identity
+    $sidebarButtons[]  = array(
+      'icon'    => 'note',
+      'title'   => _txt('ct.org_identities.1'),
+      'url'     => array(
+        'controller'    => 'org_identities',
+        'action'        => 'view',
+        $co_petitions[0]['CoPetition']['enrollee_org_identity_id'],
+        'co'            => $co_petitions[0]['CoPetition']['co_id']
+      )
+    );
+
+    // Add button for related CO Person
+    $sidebarButtons[]  = array(
+      'icon'    => 'note',
+      'title'   => _txt('ct.co_people.1'),
+      'url'     => array(
+        'controller'    => 'co_people',
+        'action'        => 'view',
+        $co_petitions[0]['CoPetition']['enrollee_co_person_id'],
+        'co'            => $co_petitions[0]['CoPetition']['co_id']
+      )
+    );
+
+    $this->set('sidebarButtons', $sidebarButtons);
+  }
+
   // Determine if fields are editable
   $e = false;
   
@@ -205,5 +238,11 @@ $(function() {
     ?>
   </div>
 </div>
+<pre>
+<?php
+
+print_r($co_petitions[0][CoPetition]);
+
+?>
 
 
