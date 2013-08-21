@@ -95,7 +95,6 @@ $(function() {
 
     $this->set('sidebarButtons', $sidebarButtons);
   }
-
   // Determine if fields are editable
   $e = false;
   
@@ -238,11 +237,5 @@ $(function() {
     ?>
   </div>
 </div>
-<pre>
-<?php
-
-print_r($co_petitions[0][CoPetition]);
-
-?>
 
 
