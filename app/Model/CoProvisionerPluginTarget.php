@@ -27,17 +27,43 @@ abstract class CoProvisionerPluginTarget extends AppModel {
   public $name = "CoProvisionerPluginTarget";
   
   /**
-   * Determine the provisioning status of this target for a CO Person ID.
+   * Determine the provisioning status of this target for a CO Person or CO Group.
    *
    * @since  COmanage Registry v0.8
    * @param  Integer CO Provisioning Target ID
-   * @param  Integer CO Person ID
+   * @param  Integer CO Person ID (null if CO Group ID is specified)
+   * @param  Integer CO Group ID (null if CO Person ID is specified)
    * @return Array ProvisioningStatusEnum, Timestamp of last update in epoch seconds, Comment
    * @throws InvalidArgumentException If $coPersonId not found
    * @throws RuntimeException For other errors
    */
   
-  abstract public function status($coProvisioningTargetId, $coPersonId);
+  public function status($coProvisioningTargetId, $coPersonId, $coGroupId=null) {
+    // Check CoProvisioningExports for status
+    
+    $ret = array(
+      'status'    => ProvisioningStatusEnum::NotProvisioned,
+      'timestamp' => null,
+      'comment'   => ""
+    );
+    
+    // Try to pull an existing record
+    $args = array();
+    $args['conditions']['CoProvisioningExport.co_provisioning_target_id'] = $coProvisioningTargetId;
+    if($coPersonId) {
+      $args['conditions']['CoProvisioningExport.co_person_id'] = $coPersonId;
+    } else {
+      $args['conditions']['CoProvisioningExport.co_group_id'] = $coGroupId;
+    }
+    $export = $this->CoProvisioningTarget->CoProvisioningExport->find('first', $args);
+    
+    if(!empty($export)) {
+      $ret['status'] = ProvisioningStatusEnum::Provisioned;
+      $ret['timestamp'] = $export['CoProvisioningExport']['exporttime'];
+    }
+    
+    return $ret;
+  }
   
   /**
    * Provision for the specified CO Person.
@@ -45,10 +71,10 @@ abstract class CoProvisionerPluginTarget extends AppModel {
    * @since  COmanage Registry v0.8
    * @param  Array CO Provisioning Target data
    * @param  ProvisioningActionEnum Registry transaction type triggering provisioning
-   * @param  Array CO Person data
+   * @param  Array Provisioning data, populated with ['CoPerson'] or ['CoGroup']
    * @return Boolean True on success
    * @throws RuntimeException
    */
   
-  abstract public function provision($coProvisioningTargetData, $op, $coPersonData);
+  abstract public function provision($coProvisioningTargetData, $op, $provisioningData);
 }

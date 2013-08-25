@@ -156,6 +156,43 @@ class CoGroupMember extends AppModel {
   }
   
   /**
+   * Map a set of CO Group Members to their Identifiers. Based on a similar function in CoLdapProvisionerDn.php.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @param  Array CO Group Members
+   * @param  String Identifier to map to
+   * @param  Boolean True to map owners, false to map members
+   * @return Array Array of Identifiers found -- note this array is not in any particular order, and may have fewer entries
+   */
+  
+  public function mapCoGroupMembersToIdentifiers($coGroupMembers, $identifierType, $owners=false) {
+    // Walk through the members and pull the CO Person IDs
+    
+    $coPeopleIds = array();
+    
+    foreach($coGroupMembers as $m) {
+      if(($owners && $m['owner'])
+         || (!$owners && $m['member'])) {
+        $coPeopleIds[] = $m['co_person_id'];
+      }
+    }
+    
+    if(!empty($coPeopleIds)) {
+      // Now perform a find to get the list. Note using the IN notation like this
+      // may not scale to very large sets of members.
+      
+      $args = array();
+      $args['conditions']['Identifier.co_person_id'] = $coPeopleIds;
+      $args['conditions']['Identifier.type'] = $identifierType;
+      $args['fields'] = array('Identifier.co_person_id', 'Identifier.identifier');
+      
+      return array_values($this->CoPerson->Identifier->find('list', $args));
+    } else {
+      return array();
+    }
+  }
+  
+  /**
    * Update the CO Group Memberships for a CO Person.
    *
    * @since  COmanage Registry v0.8

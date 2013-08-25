@@ -75,7 +75,8 @@ class CoLdapProvisionerTargetsController extends StandardController {
       $this->CoLdapProvisionerTarget->verifyLdapServer($reqdata['CoLdapProvisionerTarget']['serverurl'],
                                                        $reqdata['CoLdapProvisionerTarget']['binddn'],
                                                        $reqdata['CoLdapProvisionerTarget']['password'],
-                                                       $reqdata['CoLdapProvisionerTarget']['basedn']);
+                                                       $reqdata['CoLdapProvisionerTarget']['basedn'],
+                                                       $reqdata['CoLdapProvisionerTarget']['group_basedn']);
     }
     catch(RuntimeException $e) {
       $this->Session->setFlash($e->getMessage(), '', array(), 'error'); 

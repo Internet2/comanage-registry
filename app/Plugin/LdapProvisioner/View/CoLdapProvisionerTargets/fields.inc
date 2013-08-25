@@ -23,6 +23,19 @@
  */
 -->
 <script type="text/javascript">
+  function js_check_group_config() {
+    // If groupOfNames objectclass is defined but Base Group DN is empty, throw an error
+    
+    if(document.getElementById('CoLdapProvisionerTargetOcGroupofnames').checked) {
+      if(document.getElementById('CoLdapProvisionerTargetGroupBasedn').value == "") {
+        $("#error-dialog").dialog("open");
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
   function js_local_onload() {
     <?php
       // Emit javascript for each objectclass div
@@ -55,6 +68,26 @@
   function toggle_div(div) {
     $("#" + div).toggle("slide", { "direction" : "up" });
   }
+    
+  $(function() {
+    // Error dialog
+    
+    $("#error-dialog").dialog({
+      autoOpen: false,
+      buttons: {
+        "<?php print _txt('op.ok'); ?>": function() {
+          $(this).dialog("close");
+        },
+      },
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+    });
+  });
 </script>
 <?php
   // Determine if fields are editable
@@ -116,7 +149,7 @@
 <table id="<?php print $this->action; ?>_co_ldap_provisioner_target" class="ui-widget">
   <tbody>
     <tr class="line1">
-      <td>
+      <td style="width:50%">
         <?php print _txt('pl.ldapprovisioner.serverurl'); ?><font class="required">*</font><br />
         <font class="desc"><?php print _txt('pl.ldapprovisioner.serverurl.desc'); ?></font>
       </td>
@@ -186,6 +219,15 @@
     </tr>
     <tr class="line1">
       <td>
+        <?php print _txt('pl.ldapprovisioner.basedn.gr'); ?><br />
+        <font class="desc"><?php print _txt('pl.ldapprovisioner.basedn.gr.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('group_basedn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_basedn'])); ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
         <?php print _txt('pl.ldapprovisioner.opts'); ?><br />
         <font class="desc"><?php print _txt('pl.ldapprovisioner.opts.desc'); ?></font>
       </td>
@@ -203,7 +245,7 @@
         ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line1">
       <td>
         <?php print _txt('pl.ldapprovisioner.attrs'); ?><font class="required">*</font><br />
         <font class="desc"><?php print _txt('pl.ldapprovisioner.attrs.desc'); ?></font>
@@ -320,6 +362,10 @@
                 
                 print $this->Form->hidden($xprefix . '.attribute', array('default' => $attr)) . "\n";
                 
+                // Emit the associated object class
+                
+                print $this->Form->hidden($xprefix . '.objectclass', array('default' => $oc)) . "\n";
+                
                 // Set up for the checkbox
                 
                 $xname = 'CoLdapProvisionerAttribute.' . $xindex . '.export';
@@ -328,6 +374,10 @@
                 $xchecked = (!isset($currentAttributes[$attr]['export'])
                              || $currentAttributes[$attr]['export']);
                 $xdisabled = false;
+                
+                if(!empty($supportedAttributes[$oc]['attributes'][$attr]['description'])) {
+                  $xlabel .= " (" . $supportedAttributes[$oc]['attributes'][$attr]['description'] . ")";
+                }
                 
                 if($supportedAttributes[$oc]['attributes'][$attr]['required']) {
                   // If this attribute is required, make sure the export field gets set
@@ -411,7 +461,9 @@
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            echo $this->Form->submit($submit_label,
+                                     // We could also do this by adding onsubmit to the form open tag
+                                     array('onclick' => 'return js_check_group_config()'));
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }
@@ -420,3 +472,7 @@
     </tr>
   </tbody>
 </table>
+
+<div id="error-dialog" title="<?php print _txt('pl.ldapprovisioner.basedn.gr'); ?>">
+  <p><?php print _txt('er.ldapprovisioner.basedn.gr.none'); ?></p>
+</div>

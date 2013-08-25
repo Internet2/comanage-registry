@@ -485,6 +485,7 @@
     </field>
     <field name="attrs_from_ldap" type="L" />
     <field name="attrs_from_saml" type="L" />
+    <field name="attrs_from_env" type="L" />
     <field name="attrs_from_coef" type="L" />
     <field name="pool_org_identities" type="L" />
     <field name="status" type="C" size="2" />
@@ -506,6 +507,7 @@
     </field>
     <field name="type" type="C" size="16" />
     <field name="required" type="I" />
+    <field name="env_name" type="C" size="80" />
     <field name="ldap_name" type="C" size="80" />
     <field name="saml_name" type="C" size="80" />
     <field name="created" type="T" />
@@ -830,6 +832,37 @@
     </index>
   </table>
   
+  <table name="co_provisioning_exports">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_provisioning_target_id" type="I">
+      <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="exporttime" type="T" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_provisioning_exports_i1">
+      <col>co_provisioning_target_id</col>
+      <col>co_person_id</col>
+      <unique />
+    </index>
+    
+    <index name="co_provisioning_exports_i2">
+      <col>co_provisioning_target_id</col>
+      <col>co_group_id</col>
+      <unique />
+    </index>
+  </table>
+  
   <table name="co_provisioning_queued_events">
     <field name="id" type="I">
       <key />
@@ -866,6 +899,8 @@
     <field name="url" type="C" size="256" />
     <field name="ordr" type="I" />
     <field name="location" type="C" size="32" />
+    
+    <!-- XXX almost certainly need to create some indexes here -->
   </table>
 
   <table name="navigation_links">
@@ -880,5 +915,7 @@
     <field name="url" type="C" size="256" />
     <field name="ordr" type="I" />
     <field name="location" type="C" size="32" />
+    
+    <!-- XXX almost certainly need to create some indexes here -->
   </table>
 </schema>

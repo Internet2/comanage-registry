@@ -1,6 +1,6 @@
 <!--
 /**
- * COmanage Registry CO Person Provision View
+ * COmanage Registry CO Group Provision View
  *
  * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -17,13 +17,14 @@
  * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.8
+ * @since         COmanage Registry v0.8.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
 -->
 <?php
-  $params = array('title' => _txt('fd.prov.status.for', array(generateCn($co_person['Name']))));
+// XXX this is basically the same as the version in CoPeople
+  $params = array('title' => _txt('fd.prov.status.for', array($co_group['CoGroup']['name'])));
   print $this->element("pageTitle", $params);
 ?>
 <script type="text/javascript">
@@ -178,7 +179,7 @@
                       $this->Html->url(array('controller' => 'co_provisioning_targets',
                                                              'action' => 'provision',
                                                              $c['CoProvisioningTarget']['id'],
-                                                             'copersonid' => $co_person['CoPerson']['id'] . ".json"))
+                                                             'cogroupid' => $co_group['CoGroup']['id'] . ".json"))
                     . '\');">' . _txt('op.prov') . "</a>\n";
         ?>
       </td>

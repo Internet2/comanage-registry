@@ -35,7 +35,7 @@ class CoProvisioningTarget extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array("Co");
   
-//  public $hasMany = array("CoProvisioningQueuedEvent");
+  public $hasMany = array("CoProvisioningExport" => array('dependent' => true));
   
   // Default display field for cake generated views
   public $displayField = "description";

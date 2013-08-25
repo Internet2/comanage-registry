@@ -32,7 +32,8 @@ class CoLdapProvisionerDn extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array(
     "LdapProvisioner.CoLdapProvisionerTarget",
-    "CoPerson"
+    "CoPerson",
+    "CoGroup"
   );
     
   // Default display field for cake generated views
@@ -47,8 +48,13 @@ class CoLdapProvisionerDn extends AppModel {
     ),
     'co_person_id' => array(
       'rule' => 'numeric',
-      'required' => true,
-      'message' => 'A CO Person ID must be provided'
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'co_group_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     ),
     'dn' => array(
       'rule' => 'notEmpty'
@@ -56,7 +62,37 @@ class CoLdapProvisionerDn extends AppModel {
   );
   
   /**
-   * Assign (and save) a DN for a CO Person.
+   * Assign a DN for a CO Group.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @param  Array CO Provisioning Target data
+   * @param  Array CO Group data
+   * @return String DN
+   * @throws RuntimeException
+   */
+  
+  public function assignGroupDn($coProvisioningTargetData, $coGroupData) {
+    $dn = "";
+    
+    // For now, we always construct the DN using cn.
+    
+    if(empty($coGroupData['CoGroup']['name'])) {
+      throw new RuntimeException(_txt('er.ldapprovisioner.dn.component', 'cn'));
+    }
+    
+    if(empty($coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'])) {
+      // Throw an exception... this should be defined
+      throw new RuntimeException(_txt('er.ldapprovisioner.dn.config'));
+    }
+    
+    $dn = "cn=" . $coGroupData['CoGroup']['name']
+        . "," . $coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'];
+      
+    return $dn;
+  }
+  
+  /**
+   * Assign a DN for a CO Person.
    *
    * @since  COmanage Registry v0.8
    * @param  Array CO Provisioning Target data
@@ -65,7 +101,7 @@ class CoLdapProvisionerDn extends AppModel {
    * @throws RuntimeException
    */
   
-  public function assignDn($coProvisioningTargetData, $coPersonData) {
+  public function assignPersonDn($coProvisioningTargetData, $coPersonData) {
     // Start by checking the DN configuration
     
     if(empty($coProvisioningTargetData['CoLdapProvisionerTarget']['dn_attribute_name'])
@@ -102,16 +138,7 @@ class CoLdapProvisionerDn extends AppModel {
                                       array($coProvisioningTargetData['CoLdapProvisionerTarget']['dn_identifier_type'])));
     }
     
-    $dnRecord = array();
-    $dnRecord['CoLdapProvisionerDn']['co_ldap_provisioner_target_id'] = $coProvisioningTargetData['CoLdapProvisionerTarget']['id'];
-    $dnRecord['CoLdapProvisionerDn']['co_person_id'] = $coPersonData['CoPerson']['id'];
-    $dnRecord['CoLdapProvisionerDn']['dn'] = $dn;
-    
-    if($this->save($dnRecord)) {
-      return $dn;
-    } else {
-      throw new RuntimeException(_txt('er.db.save'));
-    }
+    return $dn;
   }
   
   /**
@@ -120,11 +147,12 @@ class CoLdapProvisionerDn extends AppModel {
    * @since  COmanage Registry v0.8
    * @param  Array CO Provisioning Target data
    * @param  String DN
+   * @param  String Mode ('group' or 'person')
    * @return Array Attribute/value pairs used to generate the DN, not including the base DN
    * @throws RuntimeException
    */
   
-  public function dnAttributes($coProvisioningTargetData, $dn) {
+  public function dnAttributes($coProvisioningTargetData, $dn, $mode) {
     // We assume dn is of the form attr1=val1, attr2=val2, basedn
     // where based matches $coProvisioningTargetData. Strip off basedn
     // and then split up the remaining string. Note we'll fail if the
@@ -132,7 +160,13 @@ class CoLdapProvisionerDn extends AppModel {
     
     $ret = array();
     
-    $attrs = explode(",", rtrim(str_replace($coProvisioningTargetData['CoLdapProvisionerTarget']['basedn'], "", $dn), " ,"));
+    $basedn = $coProvisioningTargetData['CoLdapProvisionerTarget']['basedn'];
+    
+    if($mode == 'group') {
+      $basedn = $coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'];
+    }
+    
+    $attrs = explode(",", rtrim(str_replace($basedn, "", $dn), " ,"));
     
     foreach($attrs as $a) {
       $av = explode("=", $a, 2);
@@ -141,5 +175,137 @@ class CoLdapProvisionerDn extends AppModel {
     }
     
     return $ret;
+  }
+  
+  /**
+   * Map a set of CO Group Members to their DNs.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @param  Array CO Group Members
+   * @return Array Array of DNs found -- note this array is not in any particular order, and may have fewer entries
+   */
+  
+  public function dnsForMembers($coGroupMembers) {
+    return $this->mapCoGroupMembersToDns($coGroupMembers);
+  }
+  
+  /**
+   * Map a set of CO Group Member owners to their DNs.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @param  Array CO Group Members
+   * @return Array Array of DNs found -- note this array is not in any particular order, and may have fewer entries
+   */
+  
+  public function dnsForOwners($coGroupMembers) {
+    return $this->mapCoGroupMembersToDns($coGroupMembers, true);
+  }
+  
+  /**
+   * Map a set of CO Group Members to their DNs. A similar function is in CoGroupMember.php.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @param  Array CO Group Members
+   * @param  Boolean True to map owners, false to map members
+   * @return Array Array of DNs found -- note this array is not in any particular order, and may have fewer entries
+   */
+  
+  private function mapCoGroupMembersToDns($coGroupMembers, $owners=false) {
+    // Walk through the members and pull the CO Person IDs
+    
+    $coPeopleIds = array();
+    
+    foreach($coGroupMembers as $m) {
+      if(($owners && $m['owner'])
+         || (!$owners && $m['member'])) {
+        $coPeopleIds[] = $m['co_person_id'];
+      }
+    }
+    
+    if(!empty($coPeopleIds)) {
+      // Now perform a find to get the list. Note using the IN notation like this
+      // may not scale to very large sets of members.
+      
+      $args = array();
+      $args['conditions']['CoLdapProvisionerDn.co_person_id'] = $coPeopleIds;
+      $args['fields'] = array('CoLdapProvisionerDn.co_person_id', 'CoLdapProvisionerDn.dn');
+      
+      return array_values($this->find('list', $args));
+    } else {
+      return array();
+    }
+  }
+  
+  /**
+   * Obtain a DN for a provisioning subject, possibly assigning or reassigning one.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @param  Array CO Provisioning Target data
+   * @param  Array CO Provisioning data
+   * @param  String Mode: 'group' or 'person'
+   * @param  Boolean Whether to assign a DN if one is not found and reassign if the DN should be changed
+   * @return Arary An array of old and new DNs (either of which might be null)
+   * @throws RuntimeException
+   */
+  
+  public function obtainDn($coProvisioningTargetData, $provisioningData, $mode, $assign=true) {
+    $curDn = null;
+    $newDn = null;
+    
+    // First see if we have already assigned a DN
+    
+    $args = array();
+    $args['conditions']['CoLdapProvisionerDn.co_ldap_provisioner_target_id'] = $coProvisioningTargetData['CoLdapProvisionerTarget']['id'];
+    if($mode == 'person') {
+      $args['conditions']['CoLdapProvisionerDn.co_person_id'] = $provisioningData['CoPerson']['id'];
+    } else {
+      $args['conditions']['CoLdapProvisionerDn.co_group_id'] = $provisioningData['CoGroup']['id'];
+    }
+    $args['contain'] = false;
+    
+    $dnRecord = $this->find('first', $args);
+    
+    if(!empty($dnRecord)) {
+      $curDn = $dnRecord['CoLdapProvisionerDn']['dn'];
+    }
+    
+    if($assign) {
+      // Calculate the DN
+      
+      try {
+        if($mode == 'person') {
+          $newDn = $this->assignPersonDn($coProvisioningTargetData, $provisioningData);
+        } else {
+          $newDn = $this->assignGroupDn($coProvisioningTargetData, $provisioningData);
+        }
+      }
+      catch(Exception $e) {
+        throw new RuntimeException($e->getMessage());
+      }
+      
+      // If the the DN doesn't match the existing DN (including if there is no
+      // existing DN), update it
+      
+      if($newDn && ($curDn != $newDn)) {
+        $newDnRecord = array();
+        $newDnRecord['CoLdapProvisionerDn']['co_ldap_provisioner_target_id'] = $coProvisioningTargetData['CoLdapProvisionerTarget']['id'];
+        if($mode == 'person') {
+          $newDnRecord['CoLdapProvisionerDn']['co_person_id'] = $provisioningData['CoPerson']['id'];
+        } else {
+          $newDnRecord['CoLdapProvisionerDn']['co_group_id'] = $provisioningData['CoGroup']['id'];
+        }
+        $newDnRecord['CoLdapProvisionerDn']['dn'] = $newDn;
+        
+        if(!empty($dnRecord)) {
+          $newDnRecord['CoLdapProvisionerDn']['id'] = $dnRecord['CoLdapProvisionerDn']['id'];
+        }
+        
+        if(!$this->save($newDnRecord)) {
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+      }
+    }
+    
+    return array('olddn' => $curDn, 'newdn' => $newDn);
   }
 }

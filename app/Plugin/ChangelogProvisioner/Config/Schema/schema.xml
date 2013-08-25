@@ -39,26 +39,4 @@
       <unique />
     </index>
   </table>
-  
-  <table name="co_changelog_provisioner_exports">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_changelog_provisioner_target_id" type="I">
-      <constraint>REFERENCES cm_co_changelog_provisioner_targets(id)</constraint>
-    </field>
-    <field name="co_person_id" type="I">
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="exporttime" type="T" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    
-    <index name="co_changelog_provisioner_targets_i1">
-      <col>co_changelog_provisioner_target_id</col>
-      <col>co_person_id</col>
-      <unique />
-    </index>
-  </table>
 </schema>

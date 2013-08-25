@@ -251,6 +251,10 @@ class ProvisionerStatusEnum
 // The action for which a plugin may want to act on
 class ProvisioningActionEnum
 {
+  const CoGroupAdded                  = 'GA';
+  const CoGroupDeleted                = 'GD';
+  const CoGroupReprovisionRequested   = 'GR';
+  const CoGroupUpdated                = 'GU';
   const CoPersonAdded                 = 'PA';
   const CoPersonDeleted               = 'PD';
   const CoPersonEnteredGracePeriod    = 'PG';

@@ -365,25 +365,25 @@
         $f = $this->Session->flash('error');
        
         if($f && $f != "") {
-          print 'generateFlash( \''. $f . '\',"error");';
+          print "generateFlash('". str_replace("'", "\'", $f) . "', 'error');";
         }
 
         $f = $this->Session->flash('info');
       
         if($f && $f != "") {
-          print 'generateFlash( \''. $f . '\',"info");';
+          print "generateFlash('". str_replace("'", "\'", $f) . "', 'info');";
         }
         
         $f = $this->Session->flash('success');
         
         if($f && $f != "") {
-          print 'generateFlash( \''. $f . '\',"success");';
+          print "generateFlash('". str_replace("'", "\'", $f) . "', 'success');";
         }
 
         $f = $this->Session->error();
         
         if($f && $f != "") {
-          print 'generateFlash( \''. $f . '\',"error");';
+          print "generateFlash('". str_replace("'", "\'", $f) . "', 'error');";
         }
       ?>
     });

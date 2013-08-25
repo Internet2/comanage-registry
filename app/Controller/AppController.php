@@ -1000,7 +1000,6 @@ class AppController extends Controller {
    */
 
   function getNavLinks() {
-
     // Get CMP-level navigation links 
     $this->loadModel('NavigationLink');
 

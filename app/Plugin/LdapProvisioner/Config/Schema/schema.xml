@@ -34,13 +34,14 @@
     <field name="binddn" type="C" size="128" />
     <field name="password" type="C" size="64" />
     <field name="basedn" type="C" size="128" />
-<!-- document these -->
     <field name="dn_attribute_name" type="C" size="32" />
     <field name="dn_identifier_type" type="C" size="32" />
+    <field name="group_basedn" type="C" size="128" />
     <field name="opt_lang" type="L" />
     <field name="opt_role" type="L" />
     <field name="oc_eduperson" type="L" />
     <field name="oc_edumember" type="L" />
+    <field name="oc_groupofnames" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
@@ -61,6 +62,9 @@
     <field name="co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
     <field name="dn" type="C" size="256" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -68,6 +72,12 @@
     <index name="co_ldap_provisioner_dns_i1">
       <col>co_ldap_provisioner_target_id</col>
       <col>co_person_id</col>
+      <unique />
+    </index>
+    
+    <index name="co_ldap_provisioner_dns_i2">
+      <col>co_ldap_provisioner_target_id</col>
+      <col>co_group_id</col>
       <unique />
     </index>
   </table>
@@ -81,6 +91,7 @@
       <constraint>REFERENCES cm_co_ldap_provisioner_targets(id)</constraint>
     </field>
     <field name="attribute" type="C" size="80" />
+    <field name="objectclass" type="C" size="80" />
     <field name="type" type="C" size="32" />
     <field name="export" type="L" />
     <field name="use_org_value" type="L" />
@@ -94,6 +105,7 @@
     <index name="co_ldap_provisioner_attributes_i2">
       <col>co_ldap_provisioner_target_id</col>
       <col>attribute</col>
+      <col>objectclass</col>
       <unique />
     </index>
   </table>

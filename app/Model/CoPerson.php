@@ -83,7 +83,8 @@ class CoPerson extends AppModel {
       'foreignKey' => 'co_person_id'
     ),
     // A person can have many identifiers within a CO
-    "Identifier" => array('dependent' => true)
+    "Identifier" => array('dependent' => true),
+    "CoProvisioningExport" => array('dependent' => true)
   );
 
   // Default display field for cake generated views

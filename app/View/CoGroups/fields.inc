@@ -53,7 +53,41 @@
   
   if(!$e && !$v)
     return(false);
-    
+  
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
+
+  if($e && !empty($co_groups[0]['CoGroup']['id'])) {
+    // Manage group memberships
+    $sidebarButtons[] = array(
+      'icon'    => 'extlink',
+      'title'   => _txt('op.manage.grm'),
+      'url'     => array(
+        'controller' => 'co_group_members',
+        'action'     => 'select',
+        'cogroup'    => $co_groups[0]['CoGroup']['id'],
+        'co'         => $cur_co['Co']['id']
+      )
+    );
+  }
+
+  if($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id'])) {
+    // Provisioning status
+    $sidebarButtons[] = array(
+      'icon'    => 'note',
+      'title'   => _txt('op.prov.view'),
+      'url'     => array(
+        'controller' => 'co_groups', 
+        'action'     => 'provision', 
+        $co_groups[0]['CoGroup']['id'], 
+        'co'         => $cur_co['Co']['id']
+      )
+    ); 
+  }
+  
+  // Set buttons for rendering in sidebar  
+  $this->set('sidebarButtons', $sidebarButtons);
+  
   // Populate the reference
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
 
@@ -155,13 +189,6 @@
                 }
               }
             }
-            
-            echo $this->Html->link(_txt('op.manage'),
-                                   array('controller' => 'co_group_members',
-                                         'action' => 'select',
-                                         'cogroup' => $co_groups[0]['CoGroup']['id'],
-                                         'co' => $cur_co['Co']['id']),
-                                   array('class' => 'linkbutton'));
           } else {
             foreach($co_group_members as $c)
               echo Sanitize::html(generateCn($c['CoPerson']['Name'])) . "<br />\n";

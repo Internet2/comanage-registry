@@ -107,21 +107,27 @@ class CoProvisioningTargetsController extends StandardController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null) {
-    // Create an instance of the plugin provisioning target. We do this here to avoid
-    // an inconsistent state where the co_provisioning_target is created without a
-    // corresponding plugin record.
-    
-    $pluginName = $reqdata['CoProvisioningTarget']['plugin'];
-    $modelName = 'Co'. $pluginName . 'Target';
-    $pluginModelName = $pluginName . "." . $modelName;
-    
-    $target = array();
-    $target[$modelName]['co_provisioning_target_id'] = $this->CoProvisioningTarget->id;
-    
-    // Note that we have to disable validation because we want to create an empty row.
-    $this->loadModel($pluginModelName);
-    $this->$modelName->save($target, false);
-    $this->_targetid = $this->$modelName->id;
+    if(!$curdata) {
+      // Create an instance of the plugin provisioning target. We do this here to avoid
+      // an inconsistent state where the co_provisioning_target is created without a
+      // corresponding plugin record.
+      
+      // A better check would be to see if there is an existing corresponding row
+      // (rather than !$curdata) since we don't fail if the initial attempt to create
+      // the row fails.
+      
+      $pluginName = $reqdata['CoProvisioningTarget']['plugin'];
+      $modelName = 'Co'. $pluginName . 'Target';
+      $pluginModelName = $pluginName . "." . $modelName;
+      
+      $target = array();
+      $target[$modelName]['co_provisioning_target_id'] = $this->CoProvisioningTarget->id;
+      
+      // Note that we have to disable validation because we want to create an empty row.
+      $this->loadModel($pluginModelName);
+      $this->$modelName->save($target, false);
+      $this->_targetid = $this->$modelName->id;
+    }
     
     return true;
   }
@@ -206,8 +212,8 @@ class CoProvisioningTargetsController extends StandardController {
   }
   
   /**
-   * Execute (re)provisioning for the specified CO Person.
-   * - precondition: CO Person ID passed via named parameter
+   * Execute (re)provisioning for the specified CO Person or CO Group.
+   * - precondition: CO Person ID or CO Group ID passed via named parameter
    * - postcondition: Provisioning queued or executed
    *
    * @param integer CO Provisioning Target ID
@@ -216,48 +222,70 @@ class CoProvisioningTargetsController extends StandardController {
   
   function provision($id) {
     if($this->restful) {
+      $copersonid = null;
+      $cogroupid = null;
+      
       if(!empty($this->request->params['named']['copersonid'])) {
-        // Make sure copersonid is in the same CO as $id
-        
-        $args = array();
+        $copersonid = $this->request->params['named']['copersonid'];
+      } elseif(!empty($this->request->params['named']['cogroupid'])) {
+        $cogroupid = $this->request->params['named']['cogroupid'];
+      } else {
+        $this->restResultHeader(500, "Bad Request");
+      }
+      
+      // Make sure copersonid or cogroupid is in the same CO as $id
+      
+      $args = array();
+      if($copersonid) {
         $args['joins'][0]['table'] = 'co_people';
         $args['joins'][0]['alias'] = 'CoPerson';
         $args['joins'][0]['type'] = 'INNER';
         $args['joins'][0]['conditions'][0] = 'CoProvisioningTarget.co_id=CoPerson.co_id';
         $args['conditions']['CoProvisioningTarget.id'] = $id;
-        $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
+        $args['conditions']['CoPerson.id'] = $copersonid;
         $args['contain'] = false;
-        
-        if($this->CoProvisioningTarget->find('count', $args) < 1) {
-          $this->restResultHeader(404, "CoPerson Not Found");
-          return;
-        }
-        
-        // Attach ProvisionerBehavior and manually invoke provisioning
-        
-        $this->CoProvisioningTarget->Co->CoPerson->Behaviors->load('Provisioner');
-        
-        try {
-          $this->CoProvisioningTarget->Co->CoPerson->manualProvision($id, $this->request->params['named']['copersonid']);
-        }
-        catch(InvalidArgumentException $e) {
-          switch($e->getMessage()) {
-            case _txt('er.cop.unk'):
-              $this->restResultHeader(404, "CoPerson Not Found");
-              break;
-            case _txt('er.copt.unk'):
-              $this->restResultHeader(404, "CoProvisioningTarget Not Found");
-              break;
-            default:
-              $this->restResultHeader(500, $e->getMessage());
-              break;
-          }
-        }
-        catch(RuntimeException $e) {
-          $this->restResultHeader(500, $e->getMessage());
-        }
       } else {
-        $this->restResultHeader(404, "CoPerson Not Found");
+        $args['joins'][0]['table'] = 'co_groups';
+        $args['joins'][0]['alias'] = 'CoGroup';
+        $args['joins'][0]['type'] = 'INNER';
+        $args['joins'][0]['conditions'][0] = 'CoProvisioningTarget.co_id=CoGroup.co_id';
+        $args['conditions']['CoProvisioningTarget.id'] = $id;
+        $args['conditions']['CoGroup.id'] = $cogroupid;
+        $args['contain'] = false;
+      }
+      
+      if($this->CoProvisioningTarget->find('count', $args) < 1) {
+        // XXX this could also be co provisioning target not found -- do a separate find to check?
+        $this->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
+        return;
+      }
+      
+      // Attach ProvisionerBehavior and manually invoke provisioning
+      
+      try {
+        if($copersonid) {
+          $this->CoProvisioningTarget->Co->CoPerson->Behaviors->load('Provisioner');
+          $this->CoProvisioningTarget->Co->CoPerson->manualProvision($id, $copersonid);
+        } else {
+          $this->CoProvisioningTarget->Co->CoGroup->Behaviors->load('Provisioner');
+          $this->CoProvisioningTarget->Co->CoGroup->manualProvision($id, null, $cogroupid);
+        }
+      }
+      catch(InvalidArgumentException $e) {
+        switch($e->getMessage()) {
+          case _txt('er.cop.unk'):
+            $this->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
+            break;
+          case _txt('er.copt.unk'):
+            $this->restResultHeader(404, "CoProvisioningTarget Not Found");
+            break;
+          default:
+            $this->restResultHeader(500, $e->getMessage());
+            break;
+        }
+      }
+      catch(RuntimeException $e) {
+        $this->restResultHeader(500, $e->getMessage());
       }
     }
   }

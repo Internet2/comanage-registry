@@ -96,13 +96,18 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
    *
    * @since  COmanage Registry v0.8
    * @param  Array CO Provisioning Target data
-   * @param  Array CO Person Data used for provisioning
+   * @param  Array CO Person or CO Group Data used for provisioning
    * @param  Boolean Whether or not this will be for a modify operation
    * @param  Array Attributes used to generate the DN for this person, as returned by CoLdapProvisionerDn::dnAttributes
    * @return Array Attribute data suitable for passing to ldap_add, etc
+   * @throws UnderflowException
    */
   
-  protected function assembleAttributes($coProvisioningTargetData, $coPersonData, $modify, $dnAttributes) {
+  protected function assembleAttributes($coProvisioningTargetData, $provisioningData, $modify, $dnAttributes) {
+    // First see if we're working with a Group record or a Person record
+    $person = isset($provisioningData['CoPerson']['id']);
+    $group = isset($provisioningData['CoGroup']['id']);
+    
     // Pull the attribute configuration
     $args = array();
     $args['conditions']['CoLdapProvisionerAttribute.co_ldap_provisioner_target_id'] = $coProvisioningTargetData['CoLdapProvisionerTarget']['id'];
@@ -111,7 +116,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $cAttrs = $this->CoLdapProvisionerAttribute->find('all', $args);
     
     // Rekey the attributes array on attribute name
-    
     $configuredAttributes = array();
     
     foreach($cAttrs as $a) {
@@ -128,7 +132,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $cAttrGrs = $this->CoLdapProvisionerAttrGrouping->find('all', $args);
     
     // Rekey the attributes array on attribute name
-    
     $configuredAttributeGroupings = array();
     
     foreach($cAttrGrs as $g) {
@@ -147,6 +150,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // ProvisionerBehavior will remove those from the data we get.
     
     foreach(array_keys($supportedAttributes) as $oc) {
+      // Skip objectclasses that aren't relevant for the sort of data we're working with
+      if(($person && $oc == 'groupOfNames')
+         || ($group && !in_array($oc, array('groupOfNames','eduMember')))) {
+        continue;
+      }
+      
       // Iterate across objectclasses, looking for those that are required or enabled
       
       if($supportedAttributes[$oc]['objectclass']['required']
@@ -184,16 +193,20 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             switch($attr) {
               // Name attributes
               case 'cn':
-                // Currently only preferred name supported (CO-333)
-                $attributes[$attr] = generateCn($coPersonData['Name']);
+                if($person) {
+                  // Currently only preferred name supported (CO-333)
+                  $attributes[$attr] = generateCn($provisioningData['Name']);
+                } else {
+                  $attributes[$attr] = $provisioningData['CoGroup']['name'];
+                }
                 break;
               case 'givenName':
                 // Currently only preferred name supported (CO-333)
-                $attributes[$attr] = $coPersonData['Name']['given'];
+                $attributes[$attr] = $provisioningData['Name']['given'];
                 break;
               case 'sn':
                 // Currently only preferred name supported (CO-333)
-                $attributes[$attr] = $coPersonData['Name']['family'];
+                $attributes[$attr] = $provisioningData['Name']['family'];
                 break;
               // Attributes from CO Person Role
               case 'eduPersonAffiliation':
@@ -211,7 +224,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 // Walk through each role
                 $found = false;
                 
-                foreach($coPersonData['CoPersonRole'] as $r) {
+                foreach($provisioningData['CoPersonRole'] as $r) {
                   if(!empty($r[ $cols[$attr] ])) {
                     if($attr == 'eduPersonAffiliation') {
                       // Map back to the controlled vocabulary
@@ -261,14 +274,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   // It's unclear what to do here if there is more than one CoOrgIdentityLink...
                   // which identity do we choose? For now, the first one.
                   
-                  if(isset($coPersonData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ])) {
-                    $modelList =& $coPersonData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ];
+                  if(isset($provisioningData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ])) {
+                    $modelList =& $provisioningData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ];
                   }
-                } elseif(isset($coPersonData[ $mods[$attr] ])) {
+                } elseif(isset($provisioningData[ $mods[$attr] ])) {
                   // Use CO Person value for this attribute
-                  $modelList =& $coPersonData[ $mods[$attr] ];
+                  $modelList =& $provisioningData[ $mods[$attr] ];
                 }
-                // Next: if useorgvalue reference $coPersonData['CoOrgIdentityLink']['OrgIdentity'][ $mods[$attr] ] instead
+                // Next: if useorgvalue reference $provisioningData['CoOrgIdentityLink']['OrgIdentity'][ $mods[$attr] ] instead
                 // perhaps using =& to avoid copying arrays
                 
                 // Walk through each model instance
@@ -334,7 +347,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 // Walk through each role, each of which can have more than one
                 $found = false;
                 
-                foreach($coPersonData['CoPersonRole'] as $r) {
+                foreach($provisioningData['CoPersonRole'] as $r) {
                   if(isset($r[ $mods[$attr] ])) {
                     foreach($r[ $mods[$attr] ] as $m) {
                       // If a type is set, make sure it matches
@@ -361,13 +374,63 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   $attributes[$attr] = array();
                 }
                 break;
-              // Group attributes
-              case 'isMemberOf':
-                foreach($coPersonData['CoGroupMember'] as $gm) {
-                  if(isset($gm['member']) && $gm['member']
-                     && !empty($gm['CoGroup']['name'])) {
-                    $attributes['isMemberOf'][] = $gm['CoGroup']['name'];
+              // Group attributes (cn is covered above)
+              case 'description':
+                $attributes[$attr] = $provisioningData['CoGroup']['description'];
+                break;
+              // hasMember and isMember of are both part of the eduMember objectclass, which can apply
+              // to both people and group entries. Check what type of data we're working with for both.
+              case 'hasMember':
+                if($group) {
+                  $members = $this->CoLdapProvisionerDn
+                                  ->CoGroup
+                                  ->CoGroupMember
+                                  ->mapCoGroupMembersToIdentifiers($provisioningData['CoGroupMember'],
+                                                                   $targetType);
+                  
+                  if(!empty($members)) {
+                    // Unlike member, hasMember is not required. However, like owner, we can't have
+                    // an empty list.
+                    
+                    $attributes[$attr] = $members;
+                  } elseif($modify) {
+                    // Unless we're modifying an entry, in which case an empty list
+                    // says to remove any previous entry
+                    $attributes[$attr] = array();
                   }
+                }
+                break;
+              case 'isMemberOf':
+                if($person) {
+                  foreach($provisioningData['CoGroupMember'] as $gm) {
+                    if(isset($gm['member']) && $gm['member']
+                       && !empty($gm['CoGroup']['name'])) {
+                      $attributes['isMemberOf'][] = $gm['CoGroup']['name'];
+                    }
+                  }
+                  
+                  if($modify && empty($attributes[$attr])) {
+                    $attributes[$attr] = array();
+                  }
+                }
+                break;
+              case 'member':
+                $attributes[$attr] = $this->CoLdapProvisionerDn->dnsForMembers($provisioningData['CoGroupMember']);
+                if(empty($attributes[$attr])) {
+                  // groupofnames requires at least one member
+                  throw new UnderflowException('member');
+                }
+                break;
+              case 'owner':
+                $owners = $this->CoLdapProvisionerDn->dnsForOwners($provisioningData['CoGroupMember']);
+                if(!empty($owners)) {
+                  // Can't have an empty owners list (it should either not be present
+                  // or have at least one entry)
+                  $attributes[$attr] = $owners;
+                } elseif($modify) {
+                  // Unless we're modifying an entry, in which case an empty list
+                  // says to remove any previous entry
+                  $attributes[$attr] = array();
                 }
                 break;
               default:
@@ -393,28 +456,272 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       $lcattributes[strtolower($a)] = $a;
     }
     
-    // Now walk through each DN attribute
+    // Now walk through each DN attribute, but only multivalued ones.
+    // At the moment we don't check, say cn (which is single valued) even though
+    // we probably should.
     
     foreach(array_keys($dnAttributes) as $a) {
-      // Lowercase the attribute for comparison purposes
-      $lca = strtolower($a);
-      
-      if(isset($lcattributes[$lca])) {
-        // Map back to the mixed case version
-        $mca = $lcattributes[$lca];
+      if(is_array($dnAttributes[$a])) {
+        // Lowercase the attribute for comparison purposes
+        $lca = strtolower($a);
         
-        if(empty($attributes[$mca])
-           || !in_array($dnAttributes[$a], $attributes[$mca])) {
+        if(isset($lcattributes[$lca])) {
+          // Map back to the mixed case version
+          $mca = $lcattributes[$lca];
+          
+          if(empty($attributes[$mca])
+             || !in_array($dnAttributes[$a], $attributes[$mca])) {
+            // Key isn't set, so store the value
+            $attributes[$a][] = $dnAttributes[$a];
+          }
+        } else {
           // Key isn't set, so store the value
           $attributes[$a][] = $dnAttributes[$a];
         }
-      } else {
-        // Key isn't set, so store the value
-        $attributes[$a][] = $dnAttributes[$a];
       }
     }
     
     return $attributes;
+  }
+  
+  /**
+   * Provision for the specified CO Person.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Array CO Provisioning Target data
+   * @param  ProvisioningActionEnum Registry transaction type triggering provisioning
+   * @param  Array Provisioning data, populated with ['CoPerson'] or ['CoGroup']
+   * @return Boolean True on success
+   * @throws InvalidArgumentException If $coPersonId not found
+   * @throws RuntimeException For other errors
+   */
+  
+  public function provision($coProvisioningTargetData, $op, $provisioningData) {
+    // First figure out what to do
+    $assigndn = false;
+    $delete   = false;
+    $add      = false;
+    $modify   = false;
+    $rename   = false;
+    $person   = false;
+    $group    = false;
+    
+    switch($op) {
+      case ProvisioningActionEnum::CoPersonAdded:
+      case ProvisioningActionEnum::CoPersonUnexpired:
+        // Currently, unexpiration is treated the same as add, but that is subject to change
+        $assigndn = true;
+        $delete = false;  // Arguably, this should be true to clear out any prior debris
+        $add = true;
+        $person = true;
+        break;
+      case ProvisioningActionEnum::CoPersonDeleted:
+      case ProvisioningActionEnum::CoPersonExpired:
+        // Currently, expiration is treated the same as delete, but that is subject to change
+        $assigndn = false;
+        $delete = true;
+        $add = false;
+        $person = true;
+        break;
+      case ProvisioningActionEnum::CoPersonReprovisionRequested:
+        $assigndn = true;
+        $delete = true;
+        $add = true;
+        $person = true;
+        break;
+      case ProvisioningActionEnum::CoPersonUpdated:
+        // An update may cause an existing person to be written to LDAP for the first time
+        // or for an unexpectedly removed entry to be replaced
+        $assigndn = true;  
+        $modify = true;
+        $person = true;
+        break;
+      case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
+        // We don't do anything on grace period
+        $person = true;
+        break;
+      case ProvisioningActionEnum::CoGroupAdded:
+        $assigndn = true;
+        $delete = false;  // Arguably, this should be true to clear out any prior debris
+        $add = true;
+        $group = true;
+        break;
+      case ProvisioningActionEnum::CoGroupDeleted:
+        $delete = true;
+        $group = true;
+        break;
+      case ProvisioningActionEnum::CoGroupUpdated:
+        $assigndn = true;
+        $modify = true;
+        $group = true;
+        break;
+      case ProvisioningActionEnum::CoGroupReprovisionRequested:
+        $assigndn = true;
+        $delete = true;
+        $add = true;
+        $group = true;
+        break;
+      default:
+        throw new RuntimeException("Not Implemented");
+        break;
+    }
+    
+    if($group) {
+      // If this is a group action and no Group DN is defined, or oc_groupofnames is false,
+      // then don't try to do anything.
+      
+      if(!isset($coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'])
+         || empty($coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'])
+         || !$coProvisioningTargetData['CoLdapProvisionerTarget']['oc_groupofnames']) {
+        return true;
+      }
+    }
+    
+    // Next, obtain a DN for this person or group
+    
+    try {
+      $dns = $this->CoLdapProvisionerDn->obtainDn($coProvisioningTargetData,
+                                                  $provisioningData,
+                                                  $person ? 'person' : 'group',
+                                                  $assigndn);
+    }
+    catch(RuntimeException $e) {
+      throw new RuntimeException($e->getMessage());
+    }
+    
+    $dn = $dns['newdn'];
+    
+    // We might have to handle a rename if the DN changed
+    
+    if($dns['olddn'] && $dns['newdn'] && ($dns['olddn'] != $dns['newdn'])) {
+      $rename = true;
+    }
+    
+    if($add || $modify) {
+      // Find out what attributes went into the DN to make sure they got populated into
+      // the attribute array
+      
+      try {
+        $dnAttributes = $this->CoLdapProvisionerDn->dnAttributes($coProvisioningTargetData, $dn, $person ? 'person' : 'group');
+      }
+      catch(RuntimeException $e) {
+        throw new RuntimeException($e->getMessage());
+      }
+      
+      // Assemble an LDAP record
+      
+      try {
+        $attributes = $this->assembleAttributes($coProvisioningTargetData, $provisioningData, $modify, $dnAttributes);
+      }
+      catch(UnderflowException $e) {
+        // We have a group with no members. Convert to a delete operation since
+        // groupOfNames requires at least one member.
+        
+        if($group) {
+          $add = false;
+          $modify = false;
+          $delete = true;
+        }
+      }
+    }
+    
+    // Bind to the server
+    
+    $cxn = ldap_connect($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl']);
+    
+    if(!$cxn) {
+      throw new RuntimeException(_txt('er.ldapprovisioner.connect'), 0x5b /*LDAP_CONNECT_ERROR*/);
+    }
+    
+    // Use LDAP v3 (this could perhaps become an option at some point), although note
+    // that ldap_rename (used below) *requires* LDAP v3.
+    ldap_set_option($cxn, LDAP_OPT_PROTOCOL_VERSION, 3);
+    
+    if(!@ldap_bind($cxn,
+                   $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
+                   $coProvisioningTargetData['CoLdapProvisionerTarget']['password'])) {
+      throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
+    }
+    
+    if($delete) {
+      // Delete any previous entry. For now, ignore any error.
+      
+      if($rename) {
+        // If we're also renaming, make sure to delete using the old DN
+        @ldap_delete($cxn, $dns['olddn']);
+      } else {
+        if(!$dns['newdn']) {
+          $dn = $dns['olddn'];
+        }
+        
+        @ldap_delete($cxn, $dn);
+      }
+    }
+    
+    if($rename
+       // Skip this if we're doing a delete and an add, which is basically a rename
+       && !($delete && $add)) {
+      // Perform the rename operation before we try to do anything else. Note that
+      // the old DN is complete while the new DN is relative.
+      
+      if($person) {
+        $basedn = $coProvisioningTargetData['CoLdapProvisionerTarget']['basedn'];
+      } else {
+        $basedn = $coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'];
+      }
+      
+      $newrdn = rtrim(str_replace($basedn, "", $dns['newdn']), " ,");
+      
+      if(!@ldap_rename($cxn, $dns['olddn'], $newrdn, null, true)) {
+        // XXX We should probably try to reset CoLdapProvisionerDn here since we're
+        // now inconsistent with LDAP
+        
+        throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
+      }
+    }
+    
+    if($modify) {
+      if(!$dn) {
+        throw new RuntimeException(_txt('er.ldapprovisioner.dn.none', array($provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'])));
+      }
+      
+      if(!@ldap_mod_replace($cxn, $dn, $attributes)) {
+        if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
+          // Change to an add operation. We call ourselves recursively because
+          // we need to recalculate $attributes. Modify wants array() to indicate
+          // an empty attribute, whereas Add throws an error if that is the case.
+          // As a side effect, we'll rebind to the LDAP server, but this should
+          // be a pretty rare event.
+          
+          $this->provision($coProvisioningTargetData,
+                           ($person
+                            ? ProvisioningActionEnum::CoPersonAdded
+                            : ProvisioningActionEnum::CoGroupAdded),
+                           $provisioningData);
+        } else {
+          throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
+        }
+      }
+    }
+    
+    if($add) {
+      // Write a new entry
+      
+      if(!$dn) {
+        throw new RuntimeException(_txt('er.ldapprovisioner.dn.none', array($provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'])));
+      }
+      
+      if(!@ldap_add($cxn, $dn, $attributes)) {
+        throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
+      }
+    }
+    
+    // Drop the connection
+    ldap_unbind($cxn);
+    
+    // We rely on the LDAP server to manage last modify time
+    
+    return true;
   }
   
   /**
@@ -452,7 +759,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $s = @ldap_search($cxn, $baseDn, $filter, $attributes);
     
     if(!$s) {
-      throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
+      throw new RuntimeException(ldap_error($cxn) . " (" . $baseDn . ")", ldap_errno($cxn));
     }
     
     $ret = ldap_get_entries($cxn, $s);
@@ -467,13 +774,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
    *
    * @since  COmanage Registry v0.8
    * @param  Integer CO Provisioning Target ID
-   * @param  Integer CO Person ID
+   * @param  Integer CO Person ID (null if CO Group ID is specified)
+   * @param  Integer CO Group ID (null if CO Person ID is specified)
    * @return Array ProvisioningStatusEnum, Timestamp of last update in epoch seconds, Comment
    * @throws InvalidArgumentException If $coPersonId not found
    * @throws RuntimeException For other errors
    */
   
-  public function status($coProvisioningTargetId, $coPersonId) {
+  public function status($coProvisioningTargetId, $coPersonId, $coGroupId=null) {
     $ret = array(
       'status'    => ProvisioningStatusEnum::Unknown,
       'timestamp' => null,
@@ -499,9 +807,19 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                        array('modifytimestamp'));
         
         if(!empty($ldapRecord)) {
+          /* We don't use the LDAP timestamp anymore because another process
+           * such as Grouper may have updated it (see CO-642).
+           * 
           if(!empty($ldapRecord[0]['modifytimestamp'][0])) {
             // Timestamp is formatted 20130223145645Z and needs to be converted
             $ret['timestamp'] = strtotime($ldapRecord[0]['modifytimestamp'][0]);
+          }*/
+          
+          // Get the last provision time from the parent status function
+          $pstatus = parent::status($coProvisioningTargetId, $coPersonId, $coGroupId);
+          
+          if($pstatus['status'] == ProvisioningStatusEnum::Provisioned) {
+            $ret['timestamp'] = $pstatus['timestamp'];
           }
           
           $ret['status'] = ProvisioningStatusEnum::Provisioned;
@@ -527,158 +845,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     return $ret;
-  }
-  
-  /**
-   * Provision for the specified CO Person.
-   *
-   * @since  COmanage Registry v0.8
-   * @param  Array CO Provisioning Target data
-   * @param  ProvisioningActionEnum Registry transaction type triggering provisioning
-   * @param  Array CO Person data
-   * @return Boolean True on success
-   * @throws InvalidArgumentException If $coPersonId not found
-   * @throws RuntimeException For other errors
-   */
-  
-  public function provision($coProvisioningTargetData, $op, $coPersonData) {
-    // First figure out what to do
-    $assigndn = false;
-    $delete   = false;
-    $add      = false;
-    $modify   = false;
-    
-    switch($op) {
-      case ProvisioningActionEnum::CoPersonAdded:
-      case ProvisioningActionEnum::CoPersonUnexpired:
-        // Currently, unexpiration is treated the same as add, but that is subject to change
-        $assigndn = true;
-        $delete = false;  // Arguably, this should be true to clear out any prior debris
-        $add = true;
-        break;
-      case ProvisioningActionEnum::CoPersonDeleted:
-      case ProvisioningActionEnum::CoPersonExpired:
-        // Currently, expiration is treated the same as delete, but that is subject to change
-        $assigndn = false;
-        $delete = true;
-        $add = false;
-        break;
-      case ProvisioningActionEnum::CoPersonReprovisionRequested:
-        $assigndn = true;
-        $delete = true;
-        $add = true;
-        break;
-      case ProvisioningActionEnum::CoPersonUpdated:
-        // An update may cause an existing person to be written to LDAP for the first time
-        // or for an unexpectedly removed entry to be replaced
-        $assigndn = true;  
-        $modify = true;
-        break;
-      case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
-        // We don't do anything on grace period
-        break;
-      default:
-        throw new RuntimeException("Not Implemented");
-        break;
-    }
-    
-    // Next, see if we already have a DN for this person
-    
-    $dn = null;
-    
-    $args = array();
-    $args['conditions']['CoLdapProvisionerDn.co_ldap_provisioner_target_id'] = $coProvisioningTargetData['CoLdapProvisionerTarget']['id'];
-    $args['conditions']['CoLdapProvisionerDn.co_person_id'] = $coPersonData['CoPerson']['id'];
-    $args['contain'] = false;
-    
-    $dnRecord = $this->CoLdapProvisionerDn->find('first', $args);
-    
-    if(empty($dnRecord)) {
-      if($assigndn) {
-        // If we don't have a DN, assign one
-        
-        try {
-          $dn = $this->CoLdapProvisionerDn->assignDn($coProvisioningTargetData, $coPersonData);
-        }
-        catch(RuntimeException $e) {
-          throw new RuntimeException($e->getMessage());
-        }
-      }
-    } else {
-      $dn = $dnRecord['CoLdapProvisionerDn']['dn'];
-    }
-    
-    if(!$dn) {
-      throw new RuntimeException(_txt('er.ldapprovisioner.dn.none', array($coPersonData['CoPerson']['id'])));
-    }
-    
-    // Find out what attributes went into the DN to make sure they got populated into
-    // the attribute array
-    
-    try {
-      $dnAttributes = $this->CoLdapProvisionerDn->dnAttributes($coProvisioningTargetData, $dn);
-    }
-    catch(RuntimeException $e) {
-      throw new RuntimeException($e->getMessage());
-    }
-    
-    // Assemble an LDAP record
-    
-    $attributes = $this->assembleAttributes($coProvisioningTargetData, $coPersonData, $modify, $dnAttributes);
-    
-    // Bind to the server
-    
-    $cxn = ldap_connect($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl']);
-    
-    if(!$cxn) {
-      throw new RuntimeException(_txt('er.ldapprovisioner.connect'), 0x5b /*LDAP_CONNECT_ERROR*/);
-    }
-    
-    // Use LDAP v3 (this could perhaps become an option at some point)
-    ldap_set_option($cxn, LDAP_OPT_PROTOCOL_VERSION, 3);
-    
-    if(!@ldap_bind($cxn,
-                   $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
-                   $coProvisioningTargetData['CoLdapProvisionerTarget']['password'])) {
-      throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
-    }
-    
-    if($delete) {
-      // Delete any previous entry. For now, ignore any error.
-      @ldap_delete($cxn, $dn);
-    }
-    
-    if($modify) {
-      if(!@ldap_mod_replace($cxn, $dn, $attributes)) {
-        if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
-          // Change to an add operation. We call ourselves recursively because
-          // we need to recalculate $attributes. Modify wants array() to indicate
-          // an empty attribute, whereas Add throws an error if that is the case.
-          // As a side effect, we'll rebind to the LDAP server, but this should
-          // be a pretty rare event.
-          
-          $this->provision($coProvisioningTargetData,
-                           ProvisioningActionEnum::CoPersonAdded,
-                           $coPersonData);
-        } else {
-          throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
-        }
-      }
-    }
-    
-    if($add) {
-      // Write a new entry
-      if(!@ldap_add($cxn, $dn, $attributes)) {
-        throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
-      }
-    }
-    
-    // Drop the connection
-    ldap_unbind($cxn);
-    
-    // We rely on the LDAP server to manage last modify time
-    
-    return true;
   }
   
   /**
@@ -838,14 +1004,45 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           )
         )
       ),
+      'groupOfNames' => array(
+        'objectclass' => array(
+          'required'    => false
+        ),
+        'attributes' => array(
+          'cn' => array(
+            'required'    => true,
+            'multiple'    => false
+          ),
+          'member' => array(
+            'required'    => true,
+            'multiple'    => true
+          ),
+          'owner' => array(
+            'required'    => false,
+            'multiple'    => true
+          ),
+          'description' => array(
+            'required'    => false,
+            'multiple'    => false
+          )
+        )
+      ),
       'eduMember' => array(
         'objectclass' => array(
           'required'    => false
         ),
         'attributes' => array(
           'isMemberOf' => array(
-            'required'  => true,
-            'multiple'  => true
+            'required'  => false,
+            'multiple'  => true,
+            'description' => _txt('pl.ldapprovisioner.attr.ismemberof.desc')
+          ),
+          'hasMember' => array(
+            'required'  => false,
+            'multiple'  => true,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::UID,
+            'description' => _txt('pl.ldapprovisioner.attr.hasmember.desc')
           )
         )
       )
@@ -861,16 +1058,27 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
    * @param  String Server URL
    * @param  String Bind DN
    * @param  String Password
-   * @param  String Base DN
+   * @param  String Base DN (People)
+   * @param  String Base DN (Group)
    * @return Boolean True if parameters are valid
    * @throws RuntimeException
    */
   
-  public function verifyLdapServer($serverUrl, $bindDn, $password, $baseDn) {
+  public function verifyLdapServer($serverUrl, $bindDn, $password, $baseDn, $groupDn=null) {
     $results = $this->queryLdap($serverUrl, $bindDn, $password, $baseDn, "(objectclass=*)", array("dn"));
     
     if(count($results) < 1) {
       throw new RuntimeException(_txt('er.ldapprovisioner.basedn'));
+    }
+    
+    // Check for a Group DN if one is configured
+    
+    if($groupDn && $groupDn != "") {
+      $results = $this->queryLdap($serverUrl, $bindDn, $password, $groupDn, "(objectclass=*)", array("dn"));
+      
+      if(count($results) < 1) {
+        throw new RuntimeException(_txt('er.ldapprovisioner.basedn.gr.none'));
+      }
     }
     
     return true;

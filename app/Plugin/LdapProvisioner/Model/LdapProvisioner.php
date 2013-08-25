@@ -31,6 +31,7 @@ class LdapProvisioner extends AppModel {
   
   // Document foreign keys
   public $cmPluginHasMany = array(
+    "CoGroup"  => array("CoLdapProvisionerDn"),
     "CoPerson" => array("CoLdapProvisionerDn")
   );
 }

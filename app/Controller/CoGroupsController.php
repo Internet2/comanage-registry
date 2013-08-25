@@ -343,6 +343,9 @@ class CoGroupsController extends StandardController {
       }
     }
     
+    // (Re)provision an existing CO Group?
+    $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    
     // Select from a list of potential Groups to join?
     $p['select'] = ($roles['cmadmin']
                     || ($managedp && $roles['coadmin'])
@@ -375,6 +378,26 @@ class CoGroupsController extends StandardController {
     
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * Obtain provisioning status for CO Group
+   *
+   * @param  integer CO Group ID
+   * @since  COmanage Registry v0.8.2
+   */
+  
+  function provision($id) {
+    if(!$this->restful) {
+      // Pull some data for the view to be able to render
+      $this->set('co_provisioning_status', $this->CoGroup->provisioningStatus($id));
+      
+      $args = array();
+      $args['conditions']['CoGroup.id'] = $id;
+      $args['contain'] = false;
+      
+      $this->set('co_group', $this->CoGroup->find('first', $args));
+    }
   }
   
   /**
