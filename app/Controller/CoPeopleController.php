@@ -374,6 +374,8 @@ class CoPeopleController extends StandardController {
       $this->match();
     } else {
       parent::index();
+      // Set page title
+      $this->set('title_for_layout', _txt('fd.people', array($this->cur_co['Co']['name'])));
     }
   }
   

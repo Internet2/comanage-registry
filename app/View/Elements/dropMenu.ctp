@@ -120,7 +120,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                       $args['action'] = 'select';
                       $args['co'] = $menuCoId;
                       
-                      print $this->Html->link(_txt('op.petition.create'), $args);
+                      print $this->Html->link(_txt('op.enroll'), $args);
                     print "</li>";
                   }
   
