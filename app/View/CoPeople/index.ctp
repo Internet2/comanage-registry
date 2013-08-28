@@ -22,13 +22,123 @@
  * @version       $Id$
  */
 -->
+
+<style>
+  #sorter{
+    padding: 5px;
+    width: 673px;
+    overflow: hidden;
+    border: 1px dotted #4297d7;
+    background: #f5fafd;
+    border-radius: 5px;
+    font-weight: bold;
+    color: #1d5987;
+  }
+    #sorter div {
+      float: left;
+      margin-right: 5px;
+    }
+
+  #co_people > div {
+    width: auto;
+    padding: 5px;
+    margin: 0 0 5px 0;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+
+  #co_people > div > div{
+    float: left;
+    margin: 0 10px 0 0;
+  }
+
+  .panel1{
+    width: 638px;
+  }
+
+  .panel2{
+    width: 664px;
+    padding: 0 0 0 10px !important;}
+
+    .panel1 div,
+    .panel2 div{
+      float: left;
+    }
+
+    .name,
+    .created,
+    .status,
+    .email{
+      margin-top: 6px;
+    }
+
+    .email {
+      margin-right: 15px;
+      float: right !important;
+
+    }
+
+    .admin {
+      float: right !important;
+    }
+
+    .status{
+      float: right !important;
+      margin-right: 15px;
+    }
+
+  .roles{
+    width: 652px;
+    padding: 5px;
+    border-radius: 5px;
+  }
+
+    .role{
+      width: 639px;
+      border: 1px solid #d0e5f5;
+      border-radius: 5px;
+      padding: 2px;
+      margin-bottom: 5px;
+    }
+
+      .roleinfo{
+        width: 50%;
+      }
+
+      .rolestatus{
+        float: right !important;
+        margin: 5px 9px 5px 5px;
+      }
+
+      .roledata{
+        width: 100%;
+      }
+
+        .roletitle{
+          width:100%;
+        }
+
+        .roledates{
+          text-align: right;
+          margin: 0 30px 0 0;
+        }
+</style>
+
 <script>
   $(function() {
     $( "#advancedSearch" ).accordion({
       collapsible: true,
       active     : false
     });
+
+    $( ".line1, .line2" ).accordion({
+      collapsible: true,
+      active     : false
+    });
+
+
   });
+
 </script>
 
 <?php
@@ -64,136 +174,161 @@
   $this->set('sidebarButtons', $sidebarButtons);
 ?>
 
-<table id="co_people" class="ui-widget">
-  <thead>
-    <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('Name.family', _txt('fd.name')); ?></th>
-      <th><?php echo $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php echo _txt('fd.roles'); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_people as $p): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print $this->Html->link(generateCn($p['Name']),
-                                  array(
-                                    'controller' => 'co_people',
-                                    'action' => ($permissions['edit']
-                                                 ? 'edit'
-                                                 : ($permissions['view'] ? 'view' : '')),
-                                    $p['CoPerson']['id'],
-                                    'co' => $cur_co['Co']['id'])
-                                  );
-        ?></td>
-      <td>
-        <?php
-          global $status_t;
-          
-          if(!empty($p['CoPerson']['status']) ) echo _txt('en.status', null, $p['CoPerson']['status']);
-        ?>
-      </td>
-      <td>
-        <?php
-          foreach ($p['CoPersonRole'] as $pr) {
-            // The current user can edit this role if they have general edit
-            // permission and (1) there is no COU defined or (2) there is a COU
-            // defined and the user can manage that COU.
-            
-            $myPersonRole = false;
-            
-            if($permissions['edit']) {
-              if(empty($pr['cou_id']) || isset($permissions['cous'][ $pr['cou_id'] ])) {
-                $myPersonRole = true;
+<div id = "sorter">
+  <div>Sort By:</div>
+  <div><?php print $this->Paginator->sort('Name.family', _txt('fd.name')); ?>  </div>
+  <div><?php print $this->Paginator->sort('status', _txt('fd.status')); ?>     </div>
+  <div><?php print $this->Paginator->sort('created', _txt('fd.created')); ?>   </div>
+  <div><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?> </div>
+</div>
+
+<div id="co_people">
+  <?php $i = 0; ?>
+  <?php foreach ($co_people as $p): ?>
+    <div class="line<?php print ($i % 2)+1; ?>">
+      <div class = "panel1">
+        <div class="name">
+          <?php
+            print $this->Html->link(generateCn($p['Name']),
+                                    array(
+                                      'controller' => 'co_people',
+                                      'action' => ($permissions['edit']
+                                                   ? 'edit'
+                                                   : ($permissions['view'] ? 'view' : '')),
+                                      $p['CoPerson']['id'],
+                                      'co' => $cur_co['Co']['id'])
+                                    );
+          ?>
+        </div>
+        <div class="admin">
+          <?php
+            if($permissions['compare'])
+              echo $this->Html->link(_txt('op.compare'),
+                                      array('controller' => 'co_people', 'action' => 'compare', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                                      array('class' => 'comparebutton')) . "\n";
+            if(true || $myPerson) {
+              // XXX for now, cou admins get all the actions, but see CO-505
+              // Edit actions are unavailable if not
+              
+              if($permissions['edit'])
+                echo $this->Html->link(_txt('op.edit'),
+                                        array('controller' => 'co_people', 'action' => 'edit', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
+                                        array('class' => 'editbutton')) . "\n";
+              
+              // Can't delete a CO Person if they have any roles
+              if(empty($p['CoPersonRole']) && $permissions['delete'])
+                echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'delete', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
+              
+              if($permissions['invite']
+                 && ($p['CoPerson']['status'] != StatusEnum::Active
+                     && $p['CoPerson']['status'] != StatusEnum::Deleted)) {
+                print '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonid' => $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
               }
             }
-            
-            if($myPersonRole) {
-              if($permissions['enroll']
-                 && $pr['status'] == StatusEnum::PendingApproval
-                 && !empty($pr['CoPetition'])) {
-                print $this->Html->link(_txt('op.petition'),
-                                        array('controller' => 'co_petitions',
-                                              'action' => 'view',
-                                              $pr['CoPetition'][0]['id'],
-                                              'co' => $pr['CoPetition'][0]['co_id'],
-                                              'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']),
-                                        array('class' => 'petitionbutton'));
-                
-                print $this->Html->link($pr['title'],
-                                        array('controller' => 'co_petitions',
-                                              'action' => 'view',
-                                              $pr['CoPetition'][0]['id'],
-                                              'co' => $pr['CoPetition'][0]['co_id'],
-                                              'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']));
-              } else {
-                print $this->Html->link(_txt('op.edit'),
-                                        array('controller' => 'co_person_roles',
-                                              'action' => ($permissions['edit'] ? "edit" : "view"),
-                                              $pr['id'],
-                                              'co' => $cur_co['Co']['id']),
-                                        array('class' => 'editbutton'));
-                
-                print $this->Html->link($pr['title'],
-                                        array('controller' => 'co_person_roles',
-                                              'action' => ($permissions['edit'] ? "edit" : "view"),
-                                              $pr['id'],
-                                              'co' => $cur_co['Co']['id']));
+          ?>
+        </div>
+        <div class="status">
+          <?php
+            global $status_t;
+
+            if(!empty($p['CoPerson']['status']) ) echo _txt('en.status', null, $p['CoPerson']['status']);
+          ?>
+        </div>
+        <div class = "email">
+          <?php
+              if(isset($p['EmailAddress'][0]['mail'])) { 
+                print '(' . $p['EmailAddress'][0]['mail'] . ')';
               }
-            } else{
-              print $pr['title'];
+          ?>
+        </div>
+      </div>
+      <div class = "panel2">
+        <div class="roles">
+          <span> 
+            <?php print _txt('fd.roles') . ':'; ?>
+          </span>
+          <br>
+          <?php
+            foreach ($p['CoPersonRole'] as $pr) {
+              print '<div class = "role">';
+                print '<div class = "rolestatus">';
+
+                // Print Status
+                if(!empty($pr['status']) ) {
+                  print _txt('en.status', null, $pr['status']);
+                }
+                print '</div>';
+
+                print '<div class = "roleinfo">';
+                  print '<div class = "roletitle">';
+                    // The current user can edit this role if they have general edit
+                    // permission and (1) there is no COU defined or (2) there is a COU
+                    // defined and the user can manage that COU.
+                    $myPersonRole = false;
+                    
+                    if($permissions['edit']) {
+                      if(empty($pr['cou_id']) || isset($permissions['cous'][ $pr['cou_id'] ])) {
+                        $myPersonRole = true;
+                      }
+                    }
+                    
+                    if($myPersonRole) {
+                      if($permissions['enroll']
+                         && $pr['status'] == StatusEnum::PendingApproval
+                         && !empty($pr['CoPetition'])) {
+                        print $this->Html->link(_txt('op.petition'),
+                                                array('controller' => 'co_petitions',
+                                                      'action' => 'view',
+                                                      $pr['CoPetition'][0]['id'],
+                                                      'co' => $pr['CoPetition'][0]['co_id'],
+                                                      'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']),
+                                                array('class' => 'petitionbutton'));
+                        
+                        print $this->Html->link($pr['title'],
+                                                array('controller' => 'co_petitions',
+                                                      'action' => 'view',
+                                                      $pr['CoPetition'][0]['id'],
+                                                      'co' => $pr['CoPetition'][0]['co_id'],
+                                                      'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']));
+                      } else {
+                        print $this->Html->link(_txt('op.edit'),
+                                                array('controller' => 'co_person_roles',
+                                                      'action' => ($permissions['edit'] ? "edit" : "view"),
+                                                      $pr['id'],
+                                                      'co' => $cur_co['Co']['id']),
+                                                array('class' => 'editbutton'));
+                        
+                        print $this->Html->link($pr['title'],
+                                                array('controller' => 'co_person_roles',
+                                                      'action' => ($permissions['edit'] ? "edit" : "view"),
+                                                      $pr['id'],
+                                                      'co' => $cur_co['Co']['id']));
+                      }
+                    } else{
+                      print $pr['title'];
+                    }
+                    
+                    if(isset($pr['Cou']['name']))
+                      print " (" . $pr['Cou']['name'] . ")";
+                  print "</div>";  // roletitle
+                print "</div>";  // roleinfo
+              print "</div>";  // role
             }
-            
-            if(isset($pr['Cou']['name']))
-              print " (" . $pr['Cou']['name'] . ")";
-            
-            print "<br />\n";
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if($permissions['compare'])
-            echo $this->Html->link(_txt('op.compare'),
-                                    array('controller' => 'co_people', 'action' => 'compare', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                    array('class' => 'comparebutton')) . "\n";
-          
-          if(true || $myPerson) {
-            // XXX for now, cou admins get all the actions, but see CO-505
-            // Edit actions are unavailable if not
-            
-            if($permissions['edit'])
-              echo $this->Html->link(_txt('op.edit'),
-                                      array('controller' => 'co_people', 'action' => 'edit', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                      array('class' => 'editbutton')) . "\n";
-            
-            // Can't delete a CO Person if they have any roles
-            if(empty($p['CoPersonRole']) && $permissions['delete'])
-              echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'delete', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
-            
-            if($permissions['invite']
-               && ($p['CoPerson']['status'] != StatusEnum::Active
-                   && $p['CoPerson']['status'] != StatusEnum::Deleted)) {
-              print '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonid' => $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
-            }
-          }
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
+          ?>
+        </div>
+      </div>
+    </div>
     <?php $i++; ?>
-    <?php endforeach; // $co_people ?>
-  </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="4">
-        <?php echo $this->Paginator->numbers(); ?>
-      </th>
-    </tr>
-  </tfoot>
-</table>
+  <?php endforeach; // $co_people ?>
+</div>
+
+<script>
+jQuery( document ).ready(function(){
+  jQuery( ".comparebutton" ).click( function( e ){
+   window.location = $(this).prop("href");
+  });
+
+  jQuery( ".editbutton" ).click( function( e ){
+   window.location = $(this).prop("href");
+  });} );
+</script>
