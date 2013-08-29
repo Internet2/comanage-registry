@@ -92,20 +92,6 @@ class OrgIdentitiesController extends StandardController {
   }
   
   /**
-   * Callback after controller methods are invoked but before views are rendered.
-   * - precondition: Request Handler component has set $this->request->params
-   * - postcondition: If a CO must be specifed, a named parameter may be set.
-   *
-   * @since  COmanage Registry v0.2
-   */
-  
-  function beforeRender() {
-    $this->set('cmp_ef_attribute_order', $this->CmpEnrollmentConfiguration->getStandardAttributeOrder());
-
-    parent::beforeRender();
-  }
-  
-  /**
    * Perform any dependency checks required prior to a delete operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *

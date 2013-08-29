@@ -42,7 +42,7 @@ class CmpEnrollmentConfigurationsController extends StandardController {
   /**
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request
-   * - postcondition: Set $cmp_ef_attribute_order
+   * - postcondition: Set $vv_availableAttributes
    *
    * @since  COmanage Registry v0.3
    */
@@ -50,7 +50,9 @@ class CmpEnrollmentConfigurationsController extends StandardController {
   function beforeRender() {
     // Set the list of attribute order for the view to render
     
-    $this->set('cmp_ef_attribute_order', $this->CmpEnrollmentConfiguration->getStandardAttributeOrder());
+    $this->set('vv_availableAttributes',
+               $this->CmpEnrollmentConfiguration->CmpEnrollmentAttribute->availableAttributes());
+    
     parent::beforeRender();
   }
   
@@ -165,6 +167,7 @@ class CmpEnrollmentConfigurationsController extends StandardController {
     
     if(empty($ef))
     {
+      // XXX move to Model
       // Not found, create it
       
       $ef['CmpEnrollmentConfiguration'] = array(
@@ -188,243 +191,6 @@ class CmpEnrollmentConfigurationsController extends StandardController {
     else
     {
       $fid = $ef['CmpEnrollmentConfiguration']['id'];
-    }
-    
-    // Check for default CMP Enrollment Configuration Attributes. This may or may not be
-    // the ideal place to do this.
-    
-    function defined_attribute($attrs, $attr, $type=null)
-    {
-      // A local helper function to determine if $attr is already defined in $attrs
-      
-      foreach(array_keys($attrs) as $k)
-      {
-        if($attrs[$k]['CmpEnrollmentAttribute']['attribute'] == $attr)
-        {
-          if(!defined($type)
-             || (defined($attrs[$k]['CmpEnrollmentAttribute']['type'])
-                 && $attrs[$k]['CmpEnrollmentAttribute']['type'] == $type))
-            return(true);
-        }
-      }
-      
-      return(false);
-    }
-    
-    // It'd be nice to used find('list'), but we don't have a unique key other than 'id'.
-    // (There can be multiple rows with the same 'attribute' but different 'type'.)
-    // The attributes in this list need to be kept in sync with the model (getStandardAttributeOrder).
-    
-    $attrs = $this->CmpEnrollmentConfiguration->CmpEnrollmentAttribute->findAllByCmpEnrollmentConfigurationId($fid);
-    
-    $newattrs = array();
-    
-    if(!defined_attribute($attrs, 'names:honorific', NameEnum::Official))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'names:honorific',
-        'type'                            => NameEnum::Official,
-        'required'                        => RequiredEnum::Optional
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'names:given', NameEnum::Official))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'names:given',
-        'type'                            => NameEnum::Official,
-        'required'                        => RequiredEnum::Required,
-        'ldap_name'                       => 'givenName',
-        'saml_name'                       => 'givenName'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'names:middle', NameEnum::Official))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'names:middle',
-        'type'                            => NameEnum::Official,
-        'required'                        => RequiredEnum::Optional
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'names:family', NameEnum::Official))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'names:family',
-        'type'                            => NameEnum::Official,
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'sn',
-        'saml_name'                       => 'sn'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'names:suffix', NameEnum::Official))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'names:suffix',
-        'type'                            => NameEnum::Official,
-        'required'                        => RequiredEnum::Optional
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'affiliation'))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'affiliation',
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'edu_person_affiliation',
-        'saml_name'                       => 'edu_person_affiliation'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'title'))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'title',
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'title',
-        'saml_name'                       => 'title'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'o'))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'o',
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'o',
-        'saml_name'                       => 'o'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'ou'))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'ou',
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'ou',
-        'saml_name'                       => 'ou'
-      );
-    }
-
-    if(!defined_attribute($attrs, 'identifiers:identifier', IdentifierEnum::ePPN))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'identifiers:identifier',
-        'type'                            => IdentifierEnum::ePPN,
-        'required'                        => RequiredEnum::Required,
-        'ldap_name'                       => 'eduPersonPrincipalName',
-        'saml_name'                       => 'eduPersonPrincipalName'
-      );
-    }
-
-    if(!defined_attribute($attrs, 'email_addresses:mail', ContactEnum::Office))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'email_addresses:mail',
-        'type'                            => ContactEnum::Office,
-        'required'                        => RequiredEnum::Required,
-        'ldap_name'                       => 'mail',
-        'saml_name'                       => 'mail'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'telephone_numbers:number', ContactEnum::Office))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'telephone_numbers:number',
-        'type'                            => ContactEnum::Office,
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'telephoneNumber',
-        'saml_name'                       => 'telephoneNumber'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'addresses:line1', ContactEnum::Office))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'addresses:line1',
-        'type'                            => ContactEnum::Office,
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'street',
-        'saml_name'                       => 'street'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'addresses:line2', ContactEnum::Office))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'addresses:line2',
-        'type'                            => ContactEnum::Office,
-        'required'                        => RequiredEnum::Optional
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'addresses:locality', ContactEnum::Office))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'addresses:locality',
-        'type'                            => ContactEnum::Office,
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'l',
-        'saml_name'                       => 'l'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'addresses:state', ContactEnum::Office))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'addresses:state',
-        'type'                            => ContactEnum::Office,
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'st',
-        'saml_name'                       => 'st'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'addresses:postal_code', ContactEnum::Office))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'addresses:postal_code',
-        'type'                            => ContactEnum::Office,
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'postalCode',
-        'saml_name'                       => 'postalCode'
-      );
-    }
-    
-    if(!defined_attribute($attrs, 'addresses:country', ContactEnum::Office))
-    {
-      $newattrs[]['CmpEnrollmentAttribute'] = array(
-        'cmp_enrollment_configuration_id' => $fid,
-        'attribute'                       => 'addresses:country',
-        'type'                            => ContactEnum::Office,
-        'required'                        => RequiredEnum::Optional,
-        'ldap_name'                       => 'c'
-      );
-    }
-    
-    if(!empty($newattrs))
-    {
-      $this->CmpEnrollmentConfiguration->CmpEnrollmentAttribute->SaveAll($newattrs);
     }
     
     // Redirect to the configuration edit page

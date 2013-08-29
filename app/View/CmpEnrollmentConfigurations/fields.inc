@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CMP Enrollment Configuration Fields
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -31,6 +31,13 @@
     
   print $this->Form->hidden('name');
   print $this->Form->hidden('status');
+  
+  // Rekey the current attribute set
+  $currentAttributes = array();
+  
+  foreach($cmp_enrollment_configurations[0]['CmpEnrollmentAttribute'] as $a) {
+    $currentAttributes[ $a['attribute'] ] = $a;
+  }
 ?>
 <script type="text/javascript">
   <!-- JS specific to these fields -->
@@ -69,27 +76,24 @@
   {
     // Enable or disable gadgets according to current state
     
-// XXX clean this up    
-    // Treat self_enroll values as a set
-    document.getElementById('CmpEnrollmentConfigurationSelfRequireAuthn').disabled =
-      !document.getElementById('CmpEnrollmentConfigurationSelfEnroll').checked;
-      
-    // And treat admin_enroll values as a set
-    document.getElementById('CmpEnrollmentConfigurationAdminConfirmEmail').disabled =
-      (document.getElementById('CmpEnrollmentConfigurationAdminEnroll').value == 'N');
-
-    document.getElementById('CmpEnrollmentConfigurationAdminRequireAuthn').disabled =
-      (document.getElementById('CmpEnrollmentConfigurationAdminEnroll').value == 'N');
+    // Show the attribute fields, if appropriate
+    if(document.getElementById('CmpEnrollmentConfigurationAttrsFromEnv').checked) {
+      $("#org_attributes").show('blind');
+    } else {
+      $("#org_attributes").hide('blind');
+    }
     
-    document.getElementById('CmpEnrollmentConfigurationAttrsFromLdap').disabled =
-    document.getElementById('CmpEnrollmentConfigurationAttrsFromSaml').disabled =
-      ((document.getElementById('CmpEnrollmentConfigurationSelfRequireAuthn').disabled
-        || !document.getElementById('CmpEnrollmentConfigurationSelfRequireAuthn').checked)
-       &&
-       (document.getElementById('CmpEnrollmentConfigurationAdminRequireAuthn').disabled
-        || !document.getElementById('CmpEnrollmentConfigurationAdminRequireAuthn').checked));
+    if(document.getElementById('CmpEnrollmentConfigurationAttrsFromCoef').checked) {
+      // Required vs optional is set in the enrollment flow
+      $("#edit_cmp_enrollment_attributes td:nth-child(2)").hide('slide');
+      $("#edit_cmp_enrollment_attributes th:nth-child(2)").hide('slide');
+    } else {
+      $("#edit_cmp_enrollment_attributes td:nth-child(2)").show('slide');
+      $("#edit_cmp_enrollment_attributes th:nth-child(2)").show('slide');
+    }
     
     // Make LDAP and SAML attribute colums match the master settings
+    /*
     for(i = 0;i < 18;i++)
     {
       document.getElementById('CmpEnrollmentAttribute'+i+'LdapName').disabled =
@@ -100,6 +104,7 @@
         (document.getElementById('CmpEnrollmentConfigurationAttrsFromSaml').disabled
          || !document.getElementById('CmpEnrollmentConfigurationAttrsFromSaml').checked);
     }
+    */
   }
   
   function on_submit()
@@ -109,11 +114,13 @@
     // disabled). Renable these fields (in case they were disabled) to allow
     // the form to submit. See CO-350.
     
+    /*
     for(i = 0;i < 18;i++)
     {
       document.getElementById('CmpEnrollmentAttribute'+i+'LdapName').disabled = false;
       document.getElementById('CmpEnrollmentAttribute'+i+'SamlName').disabled = false;
     }
+    */
   }
   
   function js_local_onload()
@@ -121,12 +128,11 @@
     // Local (to this view) initializations
     
     pool_check_init_state = document.getElementById('CmpEnrollmentConfigurationPoolOrgIdentities').checked;
-      
+    
     fields_update_gadgets();
   }
 </script>
-<div class="accordion">
-  <h3><a href="#"><?php print _txt('fd.ef.cf.cmp'); ?></a></h3>
+<div>
   <div>
     <table id="<?php print $this->action; ?>_cmp_enrollment_configuration" class="ui-widget">
       <tbody>
@@ -137,7 +143,7 @@
           </td>
           <td>
             <?php print ($e
-                         ? $this->Form->input('attrs_from_ldap', array('onClick' => 'fields_update_gadgets()'))
+                         ? $this->Form->input('attrs_from_ldap', array('onClick' => 'fields_update_gadgets()', 'disabled' => true))
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_ldap'])); ?>
           </td>
         </tr>
@@ -148,22 +154,33 @@
           </td>
           <td>
             <?php print ($e
-                         ? $this->Form->input('attrs_from_saml', array('onClick' => 'fields_update_gadgets()'))
+                         ? $this->Form->input('attrs_from_saml', array('onClick' => 'fields_update_gadgets()', 'disabled' => true))
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_saml'])); ?>
           </td>
         </tr>
         <tr class="line1">
+          <td>
+            <b><?php print _txt('fd.ef.env'); ?></b><br />
+            <font class="desc"><?php print _txt('fd.ef.env.desc'); ?></font>
+          </td>
+          <td>
+            <?php print ($e
+                         ? $this->Form->input('attrs_from_env', array('onClick' => 'fields_update_gadgets()'))
+                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_env'])); ?>
+          </td>
+        </tr>
+        <tr class="line2">
           <td>
             <b><?php print _txt('fd.ef.coef'); ?></b><br />
             <font class="desc"><?php print _txt('fd.ef.coef.desc'); ?></font>
           </td>
           <td>
             <?php print ($e
-                         ? $this->Form->input('attrs_from_coef')
+                         ? $this->Form->input('attrs_from_coef', array('onClick' => 'fields_update_gadgets()'))
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_coef'])); ?>
           </td>
         </tr>
-        <tr class="line2">
+        <tr class="line1">
           <td>
             <b><?php print _txt('fd.ef.pool'); ?></b><br />
             <font class="desc"><?php print _txt('fd.ef.pool.desc'); ?></font>
@@ -178,26 +195,88 @@
     </table>
   </div>
   
-  <h3><a href="#"><?php print _txt('fd.attrs.org'); ?></a></h3>
-  <div>
+  <div id="org_attributes" style="display:none">
     <table id="<?php print $this->action; ?>_cmp_enrollment_attributes" class="ui-widget">
       <?php
-        // $this->data['CmpEnrollmentAttribute'] is sorted by order returned by the database,
-        // but we want to render in a "rational order" (whatever that means)
-        
-        // We basically need to output almost the same output for each row, so do so
-        // via an array ($cmp_ef_attribute_order, set by the controller) of the few things that change.
-        
         $l = 1;
+        $xindex = 0;
        ?>
       <tbody>
         <tr>
           <th class="ui-state-default"><?php print _txt('fd.attribute'); ?></th>
           <th class="ui-state-default"><?php print _txt('fd.required'); ?></th>
-          <th class="ui-state-default"><?php print _txt('fd.attr.ldap'); ?></th>
-          <th class="ui-state-default"><?php print _txt('fd.attr.saml'); ?></th>
+          <th class="ui-state-default"><?php print _txt('fd.attr.env'); ?></th>
+          <!-- <th class="ui-state-default"><?php /*print _txt('fd.attr.ldap');*/ ?></th>
+          <th class="ui-state-default"><?php /*print _txt('fd.attr.saml');*/ ?></th>
+          -->
         </tr>
-        <?php foreach ($cmp_ef_attribute_order as $f): ?>
+        <?php foreach (array_keys($vv_availableAttributes) as $attr): ?>
+        <?php
+          $xprefix = 'CmpEnrollmentAttribute.' . $xindex;
+          $xindex++;
+          
+          print $this->Form->hidden($xprefix . '.cmp_enrollment_configuration_id',
+                                    array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'])));
+          print $this->Form->hidden($xprefix . '.attribute',
+                                    array('value' => $attr));
+          
+          if(isset($currentAttributes[$attr]['id'])) {
+            print $this->Form->hidden($xprefix . '.id',
+                                      array('value' => $currentAttributes[$attr]['id']));
+          }
+        ?>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <td><?php print $vv_availableAttributes[$attr]['label']; ?></td>
+          <td>
+            <?php
+              global $cm_lang, $cm_texts;
+              $attrs = array();
+              $attrs['value'] = (isset($currentAttributes[$attr]['required'])
+                                 ? ($currentAttributes[$attr]['required'])
+                                 : $vv_availableAttributes[$attr]['required']);
+              $attrs['empty'] = false;
+              
+              if($e) {
+                print $this->Form->select($xprefix.'.required',
+                                          $cm_texts[ $cm_lang ]['en.required'],
+                                          $attrs);
+                
+                if($this->Form->isFieldError($xprefix.'.required')) {
+                  print $this->Form->error($xprefix.'.required');
+                }
+              } else {
+                print _txt('en.required', null, $attrs['value']);
+              }
+            ?>
+          </td>
+          <td><?php
+                $attrs = array();
+                $attrs['default'] = $vv_availableAttributes[$attr]['env_name'];
+                $attrs['size']    = '40';
+                if(isset($currentAttributes[$attr]['env_name'])) {
+                  $attrs['value'] = $currentAttributes[$attr]['env_name'];
+                }
+                
+                print ($e
+                       ? $this->Form->input($xprefix . '.env_name', $attrs)
+                       : Sanitize::html($vv_availableAttributes[$attr]['env_name'])); ?>
+          <!--
+          <td><?php /*print ($e
+                           ? $this->Form->input($xprefix . '.ldap_name',
+                                                array('default' => $vv_availableAttributes[$attr]['ldap_name'],
+                                                      'size'    => '40'))
+                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?>
+          <td><?php /*print ($e
+                           ? $this->Form->input($xprefix . '.saml_name',
+                                                array('default' => $vv_availableAttributes[$attr]['saml_name'],
+                                                      'size'    => '40'))
+                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?>
+          -->
+        </tr>
+        <?php endforeach; ?>
+        
+        
+        <?php foreach (array() as $f): ?>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <?php
             $a = find_ef_attribute($this->request->data['CmpEnrollmentAttribute'], $f['attr'], $f['type']);
@@ -230,14 +309,14 @@
             ?>
           </td>
           <td>
-            <?php print ($e
+            <?php /*print ($e
                          ? $this->Form->input('CmpEnrollmentAttribute.'.$a['_index'].'.ldap_name')
-                         : Sanitize::html($a['ldap_name'])); ?>
+                         : Sanitize::html($a['ldap_name']));*/ ?>
           </td>
           <td>
-            <?php print ($e
+            <?php /*print ($e
                          ? $this->Form->input('CmpEnrollmentAttribute.'.$a['_index'].'.saml_name')
-                         : Sanitize::html($a['saml_name'])); ?>
+                         : Sanitize::html($a['saml_name']));*/ ?>
           </td>
         </tr>
         <?php endforeach; ?>

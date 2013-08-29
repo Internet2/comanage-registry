@@ -516,4 +516,67 @@ class CoEnrollmentAttribute extends AppModel {
     
     return $attrs;
   }
+  
+  /**
+   * Map environment variables into enrollment attribute default values.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @param  Array Array of CO enrollment attributes, as returned by enrollmentFlowAttributes()
+   * @param  Array Array of CMP enrollment attributes, as returned by CmpEnrollmentConfiguration::enrollmentAttributesFromEnv()
+   * @return Array Array of CO enrollment attributes
+   */
+  
+  public function mapEnvAttributes($enrollmentAttributes, $envValues) {
+    // First, map the enrollment attributes by model+field, but only for those
+    // that we might actually populate (ie: org attributes). We partly have to
+    // do this because CO Enrollment Attributes and CMP Enrollment Attributes
+    // use different formats in their attribute column (the former does not
+    // include field names while the latter does).
+    
+    $eaMap = array();
+    
+    for($i = 0;$i < count($enrollmentAttributes);$i++) {
+      $model = explode('.', $enrollmentAttributes[$i]['model'], 2);
+      
+      // Only track org identity attributes
+      if($model[0] == "EnrolleeOrgIdentity"
+         // that aren't hidden
+         && !$enrollmentAttributes[$i]['hidden']
+         // and that are modifiable
+         && (!isset($enrollmentAttributes[$i]['modifiable'])
+             || $enrollmentAttributes[$i]['modifiable'])) {
+        $key = "";
+        
+        if(!empty($model[1])) {
+          // Inflect the associated model name
+          
+          $key = Inflector::pluralize(Inflector::tableize($model[1])) . ":";
+        }
+        
+        $key .= $enrollmentAttributes[$i]['field'];
+        
+        $eaMap[$key] = $i;
+      }
+    }
+    
+    // Now walk through the CMP Enrollment Attributes. If an env_name is defined,
+    // look for the corresponding CO Enrollment Attribute.
+    
+    foreach($envValues as $e) {
+      if(!empty($e['env_name']) && isset($eaMap[ $e['attribute'] ])) {
+        // We don't currently do anything with $e['type']...
+        
+        $i = $eaMap[ $e['attribute'] ];
+        
+        $enrollmentAttributes[$i]['default'] = getenv($e['env_name']);
+        
+        // Make sure the modifiable value is set. If a value was found, we will
+        // make it not-modifiable.
+        
+        $enrollmentAttributes[$i]['modifiable'] = !(boolean)$enrollmentAttributes[$i]['default'];
+      }
+    }
+    
+    return $enrollmentAttributes;
+  }
 }

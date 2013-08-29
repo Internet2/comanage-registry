@@ -64,4 +64,157 @@ class CmpEnrollmentAttribute extends AppModel {
       'allowEmpty' => true
     ),
   );
+
+  /**
+   * Obtain the list of attributes available for loading into an Org Identity.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @return Array Array of available attributes
+   */
+  
+  public function availableAttributes() {
+    // Attributes should be listed in the order they are to be rendered in.
+    // The various _name fields are default values that can be overridden.
+    // 'required' applies when Enable Attributes Via CO Enrollment Flow is false.
+    // Attribute types are forced to Official since they come from an "official" source.
+    
+    $attributes = array(
+      'names:honorific' => array(
+        'type'      => NameEnum::Official,
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.name.honorific'),
+        'desc'      => _txt('fd.name.h.desc'),
+        'env_name'  => '',
+        'ldap_name' => '',
+        'saml_name' => ''
+      ),
+      'names:given' => array(
+        'type'      => NameEnum::Official,
+        'required'  => RequiredEnum::Required,
+        'label'     => _txt('fd.name.given'),
+        'env_name'  => 'CMP_EF_GIVENNAME',
+        'ldap_name' => 'givenName',
+        'saml_name' => 'givenName'
+      ),
+      'names:middle' => array(
+        'type'      => NameEnum::Official,
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.name.middle'),
+        'env_name'  => '',
+        'ldap_name' => '',
+        'saml_name' => ''
+      ),
+      'names:family' => array(
+        'type'      => NameEnum::Official,
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.name.family'),
+        'env_name'  => 'CMP_EF_SN',
+        'ldap_name' => 'sn',
+        'saml_name' => 'sn'
+      ),
+      'names:suffix' => array(
+        'type'      => NameEnum::Official,
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.name.suffix'),
+        'desc'      => _txt('fd.name.s.desc'),
+        'env_name'  => '',
+        'ldap_name' => '',
+        'saml_name' => ''
+      ),
+      'affiliation' => array(
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.affiliation'),
+        'env_name'  => 'CMP_EF_AFFILIATION',
+        'ldap_name' => 'edu_person_affiliation',
+        'saml_name' => 'edu_person_affiliation'
+      ),
+      'title' => array(
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.title'),
+        'env_name'  => 'CMP_EF_TITLE',
+        'ldap_name' => 'title',
+        'saml_name' => 'title'
+      ),
+      'o' => array(
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.o'),
+        'env_name'  => 'CMP_EF_O',
+        'ldap_name' => 'o',
+        'saml_name' => 'o'
+      ),
+      'ou' => array(
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.ou'),
+        'env_name'  => 'CMP_EF_OU',
+        'ldap_name' => 'ou',
+        'saml_name' => 'ou'
+      ),
+      'identifiers:identifier' => array(
+        'type'      => IdentifierEnum::ePPN,
+        'required'  => RequiredEnum::Required,
+        'label'     => _txt('en.identifier', null, IdentifierEnum::ePPN),
+        'env_name'  => 'CMP_EF_EPPN',
+        'ldap_name' => 'eduPersonPrincipalName',
+        'saml_name' => 'eduPersonPrincipalName'
+      ),
+      'email_addresses:mail' => array(
+        'type'      => ContactEnum::Office,
+        'required'  => RequiredEnum::Required,
+        'label'     => _txt('fd.email_address.mail'),
+        'env_name'  => 'CMP_EF_MAIL',
+        'ldap_name' => 'mail',
+        'saml_name' => 'mail'
+      ),
+      'telephone_numbers:number' => array(
+        'type'      => ContactEnum::Office,
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.telephone_number.number'),
+        'env_name'  => 'CMP_EF_TELEPHONENUMBER',
+        'ldap_name' => 'telephoneNumber',
+        'saml_name' => 'telephoneNumber'
+      ),
+      'addresses:line1' => array(
+        'type'      => ContactEnum::Office,
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.address.line1'),
+        'env_name'  => 'CMP_EF_STREET',
+        'ldap_name' => 'street',
+        'saml_name' => 'street'
+      ),
+      'addresses:locality' => array(
+        'type'      => ContactEnum::Office,
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.address.locality'),
+        'env_name'  => 'CMP_EF_L',
+        'ldap_name' => 'l',
+        'saml_name' => 'l'
+      ),
+      'addresses:state' => array(
+        'type'      => ContactEnum::Office,
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.address.state'),
+        'env_name'  => 'CMP_EF_ST',
+        'ldap_name' => 'st',
+        'saml_name' => 'st'
+      ),
+      'addresses:postal_code' => array(
+        'type'      => ContactEnum::Office,
+        'required'  => RequiredEnum::Optional,
+        'label'     => _txt('fd.address.postal_code'),
+        'env_name'  => 'CMP_EF_POSTALCODE',
+        'ldap_name' => 'postalCode',
+        'saml_name' => 'postalCode'
+      ),
+      'addresses:country' => array(
+        'type'      => ContactEnum::Office,
+        'label'     => _txt('fd.address.country'),
+        'env_name'  => 'CMP_EF_C',
+        'required'  => RequiredEnum::Optional,
+        'ldap_name' => 'c',
+        'saml_name' => ''
+      )
+    );
+    
+    return $attributes;
+  }
 }

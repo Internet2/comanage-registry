@@ -65,6 +65,29 @@ class CmpEnrollmentConfiguration extends AppModel {
   );
   
   /**
+   * Determine if enrollment attribute values may be obtained from the environment,
+   * and if so which ones.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @return mixed An array of CmpEnrollmentAttributes if enabled, false otherwise
+   */
+  
+  public function enrollmentAttributesFromEnv() {
+    $args = array();
+    $args['conditions']['CmpEnrollmentConfiguration.name'] = 'CMP Enrollment Configuration';
+    $args['conditions']['CmpEnrollmentConfiguration.status'] = StatusEnum::Active;
+    $args['contain'][] = 'CmpEnrollmentAttribute';
+    
+    $r = $this->find('first', $args);
+    
+    if(isset($r['CmpEnrollmentConfiguration']['attrs_from_env'])
+       && $r['CmpEnrollmentConfiguration']['attrs_from_env']) {
+      return $r['CmpEnrollmentAttribute'];
+    }
+    
+    return false;
+  }  
+  /**
    * Find the default (ie: active) CMP Enrollment Configuration for this platform.
    * - precondition: Initial setup (performed by select()) has been completed.
    *
@@ -87,6 +110,7 @@ class CmpEnrollmentConfiguration extends AppModel {
    * @return Array Array of arrays, each of which defines 'attr', 'type', and 'label'
    */
   
+// XXX toss this
   public function getStandardAttributeOrder($model=null) {
     global $cm_lang, $cm_texts;
     

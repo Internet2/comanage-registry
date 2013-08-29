@@ -224,9 +224,32 @@ class CoPetitionsController extends StandardController {
           }
         }
         
-        $this->set('co_enrollment_attributes',
-                   $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($this->enrollmentFlowID(),
-                                                                                                        $defaultValues));
+        $this->loadModel('CmpEnrollmentConfiguration');
+        
+        $envValues = false;
+        $enrollmentAttributes = $this->CoPetition
+                                     ->CoEnrollmentFlow
+                                     ->CoEnrollmentAttribute
+                                     ->enrollmentFlowAttributes($this->enrollmentFlowID(),
+                                                                $defaultValues);
+        
+        if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
+          // If enrollment flows can populate org identities, then see if we're configured
+          // to pull environment variables. If so, for this configuration they simply
+          // replace modifiable default values.
+          
+          $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
+          
+          if($envValues) {
+            $enrollmentAttributes = $this->CoPetition
+                                         ->CoEnrollmentFlow
+                                         ->CoEnrollmentAttribute
+                                         ->mapEnvAttributes($enrollmentAttributes,
+                                                            $envValues);
+          }
+        }
+        
+        $this->set('co_enrollment_attributes', $enrollmentAttributes);
       }
       
       if(($this->action == 'edit' || $this->action == 'view')

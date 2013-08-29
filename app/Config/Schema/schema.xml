@@ -516,6 +516,12 @@
     <index name="co_cmp_enrollment_attributes_i1">
       <col>cmp_enrollment_configuration_id</col>
     </index>
+    <index name="co_cmp_enrollment_attributes_i2">
+      <col>cmp_enrollment_configuration_id</col>
+      <col>attribute</col>
+      <col>type</col>
+      <unique />
+    </index>
   </table>
   
   <table name="co_enrollment_flows">
