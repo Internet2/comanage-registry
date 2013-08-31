@@ -167,9 +167,12 @@ class CoPetitionsController extends StandardController {
       if(empty($ef)) {
         $this->Session->setFlash(_txt('er.coef.unk'), '', array(), 'error');
       } elseif(isset($ef['CoEnrollmentFlow']['authz_level'])
-               && $ef['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None) {
+               && $ef['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None
+               && isset($ef['CoEnrollmentFlow']['require_authn'])
+               && !$ef['CoEnrollmentFlow']['require_authn']) {
         // If this enrollment flow allows unauthenticated enrollments, drop the auth
-        // requirement. Only do this for add for the moment, since we don't currently
+        // requirement, but only if authentication is not required for the flow.
+        // Only do this for add for the moment, since we don't currently
         // know what it means for an unauthenticated enrollment to be edited without
         // authentication.
         
