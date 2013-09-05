@@ -25,6 +25,7 @@
 <script type="text/javascript">
   function js_local_onload() {
     toggle_attr_def_div();
+    toggle_attr_type_div();
     toggle_copy_to_coperson_div();
   }
   
@@ -134,6 +135,20 @@
     }
   }
   
+  function toggle_attr_type_div() {
+    var curattr = document.getElementById('CoEnrollmentAttributeAttribute').value;
+    
+    var curattrarr = curattr.split(":");
+    var curattrcode = curattrarr[0];
+    var curattrname = curattrarr[1];
+    
+    if(curattrname == "address" || curattrname == "name") {
+      $("#type_div").show("fade");
+    } else {
+      $("#type_div").hide("fade");
+    }
+  }
+  
   function toggle_copy_to_coperson_div() {
     var curattr = document.getElementById('CoEnrollmentAttributeAttribute').value;
     var attrtype = curattr[0];
@@ -201,7 +216,7 @@
                               ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']
                               : null);
           $attrs['empty'] = false;
-          $attrs['onchange'] = "toggle_attr_def_div();toggle_copy_to_coperson_div();";
+          $attrs['onchange'] = "toggle_attr_def_div();toggle_copy_to_coperson_div();toggle_attr_type_div();";
           
           if($e) {
             print $this->Form->select('attribute',
@@ -215,6 +230,25 @@
             print Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']);
           }
         ?>
+        <div id="type_div" style="display: none">
+          <?php
+            global $cm_lang, $cm_texts;
+            
+            $attrs = array();
+            $attrs['value'] = (isset($co_enrollment_attributes[0]['CoEnrollmentAttribute']['language'])
+                               ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['language']
+                               : getPreferredLanguage());
+            $attrs['empty'] = true;
+            
+            print $this->Form->select('language',
+                                      $cm_texts[ $cm_lang ]['en.language'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('language')) {
+              print $this->Form->error('language');
+            }
+          ?>
+        </div>
         <div id="copy_to_coperson_div" style="display: none">
           <?php print ($e
                        ? $this->Form->input('copy_to_coperson',

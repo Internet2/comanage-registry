@@ -74,6 +74,11 @@ class CoEnrollmentAttribute extends AppModel {
     ),
     'copy_to_coperson' => array(
       'rule' => 'boolean'
+    ),
+    'language' => array(
+      'rule'       => array('validateLanguage'),
+      'required'   => false,
+      'allowEmpty' => true
     )
   );
   
@@ -454,13 +459,23 @@ class CoEnrollmentAttribute extends AppModel {
                                  &&
                                  !$attrModel->validate[$k]['allowEmpty']);
             
-            // We hide type, status, and verified
-            $attr['hidden'] = ($k == 'type' || $k == 'status' || $k == 'verified' ? 1 : 0);
+            // We hide language, type, status, and verified
+            $attr['hidden'] = ($k == 'language'
+                               || $k == 'type'
+                               || $k == 'status'
+                               || $k == 'verified' ? 1 : 0);
             
             if($attr['hidden']) {
               // Populate a default value.
               
               switch($k) {
+                case 'language':
+                  if(!empty($efAttr['CoEnrollmentAttribute']['language'])) {
+                    $attr['default'] = $efAttr['CoEnrollmentAttribute']['language'];
+                  } else {
+                    $attr['default'] = "";
+                  }
+                  break;
                 case 'type':
                   // Just use $attrType
                   $attr['default'] = $attrType;
@@ -478,7 +493,6 @@ class CoEnrollmentAttribute extends AppModel {
             } else {
               // Label
               $attr['group'] = $efAttr['CoEnrollmentAttribute']['label'];
-
               $attr['label'] = _txt('fd.' . $attrName . '.' . $k);
               
               // Description

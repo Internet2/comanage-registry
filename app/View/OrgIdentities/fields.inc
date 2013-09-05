@@ -195,6 +195,34 @@ $(function() {
           </tr>
           <tr class="line2">
             <td>
+              <?php print _txt('fd.language'); ?>
+            </td>
+            <td>
+              <?php
+                global $cm_lang, $cm_texts;
+                
+                $attrs = array();
+                $attrs['value'] = (isset($org_identities[0]['Name']['language'])
+                                   ? $org_identities[0]['Name']['language']
+                                   : getPreferredLanguage());
+                $attrs['empty'] = true;
+                
+                if($e) {
+                  print $this->Form->select('Name.language',
+                                            $cm_texts[ $cm_lang ]['en.language'],
+                                            $attrs);
+                  
+                  if($this->Form->isFieldError('Name.language')) {
+                    print $this->Form->error('Name.language');
+                  }
+                } else {
+                  print _txt('en.language', null, $org_identities[0]['Name']['language']);
+                }
+              ?>
+            </td>
+          </tr>
+          <tr class="line1">
+            <td>
               <?php echo _txt('fd.affiliation'); ?><font class="required">*</font>
             </td>
             <td>
@@ -221,7 +249,7 @@ $(function() {
               ?>
             </td>
           </tr>
-          <tr class="line1">
+          <tr class="line2">
             <td>
               <?php echo _txt('fd.title'); ?>
             </td>
@@ -229,7 +257,7 @@ $(function() {
               <?php echo ($e ? $this->Form->input('title') : Sanitize::html($org_identities[0]['OrgIdentity']['title'])); ?>
             </td>
           </tr>
-          <tr class="line2">
+          <tr class="line1">
             <td>
               <?php echo _txt('fd.o'); ?>
             </td>
@@ -237,7 +265,7 @@ $(function() {
               <?php echo ($e ? $this->Form->input('o') : Sanitize::html($org_identities[0]['OrgIdentity']['o'])); ?>
             </td>
           </tr>
-          <tr class="line1">
+          <tr class="line2">
             <td>
               <?php echo _txt('fd.ou'); ?>
             </td>

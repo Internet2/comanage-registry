@@ -215,6 +215,53 @@ Please click the link below to accept or decline.
                             IdentifierEnum::Mail => 'Mail',
                             IdentifierEnum::OpenID => 'OpenID',
                             IdentifierEnum::UID => 'UID'),
+  
+  // As a moderately arbitrary decision, the languages listed here those with at least
+  // 100m speakers per Ethnologue (by way of wikipedia)
+  //  http://en.wikipedia.org/wiki/List_of_languages_by_total_number_of_speakers
+  // as well as any official languages of REFEDS participants not in the above list
+  //  https://refeds.org/resources_list.html
+  // The key is the ISO 639-2 two letter tag
+  //  http://www.loc.gov/standards/iso639-2/ISO-639-2_utf-8.txt
+  // See also http://people.w3.org/rishida/names/languages.html
+  // and http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+  'en.language' => array(
+    'af'      => 'Afrikaans',
+    'ar'      => 'Arabic (العربية)',
+    'bn'      => 'Bengali',
+    'zh-Hans' => 'Chinese - Simplified (简体中文)',
+    'zh-Hant' => 'Chinese - Traditional (繁體中文)',
+    'hr'      => 'Croatian (Hrvatski)',
+    'cs'      => 'Czech (čeština)',
+    'da'      => 'Danish (Dansk)',
+    'nl'      => 'Dutch (Nederlands) / Flemish',
+    'en'      => 'English',
+    'et'      => 'Estonian (Eesti Keel)',
+    'fi'      => 'Finnish (Suomi)',
+    'fr'      => 'French (Français)',
+    'de'      => 'German (Deutsch)',
+    'el'      => 'Greek (ελληνικά)',
+    'he'      => 'Hebrew (עִבְרִית)',
+    'hi'      => 'Hindi (हिंदी)',
+    'hu'      => 'Hungarian (Magyar)',
+    'id'      => 'Indonesian (Bahasa Indonesia)',
+    'it'      => 'Italian (Italiano)',
+    'ja'      => 'Japanese (日本語)',
+    'lv'      => 'Latvian (Latviešu Valoda)',
+    'lt'      => 'Lithuanian (Lietuvių Kalba)',
+    'ms'      => 'Malaysian (Bahasa Malaysia)',
+    'no'      => 'Norwegian (Norsk)',
+    'pl'      => 'Polish (Język Polski)',
+    'pt'      => 'Portuguese (Português)',
+    'ro'      => 'Romanian (Limba Română)',
+    'ru'      => 'Russian (Pyccĸий)',
+    'sr'      => 'Serbian (српски / Srpski)',
+    'sl'      => 'Slovene (Slovenski Jezik)',
+    'es'      => 'Spanish (Español)',
+    'sv'      => 'Swedish (Svenska)',
+    'tr'      => 'Turkish (Türkçe)',
+    'ur'      => 'Urdu (اُردُو)'
+  ),
 
   'en.name' =>        array(NameEnum::Author => 'Author',
                             NameEnum::FKA => 'FKA',
@@ -383,6 +430,7 @@ Please click the link below to accept or decline.
   'fd.address' =>     'Address',
   // The next set must be named fd.model.validation-field
   'fd.address.country' => 'Country',
+  'fd.address.language' => 'Language',
   'fd.address.line1' => 'Address Line 1',
   'fd.address.line2' => 'Address Line 2',
   'fd.address.locality' => 'City',
@@ -515,6 +563,7 @@ Please click the link below to accept or decline.
   'fd.index' =>       'Index',
   'fd.inv.for' =>     'Invitation for %1$s',
   'fd.inv.to' =>      'Invitation to %1$s',
+  'fd.language' =>    'Language',
   'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
   'fd.link.location' => 'Link Location',  
   'fd.link.order' =>  'Link Order',
@@ -529,10 +578,11 @@ Please click the link below to accept or decline.
   'fd.name.s.desc' => '(Jr, III, etc)',
   // The next set must be named fd.model.validation-field
   'fd.name.honorific' => 'Honorific',
-  'fd.name.given' =>  'Given Name',
+  'fd.name.given'  => 'Given Name',
   'fd.name.middle' => 'Middle Name',
   'fd.name.family' => 'Family Name',
   'fd.name.suffix' => 'Suffix',
+  'fd.name.language' => 'Language',
   'fd.no' =>          'No',
   'fd.null' =>        'Null',
   'fd.o' =>           'Organization',
@@ -566,7 +616,7 @@ Please click the link below to accept or decline.
   'fd.valid_through' => 'Valid Through',
   'fd.valid_through.desc' => '(leave blank for indefinite validity)',
   'fd.yes' =>         'Yes',
-
+  
   // Menu
   'me.account'         => 'My Account',
   'me.changepassword'  => 'Change Password',

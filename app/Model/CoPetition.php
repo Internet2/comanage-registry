@@ -1376,7 +1376,7 @@ class CoPetition extends AppModel {
    * @param  Array Request data, as submitted to createPetition()
    * @param  Array Data assembled so far for saving (Validated data will be added to this array)
    * @param  Array Enrollment Flow attributes, as returned by CoEnrollmentAttribute::enrollmentFlowAttributes()
-   * @param  Array Array of updated validated data, or null on validation error
+   * @return Array Array of updated validated data, or null on validation error
    */
   
   private function validateRelated($primaryModel, $requestData, $validatedData, $efAttrs) {

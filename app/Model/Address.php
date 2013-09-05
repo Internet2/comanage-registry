@@ -86,6 +86,11 @@ class Address extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'language' => array(
+      'rule'       => array('validateLanguage'),
+      'required'   => false,
+      'allowEmpty' => true
+    ),
     'co_person_role_id' => array(
       'rule' => 'numeric',
       'required' => false

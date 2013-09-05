@@ -326,6 +326,34 @@
             </td>
           <?php endif; ?>
         </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th>
+            <?php print _txt('fd.language'); ?>
+          </th>
+          <td>
+            <?php
+              global $cm_lang, $cm_texts;
+              
+              $attrs = array();
+              $attrs['value'] = (isset($co_people[0]['Name']['language'])
+                                 ? $co_people[0]['Name']['language']
+                                 : getPreferredLanguage());
+              $attrs['empty'] = true;
+              
+              if($e) {
+                print $this->Form->select('Name.language',
+                                          $cm_texts[ $cm_lang ]['en.language'],
+                                          $attrs);
+                
+                if($this->Form->isFieldError('Name.language')) {
+                  print $this->Form->error('Name.language');
+                }
+              } else {
+                print _txt('en.language', null, $co_people[0]['Name']['language']);
+              }
+            ?>
+          </td>
+        </tr>
         <tr>
           <th>
             <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />

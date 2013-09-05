@@ -85,6 +85,11 @@ class Name extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'language' => array(
+      'rule'       => array('validateLanguage'),
+      'required'   => false,
+      'allowEmpty' => true
+    ),
     'co_person_id' => array(
       'rule' => 'numeric',
       'required' => false,

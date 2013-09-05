@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Address Fields
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -103,7 +103,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($addresses) ? $addresses[0]['Address']['type'] : "O");
+          $attrs['value'] = (isset($addresses[0]['Address']['type']) ? $addresses[0]['Address']['type'] : "O");
           $attrs['empty'] = false;
           
           if($e) {
@@ -116,6 +116,34 @@
             }
           } else {
             print _txt('en.contact', null, $addresses[0]['Address']['type']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
+        <?php print _txt('fd.language'); ?>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($addresses[0]['Address']['language'])
+                             ? $addresses[0]['Address']['language']
+                             : getPreferredLanguage());
+          $attrs['empty'] = true;
+          
+          if($e) {
+            print $this->Form->select('language',
+                                      $cm_texts[ $cm_lang ]['en.language'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('language')) {
+              print $this->Form->error('language');
+            }
+          } else {
+            print _txt('en.language', null, $addresses[0]['Address']['type']);
           }
         ?>
       </td>

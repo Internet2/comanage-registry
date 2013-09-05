@@ -92,6 +92,55 @@ function generateCn($name, $showHonorific = false)
 }
 
 /**
+ * Obtain the preferred language requested by the browser, if supported.
+ *
+ * @since  COmanage Registry v0.8.2
+ * @return string Language code, or an empty string
+ */
+
+function getPreferredLanguage() {
+  $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+  
+  if($lang == 'zh') {
+    // For the Chinese scripts, determine traditional vs simplified.
+    // First map old style notation to new style.
+    
+    $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 5);
+    
+    if($lang == 'zh-CN') {
+      return 'zh-Hans';
+    }
+    if($lang == 'zh-TW') {
+      return 'zh-Hant';
+    }
+    
+    // Still here? Maybe it's new style.
+    
+    $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 7);
+    
+    if($lang == 'zh-Hans' || $lang == 'zh-Hant') {
+      return $lang;
+    }
+    
+    // Else we don't know what to do with this Chinese variant. Go with simplified.
+    
+    return 'zh-Hans';
+  }
+  
+  // See if this is a defined language.
+  
+  global $cm_lang, $cm_texts;
+
+  if(isset($cm_texts[ $cm_lang ]['en.lang'][ $lang ])) {
+    return $lang;
+  }
+  
+  // We don't recognize this language
+  
+  return "";
+}
+
+/**
  * Escape a string so it is suitable for echoing into Javascript function parameters.
  * Specifically, quotes are replaced with XML representations.
  *

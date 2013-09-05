@@ -286,7 +286,7 @@ class AppModel extends Model {
    * @return boolean True if all field strings parses to a valid timestamp, false otherwise
    */
   
-  function validateExtendedType($a, $d) {
+  public function validateExtendedType($a, $d) {
     // First obtain active extended types, if any.
     
     $extTypes = array();
@@ -328,6 +328,27 @@ class AppModel extends Model {
   }
   
   /**
+   * Determine if a string represents a defined/supported language. This function
+   * is intended to be used as a validation rule.
+   *
+   * @since  COmanage Registry v0.8.2
+   * @param  array Array of fields to validate
+   * @return boolean True if all field strings parses to a valid timestamp, false otherwise
+   */
+  
+  public function validateLanguage($a) {
+    global $cm_lang, $cm_texts;
+    
+    foreach(array_keys($a) as $f) {
+      if(!isset($cm_texts[ $cm_lang ]['en.language'][ $a[$f] ])) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Determine if a string represents a valid timestamp. This function is intended
    * to be used as a validation rule.
    *
@@ -336,7 +357,7 @@ class AppModel extends Model {
    * @return boolean True if all field strings parses to a valid timestamp, false otherwise
    */
   
-  function validateTimestamp($a) {
+  public function validateTimestamp($a) {
     // Note we are assuming the >= PHP 5.1 behavior of strtotime here, which is
     // reasonable since we require >= PHP 5.2.
     

@@ -412,7 +412,7 @@ class StandardController extends AppController {
         $atomic = false;
       } 
     }
-
+    
     if($model->saveAll($data, array('atomic' => $atomic)))
     {
       if(!$this->recordHistory('edit', $data, $curdata)
