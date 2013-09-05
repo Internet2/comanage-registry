@@ -247,6 +247,7 @@ Please click the link below to accept or decline.
     'id'      => 'Indonesian (Bahasa Indonesia)',
     'it'      => 'Italian (Italiano)',
     'ja'      => 'Japanese (日本語)',
+    'ko'      => 'Korean (한국어)',
     'lv'      => 'Latvian (Latviešu Valoda)',
     'lt'      => 'Lithuanian (Lietuvių Kalba)',
     'ms'      => 'Malaysian (Bahasa Malaysia)',
