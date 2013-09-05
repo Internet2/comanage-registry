@@ -112,7 +112,9 @@ class CoPetitionsController extends StandardController {
         }
         catch(Exception $e) {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');
-          parent::add();
+          
+          // Set page title for page refresh
+          $this->set('title_for_layout', _txt('op.add.new', array(_txt('ct.co_petitions.1'))));
         }
       } else {
         parent::add();
