@@ -132,6 +132,20 @@ class CoEnrollmentAttributesController extends StandardController {
       // Assemble the list of available Sponsors
       
       $this->set('vv_sponsors', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->sponsorList($coid));
+      
+      // Assemble the list of available groups. Note we currently allow any group to be
+      // specified (ie: whether or not it's open). The idea is that an Enrollment Flow
+      // is defined by an admin, who can correctly select a group. However, it's plausible
+      // that we should offer options to filter to open groups, or to a subset of groups
+      // as selected by the administrator (especially for scenarios where the value is
+      // modifiable).
+      
+      $args = array();
+      $args['conditions']['co_id'] = $coid;
+      $args['fields'] = array('CoGroup.id', 'CoGroup.name');
+      $args['contain'] = false;
+      
+      $this->set('vv_groups', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoGroup->find('list', $args));
     }
   }
   

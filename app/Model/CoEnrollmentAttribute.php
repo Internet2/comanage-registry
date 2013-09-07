@@ -128,7 +128,12 @@ class CoEnrollmentAttribute extends AppModel {
     
     foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.mail']) as $k)
       $ret['p:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $cm_texts[ $cm_lang ]['en.contact.mail'][$k] . ", " . _txt('ct.co_people.1') . ")";
-      
+    
+    // (2a) Group Memberships are Multi valued CO Person attributes, but have all sorts
+    // of special logic around them so they get their own code (code=g)
+    
+    $ret['g:co_group_member'] = _txt('fd.group.grmem') . " (" . _txt('ct.co_people.1') . ")";
+    
     // (3) Multi valued CO Person Role attributes (code=m)
     
     foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.phone']) as $k)
@@ -489,7 +494,6 @@ class CoEnrollmentAttribute extends AppModel {
                   $attr['default'] = 0;
                   break;
               }
-              
             } else {
               // Label
               $attr['group'] = $efAttr['CoEnrollmentAttribute']['label'];
@@ -523,6 +527,66 @@ class CoEnrollmentAttribute extends AppModel {
             $attrs[] = $attr;
           }
         }
+      } elseif($attrCode == 'g') {
+        // Group Membership requires a bit of specialness. Basically, we'll manually
+        // contruct the $attrs entry.
+        
+        $attr = array();
+        $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
+        $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
+        $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
+        $attr['hidden'] = false;
+        $attr['label'] = $efAttr['CoEnrollmentAttribute']['label'];
+        $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
+        $attr['model'] = "EnrolleeCoPerson.CoGroupMember." . $efAttr['CoEnrollmentAttribute']['id'];
+        $attr['field'] = "co_group_id";
+        if(!empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+          $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
+        }
+        $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
+        $attr['validate']['rule'][0] = 'inList';
+        
+        // Pull the set of groups for the select
+        $args = array();
+        $args['conditions']['co_id'] = $efAttr['CoEnrollmentFlow']['co_id'];
+        $args['fields'] = array('CoGroup.id', 'CoGroup.name');
+        $args['contain'] = false;
+        
+        $attr['select'] = $this->CoEnrollmentFlow->Co->CoGroup->find('list', $args);
+        
+        $attrs[] = $attr;
+        
+        // Inject hidden attributes to specify membership
+        
+        $attr = array();
+        $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
+        $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
+        $attr['hidden'] = true;
+        $attr['default'] = true;
+        $attr['model'] = "EnrolleeCoPerson.CoGroupMember." . $efAttr['CoEnrollmentAttribute']['id'];
+        $attr['field'] = "member";
+        
+        $attrs[] = $attr;
+        
+        // and ownership
+        
+        $attr['default'] = 0;
+        $attr['field'] = "owner";
+        
+        $attrs[] = $attr;
+        
+        // Inject a hidden attribute to link this attribute back to its definition.
+        
+        $attr = array();
+        
+        $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
+        $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
+        $attr['hidden'] = true;
+        $attr['default'] = $attr['id'];
+        $attr['model'] = "EnrolleeCoPerson.CoGroupMember." . $efAttr['CoEnrollmentAttribute']['id'];
+        $attr['field'] = "co_enrollment_attribute_id";
+        
+        $attrs[] = $attr;
       } else {
         throw new RuntimeException("Unknown attribute code: " . $attrCode);
       }

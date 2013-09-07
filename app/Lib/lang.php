@@ -532,6 +532,7 @@ Please click the link below to accept or decline.
   'fd.enrollee' =>    'Enrollee',
   'fd.false' =>       'False',
   'fd.group.desc.adm' => '%1$s Administrators',
+  'fd.group.grmem' => 'Group Member',
   'fd.group.mem' =>   'Member',
   'fd.group.memin' => 'membership in "%1$s"',
   'fd.group.own' =>   'Owner',

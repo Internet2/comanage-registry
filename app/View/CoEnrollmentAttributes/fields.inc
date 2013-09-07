@@ -71,7 +71,7 @@
     var curattr = document.getElementById('CoEnrollmentAttributeAttribute').value;
     var attrtype = curattr[0];
     
-    if(attrtype == "r" || attrtype == "o" || attrtype == "x") {
+    if(attrtype == "r" || attrtype == "o" || attrtype == "x" || attrtype == "g") {
       $("#attr_def_div").show("slide", { "direction" : "up" });
       
       // Adjust the gadgets shown
@@ -80,6 +80,7 @@
       $("#attr_def_val_affil_div").hide();
       $("#attr_def_val_cou_div").hide();
       $("#attr_def_val_date_div").hide();
+      $("#attr_def_val_group_div").hide();
       $("#attr_def_val_sponsor_div").hide();
       
       var curval = document.getElementById('CoEnrollmentAttributeDefault0Value').value;
@@ -127,6 +128,10 @@
         }
         
         $("#attr_def_val_date_div").show("fade");
+      } else if(curattrcode == "g") {
+        // Set current value before showing
+        document.getElementById('def_group_val').value = curval;
+        $("#attr_def_val_group_div").show("fade");
       } else {
         $("#attr_def_val_div").show();
       }
@@ -383,6 +388,18 @@
                      />
               <?php print _txt('fd.ed.date.offset'); ?>
               <br />
+          <?php endif; ?>
+        </div>
+        <div id="attr_def_val_group_div">
+          <?php if($e): ?>
+            <select name="def_group_val"
+                    id="def_group_val"
+                    onchange="set_attr_def_value('def_group_val')">
+              <option value=""></option>
+              <?php foreach(array_keys($vv_groups) as $k): ?>
+                <option value="<?php print Sanitize::html($k); ?>"><?php print Sanitize::html($vv_groups[$k]); ?></option>
+              <?php endforeach; ?>
+            </select>
           <?php endif; ?>
         </div>
         <div id="attr_def_val_sponsor_div">

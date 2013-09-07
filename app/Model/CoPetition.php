@@ -1437,7 +1437,11 @@ class CoPetition extends AppModel {
             // missing) related models.
             $errFields = $this->$primaryModel->$model->invalidFields();
             
-            if(!empty($errFields)) {
+            if(!empty($errFields)
+               // If the only error is co_person_id, ignore it since saveAssociated
+               // will automatically key the record
+               && (count(array_keys($errFields)) > 1
+                   || !isset($errFields['co_person_id']))) {
               // These errors are going to get attached to $this->model by default, which means when
               // the petition re-renders, FormHelper won't display them. They need to be attached to
               // $this->$primaryModel, keyed as though they were validated along with $primaryModel.
