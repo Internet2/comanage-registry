@@ -73,9 +73,8 @@
     }
 
     .email {
-      margin-right: 15px;
-      float: right !important;
-
+      position: absolute;
+      left: 330px;
     }
 
     .admin {
@@ -83,8 +82,8 @@
     }
 
     .status{
-      float: right !important;
-      margin-right: 15px;
+      position: absolute;
+      left: 440px;
     }
 
   .roles{
@@ -135,7 +134,6 @@
       collapsible: true,
       active     : false
     });
-
 
   });
 
@@ -252,11 +250,10 @@
             foreach ($p['CoPersonRole'] as $pr) {
               print '<div class = "role">';
                 print '<div class = "rolestatus">';
-
-                // Print Status
-                if(!empty($pr['status']) ) {
-                  print _txt('en.status', null, $pr['status']);
-                }
+                  // Print Status
+                  if(!empty($pr['status']) ) {
+                    print _txt('en.status', null, $pr['status']);
+                  }
                 print '</div>';
 
                 print '<div class = "roleinfo">';
@@ -307,6 +304,11 @@
                     } else{
                       print $pr['title'];
                     }
+
+                    // Insert placeholder when no title exists for display
+                    if(empty($pr['title'])) {
+                      print _txt('fd.title.none');
+                    }
                     
                     if(isset($pr['Cou']['name']))
                       print " (" . $pr['Cou']['name'] . ")";
@@ -323,12 +325,14 @@
 </div>
 
 <script>
-jQuery( document ).ready(function(){
-  jQuery( ".comparebutton" ).click( function( e ){
-   window.location = $(this).prop("href");
-  });
+  $( document ).ready(function() {
+    $( ".comparebutton, .editbutton" ).click( function( e ) {
+      event.stopPropagation();
+      window.location = $(this).prop("href");
+    });
 
-  jQuery( ".editbutton" ).click( function( e ){
-   window.location = $(this).prop("href");
-  });} );
+    $( ".deletebutton, .invitebutton" ).click( function( e ) {
+      event.stopPropagation();
+    } );
+  } );
 </script>

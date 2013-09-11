@@ -609,6 +609,7 @@ Please click the link below to accept or decline.
   'fd.telephone_number.number' => 'Phone',
   'fd.timestamp' =>   'Timestamp',
   'fd.title' =>       'Title',
+  'fd.title.none' =>  'No Title',
   'fd.true' =>        'True',
   'fd.type' =>        'Type',
   'fd.type.warn' =>   'After an extended attribute is created, its type may not be changed',
