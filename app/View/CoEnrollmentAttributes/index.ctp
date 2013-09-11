@@ -29,18 +29,6 @@
 
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
-
-  // Cancel button
-  $sidebarButtons[] = array(
-    'icon'    => 'circle-close',
-    'title'   => _txt('op.back'),
-    'url'     => array(
-      'controller' => 'co_enrollment_flows',
-      'action' => ($permissions['edit'] ? 'edit' : 'view'),
-      $vv_coefid,
-      'co' => $vv_coid
-    )
-  );
   
   // Add button
   if($permissions['add']) {
@@ -54,7 +42,22 @@
       )
     );
   }
-  
+
+  if($permissions['order']) {
+    // Reorder button
+    $sidebarButtons[] = array(
+      'icon'    => 'pencil',
+      'title'   => _txt('op.order.attr'),
+      'url'     => array(
+        'controller' => 'co_enrollment_attributes',
+        'action'     => 'order',
+        'coef'       => $vv_coefid,
+        'direction'  => 'asc',
+        'sort'       => 'ordr'
+      )
+    );
+  }
+
   $this->set('sidebarButtons', $sidebarButtons);
 
 ?>

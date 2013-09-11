@@ -28,6 +28,9 @@ class CoEnrollmentAttributesController extends StandardController {
   // Class name, used by Cake
   public $name = "CoEnrollmentAttributes";
   
+  // Use the javascript helper for the Views (for drag/drop in particular)
+  public $helpers = array('Js');
+
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 25,
@@ -84,7 +87,8 @@ class CoEnrollmentAttributesController extends StandardController {
     // magic works. XXX It would be good to be more specific, and just call unlockField()
     // on specific fields, but some initial testing does not make it obvious which
     // fields need to be unlocked.
-    $this->Security->unlockedActions = array('add', 'edit');
+    // Reorder was also unlocked so that the AJAX calls could get through for drag/drop reordering.
+    $this->Security->unlockedActions = array('add', 'edit', 'reorder');
     
     // Strictly speaking, this controller doesn't require a CO except to redirect/render views.
     // Figure out the CO ID associated with the current enrollment flow. We'll specifically
@@ -205,15 +209,34 @@ class CoEnrollmentAttributesController extends StandardController {
     
     // Edit an existing CO Enrollment Attribute?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
+
+    // Edit an existing CO Enrollment Attribute's order?
+    $p['order'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View all existing CO Enrollment Attributes?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Modify ordering for display via AJAX 
+    $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     // View an existing CO Enrollment Attributes?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
 
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+
+  /**
+   * Modify order of Enrollment Attributes; essentially like the index page plus an AJAX call
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+  
+  function order() {
+    // Show more for ordering
+    $this->paginate['limit'] = 200;
+    
+    parent::index();
   }
 
   /**
@@ -249,5 +272,21 @@ class CoEnrollmentAttributesController extends StandardController {
     $this->redirect(array('controller' => 'co_enrollment_attributes',
                           'action' => 'index',
                           'coef' => $coefid));
+  }
+
+  /**
+   * Save changes to the ordering made via drag/drop; called via AJAX.
+   * - postcondition: Database modified
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+
+  public function reorder() {
+    foreach ($this->data['CoEnrollmentAttributeId'] as $key => $value) {
+      $this->CoEnrollmentAttribute->id = $value;
+      $this->CoEnrollmentAttribute->saveField("ordr",$key + 1);
+    }
+    
+    exit();
   }
 }
