@@ -680,6 +680,7 @@ Please click the link below to accept or decline.
   'op.prov.view' =>   'Provisioned Services',
   'op.prov.wait' =>   'Requesting provisioning, please wait...',
   'op.remove' =>      'Remove',
+  'op.order.attr' =>  'Reorder Attributes',
   'op.reset' =>       'Reset Form',
   'op.save' =>        'Save',
   'op.select' =>      'Select',
