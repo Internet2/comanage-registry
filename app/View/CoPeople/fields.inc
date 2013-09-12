@@ -349,10 +349,21 @@
                   print $this->Form->error('Name.language');
                 }
               } else {
-                print _txt('en.language', null, $co_people[0]['Name']['language']);
+                if(!empty($co_people[0]['Name']['language'])) {
+                  print _txt('en.language', null, $co_people[0]['Name']['language']);
+                }
               }
             ?>
           </td>
+          <?php if($this->action == "compare"): ?>
+            <td>
+              <?php
+                if(!empty($co_people[0]['Name']['language'])) {
+                  print Sanitize::html($org_identities[0]['Name']['language']);
+                }
+              ?>
+            </td>
+          <?php endif; ?>
         </tr>
         <tr>
           <th>
