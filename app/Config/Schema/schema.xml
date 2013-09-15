@@ -556,6 +556,9 @@
     <field name="notify_from" type="C" size="256" />
     <field name="verification_subject" type="C" size="256" />
     <field name="verification_body" type="X" size="4000" />
+    <field name="notify_on_approval" type="L" />
+    <field name="approval_subject" type="C" size="256" />
+    <field name="approval_body" type="X" size="4000" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

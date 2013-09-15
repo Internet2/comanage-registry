@@ -22,6 +22,8 @@
  * @version       $Id$
  */
 
+App::uses('CakeEmail', 'Network/Email');
+
 class CoPetition extends AppModel {
   // Define class name for cake
   public $name = "CoPetition";
@@ -1114,12 +1116,13 @@ class CoPetition extends AppModel {
       if(!$fail) {
         $petitionAction = null;
         
-        switch($newStatus) {
+        switch($newPetitionStatus) {
           case StatusEnum::Approved:
             $petitionAction = PetitionActionEnum::Approved;
             break;
           case StatusEnum::Confirmed:
-            $petitionAction = PetitionActionEnum::InviteConfirmed;
+            // We already recorded this history above, so don't do it again here
+            //$petitionAction = PetitionActionEnum::InviteConfirmed;
             break;
           case StatusEnum::Denied:
             $petitionAction = PetitionActionEnum::Denied;
@@ -1239,6 +1242,98 @@ class CoPetition extends AppModel {
                 $fail = true;
               }
             }
+          }
+        }
+      }
+      
+      // Send an approval notification, if configured
+      
+      if(!$fail && $newPetitionStatus == StatusEnum::Approved) {
+        $enrollmentFlowID = $this->field('co_enrollment_flow_id');
+        
+        $notify = $this->CoEnrollmentFlow->field('notify_on_approval',
+                                                 array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
+        if($notify) {
+          // We'll embed some email logic here (similar to that in CoInvite), since we don't
+          // have a notification infrastructure yet. This should get refactored when CO-207
+          // is addressed. (Be sure to remove the reference to App::uses('CakeEmail'), above.)
+          
+          // Which address should we send to? How about the one we sent the invitation to...
+          // but we can't guarantee access to that since the invitation will have been
+          // discarded. So we use the same logic as resend(), above.
+          
+          $args = array();
+          $args['conditions']['EmailAddress.org_identity_id'] = $this->field('enrollee_org_identity_id');
+          $args['contain'] = false;
+          
+          $email = $this->EnrolleeOrgIdentity->EmailAddress->find('first', $args);
+          
+          if(isset($email['EmailAddress']['mail']) && $email['EmailAddress']['mail'] != "") {
+            $toEmail = $email['EmailAddress']['mail'];
+            
+            $notifyFrom = $this->CoEnrollmentFlow->field('notify_from',
+                                                         array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+            
+            $subjectTemplate = $this->CoEnrollmentFlow->field('approval_subject',
+                                                              array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+            
+            $bodyTemplate = $this->CoEnrollmentFlow->field('approval_body',
+                                                           array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+            
+            $coName = $this->Co->field('name', array('Co.id' => $this->field('co_id')));
+            
+            // Try to send the notification
+            
+            $email = new CakeEmail('default');
+            
+            $viewVariables = array();
+            $viewVariables['co_name'] = $coName;
+            $viewVariables['invite_id'] = "";  // Only set because CoInvite::processTemplate requires it
+            
+            try {
+              // XXX We use CoInvite's processTemplate, which isn't specific to CoInvite.
+              // However, that should be refactored as part of the Notification work
+              // so template processing happens in a more generic location.
+              // Note at that point processTemplate (if it still exists) should be made
+              // protected again.
+              $msgSubject = $this->CoInvite->processTemplate($subjectTemplate, $viewVariables);
+              $msgBody = $this->CoInvite->processTemplate($bodyTemplate, $viewVariables);
+              
+              $email->emailFormat('text')
+                    ->to($toEmail)
+                    ->subject($msgSubject)
+                    ->message($msgBody);
+              
+              // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
+              if(!empty($notifyFrom)) {
+                $email->from($notifyFrom);
+              }
+              
+              // Send the email
+              $email->send();
+              
+              // And cut a history record
+              
+              $this->CoPetitionHistoryRecord->record($id,
+                                                     $actorCoPersonID,
+                                                     PetitionActionEnum::NotificationSent,
+                                                     _txt('rs.nt.sent', array($toEmail)));
+            } catch(Exception $e) {
+              // We don't want to fail, but we will at least record that something went wrong
+              
+              $this->CoPetitionHistoryRecord->record($id,
+                                                     $actorCoPersonID,
+                                                     PetitionActionEnum::NotificationSent,
+                                                     _txt('er.nt.send', array($toEmail, $e->getMessage())));
+            }
+          } else {
+            // We don't want to fail, but we will at least record that something went wrong
+            
+            $this->CoPetitionHistoryRecord->record($id,
+                                                   $actorCoPersonID,
+                                                   PetitionActionEnum::NotificationSent,
+                                                   _txt('er.nt.email'));
           }
         }
       }

@@ -243,7 +243,8 @@ class CoInvite extends AppModel {
    * @return String Processed template
    */
   
-  protected function processTemplate($template, $viewVars) {
+  // XXX Revert this to protected when CoPetition::updateStatus gets refactored
+  public function processTemplate($template, $viewVars) {
     $searchKeys = array("(@CO_NAME)",
                         "(@INVITE_URL)");
     $replaceVals = array($viewVars['co_name'],

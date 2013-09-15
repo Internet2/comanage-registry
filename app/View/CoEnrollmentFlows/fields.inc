@@ -39,7 +39,6 @@
 
   if($e)
   {
-    
     // Edit button
     if($this->action == "edit" && $permissions['edit']){
       $sidebarButtons[] = array(
@@ -86,8 +85,21 @@
     }
   }
   
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+    
+    if(document.getElementById('CoEnrollmentFlowNotifyOnApproval').checked) {
+      $("#edit_co_enrollment_configuration tr:nth-child(12)").show('fade');
+      $("#edit_co_enrollment_configuration tr:nth-child(13)").show('fade');
+    } else {
+      $("#edit_co_enrollment_configuration tr:nth-child(12)").hide('fade');
+      $("#edit_co_enrollment_configuration tr:nth-child(13)").hide('fade');
+    }
+  }
+  
   function js_local_onload() {
     authz_update_gadgets();
+    fields_update_gadgets();
   }
 </script>
 <table id="<?php print $this->action; ?>_co_enrollment_configuration" class="ui-widget">
@@ -349,6 +361,42 @@
                      ? $this->Form->input('verification_body',
                                           array('default' => _txt('em.invite.body.ef')))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_body'])); ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
+        <b><?php print _txt('fd.ef.noap'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.noap.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('notify_on_approval',
+                                          array('onChange' => 'fields_update_gadgets();'))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'])); ?>
+      </td>
+    </tr>
+    <tr class="line1" style="display:none">
+      <td>
+        <b><?php print _txt('fd.ef.asub'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.asub.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('approval_subject',
+                                          array('default' => _txt('em.approval.subject.ef')))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_subject'])); ?>
+      </td>
+    </tr>
+    <tr class="line2" style="display:none">
+      <td>
+        <b><?php print _txt('fd.ef.abody'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.abody.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('approval_body',
+                                          array('default' => _txt('em.approval.body.ef')))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'])); ?>
       </td>
     </tr>
   </tbody>

@@ -238,6 +238,7 @@ class PetitionActionEnum
   const IdentifiersAssigned = 'IA';
   const InviteConfirmed     = 'IC';
   const InviteSent          = 'IS';
+  const NotificationSent    = 'NS';
 }
 
 // The status of a provisioning plugin

@@ -140,6 +140,19 @@ class CoEnrollmentFlow extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'notify_on_approval' => array(
+      'rule' => array('boolean')
+    ),
+    'approval_subject' => array(
+      'rule' => 'notEmpty',
+      'required' => true,
+      'allowEmpty' => false
+    ),
+    'approval_body' => array(
+      'rule' => 'notEmpty',
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'status' => array(
       'rule' => array('inList', array(StatusEnum::Active,
                                       StatusEnum::Suspended))
