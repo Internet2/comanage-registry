@@ -69,7 +69,7 @@ class ProvisionerBehavior extends ModelBehavior {
    * @todo   Don't throw exceptions, since that breaks the REST API
    */
   
-  public function afterSave(Model $model, $created) {
+  public function afterSave(Model $model, $created, $options = array()) {
     $pmodel = null;
     $pdata = null;
     $paction = null;
