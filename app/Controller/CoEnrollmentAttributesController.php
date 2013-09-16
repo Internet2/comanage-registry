@@ -227,19 +227,6 @@ class CoEnrollmentAttributesController extends StandardController {
   }
 
   /**
-   * Modify order of Enrollment Attributes; essentially like the index page plus an AJAX call
-   *
-   * @since  COmanage Registry v0.8.2
-   */
-  
-  function order() {
-    // Show more for ordering
-    $this->paginate['limit'] = 200;
-    
-    parent::index();
-  }
-
-  /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
    * @since  COmanage Registry v0.3
@@ -272,21 +259,5 @@ class CoEnrollmentAttributesController extends StandardController {
     $this->redirect(array('controller' => 'co_enrollment_attributes',
                           'action' => 'index',
                           'coef' => $coefid));
-  }
-
-  /**
-   * Save changes to the ordering made via drag/drop; called via AJAX.
-   * - postcondition: Database modified
-   *
-   * @since  COmanage Registry v0.8.2
-   */
-
-  public function reorder() {
-    foreach ($this->data['CoEnrollmentAttributeId'] as $key => $value) {
-      $this->CoEnrollmentAttribute->id = $value;
-      $this->CoEnrollmentAttribute->saveField("ordr",$key + 1);
-    }
-    
-    exit();
   }
 }

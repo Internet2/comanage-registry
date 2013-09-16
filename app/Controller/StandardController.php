@@ -698,6 +698,39 @@ class StandardController extends AppController {
   }
   
   /**
+   * Modify order of items via drag/drop; essentially like the index page plus an AJAX call
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+  
+  function order() {
+    // Show more for ordering
+    $this->paginate['limit'] = 200;
+
+    $this->index();
+  }
+
+  /**
+   * Save changes to the ordering made via drag/drop; called via AJAX.
+   * - postcondition: Database modified
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+
+  public function reorder() {
+    // Get a pointer to our model
+    $req = $this->modelClass;
+    $model = $this->$req;
+
+    foreach ($this->data[$req.'Id'] as $key => $value) {
+      $model->id = $value;
+      $model->saveField("ordr",$key + 1);
+    }
+
+    exit();
+  }
+
+  /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
    * @since  COmanage Registry v0.1

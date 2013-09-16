@@ -25,13 +25,38 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
-  if($permissions['add'])
-    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_navigation_links.1'),
-                            array('controller' => 'co_navigation_links', 'action' => 'add', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
+  
+  // Add button
+  if($permissions['add']) {
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-plus',
+      'title'   => _txt('op.add') . ' ' . _txt('ct.co_navigation_links.1'),
+      'url'     => array(
+        'controller' => 'co_navigation_links', 
+        'action'     => 'add',
+        'co'         => $cur_co['Co']['id']
+      )
+    );
+  }
+
+  if($permissions['order']) {
+    // Reorder button
+    $sidebarButtons[] = array(
+      'icon'    => 'pencil',
+      'title'   => _txt('op.order.attr'),
+      'url'     => array(
+        'controller' => 'co_navigation_links',
+        'action'     => 'order',
+        'direction'  => 'asc',
+        'sort'       => 'ordr',
+        'co' => $cur_co['Co']['id']
+      )
+    );
+  }
+
+  $this->set('sidebarButtons', $sidebarButtons);
 ?>
 
 <table id="co_navigation_links" class="ui-widget">

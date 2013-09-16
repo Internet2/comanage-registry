@@ -115,34 +115,4 @@ class NavigationLinksController extends StandardController {
     $this->set('permissions', $p);
     return $p[$this->action];
   }
-    
-  /**
-   * Modify order of Enrollment Attributes; essentially like the index page plus an AJAX call
-   *
-   * @since  COmanage Registry v0.8.2
-   */
-  
-  function order() {
-    // Show more for ordering
-    $this->paginate['limit'] = 200;
-    $this->log("order", 'debug');
-
-    parent::index();
-  }
-
-  /**
-   * Save changes to the ordering made via drag/drop; called via AJAX.
-   * - postcondition: Database modified
-   *
-   * @since  COmanage Registry v0.8.2
-   */
-
-  public function reorder() {
-    foreach ($this->data['NavigationLinkId'] as $key => $value) {
-      $this->NavigationLink->id = $value;
-      $this->NavigationLink->saveField("ordr",$key + 1);
-    }
-    exit();
-  }
-
 }

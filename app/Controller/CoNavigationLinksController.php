@@ -39,6 +39,25 @@ class CoNavigationLinksController extends StandardController {
   // This controller needs a CO to be set
   public $requires_co = true;
 
+ /**
+   * Callback before other controller methods are invoked or views are rendered.
+   * - postcondition: Auth component is configured 
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+  
+  function beforeFilter() {
+    
+    parent::beforeFilter();
+    
+    // Sub optimally, we need to unlock reorder so that the AJAX calls could get through 
+    // for drag/drop reordering.
+    // XXX It would be good to be more specific, and just call unlockField()
+    // on specific fields, but some initial testing does not make it obvious which
+    // fields need to be unlocked.
+    $this->Security->unlockedActions = array('reorder');
+  }
+
   /**
    * Get location options for view.
    * - postcondition: vv_link_location_options set
@@ -83,6 +102,10 @@ class CoNavigationLinksController extends StandardController {
     // Edit an existing CO Link?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Reorder Links?
+    $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['order'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     // View all existing CO Links?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
