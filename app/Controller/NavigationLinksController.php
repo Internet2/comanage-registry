@@ -27,7 +27,10 @@ App::uses("StandardController", "Controller");
 class NavigationLinksController extends StandardController {
   // Class name, used by Cake
   public $name = "NavigationLinks";
-  
+    
+  // Use the javascript helper for the Views (for drag/drop in particular)
+  public $helpers = array('Js');
+
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 25,
@@ -35,6 +38,25 @@ class NavigationLinksController extends StandardController {
       'NavigationLink.type_name' => 'asc'
     )
   );
+
+  /**
+   * Callback before other controller methods are invoked or views are rendered.
+   * - postcondition: Auth component is configured 
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+  
+  function beforeFilter() {
+    
+    parent::beforeFilter();
+    
+    // Sub optimally, we need to unlock reorder so that the AJAX calls could get through 
+    // for drag/drop reordering.
+    // XXX It would be good to be more specific, and just call unlockField()
+    // on specific fields, but some initial testing does not make it obvious which
+    // fields need to be unlocked.
+    $this->Security->unlockedActions = array('reorder');
+  }
 
   /**
    * Get location options for view.
@@ -83,10 +105,44 @@ class NavigationLinksController extends StandardController {
     // View all existing  Links?
     $p['index'] = ($roles['cmadmin'] );
     
+    // Reorder Links?
+    $p['reorder'] = ($roles['cmadmin'] );
+    $p['order'] = ($roles['cmadmin'] );
+
     // View an existing  Link?
     $p['view'] = ($roles['cmadmin'] );
 
     $this->set('permissions', $p);
     return $p[$this->action];
   }
+    
+  /**
+   * Modify order of Enrollment Attributes; essentially like the index page plus an AJAX call
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+  
+  function order() {
+    // Show more for ordering
+    $this->paginate['limit'] = 200;
+    $this->log("order", 'debug');
+
+    parent::index();
+  }
+
+  /**
+   * Save changes to the ordering made via drag/drop; called via AJAX.
+   * - postcondition: Database modified
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+
+  public function reorder() {
+    foreach ($this->data['NavigationLinkId'] as $key => $value) {
+      $this->NavigationLink->id = $value;
+      $this->NavigationLink->saveField("ordr",$key + 1);
+    }
+    exit();
+  }
+
 }

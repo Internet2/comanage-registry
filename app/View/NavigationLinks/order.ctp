@@ -1,6 +1,6 @@
 <!--
 /**
- * COmanage Registry CO Enrollment Attribute Order View
+ * COmanage Registry Navigation Links Order View
  *
  * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -35,11 +35,10 @@
   if($permissions['add']) {
     $sidebarButtons[] = array(
       'icon'    => 'circle-plus',
-      'title'   => _txt('op.add') . ' ' . _txt('ct.co_enrollment_attributes.1'),
+      'title'   => _txt('op.add') . ' ' . _txt('ct.navigation_links.1'),
       'url'     => array(
-        'controller' => 'co_enrollment_attributes', 
-        'action' => 'add', 
-        'coef' => $vv_coefid
+        'controller' => 'navigation_links', 
+        'action' => 'add'
       )
     );
   }
@@ -49,42 +48,58 @@
   // Enable and configure drag/drop sorting 
   $this->Js->get('#sortable');
   $this->Js->sortable(array(
-    'complete' => '$.post("/registry/co_enrollment_attributes/reorder", $("#sortable").sortable("serialize"))',
+    'complete' => '$.post("/registry/navigation_links/reorder", $("#sortable").sortable("serialize"))',
     ));
 ?>
 
-<table id="enrollment_attributes" class="ui-widget">
+<table id="navigation_links" class="ui-widget">  
   <thead>
     <tr class="ui-widget-header">
       <th><?php print _txt('fd.ea.order'); ?></th>
-      <th><?php print _txt('fd.ea.label'); ?></th>
-      <th><?php print _txt('fd.attribute'); ?></th>
+
+      <th><?php print _txt('fd.link.title'); ?></th>
+      <th><?php print _txt('fd.link.url'); ?></th>
+      <th><?php print _txt('fd.desc'); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
   <tbody id="sortable">
-    <?php foreach ($co_enrollment_attributes as $c): ?>
-      <tr id = "CoEnrollmentAttributeId_<?php print $c['CoEnrollmentAttribute']['id']?>" class="line1">
+    <?php $i = 0; ?>
+    <?php foreach ($navigation_links as $c): ?>
+      <tr id = "NavigationLinkId_<?php print $c['NavigationLink']['id']?>" class="line1">
         <td class = "order">
           <span class="ui-icon ui-icon-arrowthick-2-n-s"></span> 
         </td>
         <td>
           <?php
-            print $this->Html->link($c['CoEnrollmentAttribute']['label'],
-                                    array('controller' => 'co_enrollment_attributes',
-                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                          $c['CoEnrollmentAttribute']['id'],
-                                          'coef' => $vv_coefid));
+            print $this->Html->link($c['NavigationLink']['title'],
+                                    array('controller' => 'navigation_links',
+                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['NavigationLink']['id']));
           ?>
         </td>
-        <td><?php print $vv_available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
+        <td><?php print Sanitize::html($c['NavigationLink']['url']); ?></td>
+        <td><?php print Sanitize::html($c['NavigationLink']['description']); ?></td>
+        <td>
+          <?php
+            if($permissions['edit'])
+              print $this->Html->link(_txt('op.edit'),
+                                      array('controller' => 'navigation_links', 'action' => 'edit', $c['NavigationLink']['id']),
+                                      array('class' => 'editbutton')) . "\n";
+              
+            if($permissions['delete'])
+              print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['NavigationLink']['title'])) . '\', \'' . $this->Html->url(array('controller' => 'navigation_links', 'action' => 'delete', $c['NavigationLink']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+          ?>
+          <?php ; ?>
+        </td>
       </tr>
+    <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="3">
+      <th colspan="5">
         <?php print $this->Paginator->numbers(); ?>
       </th>
     </tr>

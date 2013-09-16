@@ -257,6 +257,15 @@ body {
         float:right;
       }
 
+    /* Drag/drop ordering */
+    .order .ui-icon{
+      float: left;
+    }
+
+    .order {
+      padding-left: 18px;
+    }     
+
   /* Sidebar (right) */
   #sidebar {
     float: left;

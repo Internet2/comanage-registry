@@ -25,13 +25,36 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
-  if($permissions['add'])
-    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.navigation_links.1'),
-                            array('controller' => 'navigation_links', 'action' => 'add'),
-                            array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+  // Add buttons to sidebar
+  $sidebarButtons = $this->get('sidebarButtons');
+  
+  // Add button
+  if($permissions['add']) {
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-plus',
+      'title'   => _txt('op.add') . ' ' . _txt('ct.navigation_links.1'),
+      'url'     => array(
+        'controller' => 'navigation_links', 
+        'action' => 'add'
+      )
+    );
+  }
+
+  if($permissions['order']) {
+    // Reorder button
+    $sidebarButtons[] = array(
+      'icon'    => 'pencil',
+      'title'   => _txt('op.order.attr'),
+      'url'     => array(
+        'controller' => 'navigation_links',
+        'action'     => 'order',
+        'direction'  => 'asc',
+        'sort'       => 'ordr'
+      )
+    );
+  }
+
+  $this->set('sidebarButtons', $sidebarButtons);
 ?>
 
 <table id="navigation_links" class="ui-widget">

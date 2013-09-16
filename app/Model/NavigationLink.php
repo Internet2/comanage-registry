@@ -52,7 +52,8 @@ class NavigationLink extends AppModel {
     'url' => array(
       'rule' => 'url',
       'required' => false,
-      'allowEmpty' => true
+      'allowEmpty' => true,
+      'message' => 'A valid URL must be given.'
     ),
 
     'ordr' => array(
