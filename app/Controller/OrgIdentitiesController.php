@@ -454,6 +454,11 @@ class OrgIdentitiesController extends StandardController {
         $url['Search.'.$field] = $value; 
     }
 
+    // Include CO
+    if($this->requires_co) {
+      $url['co'] = $this->cur_co['Co']['id'];
+    }
+    
     // redirect the user to the url
     $this->redirect($url, null, true);
   }
