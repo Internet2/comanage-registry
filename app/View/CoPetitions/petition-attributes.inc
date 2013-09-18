@@ -60,6 +60,11 @@
   } 
 </style>
 
+<div>
+  <div id="results">
+  </div>
+</div>
+
 <div style = "overflow:hidden;">
   <?php 
     // Sort attributes by model for printing
@@ -297,10 +302,3 @@
     </table>
   </div>
 <?php endif; // action == add ?>
-
-<!-- begin 
-<div>
-  <div style="float:right;width:35%" id="results">
-  </div>
-</div>
-//-->

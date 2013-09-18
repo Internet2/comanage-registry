@@ -34,7 +34,10 @@
         array('controller' => 'co_people', 'action' => 'edit', $m['CoPerson']['id'], 'co' => $m['CoPerson']['co_id'])
       );
       if(isset($m['CoPersonRole'][0])) {
-        print " (" . $m['CoPersonRole'][0]['title'] . ", " . _txt('en.affil', null, $m['CoPersonRole'][0]['affiliation']) . ")";
+        print " ("
+              . (!empty($m['CoPersonRole'][0]['title']) ? $m['CoPersonRole'][0]['title'] . ", " : "")
+              . (!empty($m['CoPersonRole'][0]['affiliation']) ? _txt('en.affil', null, $m['CoPersonRole'][0]['affiliation']) : "")
+              . ")";
       }
       print "</li>\n";
     }
