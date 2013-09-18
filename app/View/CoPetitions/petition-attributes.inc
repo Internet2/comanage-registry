@@ -93,6 +93,22 @@
     <div class="ui-widget modelbox">
       <div class = "boxtitle">
         <b><?php print $m ?></b>
+        <?php
+          // Only print the description once if it's the same for all items
+          $groupDesc = false;  // Not grouping by default
+          $descriptions = array();
+
+          foreach($coe_attributes as $ea) {
+            $descriptions[] = $ea['description'];
+          }
+          $descTypeCount = count(array_count_values($descriptions));
+
+          if($descTypeCount == 1 && !empty($coe_attributes[0]['description'])) {
+            print "</br>\n<font class=\"desc\">" . $ea['description'] . "</font>\n";
+            $groupDesc = true; // Set flag for later
+          }
+        ?>
+
       </div>
       <table id="<?php print $this->action; ?>_co_petition_attrs_<?php print $m?>" class="ui-widget">
         <tbody>
@@ -123,7 +139,8 @@
                   }
                   
                   if(isset($ea['description'])
-                     && $ea['description'] != "") {
+                    && !$groupDesc
+                    && $ea['description'] != "") {
                     print "</br>\n<font class=\"desc\">" . $ea['description'] . "</font>\n";
                   }
                 ?>
