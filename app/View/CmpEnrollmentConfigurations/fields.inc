@@ -78,18 +78,18 @@
     
     // Show the attribute fields, if appropriate
     if(document.getElementById('CmpEnrollmentConfigurationAttrsFromEnv').checked) {
-      $("#org_attributes").show('blind');
+      $("#org_attributes").show('fade');
     } else {
-      $("#org_attributes").hide('blind');
+      $("#org_attributes").hide('fade');
     }
     
     if(document.getElementById('CmpEnrollmentConfigurationAttrsFromCoef').checked) {
       // Required vs optional is set in the enrollment flow
-      $("#edit_cmp_enrollment_attributes td:nth-child(2)").hide('slide');
-      $("#edit_cmp_enrollment_attributes th:nth-child(2)").hide('slide');
+      $("#edit_cmp_enrollment_attributes td:nth-child(2)").hide('fade');
+      $("#edit_cmp_enrollment_attributes th:nth-child(2)").hide('fade');
     } else {
-      $("#edit_cmp_enrollment_attributes td:nth-child(2)").show('slide');
-      $("#edit_cmp_enrollment_attributes th:nth-child(2)").show('slide');
+      $("#edit_cmp_enrollment_attributes td:nth-child(2)").show('fade');
+      $("#edit_cmp_enrollment_attributes th:nth-child(2)").show('fade');
     }
     
     // Make LDAP and SAML attribute colums match the master settings

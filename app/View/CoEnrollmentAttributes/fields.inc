@@ -72,7 +72,7 @@
     var attrtype = curattr[0];
     
     if(attrtype == "r" || attrtype == "o" || attrtype == "x" || attrtype == "g") {
-      $("#attr_def_div").show("slide", { "direction" : "up" });
+      $("#attr_def_div").show("fade", { "direction" : "up" });
       
       // Adjust the gadgets shown
       
@@ -136,7 +136,7 @@
         $("#attr_def_val_div").show();
       }
     } else {
-      $("#attr_def_div").hide("slide", { "direction" : "up" });
+      $("#attr_def_div").hide("fade", { "direction" : "up" });
     }
   }
   
