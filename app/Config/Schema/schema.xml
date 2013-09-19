@@ -911,8 +911,12 @@
     <field name="url" type="C" size="256" />
     <field name="ordr" type="I" />
     <field name="location" type="C" size="32" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
     
-    <!-- XXX almost certainly need to create some indexes here -->
+    <index name="co_navigation_links_i1">
+      <col>co_id</col>
+    </index>
   </table>
 
   <table name="navigation_links">
@@ -927,7 +931,7 @@
     <field name="url" type="C" size="256" />
     <field name="ordr" type="I" />
     <field name="location" type="C" size="32" />
-    
-    <!-- XXX almost certainly need to create some indexes here -->
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
   </table>
 </schema>
