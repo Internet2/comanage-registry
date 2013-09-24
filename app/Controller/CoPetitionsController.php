@@ -255,6 +255,27 @@ class CoPetitionsController extends StandardController {
         }
         
         $this->set('co_enrollment_attributes', $enrollmentAttributes);
+        
+        // Pull any relevant Terms and Conditions that must be agreed to. We only do this
+        // if authentication is required (otherwise we can't really assert who agreed),
+        // and only for CO-wide T&C (ie: those without a COU ID specified). There's not
+        // necessarily a reason why we couldn't prompt for COU specific T&C, if the petition
+        // adjusted dynamically to the COU being enrolled in, but we don't have a use case
+        // for it at the moment.
+        
+        $authn = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
+                                                            array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
+        if($authn) {
+          $tArgs = array();
+          $tArgs['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
+          $tArgs['conditions']['CoTermsAndConditions.cou_id'] = null;
+          $tArgs['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Active;
+          $tArgs['contain'] = false;
+          
+          $this->set('vv_terms_and_conditions',
+                     $this->CoPetition->Co->CoTermsAndConditions->find('all', $tArgs));
+        }
       }
       
       if(($this->action == 'edit' || $this->action == 'view')

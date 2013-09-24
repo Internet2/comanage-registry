@@ -47,6 +47,7 @@ class Cou extends AppModel {
     ),
     "CoPersonRole",
     "CoPetition",
+    "CoTermsAndConditions",
     "CoEnrollmentFlowAuthzCou" => array(
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'authz_cou_id'

@@ -737,7 +737,7 @@ class CoPetition extends AppModel {
       }
     }
     
-    // Finally, CO Person Role data
+    // Next, CO Person Role data
     
     if(isset($coRoleData['EnrolleeCoPersonRole'])) {
       foreach(array_keys($coRoleData['EnrolleeCoPersonRole']) as $a) {
@@ -824,7 +824,7 @@ class CoPetition extends AppModel {
       throw new RuntimeException(_txt('er.db.save'));
     }
     
-    // Add a co_petition_history_record.
+    // Add a co_petition_history_record
     
     try {
       $this->CoPetitionHistoryRecord->record($coPetitionID,
@@ -834,6 +834,26 @@ class CoPetition extends AppModel {
     catch(Exception $e) {
       $dbc->rollback();
       throw new RuntimeException(_txt('er.db.save'));
+    }
+    
+    // Record agreements to Terms and Conditions, if any
+    
+    if(!empty($requestData['CoTermsAndConditions'])) {
+      foreach(array_keys($requestData['CoTermsAndConditions']) as $coTAndCId) {
+        try {
+          // Currently, T&C is only available via a petition when authn is required.
+          // The array value should be the authenticated identifier as set by the view.
+          
+          $this->Co->CoTermsAndConditions->CoTAndCAgreement->record($coTAndCId,
+                                                                    $coPersonID,
+                                                                    $coPersonID,
+                                                                    $requestData['CoTermsAndConditions'][$coTAndCId]);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+      }
     }
     
     // Send email invite if configured

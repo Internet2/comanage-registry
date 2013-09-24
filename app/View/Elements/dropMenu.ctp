@@ -232,7 +232,19 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                         print $this->Html->link(_txt('ct.co_provisioning_targets.pl'), $args);
                       print "</li>";
                     }
-
+                    
+                    if(isset($permissions['menu']['cotandc']) && $permissions['menu']['cotandc']) {
+                      print "<li>";
+                        $args = array();
+                        $args['plugin'] = null;
+                        $args['controller'] = 'co_terms_and_conditions';
+                        $args['action'] = 'index';
+                        $args['co'] = $menuCoId;
+                        
+                        print $this->Html->link(_txt('ct.co_terms_and_conditions.pl'), $args);
+                      print "</li>";
+                    }
+                    
                     if(isset($permissions['menu']['conavigationlinks'])) {
                       print "<li>";
                         $args = array();
@@ -326,11 +338,11 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
         <?php
           if($this->Session->check('Auth.User.cos'))
             $mycos = $this->Session->read('Auth.User.cos');
-
+          
           // Profiles
           if(isset($permissions['menu']['coprofile']) && $permissions['menu']['coprofile']) {
             $coCount = count($mycos);
-
+            
             // Identity Submenu
             print '<li>
                      <a href="#">'._txt('me.identity').'</a>
@@ -349,14 +361,32 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
             }
             print '</ul>
                 </li>';
-          ?>
-
-          <?php // Demographics submenu
+            
+            // T&C Submenu
+            print '<li>
+                     <a href="#">'._txt('me.tandc').'</a>
+                     <span class="sf-sub-indicator"> »</span>
+                     <ul>';
+            foreach ($mycos as $co) {
+              print "<li>";
+                $args = array(
+                  'controller' => 'co_terms_and_conditions',
+                  'action' => 'review',
+                  'copersonid' => $co['co_person_id'],
+                  'co' => $co['co_id']
+                );
+                print $this->Html->link(_txt('me.for', array($co['co_name'])), $args);
+              print "</li>";
+            }
+            print '</ul>
+                </li>';
+            
+            // Demographics submenu
             print '<li> 
                      <a href="#">'._txt('ct.co_nsf_demographics.pl').'</a>
                      <span class="sf-sub-indicator"> »</span>
                      <ul>';
-
+            
             foreach ($menuContent['CoNsfDemographic'] as $d) {
               print "<li>";
                 $args = array(
@@ -364,31 +394,30 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                   'controller' => 'co_nsf_demographics',
                   'co'         => $d['co_id']
                 );
-
-                // If the record already exists, the id is needed for edit
-                if(isset($d['id']))
-                  $args[] = $d['id'];
-
-                // Adjust the link to the NSF Demographics Controller according to 
-                // whether or not data has been set already.
-                $args['action'] = $d['action'];
-
-                // If the record does not exist, the person id is needed for add
-                if(isset($d['co_person_id']))
-                  $args['copersonid'] = $d['co_person_id'];
-
-                print $this->Html->link(_txt('me.for', array($d['co_name'])), 
-                                        $args
-                                       );
+              
+              // If the record already exists, the id is needed for edit
+              if(isset($d['id']))
+                $args[] = $d['id'];
+              
+              // Adjust the link to the NSF Demographics Controller according to 
+              // whether or not data has been set already.
+              $args['action'] = $d['action'];
+              
+              // If the record does not exist, the person id is needed for add
+              if(isset($d['co_person_id']))
+                $args['copersonid'] = $d['co_person_id'];
+                
+              print $this->Html->link(_txt('me.for', array($d['co_name'])), 
+                                      $args
+                                     );
               print "</li>";
             }
-
+            
             print '  </ul>
-                   </li>';
+                  </li>';
           }
-        ?>
-
-        <?php // Plugin submenus
+        
+          // Plugin submenus
           // This rendering is a bit different from how render_plugin_menus() does it...
           foreach(array_keys($plugins) as $plugin) {
             if(isset($plugins[$plugin]['coperson'])) {

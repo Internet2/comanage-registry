@@ -99,6 +99,14 @@ class CoPeopleController extends StandardController {
       $args['contain'][] = false;
       
       $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
+      
+      // Determine if there are any terms and conditions for this CO.
+      
+      $args = array();
+      $args['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
+      $args['contain'][] = false;
+      
+      $this->set('vv_co_tandc_count', $this->Co->CoTermsAndConditions->find('count', $args));
     }
     
     parent::beforeRender();

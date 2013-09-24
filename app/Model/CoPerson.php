@@ -40,7 +40,7 @@ class CoPerson extends AppModel {
     // A person can have one invite (per CO)
     "CoInvite" => array('dependent' => true),
     // A person can have one (preferred) name per CO
-    // This could change if Name became an MVPA    
+    // This could change if Name became an MVPA
     "Name" => array('dependent' => true)
   );
   
@@ -75,6 +75,8 @@ class CoPerson extends AppModel {
     "CoPetitionHistoryRecord" => array(
       'foreignKey' => 'actor_co_person_id'
     ),
+    "CoProvisioningExport" => array('dependent' => true),
+    "CoTandCAgreement" => array('dependent' => true),
     // A person can have one or more email address
     "EmailAddress" => array('dependent' => true),
     // We allow dependent=true for co_person_id but not for actor_co_person_id (see CO-404).
@@ -84,7 +86,6 @@ class CoPerson extends AppModel {
     ),
     // A person can have many identifiers within a CO
     "Identifier" => array('dependent' => true),
-    "CoProvisioningExport" => array('dependent' => true)
   );
 
   // Default display field for cake generated views

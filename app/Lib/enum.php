@@ -42,6 +42,8 @@ class ActionEnum
   const CoPersonRoleEditedPetition  = 'ECRP';
   const CoPersonOrgIdLinked         = 'LOCP';
   const CoPersonOrgIdUnlinked       = 'UOCP';
+  const CoTAndCAgreement            = 'TCAG';
+  const CoTAndCAgreementBehalf      = 'TCAB';
   const EmailAddressVerified        = 'EMLV';
   const IdentifierAutoAssigned      = 'AIDA';
   const InvitationConfirmed         = 'INVC';

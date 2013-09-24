@@ -934,4 +934,51 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
   </table>
+  
+  <table name="co_terms_and_conditions">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="url" type="C" size="256" />
+    <field name="cou_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_terms_and_conditions_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="co_t_and_c_agreements">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_terms_and_conditions_id" type="I">
+      <constraint>REFERENCES cm_co_terms_and_conditions(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="agreement_time" type="T" />
+    <field name="identifier" type="C" size="256" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_t_and_c_agreements_i1">
+      <col>co_terms_and_conditions_id</col>
+    </index>
+    
+    <index name="co_t_and_c_agreements_i2">
+      <col>co_person_id</col>
+    </index>
+  </table>
 </schema>

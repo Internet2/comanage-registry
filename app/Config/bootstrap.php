@@ -57,6 +57,9 @@ Cache::config('default', array('engine' => 'File'));
 Inflector::rules('singular', array('irregular' => array('cous' => 'cou')));
 Inflector::rules('plural', array('irregular' => array('cou' => 'cous')));
 
+Inflector::rules('singular', array('uninflected' => array('co_terms_and_conditions', 'CoTermsAndConditions')));
+Inflector::rules('plural', array('uninflected' => array('co_terms_and_conditions', 'CoTermsAndConditions')));
+
 /**
  * Plugins need to be loaded manually, you can either load them one by one or all of them in a single call
  * Uncomment one of the lines below, as you need. make sure you read the documentation on CakePlugin to use more

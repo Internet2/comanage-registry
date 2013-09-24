@@ -26,6 +26,9 @@
   // We do a series of <?php tags because we can't mix and match embedded tag styles.
   
   $l = 1;
+  
+  // Are there T&C to agree to?
+  $tandc = !empty($vv_terms_and_conditions);
 ?>
   
 <style>
@@ -59,6 +62,89 @@
     min-width: 387px;
   } 
 </style>
+
+<script type="text/javascript">
+  var tandcids = Array(
+    <?php
+      // Use PHP to dynamically generate a list of T&C IDs into a Javascript array
+      if(!empty($vv_terms_and_conditions)) {
+        $i = 0;
+        foreach($vv_terms_and_conditions as $t) {
+          if($i > 0) { print ","; } else { $i++; }
+          print '"' . $t['CoTermsAndConditions']['id'] . '"';
+        }
+      }
+    ?>
+  );
+  
+  function open_tandc(title, tandcUrl, id) {
+    // Set title
+    $("div#dialog-review").dialog("option", "title", title);
+    
+    // Load T&C into iframe
+    $("#tandc_content").attr("src", tandcUrl);
+    
+    // Set up buttons
+    $("div#dialog-review").dialog("option",
+                                  "buttons",
+                                  {
+                                    "<?php print _txt('op.ok'); ?>": function() {
+                                      $(this).dialog("close");
+                                    }
+                                  });
+    
+    // Open dialog
+    $("#dialog-review").dialog("open");
+    
+    // Enable the checkbox
+    document.getElementById('CoTermsAndConditions'+id).disabled = false;
+  }
+  
+  function maybe_enable_submit() {
+    // If all checkboxes are enabled, enable submit
+    
+    var allagreed = 1;
+    
+    for(var i = 0;i < tandcids.length;i++) {
+      if(!document.getElementById('CoTermsAndConditions'+tandcids[i]).checked) {
+        allagreed = 0;
+      }
+    }
+    
+    if(allagreed) {
+      $(":submit").removeAttr('disabled');
+    }
+  }
+  
+<?php if($tandc): ?>
+  function js_local_onload()
+  {
+    // Local (to this view) initializations
+    
+    // Disable checkboxes until individual T&C are reviewed
+    for(var i = 0;i < tandcids.length;i++) {
+      document.getElementById('CoTermsAndConditions'+tandcids[i]).disabled = true;
+    }
+    
+    // Disable submit button until all T&C are agreed to
+    $(":submit").attr('disabled', true);
+  }
+<?php endif; ?>
+  
+  $(function() {
+    $("#dialog-review").dialog({
+      autoOpen: false,
+      height: 725,
+      width: 750,
+      modal: true,
+      buttons: {
+        "<?php print _txt('op.ok'); ?>": function() {
+          $(this).dialog("close");
+        }
+      }
+    })
+  });
+</script>
 
 <div>
   <div id="results">
@@ -259,6 +345,51 @@
   <?php 
     endforeach; // foreach ($coea_model as $m => $coe_attributes): 
   ?>
+
+  <?php if(!empty($vv_terms_and_conditions)): ?>
+  <?php $line = 0; ?>
+    <div class="ui-widget modelbox">
+      <div class="boxtitle">
+        <b><?php print _txt('op.tc.agree'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.tc.agree.desc'); ?></font>
+      </div>
+      <table id="<?php print $this->action; ?>_co_petition_tandc" class="ui-widget">
+        <tbody>
+          <?php foreach($vv_terms_and_conditions as $t): ?>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td>
+              <?php
+                print _txt('op.tc.agree.i');
+                
+                $args = array();
+                $args['value'] = $this->Session->read('Auth.User.username');
+                $args['onClick'] = "maybe_enable_submit()";
+                
+                $fieldName = "CoTermsAndConditions." . $t['CoTermsAndConditions']['id'];
+                
+                print $this->Form->checkbox($fieldName, $args);
+              ?>
+            </td>
+            <td>
+              <b><?php print $t['CoTermsAndConditions']['description']; ?></b>
+            </td>
+            <td>
+              <button class="checkbutton"
+                      type="button"
+                      onClick="open_tandc('<?php print addslashes($t['CoTermsAndConditions']['description']); ?>',
+                                          '<?php print addslashes($t['CoTermsAndConditions']['url']); ?>',
+                                          '<?php print addslashes($t['CoTermsAndConditions']['id']); ?>')">
+                <?php print _txt('op.tc.review'); ?>
+              </button>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+        </td>
+      </tr>
+    </tbody>
+  </table>    </div>
+  <?php endif; ?>
+
   <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
     <tbody>
       <tr>
@@ -268,7 +399,7 @@
         <td>
           <?php
             if($e) {
-              echo $this->Form->submit($submit_label);
+              print $this->Form->submit($submit_label);
               print $this->Form->button(_txt('op.reset'), 
                                         array('type'=>'reset'));
             }
@@ -302,3 +433,8 @@
     </table>
   </div>
 <?php endif; // action == add ?>
+
+<div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
+  <iframe id="tandc_content" height="600" width="700">
+  </iframe>
+</div>

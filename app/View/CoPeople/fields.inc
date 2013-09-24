@@ -79,7 +79,7 @@
             'icon'    => 'script',
             'title'   => _txt('op.id.auto'),
             'url'     => 'javascript:js_confirm_autogenerate();' // Does not work when added in options
-          );
+        );
       }
       
       // Provisioning status
@@ -94,6 +94,20 @@
             'co'         => $cur_co['Co']['id']
           )
         ); 
+      }
+      
+      // Terms and Conditions
+      if(!empty($vv_co_tandc_count) && $vv_co_tandc_count > 0) {
+        $sidebarButtons[] = array(
+          'icon'    => 'tag',
+          'title'   => _txt('op.tc.review'),
+          'url'     => array(
+            'controller' => 'co_terms_and_conditions', 
+            'action'     => 'review', 
+            'copersonid' => $co_people[0]['CoPerson']['id'], 
+            'co'         => $cur_co['Co']['id']
+          )
+        );
       }
     }
     

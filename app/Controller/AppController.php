@@ -1102,6 +1102,9 @@ class AppController extends Controller {
     // Manage CO provisioning targets?
     $p['menu']['coprovtargets'] = $roles['admin'];
     
+    // Manage CO terms and conditions?
+    $p['menu']['cotandc'] = $roles['admin'];
+  
     // Admin COmanage?
     $p['menu']['admin'] = $roles['cmadmin'];
     

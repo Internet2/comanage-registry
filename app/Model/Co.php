@@ -47,6 +47,7 @@ class Co extends AppModel {
     "CoPetition" => array('dependent' => true),
     // A CO can have zero or more provisioning targets
     "CoProvisioningTarget" => array('dependent' => true),
+    "CoTermsAndConditions" => array('dependent' => true),
     // A CO has zero or more COUs
     "Cou" => array('dependent' => true),
     // A CO has zero or more OrgIdentities, depending on if they are pooled.
