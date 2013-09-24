@@ -510,6 +510,8 @@ Please click the link below to accept or decline.
   'fd.ef.env.desc' => 'Examine the server environment for authoritative organizational identity attributes',
   'fd.ef.epx' =>      'Early Provisioning Executable',
   'fd.ef.epx.desc' => '(Need for this TBD)',
+  'fd.ef.intro' =>    'Introduction',
+  'fd.ef.intro.desc' => 'Optional text to display at the top of a Petition form',
   'fd.ef.ldap' =>     'Enable LDAP Attribute Retrieval',
   'fd.ef.ldap.desc' => 'If the enrollee is affiliated with an organization with a known LDAP server, query the LDAP server for authoritative attributes',
   'fd.ef.match' =>    'Identity Matching',

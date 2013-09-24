@@ -276,6 +276,15 @@ class CoPetitionsController extends StandardController {
           $this->set('vv_terms_and_conditions',
                      $this->CoPetition->Co->CoTermsAndConditions->find('all', $tArgs));
         }
+        
+        // See if there is introductory text
+        
+        $introText = $this->CoPetition->CoEnrollmentFlow->field('introduction_text',
+                                                                array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
+        if($introText) {
+          $this->set('vv_introduction_text', $introText);
+        }
       }
       
       if(($this->action == 'edit' || $this->action == 'view')

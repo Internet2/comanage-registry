@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Configuration Fields
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -397,6 +397,17 @@
                      ? $this->Form->input('approval_body',
                                           array('default' => _txt('em.approval.body.ef')))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'])); ?>
+      </td>
+    </tr>
+    <tr class="line1">
+      <td>
+        <b><?php print _txt('fd.ef.intro'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.intro.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('introduction_text')
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['introduction_text'])); ?>
       </td>
     </tr>
   </tbody>
