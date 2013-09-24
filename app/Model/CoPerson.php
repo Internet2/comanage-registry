@@ -76,7 +76,7 @@ class CoPerson extends AppModel {
       'foreignKey' => 'actor_co_person_id'
     ),
     "CoProvisioningExport" => array('dependent' => true),
-    "CoTandCAgreement" => array('dependent' => true),
+    "CoTAndCAgreement" => array('dependent' => true),
     // A person can have one or more email address
     "EmailAddress" => array('dependent' => true),
     // We allow dependent=true for co_person_id but not for actor_co_person_id (see CO-404).
