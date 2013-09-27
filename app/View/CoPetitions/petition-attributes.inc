@@ -113,6 +113,9 @@
     
     if(allagreed) {
       $(":submit").removeAttr('disabled');
+    } else {
+      // Reset disabled in case "I Agree" was unchecked
+      $(":submit").attr('disabled', true);
     }
   }
   
