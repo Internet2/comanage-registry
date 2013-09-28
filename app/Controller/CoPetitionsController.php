@@ -74,10 +74,16 @@ class CoPetitionsController extends StandardController {
   function add() {
     if(!$this->restful) {
       $enrollmentFlowID = $this->enrollmentFlowID();
-        
+      
+      // Set the title to be the name of the enrollment flow
+      
+      $this->set('title_for_layout',
+                 $this->CoPetition->CoEnrollmentFlow->field('name',
+                                                            array('CoEnrollmentFlow.id' => $enrollmentFlowID)));
+      
       if($this->request->is('post')) {
         // Set the view var. We need this on both success and failure.
-          
+        
         $this->set('co_enrollment_attributes',
                    $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($enrollmentFlowID));
         
@@ -112,9 +118,6 @@ class CoPetitionsController extends StandardController {
         }
         catch(Exception $e) {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');
-          
-          // Set page title for page refresh
-          $this->set('title_for_layout', _txt('op.add.new', array(_txt('ct.co_petitions.1'))));
         }
       } else {
         parent::add();

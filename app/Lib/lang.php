@@ -709,6 +709,7 @@ Please click the link below to accept or decline.
   'op.save' =>        'Save',
   'op.select' =>      'Select',
   'op.select-a' =>    'Select a %1$s',
+  'op.submit' =>      'Submit',
   'op.tc.agree' =>    'Agree to Terms and Conditions',
   'op.tc.agree.i' =>  'I Agree',
   'op.tc.review' =>   'Review Terms and Conditions',

@@ -55,8 +55,10 @@ class StandardController extends AppController {
       // Reformat the request
       $data = $this->convertRestPost();
     } else {
-      // Set page title
-      $this->set('title_for_layout', _txt('op.add.new', array(_txt('ct.' . $modelpl . '.1'))));
+      if(!isset($this->viewVars['title_for_layout'])) {
+        // Set page title, if not already set
+        $this->set('title_for_layout', _txt('op.add.new', array(_txt('ct.' . $modelpl . '.1'))));
+      }
       
       if($this->request->is('get')) {
         // Nothing to do yet... return to let the form render
@@ -317,27 +319,29 @@ class StandardController extends AppController {
     }
 
     if(!$this->restful) {
-      // Set page title -- note we do similar logic in view()
-      
-      $t = _txt('ct.' . $modelpl . '.1');
-      
-      if(!empty($curdata['Name'])) {
-        $t = generateCn($curdata['Name']);
-      } elseif(!empty($curdata[$req][ $model->displayField ])) {
-        $t = $curdata[$req][ $model->displayField ];
-      }
-      
-      if($this->requires_person) {
-        if(!empty($curdata[$req]['co_person_id'])) {
-          $t .= " (" . _txt('ct.co_people.1') . ")";
-        } elseif(!empty($curdata[$req]['co_person_role_id'])) {
-          $t .= " (" . _txt('ct.co_person_roles.1') . ")";
-        } elseif(!empty($curdata[$req]['org_identity_id'])) {
-          $t .= " (" . _txt('ct.org_identities.1') . ")";
+      if(!isset($this->viewVars['title_for_layout'])) {
+        // Set page title if not already set -- note we do similar logic in view()
+        
+        $t = _txt('ct.' . $modelpl . '.1');
+        
+        if(!empty($curdata['Name'])) {
+          $t = generateCn($curdata['Name']);
+        } elseif(!empty($curdata[$req][ $model->displayField ])) {
+          $t = $curdata[$req][ $model->displayField ];
         }
+        
+        if($this->requires_person) {
+          if(!empty($curdata[$req]['co_person_id'])) {
+            $t .= " (" . _txt('ct.co_people.1') . ")";
+          } elseif(!empty($curdata[$req]['co_person_role_id'])) {
+            $t .= " (" . _txt('ct.co_person_roles.1') . ")";
+          } elseif(!empty($curdata[$req]['org_identity_id'])) {
+            $t .= " (" . _txt('ct.org_identities.1') . ")";
+          }
+        }
+        
+        $this->set('title_for_layout', _txt('op.edit-a', array($t)));
       }
-      
-      $this->set('title_for_layout', _txt('op.edit-a', array($t)));
     }
     
     if($this->restful)
@@ -875,27 +879,29 @@ class StandardController extends AppController {
         $this->set($modelpl, $this->convertResponse(array(0 => $obj)));
         $this->restResultHeader(200, "OK");
       } else {
-        // Set page title -- note we do similar logic in edit()
-        
-        $t = _txt('ct.' . $modelpl . '.1');
-        
-        if(!empty($obj['Name'])) {
-          $t = generateCn($obj['Name']);
-        } elseif(!empty($obj[$req][ $model->displayField ])) {
-          $t = $obj[$req][ $model->displayField ];
-        }
+        if(!isset($this->viewVars['title_for_layout'])) {
+          // Set page title if not already set -- note we do similar logic in edit()
           
-        if($this->requires_person) {
-          if(!empty($obj[$req]['co_person_id'])) {
-            $t .= " (" . _txt('ct.co_people.1') . ")";
-          } elseif(!empty($obj[$req]['co_person_role_id'])) {
-            $t .= " (" . _txt('ct.co_person_roles.1') . ")";
-          } elseif(!empty($obj[$req]['org_identity_id'])) {
-            $t .= " (" . _txt('ct.org_identities.1') . ")";
+          $t = _txt('ct.' . $modelpl . '.1');
+          
+          if(!empty($obj['Name'])) {
+            $t = generateCn($obj['Name']);
+          } elseif(!empty($obj[$req][ $model->displayField ])) {
+            $t = $obj[$req][ $model->displayField ];
           }
+            
+          if($this->requires_person) {
+            if(!empty($obj[$req]['co_person_id'])) {
+              $t .= " (" . _txt('ct.co_people.1') . ")";
+            } elseif(!empty($obj[$req]['co_person_role_id'])) {
+              $t .= " (" . _txt('ct.co_person_roles.1') . ")";
+            } elseif(!empty($obj[$req]['org_identity_id'])) {
+              $t .= " (" . _txt('ct.org_identities.1') . ")";
+            }
+          }
+          
+          $this->set('title_for_layout', _txt('op.view-a', array($t)));
         }
-        
-        $this->set('title_for_layout', _txt('op.view-a', array($t)));
         
         $this->set($modelpl, array(0 => $obj));
         
