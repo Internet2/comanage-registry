@@ -33,7 +33,7 @@ class CoLocalization extends AppModel {
   public $belongsTo = array("Co");
   
   // Default display field for cake generated views
-  public $displayField = "key";
+  public $displayField = "lkey";
   
   public $actsAs = array('Containable');
   
@@ -45,7 +45,7 @@ class CoLocalization extends AppModel {
       'allowEmpty' => false,
       'message' => 'A CO ID must be provided'
     ),
-    'key' => array(
+    'lkey' => array(
       'rule' => '/.*/',
       'required' => true,
       'allowEmpty' => false

@@ -32,7 +32,7 @@ class CoLocalizationsController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'CoLocalizations.key' => 'asc'
+      'CoLocalizations.lkey' => 'asc'
     )
   );
   
@@ -89,7 +89,7 @@ class CoLocalizationsController extends StandardController {
     
     $args = array();
     $args['conditions']['CoLocalization.co_id'] = $reqdata['CoLocalization']['co_id'];
-    $args['conditions']['CoLocalization.key'] = $reqdata['CoLocalization']['key'];
+    $args['conditions']['CoLocalization.lkey'] = $reqdata['CoLocalization']['lkey'];
     $args['conditions']['CoLocalization.language'] = $reqdata['CoLocalization']['language'];
     $args['contain'] = false;
     
@@ -99,7 +99,7 @@ class CoLocalizationsController extends StandardController {
         //$this->restResultHeader(403, "Identifier In Use");
       } else {
         $this->Session->setFlash(_txt('er.loc.exists',
-                                      array(Sanitize::html($reqdata['CoLocalization']['key']),
+                                      array(Sanitize::html($reqdata['CoLocalization']['lkey']),
                                             Sanitize::html($reqdata['CoLocalization']['language']))),
                                  '', array(), 'error');
       }

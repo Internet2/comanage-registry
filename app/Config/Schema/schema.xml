@@ -991,7 +991,8 @@
     <field name="co_id" type="I">
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
-    <field name="key" type="C" size="40" />
+    <!-- mysql doesn't want a column called "key" -->
+    <field name="lkey" type="C" size="40" />
     <field name="language" type="C" size="16" />
     <field name="text" type="C" size="256" />
     
@@ -1004,7 +1005,7 @@
     </index>
     <index name="co_localizations_i3">
       <col>co_id</col>
-      <col>key</col>
+      <col>lkey</col>
       <col>language</col>
       <unique />
     </index>

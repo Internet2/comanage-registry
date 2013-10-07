@@ -48,7 +48,7 @@
       }
     ?>
     
-    $("#original").text(cm_texts[document.getElementById('CoLocalizationKey').value]);
+    $("#original").text(cm_texts[document.getElementById('CoLocalizationLkey').value]);
   }
   
   function js_local_onload() {
@@ -64,8 +64,8 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_localizations[0]['CoLocalization']['key'])
-                             ? $co_localizations[0]['CoLocalization']['key']
+          $attrs['value'] = (isset($co_localizations[0]['CoLocalization']['lkey'])
+                             ? $co_localizations[0]['CoLocalization']['lkey']
                              : "");
           $attrs['empty'] = false;
           $attrs['onChange'] = 'populate_default_text()';
@@ -74,15 +74,15 @@
             // Make sure both the value and the displayed text are the key
             $keys = array_keys($vv_cm_texts);
             
-            print $this->Form->select('key',
+            print $this->Form->select('lkey',
                                       array_combine($keys, $keys),
                                       $attrs);
             
-            if($this->Form->isFieldError('key')) {
-              print $this->Form->error('key');
+            if($this->Form->isFieldError('lkey')) {
+              print $this->Form->error('lkey');
             }
           } else {
-            print $co_localizations[0]['CoLocalization']['key'];
+            print $co_localizations[0]['CoLocalization']['lkey'];
           }
         ?>
       </td>

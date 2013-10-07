@@ -206,7 +206,7 @@ class AppController extends Controller {
           $args = array();
           $args['conditions']['CoLocalization.co_id'] = $coid;
           $args['conditions']['CoLocalization.language'] = $cm_lang;
-          $args['fields'] = array('CoLocalization.key', 'CoLocalization.text');
+          $args['fields'] = array('CoLocalization.lkey', 'CoLocalization.text');
           $args['contain'] = false;
           
           $ls = $this->CoLocalization->find('list', $args);

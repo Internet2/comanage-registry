@@ -46,7 +46,7 @@
 <table id="co_localizations" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php print $this->Paginator->sort('key', _txt('fd.key')); ?></th>
+      <th><?php print $this->Paginator->sort('lkey', _txt('fd.key')); ?></th>
       <th><?php print $this->Paginator->sort('language', _txt('fd.language')); ?></th>
       <th><?php print $this->Paginator->sort('text', _txt('fd.text')); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
@@ -59,7 +59,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print $this->Html->link($c['CoLocalization']['key'],
+          print $this->Html->link($c['CoLocalization']['lkey'],
                                   array('controller' => 'co_localizations',
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                                         $c['CoLocalization']['id'],
@@ -79,7 +79,7 @@
                                     array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'])
-            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoLocalization']['key'])) . '\', \'' . $this->Html->url(array('controller' => 'co_localizations', 'action' => 'delete', $c['CoLocalization']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoLocalization']['lkey'])) . '\', \'' . $this->Html->url(array('controller' => 'co_localizations', 'action' => 'delete', $c['CoLocalization']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>
