@@ -196,6 +196,25 @@ class AppController extends Controller {
             $this->CoInvite->CoPetition->EnrolleeCoPerson->Identifier->coId = $coid;
           }
           
+          // Load dynamic texts. We do this here because lang.php doesn't have access to models yet.
+          
+          global $cm_texts;
+          global $cm_lang;
+          
+          $this->loadModel('CoLocalization');
+          
+          $args = array();
+          $args['conditions']['CoLocalization.co_id'] = $coid;
+          $args['conditions']['CoLocalization.language'] = $cm_lang;
+          $args['fields'] = array('CoLocalization.key', 'CoLocalization.text');
+          $args['contain'] = false;
+          
+          $ls = $this->CoLocalization->find('list', $args);
+          
+          if(!empty($ls)) {
+            $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], $ls);
+          }
+          
           // Perform a bit of a sanity check before we get any further
           try {
             $this->verifyRequestedId();
@@ -1095,6 +1114,9 @@ class AppController extends Controller {
 
     // Manage CO enrollment flow definitions?
     $p['menu']['coef'] = $roles['admin'];
+    
+    // Manage CO Localizations
+    $p['menu']['colocalizations'] = $roles['admin'];
   
     // Manage CO Links?
     $p['menu']['conavigationlinks'] = $roles['admin'];

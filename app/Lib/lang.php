@@ -22,7 +22,7 @@
  * @version       $Id$
  */
   
-global $cm_lang, $cm_texts;
+global $cm_lang, $cm_texts, $cm_texts_orig;
 
 // XXX move this to a master config
 $cm_lang = "en_US";
@@ -72,6 +72,8 @@ $cm_texts['en_US'] = array(
   'ct.co_groups.1' =>           'Group',
   'ct.co_groups.pl' =>          'Groups',
   'ct.co_invites.1' =>          'Invite',
+  'ct.co_localizations.1' =>       'Localization',
+  'ct.co_localizations.pl' =>      'Localizations',
   'ct.co_navigation_links.1' => 'Navigation Link',
   'ct.co_navigation_links.pl' => 'Navigation Links',
   'ct.co_invites.pl' =>         'Invites',
@@ -101,7 +103,7 @@ $cm_texts['en_US'] = array(
   'ct.navigation_links.1' =>    'Navigation Link',
   'ct.navigation_links.pl' =>   'Navigation Links',
   'ct.org_identities.1' =>      'Organizational Identity',
-  'ct.org_identities.se' =>      'Organizational Identity Search',
+  'ct.org_identities.se' =>     'Organizational Identity Search',
   'ct.org_identities.pl' =>     'Organizational Identities',
   'ct.organizations.1' =>       'Organization',
   'ct.organizations.pl' =>      'Organizations',
@@ -404,6 +406,7 @@ Please click the link below to accept or decline.
   'er.id.unk' =>      'Unknown Identifier',
   'er.inv.exp' =>     'Invitation Expired',
   'er.inv.nf' =>      'Invitation Not Found',
+  'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
   'er.nt.email' =>    'Notification could not be sent because no email address was found',
   'er.nt.send' =>     'Notification to %1$s failed (%2$s)',
@@ -579,6 +582,7 @@ Please click the link below to accept or decline.
   'fd.index' =>       'Index',
   'fd.inv.for' =>     'Invitation for %1$s',
   'fd.inv.to' =>      'Invitation to %1$s',
+  'fd.key' =>         'Key',
   'fd.language' =>    'Language',
   'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
   'fd.link.location' => 'Link Location',  
@@ -628,6 +632,8 @@ Please click the link below to accept or decline.
   'fd.tc.url.desc' => 'The URL to the Terms and Conditions, which will be displayed in a popup',
   // This must be named fd.model.validation-field
   'fd.telephone_number.number' => 'Phone',
+  'fd.text' =>        'Text',
+  'fd.text.original' => 'Original Translation',
   'fd.timestamp' =>   'Timestamp',
   'fd.title' =>       'Title',
   'fd.title.none' =>  'No Title',
@@ -645,6 +651,7 @@ Please click the link below to accept or decline.
   // Menu
   'me.account'         => 'My Account',
   'me.changepassword'  => 'Change Password',
+  'me.collaborations'  => 'Collaborations',
   'me.configuration'   => 'Configuration',
   'me.for'             => 'For %1$s',
   'me.identity'        => 'Identity',
@@ -768,7 +775,8 @@ Please click the link below to accept or decline.
   'se.users.view' =>      'Creating users view'
 );
 
-// Attempt to add in any definitions created by plugins
+// Make a copy of the original texts, since CoLocalizations can override them
+$cm_texts_orig = $cm_texts;
 
 /**
  * Render localized text
@@ -818,7 +826,6 @@ function _txt($key, $vars=null, $index=null)
  *
  * @since  COmanage Registry v0.8
  */
-
 
 function _bootstrap_plugin_txt()
 {

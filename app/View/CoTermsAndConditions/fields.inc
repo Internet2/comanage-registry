@@ -40,7 +40,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.desc'); ?></b></b><font class="required">*</font>
+        <b><?php print _txt('fd.desc'); ?></b><font class="required">*</font>
       </td>
       <td>
         <?php print ($e

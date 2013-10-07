@@ -982,4 +982,31 @@
       <col>co_person_id</col>
     </index>
   </table>
+  
+  <table name="co_localizations">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="key" type="C" size="40" />
+    <field name="language" type="C" size="16" />
+    <field name="text" type="C" size="256" />
+    
+    <index name="co_localizations_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_localizations_i2">
+      <col>co_id</col>
+      <col>language</col>
+    </index>
+    <index name="co_localizations_i3">
+      <col>co_id</col>
+      <col>key</col>
+      <col>language</col>
+      <unique />
+    </index>
+  </table>
 </schema>

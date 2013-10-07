@@ -66,7 +66,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
     <li class="dropMenu">
       <a>
         <span>
-          <?php print _txt('ct.organizations.pl'); ?>
+          <?php print _txt('me.collaborations'); ?>
         </span>
         <span class="ui-icon ui-icon-carat-1-s"></span>
       </a>
@@ -254,6 +254,18 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                         $args['co'] = $menuCoId;
                         
                         print $this->Html->link(_txt('ct.co_navigation_links.pl'), $args);
+                      print "</li>";
+                    }
+                    
+                    if(isset($permissions['menu']['colocalizations'])) {
+                      print "<li>";
+                        $args = array();
+                        $args['plugin'] = null;
+                        $args['controller'] = 'co_localizations';
+                        $args['action'] = 'index';
+                        $args['co'] = $menuCoId;
+                        
+                        print $this->Html->link(_txt('ct.co_localizations.pl'), $args);
                       print "</li>";
                     }
                     
