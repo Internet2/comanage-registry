@@ -560,6 +560,8 @@
     <field name="approval_subject" type="C" size="256" />
     <field name="approval_body" type="X" size="4000" />
     <field name="introduction_text" type="X" size="4000" />
+    <field name="redirect_on_submit" type="C" size="256" />
+    <field name="redirect_on_confirm" type="C" size="256" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

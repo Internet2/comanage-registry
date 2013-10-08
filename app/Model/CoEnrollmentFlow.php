@@ -158,6 +158,16 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'redirect_on_submit' => array(
+      'rule' => array('url', true),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'redirect_on_confirm' => array(
+      'rule' => array('url', true),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'status' => array(
       'rule' => array('inList', array(StatusEnum::Active,
                                       StatusEnum::Suspended))

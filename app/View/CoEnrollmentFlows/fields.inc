@@ -410,6 +410,26 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['introduction_text'])); ?>
       </td>
     </tr>
+    <tr class="line2">
+      <td>
+        <b><?php print _txt('fd.ef.rd.submit'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.rd.submit.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('redirect_on_submit', array('size' => 60))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_submit'])); ?>
+      </td>
+    <tr class="line1">
+      <td>
+        <b><?php print _txt('fd.ef.rd.confirm'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.rd.confirm.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('redirect_on_confirm', array('size' => 60))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_confirm'])); ?>
+      </td>
   </tbody>
 </table>
 <?php

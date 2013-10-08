@@ -236,6 +236,9 @@ class CoInvitesController extends AppController {
    */
   
   function process_invite($inviteid, $confirm, $loginIdentifier=null) {
+    // Grab the invite info in case we need it later (we're about to delete it)
+    $invite = $this->CoInvite->findByInvitation($inviteid);
+    
     if(!$this->restful) {
       // Set page title
       $this->set('title_for_layout', _txt('op.inv.reply'));
@@ -276,10 +279,27 @@ class CoInvitesController extends AppController {
       }
     }
     
-    if($this->restful)
+    if($this->restful) {
       $this->restResultHeader(200, "Deleted");
-    else {
-      if($loginIdentifier) {
+    } else {
+      // See if this invite was attached to a CO petition, and if so whether a redirect
+      // URL was specified.
+      
+      $targetUrl = null;
+      
+      if(isset($invite['CoPetition']['id'])) {
+        $targetUrl = $this->CoInvite->CoPetition->CoEnrollmentFlow->field('redirect_on_confirm',
+                                                                          array('CoEnrollmentFlow.id' => $invite['CoPetition']['co_enrollment_flow_id']));
+      }
+      
+      if($targetUrl && $targetUrl != "") {
+        // This shouldn't be done for Account Linking enrollment flows, since the user won't be logged out
+        // to force their linked identity to show up by logging in again.
+        
+        // Make sure the petition ID is available in the session.
+        $this->Session->write('CoPetition.id', $invite['CoPetition']['id']);
+        $this->redirect($targetUrl);
+      } elseif($loginIdentifier) {
         // If a login identifier was provided, force a logout
         
         $this->Session->setFlash(_txt('rs.pt.relogin'), '', array(), 'success');

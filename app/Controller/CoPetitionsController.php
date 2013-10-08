@@ -88,10 +88,10 @@ class CoPetitionsController extends StandardController {
                    $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($enrollmentFlowID));
         
         try {
-          $this->CoPetition->createPetition($enrollmentFlowID,
-                                            $this->cur_co['Co']['id'],
-                                            $this->request->data,
-                                            $this->Session->read('Auth.User.co_person_id'));
+          $petitionId = $this->CoPetition->createPetition($enrollmentFlowID,
+                                                          $this->cur_co['Co']['id'],
+                                                          $this->request->data,
+                                                          $this->Session->read('Auth.User.co_person_id'));
           
           $matchPolicy = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
                                                                     array('CoEnrollmentFlow.id' => $enrollmentFlowID));
@@ -103,9 +103,23 @@ class CoPetitionsController extends StandardController {
                                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
           
           if($authzLevel == EnrollmentAuthzEnum::None) {
-            // Not really clear where to send a self-enrollment person...
-            $this->Session->setFlash(_txt('rs.pt.create.self'), '', array(), 'success');
-            $this->redirect("/");
+            // Figure out where to redirect the enrollee to
+            $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_submit',
+                                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+            
+            if(!$targetUrl || $targetUrl == "") {
+              // Default redirect is to /, which isn't really a great target
+              
+              $this->Session->setFlash(_txt('rs.pt.create.self'), '', array(), 'success');
+              $targetUrl = "/";
+            }
+            // else we suppress the flash message, since it may not make sense in context
+            // or may appear "randomly" (eg: if the targetUrl is outside the Cake framework)
+            
+            // Store the CO Petition ID in the session, so the target can pick it up if desired
+            $this->Session->write('CoPetition.id', $petitionId);
+            
+            $this->redirect($targetUrl);
           } elseif($authnReq && $matchPolicy == EnrollmentMatchPolicyEnum::Self) {
             // Clear any session for account linking
             $this->Session->setFlash(_txt('rs.pt.login'), '', array(), 'success');
