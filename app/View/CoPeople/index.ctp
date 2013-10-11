@@ -65,16 +65,19 @@
       float: left;
     }
 
-    .name,
     .created,
     .status,
     .email{
       margin-top: 6px;
     }
 
+    .name {
+      width: 325px;
+    }
+
     .email {
+      margin: 15px 0 0 5px;
       position: absolute;
-      left: 330px;
     }
 
     .admin {
@@ -82,8 +85,7 @@
     }
 
     .status{
-      position: absolute;
-      left: 440px;
+      margin-left: 5px;
     }
 
   .roles{
@@ -198,6 +200,31 @@
                                     );
           ?>
         </div>
+
+        <div class = "email">
+          <?php
+              if(isset($p['EmailAddress'][0]['mail'])) { 
+                print '(' ;
+
+                $email = $p['EmailAddress'][0]['mail'];
+                if(strlen($email) > 36)
+                  print substr($email, 0, 35) . "...";
+                else
+                  print $email;
+                
+                print ')';
+              }
+          ?>
+        </div>
+
+        <div class="status">
+          <?php
+            global $status_t;
+
+            if(!empty($p['CoPerson']['status']) ) echo _txt('en.status', null, $p['CoPerson']['status']);
+          ?>
+        </div>
+        
         <div class="admin">
           <?php
             if($permissions['compare'])
@@ -223,20 +250,6 @@
                 print '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonid' => $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
               }
             }
-          ?>
-        </div>
-        <div class="status">
-          <?php
-            global $status_t;
-
-            if(!empty($p['CoPerson']['status']) ) echo _txt('en.status', null, $p['CoPerson']['status']);
-          ?>
-        </div>
-        <div class = "email">
-          <?php
-              if(isset($p['EmailAddress'][0]['mail'])) { 
-                print '(' . $p['EmailAddress'][0]['mail'] . ')';
-              }
           ?>
         </div>
       </div>
