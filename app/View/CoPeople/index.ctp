@@ -228,26 +228,60 @@
         <div class="admin">
           <?php
             if($permissions['compare'])
-              echo $this->Html->link(_txt('op.compare'),
-                                      array('controller' => 'co_people', 'action' => 'compare', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                      array('class' => 'comparebutton')) . "\n";
+              print $this->Html->link(_txt('op.compare'),
+                                      array('controller' => 'co_people', 
+                                            'action'     => 'compare',
+                                            $p['CoPerson']['id'], 
+                                            'co'         => $cur_co['Co']['id']),
+                                      array('class'   => 'comparebutton',
+                                            'onclick' => 'noprop(event);')) 
+                . "\n";
             if(true || $myPerson) {
               // XXX for now, cou admins get all the actions, but see CO-505
               // Edit actions are unavailable if not
               
               if($permissions['edit'])
-                echo $this->Html->link(_txt('op.edit'),
-                                        array('controller' => 'co_people', 'action' => 'edit', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id']),
-                                        array('class' => 'editbutton')) . "\n";
+                print $this->Html->link(_txt('op.edit'),
+                                        array('controller' => 'co_people',
+                                              'action'     => 'edit',
+                                              $p['CoPerson']['id'],
+                                              'co'         => $cur_co['Co']['id']),
+                                        array('class'   => 'editbutton',
+                                              'onclick' => 'noprop(event);')) 
+                . "\n";
               
               // Can't delete a CO Person if they have any roles
               if(empty($p['CoPersonRole']) && $permissions['delete'])
-                echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'delete', $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
+                print '<button class="deletebutton" title="' 
+                  . _txt('op.delete') 
+                  . '" onclick="javascript:noprop(event);js_confirm_delete(\'' 
+                  . _jtxt(Sanitize::html(generateCn($p['Name']))) 
+                  . '\', \'' 
+                  . $this->Html->url(array('controller' => 'co_people', 
+                                           'action'     => 'delete', 
+                                           $p['CoPerson']['id'], 
+                                           'co'         => $cur_co['Co']['id'])) 
+                  . '\')";>' 
+                  . _txt('op.delete') 
+                  . '</button>' 
+                  . "\n";
               
               if($permissions['invite']
                  && ($p['CoPerson']['status'] != StatusEnum::Active
                      && $p['CoPerson']['status'] != StatusEnum::Deleted)) {
-                print '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonid' => $p['CoPerson']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
+                print '<button class="invitebutton" title="' 
+                  . _txt('op.inv.resend') 
+                  . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
+                  . _jtxt(Sanitize::html(generateCn($p['Name']))) 
+                  . '\', \'' 
+                  . $this->Html->url(array('controller' => 'co_invites',
+                                           'action'     => 'send', 
+                                           'copersonid' => $p['CoPerson']['id'], 
+                                           'co'         => $cur_co['Co']['id'])) 
+                  . '\')";>' 
+                  . _txt('op.inv.resend') 
+                  . '</button>'
+                  . "\n";
               }
             }
           ?>
@@ -338,14 +372,19 @@
 </div>
 
 <script>
-  $( document ).ready(function() {
-    $( ".comparebutton, .editbutton" ).click( function( e ) {
-      event.stopPropagation();
-      window.location = $(this).prop("href");
-    });
+// Prevents propagations of event handling up to containers
+function noprop(e)
+{
+    if (!e)
+      e = window.event;
 
-    $( ".deletebutton, .invitebutton" ).click( function( e ) {
-      event.stopPropagation();
-    } );
-  } );
+    //IE9 & Other Browsers
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+    //IE8 and Lower
+    else {
+      e.cancelBubble = true;
+    }
+}
 </script>
