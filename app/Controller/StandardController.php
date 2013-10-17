@@ -829,7 +829,36 @@ class StandardController extends AppController {
     
     return true;
   }
-  
+
+  /**
+   * Insert search parameters into URL for index.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.8.3
+   */
+  function search() {
+
+    // the page we will redirect to
+    $url['action'] = 'index';
+     
+    // build a URL will all the search elements in it
+    // the resulting URL will be 
+    // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
+    if(isset($this->data['Search'])) {
+      foreach ($this->data['Search'] as $field=>$value){
+        if(!empty($value))
+          $url['Search.'.$field] = $value; 
+      }
+    }
+
+    // Insert CO into URL
+    if(isset($this->cur_co['Co']['id']))
+      $url['co'] = $this->cur_co['Co']['id'];
+
+    // redirect the user to the url
+    $this->redirect($url, null, true);
+  }
+
   /**
    * Retrieve a Standard Object.
    * - precondition: <id> must exist

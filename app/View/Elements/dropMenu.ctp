@@ -131,7 +131,10 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                       $args['controller'] = 'co_petitions';
                       $args['action'] = 'index';
                       $args['co'] = $menuCoId;
-                      
+                      $args['sort'] = 'created';
+                      $args['Search.status'][] = StatusEnum::PendingApproval;
+                      $args['Search.status'][] = StatusEnum::PendingConfirmation;
+
                       print $this->Html->link(_txt('ct.co_petitions.pl'), $args);
                     print "</li>";
                   }

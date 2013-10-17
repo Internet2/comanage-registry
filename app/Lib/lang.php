@@ -689,6 +689,7 @@ Please click the link below to accept or decline.
   'op.edit-a' =>      'Edit %1$s',
   'op.edit-f' =>      'Edit %1$s for %2$s',
   'op.enroll' =>      'Enroll',
+  'op.filter.status' => 'Filter by Status',
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
   'op.gr.memadd' =>   'Manage %1$s Group Memberships',
   'op.grm.edit' =>    'Edit Members of %1$s Group %2$s',

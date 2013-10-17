@@ -442,6 +442,9 @@ class CoPetitionsController extends StandardController {
     // View all existing CO Petitions?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
+    // Search all existing CO Petitions?
+    $p['search'] = $p['index'];
+
     // Resend invitations?
     $p['resend'] = ($roles['cmadmin']
                     || ($flowAuthorized && ($roles['coadmin'] || $roles['couadmin'])));
@@ -465,6 +468,30 @@ class CoPetitionsController extends StandardController {
     return $p[$this->action];
   }
   
+    /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v0.8.3
+   * @return Array An array suitable for use in $this->paginate
+   */
+  
+  function paginationConditions() {
+    $pagcond = array();
+
+    // Use server side pagination
+    
+    if($this->requires_co) {
+      $pagcond['CoPetition.co_id'] = $this->cur_co['Co']['id'];
+    }
+
+    // Filter by status
+    if(!empty($this->params['named']['Search.status'])) {
+      $searchterm = $this->params['named']['Search.status'];
+      $pagcond['CoPetition.status'] = $searchterm;
+    }
+    return($pagcond);
+  }
+
   /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated

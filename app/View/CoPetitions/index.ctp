@@ -22,20 +22,96 @@
  * @version       $Id$
  */
 -->
+<script>
+  $(function() {
+    $( "#statusfilterdialog" ).dialog({
+      autoOpen: false,
+      height: 300,
+      width: 350,
+      height: 265,
+      modal: true
+    });
+
+    $( "#statusfilter" ).click(function() {
+      $( "#statusfilterdialog" ).dialog( "open" );
+    });
+  });
+</script>
+
+<style>
+  #filters {
+    width: 50%;
+    margin: 0 0 0 2px;
+  }
+
+  #statusfilter {
+    overflow: hidden;
+  }
+
+  #statusfilter .input>label {
+    float: left;
+  }
+</style>
+
 <?php
+// Globals
+global $cm_lang, $cm_texts;
+
   $params = array('title' => $cur_co['Co']['name'] . " Petitions"); // XXX I18N
   print $this->element("pageTitle", $params);
 
   if($permissions['add']) {
     print $this->Html->link(_txt('op.enroll'),
                             array('controller' => 'co_enrollment_flows', 'action' => 'select', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';    
+                            array('class' => 'addbutton'));    
   }
 ?>
- 
+
+<button id="statusfilter" class = "searchbutton">
+  <?php print _txt('op.filter.status');?>
+</button>
+
+<div id="statusfilterdialog" title="Filter by Status">
+  <?php
+    print $this->Form->create('CoPetition',array('action'=>'search'));
+      print $this->Form->hidden('CoPetition.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+
+      // Build array of options based on model validation
+      $statusOptions = array(StatusEnum::Active,
+                             StatusEnum::Approved,
+                             StatusEnum::Declined,
+                             StatusEnum::Deleted,
+                             StatusEnum::Denied,
+                             StatusEnum::Invited,
+                             StatusEnum::Pending,
+                             StatusEnum::PendingApproval,
+                             StatusEnum::PendingConfirmation,
+                             StatusEnum::Suspended);
+
+      foreach ($statusOptions as $s) {
+        $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
+      }
+
+      // Build array to check off actively used filters on the page
+      $selected = array();
+      if (isset($this->passedArgs['Search.status'])) {
+        foreach($this->passedArgs['Search.status'] as $a) {
+          $selected[] = $a;
+        }
+      }
+
+      // Collect parameters and print checkboxes
+      $formParams = array('options'  => $searchOptions,
+                          'multiple' => 'checkbox',
+                          'label'    => false,
+                          'selected' => $selected);
+      print $this->Form->input('Search.status', $formParams);
+
+      print $this->Form->submit('Search'); 
+    print $this->Form->end();
+  ?>
+</div>
+
 <table id="co_people" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">

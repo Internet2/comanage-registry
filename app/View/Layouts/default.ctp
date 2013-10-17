@@ -264,6 +264,12 @@
         },
       });
       
+      $(".searchbutton").button({
+        icons: {
+          primary: 'ui-icon-search'
+        },
+      });
+
       $(".petitionbutton").button({
         icons: {
           primary: 'ui-icon-script'
