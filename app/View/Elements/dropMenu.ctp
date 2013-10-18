@@ -84,7 +84,19 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                   print '<a>' . _txt('me.people') . '</a>
                          <span class="sf-sub-indicator"> »</span>';
                   print '<ul>';
-                  
+  
+                  if(isset($permissions['menu']['cos']) && $permissions['menu']['cos']) {
+                    print "<li>";
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_people';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
+                      print $this->Html->link(_txt('me.population'), $args);
+                    print "</li>";
+                  }
+
                   if(isset($permissions['menu']['orgidentities']) && $permissions['menu']['orgidentities']) {
                     $args = array();
                     $args['plugin'] = null;
@@ -97,18 +109,6 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                     
                     print "<li>";
                       print $this->Html->link(_txt('ct.org_identities.pl'), $args);
-                    print "</li>";
-                  }
-  
-                  if(isset($permissions['menu']['cos']) && $permissions['menu']['cos']) {
-                    print "<li>";
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'co_people';
-                      $args['action'] = 'index';
-                      $args['co'] = $menuCoId;
-                      
-                      print $this->Html->link(_txt('me.population'), $args);
                     print "</li>";
                   }
   

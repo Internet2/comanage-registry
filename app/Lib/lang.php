@@ -651,6 +651,9 @@ Please click the link below to accept or decline.
   'fd.valid_through' => 'Valid Through',
   'fd.valid_through.desc' => '(leave blank for indefinite validity)',
   'fd.yes' =>         'Yes',
+
+  // Informational messages
+  'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
   
   // Menu
   'me.account'         => 'My Account',
