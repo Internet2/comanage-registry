@@ -199,7 +199,8 @@ class CoGroupsController extends StandardController {
                                   )
                                  );
         $coPerson['CoPerson']['CoGroupMember'] = array($member['CoGroupMember']);
-        $coPerson['CoPerson']['Name'] = $name['Name'];
+        $coPerson['CoPerson']['Name']          = $name['Name'];
+        $coPerson['CoPerson']['Status']        = $member['CoPerson']['status']; 
         $member = array_merge($member, $coPerson);
       }
       

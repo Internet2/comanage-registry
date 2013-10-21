@@ -32,6 +32,7 @@
   <thead>
     <tr class="ui-widget-header">
       <th><?php print _txt('fd.name'); ?></th>
+      <th><?php print _txt('fd.status'); ?></th>
       <th><?php print _txt('fd.perms'); ?></th>
     </tr>
     <?php
@@ -57,6 +58,11 @@
                                         'action' => 'edit',
                                         $p['CoPerson']['id'],
                                         'co' => $cur_co['Co']['id']));
+        ?>
+      </td>
+      <td>
+        <?php
+          print _txt('en.status', null, $p['CoPerson']['status']);
         ?>
       </td>
       <td>
@@ -94,7 +100,7 @@
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="2">
+      <th colspan="3">
       </th>
     </tr>
     <tr>

@@ -176,7 +176,13 @@
                                                 'action' => 'edit',
                                                 $g['id'],
                                                 'co' => $cur_co['Co']['id']));
-                  
+                  // Print person's status
+                  if( !empty($c['CoPerson']['Status']) ) {
+                    print ' (' 
+                      . _txt('en.status', null, $c['CoPerson']['Status'])
+                      .')';
+                  }
+
                   if($g['owner']) {
                     if(!$g['member']) {
                       print " " . _txt('fd.group.own.only');
