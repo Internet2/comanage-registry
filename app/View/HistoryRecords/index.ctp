@@ -32,9 +32,9 @@
       <th><?php print $this->Paginator->sort('action', _txt('fd.action')); ?></th>
       <th><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></th>
       <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
-      <th><?php print $this->Paginator->sort('Actor.Name.family', _txt('fd.actor')); ?></th>
-      <th><?php print $this->Paginator->sort('OrgIdentity.Name.family', _txt('ct.org_identities.1')); ?></th>
-      <th><?php print $this->Paginator->sort('CoPerson.Name.family', _txt('ct.co_people.1')); ?></th>
+      <th><?php print $this->Paginator->sort('Actor.PrimaryName.family', _txt('fd.actor')); ?></th>
+      <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', _txt('ct.org_identities.1')); ?></th>
+      <th><?php print $this->Paginator->sort('CoPerson.PrimaryName.family', _txt('ct.co_people.1')); ?></th>
     </tr>
   </thead>
   
@@ -49,7 +49,7 @@
         <?php
           if(!empty($h['ActorCoPerson']['id'])) {
             print $this->Html->link(
-              generateCn($h['ActorCoPerson']['Name']),
+              generateCn($h['ActorCoPerson']['PrimaryName']),
               array(
                 'controller' => 'co_people',
                 'action' => 'view',
@@ -64,7 +64,7 @@
         <?php
           if(!empty($h['OrgIdentity']['id'])) {
             print $this->Html->link(
-              generateCn($h['OrgIdentity']['Name']),
+              generateCn($h['OrgIdentity']['PrimaryName']),
               array(
                 'controller' => 'org_identities',
                 'action' => 'view',
@@ -79,7 +79,7 @@
         <?php
           if(!empty($h['CoPerson']['id'])) {
             print $this->Html->link(
-              generateCn($h['CoPerson']['Name']),
+              generateCn($h['CoPerson']['PrimaryName']),
               array(
                 'controller' => 'co_people',
                 'action' => 'view',

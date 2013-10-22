@@ -53,7 +53,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print $this->Html->link(Sanitize::html(generateCn($p['Name'])),
+          print $this->Html->link(Sanitize::html(generateCn($p['PrimaryName'])),
                                   array('controller' => 'co_people',
                                         'action' => 'edit',
                                         $p['CoPerson']['id'],

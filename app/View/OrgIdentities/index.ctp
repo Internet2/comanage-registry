@@ -56,7 +56,7 @@ global $cm_lang, $cm_texts;
 <table id="org_identities" class="ui-widget" style=" width:100%;">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('Name.family', _txt('fd.name')); ?></th>
+      <th><?php echo $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
       <th><?php echo $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php echo $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
       <th><?php echo $this->Paginator->sort('title', _txt('fd.title')); ?></th>
@@ -69,15 +69,19 @@ global $cm_lang, $cm_texts;
     <?php $i = 0; ?>
     <?php foreach ($org_identities as $p): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
-      <td><?php print $this->Html->link(
-            generateCn($p['Name']),
+      <td>
+        <?php
+          print $this->Html->link(
+            generateCn($p['PrimaryName']),
             array(
               'controller' => 'org_identities',
               'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
               $p['OrgIdentity']['id'],
               'co' => ($pool_org_identities ? false : $this->params['named']['co'])
             )
-          ); ?></td>
+          );
+        ?>
+      </td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['ou']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
@@ -98,7 +102,7 @@ global $cm_lang, $cm_texts;
             ) . "\n";
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html(generateCn($p['Name'])) . '\', \'' . $this->Html->url(array('controller' => 'org_identities', 'action' => 'delete', $p['OrgIdentity']['id'], 'co' => ($pool_org_identities ? false : $this->request->params['named']['co']))) . '\')";>' . _txt('op.delete') . '</button>';
+            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html(generateCn($p['PrimaryName'])) . '\', \'' . $this->Html->url(array('controller' => 'org_identities', 'action' => 'delete', $p['OrgIdentity']['id'], 'co' => ($pool_org_identities ? false : $this->request->params['named']['co']))) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

@@ -42,10 +42,10 @@ class HistoryRecordsController extends StandardController {
       'created' => 'desc'
     ),
     'contain' => array(
-      'ActorCoPerson.Name',
-      'CoPerson.Name',
+      'ActorCoPerson.PrimaryName',
+      'CoPerson.PrimaryName',
       'CoPersonRole',
-      'OrgIdentity.Name'
+      'OrgIdentity.PrimaryName'
     )
   );
   

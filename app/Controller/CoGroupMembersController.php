@@ -32,8 +32,8 @@ class CoGroupMembersController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'Name.family' => 'asc',
-      'Name.given' => 'asc'
+      'PrimaryName.family' => 'asc',
+      'PrimaryName.given' => 'asc'
     )
   );
   
@@ -413,8 +413,8 @@ class CoGroupMembersController extends StandardController {
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'CoPerson.co_id=CoGroup.co_id';
     $args['conditions']['CoGroup.id'] = $this->request->params['named']['cogroup'];
-    $args['order'][] = 'Name.family';
-    $args['contain'][] = 'Name';
+    $args['order'][] = 'PrimaryName.family';
+    $args['contain'][] = 'PrimaryName';
     
     $this->set('co_people', $this->CoGroupMember->CoPerson->find('all', $args));
     

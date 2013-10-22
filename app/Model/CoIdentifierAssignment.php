@@ -151,7 +151,7 @@ class CoIdentifierAssignment extends AppModel {
     
     $args = array();
     $args['conditions']['CoPerson.id'] = $coPersonID;
-    $args['contain'][] = 'Name';
+    $args['contain'][] = 'PrimaryName';
     $args['contain'][] = 'Identifier';
     
     $coPerson = $this->Co->CoPerson->find('first', $args);
@@ -182,7 +182,7 @@ class CoIdentifierAssignment extends AppModel {
     
     // Generate the new identifier. This requires several steps. First, substitute
     // non-collision number parameters. If no format is specified, default to "(#)".
-    // XXX Need to pick Name if more than one defined.
+    // We'll use PrimaryName in case there is more than one.
     
     $iaFormat = "(#)";
     
@@ -191,7 +191,7 @@ class CoIdentifierAssignment extends AppModel {
       $iaFormat = $coIdentifierAssignment['CoIdentifierAssignment']['format'];
     }
     
-    $base = $this->substituteParameters($iaFormat, $coPerson['Name']);
+    $base = $this->substituteParameters($iaFormat, $coPerson['PrimaryName']);
     
     // Now that we've got our base, loop until we get a unique identifier.
     // We try a maximum of 10 (0 through 9) times, and track identifiers we've

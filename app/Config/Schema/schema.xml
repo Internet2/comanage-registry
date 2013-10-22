@@ -205,8 +205,12 @@
     <field name="org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
     </field>
+    <field name="primary_name" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    
+    <!-- There should be a unique constraint on primary_name+co_person_id and
+         primary_name+org_identity_id, but the nulls may make that tricky -->
   </table>
   
   <table name="co_extended_attributes">

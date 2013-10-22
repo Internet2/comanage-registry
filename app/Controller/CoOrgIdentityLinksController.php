@@ -71,7 +71,7 @@ class CoOrgIdentityLinksController extends StandardController {
     }
     
     // Can't contain OrgIdentity completely since Name is used for display
-    $this->CoOrgIdentityLink->OrgIdentity->contain('Name');
+    $this->CoOrgIdentityLink->OrgIdentity->contain('PrimaryName');
     $orgIdentity = $this->CoOrgIdentityLink->OrgIdentity->findById($reqdata['CoOrgIdentityLink']['org_identity_id']);
     
     if(empty($orgIdentity))

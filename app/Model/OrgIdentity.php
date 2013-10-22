@@ -34,9 +34,13 @@ class OrgIdentity extends AppModel {
   
   // Association rules from this model to other models
   public $hasOne = array(
-    // A person can have one (preferred) name per Org.
-    // This could change if Name became an MVPA
-    "Name" => array('dependent' => true)
+    // An Org Identity has one Primary Name, which is a pointer to a Name
+    "PrimaryName" => array(
+      'className'  => 'Name',
+      'conditions' => array('PrimaryName.primary_name' => true),
+      'dependent'  => false,
+      'foreignKey' => 'org_identity_id'
+    )
   );
   
   public $hasMany = array(
@@ -56,6 +60,7 @@ class OrgIdentity extends AppModel {
     "HistoryRecord" => array('dependent' => true),
     // A person can have many identifiers within an organization
     "Identifier" => array('dependent' => true),
+    "Name" => array('dependent' => true),
     // A person can have one or more telephone numbers
     "TelephoneNumber" => array('dependent' => true)
   );
@@ -68,7 +73,7 @@ class OrgIdentity extends AppModel {
   );
   
   // Default display field for cake generated views
-  public $displayField = "Name.family";
+  public $displayField = "PrimaryName.family";
   
 // XXX CO-296
   // Default ordering for find operations
@@ -105,6 +110,11 @@ class OrgIdentity extends AppModel {
     ),
     'ou' => array(
       'rule' => '/.*/',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'primary_name_id' => array(
+      'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
     ),

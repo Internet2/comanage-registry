@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO People Controller
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -32,8 +32,8 @@ class CoPersonRolesController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'Name.family' => 'asc',
-      'Name.given' => 'asc'
+      'PrimaryName.family' => 'asc',
+      'PrimaryName.given' => 'asc'
     )
   );
   
@@ -74,7 +74,7 @@ class CoPersonRolesController extends StandardController {
     
     // Append the person's name to the page title
     $this->set('title_for_layout',
-               $this->viewVars['title_for_layout'] . " (" . generateCn($this->viewVars['co_people'][0]['Name']) . ")");
+               $this->viewVars['title_for_layout'] . " (" . generateCn($this->viewVars['co_people'][0]['PrimaryName']) . ")");
   }
 
   /**
@@ -217,10 +217,10 @@ class CoPersonRolesController extends StandardController {
     
     if(isset($c[$req][$model->displayField]))
       return($c[$req][$model->displayField]);
-    if(isset($this->request->data['Name']))
-      return(generateCn($this->request->data['Name']));
-    if(isset($this->viewVars['co_people'][0]['Name']))
-      return(generateCn($this->viewVars['co_people'][0]['Name']));
+    if(isset($this->request->data['PrimaryName']))
+      return(generateCn($this->request->data['PrimaryName']));
+    if(isset($this->viewVars['co_people'][0]['PrimaryName']))
+      return(generateCn($this->viewVars['co_people'][0]['PrimaryName']));
     else
       return("(?)");
   }

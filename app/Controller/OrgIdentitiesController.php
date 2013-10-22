@@ -34,8 +34,8 @@ class OrgIdentitiesController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'Name.family' => 'asc',
-      'Name.given' => 'asc'
+      'PrimaryName.family' => 'asc',
+      'PrimaryName.given' => 'asc'
     )
   );
   
@@ -140,10 +140,10 @@ class OrgIdentitiesController extends StandardController {
                                  '', array(), 'error');
       }
       
-      return(false);
+      return false;
     }
     
-    return(true);
+    return true;
   }
 
   /**
@@ -195,10 +195,10 @@ class OrgIdentitiesController extends StandardController {
     
     if(isset($c[$req][$model->displayField]))
       return($c[$req][$model->displayField]);
-    elseif(isset($this->data['Name']))
-      return(generateCn($this->data['Name']));
-    elseif(isset($c['Name']))
-      return(generateCn($c['Name']));
+    elseif(isset($this->data['PrimaryName']))
+      return(generateCn($this->data['PrimaryName']));
+    elseif(isset($c['PrimaryName']))
+      return(generateCn($c['PrimaryName']));
     else
       return("(?)");
   }
@@ -236,7 +236,7 @@ class OrgIdentitiesController extends StandardController {
                                                   $this->Session->read('Auth.User.co_person_id'),
                                                   ActionEnum::OrgIdEditedManual,
                                                   _txt('en.action', null, ActionEnum::OrgIdEditedManual) . ": " .
-                                                  $this->changesToString($newdata, $olddata, array('OrgIdentity', 'Name')));
+                                                  $this->changesToString($newdata, $olddata, array('OrgIdentity', 'PrimaryName')));
         break;
     }
     
@@ -379,13 +379,13 @@ class OrgIdentitiesController extends StandardController {
     // Filter by given name
     if(!empty($this->params['named']['Search.givenName'])) {
       $searchterm = $this->params['named']['Search.givenName'];
-      $pagcond['Name.given LIKE'] = "%$searchterm%";
+      $pagcond['PrimaryName.given LIKE'] = "%$searchterm%";
     }
 
     // Filter by Family name
     if(!empty($this->params['named']['Search.familyName'])) {
       $searchterm = $this->params['named']['Search.familyName'];
-      $pagcond['Name.family LIKE'] = "%$searchterm%";
+      $pagcond['PrimaryName.family LIKE'] = "%$searchterm%";
     }
 
     // Filter by Organization
@@ -411,7 +411,7 @@ class OrgIdentitiesController extends StandardController {
       $searchterm = $this->params['named']['Search.affiliation'];
       $pagcond['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
     }
-
+    
     return($pagcond);
   }
 

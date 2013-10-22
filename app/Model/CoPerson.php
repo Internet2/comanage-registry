@@ -39,9 +39,13 @@ class CoPerson extends AppModel {
     "CoNsfDemographic" => array('dependent' => true),
     // A person can have one invite (per CO)
     "CoInvite" => array('dependent' => true),
-    // A person can have one (preferred) name per CO
-    // This could change if Name became an MVPA
-    "Name" => array('dependent' => true)
+    // An Org Identity has one Primary Name, which is a pointer to a Name
+    "PrimaryName" => array(
+      'className'  => 'Name',
+      'conditions' => array('PrimaryName.primary_name' => true),
+      'dependent'  => false,
+      'foreignKey' => 'co_person_id'
+    )
   );
   
   public $hasMany = array(
@@ -86,10 +90,11 @@ class CoPerson extends AppModel {
     ),
     // A person can have many identifiers within a CO
     "Identifier" => array('dependent' => true),
+    "Name" => array('dependent' => true)
   );
 
   // Default display field for cake generated views
-  public $displayField = "CoPerson.id";
+  public $displayField = "PrimaryName.family";
   
   // Default ordering for find operations
 // XXX CO-296 Toss default order?
@@ -101,6 +106,11 @@ class CoPerson extends AppModel {
       'rule' => 'numeric',
       'required' => true,
       'message' => 'A CO ID must be provided'
+    ),
+    'primary_name_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     ),
     'status' => array(
       'rule' => array('inList', array(StatusEnum::Active,
@@ -295,10 +305,14 @@ class CoPerson extends AppModel {
       $args['conditions']['LOWER(Name.family) LIKE'] = strtolower($criteria['Name.family']) . '%';
     }
     $args['conditions']['CoPerson.co_id'] = $coId;
-    $args['contain'][] = 'Name';
+    $args['joins'][0]['table'] = 'names';
+    $args['joins'][0]['alias'] = 'Name';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPerson.id=Name.co_person_id';
+    $args['contain'][] = 'PrimaryName';
     $args['contain'][] = 'CoPersonRole';
     
-    return($this->find('all', $args));
+    return $this->find('all', $args);
   }
   
   /**
@@ -390,8 +404,8 @@ class CoPerson extends AppModel {
   public function sponsorList($co_id) {
     // Query database for people
     $args = array(
-      'contain'    => array('Name'),
-      'order'      => array('Name.family ASC'),
+      'contain'    => array('PrimaryName'),
+      'order'      => array('PrimaryName.family ASC'),
       'conditions' => array('CoPerson.co_id' => $co_id)
     );
 
@@ -402,7 +416,7 @@ class CoPerson extends AppModel {
 
     foreach($nameData as $pers)
     {
-      $drop[ $pers['CoPerson']['id'] ] = generateCn($pers['Name'], true);
+      $drop[ $pers['CoPerson']['id'] ] = generateCn($pers['PrimaryName'], true);
     }
     return $drop;
   }

@@ -49,6 +49,10 @@ class ActionEnum
   const InvitationConfirmed         = 'INVC';
   const InvitationDeclined          = 'INVD';
   const InvitationSent              = 'INVS';
+  const NameAdded                   = 'ANAM';
+  const NameDeleted                 = 'DNAM';
+  const NameEdited                  = 'ENAM';
+  const NamePrimary                 = 'PNAM';
   const OrgIdAddedManual            = 'AOIM';
   const OrgIdAddedPetition          = 'AOIP';
   const OrgIdEditedManual           = 'EOIM';
@@ -201,6 +205,7 @@ class LinkLocationEnum
 
 class NameEnum
 {
+  const Alternate = 'L';
   const Author    = 'A';
   const FKA       = 'F';
   const Official  = 'O';
@@ -417,6 +422,7 @@ $identifier_ti = array(
 );
 
 $name_t = array(
+  'L' => 'Alternate',
   'A' => 'Author',
   'F' => 'FKA',
   'O' => 'Official',
@@ -424,6 +430,7 @@ $name_t = array(
 );
 
 $name_ti = array(
+  'Alternate' => 'L',
   'Author' => 'A',
   'FKA' => 'F',
   'Official' => 'O',

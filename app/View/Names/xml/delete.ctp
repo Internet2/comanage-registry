@@ -1,0 +1,1 @@
+../../Standard/xml/delete.ctp

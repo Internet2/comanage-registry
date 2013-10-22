@@ -377,7 +377,7 @@ class AppController extends Controller {
           
           $ftxt = "(?)";
           
-          if($model == 'Name' && $attr != 'type') {
+          if(($model == 'Name' || $model == 'PrimaryName') && $attr != 'type') {
             // Treat name specially
             $ftxt = _txt('fd.name.'.$attr);
           } else {
@@ -690,7 +690,7 @@ class AppController extends Controller {
           // solution could check (eg) $model->HasOne, however for now we
           // just make a special exception for name.
           
-          if($k == 'Name'
+          if($k == 'PrimaryName'
              && ($this->modelClass == 'OrgIdentity'
                  || $this->modelClass == 'CoPerson')) {
             continue;

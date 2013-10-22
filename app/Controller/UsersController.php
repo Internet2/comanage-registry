@@ -24,6 +24,8 @@
 
 class UsersController extends AppController {
   public $name = 'Users';
+  
+  public $uses = array("CoGroup", "CoGroupMember", "OrgIdentity");
 
   public $components = array(
     'Auth' => array(
@@ -86,8 +88,6 @@ class UsersController extends AppController {
           // This is an Org Identity. Figure out which Org Identities this username
           // (identifier) is associated with. First, pull the identifiers.
           
-          $this->loadModel('OrgIdentity');
-          
           $args['joins'][0]['table'] = 'identifiers';
           $args['joins'][0]['alias'] = 'Identifier';
           $args['joins'][0]['type'] = 'INNER';
@@ -99,7 +99,7 @@ class UsersController extends AppController {
           $args['conditions']['OR'][]['Identifier.status <>'] = StatusEnum::Deleted;
           // Through the magic of containable behaviors, we can get all the associated
           // data we need in one clever find
-          $args['contain'][] = 'Name';
+          $args['contain'][] = 'PrimaryName';
           $args['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
           $args['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
           
@@ -128,9 +128,6 @@ class UsersController extends AppController {
               );
               
               // And assemble the Group Memberships
-              
-              $this->loadModel('CoGroupMember');
-              $this->loadModel('CoGroup');
               
               $params = array(
                 'conditions' => array(
@@ -165,11 +162,10 @@ class UsersController extends AppController {
           $this->Session->write('Auth.User.org_identities', $orgs);
           $this->Session->write('Auth.User.cos', $cos);
           
-          // Pick a name. We don't really have a good heuristic for this, so for now we'll
-          // go with the first one returned, which was probably added first.
+          // Use the primary organizational name as the session name.
           
-          if(isset($orgIdentities[0]['Name'])) {
-            $this->Session->write('Auth.User.name', $orgIdentities[0]['Name']);
+          if(isset($orgIdentities[0]['PrimaryName'])) {
+            $this->Session->write('Auth.User.name', $orgIdentities[0]['PrimaryName']);
           }
           
           $this->redirect($this->Auth->redirectUrl());

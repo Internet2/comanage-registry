@@ -513,7 +513,7 @@ class ProvisionerBehavior extends ModelBehavior {
       'CoPersonRole.TelephoneNumber',
       'EmailAddress',
       'Identifier', 
-      'Name'
+      'PrimaryName'
     );
     
     $coPersonData = $coPersonModel->find('first', $args);

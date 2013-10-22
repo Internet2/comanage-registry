@@ -283,6 +283,13 @@
         },
         text: false
       });
+      
+      $(".primarybutton").button({
+        icons: {
+          primary: 'ui-icon-arrowthickstop-1-n'
+        },
+        text: false
+      });
 
       $("button:reset").button();
       $("button:reset").css('float', 'left');

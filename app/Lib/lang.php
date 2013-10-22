@@ -100,6 +100,8 @@ $cm_texts['en_US'] = array(
   'ct.history_records.pl' =>    'History Records',
   'ct.identifiers.1' =>         'Identifier',
   'ct.identifiers.pl' =>        'Identifiers',
+  'ct.names.1' =>               'Name',
+  'ct.names.pl' =>              'Names',
   'ct.navigation_links.1' =>    'Navigation Link',
   'ct.navigation_links.pl' =>   'Navigation Links',
   'ct.org_identities.1' =>      'Organizational Identity',
@@ -270,7 +272,8 @@ Please click the link below to accept or decline.
     'ur'      => 'Urdu (اُردُو)'
   ),
 
-  'en.name' =>        array(NameEnum::Author => 'Author',
+  'en.name' =>        array(NameEnum::Alternate => 'Alternate',
+                            NameEnum::Author => 'Author',
                             NameEnum::FKA => 'FKA',
                             NameEnum::Official => 'Official',
                             NameEnum::Preferred => 'Preferred'),
@@ -408,6 +411,7 @@ Please click the link below to accept or decline.
   'er.inv.nf' =>      'Invitation Not Found',
   'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
+  'er.nm.primary' =>  '"%1$s" is the primary name and cannot be deleted',
   'er.nt.email' =>    'Notification could not be sent because no email address was found',
   'er.nt.send' =>     'Notification to %1$s failed (%2$s)',
   'er.notfound' =>    '%1$s "%2$s" Not Found',
@@ -607,6 +611,7 @@ Please click the link below to accept or decline.
   'fd.name.family' => 'Family Name',
   'fd.name.suffix' => 'Suffix',
   'fd.name.language' => 'Language',
+  'fd.name.primary' => 'Primary',
   'fd.no' =>          'No',
   'fd.null' =>        'Null',
   'fd.o' =>           'Organization',
@@ -713,6 +718,7 @@ Please click the link below to accept or decline.
   'op.ok' =>          'OK',
   'op.petition' =>    'Petition',
   'op.petition.create' => 'Create Petition',
+  'op.primary' =>     'Make Primary',
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',
   'op.prov' =>        'Provision',
   'op.prov.confirm' => 'Are you sure you wish to (re)provision this record?',
@@ -737,6 +743,8 @@ Please click the link below to accept or decline.
   // Results
   'rs.added' =>       'Added',
   'rs.added-a' =>     '"%1$s" Added',
+  'rs.added-a2' =>    '%1$s "%2$s" Added',
+  'rs.deleted-a2' =>  '%1$s "%2$s" Deleted',
   'rs.grm.added' =>   'Added to CO Group %1$s (%2$s) (member=%3$s, owner=%4$s)',
   'rs.grm.deleted' => 'Removed from CO Group %1$s (%2$s)',
   'rs.grm.edited' =>  'Edited CO Group Roles %1$s (%2$s) (from member=%3$s, owner=%4$s to member=%5$s, owner=%6$s)',
@@ -747,6 +755,8 @@ Please click the link below to accept or decline.
   'rs.inv.dec-a' =>   'Invitation to %1$s declined',
   'rs.inv.sent' =>    'Invitation sent to %1$s',
   'rs.mail.verified' => 'Email Address "%1$s" verified',
+  'rs.nm.primary' =>  'Primary name updated',
+  'rs.nm.primary-a' => 'Primary name updated to "%1$s"',
   'rs.nt.sent' =>     'Approval notification sent to %1$s',
   'rs.prov-a' =>      'Provisioned %1$s',
   'rs.prov.ok' =>     'Provisioning completed successfully',
@@ -764,6 +774,7 @@ Please click the link below to accept or decline.
   'rs.tc.agree.ok' => 'Agreement to Terms and Conditions recorded',
   'rs.saved' =>       'Saved',
   'rs.updated' =>     '"%1$s" Updated',
+  'rs.updated-a2' =>  '%1$s "%2$s" Updated',
   
   // Setup
   

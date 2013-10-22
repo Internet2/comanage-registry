@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Fields
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -171,7 +171,7 @@
                   if($dok) {
                     print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $g['co_person_id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                   }
-                  print $this->Html->link(generateCn($c['CoPerson']['Name']),
+                  print $this->Html->link(generateCn($c['CoPerson']['PrimaryName']),
                                           array('controller' => 'co_group_members',
                                                 'action' => 'edit',
                                                 $g['id'],
@@ -197,7 +197,7 @@
             }
           } else {
             foreach($co_group_members as $c)
-              echo Sanitize::html(generateCn($c['CoPerson']['Name'])) . "<br />\n";
+              echo Sanitize::html(generateCn($c['CoPerson']['PrimaryName'])) . "<br />\n";
           }
         }
       ?>

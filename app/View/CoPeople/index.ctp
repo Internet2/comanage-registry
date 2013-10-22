@@ -176,7 +176,7 @@
 
 <div id = "sorter">
   <div>Sort By:</div>
-  <div><?php print $this->Paginator->sort('Name.family', _txt('fd.name')); ?>  </div>
+  <div><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?>  </div>
   <div><?php print $this->Paginator->sort('status', _txt('fd.status')); ?>     </div>
   <div><?php print $this->Paginator->sort('created', _txt('fd.created')); ?>   </div>
   <div><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?> </div>
@@ -189,7 +189,7 @@
       <div class = "panel1">
         <div class="name">
           <?php
-            print $this->Html->link(generateCn($p['Name']),
+            print $this->Html->link(generateCn($p['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
                                       'action' => ($permissions['edit']
@@ -255,7 +255,7 @@
                 print '<button class="deletebutton" title="' 
                   . _txt('op.delete') 
                   . '" onclick="javascript:noprop(event);js_confirm_delete(\'' 
-                  . _jtxt(Sanitize::html(generateCn($p['Name']))) 
+                  . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
                   . '\', \'' 
                   . $this->Html->url(array('controller' => 'co_people', 
                                            'action'     => 'delete', 
@@ -272,7 +272,7 @@
                 print '<button class="invitebutton" title="' 
                   . _txt('op.inv.resend') 
                   . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
-                  . _jtxt(Sanitize::html(generateCn($p['Name']))) 
+                  . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
                   . '\', \'' 
                   . $this->Html->url(array('controller' => 'co_invites',
                                            'action'     => 'send', 

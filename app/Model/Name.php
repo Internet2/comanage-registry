@@ -78,15 +78,21 @@ class Name extends AppModel {
       'allowEmpty' => true
     ),
     'type' => array(
-      'rule' => array('inList', array(NameEnum::Author,
+      'rule' => array('inList', array(NameEnum::Alternate,
+                                      NameEnum::Author,
                                       NameEnum::FKA,
                                       NameEnum::Official,
                                       NameEnum::Preferred)),
-      'required' => false,
-      'allowEmpty' => true
+      'required' => true,
+      'allowEmpty' => false
     ),
     'language' => array(
       'rule'       => array('validateLanguage'),
+      'required'   => false,
+      'allowEmpty' => true
+    ),
+    'primary_name' => array(
+      'rule'       => array('boolean'),
       'required'   => false,
       'allowEmpty' => true
     ),
@@ -100,5 +106,11 @@ class Name extends AppModel {
       'required' => false,
       'allowEmpty' => true
     )
+  );
+  
+  // Enum type hints
+  
+  public $cm_enum_types = array(
+    'type' => 'name_t'
   );
 }

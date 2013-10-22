@@ -148,8 +148,6 @@ class CoGroupsController extends StandardController {
     return(true);
   }
 
-
-
   /**
    * Update a CO Group.
    * - precondition: Model specific attributes in $this->request->data (optional)
@@ -173,6 +171,8 @@ class CoGroupsController extends StandardController {
       // Grouper dataSource may be used and does not support
       // recursion construct the necessary recursive information
       // directly.
+      // XXX do we need this anymore? (Is Grouper dataSource going away?)
+      // If not, we should use containable to get PrimaryName alongside CoPerson.
       $allGroupMembers = $this->CoGroup->CoGroupMember->find('all', 
                                                              array('conditions' =>
                                                                array('CoGroupMember.co_group_id' => $id)
@@ -194,7 +194,8 @@ class CoGroupsController extends StandardController {
         $name = $this->Name->find('first', 
                                   array(
                                     'conditions' => 
-                                      array('Name.co_person_id' => $coPersonId),
+                                      array('Name.co_person_id' => $coPersonId,
+                                            'Name.primary_name' => true),
                                     'recursive' => -1
                                   )
                                  );
@@ -415,13 +416,13 @@ class CoGroupsController extends StandardController {
     
     $args = array();
     $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
-    $args['contain'] = 'Name';
+    $args['contain'] = 'PrimaryName';
     
     $coPerson = $this->CoGroup->CoGroupMember->CoPerson->find('first', $args);
     
     if(!empty($coPerson)) {
       // Set name for page title
-      $this->set('name_for_title', Sanitize::html(generateCn($coPerson['Name'])));
+      $this->set('name_for_title', Sanitize::html(generateCn($coPerson['PrimaryName'])));
     }
     
     // XXX proper authz here is probably something like "(all open CO groups

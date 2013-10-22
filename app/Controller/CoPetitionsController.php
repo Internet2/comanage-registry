@@ -35,10 +35,10 @@ class CoPetitionsController extends StandardController {
       'modified' => 'asc'
     ),
     'contain' => array(
-      'ApproverCoPerson' => 'Name',
-      'EnrolleeCoPerson' => 'Name',
-      'PetitionerCoPerson' => 'Name',
-      'SponsorCoPerson' => 'Name'
+      'ApproverCoPerson' => 'PrimaryName',
+      'EnrolleeCoPerson' => 'PrimaryName',
+      'PetitionerCoPerson' => 'PrimaryName',
+      'SponsorCoPerson' => 'PrimaryName'
     )
   );
   
@@ -48,13 +48,13 @@ class CoPetitionsController extends StandardController {
   // For rendering views, we need more information than just the various ID numbers
   // stored in a petition.
   public $view_contains = array(
-    'ApproverCoPerson' => 'Name',
-    'EnrolleeCoPerson' => 'Name',
-    'PetitionerCoPerson' => 'Name',
-    'SponsorCoPerson' => 'Name',
+    'ApproverCoPerson' => 'PrimaryName',
+    'EnrolleeCoPerson' => 'PrimaryName',
+    'PetitionerCoPerson' => 'PrimaryName',
+    'SponsorCoPerson' => 'PrimaryName',
     'CoPetitionHistoryRecord' => array(
       'ActorCoPerson' => array(
-        'Name'
+        'PrimaryName'
       )
     )
   );
@@ -331,7 +331,7 @@ class CoPetitionsController extends StandardController {
       $this->set('title_for_layout',
                  _txt('op.' . $this->action . '-f',
                       array(_txt('ct.co_petitions.1'),
-                            generateCn($this->viewVars['co_petitions'][0]['EnrolleeCoPerson']['Name']))));
+                            generateCn($this->viewVars['co_petitions'][0]['EnrolleeCoPerson']['PrimaryName']))));
     }
   }
   

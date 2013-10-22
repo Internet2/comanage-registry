@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Org Identity Find View
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -30,7 +30,7 @@
 <table id="org_identities" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('Name.family', _txt('fd.name')); ?></th>
+      <th><?php echo $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
       <th><?php echo $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php echo $this->Paginator->sort('title', _txt('fd.title')); ?></th>
       <th><?php echo $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
@@ -43,8 +43,11 @@
     <?php $i = 0; ?>
     <?php foreach ($org_identities as $p): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
-      <td><?php echo $this->Html->link(generateCn($p['Name']),
-                                 array('controller' => 'org_identities', 'action' => 'view', $p['OrgIdentity']['id'])); ?></td>
+      <td><?php print $this->Html->link(generateCn($p['PrimaryName']),
+                                        array('controller'             => 'org_identities',
+                                              'action'                 => 'view',
+                                              $p['OrgIdentity']['id'],
+                                              'co'                     => ($pool_org_identities ? false : $cur_co['Co']['id']))); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
       <td><?php   // Globals

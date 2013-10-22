@@ -365,7 +365,7 @@ class CoInvitesController extends AppController {
         $pArgs['conditions']['CoPetition.id'] = $invite['CoPetition']['id'];
         $pArgs['contain'][] = 'CoPetitionHistoryRecord';
         $pArgs['contain']['CoPetitionHistoryRecord'][0] = 'ActorCoPerson';
-        $pArgs['contain']['CoPetitionHistoryRecord']['ActorCoPerson'] = 'Name';
+        $pArgs['contain']['CoPetitionHistoryRecord']['ActorCoPerson'] = 'PrimaryName';
         
         $petition = $this->CoInvite->CoPetition->find('all', $pArgs);
         
@@ -492,7 +492,7 @@ class CoInvitesController extends AppController {
                                 : null,
                                 $this->cur_co['Co']['name']);
           
-          $this->Session->setFlash(_txt('em.invite.ok', $orgp['EmailAddress'][0]['mail']), '', array(), 'success');
+          $this->Session->setFlash(_txt('em.invite.ok', array($orgp['EmailAddress'][0]['mail'])), '', array(), 'success');
         }
         catch(Exception $e) {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');

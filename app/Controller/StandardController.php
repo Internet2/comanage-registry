@@ -324,7 +324,9 @@ class StandardController extends AppController {
         
         $t = _txt('ct.' . $modelpl . '.1');
         
-        if(!empty($curdata['Name'])) {
+        if(!empty($curdata['PrimaryName'])) {
+          $t = generateCn($curdata['PrimaryName']);
+        } elseif(!empty($curdata['Name'])) {
           $t = generateCn($curdata['Name']);
         } elseif(!empty($curdata[$req][ $model->displayField ])) {
           $t = $curdata[$req][ $model->displayField ];
@@ -766,6 +768,11 @@ class StandardController extends AppController {
   
   function performRedirect() {
     if($this->requires_person) {
+      if(empty($this->viewVars['redirect'])) {
+        // $redirect doesn't seem to be set when deleting a name, so set it if missing
+        $this->checkPersonID('set');
+      }
+      
       $redirect = $this->viewVars['redirect'];
       
       // Sets tab to be opened by co_people page via jquery
@@ -913,8 +920,8 @@ class StandardController extends AppController {
           
           $t = _txt('ct.' . $modelpl . '.1');
           
-          if(!empty($obj['Name'])) {
-            $t = generateCn($obj['Name']);
+          if(!empty($obj['PrimaryName'])) {
+            $t = generateCn($obj['PrimaryName']);
           } elseif(!empty($obj[$req][ $model->displayField ])) {
             $t = $obj[$req][ $model->displayField ];
           }

@@ -195,18 +195,18 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               case 'cn':
                 if($person) {
                   // Currently only preferred name supported (CO-333)
-                  $attributes[$attr] = generateCn($provisioningData['Name']);
+                  $attributes[$attr] = generateCn($provisioningData['PrimaryName']);
                 } else {
                   $attributes[$attr] = $provisioningData['CoGroup']['name'];
                 }
                 break;
               case 'givenName':
                 // Currently only preferred name supported (CO-333)
-                $attributes[$attr] = $provisioningData['Name']['given'];
+                $attributes[$attr] = $provisioningData['PrimaryName']['given'];
                 break;
               case 'sn':
                 // Currently only preferred name supported (CO-333)
-                $attributes[$attr] = $provisioningData['Name']['family'];
+                $attributes[$attr] = $provisioningData['PrimaryName']['family'];
                 break;
               // Attributes from CO Person Role
               case 'eduPersonAffiliation':

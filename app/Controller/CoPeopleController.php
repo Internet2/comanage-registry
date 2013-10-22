@@ -35,8 +35,8 @@ class CoPeopleController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'Name.family' => 'asc',
-      'Name.given' => 'asc'
+      'PrimaryName.family' => 'asc',
+      'PrimaryName.given' => 'asc'
     )
   );
   
@@ -150,7 +150,7 @@ class CoPeopleController extends StandardController {
           }
           
           $this->Session->setFlash(_txt('er.coumember',
-                                   array(generateCn($curdata['Name']),
+                                   array(generateCn($curdata['PrimaryName']),
                                          Sanitize::html($couname))),
                                    '', array(), 'error');
           
@@ -170,7 +170,7 @@ class CoPeopleController extends StandardController {
         $this->restResultHeader(499, "CoPersonRole Exists");
       else
         $this->Session->setFlash(_txt('er.copr.exists',
-                                      array(generateCn($curdata['Name']))),
+                                      array(generateCn($curdata['PrimaryName']))),
                                  '', array(), 'error');
       
       return false;
@@ -193,7 +193,7 @@ class CoPeopleController extends StandardController {
     // Check that an org identity being added is not already a member of the CO.
     // (A person can't be added to the same CO twice... that's what Person Roles
     // are for.) Note the REST check is in co_org_identity_links_controller.
-      
+    
     if(!$this->restful
        && (!$curdata
            ||
@@ -204,7 +204,7 @@ class CoPeopleController extends StandardController {
                                           $reqdata['CoOrgIdentityLink'][0]['org_identity_id']))
       {
         $this->Session->setFlash(_txt('er.cop.member',
-                                 array(generateCn($this->data['Name']),
+                                 array(generateCn($this->data['PrimaryName']),
                                        $this->cur_co['Co']['name'])),
                                  '', array(), 'error');
         
@@ -218,9 +218,9 @@ class CoPeopleController extends StandardController {
       }
     }
     
-    return(true);
+    return true;      
   }
-  
+
   /**
    * Retrieve CO and Org attributes for comparison.
    * - precondition: <id> must exist
@@ -267,6 +267,7 @@ class CoPeopleController extends StandardController {
    * @since  COmanage Registry v0.8
    * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be deleted
    */
+  
   function delete($id) {
     // If a data store for groups and group memberships is being used that
     // is not a relational database supporting SQL then temporarily remove
@@ -307,10 +308,10 @@ class CoPeopleController extends StandardController {
 
     if(isset($c[$req][$model->displayField]))
       return($c[$req][$model->displayField]);
-    if(isset($this->request->data['Name']))
-      return(generateCn($this->request->data['Name']));
-    if(isset($c['Name']))
-      return(generateCn($c['Name']));
+    elseif(isset($this->request->data['PrimaryName']))
+      return(generateCn($this->request->data['PrimaryName']));
+    elseif(isset($c['PrimaryName']))
+      return(generateCn($c['PrimaryName']));
     else
       return("(?)");
   }
@@ -359,7 +360,7 @@ class CoPeopleController extends StandardController {
                                                $this->Session->read('Auth.User.co_person_id'),
                                                ActionEnum::CoPersonEditedManual,
                                                _txt('en.action', null, ActionEnum::CoPersonEditedManual) . ": " .
-                                               $this->changesToString($newdata, $olddata, array('CoPerson', 'Name')));
+                                               $this->changesToString($newdata, $olddata, array('CoPerson', 'PrimaryName')));
         break;
     }
     
@@ -404,12 +405,12 @@ class CoPeopleController extends StandardController {
       if(!$this->restful)
       {
         // Set page title
-        $this->set('title_for_layout', _txt('op.inv-a', array(generateCn($orgp['Name']))));
+        $this->set('title_for_layout', _txt('op.inv-a', array(generateCn($orgp['PrimaryName']))));
       }
 
       // Construct a CoPerson from the OrgIdentity.  We only populate defaulted values.
       
-      $cop['Name'] = $orgp['Name'];
+      $cop['PrimaryName'] = $orgp['PrimaryName'];
       $cop['CoOrgIdentityLink'][0]['org_identity_id'] = $orgp['OrgIdentity']['id'];
       
       $this->set('co_people', array(0 => $cop));
@@ -618,13 +619,13 @@ class CoPeopleController extends StandardController {
     // Filter by given name
     if(!empty($this->params['named']['Search.givenName'])) {
       $searchterm = $this->params['named']['Search.givenName'];
-      $pagcond['Name.given LIKE'] = "%$searchterm%";
+      $pagcond['PrimaryName.given LIKE'] = "%$searchterm%";
     }
 
     // Filter by Family name
     if(!empty($this->params['named']['Search.familyName'])) {
       $searchterm = $this->params['named']['Search.familyName'];
-      $pagcond['Name.family LIKE'] = "%$searchterm%";
+      $pagcond['PrimaryName.family LIKE'] = "%$searchterm%";
     }
 
     // Filter by status
@@ -668,7 +669,7 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoPerson.id'] = $id;
-      $args['contain'][] = 'Name';
+      $args['contain'][] = 'PrimaryName';
       
       $this->set('co_person', $this->CoPerson->find('first', $args));
     }

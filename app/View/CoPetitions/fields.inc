@@ -23,6 +23,9 @@
  */
 -->
 <script type="text/javascript">
+var givenNameAttr = "";
+var familyNameAttr = "";
+  
 $(document).ready(function() {
   $("input.matchable").keyup(function(event) {
     if(event.which != 13) {
@@ -31,8 +34,8 @@ $(document).ready(function() {
       $.ajax({
         url: '/registry/co_people/match/co:<?php print $cur_co['Co']['id']; ?>'
              + '/coef:' + <?php print Sanitize::html($co_enrollment_flow_id); ?>
-             + '/given:' + document.getElementById('EnrolleeCoPersonNameGiven').value
-             + '/family:' + document.getElementById('EnrolleeCoPersonNameFamily').value
+             + '/given:' + document.getElementById(givenNameAttr).value
+             + '/family:' + document.getElementById(familyNameAttr).value
       }).done(function(data) {
         $('div#results').html(data);
       });

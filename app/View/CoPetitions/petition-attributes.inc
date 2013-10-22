@@ -29,6 +29,10 @@
   
   // Are there T&C to agree to?
   $tandc = !empty($vv_terms_and_conditions);
+  
+  // Track the names of the matching fields and emit them later
+  $givenNameAttr = "";
+  $familyNameAttr = "";
 ?>
   
 <style>
@@ -307,11 +311,21 @@
                       }
                       
                       if($permissions['match']
-                         && ($fieldName == 'EnrolleeCoPerson.Name.given'
-                             || $fieldName == 'EnrolleeCoPerson.Name.family')) {
+                         // For now, match only on CO Person Official Name.
+                         // (We can only have one name field match because of how the
+                         // javascript keyup triggered code works.)
+                         && strcmp($ea['attribute'], 'p:name:O')==0
+                         && ($ea['field'] == 'given'
+                             || $ea['field'] == 'family')) {
                         # XXX Temp hack to enable real-time query. This should
                         # instead be enabled for fields with an appropriate flag.
                         $args['class'] = 'matchable';
+                        
+                        if($ea['field'] == 'given') {
+                          $givenNameAttr = preg_replace('/\./', '', $ea['model']) . "Given";
+                        } elseif($ea['field'] == 'family') {
+                          $familyNameAttr = preg_replace('/\./', '', $ea['model']) . "Family";
+                        }
                       }
                       
                       print $this->Form->input($fieldName, $args);
@@ -441,3 +455,8 @@
   <iframe id="tandc_content" height="600" width="700">
   </iframe>
 </div>
+
+<script type="text/javascript">
+  givenNameAttr = <?php print '"' . $givenNameAttr . '"'; ?>;
+  familyNameAttr = <?php print '"' . $familyNameAttr . '"'; ?>;
+</script>

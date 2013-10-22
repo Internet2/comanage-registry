@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Identifier Index View
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -35,8 +35,8 @@
       <th><?php echo $this->Paginator->sort('login', _txt('fd.identifier.login')); ?></th>
       <th><?php echo $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
-      <th><?php echo $this->Paginator->sort('OrgIdentity.Name.family', 'Org Identity'); ?></th>
-      <th><?php echo $this->Paginator->sort('CoPerson.Name.family', 'CO Person'); ?></th>
+      <th><?php echo $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
+      <th><?php echo $this->Paginator->sort('CoPerson.PrimaryName.family', 'CO Person'); ?></th>
       <th><?php echo _txt('fd.actions'); ?></th>
     </tr>
   </thead>
@@ -76,7 +76,7 @@
           {
             // Generally, someone who has view permission on an attribute number can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($a['OrgIdentity']['Name']),
+              echo $this->Html->link(generateCn($a['OrgIdentity']['PrimaryName']),
                                      array('controller' => 'org_identities', 'action' => 'view', $a['OrgIdentity']['id'])) . "\n";
           }
         ?>
@@ -87,7 +87,7 @@
           {
             // Generally, someone who has view permission on an attribute can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($a['CoPerson']['Name']),
+              echo $this->Html->link(generateCn($a['CoPerson']['PrimaryName']),
                                      array('controller' => 'co_people', 'action' => 'view', $a['CoPerson']['id'])) . "\n";
           }
         ?>

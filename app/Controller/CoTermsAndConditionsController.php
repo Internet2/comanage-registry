@@ -175,7 +175,7 @@ class CoTermsAndConditionsController extends StandardController {
     // And also this CO Person
     $args = array();
     $args['conditions']['CoPerson.id'] = $this->params['named']['copersonid'];
-    $args['contain'][] = 'Name';
+    $args['contain'][] = 'PrimaryName';
     
     $this->set('vv_co_person', $this->Co->CoPerson->find('first', $args));
   }

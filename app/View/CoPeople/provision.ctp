@@ -23,7 +23,7 @@
  */
 -->
 <?php
-  $params = array('title' => _txt('fd.prov.status.for', array(generateCn($co_person['Name']))));
+  $params = array('title' => _txt('fd.prov.status.for', array(generateCn($co_person['PrimaryName']))));
   print $this->element("pageTitle", $params);
 ?>
 <script type="text/javascript">

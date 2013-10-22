@@ -77,6 +77,7 @@ Router::mapResources(array(
   'email_addresses',
   'history_records',
   'identifiers',
+  'names',
   'navigation_links',
   'org_identities',
   'organizations',

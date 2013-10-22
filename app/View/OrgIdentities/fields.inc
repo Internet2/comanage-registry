@@ -46,7 +46,6 @@ $(function() {
 </script>
 
 <?php
-
   // Globals
   global $cm_lang, $cm_texts;
 
@@ -137,63 +136,74 @@ $(function() {
       <?php endif; ?>
     </ul>
 
-    <div id="tabs-name" class="ui-helper-clearfix">
+    <div id="tabs-name" class="ui-helper-clearfix additionalinfo">
       <table id="<?php print $this->action; ?>_org_identity" class="ui-widget">
         <tbody>
-          <tr class="line1">
+          <?php $l = 1; ?>
+          <?php if($this->action == 'add'): ?>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php
               echo _txt('fd.name.honorific');
-
+              
               if($e)
                 echo " " . _txt('fd.name.h.desc');
               ?>
             </td>
             <td>
               <?php
-                echo $this->Form->hidden('Name.id');
-                echo $this->Form->hidden('Name.type', array('default' => 'O'));
-                echo ($e ? $this->Form->input('Name.honorific') : Sanitize::html($org_identities[0]['Name']['honorific']));
+                print $this->Form->hidden('PrimaryName.id');
+                print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
+                print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
+                print ($e ? $this->Form->input('PrimaryName.honorific') : Sanitize::html($org_identities[0]['PrimaryName']['honorific']));
               ?>
              </td>
           </tr>
-          <tr class="line2">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
                 <?php echo _txt('fd.name.given'); ?><font class="required">*</font>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('Name.given') : Sanitize::html($org_identities[0]['Name']['given'])); ?>
+              <?php echo ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
             </td>
           </tr>
-          <tr class="line1">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php echo _txt('fd.name.middle'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('Name.middle') : Sanitize::html($org_identities[0]['Name']['middle'])); ?>
+              <?php echo ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
             </td>
-          <tr class="line2">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php echo _txt('fd.name.family'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('Name.family') : Sanitize::html($org_identities[0]['Name']['family'])); ?>
+              <?php echo ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
             </td>
           </tr>
-          <tr class="line1">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php
                 echo _txt('fd.name.suffix');
-
+                
                 if($e)
                   echo " " . _txt('fd.name.s.desc');
               ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('Name.suffix') : Sanitize::html($org_identities[0]['Name']['suffix'])); ?>
+              <?php echo ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
             </td>
           </tr>
-          <tr class="line2">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td>
+              <?php print _txt('fd.type'); ?>
+            </td>
+            <td>
+              <?php print _txt('en.name', null, NameEnum::Official); ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php print _txt('fd.language'); ?>
             </td>
@@ -202,26 +212,95 @@ $(function() {
                 global $cm_lang, $cm_texts;
                 
                 $attrs = array();
-                $attrs['value'] = (isset($org_identities[0]['Name']['language'])
-                                   ? $org_identities[0]['Name']['language']
+                $attrs['value'] = (isset($org_identities[0]['PrimaryName']['language'])
+                                   ? $org_identities[0]['PrimaryName']['language']
                                    : getPreferredLanguage());
                 $attrs['empty'] = true;
                 
                 if($e) {
-                  print $this->Form->select('Name.language',
+                  print $this->Form->select('PrimaryName.language',
                                             $cm_texts[ $cm_lang ]['en.language'],
                                             $attrs);
                   
-                  if($this->Form->isFieldError('Name.language')) {
-                    print $this->Form->error('Name.language');
+                  if($this->Form->isFieldError('PrimaryName.language')) {
+                    print $this->Form->error('PrimaryName.language');
                   }
                 } else {
-                  print _txt('en.language', null, $org_identities[0]['Name']['language']);
+                  print _txt('en.language', null, $org_identities[0]['PrimaryName']['language']);
                 }
               ?>
             </td>
           </tr>
-          <tr class="line1">
+          <?php else: // add ?>
+          <?php foreach($org_identities[0]['PrimaryName'] as $n): ?>
+          <div>
+            <div>
+              <?php
+                if($e) {
+                  print $this->Html->link(generateCn($n),
+                                          array('controller' => 'names',
+                                                'action' => 'edit',
+                                                $n['id'],
+                                                'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
+                } else {
+                  print generateCn($n);
+                }
+                
+                print " ("
+                      . ($n['primary_name'] ? (_txt('fd.name.primary') . ", ") : "")
+                      . _txt('en.name', null, $n['type'])
+                      . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
+                      . ")";
+              ?>
+            </div>
+            <div>
+              <?php
+                if($e) {
+                  if(!$n['primary_name']) {
+                    print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($n))) . '\', \'' . $this->Html->url(array('controller' => 'names', 'action' => 'delete', $n['id'], 'co' => ($pool_org_identities ? false : $cur_co['Co']['id']))) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
+                    
+                    print $this->Html->link(_txt('op.primary'),
+                                            array('controller'    => 'names',
+                                                  'action'        => 'primary',
+                                                  $n['id'],
+                                                  'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                                  'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])),
+                                            array('class' => 'primarybutton')) . "\n";
+                  }
+                  
+                  print $this->Html->link(_txt('op.edit'),
+                                          array('controller' => 'names',
+                                                'action' => 'edit',
+                                                $n['id'],
+                                                'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
+                                          array('class' => 'editbutton')) . "\n";
+                }
+              ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
+          <?php if($e): ?>
+          <div>
+            <div>
+              <?php print _txt('fd.name'); ?>
+            </div>
+            <div>
+              <?php
+                $linktarget = array('controller'    => 'names',
+                                    'action'        => 'add',
+                                    'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                    'co'            => ($pool_org_identities ? false : $cur_co['Co']['id']));
+                $linkparams = array('class'  => 'addbutton');
+                
+                print $this->Html->link(_txt('op.add'),
+                                        $linktarget,
+                                        $linkparams);
+              ?>
+            </div>
+          </div>
+          <?php endif; // e ?>
+          <?php endif; // add ?>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php echo _txt('fd.affiliation'); ?><font class="required">*</font>
             </td>
@@ -249,28 +328,31 @@ $(function() {
               ?>
             </td>
           </tr>
-          <tr class="line2">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php echo _txt('fd.title'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('title') : Sanitize::html($org_identities[0]['OrgIdentity']['title'])); ?>
+              <?php echo ($e ? $this->Form->input('title', array('size' => 60))
+                             : Sanitize::html($org_identities[0]['OrgIdentity']['title'])); ?>
             </td>
           </tr>
-          <tr class="line1">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php echo _txt('fd.o'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('o') : Sanitize::html($org_identities[0]['OrgIdentity']['o'])); ?>
+              <?php echo ($e ? $this->Form->input('o', array('size' => 60))
+                             : Sanitize::html($org_identities[0]['OrgIdentity']['o'])); ?>
             </td>
           </tr>
-          <tr class="line2">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php echo _txt('fd.ou'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('ou') : Sanitize::html($org_identities[0]['OrgIdentity']['ou'])); ?>
+              <?php echo ($e ? $this->Form->input('ou', array('size' => 60))
+                             : Sanitize::html($org_identities[0]['OrgIdentity']['ou'])); ?>
             </td>
           </tr>
           <tr>

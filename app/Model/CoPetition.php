@@ -208,6 +208,15 @@ class CoPetition extends AppModel {
         continue;
       }
       
+      if($efAttr['field'] == 'login'
+         && (strncmp($efAttr['attribute'], 'i:identifier', 12)==0
+             || strncmp($efAttr['attribute'], 'p:identifier', 12)==0)) {
+        // For identifiers, skip login since it's not the primary element and it's
+        // hard to tell if it's empty or not (since it's boolean)
+        
+        continue;
+      }
+      
       if($efAttr['required']) {
         // We found a required flag, so stop
         
@@ -1565,9 +1574,17 @@ class CoPetition extends AppModel {
               $this->$primaryModel->validationErrors[$model][$instance] = $errFields;
               $err = true;
             } else {
-              // Add this entry to the $coData being assembled
+              // Add this entry to the $data being assembled. As an exception, if we have a name
+              // of type official promote it to a HasOne relationship, since it will be considered
+              // a primary name.
               
-              $ret[$model][$instance] = $relatedModels['hasMany'][$model][$instance];
+              if($model == 'Name'
+                 && $relatedModels['hasMany'][$model][$instance]['type'] == NameEnum::Official) {
+                $ret['PrimaryName'] = $relatedModels['hasMany'][$model][$instance];
+                $ret['PrimaryName']['primary_name'] = true;
+              } else {
+                $ret[$model][$instance] = $relatedModels['hasMany'][$model][$instance];
+              }
             }
           }
         }

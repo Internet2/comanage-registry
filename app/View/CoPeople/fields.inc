@@ -187,6 +187,7 @@
     
     $("#autogenerate-dialog").dialog({
       autoOpen: false,
+      <?php if($this->action == 'edit'): ?>
       buttons: {
         "<?php print _txt('op.cancel'); ?>": function() {
           $(this).dialog("close");
@@ -205,7 +206,7 @@
       hide: {
         effect: "fade"
       }
-
+      <?php endif; // edit ?>
     });
   });
 </script>
@@ -246,81 +247,58 @@
         </li>
       <?php endif; ?>
     </ul>
-    <div id="tabs-name">
+    <div id="tabs-name" class="additionalinfo">
       <table>
-        <?php if($this->action == "compare"): ?>
-          <tr>
-            <th class="ui-widget-header"><?php print _txt('fd.attribute'); ?></th>
-            <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-            <?php if($this->action == "compare"): ?>
-                <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
-            <?php endif; ?>
-          </tr>
-        <?php endif; ?>
+        <?php if($this->action == 'invite'): ?>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <th>
             <?php
               print _txt('fd.name.honorific');
-
+              
               if($e)
                 print " " . _txt('fd.name.h.desc');
             ?>
           </th>
           <td>
             <?php
-              print $this->Form->hidden('Name.id');
-              print $this->Form->hidden('Name.type', array('default' => 'P'));
-              print ($e ? $this->Form->input('Name.honorific', array('default' => $co_people[0]['Name']['honorific']))
-                       : Sanitize::html($co_people[0]['Name']['honorific']));
+              print $this->Form->hidden('PrimaryName.id');
+              print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
+              print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
+              print ($e ? $this->Form->input('PrimaryName.honorific',
+                                             array('default' => $co_people[0]['PrimaryName']['honorific']))
+                        : Sanitize::html($co_people[0]['PrimaryName']['honorific']));
             ?>
           </td>
-          <?php if($this->action == "compare"): ?>
-            <td>
-              <?php print Sanitize::html($org_identities[0]['Name']['honorific']); ?>
-            </td>
-          <?php endif; ?>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <th>
             <?php print _txt('fd.name.given'); ?><font class="required">*</font>
           </th>
           <td>
-            <?php print ($e ? $this->Form->input('Name.given', array('default' => $co_people[0]['Name']['given']))
-                           : Sanitize::html($co_people[0]['Name']['given'])); ?>
+            <?php print ($e ? $this->Form->input('PrimaryName.given',
+                                                 array('default' => $co_people[0]['PrimaryName']['given']))
+                            : Sanitize::html($co_people[0]['PrimaryName']['given'])); ?>
           </td>
-          <?php if($this->action == "compare"): ?>
-            <td>
-              <?php print Sanitize::html($org_identities[0]['Name']['given']); ?>
-            </td>
-          <?php endif; ?>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <th>
             <?php print _txt('fd.name.middle'); ?>
           </th>
           <td>
-            <?php print ($e ? $this->Form->input('Name.middle', array('default' => $co_people[0]['Name']['middle']))
-                           : Sanitize::html($co_people[0]['Name']['middle'])); ?>
+            <?php print ($e ? $this->Form->input('PrimaryName.middle',
+                                                 array('default' => $co_people[0]['PrimaryName']['middle']))
+                            : Sanitize::html($co_people[0]['PrimaryName']['middle'])); ?>
           </td>
-          <?php if($this->action == "compare"): ?>
-            <td>
-              <?php print Sanitize::html($org_identities[0]['Name']['middle']); ?>
-            </td>
-          <?php endif; ?>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <th>
             <?php print _txt('fd.name.family'); ?>
           </th>
           <td>
-            <?php print ($e ? $this->Form->input('Name.family', array('default' => $co_people[0]['Name']['family']))
-                           : Sanitize::html($co_people[0]['Name']['family'])); ?>
+            <?php print ($e ? $this->Form->input('PrimaryName.family',
+                                                 array('default' => $co_people[0]['PrimaryName']['family']))
+                            : Sanitize::html($co_people[0]['PrimaryName']['family'])); ?>
           </td>
-          <?php if($this->action == "compare"): ?>
-            <td>
-              <?php print Sanitize::html($org_identities[0]['Name']['family']); ?>
-            </td>
-          <?php endif; ?>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <th>
@@ -331,15 +309,19 @@
             ?>
           </th>
           <td>
-            <?php print ($e ? $this->Form->input('Name.suffix', array('default' => $co_people[0]['Name']['suffix']))
-                           : Sanitize::html($co_people[0]['Name']['suffix'])); ?>
+            <?php print ($e ? $this->Form->input('PrimaryName.suffix',
+                                                 array('default' => $co_people[0]['PrimaryName']['suffix']))
+                            : Sanitize::html($co_people[0]['PrimaryName']['suffix'])); ?>
           </td>
-          <?php if($this->action == "compare"): ?>
-            <td>
-              <?php print Sanitize::html($org_identities[0]['Name']['suffix']); ?>
-            </td>
-          <?php endif; ?>
         </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <th>
+              <?php print _txt('fd.type'); ?>
+            </th>
+            <td>
+              <?php print _txt('en.name', null, NameEnum::Official); ?>
+            </td>
+          </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <th>
             <?php print _txt('fd.language'); ?>
@@ -349,35 +331,26 @@
               global $cm_lang, $cm_texts;
               
               $attrs = array();
-              $attrs['value'] = (isset($co_people[0]['Name']['language'])
-                                 ? $co_people[0]['Name']['language']
+              $attrs['value'] = (isset($co_people[0]['PrimaryName']['language'])
+                                 ? $co_people[0]['PrimaryName']['language']
                                  : getPreferredLanguage());
               $attrs['empty'] = true;
               
               if($e) {
-                print $this->Form->select('Name.language',
+                print $this->Form->select('PrimaryName.language',
                                           $cm_texts[ $cm_lang ]['en.language'],
                                           $attrs);
                 
-                if($this->Form->isFieldError('Name.language')) {
-                  print $this->Form->error('Name.language');
+                if($this->Form->isFieldError('PrimaryName.language')) {
+                  print $this->Form->error('PrimaryName.language');
                 }
               } else {
-                if(!empty($co_people[0]['Name']['language'])) {
-                  print _txt('en.language', null, $co_people[0]['Name']['language']);
+                if(!empty($co_people[0]['PrimaryName']['language'])) {
+                  print _txt('en.language', null, $co_people[0]['PrimaryName']['language']);
                 }
               }
             ?>
           </td>
-          <?php if($this->action == "compare"): ?>
-            <td>
-              <?php
-                if(!empty($co_people[0]['Name']['language'])) {
-                  print Sanitize::html($org_identities[0]['Name']['language']);
-                }
-              ?>
-            </td>
-          <?php endif; ?>
         </tr>
         <tr>
           <th>
@@ -386,13 +359,118 @@
           <td>
             <?php
               if($e) {
-                echo $this->Form->submit($submit_label);
+                print $this->Form->submit($submit_label);
                 print $this->Form->button(_txt('op.reset'), 
                                           array('type'=>'reset'));
               }
             ?>
           </td>
         </tr>
+        <?php elseif($this->action == "compare"): ?>
+          <!-- Simply list the org names and then the CO names -->
+          <tr>
+            <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+          </tr>
+          <?php foreach($co_people[0]['Name'] as $n): ?>
+          <tr>
+            <td>
+              <?php
+                print generateCn($n)
+                      . " ("
+                      . ($n['primary_name'] ? (_txt('fd.name.primary') . ", ") : "")
+                      . _txt('en.name', null, $n['type'])
+                      . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
+                      . ")";
+              ?>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+          <tr>
+            <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+          </tr>
+          <?php foreach($org_identities[0]['Name'] as $n): ?>
+          <tr>
+            <td>
+              <?php
+                print generateCn($n)
+                      . " ("
+                      . ($n['primary_name'] ? (_txt('fd.name.primary') . ", ") : "")
+                      . _txt('en.name', null, $n['type'])
+                      . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
+                      . ")";
+              ?>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+        <?php else: // invite/compare ?>
+          <?php foreach($co_people[0]['Name'] as $n): ?>
+          <div>
+            <div>
+              <?php
+                if($e) {
+                  print $this->Html->link(generateCn($n),
+                                          array('controller' => 'names',
+                                                'action' => 'edit',
+                                                $n['id'],
+                                                'co' => $cur_co['Co']['id']));
+                } else {
+                  print generateCn($n);
+                }
+                
+                print " ("
+                      . ($n['primary_name'] ? (_txt('fd.name.primary') . ", ") : "")
+                      . _txt('en.name', null, $n['type'])
+                      . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
+                      . ")";
+              ?>
+            </div>
+            <div>
+              <?php
+                if($e) {
+                  if(!$n['primary_name']) {
+                    print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($n))) . '\', \'' . $this->Html->url(array('controller' => 'names', 'action' => 'delete', $n['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
+                    
+                    print $this->Html->link(_txt('op.primary'),
+                                            array('controller' => 'names',
+                                                  'action'     => 'primary',
+                                                  $n['id'],
+                                                  'copersonid' => $co_people[0]['CoPerson']['id'],
+                                                  'co'         => $cur_co['Co']['id']),
+                                            array('class' => 'primarybutton')) . "\n";
+                  }
+                  
+                  print $this->Html->link(_txt('op.edit'),
+                                          array('controller' => 'names',
+                                                'action' => 'edit',
+                                                $n['id'],
+                                                'co' => $cur_co['Co']['id']),
+                                          array('class' => 'editbutton')) . "\n";
+                }
+              ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
+          <?php if($e): ?>
+          <div>
+            <div>
+              <?php print _txt('fd.name'); ?>
+            </div>
+            <div>
+              <?php
+                $linktarget = array('controller' => 'names',
+                                    'action'     => 'add',
+                                    'copersonid' => $co_people[0]['CoPerson']['id'],
+                                    'co'         => $cur_co['Co']['id']);
+                $linkparams = array('class'  => 'addbutton');
+                
+                print $this->Html->link(_txt('op.add'),
+                                        $linktarget,
+                                        $linkparams);
+              ?>
+            </div>
+          </div>
+          <?php endif; // e ?>
+        <?php endif; // invite ?>
       </table>
       <div style="clear:both;"></div>
     </div> <!-- tabs-name -->
@@ -668,7 +746,7 @@
                                       'co'         => $cur_co['Co']['id']
                                      );
                   $linkparams = array('class'  => 'addbutton');
-                  print $this->Html->link(_txt('op.add'),
+                  print $this->Html->link(_txt('op.manage.grm'),
                                           $linktarget,
                                           $linkparams) . "\n";
                 }
@@ -774,7 +852,7 @@
                                                         array('controller' => 'co_person_roles', 'action' => 'edit', $r['id'], 'co' => $cur_co['Co']['id']),
                                                         array('class' => 'editbutton')) . "\n";
                               if($permissions['delete'])
-                                print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($co_people[0]['Name']))) . '\', \'' . $this->Html->url(array('controller' => 'co_person_roles', 'action' => 'delete', $r['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                                print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($co_people[0]['PrimaryName']))) . '\', \'' . $this->Html->url(array('controller' => 'co_person_roles', 'action' => 'delete', $r['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                             } elseif($permissions['view']) {
                               print $this->Html->link(_txt('op.view'),
                                                       array('controller' => 'co_person_roles', 'action' => 'view', $r['id'], 'co' => $cur_co['Co']['id']),

@@ -132,7 +132,7 @@ global $cm_lang, $cm_texts;
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print $this->Html->link(generateCn($p['EnrolleeCoPerson']['Name']),
+          print $this->Html->link(generateCn($p['EnrolleeCoPerson']['PrimaryName']),
                                   array(
                                     'controller' => 'co_petitions',
                                     'action' => ($permissions['edit']
@@ -147,7 +147,7 @@ global $cm_lang, $cm_texts;
       <td>
         <?php
           if(isset($p['PetitionerCoPerson']['id']) && $p['PetitionerCoPerson']['id'] != '') {
-            print $this->Html->link(generateCn($p['PetitionerCoPerson']['Name']),
+            print $this->Html->link(generateCn($p['PetitionerCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
                                       'action' => 'view',
@@ -160,7 +160,7 @@ global $cm_lang, $cm_texts;
       <td>
         <?php
           if(isset($p['SponsorCoPerson']['id']) && $p['SponsorCoPerson']['id'] != '') {
-            print $this->Html->link(generateCn($p['SponsorCoPerson']['Name']),
+            print $this->Html->link(generateCn($p['SponsorCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
                                       'action' => 'view',
@@ -173,7 +173,7 @@ global $cm_lang, $cm_texts;
       <td>
         <?php
           if(isset($p['ApproverCoPerson']['id']) && $p['ApproverCoPerson']['id'] != '') {
-            print $this->Html->link(generateCn($p['ApproverCoPerson']['Name']),
+            print $this->Html->link(generateCn($p['ApproverCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
                                       'action' => 'view',
