@@ -466,7 +466,9 @@ Please click the link below to accept or decline.
   'fd.comment' =>     'Comment',
   'fd.cou' =>         'COU',
   'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',  
+  'fd.co_people.status' => 'CO Person Status',
   'fd.created' =>     'Created',
+
   // Demographics fields
   'fd.de.persid'  =>  'Person ID',
   'fd.de.gender'  =>  'Gender',
@@ -658,6 +660,7 @@ Please click the link below to accept or decline.
   'fd.yes' =>         'Yes',
 
   // Informational messages
+  'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
   
   // Menu

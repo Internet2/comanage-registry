@@ -22,6 +22,18 @@
  * @version       $Id$
  */
 -->
+<script>
+    
+$(document).ready(function () {
+  // Display warning for changes to co people who are not active (CO683)
+  $("input[type='checkbox']").change(function() {
+    if(this.parentElement.previousElementSibling.className != 'Active')
+      generateFlash("<?php print _txt('in.groupmember.select') ?>",
+                    "information");
+  }); 
+});
+
+</script>
 <?php
   $params = array('title' => _txt('op.grm.edit', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])));
   print $this->element("pageTitle", $params);
@@ -32,7 +44,7 @@
   <thead>
     <tr class="ui-widget-header">
       <th><?php print _txt('fd.name'); ?></th>
-      <th><?php print _txt('fd.status'); ?></th>
+      <th><?php print _txt('fd.co_people.status'); ?></th>
       <th><?php print _txt('fd.perms'); ?></th>
     </tr>
     <?php
@@ -60,7 +72,7 @@
                                         'co' => $cur_co['Co']['id']));
         ?>
       </td>
-      <td>
+      <td class = "<?php print _txt('en.status', null, $p['CoPerson']['status']); ?>">
         <?php
           print _txt('en.status', null, $p['CoPerson']['status']);
         ?>
