@@ -304,26 +304,30 @@ class CoInvite extends AppModel {
           }
           
           $msgBody = $this->processTemplate($template, $viewVariables);
+
+          // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
+          if($fromEmail) {
+            $email->from($fromEmail);
+          }
           
           $email->emailFormat('text')
                 ->to($toEmail)
                 ->subject($msgSubject)
-                ->message($msgBody);
+                ->send($msgBody);
         } else {
           $email->template('coinvite', 'basic')
                 ->emailFormat('text')
                 ->to($toEmail)
                 ->viewVars($viewVariables)
                 ->subject(_txt('em.invite.subject', array($coName)));
+
+          // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
+          if($fromEmail) {
+            $email->from($fromEmail);
+          }
+
+         $email->send();
         }
-        
-        // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
-        if($fromEmail) {
-          $email->from($fromEmail);
-        }
-        
-        // Send the email
-        $email->send();
       } catch(Exception $e) {
         throw new RuntimeException($e->getMessage());
       }
