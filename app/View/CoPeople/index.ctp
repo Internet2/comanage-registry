@@ -39,7 +39,7 @@
       margin-right: 5px;
     }
 
-  #co_people > div {
+  #co_people > .ui-accordion {
     width: auto;
     padding: 5px;
     margin: 0 0 5px 0;
@@ -47,7 +47,7 @@
     border-radius: 10px;
   }
 
-  #co_people > div > div{
+  #co_people > div > .panel1{
     float: left;
     margin: 0 10px 0 0;
   }
@@ -123,6 +123,24 @@
           text-align: right;
           margin: 0 30px 0 0;
         }
+
+  /* Pagination */
+  .pagination {
+    padding: 5px
+   }
+  .outer-center {
+    float: right;
+    right: 50%;
+    position: relative;
+  }
+  .inner-center {
+      float: right;
+      right: -50%;
+      position: relative;
+  }
+  .clear {
+      clear: both;
+  }
 </style>
 
 <script>
@@ -369,6 +387,14 @@
     </div>
     <?php $i++; ?>
   <?php endforeach; // $co_people ?>
+  <div class="ui-widget-header pagination">
+    <div class="outer-center">
+      <div class="product inner-center">
+        <?php print $this->Paginator->numbers(); ?>
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
 </div>
 
 <script>
