@@ -613,7 +613,7 @@ Please click the link below to accept or decline.
   'fd.name.family' => 'Family Name',
   'fd.name.suffix' => 'Suffix',
   'fd.name.language' => 'Language',
-  'fd.name.primary' => 'Primary',
+  'fd.name.primary_name' => 'Primary',
   'fd.no' =>          'No',
   'fd.null' =>        'Null',
   'fd.o' =>           'Organization',

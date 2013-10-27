@@ -377,7 +377,7 @@
               <?php
                 print generateCn($n)
                       . " ("
-                      . ($n['primary_name'] ? (_txt('fd.name.primary') . ", ") : "")
+                      . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
                       . _txt('en.name', null, $n['type'])
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";
@@ -394,7 +394,7 @@
               <?php
                 print generateCn($n)
                       . " ("
-                      . ($n['primary_name'] ? (_txt('fd.name.primary') . ", ") : "")
+                      . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
                       . _txt('en.name', null, $n['type'])
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";
@@ -418,7 +418,7 @@
                 }
                 
                 print " ("
-                      . ($n['primary_name'] ? (_txt('fd.name.primary') . ", ") : "")
+                      . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
                       . _txt('en.name', null, $n['type'])
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";

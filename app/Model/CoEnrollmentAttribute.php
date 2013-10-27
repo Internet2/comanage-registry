@@ -464,8 +464,9 @@ class CoEnrollmentAttribute extends AppModel {
                                  &&
                                  !$attrModel->validate[$k]['allowEmpty']);
             
-            // We hide language, type, status, and verified
+            // We hide language, primary_name, type, status, and verified
             $attr['hidden'] = ($k == 'language'
+                               || $k == 'primary_name'
                                || $k == 'type'
                                || $k == 'status'
                                || $k == 'verified' ? 1 : 0);
@@ -479,6 +480,14 @@ class CoEnrollmentAttribute extends AppModel {
                     $attr['default'] = $efAttr['CoEnrollmentAttribute']['language'];
                   } else {
                     $attr['default'] = "";
+                  }
+                  break;
+                case 'primary_name':
+                  // Official names are considered primary names, at least for now
+                  if($attr['attribute'] == 'i:name:O' || $attr['attribute'] == 'p:name:O') {
+                    $attr['default'] = 1;
+                  } else {
+                    $attr['default'] = 0;
                   }
                   break;
                 case 'type':

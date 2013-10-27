@@ -232,7 +232,7 @@ $(function() {
             </td>
           </tr>
           <?php else: // add ?>
-          <?php foreach($org_identities[0]['PrimaryName'] as $n): ?>
+          <?php foreach($org_identities[0]['Name'] as $n): ?>
           <div>
             <div>
               <?php
@@ -247,7 +247,7 @@ $(function() {
                 }
                 
                 print " ("
-                      . ($n['primary_name'] ? (_txt('fd.name.primary') . ", ") : "")
+                      . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
                       . _txt('en.name', null, $n['type'])
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";
