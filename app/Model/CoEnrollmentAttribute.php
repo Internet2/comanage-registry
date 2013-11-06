@@ -635,9 +635,11 @@ class CoEnrollmentAttribute extends AppModel {
         $key = "";
         
         if(!empty($model[1])) {
-          // Inflect the associated model name
+          // Inflect the associated model name, minus any model ID
+          // (ie: we want "EmailAddress", not "EmailAddress.3")
           
-          $key = Inflector::pluralize(Inflector::tableize($model[1])) . ":";
+          $m = explode(".", $model[1], 2);
+          $key = Inflector::pluralize(Inflector::tableize($m[0])) . ":";
         }
         
         $key .= $enrollmentAttributes[$i]['field'];
