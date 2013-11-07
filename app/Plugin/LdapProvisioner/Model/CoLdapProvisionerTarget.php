@@ -275,14 +275,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   // which identity do we choose? For now, the first one.
                   
                   if(isset($provisioningData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ])) {
-                    $modelList =& $provisioningData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ];
+                    // Don't use =& syntax here, it changes $provisioningData
+                    $modelList = $provisioningData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ];
                   }
                 } elseif(isset($provisioningData[ $mods[$attr] ])) {
                   // Use CO Person value for this attribute
-                  $modelList =& $provisioningData[ $mods[$attr] ];
+                  $modelList = $provisioningData[ $mods[$attr] ];
                 }
-                // Next: if useorgvalue reference $provisioningData['CoOrgIdentityLink']['OrgIdentity'][ $mods[$attr] ] instead
-                // perhaps using =& to avoid copying arrays
                 
                 // Walk through each model instance
                 $found = false;
@@ -981,6 +980,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'uid' => array(
             'required'    => false,
             'multiple'    => false,
+            'alloworgvalue' => true,
             'extendedtype' => 'identifier_types',
             'defaulttype' => IdentifierEnum::UID
           )

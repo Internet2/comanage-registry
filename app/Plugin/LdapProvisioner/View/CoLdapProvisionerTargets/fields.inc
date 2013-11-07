@@ -333,6 +333,7 @@
                     $xval = "";
                     $xempty = $supportedAttributes[$oc]['groupings'][$grouping]['multiple']
                               ? _txt('pl.ldapprovisioner.types.all') : false;
+                    $xrequired = !(boolean)$xempty;
                     
                     if(isset($currentGroupings[$grouping]['type'])) {
                       $xval = $currentGroupings[$grouping]['type'];
@@ -342,8 +343,9 @@
                     
                     print " " . $this->Form->select($xgprefix . '.type',
                                                     $xtypeopts,
-                                                    array('value' => $xval,
-                                                          'empty' => $xempty));
+                                                    array('value'    => $xval,
+                                                          'empty'    => $xempty,
+                                                          'required' => $xrequired));
                   }
                   
                   print "<br />\n";
