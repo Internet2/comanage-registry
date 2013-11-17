@@ -416,8 +416,11 @@ class CoPetitionsController extends StandardController {
     $p['add'] = ($roles['cmadmin'] || $flowAuthorized);
     
     // Approve a CO Petition?
-    $p['approve'] = ($roles['cmadmin']
-                     || ($flowAuthorized && ($roles['coadmin'] || $roles['couadmin'])));
+    if($this->enrollmentFlowID() != -1) {
+      $p['approve'] = $roles['cmadmin'] || $this->Role->isApproverForFlow($roles['copersonid'], $this->enrollmentFlowID());
+    } else {
+      $p['approve'] = $roles['cmadmin'] || $this->Role->isApprover($roles['copersonid']);
+    }
     $p['deny'] = $p['approve'];
     
     // Delete an existing CO Petition?
@@ -440,7 +443,7 @@ class CoPetitionsController extends StandardController {
                     || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     
     // View all existing CO Petitions?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $this->Role->isApprover($roles['copersonid']));
     
     // Search all existing CO Petitions?
     $p['search'] = $p['index'];
@@ -450,25 +453,25 @@ class CoPetitionsController extends StandardController {
                     || ($flowAuthorized && ($roles['coadmin'] || $roles['couadmin'])));
     
     // View an existing CO Petition? We allow the usual suspects to view a Petition, even
-    // if they don't have permission to edit it.
-    $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    // if they don't have permission to edit it. Also approvers need to be able to see the Petition.
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $p['approve']);
     
     if($this->action == 'index' && $p['index']) {
-      // Assume the person also has permission to perform various other actions
-      // for purposes of rendering the view, though these assumptions are probably too generous.
+      // These permissions may not be exactly right, but they only apply when rendering
+      // the index view
       
       $p['add'] = true;  // This is really permission to run co_enrollment_flows/select
       $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
-      $p['edit'] = true;
-      $p['resend'] = true;
-      $p['view'] = true;
+      $p['edit'] = $p['delete'];  // For now, delete and edit are restricted
+      $p['resend'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+      $p['view'] = true;  // Approvers will have the petitions they can see filtered by the controller
     }
     
     $this->set('permissions', $p);
     return $p[$this->action];
   }
   
-    /**
+  /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
    * @since  COmanage Registry v0.8.3
@@ -489,7 +492,19 @@ class CoPetitionsController extends StandardController {
       $searchterm = $this->params['named']['Search.status'];
       $pagcond['CoPetition.status'] = $searchterm;
     }
-    return($pagcond);
+    
+    // Potentially filter by enrollment flow ID. Our assumption is that if we make it
+    // here the person has authorization to see at least some Petitions. Either they
+    // are a CO or COU admin (in which case the following list will be empty) or they
+    // are an approver by group (in which case the following list will not be empty).
+    
+    $efs = $this->Role->approverFor($this->Session->read('Auth.User.co_person_id'));
+    
+    if(!empty($efs)) {
+      $pagcond['CoPetition.co_enrollment_flow_id'] = $efs;
+    }
+    
+    return $pagcond;
   }
 
   /**

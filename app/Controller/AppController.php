@@ -1097,8 +1097,12 @@ class AppController extends Controller {
     // Select from available enrollment flows?
     $p['menu']['createpetition'] = $roles['user'];
     
-    // Manage any CO (or COU) population?
-    $p['menu']['petitions'] = $roles['admin'] || $roles['subadmin'];
+    // Review / approve petitions?
+    // XXX this isn't exactly the right check, but then neither are most of the others (CO-731)
+    $p['menu']['petitions'] = $roles['admin']
+    // XXX A side effect of this current logic is that the link only appears when the person is viewing
+    // another link with the CO specified in it (otherwise copersonid isn't set)
+                              || ($roles['copersonid'] && $this->Role->isApprover($roles['copersonid']));
     
     // Manage CO extended attributes?
     $p['menu']['extattrs'] = $roles['admin'];

@@ -37,6 +37,11 @@ class CoEnrollmentFlow extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
+    "Co",
+    "CoEnrollmentFlowApproverCoGroup" => array(
+      'className' => 'CoGroup',
+      'foreignKey' => 'approver_co_group_id'
+    ),
     "CoEnrollmentFlowAuthzCoGroup" => array(
       'className' => 'CoGroup',
       'foreignKey' => 'authz_co_group_id'
@@ -44,8 +49,7 @@ class CoEnrollmentFlow extends AppModel {
     "CoEnrollmentFlowAuthzCou" => array(
       'className' => 'Cou',
       'foreignKey' => 'authz_cou_id'
-    ),
-    "Co"
+    )
   );
   
   public $hasMany = array(
@@ -59,7 +63,8 @@ class CoEnrollmentFlow extends AppModel {
   public $displayField = "name";
   
   // Default ordering for find operations
-  public $order = array("CoEnrollmentFlow.name");
+// XXX Toss? CO-296
+//  public $order = array("CoEnrollmentFlow.name");
   
   // Validation rules for table elements
   public $validate = array(
@@ -102,6 +107,11 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'approval_required' => array(
       'rule' => array('boolean')
+    ),
+    'approver_co_group_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     ),
     'verify_email' => array(
       'rule' => array('boolean')

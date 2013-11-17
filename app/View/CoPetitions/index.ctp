@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Index View
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -59,7 +59,7 @@ global $cm_lang, $cm_texts;
 
   $params = array('title' => $cur_co['Co']['name'] . " Petitions"); // XXX I18N
   print $this->element("pageTitle", $params);
-
+  
   if($permissions['add']) {
     print $this->Html->link(_txt('op.enroll'),
                             array('controller' => 'co_enrollment_flows', 'action' => 'select', 'co' => $cur_co['Co']['id']),

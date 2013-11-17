@@ -60,6 +60,20 @@
 <script type="text/javascript">
   <!-- JS specific to these fields -->
   
+  function approver_update_gadgets() {
+    // Hide and show accordingly. Reset sub-popups to prevent superfluous data from
+    // being saved. (ie: we don't need a group ID if approval is not required)
+    
+    var approval = document.getElementById('CoEnrollmentFlowApprovalRequired').checked;
+    
+    if(approval) {
+      document.getElementById('approvergroupdiv').style.display = "block";
+    } else {
+      document.getElementById('approvergroupdiv').style.display = "none";
+      document.getElementById('CoEnrollmentFlowApproverCoGroupId').value = "";
+    }
+  }
+  
   function authz_update_gadgets() {
     // Hide and show accordingly. Reset sub-popups to prevent superfluous data from
     // being saved. (ie: we don't need a group ID if not setting authz to 'CG')
@@ -98,6 +112,7 @@
   }
   
   function js_local_onload() {
+    approver_update_gadgets();
     authz_update_gadgets();
     fields_update_gadgets();
   }
@@ -245,8 +260,33 @@
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('approval_required')
+                     ? $this->Form->input('approval_required', array('onClick' => 'approver_update_gadgets()'))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_required'])); ?>
+        <div id="approvergroupdiv" style="display:none">
+          <?php
+            if(!empty($co_groups)) {
+              $attrs = array();
+              $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id'])
+                                 ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id']
+                                 : null);
+              $attrs['empty'] = true;
+              
+              if($e) {
+                print $this->Form->select('approver_co_group_id',
+                                          $co_groups,
+                                          $attrs);
+                
+                if($this->Form->isFieldError('approver_co_group_id')) {
+                  print $this->Form->error('approver_co_group_id');
+                }
+                
+                print '<br /><font class="desc">' . _txt('fd.ef.appr.gr') . '</font>';
+              } else {
+                print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id'] ];
+              }
+            }
+          ?>
+        </div>
       </td>
     </tr>
     <tr class="line2">

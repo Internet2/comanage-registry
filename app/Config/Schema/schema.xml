@@ -549,6 +549,9 @@
     </field>
     <field name="match_policy" type="C" size="2" />
     <field name="approval_required" type="L" />
+    <field name="approver_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
     <field name="verify_email" type="L" />
     <field name="require_authn" type="L" />
     <field name="early_provisioning_exec" type="C" size="128" />

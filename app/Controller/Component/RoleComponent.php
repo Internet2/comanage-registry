@@ -29,6 +29,40 @@ class RoleComponent extends Component {
   private $cache = array();
   
   /**
+   * Determine what CO Enrollment Flows a CO Person may approve. Note this function
+   * will only return enrollment flows where the CO Person is an approver by way
+   * of group membership. CO/COU Admins will return empty lists.
+   *
+   * @since  COmanage Registry v0.8.3
+   * @param  Integer CO Person ID
+   * @return Array List CO Enrollment Flow IDs
+   * @throws InvalidArgumentException
+   */
+  
+  public function approverFor($coPersonId) {
+    if(!$coPersonId) {
+      return array();
+    }
+    
+    // Use a join to pull enrollment flows where $coPersonId is in the approver group
+    
+    $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
+    
+    $args['fields'][] = 'CoEnrollmentFlow.id';
+    $args['joins'][0]['table'] = 'co_group_members';
+    $args['joins'][0]['alias'] = 'CoGroupMember';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoEnrollmentFlow.approver_co_group_id=CoGroupMember.co_group_id';
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    $args['contain'] = false;
+    
+    $efs = $CoEnrollmentFlow->find('list', $args);
+    
+    // find() will return id => id with only one field specified, so just pull the keys
+    return array_keys($efs);
+  }
+  
+  /**
    * Cached CO ID lookup.
    *
    * @since  COmanage Registry v0.8
@@ -584,6 +618,150 @@ class RoleComponent extends Component {
   
   public function identifierIsCouAdmin($identifier) {
     return $this->identifierIsAdmin($identifier, 'couadmin');
+  }
+  
+  /**
+   * Determine if a CO Person has the ability to approve petitions for any enrollment flow.
+   * 
+   * @since  COmanage Registry v0.8.3
+   * @param  Integer CO Person ID
+   * @return Boolean True if the CO Person is an approver for any enrollment flow, false otherwise
+   */
+  
+  public function isApprover($coPersonId) {
+    // First check the cache
+    
+    if(isset($this->cache['coperson'][$coPersonId]['co_ef']['approver'])) {
+      return $this->cache['coperson'][$coPersonId]['co_ef']['approver'];
+    }
+    
+    $ret = false;
+    
+    // Make sure we have a CO Person ID
+    
+    if(!$coPersonId) {
+      throw new InvalidArgumentException(_txt('er.cop.unk'));
+    }
+    
+    // Find the person's CO
+    
+    try {
+      $coId = $this->cachedCoIdLookup($coPersonId);
+    }
+    catch(InvalidArgumentException $e) {
+      throw new InvalidArgumentException($e->getMessage());
+    }
+    
+    // A person is an approver if
+    // (1) they are a CO Admin or COU Admin (note they may not actually have the ability to approve anything)
+    // (2) they are a member of any group that is an approver group for any enrollment flow in the CO
+    
+    if($this->isCoOrCouAdmin($coPersonId, $coId)) {
+      $ret = true;
+    } else {
+      // Pull groups associated with enrollment flows in $coID
+      
+      $args = array();
+      $args['conditions']['CoEnrollmentFlow.co_id'] = $coId;
+      $args['conditions']['CoEnrollmentFlow.status'] = StatusEnum::Active;
+      $args['conditions'][] = 'CoEnrollmentFlow.approver_co_group_id IS NOT NULL';
+      $args['fields'][] = 'DISTINCT (approver_co_group_id)';
+      $args['contain'] = false;
+      
+      $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
+      
+      $groups = $CoEnrollmentFlow->find('first', $args);
+      
+      foreach($groups as $g) {
+        if(!empty($g['approver_co_group_id'])) {
+          if($this->isCoGroupMember($coPersonId, $g['approver_co_group_id'])) {
+            // Person is member of this group, so is an approver for at least one group
+            $ret = true;
+            break;
+          }
+        }
+      }
+    }
+    
+    // Update the cache
+    $this->cache['coperson'][$coPersonId]['co_ef']['approver'] = $ret;
+    
+    return $ret;
+  }
+  
+  /**
+   * Determine if a CO Person has the ability to approve petitions for the specified enrollment flow.
+   * 
+   * @since  COmanage Registry v0.8.3
+   * @param  Integer CO Person ID
+   * @param  Integer CO Enrollment Flow ID
+   * @return Boolean True if the CO Person is an approver for any enrollment flow, false otherwise
+   * @throws InvalidArgumentException
+   */
+  
+  public function isApproverForFlow($coPersonId, $coEfId) {
+    // First check the cache
+    
+    if(isset($this->cache['coperson'][$coPersonId]['co_ef'][$coEfId]['approver'])) {
+      return $this->cache['coperson'][$coPersonId]['co_ef'][$coEfId]['approver'];
+    }
+    
+    $ret = false;
+    
+    // Make sure we have a CO Person ID
+    
+    if(!$coPersonId) {
+      throw new InvalidArgumentException(_txt('er.cop.unk'));
+    }
+    
+    // Try to find the enrollment flow
+    
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.id'] = $coEfId;
+    $args['conditions']['CoEnrollmentFlow.status'] = StatusEnum::Active;
+    $args['contain'] = false;
+    
+    $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
+    
+    $coEF = $CoEnrollmentFlow->find('first', $args);
+    
+    if(empty($coEF)) {
+      throw new InvalidArgumentException(_txt('er.coef.unk'));
+    }
+    
+    if($coEF['CoEnrollmentFlow']['approval_required']) {
+      if(!empty($coEF['CoEnrollmentFlow']['approver_co_group_id'])) {
+        // $coPersonId must be a member of this group
+        
+        if($this->isCoGroupMember($coPersonId, $coEF['CoEnrollmentFlow']['authz_co_group_id'])) {
+          $ret = true;
+        }
+      } else {
+        // If no group is defined, then we use the following logic:
+        // (1) $coPersonId is a CO admin
+        
+        if($this->isCoAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
+          $ret = true;
+        }
+        
+        if(!empty($coEF['CoEnrollmentFlow']['authz_cou_id'])) {
+          // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
+          
+          $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
+        } else {
+          // (3) No authz_cou_id is specified and $coPersonId is a COU admin
+          
+          $ret = $this->isCouAdmin($coPersonId);
+        }
+      }
+    } else {
+      // No approval required
+    }
+    
+    // Update the cache
+    $this->cache['coperson'][$coPersonId]['co_ef'][$coEfId]['approver'] = $ret;
+    
+    return $ret;
   }
   
   /**
