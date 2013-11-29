@@ -148,21 +148,41 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     if($model->name != 'CoGroup') {
-      // First, find the co_person_id (directly or indirectly) and pull the record
+      // First, find the co_person_id (directly or indirectly) and pull the record.
+      // We could have more than one if an Org Identity is updated.
       
-      $coPersonId = -1;
+      $coPersonId = array();
       
       if($model->name == 'CoPerson'
          && !empty($model->data['CoPerson']['id'])) {
         $pmodel = $model;
-        $coPersonId = $model->data['CoPerson']['id'];
+        $coPersonId[] = $model->data['CoPerson']['id'];
       } elseif(!empty($model->data[ $model->name ]['co_person_id'])) {
         $pmodel = $model->CoPerson;
-        $coPersonId = $model->data[ $model->name ]['co_person_id'];
+        $coPersonId[] = $model->data[ $model->name ]['co_person_id'];
       } elseif(!empty($model->data[ $model->name ]['co_person_role_id'])) {
         $pmodel = $model->CoPersonRole->CoPerson;
-        $coPersonId = $model->CoPersonRole->field('co_person_id',
+        $coPersonId[] = $model->CoPersonRole->field('co_person_id',
                                                   array('id' => $model->data[ $model->name ]['co_person_role_id']));
+      } elseif($model->name == 'Identifier'
+               && !empty($model->data['Identifier']['org_identity_id'])
+               && empty($model->data['Identifier']['co_person_id'])) {
+        // Identifiers from an org record can be provisioned into a CO Person record.
+        // We need to map from the Org Identity ID to a CO Person ID, but the tricky
+        // part here is that an Org Identity can map into multiple CO People.
+        
+        $args = array();
+        $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $model->data['Identifier']['org_identity_id'];
+        $args['fields'] = array('CoOrgIdentityLink.org_identity_id', 'CoOrgIdentityLink.co_person_id');
+        $args['contain'] = false;
+        
+        $cpids = $model->OrgIdentity->CoOrgIdentityLink->find("list", $args);
+        
+        if(!empty($cpids)) {
+          $coPersonId = array_values($cpids);
+        }
+        
+        $pmodel = $model->CoPerson;
       } else {
         // For the moment, we'll just return true here since we may be processing
         // a multi-model transaction (eg: unlinking a dependency before deleting a
@@ -171,43 +191,45 @@ class ProvisionerBehavior extends ModelBehavior {
         return true;
       }
       
-      try {
-        $pdata = $this->marshallCoPersonData($pmodel, $coPersonId);
-      }
-      catch(InvalidArgumentException $e) {
-        throw new InvalidArgumentException($e->getMessage());
-      }
-      
-      // Determine the provisioning action
-      
-      // For now, we don't support CoPersonEnteredGracePeriod, CoPersonExpired,
-      // or CoPersonUnexpired.
-      
-      $paction = ProvisioningActionEnum::CoPersonUpdated;
-      
-      // It's only an add operation if the model is CoPerson
-      if($created && $model->name == 'CoPerson') {
-        $paction = ProvisioningActionEnum::CoPersonAdded;
-      }
-      
-      // Invoke all provisioning plugins
-      
-      try {
-        $this->invokePlugins($pmodel,
-                             $pdata,
-                             $paction);
-      }    
-      // What we really want to do here is catch the result (success or exception)
-      // and set the appropriate session flash message, but we don't have access to
-      // the current session, and anyway that doesn't cover RESTful interactions.
-      // So instead we syslog (which is better than nothing).
-      catch(InvalidArgumentException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new InvalidArgumentException($e->getMessage());
-      }
-      catch(RuntimeException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new RuntimeException($e->getMessage());
+      foreach($coPersonId as $cpid) {
+        try {
+          $pdata = $this->marshallCoPersonData($pmodel, $cpid);
+        }
+        catch(InvalidArgumentException $e) {
+          throw new InvalidArgumentException($e->getMessage());
+        }
+        
+        // Determine the provisioning action
+        
+        // For now, we don't support CoPersonEnteredGracePeriod, CoPersonExpired,
+        // or CoPersonUnexpired.
+        
+        $paction = ProvisioningActionEnum::CoPersonUpdated;
+        
+        // It's only an add operation if the model is CoPerson
+        if($created && $model->name == 'CoPerson') {
+          $paction = ProvisioningActionEnum::CoPersonAdded;
+        }
+        
+        // Invoke all provisioning plugins
+        
+        try {
+          $this->invokePlugins($pmodel,
+                               $pdata,
+                               $paction);
+        }    
+        // What we really want to do here is catch the result (success or exception)
+        // and set the appropriate session flash message, but we don't have access to
+        // the current session, and anyway that doesn't cover RESTful interactions.
+        // So instead we syslog (which is better than nothing).
+        catch(InvalidArgumentException $e) {
+          syslog(LOG_ERR, $e->getMessage());
+          //throw new InvalidArgumentException($e->getMessage());
+        }
+        catch(RuntimeException $e) {
+          syslog(LOG_ERR, $e->getMessage());
+          //throw new RuntimeException($e->getMessage());
+        }
       }
     }
     
