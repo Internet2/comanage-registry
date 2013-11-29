@@ -441,7 +441,7 @@
         <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td><?php print $hr['action']; ?></td>
-          <td><?php print (!empty($hr['ActorCoPerson']['Name']) ? generateCn($hr['ActorCoPerson']['Name']) : _txt('fd.actor.self')); ?></td>
+          <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? generateCn($hr['ActorCoPerson']['PrimaryName']) : _txt('fd.actor.self')); ?></td>
           <td><?php print $hr['comment']; ?></td>
           <td><?php print $this->Time->nice($hr['created']); ?></td>
         </tr>

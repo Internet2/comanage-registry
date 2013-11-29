@@ -1132,9 +1132,10 @@ class CoPetition extends AppModel {
         throw new RuntimeException(_txt('er.db.save'));
       }
       
-      // If this is an approval, update the approver field as well
+      // If this is an approval or a denial, update the approver field as well
       
-      if($newPetitionStatus == StatusEnum::Approved) {
+      if($newPetitionStatus == StatusEnum::Approved
+         || $newPetitionStatus == StatusEnum::Denied) {
         if(!$this->saveField('approver_co_person_id', $actorCoPersonID)) {
           throw new RuntimeException(_txt('er.db.save'));
         }
