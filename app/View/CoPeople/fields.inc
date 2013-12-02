@@ -827,8 +827,9 @@
                         <td><?php if(isset($r['status'])) print _txt('en.status', null, $r['status']); ?></td>
                         <td>
                           <?php
-                            if(!isset($permissions['cous']) || empty($permissions['cous']) || $es ||
-                               (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous'])))
+                            if($es // Editing self
+                               || empty($r['Cou']) // No COU set for this person
+                               || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))) // Admin for the COU
                             {
                               // COU Admins can only edit their own folks, so we need a bit of
                               // a machination to determine if they can edit these records

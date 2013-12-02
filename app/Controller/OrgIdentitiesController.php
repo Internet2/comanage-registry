@@ -135,7 +135,7 @@ class OrgIdentitiesController extends StandardController {
           $cs .= ($i > 0 ? "," : "") . $coppl[$i]['CoPerson']['Co']['name'];
         
         $this->Session->setFlash(_txt('er.comember',
-                                      array(generateCn($coppl[0]['OrgIdentity']['Name']),
+                                      array(generateCn($coppl[0]['OrgIdentity']['PrimaryName']),
                                             Sanitize::html($cs))),
                                  '', array(), 'error');
       }

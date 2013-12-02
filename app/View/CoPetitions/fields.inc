@@ -195,6 +195,8 @@ $(function() {
                   <?php
                     if(isset($co_petitions[0]['PetitionerCoPerson']['Name'])) {
                       print generateCn($co_petitions[0]['PetitionerCoPerson']['Name']);
+                    } else {
+                      print _txt('fd.actor.self');
                     }
                   ?>
                 </td>

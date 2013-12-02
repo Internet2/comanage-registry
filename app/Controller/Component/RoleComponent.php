@@ -640,7 +640,9 @@ class RoleComponent extends Component {
     // Make sure we have a CO Person ID
     
     if(!$coPersonId) {
-      throw new InvalidArgumentException(_txt('er.cop.unk'));
+      // throw new InvalidArgumentException(_txt('er.cop.unk'));
+      // Just return false in case we're in the middle of an authenticated self signup
+      return false;
     }
     
     // Find the person's CO
@@ -711,7 +713,9 @@ class RoleComponent extends Component {
     // Make sure we have a CO Person ID
     
     if(!$coPersonId) {
-      throw new InvalidArgumentException(_txt('er.cop.unk'));
+      // throw new InvalidArgumentException(_txt('er.cop.unk'));
+      // Just return false in case we're in the middle of an authenticated self signup
+      return false;
     }
     
     // Try to find the enrollment flow

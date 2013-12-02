@@ -421,7 +421,9 @@ class CoPetition extends AppModel {
         throw new RuntimeException($e->getMessage());
       }
     } else {
-      $coData['EnrolleeCoPerson'] = $this->EnrolleeCoPerson->filterModelAttributes($requestData['EnrolleeCoPerson']);
+      if(!empty($requestData['EnrolleeCoPerson'])) {
+        $coData['EnrolleeCoPerson'] = $this->EnrolleeCoPerson->filterModelAttributes($requestData['EnrolleeCoPerson']);
+      }
       $coData['EnrolleeCoPerson']['co_id'] = $coId;
       $coData['EnrolleeCoPerson']['status'] = $initialStatus;
       
@@ -462,6 +464,15 @@ class CoPetition extends AppModel {
             }
           }
         }
+      }
+      
+      // PrimaryName shows up as a singleton, and so needs to be handled separately.
+      
+      if(!empty($orgData['PrimaryName']['co_enrollment_attribute_id'])
+         && isset($copyAttrs[ $orgData['PrimaryName']['co_enrollment_attribute_id'] ])) {
+        // Copy PrimaryName to the CO Person
+        
+        $coData['PrimaryName'] = $orgData['PrimaryName'];
       }
       
       // Save the CO Person Data
@@ -1507,6 +1518,11 @@ class CoPetition extends AppModel {
   private function validateRelated($primaryModel, $requestData, $validatedData, $efAttrs) {
     $ret = $validatedData;
     $err = false;
+    
+    // If there isn't anything set in $requestData, just return the validated data
+    if(empty($requestData[$primaryModel])) {
+      return $ret;
+    }
     
     // Because the petition form includes skeletal information for related models
     // (co_enrollment_attribute_id, type, etc), we don't need to worry about required
