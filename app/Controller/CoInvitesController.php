@@ -487,9 +487,7 @@ class CoInvitesController extends AppController {
                                 $orgp['OrgIdentity']['id'],
                                 $this->Session->read('Auth.User.co_person_id'),
                                 $orgp['EmailAddress'][0]['mail'],
-                                isset($this->cur_co['CoEnrollmentFlow'][0]['notify_from'])
-                                ? $this->cur_co['CoEnrollmentFlow'][0]['notify_from']
-                                : null,
+                                null,
                                 $this->cur_co['Co']['name']);
           
           $this->Session->setFlash(_txt('em.invite.ok', array($orgp['EmailAddress'][0]['mail'])), '', array(), 'success');

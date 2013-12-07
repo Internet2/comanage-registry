@@ -1009,7 +1009,11 @@ class CoPetition extends AppModel {
                                         $email['EmailAddress']['mail'],
                                         $enrollmentFlow['CoEnrollmentFlow']['notify_from'],
                                         $this->Co->field('name',
-                                                         array('Co.id' => $enrollmentFlow['CoEnrollmentFlow']['co_id'])));
+                                                         array('Co.id' => $enrollmentFlow['CoEnrollmentFlow']['co_id'])),
+                                        !empty($enrollmentFlow['CoEnrollmentFlow']['verification_subject'])
+                                        ? $enrollmentFlow['CoEnrollmentFlow']['verification_subject'] : null,
+                                        !empty($enrollmentFlow['CoEnrollmentFlow']['verification_body'])
+                                        ? $enrollmentFlow['CoEnrollmentFlow']['verification_body'] : null);
     
     // Update the CO Petition with the new invite ID
     

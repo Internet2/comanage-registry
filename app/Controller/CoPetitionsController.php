@@ -551,12 +551,21 @@ class CoPetitionsController extends StandardController {
       $this->Session->setFlash(_txt('rs.inv.sent', array($recipient)), '', array(), 'success');
     }
     
-    // Redirect back to index
+    // Redirect back to index. We might have gotten here via co_petitions or co_people,
+    // so try to figure out the right place to go back to.
     
-    $this->redirect(array(
-      'controller' => 'co_petitions',
-      'action' => 'index',
-      'co' => $this->cur_co['Co']['id']
-    ));
+    if(strstr($this->request->referer(), 'co_petitions')) {
+      $this->redirect(array(
+        'controller' => 'co_petitions',
+        'action' => 'index',
+        'co' => $this->cur_co['Co']['id']
+      ));
+    } else {
+      $this->redirect(array(
+        'controller' => 'co_people',
+        'action' => 'index',
+        'co' => $this->cur_co['Co']['id']
+      ));
+    }
   }
 }

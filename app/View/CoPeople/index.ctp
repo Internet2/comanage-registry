@@ -285,8 +285,8 @@
                   . "\n";
               
               if($permissions['invite']
-                 && ($p['CoPerson']['status'] != StatusEnum::Active
-                     && $p['CoPerson']['status'] != StatusEnum::Deleted)) {
+                 && ($p['CoPerson']['status'] == StatusEnum::Pending
+                     || $p['CoPerson']['status'] == StatusEnum::Invited)) {
                 print '<button class="invitebutton" title="' 
                   . _txt('op.inv.resend') 
                   . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
@@ -295,6 +295,21 @@
                   . $this->Html->url(array('controller' => 'co_invites',
                                            'action'     => 'send', 
                                            'copersonid' => $p['CoPerson']['id'], 
+                                           'co'         => $cur_co['Co']['id'])) 
+                  . '\')";>' 
+                  . _txt('op.inv.resend') 
+                  . '</button>'
+                  . "\n";
+              } elseif($permissions['enroll']
+                       && $p['CoPerson']['status'] == StatusEnum::PendingConfirmation) {
+                print '<button class="invitebutton" title="' 
+                  . _txt('op.inv.resend') 
+                  . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
+                  . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
+                  . '\', \'' 
+                  . $this->Html->url(array('controller' => 'co_petitions',
+                                           'action'     => 'resend',
+                                           $p['CoInvite']['CoPetition']['id'],
                                            'co'         => $cur_co['Co']['id'])) 
                   . '\')";>' 
                   . _txt('op.inv.resend') 

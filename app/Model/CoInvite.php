@@ -272,8 +272,13 @@ class CoInvite extends AppModel {
   public function send($coPersonId, $orgIdentityID, $actorPersonId, $toEmail, $fromEmail=null, $coName, $subject=null, $template=null) {
     // Toss any prior invitations for $coPersonId to $toEmail
     
-    $this->deleteAll(array('co_person_id' => $coPersonId,
-                           'mail' => $toEmail));
+    try {
+      $this->deleteAll(array('co_person_id' => $coPersonId,
+                             'mail' => $toEmail));
+    }
+    catch(Exception $e) {
+      throw RuntimeException($e->getMessage());
+    }
     
     $invite = array();
     $invite['CoInvite']['co_person_id'] = $coPersonId;
