@@ -218,60 +218,61 @@ class CoPetitionsController extends StandardController {
       // Set the enrollment flow ID to make it easier to carry forward through failed submissions
       $this->set('co_enrollment_flow_id', $this->enrollmentFlowID());
       
-      if(($this->action == 'add' || $this->action == 'edit' || $this->action == 'view')
-          && $this->request->is('get')) {
-        // If we processed a post, this will have already been set.
-        
-        $defaultValues = array();
-        
+      if(($this->action == 'add' || $this->action == 'edit' || $this->action == 'view')) {
         $enrollmentFlowID = $this->enrollmentFlowID();
         
-        if($enrollmentFlowID) {
-          // Provide default values for name for self enrollment.
+        if($this->request->is('get')) {
+          // If we processed a post, this will have already been set.
           
-          $p['match_policy'] = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
-                                                                          array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+          $defaultValues = array();
           
-          if($p['match_policy'] == EnrollmentMatchPolicyEnum::Self) {
-            $defName = $this->Session->read('Auth.User.name');
+          if($enrollmentFlowID) {
+            // Provide default values for name for self enrollment.
             
-            if(!empty($defName)) {
-              // Populate select attributes only
-              $defaultValues['EnrolleeOrgIdentity.Name']['honorific'] = $defName['honorific'];
-              $defaultValues['EnrolleeOrgIdentity.Name']['given'] = $defName['given'];
-              $defaultValues['EnrolleeOrgIdentity.Name']['middle'] = $defName['middle'];
-              $defaultValues['EnrolleeOrgIdentity.Name']['family'] = $defName['family'];
-              $defaultValues['EnrolleeOrgIdentity.Name']['suffix'] = $defName['suffix'];
+            $p['match_policy'] = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
+                                                                            array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+            
+            if($p['match_policy'] == EnrollmentMatchPolicyEnum::Self) {
+              $defName = $this->Session->read('Auth.User.name');
+              
+              if(!empty($defName)) {
+                // Populate select attributes only
+                $defaultValues['EnrolleeOrgIdentity.Name']['honorific'] = $defName['honorific'];
+                $defaultValues['EnrolleeOrgIdentity.Name']['given'] = $defName['given'];
+                $defaultValues['EnrolleeOrgIdentity.Name']['middle'] = $defName['middle'];
+                $defaultValues['EnrolleeOrgIdentity.Name']['family'] = $defName['family'];
+                $defaultValues['EnrolleeOrgIdentity.Name']['suffix'] = $defName['suffix'];
+              }
             }
           }
-        }
-        
-        $this->loadModel('CmpEnrollmentConfiguration');
-        
-        $envValues = false;
-        $enrollmentAttributes = $this->CoPetition
-                                     ->CoEnrollmentFlow
-                                     ->CoEnrollmentAttribute
-                                     ->enrollmentFlowAttributes($this->enrollmentFlowID(),
-                                                                $defaultValues);
-        
-        if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
-          // If enrollment flows can populate org identities, then see if we're configured
-          // to pull environment variables. If so, for this configuration they simply
-          // replace modifiable default values.
+            
+          $this->loadModel('CmpEnrollmentConfiguration');
           
-          $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
+          $envValues = false;
+          $enrollmentAttributes = $this->CoPetition
+                                       ->CoEnrollmentFlow
+                                       ->CoEnrollmentAttribute
+                                       ->enrollmentFlowAttributes($this->enrollmentFlowID(),
+                                                                  $defaultValues);
           
-          if($envValues) {
-            $enrollmentAttributes = $this->CoPetition
-                                         ->CoEnrollmentFlow
-                                         ->CoEnrollmentAttribute
-                                         ->mapEnvAttributes($enrollmentAttributes,
-                                                            $envValues);
+          if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
+            // If enrollment flows can populate org identities, then see if we're configured
+            // to pull environment variables. If so, for this configuration they simply
+            // replace modifiable default values.
+            
+            $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
+            
+            if($envValues) {
+              $enrollmentAttributes = $this->CoPetition
+                                           ->CoEnrollmentFlow
+                                           ->CoEnrollmentAttribute
+                                           ->mapEnvAttributes($enrollmentAttributes,
+                                                              $envValues);
+            }
           }
+          
+          $this->set('co_enrollment_attributes', $enrollmentAttributes);
         }
-        
-        $this->set('co_enrollment_attributes', $enrollmentAttributes);
         
         // Pull any relevant Terms and Conditions that must be agreed to. We only do this
         // if authentication is required (otherwise we can't really assert who agreed),

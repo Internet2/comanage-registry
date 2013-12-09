@@ -118,7 +118,7 @@
     if(allagreed) {
       $(":submit").removeAttr('disabled');
     } else {
-      // Reset disabled in case "I Agree" was unchecked
+      // Reset disabled in case "I Agree" was unchecked or on initial form rendering
       $(":submit").attr('disabled', true);
     }
   }
@@ -130,11 +130,15 @@
     
     // Disable checkboxes until individual T&C are reviewed
     for(var i = 0;i < tandcids.length;i++) {
-      document.getElementById('CoTermsAndConditions'+tandcids[i]).disabled = true;
+      // If the box is already ticked (eg: if the form re-renders), make sure it remains enabled
+      if(!document.getElementById('CoTermsAndConditions'+tandcids[i]).checked) {
+        document.getElementById('CoTermsAndConditions'+tandcids[i]).disabled = true;
+      }
     }
     
     // Disable submit button until all T&C are agreed to
-    $(":submit").attr('disabled', true);
+    maybe_enable_submit();
+    //$(":submit").attr('disabled', true);
   }
 <?php endif; ?>
   
