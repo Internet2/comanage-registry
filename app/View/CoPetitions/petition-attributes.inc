@@ -369,6 +369,23 @@
 
   <?php if(!empty($vv_terms_and_conditions)): ?>
   <?php $line = 0; ?>
+    <?php if($this->action == 'view'): ?>
+    <div class="ui-widget modelbox">
+      <div class="boxtitle">
+        <b><?php print _txt('op.tc.agree'); ?></b>
+      </div>
+      <?php
+        // We link to T&C because T&C are not considered part of the petition.
+        
+        print $this->Html->link(_txt('op.tc.review.pt'),
+                                array('controller' => 'co_terms_and_conditions',
+                                      'action' => 'review',
+                                      'copersonid' => $co_petitions[0]['CoPetition']['enrollee_co_person_id'],
+                                      'co' => $co_petitions[0]['CoPetition']['co_id']),
+                                array('class' => 'linkbutton'));
+      ?>
+    </div>
+    <?php else: // action == view ?>
     <div class="ui-widget modelbox">
       <div class="boxtitle">
         <b><?php print _txt('op.tc.agree'); ?></b><br />
@@ -405,10 +422,10 @@
             </td>
           </tr>
           <?php endforeach; ?>
-        </td>
-      </tr>
-    </tbody>
-  </table>    </div>
+        </tbody>
+      </table>
+    </div>
+    <?php endif; // action == view ?>
   <?php endif; ?>
 
   <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">

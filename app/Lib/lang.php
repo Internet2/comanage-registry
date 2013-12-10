@@ -738,6 +738,7 @@ Please click the link below to accept or decline.
   'op.tc.agree' =>    'Agree to Terms and Conditions',
   'op.tc.agree.i' =>  'I Agree',
   'op.tc.review' =>   'Review Terms and Conditions',
+  'op.tc.review.pt' => 'Review All Agreed To Terms and Conditions',
   'op.unlink' =>      'Unlink',
   'op.unlink.confirm' => 'Are you sure you wish to unlink this identity?',
   'op.view' =>        'View',

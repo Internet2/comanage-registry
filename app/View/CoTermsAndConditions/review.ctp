@@ -23,7 +23,7 @@
  */
 
   print $this->element("pageTitle", array('title' => _txt('fd.tc.for',
-                                                          array(generateCn($vv_co_person['Name']), $cur_co['Co']['name']))));
+                                                          array(generateCn($vv_co_person['PrimaryName']), $cur_co['Co']['name']))));
 ?>
 <script type="text/javascript">
   function open_tandc(title, tandcUrl, mode, agreeUrl) {
