@@ -115,12 +115,20 @@
         <div id="original">
         </div>
       </td>
+    </tr>
+    <tr>
+      <td>
+        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+      </td>
+      <td>
+        <?php
+          if($e) {
+            print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+            print $this->Form->button(_txt('op.reset'), 
+                                      array('type'=>'reset'));
+          }
+        ?>
+      </td>
+    </tr>
   </tbody>
 </table>
-<?php
-  if($e) {
-    print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-    print $this->Form->button(_txt('op.reset'), 
-                              array('type'=>'reset'));
-  }
-?>

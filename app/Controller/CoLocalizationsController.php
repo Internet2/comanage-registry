@@ -91,6 +91,12 @@ class CoLocalizationsController extends StandardController {
     $args['conditions']['CoLocalization.co_id'] = $reqdata['CoLocalization']['co_id'];
     $args['conditions']['CoLocalization.lkey'] = $reqdata['CoLocalization']['lkey'];
     $args['conditions']['CoLocalization.language'] = $reqdata['CoLocalization']['language'];
+    if(!empty($curdata['CoLocalization']['id'])
+       && !empty($reqdata['CoLocalization']['id'])
+       && ($curdata['CoLocalization']['id'] == $reqdata['CoLocalization']['id'])) {
+      // We're editing the current record
+      $args['conditions']['CoLocalization.id <>'] = $reqdata['CoLocalization']['id'];
+    }
     $args['contain'] = false;
     
     if($this->CoLocalization->find('count', $args)) {
