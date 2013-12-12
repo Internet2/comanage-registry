@@ -191,7 +191,7 @@ class NamesController extends MVPAController {
           // look up $this->request->params['pass'][0] and find the appropriate co person id or org identity id
           // then pass that to $this->Role->isXXX
           $args = array();
-          $args['conditions']['EmailAddress.id'] = $this->request->params['pass'][0];
+          $args['conditions']['Name.id'] = $this->request->params['pass'][0];
           $args['contain'] = false;
           
           $name = $this->Name->find('first', $args);
