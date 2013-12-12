@@ -448,6 +448,19 @@
                         ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <b><?php print _txt('fd.hidden'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.hidden.desc'); ?></font>
+      </td>
+      <td>
+        <?php // Note this is a CoEnrollmentAttribute field, not CoEnrollmentAttributeDefault
+              print ($e
+                     ? $this->Form->input('hidden', array('default' => false))
+                     : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['hidden']
+                        ? _txt('fd.yes') : _txt('fd.no'))); ?>
+      </td>
+    </tr>
   </table>
 </div>
 <?php

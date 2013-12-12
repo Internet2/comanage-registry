@@ -257,8 +257,13 @@ class CoEnrollmentAttribute extends AppModel {
         // Description
         $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
         
-        // Single value attributes are never hidden
-        $attr['hidden'] = 0;
+        // Single value attributes are never hidden, unless there is a non-modifable
+        // default value
+        $attr['hidden'] =
+          (isset($efAttr['CoEnrollmentAttribute']['hidden'])
+           && $efAttr['CoEnrollmentAttribute']['hidden']
+           && isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
+           && !$efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']);
         
         // Org attributes can ignore authoritative values
         $attr['ignore_authoritative'] =

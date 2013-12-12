@@ -596,6 +596,7 @@
     </field>
     <field name="required" type="I" />
     <field name="ordr" type="I" />
+    <field name="hidden" type="L" />
     <field name="copy_to_coperson" type="L" />
     <field name="ignore_authoritative" type="L" />
     <field name="language" type="C" size="16" />

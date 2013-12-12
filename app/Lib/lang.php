@@ -570,6 +570,8 @@ Please click the link below to accept or decline.
   'fd.group.own' =>   'Owner',
   'fd.group.own.only' => 'Owner (only)',
   'fd.groups' =>      'Groups',
+  'fd.hidden' =>      'Hidden',
+  'fd.hidden.desc' => 'If true, this field will not be rendered during enrollment',
   'fd.history.pt' =>  'Petition History',
   // Identifier Assignment
   'fd.ia.algorithm' => 'Algorithm',
