@@ -39,6 +39,8 @@ class CoEnrollmentFlowsController extends StandardController {
   // This controller needs a CO to be set
   public $requires_co = true;
   
+  public $uses = array('CoEnrollmentFlow', 'CmpEnrollmentConfiguration');
+  
   /**
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request->params
@@ -56,6 +58,11 @@ class CoEnrollmentFlowsController extends StandardController {
       $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
       
       $this->set('co_groups', $this->Co->CoGroup->find("list", $args));
+      
+      if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()
+         && $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv()) {
+        $this->set('vv_attributes_from_env', true);
+      }
     }
     
     parent::beforeRender();

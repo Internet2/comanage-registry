@@ -75,6 +75,9 @@ class CoEnrollmentAttribute extends AppModel {
     'copy_to_coperson' => array(
       'rule' => 'boolean'
     ),
+    'ignore_authoritative' => array(
+      'rule' => 'boolean'
+    ),
     'language' => array(
       'rule'       => array('validateLanguage'),
       'required'   => false,
@@ -256,6 +259,12 @@ class CoEnrollmentAttribute extends AppModel {
         
         // Single value attributes are never hidden
         $attr['hidden'] = 0;
+        
+        // Org attributes can ignore authoritative values
+        $attr['ignore_authoritative'] =
+          ($attrCode == 'o'
+           && isset($efAttr['CoEnrollmentAttribute']['ignore_authoritative'])
+           && $efAttr['CoEnrollmentAttribute']['ignore_authoritative']);
         
         // Model, in cake's Model.field.
         if($attrCode == 'o') {
@@ -464,6 +473,12 @@ class CoEnrollmentAttribute extends AppModel {
                                  &&
                                  !$attrModel->validate[$k]['allowEmpty']);
             
+            // Org attributes can ignore authoritative values
+            $attr['ignore_authoritative'] =
+              ($attrCode == 'i'
+               && isset($efAttr['CoEnrollmentAttribute']['ignore_authoritative'])
+               && $efAttr['CoEnrollmentAttribute']['ignore_authoritative']);
+            
             // We hide language, primary_name, type, status, and verified
             $attr['hidden'] = ($k == 'language'
                                || $k == 'primary_name'
@@ -631,7 +646,10 @@ class CoEnrollmentAttribute extends AppModel {
          && !$enrollmentAttributes[$i]['hidden']
          // and that are modifiable
          && (!isset($enrollmentAttributes[$i]['modifiable'])
-             || $enrollmentAttributes[$i]['modifiable'])) {
+             || $enrollmentAttributes[$i]['modifiable'])
+         // and that aren't set to ignore authoritative values
+         && (!isset($enrollmentAttributes[$i]['ignore_authoritative'])
+             || !$enrollmentAttributes[$i]['ignore_authoritative'])) {
         $key = "";
         
         if(!empty($model[1])) {

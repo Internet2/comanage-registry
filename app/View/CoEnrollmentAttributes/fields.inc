@@ -186,10 +186,12 @@
   // Populate cross references
   print $this->Form->hidden('co_enrollment_flow_id', array('default' => $vv_coefid)) . "\n";
   print $this->Form->hidden('CoEnrollmentAttributeDefault.0.id') . "\n";
+  
+  $l = 1;
 ?>
 <table id="<?php print $this->action; ?>_co_enrollment_attribute" class="ui-widget">
   <tbody>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td width="50%"> <!-- force a width here and below so the two tables line up -->
         <b><?php print _txt('fd.ea.label'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ea.label.desc'); ?></font>
@@ -200,7 +202,7 @@
                      : Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['label'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.ea.desc'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ea.desc.desc'); ?></font>
@@ -211,7 +213,7 @@
                      : Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['description'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.attribute'); ?></b>
       </td>
@@ -265,7 +267,7 @@
         </div>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.required'); ?></b>
       </td>
@@ -291,7 +293,24 @@
         ?>
       </td>
     </tr>
-    <tr class="line1">
+    <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <b><?php print _txt('fd.ea.ignauth'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ea.ignauth.desc'); ?></font>
+      </td>
+      <td>
+        <?php
+          print ($e
+                 ? $this->Form->input('ignore_authoritative',
+                                      array('default' => false))
+                 : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ignore_authoritative']
+                    ? _txt('fd.yes') : _txt('fd.no')));
+        ?>
+      </td>
+    </tr>
+    <?php endif; ?>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.ea.order'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ea.order.desc'); ?></font>
@@ -307,7 +326,7 @@
 <div id="attr_def_div" style="display: none">
   <table id="<?php print $this->action; ?>_co_enrollment_attribute_default" class="ui-widget">
   <tbody>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td width="50%">
         <b><?php print _txt('fd.ed.default'); ?></b><br />
       </td>
@@ -416,7 +435,7 @@
         </div>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.ed.modify'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ed.modify.desc'); ?></font>

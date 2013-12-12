@@ -245,7 +245,7 @@ class CoPetitionsController extends StandardController {
               }
             }
           }
-            
+          
           $this->loadModel('CmpEnrollmentConfiguration');
           
           $envValues = false;
@@ -263,11 +263,18 @@ class CoPetitionsController extends StandardController {
             $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
             
             if($envValues) {
-              $enrollmentAttributes = $this->CoPetition
-                                           ->CoEnrollmentFlow
-                                           ->CoEnrollmentAttribute
-                                           ->mapEnvAttributes($enrollmentAttributes,
-                                                              $envValues);
+              // This flow might be configured to ignore authoritative values
+              $ignoreAuthValues = $this->CoPetition
+                                       ->CoEnrollmentFlow->field('ignore_authoritative',
+                                                                 array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+              
+              if(!$ignoreAuthValues) {
+                $enrollmentAttributes = $this->CoPetition
+                                             ->CoEnrollmentFlow
+                                             ->CoEnrollmentAttribute
+                                             ->mapEnvAttributes($enrollmentAttributes,
+                                                                $envValues);
+              }
             }
           }
           

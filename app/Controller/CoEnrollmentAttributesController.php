@@ -38,6 +38,8 @@ class CoEnrollmentAttributesController extends StandardController {
       'CoEnrollmentAttribute.attribute' => 'asc'
     )
   );
+  
+  public $uses = array('CoEnrollmentAttribute', 'CmpEnrollmentConfiguration');
 
   /**
    * Add an Enrollment Attribute.
@@ -150,6 +152,11 @@ class CoEnrollmentAttributesController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_groups', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoGroup->find('list', $args));
+      
+      if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()
+         && $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv()) {
+        $this->set('vv_attributes_from_env', true);
+      }
     }
   }
   

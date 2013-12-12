@@ -481,6 +481,8 @@ Please click the link below to accept or decline.
   'fd.domain' =>      'Domain',
   // Enrollment configuration fields
   'fd.ea.attr.copy2cop' => 'Copy this attribute to the CO Person record',
+  'fd.ea.ignauth' =>  'Ignore Authoritative Values',
+  'fd.ea.ignauth.desc' => 'Ignore authoritative values for this attribute, such as those provided via environment variables, SAML, or LDAP',
   'fd.ea.desc'    =>  'Description',
   'fd.ea.desc.desc' => 'Descriptive text to be displayed when prompting for this attribute (like this text you\'re reading now)',
   'fd.ea.label'   =>  'Label',
@@ -494,7 +496,6 @@ Please click the link below to accept or decline.
   'fd.ed.default' =>  'Default Value',
   'fd.ed.modify'  =>  'Modifiable',
   'fd.ed.modify.desc' => 'If false, the Petitioner cannot change the default value placed into the Petition',
-  'fd.et.forattr' =>  'For Attribute',
   'fd.ef.aea' =>      'Require Authentication For Administrator Enrollment',
   'fd.ef.aea.desc' => 'If administrator enrollment is enabled, require enrollees to authenticate to the platform in order to complete their enrollment',
   'fd.ef.aee' =>      'Require Email Confirmation For Administrator Enrollment',
@@ -520,6 +521,8 @@ Please click the link below to accept or decline.
   'fd.ef.env.desc' => 'Examine the server environment for authoritative organizational identity attributes',
   'fd.ef.epx' =>      'Early Provisioning Executable',
   'fd.ef.epx.desc' => '(Need for this TBD)',
+  'fd.ef.ignauth' =>  'Ignore Authoritative Values',
+  'fd.ef.ignauth.desc' => 'Ignore authoritative values for all attributes for this enrollment flow, such as those provided via environment variables, SAML, or LDAP',
   'fd.ef.intro' =>    'Introduction',
   'fd.ef.intro.desc' => 'Optional text to display at the top of a Petition form',
   'fd.ef.ldap' =>     'Enable LDAP Attribute Retrieval',
@@ -553,6 +556,7 @@ Please click the link below to accept or decline.
   'fd.ef.vsub' =>     'Subject For Verification Email',
   'fd.ef.vsub.desc' => 'Subject line for email message sent as part of verification step.',
   // (End enrollment configuration fields)
+  'fd.et.forattr' =>  'For Attribute',
   // This must be named fd.model.validation-field
   'fd.email_address.mail' => 'Email',
   'fd.email_address.verified' => 'Verified',
