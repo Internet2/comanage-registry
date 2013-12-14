@@ -418,7 +418,8 @@
     
     <index name="api_users_i1">
       <col>username</col>
-    </index>    
+      <unique />
+    </index>
   </table>
   
   <table name="co_groups">

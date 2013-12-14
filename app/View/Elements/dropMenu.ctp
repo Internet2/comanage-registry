@@ -300,20 +300,10 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
             <?php
               $args = array();
               $args['plugin'] = null;
-              $args['controller'] = 'cos';
+              $args['controller'] = 'api_users';
               $args['action'] = 'index';
               
-              print $this->Html->link(_txt('ct.cos.pl'), $args);
-            ?>
-          </li>
-          <li>
-            <?php
-              $args = array();
-              $args['plugin'] = null;
-              $args['controller'] = 'organizations';
-              $args['action'] = 'index';
-              
-              print $this->Html->link(_txt('ct.organizations.pl'), $args);
+              print $this->Html->link(_txt('ct.api_users.pl'), $args);
             ?>
           </li>
           <li>
@@ -330,10 +320,30 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
             <?php
               $args = array();
               $args['plugin'] = null;
+              $args['controller'] = 'cos';
+              $args['action'] = 'index';
+              
+              print $this->Html->link(_txt('ct.cos.pl'), $args);
+            ?>
+          </li>
+          <li>
+            <?php
+              $args = array();
+              $args['plugin'] = null;
               $args['controller'] = 'navigation_links';
               $args['action'] = 'index';
               
               print $this->Html->link(_txt('ct.navigation_links.pl'), $args);
+            ?>
+          </li>
+          <li>
+            <?php
+              $args = array();
+              $args['plugin'] = null;
+              $args['controller'] = 'organizations';
+              $args['action'] = 'index';
+              
+              print $this->Html->link(_txt('ct.organizations.pl'), $args);
             ?>
           </li>
           <?php render_plugin_menus($this->Html, $plugins, 'cmp', $menuCoId); ?>

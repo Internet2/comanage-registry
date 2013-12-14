@@ -42,6 +42,10 @@ $cm_texts['en_US'] = array(
   // What an Org is called
   'org' =>            'Organization',
   
+  // API User texts
+  'ap.note.privs' =>  'API Users are currently given full privileges to all Registry data. This is subject to change in a future release (<a href="https://bugs.internet2.edu/jira/browse/CO-91">CO-91</a>).',
+  'ap.note.username' => 'The API username selected here cannot conflict with any identifier used by anyone to login to the platform',
+  
   // Authnz
   'au.not' =>         'Not Logged In',
   
@@ -55,6 +59,8 @@ $cm_texts['en_US'] = array(
   // Titles, per-controller
   'ct.addresses.1' =>           'Address',
   'ct.addresses.pl' =>          'Addresses',
+  'ct.api_users.1' =>           'API User',
+  'ct.api_users.pl' =>          'API Users',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
   'ct.co_enrollment_attributes.1'  => 'CO Enrollment Attribute',
@@ -628,6 +634,7 @@ Please click the link below to accept or decline.
   'fd.organization_id' => 'Organization ID',
   'fd.ou' =>          'Department',
   'fd.parent' =>      'Parent COU',
+  'fd.password' =>    'Password',
   'fd.people' =>      '%1$s People',
   'fd.perms' =>       'Permissions',
   'fd.petitioner' =>  'Petitioner',
@@ -660,6 +667,7 @@ Please click the link below to accept or decline.
   'fd.type.warn' =>   'After an extended attribute is created, its type may not be changed',
   'fd.untitled' =>    'Untitled',
   'fd.url' =>         'URL',
+  'fd.username.api' => 'API User Name',
   'fd.valid_from' =>  'Valid From',
   'fd.valid_from.desc' => '(leave blank for immediate validity)',
   'fd.valid_through' => 'Valid Through',
