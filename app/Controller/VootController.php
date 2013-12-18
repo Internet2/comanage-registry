@@ -81,7 +81,8 @@ class VootController extends StandardController {
       try {
         // XXX We should really provide an identifier type. Instead, we'll just
         // take the first person returned.
-        $coppl = $this->CoPerson->idsForIdentifier($memberid, null);
+        // We only look at login identifiers.
+        $coppl = $this->CoPerson->idsForIdentifier($memberid, null, true);
         
         if(!empty($coppl)) {
           $this->coPersonIdReq = $coppl[0];

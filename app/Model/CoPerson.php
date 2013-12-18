@@ -209,7 +209,9 @@ class CoPerson extends AppModel {
     
     $args = array();
     $args['conditions']['Identifier.identifier'] = $identifier;
-    $args['conditions']['Identifier.login'] = $login;
+    if($login) {
+      $args['conditions']['Identifier.login'] = true;
+    }
     $args['conditions']['Identifier.status'] = StatusEnum::Active;
     $args['contain'] = false;
     
