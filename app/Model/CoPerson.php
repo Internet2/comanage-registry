@@ -154,7 +154,7 @@ class CoPerson extends AppModel {
     $args['conditions']['OR']['CoGroupMember.member'] = 1;
     $args['conditions']['OR']['CoGroupMember.owner'] = 1;
     // We use contain here to pull data for VootController
-    $args['contain'][] = 'Name';
+    $args['contain'][] = 'PrimaryName';
     $args['contain'][] = 'EmailAddress';
     
     if($limit) {

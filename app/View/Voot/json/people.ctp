@@ -54,11 +54,11 @@
       
       $people[] = array(
         'id'                    => $pid,
-        'displayName'           => generateCn($p['Name']),
+        'displayName'           => generateCn($p['PrimaryName']),
         'name'                  => array(
-          'formatted'             => generateCn($p['Name']),
-          'givenName'             => $p['Name']['given'],
-          'familyName'            => $p['Name']['family'],
+          'formatted'             => generateCn($p['PrimaryName']),
+          'givenName'             => $p['PrimaryName']['given'],
+          'familyName'            => $p['PrimaryName']['family'],
         ),
         'emails'                => $email,
         'voot_membership_role'  => $grole
