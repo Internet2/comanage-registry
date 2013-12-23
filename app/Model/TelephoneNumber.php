@@ -47,28 +47,39 @@ class TelephoneNumber extends AppModel {
   public $order = array("number");
   
   // Validation rules for table elements
+  // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
     // Don't require number or type since $belongsTo saves won't validate if they're empty
     'number' => array(
-      'rule' => array('maxLength', 64),   // cake has telephone number validation, but US only
-      'required' => false,                // We allow any chars to cover things like "ext 2009"
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('maxLength', 64),   // cake has telephone number validation, but US only
+        'required' => false,                // We allow any chars to cover things like "ext 2009"
+        'allowEmpty' => false
+      )
     ),
     'type' => array(
-      'rule' => array('inList', array(ContactEnum::Fax,
-                                      ContactEnum::Home,
-                                      ContactEnum::Mobile,
-                                      ContactEnum::Office)),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('inList', array(ContactEnum::Fax,
+                                        ContactEnum::Home,
+                                        ContactEnum::Mobile,
+                                        ContactEnum::Office)),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'co_person_role_id' => array(
-      'rule' => 'numeric',
-      'required' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => false
+      )
     ),
     'org_identity_id' => array(
-      'rule' => 'numeric',
-      'required' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => false
+      )
     )
   );
   

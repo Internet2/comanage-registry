@@ -596,6 +596,7 @@
       <notnull />
     </field>
     <field name="required" type="I" />
+    <field name="required_fields" type="C" size="160" />
     <field name="ordr" type="I" />
     <field name="hidden" type="L" />
     <field name="copy_to_coperson" type="L" />

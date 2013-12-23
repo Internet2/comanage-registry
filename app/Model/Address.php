@@ -47,57 +47,80 @@ class Address extends AppModel {
   public $order = array("line1");
   
   // Validation rules for table elements
+  // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
     // Don't require any element since $belongsTo saves won't validate if they're empty
     'line1' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => false
+      )
     ),
     'line2' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'locality' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'state' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'postal_code' => array(
-      'rule' => array('maxLength', 16),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 16),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'country' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'type' => array(
-      'rule' => array('inList', array(ContactEnum::Home,
-                                      ContactEnum::Office,
-                                      ContactEnum::Postal)),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('inList', array(ContactEnum::Home,
+                                        ContactEnum::Office,
+                                        ContactEnum::Postal)),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'language' => array(
-      'rule'       => array('validateLanguage'),
-      'required'   => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule'       => array('validateLanguage'),
+        'required'   => false,
+        'allowEmpty' => true
+      )
     ),
     'co_person_role_id' => array(
-      'rule' => 'numeric',
-      'required' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'org_identity_id' => array(
-      'rule' => 'numeric',
-      'required' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   

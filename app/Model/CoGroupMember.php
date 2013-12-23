@@ -52,14 +52,20 @@ class CoGroupMember extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true
+      )
     ),
     'member' => array(
-      'rule' => array('boolean')
+      'content' => array(
+        'rule' => array('boolean')
+      )
     ),
     'owner' => array(
-      'rule' => array('boolean')
+      'content' => array(
+        'rule' => array('boolean')
+      )
     )
   );
 

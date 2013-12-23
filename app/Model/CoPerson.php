@@ -101,30 +101,37 @@ class CoPerson extends AppModel {
 //  public $order = array("CoPerson.id");
   
   // Validation rules for table elements
+  // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
     'co_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'message' => 'A CO ID must be provided'
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'message' => 'A CO ID must be provided'
+      )
     ),
     'primary_name_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'status' => array(
-      'rule' => array('inList', array(StatusEnum::Active,
-                                      StatusEnum::Approved,
-                                      StatusEnum::Declined,
-                                      StatusEnum::Deleted,
-                                      StatusEnum::Denied,
-                                      StatusEnum::Invited,
-                                      StatusEnum::Pending,
-                                      StatusEnum::PendingApproval,
-                                      StatusEnum::PendingConfirmation,
-                                      StatusEnum::Suspended)),
-      'required' => true,
-      'message' => 'A valid status must be selected'
+      'content' => array(
+        'rule' => array('inList', array(StatusEnum::Active,
+                                        StatusEnum::Approved,
+                                        StatusEnum::Declined,
+                                        StatusEnum::Deleted,
+                                        StatusEnum::Denied,
+                                        StatusEnum::Invited,
+                                        StatusEnum::Pending,
+                                        StatusEnum::PendingApproval,
+                                        StatusEnum::PendingConfirmation,
+                                        StatusEnum::Suspended)),
+        'required' => true,
+        'message' => 'A valid status must be selected'
+      )
     )
   );
   

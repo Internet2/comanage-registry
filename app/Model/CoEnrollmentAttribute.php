@@ -62,6 +62,11 @@ class CoEnrollmentAttribute extends AppModel {
     'required' => array(
       'rule' => array('range', -2, 2)
     ),
+    'required_fields' => array(
+      'rule' => '/.*/',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'ordr' => array(
       'rule' => 'numeric',
       'required' => false,
@@ -246,9 +251,10 @@ class CoEnrollmentAttribute extends AppModel {
         // An attribute is required if the enrollment flow requires it OR if it is
         // type 'o' or 'r' and is required by the data model.
         $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
+        $attr['mvpa_required'] = false; // does not apply
         
         if(($attrCode == 'o' || $attrCode == 'r')
-           && $attrModel->validate[$attrName]['required'])
+           && $attrModel->validate[$attrName]['content']['required'])
           $attr['required'] = true;
         
         // Label
@@ -340,8 +346,8 @@ class CoEnrollmentAttribute extends AppModel {
         if($attrCode == 'o') {
           $attr['validate'] = $attrModel->validate[$attrName];
           
-          if(isset($attr['validate']['rule'][0])
-             && $attr['validate']['rule'][0] == 'inList') {
+          if(isset($attr['validate']['content']['rule'][0])
+             && $attr['validate']['content']['rule'][0] == 'inList') {
             // If this is a select field, get the set of options
             $attr['select'] = $attrModel->validEnumsForSelect($attrName);
           }
@@ -358,27 +364,27 @@ class CoEnrollmentAttribute extends AppModel {
             $args['joins'][0]['conditions'][0] = 'Cou.co_id=CoEnrollmentFlow.co_id';
             
             $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Cou->find('list', $args);
-            $attr['validate']['rule'][0] = 'inList';
-            $attr['validate']['rule'][1] = array_keys($attr['select']);
+            $attr['validate']['content']['rule'][0] = 'inList';
+            $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
             // As of Cake 2.1, inList doesn't work for integers unless you set strict to false
             // https://cakephp.lighthouseapp.com/projects/42648/tickets/2770-inlist-doesnt-work-more-in-21
-            $attr['validate']['rule'][2] = false;
+            $attr['validate']['content']['rule'][2] = false;
           } elseif($attrName == 'sponsor_co_person_id') {
             // Like COU ID, we need to set up a select
             
             $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Co->CoPerson->sponsorList($efAttr['CoEnrollmentFlow']['co_id']);
-            $attr['validate']['rule'][0] = 'inList';
-            $attr['validate']['rule'][1] = array_keys($attr['select']);
+            $attr['validate']['content']['rule'][0] = 'inList';
+            $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
             // As of Cake 2.1, inList doesn't work for integers unless you set strict to false
             // https://cakephp.lighthouseapp.com/projects/42648/tickets/2770-inlist-doesnt-work-more-in-21
-            $attr['validate']['rule'][2] = false;
+            $attr['validate']['content']['rule'][2] = false;
           } else {
             // Default behavior for all other attributes
             
             $attr['validate'] = $attrModel->validate[$attrName];
             
-            if(isset($attr['validate']['rule'][0])
-               && $attr['validate']['rule'][0] == 'inList') {
+            if(isset($attr['validate']['content']['rule'][0])
+               && $attr['validate']['content']['rule'][0] == 'inList') {
               // If this is a select field, get the set of options
               $attr['select'] = $attrModel->validEnumsForSelect($attrName);
             }
@@ -468,15 +474,30 @@ class CoEnrollmentAttribute extends AppModel {
             $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
             $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
             
-            // Required? We use allowEmpty to check, which is more accurate than $validate->required.
-            // Required is true if the attribute is required by the enrollment flow configuration,
-            // AND of the MVPA's element is also required/allowEmpty (eg: Email requires mail to be set).
+            // Track if the mvpa itself is required
+            $attr['mvpa_required'] = $efAttr['CoEnrollmentAttribute']['required'];
             
-            $attr['required'] = ($efAttr['CoEnrollmentAttribute']['required']
-                                 &&
-                                 isset($attrModel->validate[$k]['allowEmpty'])
-                                 &&
-                                 !$attrModel->validate[$k]['allowEmpty']);
+            // Is this individual attribute required?
+            if(!empty($efAttr['CoEnrollmentAttribute']['required_fields'])) {
+              // See if the field is specified in the fields list. It would be slightly
+              // more efficient to not split the string for each field each time through
+              // the foreach loop.
+              
+              $rfields = explode(",", $efAttr['CoEnrollmentAttribute']['required_fields']);
+              
+              $attr['required'] = in_array($k, $rfields);
+            } else {
+              // We use allowEmpty to check, which is more accurate than $validate->required.
+              // Required is true if the attribute is required by the enrollment flow configuration,
+              // AND if the MVPA's element is also required/allowEmpty (eg: Email requires mail to be set).
+              
+              $attr['required'] = ($attr['mvpa_required']
+                                   &&
+  // XXX need to look for other places where ['content'] needs to be added
+                                   isset($attrModel->validate[$k]['content']['allowEmpty'])
+                                   &&
+                                   !$attrModel->validate[$k]['content']['allowEmpty']);
+            }
             
             // Org attributes can ignore authoritative values
             $attr['ignore_authoritative'] =
@@ -547,8 +568,8 @@ class CoEnrollmentAttribute extends AppModel {
             $attr['validate'] = $attrModel->validate[$k];
             
             if($k != 'type'
-               && isset($attr['validate']['rule'][0])
-               && $attr['validate']['rule'][0] == 'inList') {
+               && isset($attr['validate']['content']['rule'][0])
+               && $attr['validate']['content']['rule'][0] == 'inList') {
               // If this is a select field, get the set of options
               $attr['select'] = $attrModel->validEnumsForSelect($attrName);
             }
@@ -564,6 +585,7 @@ class CoEnrollmentAttribute extends AppModel {
         $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
         $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
+        $attr['mvpa_required'] = false; // does not apply
         $attr['hidden'] = false;
         $attr['label'] = $efAttr['CoEnrollmentAttribute']['label'];
         $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
@@ -573,7 +595,7 @@ class CoEnrollmentAttribute extends AppModel {
           $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
         }
         $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
-        $attr['validate']['rule'][0] = 'inList';
+        $attr['validate']['content']['rule'][0] = 'inList';
         
         // Pull the set of groups for the select
         $args = array();

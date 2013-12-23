@@ -80,49 +80,64 @@ class OrgIdentity extends AppModel {
 //  public $order = array("Name.family", "Name.given");
   
   // Validation rules for table elements
+  // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
     'affiliation' => array(
-      'rule' => array('inList', array(AffiliationEnum::Faculty,
-                                      AffiliationEnum::Student,
-                                      AffiliationEnum::Staff,
-                                      AffiliationEnum::Alum,
-                                      AffiliationEnum::Member,
-                                      AffiliationEnum::Affiliate,
-                                      AffiliationEnum::Employee,
-                                      AffiliationEnum::LibraryWalkIn)),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('inList', array(AffiliationEnum::Faculty,
+                                        AffiliationEnum::Student,
+                                        AffiliationEnum::Staff,
+                                        AffiliationEnum::Alum,
+                                        AffiliationEnum::Member,
+                                        AffiliationEnum::Affiliate,
+                                        AffiliationEnum::Employee,
+                                        AffiliationEnum::LibraryWalkIn)),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'co_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'o' => array(
-      'rule' => '/.*/',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => '/.*/',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'organization_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'ou' => array(
-      'rule' => '/.*/',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => '/.*/',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'primary_name_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'title' => array(
-      'rule' => '/.*/',
-      'required' => false,
-      'allowEmpty' => true
-    ),
+      'content' => array(
+        'rule' => '/.*/',
+        'required' => false,
+        'allowEmpty' => true
+      )
+    )
   );
   
   // Enum type hints

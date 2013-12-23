@@ -803,7 +803,7 @@ class AppController extends Controller {
           
           foreach(array_keys($model->validate) as $k)
           {
-            if(isset($model->validate[$k]['rule']) && $model->validate[$k]['rule'][0] == 'boolean')
+            if(isset($model->validate[$k]['content']['rule']) && $model->validate[$k]['content']['rule'][0] == 'boolean')
             {
               if($r[$m][$k])
                 $rr[$m][$k] = (bool)true;
@@ -898,8 +898,8 @@ class AppController extends Controller {
     // Convert any booleans
     
     foreach(array_keys($model->validate) as $k) {
-      if(isset($model->validate[$k]['rule'])
-         && $model->validate[$k]['rule'][0] == 'boolean') {
+      if(isset($model->validate[$k]['content']['rule'])
+         && $model->validate[$k]['content']['rule'][0] == 'boolean') {
         if($ret[$req][$k] == 'True')
           $ret[$req][$k] = true;
         else

@@ -159,8 +159,6 @@ class CoPetition extends AppModel {
    */
   
   public function adjustValidationRules($model, $efAttrs) {
-    // XXX With Cake 2.2 we can use dynamic validation rules instead of mucking around this way (CO-353)
-    
     foreach($efAttrs as $efAttr) {
       // The model might be something like EnrolleeCoPersonRole or EnrolleeCoPersonRole.Name
       // or EnrolleeCoPersonRole.TelephoneNumber.0. However, since we only adjust validation
@@ -170,10 +168,18 @@ class CoPetition extends AppModel {
       
       if(count($m) == 1) {
         if($m[0] == $model) {
-          $this->$model->validate[ $efAttr['field'] ] = $efAttr['validate'];
+          $xfield = $this->$model->validator()->getField($efAttr['field']);
           
-          $this->$model->validate[ $efAttr['field'] ]['required'] = $efAttr['required'];
-          $this->$model->validate[ $efAttr['field'] ]['allowEmpty'] = !$efAttr['required'];
+          if($xfield && $xfield->getRule('content')) {
+            $xreq = (isset($efAttr['required']) && $efAttr['required']);
+            
+            $xfield->getRule('content')->required = $xreq;
+            $xfield->getRule('content')->allowEmpty = !$xreq;
+            
+            if($xreq) {
+              $xfield->getRule('content')->message = _txt('er.field.req');
+            }
+          }
         }
       }
     }
@@ -223,6 +229,12 @@ class CoPetition extends AppModel {
         return false;
       }
       
+      if($efAttr['mvpa_required']) {
+        // This attribute is part of an MVPA that is required, so stop
+        
+        return false;
+      }
+      
       if(isset($data[ $efAttr['field'] ]) &&
          $data[ $efAttr['field'] ] != "") {
         // Field is set, so stop
@@ -230,6 +242,8 @@ class CoPetition extends AppModel {
         return false;
       }
     }
+    
+    debug("true");
     
     return true;
   }
@@ -511,8 +525,6 @@ class CoPetition extends AppModel {
       
       // Dynamically adjust validation rules according to the enrollment flow
       
-      // XXX If we didn't generate a CO Person ID above for some reason, that validation will fail
-      // here. With dynamic validation rules in Cake 2.2 we could drop that rule. (CO-353)
       $this->adjustValidationRules('EnrolleeCoPersonRole', $efAttrs);
       
       // Manually validate CoPersonRole
@@ -1578,6 +1590,26 @@ class CoPetition extends AppModel {
             
             $this->$primaryModel->$model->set($data);
             
+            foreach($efAttrs as $efAttr) {
+              if($efAttr['id'] == $instance) {
+                
+                // Make sure the validation rule matches the required status of this attribute
+                $xfield = $this->$primaryModel->$model->validator()->getField($efAttr['field']);
+                
+                if($xfield) {
+                  $xreq = (isset($efAttr['required']) && $efAttr['required']);
+                  
+                  $xfield->getRule('content')->required = $xreq;
+                  $xfield->getRule('content')->allowEmpty = !$xreq;
+                  
+                  if($xreq) {
+                    $xfield->getRule('content')->message = _txt('er.field.req');
+                  }
+                }
+                // else not a relevant field (eg: co_enrollment_attribute_id)
+              }
+            }
+            
             // Make sure to use invalidFields(), which won't try to validate (possibly
             // missing) related models.
             $errFields = $this->$primaryModel->$model->invalidFields();
@@ -1638,9 +1670,16 @@ class CoPetition extends AppModel {
           // Extended attributes generally won't have validate by Cake set since their models are
           // dynamically bound, so grabbing validation rules from $efAttr is a win.
           
-          $this->$primaryModel->$m[1]->validate[ $efAttr['field'] ] = $efAttr['validate'];
-          $this->$primaryModel->$m[1]->validate[ $efAttr['field'] ]['required'] = $efAttr['required'];
-          $this->$primaryModel->$m[1]->validate[ $efAttr['field'] ]['allowEmpty'] = !$efAttr['required'];
+          $vrule = $efAttr['validate'];
+          $vreq = (isset($efAttr['required']) && $efAttr['required']);
+          
+          $vrule['required'] = $vreq;
+          $vrule['allowEmpty'] = !$vreq;
+          $vrule['message'] = _txt('er.field.req');
+          
+          $this->$primaryModel->$m[1]->validator()->add($efAttr['field'],
+                                                        'content',
+                                                        $vrule);
           
           // Make sure validation only sees this model's data
           $data = array();

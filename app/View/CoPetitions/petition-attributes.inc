@@ -167,7 +167,7 @@
     // Sort attributes by model for printing
     $coea_model = array();
     $misc_attr = array();
-
+    
     foreach ($co_enrollment_attributes as $ea){
       if ($ea['hidden']) {  // Sort hidden ones out
         $hidden_attr[] = $ea;
@@ -180,43 +180,55 @@
         }
       } 
     }
-
+    
     // Print the hidden fields
     foreach ($hidden_attr as $ea) {
-      if($ea['hidden'])
+      if($ea['hidden']) {
         $fieldName = $ea['model'] . '.' . $ea['field'];
-
+      }
+        
       print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n"; 
     }
-
+    
     // Print the ones not hidden
-    foreach ($coea_model as $m => $coe_attributes): 
+    foreach ($coea_model as $m => $coe_attributes):
+    
+    $mvpa = (count($coe_attributes) > 1);
   ?>
     <div class="ui-widget modelbox">
       <div class = "boxtitle">
         <b><?php print $m ?></b>
         <?php
+          // Is the MVPA required? We'll just check the first attribute since they
+          // should all be the same.
+          if($mvpa && $coe_attributes[0]['mvpa_required']) {
+            print "<font class=\"required\">*</font>\n";
+          }
+          
           // Only print the description once if it's the same for all items
           $groupDesc = false;  // Not grouping by default
           $descriptions = array();
-
+          
           foreach($coe_attributes as $ea) {
             $descriptions[] = $ea['description'];
           }
           $descTypeCount = count(array_count_values($descriptions));
-
+          
           if($descTypeCount == 1 && !empty($coe_attributes[0]['description'])) {
             print "</br>\n<font class=\"desc\">" . $ea['description'] . "</font>\n";
             $groupDesc = true; // Set flag for later
           }
+          
+          if($mvpa && !$coe_attributes[0]['mvpa_required']) {
+            print "<br /><font class=\"required\">" . _txt('fd.pt.required') . "</font>\n";
+          }
         ?>
-
       </div>
       <table id="<?php print $this->action; ?>_co_petition_attrs_<?php print $m?>" class="ui-widget">
         <tbody>
           <?php 
             $l = 0; // Reset zebra stripes for each box
-            foreach ($coe_attributes as $ea): 
+            foreach ($coe_attributes as $ea):
               if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
                 // Since disabled values don't submit with the form, convert them to hidden
                 // fields and change the fieldName for the visible attribute
@@ -229,7 +241,7 @@
                 $fieldName = $ea['model'] . '.' . $ea['field'];
               }
           ?>
-
+          
             <tr class="line<?php print ($l % 2); $l++; ?>">
               <td>
                 <?php
@@ -237,7 +249,11 @@
                   print "<b>" . $ea['label'] . "</b>";
                   
                   if($ea['required']) {
-                    print "<font class=\"required\">*</font>\n";
+                    if($mvpa && !$ea['mvpa_required']) {
+                      print "<font class=\"required\">&dagger;</font>\n";
+                    } else {
+                      print "<font class=\"required\">*</font>\n";
+                    }
                   }
                   
                   if(isset($ea['description'])
@@ -254,8 +270,9 @@
                   // The type of validation rule can influence what we output.
                   $ruleType = 'default';
                   
-                  if(isset($ea['validate']['rule'][0]))
-                    $ruleType = $ea['validate']['rule'][0];
+                  if(isset($ea['validate']['content']['rule'][0])) {
+                    $ruleType = $ea['validate']['content']['rule'][0];
+                  }
                     
                   // XXX need to retrieve current values for edit and view
                   
@@ -306,7 +323,17 @@
                       // Use default field
                       
                       $args = array();
-                      $args['required'] = $ea['required'];
+                      // An attribute is required if (1) it is part of an MVPA that is required
+                      // and the field itself is required, or (2) it is not part of an MVPA and
+                      // the field itself is required
+                      $args['required'] = false;
+                      if(isset($ea['mvpa_required'])) {
+                        if($ea['mvpa_required']) {
+                          $args['required'] = $ea['required'];
+                        }
+                      } else {
+                        $args['required'] = $ea['required'];
+                      }
                       
                       // Use a provided default value, if one specified
                       if(isset($ea['default'])) {

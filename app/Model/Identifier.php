@@ -46,44 +46,57 @@ class Identifier extends AppModel {
   public $actsAs = array('Containable', 'Provisioner');
   
   // Validation rules for table elements
+  // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
     // Don't require any element since $belongsTo saves won't validate if they're empty
     'identifier' => array(
-      'rule' => array('maxLength', 256),
-      'required' => false,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('maxLength', 256),
+        'required' => false,
+        'allowEmpty' => false
+      )
     ),
     'type' => array(
-      'rule' => array('validateExtendedType',
-                      array('attribute' => 'Identifier',
-                            'default' => array(IdentifierEnum::ePPN,
-                                               IdentifierEnum::ePTID,
-                                               IdentifierEnum::Mail,
-                                               IdentifierEnum::OpenID,
-                                               IdentifierEnum::UID))),
-      'required' => false,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'Identifier',
+                              'default' => array(IdentifierEnum::ePPN,
+                                                 IdentifierEnum::ePTID,
+                                                 IdentifierEnum::Mail,
+                                                 IdentifierEnum::OpenID,
+                                                 IdentifierEnum::UID))),
+        'required' => false,
+        'allowEmpty' => false
+      )
     ),
     'login' => array(
-      'rule' => array('boolean'),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('boolean'),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'status' => array(
-      'rule' => array('inList', array(StatusEnum::Active,
-                                      StatusEnum::Deleted)),
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('inList', array(StatusEnum::Active,
+                                        StatusEnum::Deleted)),
+        'required' => true,
+        'allowEmpty' => false
+      )
     ),
     'co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'org_identity_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   

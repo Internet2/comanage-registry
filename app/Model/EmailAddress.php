@@ -47,34 +47,45 @@ class EmailAddress extends AppModel {
   public $order = array("mail");
   
   // Validation rules for table elements
+  // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
     // Don't require mail or type since $belongsTo saves won't validate if they're empty
     'mail' => array(
-      'rule' => array('email'),
-      'required' => false,
-      'allowEmpty' => false,
-      'message' => 'Please enter a valid email address'
+      'content' => array(
+        'rule' => array('email'),
+        'required' => false,
+        'allowEmpty' => false,
+        'message' => 'Please enter a valid email address'
+      )
     ),
     'type' => array(
-      'rule' => array('inList', array(EmailAddressEnum::Delivery,
-                                      EmailAddressEnum::Forwarding,
-                                      EmailAddressEnum::Official,
-                                      EmailAddressEnum::Personal)),
-      'required' => false,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('inList', array(EmailAddressEnum::Delivery,
+                                        EmailAddressEnum::Forwarding,
+                                        EmailAddressEnum::Official,
+                                        EmailAddressEnum::Personal)),
+        'required' => false,
+        'allowEmpty' => false
+      )
     ),
     'verified' => array(
-      'rule' => array('boolean')
+      'content' => array(
+        'rule' => array('boolean')
+      )
     ),
     'co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'org_identity_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   

@@ -50,61 +50,82 @@ class Name extends AppModel {
   );
   
   // Validation rules for table elements
+  // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
     'honorific' => array(
-      'rule' => array('maxLength', 32),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 32),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'given' => array(
-      'rule' => array('maxLength', 128),
-      'required' => true,
-      'allowEmpty' => false,
-      'message' => 'A given name must be provided'
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => true,
+        'allowEmpty' => false,
+        'message' => 'A given name must be provided'
+      )
     ),
     'middle' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'family' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'suffix' => array(
-      'rule' => array('maxLength', 32),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 32),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'type' => array(
-      'rule' => array('inList', array(NameEnum::Alternate,
-                                      NameEnum::Author,
-                                      NameEnum::FKA,
-                                      NameEnum::Official,
-                                      NameEnum::Preferred)),
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('inList', array(NameEnum::Alternate,
+                                        NameEnum::Author,
+                                        NameEnum::FKA,
+                                        NameEnum::Official,
+                                        NameEnum::Preferred)),
+        'required' => true,
+        'allowEmpty' => false
+      )
     ),
     'language' => array(
-      'rule'       => array('validateLanguage'),
-      'required'   => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule'       => array('validateLanguage'),
+        'required'   => false,
+        'allowEmpty' => true
+      )
     ),
     'primary_name' => array(
-      'rule'       => array('boolean'),
-      'required'   => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule'       => array('boolean'),
+        'required'   => false,
+        'allowEmpty' => true
+      )
     ),
     'co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'org_identity_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   

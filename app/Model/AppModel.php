@@ -72,16 +72,16 @@ class AppModel extends Model {
     
     $ret = null;
     
-    if(isset($this->validate['type']['rule'])
-       && is_array($this->validate['type']['rule'])
-       && $this->validate['type']['rule'][0] == 'validateExtendedType'
-       && is_array($this->validate['type']['rule'][1])
-       && isset($this->validate['type']['rule'][1]['default'])) {
+    if(isset($this->validate['type']['content']['rule'])
+       && is_array($this->validate['type']['content']['rule'])
+       && $this->validate['type']['content']['rule'][0] == 'validateExtendedType'
+       && is_array($this->validate['type']['content']['rule'][1])
+       && isset($this->validate['type']['content']['rule'][1]['default'])) {
       // Figure out which language key to use. Note 'en' is the prefix for 'enum'
       // and NOT an abbreviation for 'english'.
       $langKey = 'en.' . Inflector::underscore($this->name);
       
-      foreach($this->validate['type']['rule'][1]['default'] as $name) {
+      foreach($this->validate['type']['content']['rule'][1]['default'] as $name) {
         $ret[$name] = _txt($langKey, null, $name);
       }
     }
@@ -381,13 +381,13 @@ class AppModel extends Model {
   function validEnumsForSelect($field) {
     $ret = array();
     
-    if(isset($this->validate[$field]['rule'])
-       && $this->validate[$field]['rule'][0] == 'inList'
-       && isset($this->validate[$field]['rule'][1])) {
+    if(isset($this->validate[$field]['content']['rule'])
+       && $this->validate[$field]['content']['rule'][0] == 'inList'
+       && isset($this->validate[$field]['content']['rule'][1])) {
       // This is the list of valid values for this field. Map these to their
       // translated names.
       
-      foreach($this->validate[$field]['rule'][1] as $key) {
+      foreach($this->validate[$field]['content']['rule'][1] as $key) {
         $ret[$key] = _txt($this->cm_enum_txt[$field], NULL, $key);
       }
     }

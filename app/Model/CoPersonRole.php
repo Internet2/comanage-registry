@@ -68,69 +68,91 @@ class CoPersonRole extends AppModel {
   //  public $order = array("CoPersonRole.id");
   
   // Validation rules for table elements
+  // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
     'co_person_id' => array(
-      'rule' => array('numeric'),
-      'required' => true,
-      'message' => 'A CO Person ID must be provided'
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => true,
+        'message' => 'A CO Person ID must be provided'
+      )
     ),
     'cou_id' => array(
-      'rule' => array('numeric'),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'title' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'o' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'ou' => array(
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('maxLength', 128),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'valid_from' => array(
-      'rule' => array('validateTimestamp'),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('validateTimestamp'),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'valid_through' => array(
-      'rule' => array('validateTimestamp'),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('validateTimestamp'),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'status' => array(
-      'rule' => array('inList', array(StatusEnum::Active,
-                                      StatusEnum::Approved,
-                                      StatusEnum::Declined,
-                                      StatusEnum::Deleted,
-                                      StatusEnum::Denied,
-                                      StatusEnum::Invited,
-                                      StatusEnum::Pending,
-                                      StatusEnum::PendingApproval,
-                                      StatusEnum::PendingConfirmation,
-                                      StatusEnum::Suspended))
+      'content' => array(
+        'rule' => array('inList', array(StatusEnum::Active,
+                                        StatusEnum::Approved,
+                                        StatusEnum::Declined,
+                                        StatusEnum::Deleted,
+                                        StatusEnum::Denied,
+                                        StatusEnum::Invited,
+                                        StatusEnum::Pending,
+                                        StatusEnum::PendingApproval,
+                                        StatusEnum::PendingConfirmation,
+                                        StatusEnum::Suspended))
+      )
     ),
     'sponsor_co_person_id' => array(
-      'rule' => array('numeric'),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'affiliation' => array(
-      'rule' => array('inList', array(AffiliationEnum::Faculty,
-                                      AffiliationEnum::Student,
-                                      AffiliationEnum::Staff,
-                                      AffiliationEnum::Alum,
-                                      AffiliationEnum::Member,
-                                      AffiliationEnum::Affiliate,
-                                      AffiliationEnum::Employee,
-                                      AffiliationEnum::LibraryWalkIn)),
-      'required' => true
+      'content' => array(
+        'rule' => array('inList', array(AffiliationEnum::Faculty,
+                                        AffiliationEnum::Student,
+                                        AffiliationEnum::Staff,
+                                        AffiliationEnum::Alum,
+                                        AffiliationEnum::Member,
+                                        AffiliationEnum::Affiliate,
+                                        AffiliationEnum::Employee,
+                                        AffiliationEnum::LibraryWalkIn)),
+        'required' => true,
+        'allowEmpty' => false
+      )
     )
   );
   

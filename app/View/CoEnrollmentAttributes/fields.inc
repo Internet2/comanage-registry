@@ -141,16 +141,59 @@
   }
   
   function toggle_attr_type_div() {
+    // Show or hide language selectors and required fields selectors
+    
     var curattr = document.getElementById('CoEnrollmentAttributeAttribute').value;
     
     var curattrarr = curattr.split(":");
     var curattrcode = curattrarr[0];
     var curattrname = curattrarr[1];
     
-    if(curattrname == "address" || curattrname == "name") {
+    // Current required fields
+    var curreqfields = document.getElementById('CoEnrollmentAttributeRequiredFields').value;
+    
+    if(curattrname == "address") {
       $("#type_div").show("fade");
+      $("#address_required_fields_div").show("fade");
+      $("#name_required_fields_div").hide("fade");
+      
+      // Synchronize the popup and the actual field that holds the value
+      
+      if(curreqfields == "") {
+        // No current value, set field to default
+        document.getElementById('CoEnrollmentAttributeAddressFields').options[0].selected = true;
+        document.getElementById('CoEnrollmentAttributeRequiredFields').value
+          = document.getElementById('CoEnrollmentAttributeAddressFields').value;
+      } else {
+        // Set popup to current field value
+        document.getElementById('CoEnrollmentAttributeAddressFields').value = curreqfields;
+      }
+    } else if(curattrname == "name") {
+      $("#type_div").show("fade");
+      $("#address_required_fields_div").hide("fade");
+      $("#name_required_fields_div").show("fade");
+      // Make sure the popup matches the current required_fields value
+      document.getElementById('CoEnrollmentAttributeNameFields').value=
+        document.getElementById('CoEnrollmentAttributeRequiredFields').value
+      
+      // Synchronize the popup and the actual field that holds the value
+      
+      if(curreqfields == "") {
+        // No current value, set field to default
+        document.getElementById('CoEnrollmentAttributeNameFields').options[0].selected = true;
+        document.getElementById('CoEnrollmentAttributeRequiredFields').value
+         = document.getElementById('CoEnrollmentAttributeNameFields').value;
+      } else {
+        // Set popup to current field value
+        document.getElementById('CoEnrollmentAttributeNameFields').value = curreqfields;
+      }
     } else {
       $("#type_div").hide("fade");
+      $("#address_required_fields_div").hide("fade");
+      $("#name_required_fields_div").hide("fade");
+      
+      // Blank the current required fields
+      document.getElementById('CoEnrollmentAttributeRequiredFields').value = "";
     }
   }
   
@@ -223,7 +266,8 @@
                               ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']
                               : null);
           $attrs['empty'] = false;
-          $attrs['onchange'] = "toggle_attr_def_div();toggle_copy_to_coperson_div();toggle_attr_type_div();";
+          $attrs['onchange'] = "document.getElementById('CoEnrollmentAttributeRequiredFields').value='';
+                                toggle_attr_def_div();toggle_copy_to_coperson_div();toggle_attr_type_div();";
           
           if($e) {
             print $this->Form->select('attribute',
@@ -256,11 +300,55 @@
             }
           ?>
         </div>
+        <div id="address_required_fields_div" style="display: none">
+          <?php print _txt('fd.address.fields.req'); ?><br />
+          <select
+            id="CoEnrollmentAttributeAddressFields"
+            onchange="javascript:document.getElementById('CoEnrollmentAttributeRequiredFields').value=this.value">
+            <option value="line1"><?php
+              print _txt('fd.address.line1') . " (" . _txt('fd.default') . ")";
+            ?></option>
+            <option value="line1,locality,state,postal_code"><?php
+              print _txt('fd.address.line1') . ", "
+                  . _txt('fd.address.locality') . ", "
+                  . _txt('fd.address.state') . ", "
+                  . _txt('fd.address.postal_code');
+            ?></option>
+            <option value="line1,locality,state,postal_code,country"><?php
+              print _txt('fd.address.line1') . ", "
+                  . _txt('fd.address.locality') . ", "
+                  . _txt('fd.address.state') . ", "
+                  . _txt('fd.address.postal_code') . ", "
+                  . _txt('fd.address.country');
+            ?></option>
+          </select>
+        </div>
+        <div id="name_required_fields_div" style="display: none">
+          <?php print _txt('fd.name.fields.req'); ?><br />
+          <select
+            id="CoEnrollmentAttributeNameFields"
+            onchange="javascript:document.getElementById('CoEnrollmentAttributeRequiredFields').value=this.value">
+            <option value="given"><?php
+              print _txt('fd.name.given') . " (" . _txt('fd.default') . ")";
+            ?></option>
+            <option value="given,family"><?php
+              print _txt('fd.name.given') . ", "
+                  . _txt('fd.name.family');
+            ?></option>
+          </select>
+        </div>
+        <div id="required_fields_div" style="display: none">
+          <?php
+            if($e) {
+              print $this->Form->input('required_fields');
+            }
+          ?>
+        </div>
         <div id="copy_to_coperson_div" style="display: none">
           <?php print ($e
                        ? $this->Form->input('copy_to_coperson',
                                             array('default' => false))
-                       : ($co_enrollment_attributes[0]['CoEnrollmentAttribute'][0]['copy_to_coperson']
+                       : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['copy_to_coperson']
                           ? _txt('fd.yes') : _txt('fd.no')));
                 print _txt('fd.ea.attr.copy2cop');
           ?>
