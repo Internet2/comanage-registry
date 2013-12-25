@@ -450,6 +450,8 @@ class CoGroupMember extends AppModel {
               $cogm['CoGroupMember']['member'] = $member;
               $cogm['CoGroupMember']['owner'] = $owner;
               
+              $this->create();
+              
               if(!$this->save($cogm)) {
                 throw new RuntimeException($this->validationErrors);
               }
@@ -494,6 +496,8 @@ class CoGroupMember extends AppModel {
               $cogm['CoGroupMember']['co_person_id'] = $m['co_person_id'];
               $cogm['CoGroupMember']['member'] = $member;
               $cogm['CoGroupMember']['owner'] = $owner;
+              
+              $this->create();
               
               if(!$this->save($cogm)) {
                 throw new RuntimeException($this->validationErrors);
