@@ -174,14 +174,14 @@ class CoEnrollmentAttributesController extends StandardController {
   
   function checkWriteFollowups($reqdata, $curdata = null) {
     // Perform a quick check to see if the attribute can no longer have a default attribute.
-    // Currently, only types 'o', 'r', and 'x' can.
+    // Currently, only types 'g', 'o', 'r', and 'x' can.
     
     if(!empty($curdata['CoEnrollmentAttributeDefault'][0]['id'])) {
       // There is an existing default
       
       $attrinfo = explode(':', $reqdata['CoEnrollmentAttribute']['attribute']);
       
-      if($attrinfo[0] != 'o' && $attrinfo[0] != 'r' && $attrinfo[0] != 'x') {
+      if($attrinfo[0] != 'g' && $attrinfo[0] != 'o' && $attrinfo[0] != 'r' && $attrinfo[0] != 'x') {
         // Ignore return code
         $this->CoEnrollmentAttribute->CoEnrollmentAttributeDefault->delete($curdata['CoEnrollmentAttributeDefault'][0]['id'],
                                                                            false);

@@ -229,6 +229,7 @@
   // Populate cross references
   print $this->Form->hidden('co_enrollment_flow_id', array('default' => $vv_coefid)) . "\n";
   print $this->Form->hidden('CoEnrollmentAttributeDefault.0.id') . "\n";
+  print $this->Form->hidden('CoEnrollmentAttributeDefault.0.co_enrollment_attribute_id') . "\n";
   
   $l = 1;
 ?>

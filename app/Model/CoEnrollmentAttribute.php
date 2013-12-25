@@ -586,13 +586,16 @@ class CoEnrollmentAttribute extends AppModel {
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
         $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
         $attr['mvpa_required'] = false; // does not apply
-        $attr['hidden'] = false;
         $attr['label'] = $efAttr['CoEnrollmentAttribute']['label'];
         $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
         $attr['model'] = "EnrolleeCoPerson.CoGroupMember." . $efAttr['CoEnrollmentAttribute']['id'];
         $attr['field'] = "co_group_id";
+        $attr['hidden'] = false;
         if(!empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
           $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
+          // If there's a default value, then the attribute can be hidden
+          $attr['hidden'] = (isset($efAttr['CoEnrollmentAttribute']['hidden'])
+                             && $efAttr['CoEnrollmentAttribute']['hidden']);
         }
         $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
         $attr['validate']['content']['rule'][0] = 'inList';
