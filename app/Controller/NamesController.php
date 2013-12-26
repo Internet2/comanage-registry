@@ -91,7 +91,8 @@ class NamesController extends MVPAController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
-// XXX the bulk of this could be moved to MVPAController or StandardController
+    // Note: We are overriding MVPAContrller::generateHistory here.
+    
     $copersonid = null;
     $orgidentityid = null;
     $HistoryRecord = null;
