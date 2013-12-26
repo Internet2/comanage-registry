@@ -119,6 +119,42 @@ class EmailAddress extends AppModel {
   }
   
   /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v0.9
+   */
+  
+  public function beforeSave($options = array()) {
+    // Make sure verified is set appropriately
+    
+    if(!empty($this->data['EmailAddress']['id'])) {
+      // We have an existing record. Pull the current values.
+      
+      $args = array();
+      $args['conditions']['EmailAddress.id'] = $this->data['EmailAddress']['id'];
+      $args['contain'] = false;
+      
+      $curdata = $this->find('first', $args);
+      
+      if(!empty($curdata['EmailAddress']['mail'])
+         && !empty($this->data['EmailAddress']['mail'])
+         && $curdata['EmailAddress']['mail'] != $this->data['EmailAddress']['mail']) {
+        // Email address was changed, flag as unverified
+        $this->data['EmailAddress']['verified'] = false;
+      } else {
+        // Use prior setting
+        $this->data['EmailAddress']['verified'] = $curdata['EmailAddress']['verified'];
+      }
+    } else {
+      // Adding a new address should default to not verified
+      
+      $this->data['EmailAddress']['verified'] = false;
+    }
+    
+    return true;
+  }
+  
+  /**
    * Mark an address as verified.
    *
    * @since  COmanage Registry v0.7

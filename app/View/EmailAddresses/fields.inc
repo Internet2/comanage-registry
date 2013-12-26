@@ -46,16 +46,26 @@
     
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+  
+  // Is the current email address verified?
+  $isVerified = (isset($email_addresses[0]['EmailAddress']['verified'])
+                  && $email_addresses[0]['EmailAddress']['verified']);
 ?>
 <table id="<?php echo $this->action; ?>_email_address" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.email_address.mail'); ?>
+        <?php print _txt('fd.email_address.mail'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('mail') : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
+        <?php print ($e ? $this->Form->input('mail') : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
       </td>
+      <?php if($e && $isVerified): ?>
+      <td>
+        <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <i><?php print _txt('fd.email_address.verified.warn'); ?></i>
+      </td>
+      <?php endif; ?>
     </tr>
     <tr class="line2">
       <td>
@@ -90,9 +100,7 @@
           // For an add, verified is by definition no and can't (currently, anyway) be set manually.
           // This will be caught by $email_addresses being null.
           
-          print (isset($email_addresses[0]['EmailAddress']['verified'])
-                 && $email_addresses[0]['EmailAddress']['verified']
-                 ? _txt('fd.yes') : _txt('fd.no'));
+          print ($isVerified ? _txt('fd.yes') : _txt('fd.no'));
         ?>
       </td>
     </tr>

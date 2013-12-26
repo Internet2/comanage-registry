@@ -569,6 +569,7 @@ Please click the link below to accept or decline.
   'fd.email_address.mail' => 'Email',
   'fd.email_address.verified' => 'Verified',
   'fd.email_address.unverified' => 'Unverified',
+  'fd.email_address.verified.warn' => 'Editing a verified email address will make it unverified',
   'fd.enrollee' =>    'Enrollee',
   'fd.false' =>       'False',
   'fd.group.desc.adm' => '%1$s Administrators',
