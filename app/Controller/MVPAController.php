@@ -76,4 +76,82 @@ class MVPAController extends StandardController {
       $this->requires_co = false;
     }
   }
+  
+  /**
+   * Generate history records for a transaction. This method is intended to be
+   * overridden by model-specific controllers, and will be called from within a
+   * try{} block so that HistoryRecord->record() may be called without worrying
+   * about catching exceptions.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  public function generateHistory($action, $newdata, $olddata) {
+    $req = $this->modelClass;
+    $model = $this->$req;
+    
+    switch($action) {
+      case 'add':
+      case 'edit':
+        if(!empty($newdata[$req]['org_identity_id'])) {
+          $model->OrgIdentity->HistoryRecord->record(null,
+                                                     null,
+                                                     $newdata[$req]['org_identity_id'],
+                                                     $this->Session->read('Auth.User.co_person_id'),
+                                                     ActionEnum::OrgIdEditedManual,
+                                                     $this->changesToString($newdata, $olddata, array($req)));
+        } elseif(!empty($newdata[$req]['co_person_role_id'])) {
+          // Map CO Person Role to CO Person
+          $copid = $model->CoPersonRole->field('co_person_id', array('CoPersonRole.id' => $newdata[$req]['co_person_role_id']));
+          
+          $model->CoPersonRole->HistoryRecord->record($copid,
+                                                      $newdata[$req]['co_person_role_id'],
+                                                      null,
+                                                      $this->Session->read('Auth.User.co_person_id'),
+                                                      ActionEnum::CoPersonEditedManual,
+                                                      $this->changesToString($newdata, $olddata, array($req)));
+        } elseif(!empty($newdata[$req]['co_person_id'])) {
+          $model->CoPerson->HistoryRecord->record($newdata[$req]['co_person_id'],
+                                                  null,
+                                                  null,
+                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  ActionEnum::CoPersonEditedManual,
+                                                  $this->changesToString($newdata, $olddata, array($req)));
+        }
+        break;
+      case 'delete':
+        if(!empty($olddata[$req]['org_identity_id'])) {
+          $model->OrgIdentity->HistoryRecord->record(null,
+                                                     null,
+                                                     $olddata[$req]['org_identity_id'],
+                                                     $this->Session->read('Auth.User.co_person_id'),
+                                                     ActionEnum::OrgIdEditedManual,
+                                                     $this->changesToString($newdata, $olddata, array($req)));
+        } elseif(!empty($olddata[$req]['co_person_role_id'])) {
+          // Map CO Person Role to CO Person
+          $copid = $model->CoPersonRole->field('co_person_id', array('CoPersonRole.id' => $olddata[$req]['co_person_role_id']));
+          
+          $model->CoPersonRole->HistoryRecord->record($copid,
+                                                      $olddata[$req]['co_person_role_id'],
+                                                      null,
+                                                      $this->Session->read('Auth.User.co_person_id'),
+                                                      ActionEnum::CoPersonEditedManual,
+                                                      $this->changesToString($newdata, $olddata, array($req)));
+        } elseif(!empty($olddata[$req]['co_person_id'])) {
+          $model->CoPerson->HistoryRecord->record($olddata[$req]['co_person_id'],
+                                                  null,
+                                                  null,
+                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  ActionEnum::CoPersonEditedManual,
+                                                  $this->changesToString($newdata, $olddata, array($req)));
+        }
+        break;
+    }
+    
+    return true;
+  }
 }

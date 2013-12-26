@@ -39,7 +39,7 @@ class HistoryRecordsController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'created' => 'desc'
+      'HistoryRecord.id' => 'desc'
     ),
     'contain' => array(
       'ActorCoPerson.PrimaryName',
@@ -79,6 +79,7 @@ class HistoryRecordsController extends StandardController {
           // Note a join isn't needed here because paginate+contain is already joining the right tables.
           
           $args['OR']['CoPersonRole.cou_id'] = array_keys($this->viewVars['permissions']['cous']);
+          $args['OR'][] = 'CoPersonRole.cou_id IS NULL';
           $args['OR'][] = 'HistoryRecord.co_person_role_id IS NULL';
         } else {
           // This should catch the case where COUs aren't in use
@@ -105,6 +106,7 @@ class HistoryRecordsController extends StandardController {
           // Note a join isn't needed here because paginate+contain is already joining the right tables.
           
           $args['OR']['CoPersonRole.cou_id'] = array_keys($this->viewVars['permissions']['cous']);
+          $args['OR'][] = 'CoPersonRole.cou_id IS NULL';
           $args['OR'][] = 'HistoryRecord.co_person_role_id IS NULL';
         } else {
           // This should catch the case where COUs aren't in use

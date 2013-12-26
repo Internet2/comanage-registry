@@ -344,7 +344,15 @@ class AppController extends Controller {
       } else {
         // Generate the union of keys among old and new
         
-        $attrs = array_unique(array_merge(array_keys($newdata[$model]), array_keys($olddata[$model])));
+        $attrs = array();
+        
+        if(!empty($newdata[$model]) && !empty($olddata[$model])) {
+          $attrs = array_unique(array_merge(array_keys($newdata[$model]), array_keys($olddata[$model])));
+        } elseif(!empty($newdata[$model])) {
+          $attrs = array_keys($newdata[$model]);
+        } elseif(!empty($olddata[$model])) {
+          $attrs = array_keys($olddata[$model]);
+        }
         
         foreach($attrs as $attr) {
           // Skip some "housekeeping" keys
@@ -381,7 +389,19 @@ class AppController extends Controller {
             // Treat name specially
             $ftxt = _txt('fd.name.'.$attr);
           } else {
-            $ftxt = _txt('fd.'.$attr);
+            global $cm_texts, $cm_lang;
+            
+            // Inflect the model name and see if fd.model.attr exists
+            
+            $imodel = Inflector::underscore($model);
+            
+            // XXX this isn't really an ideal way to see if a language key exists
+            if(!empty($cm_texts[ $cm_lang ]['fd.' . $imodel . '.' . $attr])) {
+              $ftxt = _txt('fd.' . $imodel . '.' . $attr);
+            } else {
+              // Otherwise see if the attribute by itself exists
+              $ftxt = _txt('fd.' . $attr);
+            }
           }
           
           if(isset($newval) && !isset($oldval)) {
