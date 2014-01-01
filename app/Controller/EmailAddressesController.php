@@ -134,6 +134,11 @@ class EmailAddressesController extends MVPAController {
     // Currently only supported via REST since there's no use case for viewing all
     $p['index'] = $this->restful && ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Generate an email verification request?
+    // This needs to correlate with CoInvitesController.
+    $p['verifyEmailAddress'] = $this->Role->canRequestVerificationOfEmailAddress($roles['copersonid'],
+                                                                                 $this->request->params['pass'][0]);
+    
     // View an existing Email Address?
     $p['view'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']))
@@ -142,5 +147,4 @@ class EmailAddressesController extends MVPAController {
     $this->set('permissions', $p);
     return $p[$this->action];
   }
-
 }

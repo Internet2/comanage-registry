@@ -35,7 +35,8 @@ class CoInvite extends AppModel {
   public $actsAs = array('Containable');
   
   // Association rules from this model to other models
-  public $belongsTo = array("CoPerson");   // An invitation belongs to a CO Person
+  public $belongsTo = array("CoPerson",
+                            "EmailAddress");
   
   public $hasOne = array("CoPetition");
   
@@ -57,6 +58,11 @@ class CoInvite extends AppModel {
     ),
     'mail' => array(
       'rule' => 'email',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'email_address_id' => array(
+      'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
     ),
@@ -90,10 +96,27 @@ class CoInvite extends AppModel {
     $invite = $this->find('first', $args);
     
     if(!empty($invite)) {
+      $verifyEmail = !empty($invite['CoInvite']['email_address_id']);
+      
       // Check invite validity
       
       if(time() < strtotime($invite['CoInvite']['expires'])) {
-        if(isset($invite['CoPetition']['id'])) {
+        if($verifyEmail) {
+          // Verifying an email address
+          
+          try {
+            // XXX Note we're passing a bunch of stuff just so verify() can create a history record,
+            // which we do below anyway. Refactor as part of CO-753.
+            $this->CoPerson->EmailAddress->verify($invite['EmailAddress']['org_identity_id'],
+                                                  $invite['EmailAddress']['co_person_id'],
+                                                  $invite['CoInvite']['mail'],
+                                                  $invite['EmailAddress']['co_person_id']);
+          }
+          catch(Exception $e) {
+            $dbc->rollback();
+            throw new RuntimeException($e->getMessage());
+          }
+        } elseif(isset($invite['CoPetition']['id'])) {
           // Let CoPetition handle the relevant updates
           
           // We don't bother checking if confirm_email is still true, since it's not really
@@ -192,7 +215,7 @@ class CoInvite extends AppModel {
           
           if($orgId) {
             try {
-              $this->CoPerson->EmailAddress->verify($orgId, $invite['CoInvite']['mail'], $invite['CoPetition']['enrollee_co_person_id']);
+              $this->CoPerson->EmailAddress->verify($orgId, null, $invite['CoInvite']['mail'], $invite['CoPetition']['enrollee_co_person_id']);
             }
             catch(Exception $e) {
               $dbc->rollback();
@@ -205,6 +228,21 @@ class CoInvite extends AppModel {
         $this->delete($invite['CoInvite']['id']);
       } else {
         $this->delete($invite['CoInvite']['id']);
+        
+        // Record a history record that the invitation expired
+        try {
+          $this->CoPerson->HistoryRecord->record($invite['CoInvite']['co_person_id'],
+                                                 null,
+                                                 null,
+                                                 null,
+                                                 ActionEnum::InvitationExpired,
+                                                 _txt('er.inv.exp.use'));
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException($e->getMessage());
+        }
+        
         // Commit here, don't roll back!
         $dbc->commit();
         throw new OutOfBoundsException(_txt('er.inv.exp'));
@@ -212,13 +250,33 @@ class CoInvite extends AppModel {
       
       // Create a history record
       
+      if($verifyEmail) {
+        // XXX Note that EmailAddress->verify() will also record almost the same history message on success.
+        // This should probably be refactored as part of CO-753.
+        $hcopid = $invite['EmailAddress']['co_person_id'];
+        $hcoprid = null;
+        $horgid = $invite['EmailAddress']['org_identity_id'];
+        $hactorid = $hcopid; // XXX Should it be mapped from $loginidentifier instead? (review as part of CO-753)
+        $hop = $confirm ? ActionEnum::EmailAddressVerified : ActionEnum::EmailAddressVerifyCanceled;
+        $htxt = _txt(($confirm ? 'rs.ev.ver-a' : 'rs.ev.cxl-a'),
+                     array($invite['EmailAddress']['mail'], $loginIdentifier));
+      } else {
+        $hcopid = $invite['CoInvite']['co_person_id'];
+        $hcoprid = isset($invite['CoPetition']['enrollee_co_person_role_id']) ? $invite['CoPetition']['enrollee_co_person_role_id'] : null;
+        $horgid = isset($invite['CoPetition']['enrollee_org_identity_id']) ? $invite['CoPetition']['enrollee_org_identity_id'] : null;
+        $hactorid = $invite['CoPetition']['enrollee_co_person_id'];
+        $hop = $confirm ? ActionEnum::InvitationConfirmed : ActionEnum::InvitationDeclined;
+        $htxt = _txt(($confirm ? 'rs.inv.conf-a' : 'rs.inv.dec-a'),
+                     array($invite['CoInvite']['mail']));
+      }
+      
       try {
-        $this->CoPerson->HistoryRecord->record($invite['CoInvite']['co_person_id'],
-                                               isset($invite['CoPetition']['enrollee_co_person_role_id']) ? $invite['CoPetition']['enrollee_co_person_role_id'] : null,
-                                               isset($invite['CoPetition']['enrollee_org_identity_id']) ? $invite['CoPetition']['enrollee_org_identity_id'] : null,
-                                               $invite['CoPetition']['enrollee_co_person_id'],
-                                               ($confirm ? ActionEnum::InvitationConfirmed : ActionEnum::InvitationDeclined),
-                                               _txt(($confirm ? 'rs.inv.conf-a' : 'rs.inv.dec-a'), array($invite['CoInvite']['mail'])));
+        $this->CoPerson->HistoryRecord->record($hcopid,
+                                               $hcoprid,
+                                               $horgid,
+                                               $hactorid,
+                                               $hop,
+                                               $htxt);
       }
       catch(Exception $e) {
         $dbc->rollback();
@@ -265,19 +323,20 @@ class CoInvite extends AppModel {
    * @param  String CO Name (to pass into invite)
    * @param  String Subject text (for configured templates stored in the database)
    * @param  String Template text (for configured templates stored in the database)
+   * @param  Integer Email Address ID to verify
    * @return Integer CO Invitation ID
    * @throws RuntimeException
    */
   
-  public function send($coPersonId, $orgIdentityID, $actorPersonId, $toEmail, $fromEmail=null, $coName, $subject=null, $template=null) {
+  public function send($coPersonId, $orgIdentityID, $actorPersonId, $toEmail, $fromEmail=null, $coName, $subject=null, $template=null, $emailAddressID=null) {
     // Toss any prior invitations for $coPersonId to $toEmail
     
     try {
-      $this->deleteAll(array('co_person_id' => $coPersonId,
-                             'mail' => $toEmail));
+      $this->deleteAll(array('CoInvite.co_person_id' => $coPersonId,
+                             'CoInvite.mail' => $toEmail));
     }
     catch(Exception $e) {
-      throw RuntimeException($e->getMessage());
+      throw new RuntimeException($e->getMessage());
     }
     
     $invite = array();
@@ -287,6 +346,9 @@ class CoInvite extends AppModel {
     // XXX make expiration time configurable
     // XXX date format may not be portable
     $invite['CoInvite']['expires'] = date('Y-m-d H:i:s', strtotime('+1 day'));
+    if($emailAddressID) {
+      $invite['CoInvite']['email_address_id'] = $emailAddressID;
+    }
     
     $this->create($invite);
     
@@ -339,13 +401,21 @@ class CoInvite extends AppModel {
       
       // Create a history record
       
+      if($emailAddressID) {
+        $haction = ActionEnum::EmailAddressVerifyReqSent;
+        $htxt = _txt('rs.ev.sent', array($toEmail));
+      } else {
+        $haction = ActionEnum::InvitationSent;
+        $htxt = _txt('rs.inv.sent', array($toEmail));
+      }
+      
       try {
         $this->CoPerson->HistoryRecord->record($coPersonId,
                                                null,
                                                $orgIdentityID,
                                                $actorPersonId,
-                                               ActionEnum::InvitationSent,
-                                               _txt('rs.inv.sent', array($toEmail)));
+                                               $haction,
+                                               $htxt);
       }
       catch(Exception $e) {
         throw new RuntimeException($e->getMessage());

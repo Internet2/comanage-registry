@@ -40,11 +40,13 @@ class EmailAddress extends AppModel {
     "OrgIdentity"
   );
   
+  public $hasOne = array("CoInvite");
+  
   // Default display field for cake generated views
-  public $displayField = "mail";
+  public $displayField = "EmailAddress.mail";
   
   // Default ordering for find operations
-  public $order = array("mail");
+//  public $order = array("mail");
   
   // Validation rules for table elements
   // Validation rules must be named 'content' for petition dynamic rule adjustment
@@ -158,18 +160,24 @@ class EmailAddress extends AppModel {
    * Mark an address as verified.
    *
    * @since  COmanage Registry v0.7
-   * @param  Integer Org Identity ID
+   * @param  Integer Org Identity ID address is associated with
+   * @param  Integer CO Person ID address is associated with
    * @param  String Email address to mark verified
    * @param  Integer CO Person ID of verifier
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function verify($orgIdentityId, $address, $verifierCoPersonId) {
+  public function verify($orgIdentityId, $coPersonId, $address, $verifierCoPersonId) {
     // First find the record
     
     $args = array();
-    $args['conditions']['EmailAddress.org_identity_id'] = $orgIdentityId;
+    if($orgIdentityId) {
+      $args['conditions']['EmailAddress.org_identity_id'] = $orgIdentityId;
+    }
+    if($coPersonId) {
+      $args['conditions']['EmailAddress.co_person_id'] = $coPersonId;
+    }
     $args['conditions']['EmailAddress.mail'] = $address;
     $args['contain'] = false;
     
@@ -180,17 +188,17 @@ class EmailAddress extends AppModel {
     }
     
     // And then update it
-    
     $this->id = $mail['EmailAddress']['id'];
     
-    if(!$this->saveField('verified', true)) {
+    // Make sure to disable callbacks since beforeSave will try to update this field, too
+    if(!$this->saveField('verified', true, array('callbacks' => false))) {
       throw new RuntimeException(_txt('er.db.save'));
     }
     
     // Finally, create a history record
     
     try {
-      $this->CoPerson->HistoryRecord->record(null,
+      $this->CoPerson->HistoryRecord->record($coPersonId,
                                              null,
                                              $orgIdentityId,
                                              $verifierCoPersonId,

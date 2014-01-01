@@ -100,7 +100,28 @@
           // For an add, verified is by definition no and can't (currently, anyway) be set manually.
           // This will be caught by $email_addresses being null.
           
-          print ($isVerified ? _txt('fd.yes') : _txt('fd.no'));
+          $url = array(
+            'controller' => 'co_invites',
+            'action' => 'verifyEmailAddress',
+            'email_address_id' => $email_addresses[0]['EmailAddress']['id']
+          );
+          
+          if(!empty($cur_co['Co']['id'])) {
+            $url['co'] = $cur_co['Co']['id'];
+          }
+          
+          print ($isVerified ? _txt('fd.yes') : _txt('fd.no')) . "\n";
+          
+          if(!$isVerified && $permissions['verifyEmailAddress']) {
+            print '<button class="checkbutton" title="Verify" type="button"
+                    onclick="javascript:js_confirm_verification(\'' 
+                    . _jtxt(Sanitize::html($email_addresses[0]['EmailAddress']['mail'])) 
+                    . '\', \'' 
+                    . $this->Html->url($url)
+                    . '\');">'
+                    . "Verify"
+                    . '</button>' . "\n";
+          }
         ?>
       </td>
     </tr>
@@ -111,7 +132,7 @@
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }

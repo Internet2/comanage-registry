@@ -24,29 +24,52 @@
 -->
 <?php if(!empty($invite)): ?>
 <?php
-  $params = array('title' => _txt('fd.inv.to', array($cur_co['Co']['name'])));
+  $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
+  
+  $verifyEmail = !empty($invite['CoInvite']['email_address_id']);
 ?>
 
-<h2 class="ui-state-default"><?php print _txt('fd.inv.for', array(generateCn($invitee['PrimaryName']))); ?></h2>
+<h2 class="ui-state-default"><?php print _txt(($verifyEmail ? 'fd.ev.for' : 'fd.inv.for'),
+                                              array(generateCn($invitee['PrimaryName']))); ?></h2>
 
 <?php
-  print $this->Html->link(
-    _txt('op.accept'),
-    array('controller' => 'co_invites',
-          'action' => (isset($co_enrollment_flow['CoEnrollmentFlow']['require_authn'])
-                       && $co_enrollment_flow['CoEnrollmentFlow']['require_authn']) ? 'authconfirm' : 'confirm',
-          $invite['CoInvite']['invitation']),
-    array('class' => 'checkbutton')
-  );
-
-  print $this->Html->link(
-    _txt('op.decline'),
-    array('controller' => 'co_invites',
-          'action' => 'decline',
-          $invite['CoInvite']['invitation']),
-    array('class' => 'cancelbutton')
-  );
+  if($verifyEmail) {
+    print "<p>" . _txt('fd.ev.verify.desc', array($invite['EmailAddress']['mail'])) . "</p>";
+    
+    print $this->Html->link(
+      _txt('op.confirm'),
+      array('controller' => 'co_invites',
+            'action' => 'authverify',
+            $invite['CoInvite']['invitation']),
+      array('class' => 'checkbutton')
+    );
+    
+    print $this->Html->link(
+      _txt('op.cancel'),
+      array('controller' => 'co_invites',
+            'action' => 'decline',
+            $invite['CoInvite']['invitation']),
+      array('class' => 'cancelbutton')
+    );
+  } else {
+    print $this->Html->link(
+      _txt('op.accept'),
+      array('controller' => 'co_invites',
+            'action' => (isset($co_enrollment_flow['CoEnrollmentFlow']['require_authn'])
+                         && $co_enrollment_flow['CoEnrollmentFlow']['require_authn']) ? 'authconfirm' : 'confirm',
+            $invite['CoInvite']['invitation']),
+      array('class' => 'checkbutton')
+    );
+    
+    print $this->Html->link(
+      _txt('op.decline'),
+      array('controller' => 'co_invites',
+            'action' => 'decline',
+            $invite['CoInvite']['invitation']),
+      array('class' => 'cancelbutton')
+    );
+  }
   
   $e = false;
 

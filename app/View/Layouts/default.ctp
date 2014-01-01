@@ -131,6 +131,30 @@
       $('#dialog').dialog('open');
     }
     
+    function js_confirm_verification(email, url)
+    {
+      // Generate a dialog box confirming a request to verify <email>. On confirmation, forward to <url>, which executes the sending.
+      // XXX This should be merged with js_confirm_reinvite, above, perhaps as part of CO-753.
+
+      // Set the title of the dialog    
+      $("#dialog").dialog("option", "title", "<?php print _txt('op.verify'); ?>");
+
+      // Set the body of the dialog
+      // XXX need to I18N this, but arg passing currently only works within php not javascript
+      $("#dialog-text").text("Are you sure you wish to send a verification request to " + email + "? Any previous request will be invalidated.");
+    
+      // Set the dialog buttons
+      $("#dialog").dialog("option",
+                          "buttons",
+                          {
+                            "<?php print _txt('op.cancel'); ?>": function() { $(this).dialog("close"); },
+                            "<?php print _txt('op.verify'); ?>": function() { window.location=url; }
+                          });
+     
+      // Open the dialog
+      $('#dialog').dialog('open');
+    }
+    
     function js_onload_call_hooks()
     {
       // On page load, call any defined initialization functions.

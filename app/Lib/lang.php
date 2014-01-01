@@ -123,11 +123,18 @@ $cm_texts['en_US'] = array(
   'em.approval.body.ef'      => 'Your petition to join (@CO_NAME) as been approved. You may now log in to the platform.',
   'em.invite.subject'        => 'Invitation to join %1$s',
   'em.invite.subject.ef'     => 'Invitation to join (@CO_NAME)',
+  'em.invite.subject.ver'    => 'Please confirm your email address (@CO_NAME)',
   'em.invite.body'           => 'You have been invited to join %1$s.  Please click the link below to accept or decline.',
   'em.invite.body.ef'        => 'You have been invited to join (@CO_NAME).
 Please click the link below to accept or decline.
 
 (@INVITE_URL)',
+  'em.invite.body.ver'       => 'You or an administrator for @CO_NAME has added or updated an email address.
+Please click the link below to confirm that this is a valid request.
+
+(@INVITE_URL)
+
+For questions regarding this process, please contact your administrator.',
   'em.invite.ok'             => 'Invitation has been emailed to %1$s',
   'em.invite.footer'         => 'This email was sent using %1$s.',
 
@@ -152,9 +159,12 @@ Please click the link below to accept or decline.
     ActionEnum::CoPersonOrgIdLinked         => 'CO Person and Org Identity Linked',
     ActionEnum::CoPersonOrgIdUnlinked       => 'CO Person and Org Identity Unlinked',
     ActionEnum::EmailAddressVerified        => 'Email Address Verified',
+    ActionEnum::EmailAddressVerifyCanceled  => 'Email Address Verification Canceled',
+    ActionEnum::EmailAddressVerifyReqSent   => 'Email Address Verification Sent',
     ActionEnum::IdentifierAutoAssigned      => 'Identifier Auto Assigned',
     ActionEnum::InvitationConfirmed         => 'Invitation Confirmed',
     ActionEnum::InvitationDeclined          => 'Invitation Declined',
+    ActionEnum::InvitationExpired           => 'Invitation Expired',
     ActionEnum::InvitationSent              => 'Invitation Sent',
     ActionEnum::OrgIdAddedManual            => 'Org Identity Created (Manual)',
     ActionEnum::OrgIdAddedPetition          => 'Org Identity Created (Petition)',
@@ -415,6 +425,7 @@ Please click the link below to accept or decline.
   'er.ia.none' =>     'No identifier assignments configured',
   'er.id.unk' =>      'Unknown Identifier',
   'er.inv.exp' =>     'Invitation Expired',
+  'er.inv.exp.use' => 'Processing of invitation failed due to invitation expiration',
   'er.inv.nf' =>      'Invitation Not Found',
   'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
@@ -564,13 +575,16 @@ Please click the link below to accept or decline.
   'fd.ef.vsub' =>     'Subject For Verification Email',
   'fd.ef.vsub.desc' => 'Subject line for email message sent as part of verification step.',
   // (End enrollment configuration fields)
-  'fd.et.forattr' =>  'For Attribute',
   // This must be named fd.model.validation-field
   'fd.email_address.mail' => 'Email',
   'fd.email_address.verified' => 'Verified',
   'fd.email_address.unverified' => 'Unverified',
   'fd.email_address.verified.warn' => 'Editing a verified email address will make it unverified',
   'fd.enrollee' =>    'Enrollee',
+  'fd.et.forattr' =>  'For Attribute',
+  'fd.ev.for' =>      'Verification for %1$s',
+  'fd.ev.verify' =>   'Verify email address %1$s',
+  'fd.ev.verify.desc' => 'Please confirm %1$s is your email address by clicking the <b>Confirm</b> button, below.',
   'fd.false' =>       'False',
   'fd.group.desc.adm' => '%1$s Administrators',
   'fd.group.grmem' => 'Group Member',
@@ -760,6 +774,7 @@ Please click the link below to accept or decline.
   'op.tc.review.pt' => 'Review All Agreed To Terms and Conditions',
   'op.unlink' =>      'Unlink',
   'op.unlink.confirm' => 'Are you sure you wish to unlink this identity?',
+  'op.verify' =>      'Verify',
   'op.view' =>        'View',
   'op.view-a' =>      'View %1$s',
   'op.view-f' =>      'View %1$s for %2$s',
@@ -769,6 +784,11 @@ Please click the link below to accept or decline.
   'rs.added-a' =>     '"%1$s" Added',
   'rs.added-a2' =>    '%1$s "%2$s" Added',
   'rs.deleted-a2' =>  '%1$s "%2$s" Deleted',
+  'rs.ev.cxl' =>      'Verification of Email Address canceled',
+  'rs.ev.cxl-a' =>    'Verification of Email Address %1$s canceled',
+  'rs.ev.sent' =>     'Email verification request sent to %1$s',
+  'rs.ev.ver' =>      'Email Address verified',
+  'rs.ev.ver-a' =>    'Email Address %1$s verified by %2$s',
   'rs.grm.added' =>   'Added to CO Group %1$s (%2$s) (member=%3$s, owner=%4$s)',
   'rs.grm.deleted' => 'Removed from CO Group %1$s (%2$s)',
   'rs.grm.edited' =>  'Edited CO Group Roles %1$s (%2$s) (from member=%3$s, owner=%4$s to member=%5$s, owner=%6$s)',

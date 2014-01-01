@@ -45,9 +45,12 @@ class ActionEnum
   const CoTAndCAgreement            = 'TCAG';
   const CoTAndCAgreementBehalf      = 'TCAB';
   const EmailAddressVerified        = 'EMLV';
+  const EmailAddressVerifyCanceled  = 'EMLC';
+  const EmailAddressVerifyReqSent   = 'EMLS';
   const IdentifierAutoAssigned      = 'AIDA';
   const InvitationConfirmed         = 'INVC';
   const InvitationDeclined          = 'INVD';
+  const InvitationExpired           = 'INVE';
   const InvitationSent              = 'INVS';
   const NameAdded                   = 'ANAM';
   const NameDeleted                 = 'DNAM';

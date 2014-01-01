@@ -306,6 +306,9 @@
       <notnull />
     </field>
     <field name="mail" type="C" size="256" />
+    <field name="email_address_id" type="I">
+      <constraint>REFERENCES cm_email_addresses(id)</constraint>
+    </field>
     <field name="expires" type="T" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

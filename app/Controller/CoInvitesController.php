@@ -35,6 +35,8 @@ class CoInvitesController extends AppController {
     )
   );
   
+  public $uses = array('CoInvite', 'CoOrgIdentityLink', 'EmailAddress');
+  
   // This controller needs a CO to be set, but only for send
   public $requires_co = false;
   
@@ -62,6 +64,23 @@ class CoInvitesController extends AppController {
   
   public function authconfirm($inviteid) {
     // This behaves just like confirm(), except that authentication is required to get here.
+    
+    $this->process_invite($inviteid, true, $this->Session->read('Auth.User.username'));
+  }
+  
+  /**
+   * Verify the email address, requiring authentication
+   * - precondition: $invite must exist, be valid, and attached to a valid CO person
+   * - postcondition: Email Address set to valid
+   * - postcondition: $inviteid deleted
+   * - postcondition: Session flash message updated (HTML)
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Integer Invitation ID
+   */
+  
+  public function authverify($inviteid) {
+    // We basically do the same thing as authconfirm().
     
     $this->process_invite($inviteid, true, $this->Session->read('Auth.User.username'));
   }
@@ -198,8 +217,11 @@ class CoInvitesController extends AppController {
     // Send an invite? (REST only)
     $p['add'] = $roles['apiuser'];
     
-    // Confirm an invite? (HTML, auth reequired)
+    // Confirm an invite? (HTML, auth required)
     $p['authconfirm'] = true;
+    
+    // Verify an email address?
+    $p['authverify'] = true;
 
     // Confirm an invite? (HTML only)
     $p['confirm'] = true;
@@ -217,6 +239,13 @@ class CoInvitesController extends AppController {
     
     $p['send'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
+    // Request verification of an email address?
+    // This needs to correlate with EmailAddressesController
+    $p['verifyEmailAddress'] = (!empty($this->request->params['named']['email_address_id'])
+                                ? $this->Role->canRequestVerificationOfEmailAddress($roles['copersonid'],
+                                                                                    $this->request->params['named']['email_address_id'])
+                                : false);
     
     $this->set('permissions', $p);
     return $p[$this->action];
@@ -256,6 +285,8 @@ class CoInvitesController extends AppController {
         }
       } else {
         $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->redirect("/");
+        return;
       }
     }
     catch(OutOfBoundsException $e) {
@@ -263,6 +294,8 @@ class CoInvitesController extends AppController {
         $this->restResultHeader(403, "Expired");
       } else {
         $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->redirect("/");
+        return;
       }
     }
     catch(Exception $e) {
@@ -275,6 +308,8 @@ class CoInvitesController extends AppController {
           $this->restResultHeader(500, "Other Error");
         } else {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          $this->redirect("/");
+          return;
         }
       }
     }
@@ -287,7 +322,7 @@ class CoInvitesController extends AppController {
       
       $targetUrl = null;
       
-      if(isset($invite['CoPetition']['id'])) {
+      if(!empty($invite['CoPetition']['id'])) {
         $targetUrl = $this->CoInvite->CoPetition->CoEnrollmentFlow->field('redirect_on_confirm',
                                                                           array('CoEnrollmentFlow.id' => $invite['CoPetition']['co_enrollment_flow_id']));
       }
@@ -299,14 +334,21 @@ class CoInvitesController extends AppController {
         // Make sure the petition ID is available in the session.
         $this->Session->write('CoPetition.id', $invite['CoPetition']['id']);
         $this->redirect($targetUrl);
-      } elseif($loginIdentifier) {
-        // If a login identifier was provided, force a logout
-        
-        $this->Session->setFlash(_txt('rs.pt.relogin'), '', array(), 'success');
-        $this->redirect("/auth/logout");
       } else {
-        $this->Session->setFlash($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), '', array(), 'success');
-        $this->redirect("/");
+        if(!empty($invite['CoPetition']['id']) && $loginIdentifier) {
+          $this->Session->setFlash(_txt('rs.pt.relogin'), '', array(), 'success');
+        } elseif(!empty($invite['CoInvite']['email_address_id'])) {
+          $this->Session->setFlash($confirm ? _txt('rs.ev.ver') : _txt('rs.ev.cxl'), '', array(), 'success');
+        } else {
+          $this->Session->setFlash($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), '', array(), 'success');
+        }
+        
+        // If a login identifier was provided, force a logout
+        if($loginIdentifier) {
+          $this->redirect("/auth/logout");
+        } else {
+          $this->redirect("/");
+        }
       }
     }
   }
@@ -325,18 +367,12 @@ class CoInvitesController extends AppController {
    */
   
   function reply($inviteid) {
-    if(!$this->restful)
-    {
-      // Set page title
-      $this->set('title_for_layout', _txt('op.inv.reply'));
-    }
-
     $invite = $this->CoInvite->findByInvitation($inviteid);
     
-    if(!$invite)
+    if(!$invite) {
       $this->Session->setFlash(_txt('er.inv.nf'), '', array(), 'error');
-    else
-    {
+      // XXX what if this->restful?
+    } else {
       // Database foreign key constraints should prevent inconsistencies here, so extra
       // error checking shouldn't be needed
       
@@ -346,6 +382,15 @@ class CoInvitesController extends AppController {
       $this->set('cur_co', $co);
       $this->set('invite', $invite);
       $this->set('invitee', $invitee);
+      
+      if(!$this->restful) {
+        // Set page title
+        if(!empty($invite['CoInvite']['email_address_id'])) {
+          $this->set('title_for_layout', _txt('fd.ev.verify', array($invite['EmailAddress']['mail'])));
+        } else {
+          $this->set('title_for_layout', _txt('fd.inv.to', array($co['Co']['name'])));
+        }
+      }
       
       // We also want to pull the enrollment flow and petition attributes, if appropriate
       
@@ -399,7 +444,6 @@ class CoInvitesController extends AppController {
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
    * @since  COmanage Registry v0.1
-   * @param Integer ID invitation
    */
   
   function send() {
@@ -559,6 +603,103 @@ class CoInvitesController extends AppController {
                         'action'     => 'index',
                         'co'         => $this->cur_co['Co']['id']);
       $this->redirect($nextPage);
+    }
+  }
+  
+  /**
+   * Send an email address verification request.
+   * - precondition: $this->request->params holds Email Address ID to verify
+   * - postcondition: Email invitation sent to address
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   *
+   * @since COmanage Registry v0.9
+   * @todo Add rest support
+   */
+  
+  public function verifyEmailAddress() {
+    if(!empty($this->request->params['named']['email_address_id'])) {
+      $args = array();
+      $args['conditions']['EmailAddress.id'] = $this->request->params['named']['email_address_id'];
+      $args['contain'] = false;
+      
+      $ea = $this->EmailAddress->find('first', $args);
+      
+      if(!empty($ea)) {
+        // We currently need a CO Person ID, even if verifying an org identity email address.
+        // CoInvite stores the CO Person ID and uses the Org Identity ID in generating history.
+        // For now, we'll just map using co_org_identity_links and hope we pull the right
+        // record. This should get fixed as part of CO-753.
+        
+        $largs = array();
+        $largs['contain'] = false;
+        
+        if(!empty($ea['EmailAddress']['co_person_id'])) {
+          $largs['conditions']['CoOrgIdentityLink.co_person_id'] = $ea['EmailAddress']['co_person_id'];
+        } elseif(!empty($ea['EmailAddress']['org_identity_id'])) {
+          $largs['conditions']['CoOrgIdentityLink.org_identity_id'] = $ea['EmailAddress']['org_identity_id'];
+        }
+        
+        $lnk = $this->CoOrgIdentityLink->find('first', $largs);
+        
+        if(!empty($lnk)) {
+          if($this->restful) {
+             // XXX implement this (CO-754)
+            throw new RuntimeException("Not implemented");
+          } else {
+            try {
+              $this->CoInvite->send($lnk['CoOrgIdentityLink']['co_person_id'],
+                                    $lnk['CoOrgIdentityLink']['org_identity_id'],
+                                    $this->Session->read('Auth.User.co_person_id'),
+                                    $ea['EmailAddress']['mail'],
+                                    null, // use default from address
+                                    (!empty($this->cur_co['Co']['name']) ? $this->cur_co['Co']['name'] : _txt('er.unknown')),
+                                    _txt('em.invite.subject.ver'),
+                                    _txt('em.invite.body.ver'),
+                                    $ea['EmailAddress']['id']);
+              
+              $this->set('vv_co_invite', $this->CoInvite->findById($this->CoInvite->id));
+              $this->set('vv_recipient', $ea);
+              
+              $this->Session->setFlash(_txt('rs.ev.sent', array($ea['EmailAddress']['mail'])), '', array(), 'success');
+            }
+            catch(Exception $e) {
+              $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+            }
+            
+            $debug = Configure::read('debug');
+            
+            if(!$debug) {
+              if(!empty($ea['EmailAddress']['co_person_id'])) {
+                // Redirect to the CO Person view
+                $nextPage = array('controller' => 'co_people',
+                                  'action'     => 'edit',
+                                  $lnk['CoOrgIdentityLink']['co_person_id']);
+              } elseif(!empty($ea['EmailAddress']['org_identity_id'])) {
+                // Redirect to the CO Person view
+                $nextPage = array('controller' => 'org_identity_id',
+                                  'action'     => 'edit',
+                                  $lnk['CoOrgIdentityLink']['org_identity_id']);
+              }
+              
+              if(!empty($this->cur_co['Co']['id'])) {
+                $nextPage['co'] = $this->cur_co['Co']['id'];
+              }
+              $nextPage['tab'] = 'email';
+              
+              $this->redirect($nextPage);
+            }
+          }
+        } else {
+          $this->Session->setFlash(_txt('er.person.noex'), '', array(), 'error');
+        }
+      } else {
+        $this->Session->setFlash(_txt('er.notfound',
+                                      array(_txt('ct.email_addresses.1'),
+                                            Sanitize::html($this->request->params['named']['email_address_id']))),
+                                 '', array(), 'error');
+      }
+    } else {
+      $this->Session->setFlash(_txt('er.notprov.id', array(_txt('ct.email_addresses.1'))), '', array(), 'error');
     }
   }
 }
