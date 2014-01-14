@@ -667,23 +667,23 @@ class StandardController extends AppController {
       $this->set('title_for_layout', _txt('ct.' . $modelpl . '.pl'));
       
       // Use server side pagination
-      
       if($this->requires_person)
       {
+        $this->Paginator->settings = $this->paginate;
         if(!empty($this->params['named']['copersonid']))
         {
           $q = $req . ".co_person_id = ";
-          $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['copersonid'])));
+          $this->set($modelpl, $this->Paginator->paginate($req, array($q => $this->params['named']['copersonid'])));
         }
         elseif(!empty($this->params['named']['copersonroleid']))
         {
           $q = $req . ".co_person_role_id = ";
-          $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['copersonroleid'])));
+          $this->set($modelpl, $this->Paginator->paginate($req, array($q => $this->params['named']['copersonroleid'])));
         }
         elseif(!empty($this->params['named']['orgidentityid']))
         {
           $q = $req . ".org_identity_id = ";
-          $this->set($modelpl, $this->paginate($req, array($q => $this->params['named']['orgidentityid'])));
+          $this->set($modelpl, $this->Paginator->paginate($req, array($q => $this->params['named']['orgidentityid'])));
         }
         else
         {
@@ -697,8 +697,9 @@ class StandardController extends AppController {
       {
         // Configure pagination
         $this->paginate['conditions'] = $this->paginationConditions();
+        $this->Paginator->settings = $this->paginate;
         
-        $this->set($modelpl, $this->paginate($req));
+        $this->set($modelpl, $this->Paginator->paginate($req));
       }
     }
   }

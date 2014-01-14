@@ -41,7 +41,8 @@ class AppController extends Controller {
                              'RequestHandler', // For REST
                              'Role',
                              'Security',
-                             'Session');
+                             'Session',
+                             'Paginator');
   
   // Determine if controller requires a CO to be selected
   public $requires_co = false;

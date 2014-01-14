@@ -437,7 +437,8 @@ class CoGroupsController extends StandardController {
       'CoGroup.co_id' => $this->cur_co['Co']['id']
     );
 
-    $this->set('co_groups', $this->paginate('CoGroup'));
+    $this->Paginator->settings = $this->paginate;
+    $this->set('co_groups', $this->Paginator->paginate('CoGroup'));
   }      
   
   /**

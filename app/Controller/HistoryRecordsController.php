@@ -86,7 +86,8 @@ class HistoryRecordsController extends StandardController {
           $args[] = 'HistoryRecord.co_person_role_id IS NULL';
         }
         
-        $this->set('history_records', $this->paginate('HistoryRecord', $args));
+        $this->Paginator->settings = $this->paginate;
+        $this->set('history_records', $this->Paginator->paginate('HistoryRecord', $args));
       } elseif(!empty($this->params['named']['orgidentityid'])) {
         // Org ID is a bit tricky when org identities are pooled, because we shouldn't pull
         // history for that Org ID related to COs other than the current one.
@@ -113,7 +114,8 @@ class HistoryRecordsController extends StandardController {
           $args[] = 'HistoryRecord.co_person_role_id IS NULL';
         }
         
-        $this->set('history_records', $this->paginate('HistoryRecord', $args));
+        $this->Paginator->settings = $this->paginate;
+        $this->set('history_records', $this->Paginator->paginate('HistoryRecord', $args));
       } else {
         // Throw an error. This controller doesn't permit retrieve all history via the UI.
         
