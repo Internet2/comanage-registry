@@ -116,11 +116,13 @@
       <?php // Print the login/logout buttons
         if($this->Session->check('Auth.User') != NULL) {
           $args = array('controller' => 'auth',
-                        'action'     => 'logout');
+                        'action'     => 'logout',
+                        'plugin'     => false);
           print $this->Html->link(_txt('op.logout'), $args);
         } else {
           $args = array('controller' => 'auth',
                         'action'     => 'login',
+                        'plugin'     => false
                        );
           print $this->Html->link(_txt('op.login'), $args);
         }
