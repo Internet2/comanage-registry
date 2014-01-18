@@ -36,21 +36,44 @@ class PagesController extends AppController {
  *
  * @var string
  */
-	public $name = 'Pages';
+  public $name = 'Pages';
 
 /**
  * Default helper
  *
  * @var array
  */
-	public $helpers = array('Html', 'Session');
+  public $helpers = array('Html', 'Session');
 
 /**
  * This controller does not use a model
  *
  * @var array
  */
-	public $uses = array();
+  public $uses = array();
+
+  /**
+   * Callback before other controller methods are invoked or views are rendered.
+   *
+   * @since  COmanage Registry v0.9
+   */
+  
+  function beforeFilter() {
+    if($this->name == 'Pages') {
+      if ( $this->request->params['pass'][0] == 'home'
+            && (!$this->Session->check('Auth.User'))) {
+        // Allow the front page to render without authentication. If there is an
+        // authenticated user, we want Auth to run to set up authorizations.
+        $this->Auth->allow();
+      } elseif ($this->request->params['pass'][0] == 'public') {
+        // Allow public pages to render without authentication.
+        $this->Auth->allow();
+      }
+    }
+
+    parent::beforeFilter();
+  }
+
 
 /**
  * Displays a view
@@ -58,46 +81,46 @@ class PagesController extends AppController {
  * @param mixed What page to display
  * @return void
  */
-	public function display() {
-		$path = func_get_args();
+  public function display() {
+    $path = func_get_args();
 
-		$count = count($path);
-		if (!$count) {
-			$this->redirect('/');
-		}
-		$page = $subpage = $title_for_layout = null;
+    $count = count($path);
+    if (!$count) {
+      $this->redirect('/');
+    }
+    $page = $subpage = $title_for_layout = null;
 
-		if (!empty($path[0])) {
-			$page = $path[0];
-		}
-		if (!empty($path[1])) {
-			$subpage = $path[1];
-		}
-		if (!empty($path[$count - 1])) {
-			$title_for_layout = Inflector::humanize($path[$count - 1]);
-		}
-		$this->set(compact('page', 'subpage', 'title_for_layout'));
-		$this->render(implode('/', $path));
-	}
-	
-	/**
-	 * Authorization for this Controller, called by Auth component
-	 * - precondition: Session.Auth holds data used for authz decisions
-	 * - postcondition: $permissions set with calculated permissions
-	 *
-	 * @since  COmanage Registry v0.1
-	 * @return boolean True if user is authorized for the current operation, false otherwise
-	 */
+    if (!empty($path[0])) {
+      $page = $path[0];
+    }
+    if (!empty($path[1])) {
+      $subpage = $path[1];
+    }
+    if (!empty($path[$count - 1])) {
+      $title_for_layout = Inflector::humanize($path[$count - 1]);
+    }
+    $this->set(compact('page', 'subpage', 'title_for_layout'));
+    $this->render(implode('/', $path));
+  }
+  
+  /**
+   * Authorization for this Controller, called by Auth component
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: $permissions set with calculated permissions
+   *
+   * @since  COmanage Registry v0.1
+   * @return boolean True if user is authorized for the current operation, false otherwise
+   */
 
-	public function isAuthorized() {
-		// Construct the permission set for this user, which will also be passed to the view.
-		$p = array();
-			    
-		// Permission to render this page
-		// We currently only route the welcome page through here, so always allow display.
-		$p['display'] = true; 
-		
-		$this->set('permissions', $p);
-		return $p[$this->action];
-	}
+  public function isAuthorized() {
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+          
+    // Permission to render this page
+    // We currently only route the welcome page through here, so always allow display.
+    $p['display'] = true; 
+    
+    $this->set('permissions', $p);
+    return $p[$this->action];
+  }
 }

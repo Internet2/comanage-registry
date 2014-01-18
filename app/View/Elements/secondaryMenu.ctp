@@ -111,6 +111,7 @@
     </div>
   <?php endif; // $this->Session->check('Auth.User') != NULL ?>
 
+  <?php if (!isset($noLoginLogout)) : ?>
   <div id="logout">
     <span>
       <?php // Print the login/logout buttons
@@ -129,6 +130,7 @@
       ?>
     </span>
   </div>
+  <?php endif; ?>
 
 </div>
 
