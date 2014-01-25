@@ -791,7 +791,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // these conditions into a JOIN.
     $args = array();
     $args['conditions']['CoLdapProvisionerTarget.co_provisioning_target_id'] = $coProvisioningTargetId;
-    $args['conditions']['CoLdapProvisionerDn.co_person_id'] = $coPersonId;
+    if($coPersonId) {
+      $args['conditions']['CoLdapProvisionerDn.co_person_id'] = $coPersonId;
+    } elseif($coGroupId) {
+      $args['conditions']['CoLdapProvisionerDn.co_group_id'] = $coGroupId;
+    }
     
     $dnRecord = $this->CoLdapProvisionerDn->find('first', $args);
     
