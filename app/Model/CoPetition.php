@@ -1359,8 +1359,7 @@ class CoPetition extends AppModel {
               
               $email->emailFormat('text')
                     ->to($toEmail)
-                    ->subject($msgSubject)
-                    ->message($msgBody);
+                    ->subject($msgSubject);
               
               // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
               if(!empty($notifyFrom)) {
@@ -1368,7 +1367,7 @@ class CoPetition extends AppModel {
               }
               
               // Send the email
-              $email->send();
+              $email->send($msgBody);
               
               // And cut a history record
               
