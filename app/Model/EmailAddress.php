@@ -123,7 +123,7 @@ class EmailAddress extends AppModel {
   /**
    * Actions to take before a save operation is executed.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    */
   
   public function beforeSave($options = array()) {

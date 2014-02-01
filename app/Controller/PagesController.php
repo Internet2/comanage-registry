@@ -55,7 +55,7 @@ class PagesController extends AppController {
   /**
    * Callback before other controller methods are invoked or views are rendered.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    */
   
   function beforeFilter() {

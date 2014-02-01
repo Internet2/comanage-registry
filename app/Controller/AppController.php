@@ -284,7 +284,7 @@ class AppController extends Controller {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -1088,7 +1088,7 @@ class AppController extends Controller {
    * - precondition: Session.Auth holds current CO Person ID
    * - postcondition: $vv_my_notifications will be set
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    */
   
   protected function getNotifications() {

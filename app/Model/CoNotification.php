@@ -17,7 +17,7 @@
  * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.9
+ * @since         COmanage Registry v0.8.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
@@ -135,7 +135,7 @@ class CoNotification extends AppModel {
   /**
    * Acknowledge an outstanding notification
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer  $id         CO Notification ID
    * @param  Integer  $coPersonId CO Person ID of person ackowledging the notification
    * @return Boolean  True if notification is acknowledged
@@ -151,7 +151,7 @@ class CoNotification extends AppModel {
   /**
    * Cancel an outstanding notification
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer  $id         CO Notification ID
    * @param  Integer  $coPersonId CO Person ID of person canceling the notification
    * @return Boolean  True if notification is canceled
@@ -167,7 +167,7 @@ class CoNotification extends AppModel {
   /**
    * Obtain pending notifications for a CO Person
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer  $coPersonId CO Person ID to obtain notifications for
    * @return Array    Set of pending notifications
    */
@@ -203,7 +203,7 @@ class CoNotification extends AppModel {
   /**
    * Process the resolution of an outstanding notification
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer  $id         CO Notification ID
    * @param  Integer  $coPersonId CO Person ID of person ackowledging the notification
    * @param  String   $resolution NotificationStatusEnum
@@ -301,7 +301,7 @@ class CoNotification extends AppModel {
   /**
    * Register a new notification
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer $subjectCoPersonId CO Person ID of subject of notification
    * @param  Integer $actorCoPersonId   CO Person ID of actor who generated notification (or null)
    * @param  String  $recipientType     "coperson" or "cogroup"
@@ -422,7 +422,7 @@ class CoNotification extends AppModel {
   /**
    * Resolve an outstanding notification
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer  $id         CO Notification ID
    * @param  Integer  $coPersonId CO Person ID of person resolving the notification
    * @return Boolean  True if notification is resolved

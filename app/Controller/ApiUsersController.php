@@ -17,7 +17,7 @@
  * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.9
+ * @since         COmanage Registry v0.8.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
@@ -42,7 +42,7 @@ class ApiUsersController extends StandardController {
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Array Request data
    * @param  Array Current data
    * @return boolean true if dependency checks succeed, false otherwise.
@@ -91,7 +91,7 @@ class ApiUsersController extends StandardController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @return Array Permissions
    */
   

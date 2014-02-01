@@ -404,7 +404,7 @@ class RoleComponent extends Component {
   /**
    * Determine if a CO Person can request email verification for another CO Person.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer CO Person ID of requestor
    * @param  Integer Email Address ID to request email verification of
    * @return Boolean True if email verification may be requested, false otherwise
@@ -1180,7 +1180,7 @@ class RoleComponent extends Component {
   /**
    * Determine if a CO Person is a participant (subject, recipient, or actor) for a CO Notification.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer  $coNotificationId CO Notification ID
    * @param  Integer  $coPersonId       CO Person ID
    * @return Boolean  True if the CO Person ID is a participant in the notification, false otherwise
@@ -1195,7 +1195,7 @@ class RoleComponent extends Component {
   /**
    * Determine if a CO Person is a recipient of a CO Notification.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer  $coNotificationId CO Notification ID
    * @param  Integer  $coPersonId       CO Person ID
    * @return Boolean  True if the CO Person ID is a recipient of the notification, false otherwise
@@ -1210,7 +1210,7 @@ class RoleComponent extends Component {
   /**
    * Determine if a CO Person has the specified role for a CO Notification.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer  $coNotificationId CO Notification ID
    * @param  Integer  $coPersonId       CO Person ID
    * @param  String   $role             'actor', 'participant', 'recipient', 'subject'
@@ -1274,7 +1274,7 @@ class RoleComponent extends Component {
   /**
    * Determine if a CO Person is the sender of a CO Notification.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer  $coNotificationId CO Notification ID
    * @param  Integer  $coPersonId       CO Person ID
    * @return Boolean  True if the CO Person ID is the sender of the notification, false otherwise

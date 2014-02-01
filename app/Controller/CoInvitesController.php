@@ -75,7 +75,7 @@ class CoInvitesController extends AppController {
    * - postcondition: $inviteid deleted
    * - postcondition: Session flash message updated (HTML)
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer Invitation ID
    */
   
@@ -109,7 +109,7 @@ class CoInvitesController extends AppController {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -630,7 +630,7 @@ class CoInvitesController extends AppController {
    * - postcondition: Email invitation sent to address
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
-   * @since COmanage Registry v0.9
+   * @since COmanage Registry v0.8.4
    * @todo Add rest support
    */
   

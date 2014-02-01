@@ -17,7 +17,7 @@
  * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.9
+ * @since         COmanage Registry v0.8.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
@@ -175,7 +175,7 @@ class NotificationShell extends AppShell {
   /**
    * Map an identifier and type to a CO Person
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  String $identifier Identifier, of the form type:value
    * @param  Integer $coId CO ID to search within
    * @return Integer CO Person ID

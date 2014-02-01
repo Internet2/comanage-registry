@@ -83,7 +83,7 @@ class MVPAController extends StandardController {
    * try{} block so that HistoryRecord->record() may be called without worrying
    * about catching exceptions.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  String Controller action causing the change
    * @param  Array Data provided as part of the action (for add/edit)
    * @param  Array Previous data (for delete/edit)

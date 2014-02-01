@@ -17,7 +17,7 @@
  * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.9
+ * @since         COmanage Registry v0.8.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
@@ -54,7 +54,7 @@ class CoNotificationsController extends StandardController {
    * - postcondition: CO Invitation status set to 'Acknowledged'
    * - postcondition: Session flash message updated (HTML)
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer $id CO Notification ID
    */
   
@@ -76,7 +76,7 @@ class CoNotificationsController extends StandardController {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -112,7 +112,7 @@ class CoNotificationsController extends StandardController {
    * - postcondition: CO Invitation status set to 'Canceled'
    * - postcondition: Session flash message updated (HTML)
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @param  Integer $id CO Notification ID
    */
   
@@ -135,7 +135,7 @@ class CoNotificationsController extends StandardController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.4
    * @return Array Permissions
    */
   
