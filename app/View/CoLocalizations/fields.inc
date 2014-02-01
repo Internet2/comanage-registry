@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 201 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -59,7 +59,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.key'); ?></b></b><font class="required">*</font>
+        <b><?php print _txt('fd.key'); ?></b><font class="required">*</font>
       </td>
       <td>
         <?php

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Invite Controller
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -94,9 +94,27 @@ class CoInvitesController extends AppController {
    */
   
   function beforeFilter() {
-    if($this->action == "send")
+    if($this->action == "send") {
       $this->requires_co = true;
+    }
     
+    // Since we're overriding, we need to call the parent to run the authz check
+    parent::beforeFilter();
+    
+    // Allow invite handling to process without a login page
+    $this->Auth->allow('confirm', 'decline', 'reply');
+  }
+  
+  /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
     if($this->action == "confirm" || $this->action == "authconfirm") {
       // Identifier assignment requires the CO ID to be set, but since CO ID isn't
       // provided as an explicit parameter, beforeFilter can't find it.
@@ -111,16 +129,16 @@ class CoInvitesController extends AppController {
       
       $coPerson = $this->CoInvite->CoPerson->find('first', $args);
       
-      if(isset($coPerson['CoPerson']['co_id'])) {
-        $this->impliedCoId = $coPerson['CoPerson']['co_id'];
+      if(!empty($coPerson['CoPerson']['co_id'])) {
+        return $coPerson['CoPerson']['co_id'];
+      } else {
+        throw InvalidArgumentException(_txt('er.notfound',
+                                            array(_txt('ct.co_invites.1'),
+                                                  Sanitize::html($this->request->params['pass'][0]))));
       }
     }
     
-    // Since we're overriding, we need to call the parent to run the authz check
-    parent::beforeFilter();
-    
-    // Allow invite handling to process without a login page
-    $this->Auth->allow('confirm', 'decline', 'reply');
+    return null;
   }
   
   /**

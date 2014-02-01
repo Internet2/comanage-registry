@@ -2,7 +2,7 @@
 /**
  * COmanage Registy Role Component Model
  *
- * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -402,6 +402,67 @@ class RoleComponent extends Component {
   }
   
   /**
+   * Determine if a CO Person can request email verification for another CO Person.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Integer CO Person ID of requestor
+   * @param  Integer Email Address ID to request email verification of
+   * @return Boolean True if email verification may be requested, false otherwise
+   * @throws InvalidArgumentException
+   */
+  
+  public function canRequestVerificationOfEmailAddress($coPersonId, $emailAddressId) {
+    // First pull the email address
+    $args = array();
+    $args['conditions']['EmailAddress.id'] = $emailAddressId;
+    $args['contain'] = false;
+    
+    $EmailAddress = ClassRegistry::init('EmailAddress');
+    
+    $ea = $EmailAddress->find('first', $args);
+    
+    if(empty($ea)) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.email_addresses.1'), $emailAddressId)));
+    }
+    
+    // One can request their own verification
+    
+    if(!empty($ea['EmailAddress']['co_person_id'])
+       && $coPersonId == $ea['EmailAddress']['co_person_id']) {
+      return true;
+    }
+    
+    if(!empty($ea['EmailAddress']['org_identity_id'])) {
+      // See if the CO Person and org identity are linked (ie: are the same person)
+      
+      $Link = ClassRegistry::init('CoOrgIdentityLink');
+      
+      $args = array();
+      $args['conditions']['CoOrgIdentityLink.co_person_id'] = $coPersonId;
+      $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $ea['EmailAddress']['org_identity_id'];
+      $args['contain'] = false;
+      
+      if($Link->find('count', $args) > 0) {
+        return true;
+      }
+    }
+    
+    // A CO or COU Admin can request verification
+    
+    if(!empty($ea['EmailAddress']['co_person_id'])
+       && $this->isCoOrCouAdminForCoPerson($coPersonId, $ea['EmailAddress']['co_person_id'])) {
+      return true;
+    }
+    
+    if(!empty($ea['EmailAddress']['org_identity_id'])
+       && $this->isCoOrCouAdminForOrgIdentity($coPersonId, $ea['EmailAddress']['org_identity_id'])) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+   /**
    * Determine what COUs a CO Person is a COU Admin for. Note this function will return
    * no COUs if the CO Person is a CO Admin but not a COU Admin.
    *
@@ -875,7 +936,6 @@ class RoleComponent extends Component {
    * @since  COmanage Registry v0.8
    * @param  Integer CO Person ID of potential CO(U) Admin
    * @param  Integer CO Person ID of subject
-   * @param  Integer CO ID
    * @return Boolean True if the CO Person is a CO or COU Administrator for the subject, false otherwise
    */
   
@@ -1115,5 +1175,114 @@ class RoleComponent extends Component {
     $coId = $this->cachedCoIdLookupByCoGroup($coGroupId);
     
     return $this->isCoAdmin($coPersonId, $coId);
+  }
+  
+  /**
+   * Determine if a CO Person is a participant (subject, recipient, or actor) for a CO Notification.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Integer  $coNotificationId CO Notification ID
+   * @param  Integer  $coPersonId       CO Person ID
+   * @return Boolean  True if the CO Person ID is a participant in the notification, false otherwise
+   * @throws InvalidArgumentException
+   */
+  
+  public function isNotificationParticipant($coNotificationId,
+                                            $coPersonId) {
+    return $this->isNotificationRole($coNotificationId, $coPersonId, 'participant');
+  }
+  
+  /**
+   * Determine if a CO Person is a recipient of a CO Notification.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Integer  $coNotificationId CO Notification ID
+   * @param  Integer  $coPersonId       CO Person ID
+   * @return Boolean  True if the CO Person ID is a recipient of the notification, false otherwise
+   * @throws InvalidArgumentException
+   */
+  
+  public function isNotificationRecipient($coNotificationId,
+                                          $coPersonId) {
+    return $this->isNotificationRole($coNotificationId, $coPersonId, 'recipient');
+  }
+  
+  /**
+   * Determine if a CO Person has the specified role for a CO Notification.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Integer  $coNotificationId CO Notification ID
+   * @param  Integer  $coPersonId       CO Person ID
+   * @param  String   $role             'actor', 'participant', 'recipient', 'subject'
+   * @return Boolean  True if the CO Person ID has the specified role for the notification, false otherwise
+   * @throws InvalidArgumentException
+   */
+  
+  protected function isNotificationRole($coNotificationId,
+                                        $coPersonId,
+                                        $role) {
+    // Check the cache
+    if(isset($this->cache['coperson'][$coPersonId]['co_notification'][$coNotificationId][$role])) {
+      return $this->cache['coperson'][$coPersonId]['co_notification'][$coNotificationId][$role];
+    }
+    
+    $CoNotification = ClassRegistry::init('CoNotification');
+    
+    $not = $CoNotification->findById($coNotificationId);
+    
+    if(!empty($not['CoNotification'])) {
+      if(($role == 'actor' || $role == 'participant')
+         && $not['CoNotification']['actor_co_person_id'] == $coPersonId) {
+        $this->cache['coperson'][$coPersonId]['co_notification'][$coNotificationId][$role] = true;
+        
+        return true;
+      }
+      
+      if($role == 'recipient' || $role == 'participant') {
+        if($not['CoNotification']['recipient_co_person_id'] == $coPersonId) {
+          $this->cache['coperson'][$coPersonId]['co_notification'][$coNotificationId][$role] = true;
+          
+          return true;
+        }
+        
+        // Check the recipient group
+        if(!empty($not['CoNotification']['recipient_co_group_id'])) {
+          if($this->cachedGroupCheck($coPersonId, "", "", $not['CoNotification']['recipient_co_group_id'])) {
+          $this->cache['coperson'][$coPersonId]['co_notification'][$coNotificationId][$role] = true;
+          
+            return true;
+          }
+        }
+      }
+      
+      if(($role == 'subject' || $role == 'participant')
+         && $not['CoNotification']['subject_co_person_id'] == $coPersonId) {
+        $this->cache['coperson'][$coPersonId]['co_notification'][$coNotificationId][$role] = true;
+        
+        return true;
+      }
+    } else {
+      throw new InvalidArgumentException(_txt('er.notfound',
+                                              array(_txt('ct.co_notifications.1'), $coNotificationId)));
+    }
+    
+    $this->cache['coperson'][$coPersonId]['co_notification'][$coNotificationId][$role] = false;
+    
+    return false;
+  }
+  
+  /**
+   * Determine if a CO Person is the sender of a CO Notification.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Integer  $coNotificationId CO Notification ID
+   * @param  Integer  $coPersonId       CO Person ID
+   * @return Boolean  True if the CO Person ID is the sender of the notification, false otherwise
+   * @throws InvalidArgumentException
+   */
+  
+  public function isNotificationSender($coNotificationId,
+                                       $coPersonId) {
+    return $this->isNotificationRole($coNotificationId, $coPersonId, 'actor');
   }
 }

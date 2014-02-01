@@ -2,7 +2,7 @@
 /**
  * Application level Controller
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
@@ -276,7 +276,21 @@ class AppController extends Controller {
       $this->menuAuth();
       $this->menuContent();
       $this->getNavLinks();
+      $this->getNotifications();
     }
+  }
+  
+  /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
+    return null;
   }
   
   /**
@@ -1070,6 +1084,24 @@ class AppController extends Controller {
   }
   
   /**
+   * Obtain notifications for the currently logged in user, if any
+   * - precondition: Session.Auth holds current CO Person ID
+   * - postcondition: $vv_my_notifications will be set
+   *
+   * @since  COmanage Registry v0.9
+   */
+  
+  protected function getNotifications() {
+    $copersonid = $this->Session->read('Auth.User.co_person_id');
+    
+    if(!empty($copersonid)) {
+      $this->loadModel('CoNotification');
+      
+      $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid));
+    }
+  }
+  
+  /**
    * Called from beforeRender to set permissions for display in menus
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: permissions for menu are set
@@ -1244,16 +1276,20 @@ class AppController extends Controller {
     // Get a pointer to our model
     $req = $this->modelClass;
     
-    $coid = -1;
+    // First try to look up the CO ID based on the request. This will become more
+    // common as part of CO-620.
+    $coid = $this->calculateImpliedCoId();
     
-    if(isset($this->params['named']['co']))
-      $coid = $this->params['named']['co'];
-    elseif(isset($this->request->data['Co']['id']))
-      $coid = $this->request->data['Co']['id'];
-    elseif(isset($this->request->data[$req]['co_id']))
-      $coid = $this->request->data[$req]['co_id'];
-    elseif(isset($this->impliedCoId))
-      $coid = $this->impliedCoId;
+    if(!$coid) {
+      if(isset($this->params['named']['co']))
+        $coid = $this->params['named']['co'];
+      elseif(isset($this->request->data['Co']['id']))
+        $coid = $this->request->data['Co']['id'];
+      elseif(isset($this->request->data[$req]['co_id']))
+        $coid = $this->request->data[$req]['co_id'];
+      else
+        $coid = -1;
+    }
     
     return $coid;
   }
@@ -1418,6 +1454,7 @@ class AppController extends Controller {
    * @since  COmanage Registry v0.8
    * @return Boolean True if sanity check is successful
    * @throws InvalidArgumentException
+   * @todo   This can probably be thrown away after CO-620 is fully implemented
    */
 
   public function verifyRequestedId() {

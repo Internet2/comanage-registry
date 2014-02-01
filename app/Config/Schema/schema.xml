@@ -5,7 +5,7 @@
   Version: $Revision$
   Date: $Date$
 
-  Copyright (C) 2010-2013 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2010-2014 University Corporation for Advanced Internet Development, Inc.
    
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
   the License. You may obtain a copy of the License at
@@ -485,6 +485,50 @@
     </index>
   </table>
   
+  <table name="co_notifications">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="subject_co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="actor_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="recipient_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="recipient_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="resolver_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="action" type="C" size="4" />
+    <field name="comment" type="C" size="160" />
+    <field name="source_url" type="C" size="160" />
+    <field name="source_controller" type="C" size="80" />
+    <field name="source_action" type="C" size="80" />
+    <field name="source_id" type="I" />
+    <field name="status" type="C" size="2" />
+    <field name="notification_time" type="T" />
+    <field name="resolution_time" type="T" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_notifications_i1">
+      <col>subject_co_person_id</col>
+    </index>
+    <index name="co_notifications_i2">
+      <col>recipient_co_person_id</col>
+    </index>
+    <index name="co_notifications_i3">
+      <col>recipient_co_graup_id</col>
+    </index>
+  </table>
+  
   <table name="cmp_enrollment_configurations">
     <field name="id" type="I">
       <key />
@@ -832,13 +876,13 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <index name="co_history_records_i1">
+    <index name="history_records_i1">
       <col>co_person_id</col>
     </index>
-    <index name="co_history_records_i2">
+    <index name="history_records_i2">
       <col>co_person_role_id</col>
     </index>
-    <index name="co_history_records_i3">
+    <index name="history_records_i3">
       <col>org_identity_id</col>
     </index>
   </table>

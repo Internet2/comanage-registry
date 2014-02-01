@@ -56,6 +56,10 @@ class ActionEnum
   const NameDeleted                 = 'DNAM';
   const NameEdited                  = 'ENAM';
   const NamePrimary                 = 'PNAM';
+  const NotificationAcknowledged    = 'NOTA';
+  const NotificationCanceled        = 'NOTX';
+  const NotificationDelivered       = 'NOTD';
+  const NotificationResolved        = 'NOTR';
   const OrgIdAddedManual            = 'AOIM';
   const OrgIdAddedPetition          = 'AOIP';
   const OrgIdEditedManual           = 'EOIM';
@@ -227,6 +231,16 @@ class NameEnum
     Official  => 'Official',
     Preferred => 'Preferred'
   );*/
+}
+
+class NotificationStatusEnum
+{
+  const Acknowledged          = 'A';
+  const Canceled              = 'X';
+  const Deleted               = 'D';
+  const PendingAcknowledgment = 'PA';
+  const PendingResolution     = 'PR';
+  const Resolved              = 'R';
 }
 
 class NSFRaceEnum

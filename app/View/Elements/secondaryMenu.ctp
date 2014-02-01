@@ -46,70 +46,43 @@
     }
   ?>
 
-  <?php if($this->Session->check('Auth.User') != NULL) :
-    // Notification Dropdown
-  ?>
+  <?php if(isset($vv_my_notifications)): ?>
     <div id="notification">
       <ul class="sf-menu">
         <li>
           <a>
             <span>
-              <?php
-                // XXX placeholder until notifications is implemented
-                $notifArray['approval'] = array();
-                $notifArray['accepted'] = array();
-
-                /*
-                $notifArray['approval'] = array("Scott Koranda (UWM)",
-                                   "Stuart Anderson (CalTech)",
-                                   "Benn Oshrin (Internet2)");
-                $notifArray['accepted'] = array("Scott Koranda (UWM)",
-                                   "Stuart Anderson (CalTech)",
-                                   "Heather Flanagan (Internet2)");
-                */
-
-                $notificationCount = count($notifArray['approval']) + count($notifArray['accepted']);
-                print $notificationCount ? $notificationCount : 0 ?>
+              <?php print count($vv_my_notifications); ?>
             </span>
             <span class="ui-icon ui-icon-mail-closed"></span>
           </a>
           <ul>
             <div>
-              <?php if(count($notifArray['approval']) > 0) : ?>
-                <div class='sectionTitle titleColor'>Pending Your Approval:</div>
-                <div class='names'>
-                  <?php foreach($notifArray['approval'] as $n) {
-                    print $n;
-                    print "<br>";
-                  } ?>
-                </div>
-                <div class = "seemore">
-                   <a href="#">See More &raquo;</a>
-                </div>
-              <?php endif; // count($notifArray['approval']) > 0 ?>
-
-              <?php if(count($notifArray['accepted']) > 0) : ?>
-                <div class='sectionTitle titleColor'>Accepted Invitations:</div>
-                <div class='names'>
-                  <?php  foreach($notifArray['accepted'] as $n) {
-                    print $n;
-                    print "<br>";
-                  } ?>
-                </div>
-                <div class = "seemore">
-                  <a href="#">See More &raquo;</a> 
-                </div>
-              <?php endif; // count($notifArray['accepted']) > 0 ?>
-
-              <div class="seeOther">
-                <a href="#">See Other Notifications &raquo;</a>
+              <!-- XXX use this div class? -->
+              <!-- XXX list maybe 10 max, then link to index view -->
+              <?php foreach($vv_my_notifications as $n): ?>
+              <div class="names">
+                <?php
+                  $args = array(
+                    'controller' => 'co_notifications',
+                    'action'     => 'view',
+                    $n['CoNotification']['id']
+                  );
+                  
+                  print $this->Html->link($n['CoNotification']['comment']
+                                          . " ("
+                                          . $this->Time->timeAgoInWords($n['CoNotification']['created'])
+                                          . ")",
+                                          $args);
+                ?>
               </div>
+              <?php endforeach; ?>
             </div>
           </ul>
         </li>
       </ul>
     </div>
-  <?php endif; // $this->Session->check('Auth.User') != NULL ?>
+  <?php endif; ?>
 
   <?php if (!isset($noLoginLogout)) : ?>
   <div id="logout">
