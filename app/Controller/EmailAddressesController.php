@@ -136,8 +136,9 @@ class EmailAddressesController extends MVPAController {
     
     // Generate an email verification request?
     // This needs to correlate with CoInvitesController.
-    $p['verifyEmailAddress'] = $this->Role->canRequestVerificationOfEmailAddress($roles['copersonid'],
-                                                                                 $this->request->params['pass'][0]);
+    $p['verifyEmailAddress'] = (!empty($this->request->params['pass'][0])
+                                && $this->Role->canRequestVerificationOfEmailAddress($roles['copersonid'],
+                                                                                     $this->request->params['pass'][0]));
     
     // View an existing Email Address?
     $p['view'] = ($roles['cmadmin']

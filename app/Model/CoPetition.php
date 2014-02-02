@@ -243,8 +243,6 @@ class CoPetition extends AppModel {
       }
     }
     
-    debug("true");
-    
     return true;
   }
   

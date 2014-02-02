@@ -45,7 +45,7 @@ class CoEnrollmentAttribute extends AppModel {
   public $displayField = "label";
   
   // Default ordering for find operations
-  public $order = array("label");
+//  public $order = array("label");
   
   // Validation rules for table elements
   public $validate = array(

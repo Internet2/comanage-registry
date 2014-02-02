@@ -100,14 +100,16 @@
           // For an add, verified is by definition no and can't (currently, anyway) be set manually.
           // This will be caught by $email_addresses being null.
           
-          $url = array(
-            'controller' => 'co_invites',
-            'action' => 'verifyEmailAddress',
-            'email_address_id' => $email_addresses[0]['EmailAddress']['id']
-          );
-          
-          if(!empty($cur_co['Co']['id'])) {
-            $url['co'] = $cur_co['Co']['id'];
+          if($this->action != 'add') {
+            $url = array(
+              'controller' => 'co_invites',
+              'action' => 'verifyEmailAddress',
+              'email_address_id' => $email_addresses[0]['EmailAddress']['id']
+            );
+            
+            if(!empty($cur_co['Co']['id'])) {
+              $url['co'] = $cur_co['Co']['id'];
+            }
           }
           
           print ($isVerified ? _txt('fd.yes') : _txt('fd.no')) . "\n";

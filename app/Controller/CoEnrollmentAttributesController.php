@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attributes Controller
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -96,70 +96,77 @@ class CoEnrollmentAttributesController extends StandardController {
     // Figure out the CO ID associated with the current enrollment flow. We'll specifically
     // not set $this->cur_co since it will break things like pagination setup.
     
-    $coefid = -1;
+    $coefid = null;
     
-    if(isset($this->request->params['named']['coef']))
-      $coefid = $this->request->params['named']['coef'];
-    elseif(isset($this->request->data))
-      $coefid = $this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'];
+    if($this->action == 'add' || $this->action == 'index') {
+      // Accept coefid from the url
+      
+      $coefid = Sanitize::html($this->request->params['named']['coef']);
+    } elseif(!empty($this->request->params['pass'][0])) {
+      // Map the enrollment flow from the requested object
+      
+      $coefid = $this->CoEnrollmentAttribute->field('co_enrollment_flow_id',
+                                                    array('id' => $this->request->params['pass'][0]));
+    }
     
-    $this->CoEnrollmentAttribute->CoEnrollmentFlow->id = $coefid;
-    
-    $this->set('vv_coefid', Sanitize::html($coefid));
-    
-    $coid = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('co_id');
-    
-    if(!empty($coid))
-    {
-      $this->set('vv_coid', $coid);
+    if($coefid) {
+      $this->CoEnrollmentAttribute->CoEnrollmentFlow->id = $coefid;
       
-      // Assemble the set of available attributes for the view to render
+      $this->set('vv_coefid', Sanitize::html($coefid));
       
-      $this->set('vv_available_attributes', $this->CoEnrollmentAttribute->availableAttributes($coid));
+      $coid = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('co_id');
       
-      // And pull details of extended attributes so views can determine types
-      
-      $args = array();
-      $args['conditions']['co_id'] = $coid;
-      $args['fields'] = array('CoExtendedAttribute.name', 'CoExtendedAttribute.type');
-      $args['contain'] = false;
-      
-      $this->set('vv_ext_attr_types',
-                 $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoExtendedAttribute->find('list', $args));
-      
-      // Assemble the list of available COUs
-      
-      $this->set('vv_cous', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->Cou->allCous($coid));
-      
-      // Assemble the list of available affiliations
-      
-      $this->set('vv_affiliations', $cm_texts[ $cm_lang ]['en.affil']);
-      
-      // Assemble the list of available Sponsors
-      
-      $this->set('vv_sponsors', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->sponsorList($coid));
-      
-      // Assemble the list of available groups. Note we currently allow any group to be
-      // specified (ie: whether or not it's open). The idea is that an Enrollment Flow
-      // is defined by an admin, who can correctly select a group. However, it's plausible
-      // that we should offer options to filter to open groups, or to a subset of groups
-      // as selected by the administrator (especially for scenarios where the value is
-      // modifiable).
-      
-      $args = array();
-      $args['conditions']['co_id'] = $coid;
-      $args['fields'] = array('CoGroup.id', 'CoGroup.name');
-      $args['contain'] = false;
-      
-      $this->set('vv_groups', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoGroup->find('list', $args));
-      
-      if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()
-         && $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv()) {
-        $this->set('vv_attributes_from_env', true);
+      if(!empty($coid)) {
+        $this->set('vv_coid', $coid);
+        
+        // Assemble the set of available attributes for the view to render
+        
+        $this->set('vv_available_attributes', $this->CoEnrollmentAttribute->availableAttributes($coid));
+        
+        // And pull details of extended attributes so views can determine types
+        
+        $args = array();
+        $args['conditions']['co_id'] = $coid;
+        $args['fields'] = array('CoExtendedAttribute.name', 'CoExtendedAttribute.type');
+        $args['contain'] = false;
+        
+        $this->set('vv_ext_attr_types',
+                   $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoExtendedAttribute->find('list', $args));
+        
+        // Assemble the list of available COUs
+        
+        $this->set('vv_cous', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->Cou->allCous($coid));
+        
+        // Assemble the list of available affiliations
+        
+        $this->set('vv_affiliations', $cm_texts[ $cm_lang ]['en.affil']);
+        
+        // Assemble the list of available Sponsors
+        
+        $this->set('vv_sponsors', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->sponsorList($coid));
+        
+        // Assemble the list of available groups. Note we currently allow any group to be
+        // specified (ie: whether or not it's open). The idea is that an Enrollment Flow
+        // is defined by an admin, who can correctly select a group. However, it's plausible
+        // that we should offer options to filter to open groups, or to a subset of groups
+        // as selected by the administrator (especially for scenarios where the value is
+        // modifiable).
+        
+        $args = array();
+        $args['conditions']['co_id'] = $coid;
+        $args['fields'] = array('CoGroup.id', 'CoGroup.name');
+        $args['contain'] = false;
+        
+        $this->set('vv_groups', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoGroup->find('list', $args));
+        
+        if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()
+           && $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv()) {
+          $this->set('vv_attributes_from_env', true);
+        }
       }
     }
   }
-  
+
   /**
    * Perform any followups following a write operation.  Note that if this
    * method fails, it must return a warning or REST response, but that the

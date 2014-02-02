@@ -282,7 +282,6 @@ class AppController extends Controller {
   
   /**
    * Determine the CO ID based on some attribute of the request.
-   * This method is intended to be overridden by model-specific controllers.
    *
    * @since  COmanage Registry v0.8.4
    * @return Integer CO ID, or null if not implemented or not applicable.
@@ -290,6 +289,86 @@ class AppController extends Controller {
    */
   
   protected function calculateImpliedCoId() {
+    // As a default, we'll see if we can determine the CO in a generic manner.
+    // Where this doesn't work, individual Controllers can override this function.
+    
+    // Get a pointer to our model
+    $req = $this->modelClass;
+    $model = $this->$req;
+    $modelpl = Inflector::tableize($req);
+    
+    if($this->action == 'add' || $this->action == 'select') {
+      // See if what we're adding/selecting is attached to a person
+      $p = $this->parsePersonID();
+      
+      if(!empty($p['copersonid'])
+         && (isset($model->CoPerson) || isset($model->Co))) {
+        $CoPerson = (isset($model->CoPerson) ? $model->CoPerson : $model->Co->CoPerson);
+        
+        $coId = $CoPerson->field('co_id', array('id' => $p['copersonid']));
+        
+        if($coId) {
+          return $coId;
+        } else {
+          throw new InvalidArgumentException(_txt('er.notfound',
+                                                  array(_txt('ct.co_people.1'),
+                                                        Sanitize::html($p['copersonid']))));
+        }
+      } elseif(!empty($p['copersonroleid']) && isset($model->CoPersonRole)) {
+        $args = array();
+        $args['conditions']['CoPersonRole.id'] = $p['copersonroleid'];
+        $args['joins'][0]['table'] = 'co_person_roles';
+        $args['joins'][0]['alias'] = 'CoPersonRole';
+        $args['joins'][0]['type'] = 'INNER';
+        $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
+        $args['contain'] = false;
+        
+        $obj = $model->CoPersonRole->CoPerson->find('first', $args);
+        
+        if(!empty($obj['CoPerson']['co_id'])) {
+          return $obj['CoPerson']['co_id'];
+        } else {
+          throw new InvalidArgumentException(_txt('er.notfound',
+                                                  array(_txt('ct.co_person_roles.1'),
+                                                        Sanitize::html($p['copersonroleid']))));
+        }
+      } elseif(!empty($p['orgidentityid']) && isset($model->OrgIdentity)) {
+        $coId = $model->OrgIdentity->field('co_id', array('id' => $p['orgidentityid']));
+        
+        if($coId) {
+          return $coId;
+        } else {
+          throw new InvalidArgumentException(_txt('er.notfound',
+                                                  array(_txt('ct.org_identities.1'),
+                                                        Sanitize::html($p['orgidentityid']))));
+        }
+      } elseif(!empty($this->request->params['named']['cogroup']) && isset($model->CoGroup)) {
+        // Map the group to a CO
+        $coId = $model->CoGroup->field('co_id', array('id' => $this->request->params['named']['cogroup']));
+        
+        if($coId) {
+          return $coId;
+        } else {
+          throw new InvalidArgumentException(_txt('er.notfound',
+                                                  array(_txt('ct.co_groups.1'),
+                                                        Sanitize::html($this->request->params['named']['cogroup']))));
+        }
+      }
+    } else {
+      // We need a parameter that is probably an object ID
+      
+      if(!empty($this->request->params['pass'][0])) {
+        try {
+          $recordCoId = $model->findCoForRecord($this->request->params['pass'][0]);
+        }
+        catch(InvalidArgumentException $e) {
+          throw new InvalidArgumentException($e->getMessage());
+        }
+        
+        return $recordCoId;
+      }
+    }
+    
     return null;
   }
   
@@ -1275,20 +1354,33 @@ class AppController extends Controller {
   function parseCOID() {
     // Get a pointer to our model
     $req = $this->modelClass;
+    $model = $this->$req;
     
-    // First try to look up the CO ID based on the request. This will become more
-    // common as part of CO-620.
+    // First try to look up the CO ID based on the request. 
     $coid = $this->calculateImpliedCoId();
     
     if(!$coid) {
-      if(isset($this->params['named']['co']))
-        $coid = $this->params['named']['co'];
-      elseif(isset($this->request->data['Co']['id']))
-        $coid = $this->request->data['Co']['id'];
-      elseif(isset($this->request->data[$req]['co_id']))
-        $coid = $this->request->data[$req]['co_id'];
-      else
-        $coid = -1;
+      $coid = -1;
+      
+      // Only certain actions are permitted to explicitly provide a CO ID
+      if($this->action == 'index'
+         // Add and select operations only when attached directly to a CO (otherwise we need
+         // to pull the CO ID from the object being attached to, eg co person)
+         ||
+         (isset($model->Co)
+          && ($this->action == 'select' || $this->action == 'add'))) {
+        if(isset($this->params['named']['co'])) {
+          $coid = $this->params['named']['co'];
+        }
+        // CO ID can be passed via a form submission
+        elseif($this->action != 'index') {
+          if(isset($this->request->data['Co']['id'])) {
+            $coid = $this->request->data['Co']['id'];
+          } elseif(isset($this->request->data[$req]['co_id'])) {
+            $coid = $this->request->data[$req]['co_id'];
+          }
+        }
+      }
     }
     
     return $coid;

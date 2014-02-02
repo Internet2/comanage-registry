@@ -104,7 +104,7 @@
           {
             echo $this->Html->link($c['CoGroup']['name'],
                                     array('controller' => 'co_groups',
-                                          'action' => ($e ? 'edit' : ($v ? 'view' : '')), $c['CoGroup']['id'], 'co' => $this->request->params['named']['co']));
+                                          'action' => ($e ? 'edit' : ($v ? 'view' : '')), $c['CoGroup']['id'], 'co' => $cur_co['Co']['id']));
           }
           else
             echo Sanitize::html($c['CoGroup']['name']);

@@ -132,9 +132,9 @@ class CoInvitesController extends AppController {
       if(!empty($coPerson['CoPerson']['co_id'])) {
         return $coPerson['CoPerson']['co_id'];
       } else {
-        throw InvalidArgumentException(_txt('er.notfound',
-                                            array(_txt('ct.co_invites.1'),
-                                                  Sanitize::html($this->request->params['pass'][0]))));
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_invites.1'),
+                                                      Sanitize::html($this->request->params['pass'][0]))));
       }
     }
     

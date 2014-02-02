@@ -98,9 +98,9 @@ class CoNotificationsController extends StandardController {
       if(!empty($coPerson['SubjectCoPerson']['co_id'])) {
         return $coPerson['SubjectCoPerson']['co_id'];
       } else {
-        throw InvalidArgumentException(_txt('er.notfound',
-                                            array(_txt('ct.co_notifications.1'),
-                                                  Sanitize::html($this->request->params['pass'][0]))));
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_notifications.1'),
+                                                      Sanitize::html($this->request->params['pass'][0]))));
       }
     }
     
