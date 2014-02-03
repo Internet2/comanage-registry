@@ -292,6 +292,12 @@ class AppController extends Controller {
     // As a default, we'll see if we can determine the CO in a generic manner.
     // Where this doesn't work, individual Controllers can override this function.
     
+    // For now, skip pages controller so the main page (/) can render. At some point,
+    // we may need to revise this check.
+    if($this->request->params['controller'] == 'pages') {
+      return null;
+    }
+    
     // Get a pointer to our model
     $req = $this->modelClass;
     $model = $this->$req;
