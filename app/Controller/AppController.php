@@ -292,9 +292,8 @@ class AppController extends Controller {
     // As a default, we'll see if we can determine the CO in a generic manner.
     // Where this doesn't work, individual Controllers can override this function.
     
-    // For now, skip pages controller so the main page (/) can render. At some point,
-    // we may need to revise this check.
-    if($this->request->params['controller'] == 'pages') {
+    if(!$this->requires_co) {
+      // Controllers that don't require a CO can't imply one.
       return null;
     }
     
