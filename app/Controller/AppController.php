@@ -389,6 +389,8 @@ class AppController extends Controller {
    */
     
   public function changesToString($newdata, $olddata, $models) {
+    global $cm_texts, $cm_lang;
+    
     // We assume $newdata and $olddate are intended to have the same structure, however
     // we require $models to be specified since different controllers may pull different
     // levels of containable or recursion data, and so we don't know how many associated
@@ -445,8 +447,9 @@ class AppController extends Controller {
         }
         
         foreach($attrs as $attr) {
-          // Skip some "housekeeping" keys
-          if($attr == 'id' || preg_match('/.*_id$/', $attr) || $attr == 'created' || $attr == 'modified') {
+          // Skip some "housekeeping" keys. Don't blanket skip all *_id attributes
+          // since some foreign keys should be tracked (eg: cou_id, sponsor_co_person_id).
+          if($attr == 'id' || $attr == 'created' || $attr == 'modified') {
             continue;
           }
           
@@ -456,43 +459,113 @@ class AppController extends Controller {
             continue;
           }
           
-          $oldval = (isset($olddata[$model][$attr]) && $olddata[$model][$attr] != "") ? $olddata[$model][$attr] : null;
-          $newval = (isset($newdata[$model][$attr]) && $newdata[$model][$attr] != "") ? $newdata[$model][$attr] : null;
-          
-          // See if we're working with a type, and if so use the localized string instead
-          // (if we can find it)
-          
-          if(!isset($this->$model)) {
-            $this->loadModel($model);
-          }
-          
-          if(isset($this->$model) && isset($this->$model->cm_enum_txt[$attr])) {
-            $oldval = _txt($this->$model->cm_enum_txt[$attr], null, $oldval) . " (" . $oldval . ")";
-            $newval = _txt($this->$model->cm_enum_txt[$attr], null, $newval) . " (" . $newval . ")";
-          }
-          
-          // Find the localization of the field
-          
-          $ftxt = "(?)";
-          
-          if(($model == 'Name' || $model == 'PrimaryName') && $attr != 'type') {
-            // Treat name specially
-            $ftxt = _txt('fd.name.'.$attr);
-          } else {
-            global $cm_texts, $cm_lang;
+          if(preg_match('/.*_id$/', $attr)) {
+            // Foreign keys need to be handled specially. Start by figuring out the model.
             
-            // Inflect the model name and see if fd.model.attr exists
+            if(preg_match('/.*_co_person_id$/', $attr)) {
+              // This is a foreign key to a CO Person (eg: sponsor_co_person)
+              
+              // Chop off _co_person_id
+              $afield = substr($attr, 0, strlen($attr)-13);
+              $amodel = "CoPerson";
+            } else {
+              // Chop off _id
+              $afield = substr($attr, 0, strlen($attr)-3);
+              $amodel = Inflector::camelize(rtrim($attr, "_id"));
+            }
             
-            $imodel = Inflector::underscore($model);
+            if(!isset($this->$amodel)) {
+              $this->loadModel($amodel);
+            }
+            
+            $ftxt = $afield;
             
             // XXX this isn't really an ideal way to see if a language key exists
-            if(!empty($cm_texts[ $cm_lang ]['fd.' . $imodel . '.' . $attr])) {
-              $ftxt = _txt('fd.' . $imodel . '.' . $attr);
+            if(!empty($cm_texts[ $cm_lang ]['fd.' . $afield])) {
+              $ftxt = $cm_texts[ $cm_lang ]['fd.' . $afield];
+            }
+            
+            // Get the old and new values
+            
+            $oldval = (isset($olddata[$model][$attr]) && $olddata[$model][$attr] != "") ? $olddata[$model][$attr] : null;
+            $newval = (isset($newdata[$model][$attr]) && $newdata[$model][$attr] != "") ? $newdata[$model][$attr] : null;
+            
+            // Make sure they're actually different (we may get some foreign keys here that aren't)
+            
+            if($oldval == $newval) {
+              continue;
+            }
+            
+            if($amodel == "CoPerson") {
+              // Display field is Primary Name. Pull the old and new CO People in
+              // one query, though we won't know which one we'll get back first.
+              
+              $args = array();
+              $args['conditions']['CoPerson.id'] = array($oldval, $newval);
+              $args['contain'][] = 'PrimaryName';
+              
+              $copeople = $this->$amodel->find('all', $args);
+              
+              if(!empty($copeople)) {
+                // Walk through the result set to figure out which one is old and which is new
+                
+                foreach($copeople as $c) {
+                  if(!empty($c['CoPerson']['id']) && !empty($c['PrimaryName'])) {
+                    if($c['CoPerson']['id'] == $oldval) {
+                      $oldval = generateCn($c['PrimaryName']) . " (" . $oldval . ")";
+                    } elseif($c['CoPerson']['id'] == $newval) {
+                      $newval = generateCn($c['PrimaryName']) . " (" . $newval . ")";
+                    }
+                  }
+                }
+              }
             } else {
-              // Otherwise see if the attribute by itself exists
-              $ftxt = _txt('fd.' . $attr);
+              // Lookup a human readable string (usually name or something) and prepend it to the ID
+              
+              $oldval = $this->$amodel->field($this->$amodel->displayField, array('id' => $oldval)) . " (" . $oldval . ")";
+              $newval = $this->$amodel->field($this->$amodel->displayField, array('id' => $newval)) . " (" . $newval . ")";
+            }
+          } else {
+            // Simple field in the model
+            
+            $oldval = (isset($olddata[$model][$attr]) && $olddata[$model][$attr] != "") ? $olddata[$model][$attr] : null;
+            $newval = (isset($newdata[$model][$attr]) && $newdata[$model][$attr] != "") ? $newdata[$model][$attr] : null;
+            
+            // See if we're working with a type, and if so use the localized string instead
+            // (if we can find it)
+            
+            if(!isset($this->$model)) {
+              $this->loadModel($model);
+            }
+            
+            if(isset($this->$model) && isset($this->$model->cm_enum_txt[$attr])) {
+              $oldval = _txt($this->$model->cm_enum_txt[$attr], null, $oldval) . " (" . $oldval . ")";
+              $newval = _txt($this->$model->cm_enum_txt[$attr], null, $newval) . " (" . $newval . ")";
+            }
+            
+            // Find the localization of the field
+            
+            $ftxt = "(?)";
+            
+            if(($model == 'Name' || $model == 'PrimaryName') && $attr != 'type') {
+              // Treat name specially
+              $ftxt = _txt('fd.name.'.$attr);
+            } else {
+              // Inflect the model name and see if fd.model.attr exists
+              
+              $imodel = Inflector::underscore($model);
+              
+              // XXX this isn't really an ideal way to see if a language key exists
+              if(!empty($cm_texts[ $cm_lang ]['fd.' . $imodel . '.' . $attr])) {
+                $ftxt = _txt('fd.' . $imodel . '.' . $attr);
+              } else {
+                // Otherwise see if the attribute by itself exists
+                $ftxt = _txt('fd.' . $attr);
+              }
             }
           }
+          
+          // Finally, render the change string based on the attributes found above
           
           if(isset($newval) && !isset($oldval)) {
             $changes[] = $ftxt . ": " . _txt('fd.null') . " > " . $newval;

@@ -257,8 +257,9 @@ class CoPersonRolesController extends StandardController {
                                                    null,
                                                    $this->Session->read('Auth.User.co_person_id'),
                                                    ActionEnum::CoPersonRoleEditedManual,
-                                                   _txt('en.action', null, ActionEnum::CoPersonRoleEditedManual) . ": " .
-                                                   $this->changesToString($newdata, $olddata, array('CoPersonRole', 'ExtendedAttribute')));
+                                                   _txt('en.action', null, ActionEnum::CoPersonRoleEditedManual)
+                                                   . " (" . $this->CoPersonRole->id . "):"
+                                                   . $this->changesToString($newdata, $olddata, array('CoPersonRole', 'ExtendedAttribute')));
         break;
     }
     
