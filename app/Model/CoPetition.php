@@ -209,8 +209,8 @@ class CoPetition extends AppModel {
         continue;
       }
       
-      if($efAttr['hidden']) {
-        // Skip hidden fields because they aren't user-editable
+      if($efAttr['hidden'] && !$efAttr['default']) {
+        // Skip hidden fields because they aren't user-editable, unless they are default attributes
         continue;
       }
       
@@ -223,13 +223,13 @@ class CoPetition extends AppModel {
         continue;
       }
       
-      if($efAttr['required']) {
+      if(isset($efAttr['required']) && $efAttr['required']) {
         // We found a required flag, so stop
         
         return false;
       }
       
-      if($efAttr['mvpa_required']) {
+      if(isset($efAttr['mvpa_required']) && $efAttr['mvpa_required']) {
         // This attribute is part of an MVPA that is required, so stop
         
         return false;
