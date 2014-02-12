@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Language File
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -176,6 +176,18 @@ For questions regarding this process, please contact your administrator.',
     ActionEnum::OrgIdAddedPetition          => 'Org Identity Created (Petition)',
     ActionEnum::OrgIdEditedManual           => 'Org Identity Edited (Manual)',
     ActionEnum::OrgIdEditedPetition         => 'Org Identity Edited (Petition)',
+  ),
+  
+  'en.action.petition' => array(
+    PetitionActionEnum::Approved            => 'Petition Approved',
+    PetitionActionEnum::Created             => 'Petition Created',
+    PetitionActionEnum::Declined            => 'Petition Declined',
+    PetitionActionEnum::Denied              => 'Petition Denied',
+    PetitionActionEnum::Finalized           => 'Petition Finalized',
+    PetitionActionEnum::IdentifiersAssigned => 'Identifiers Assigned',
+    PetitionActionEnum::InviteConfirmed     => 'Invitation Confirmed',
+    PetitionActionEnum::InviteSent          => 'Invitation Sent',
+    PetitionActionEnum::NotificationSent    => 'Notification Sent'
   ),
 
   'en.admin' =>       array(AdministratorEnum::NoAdmin => 'None',
@@ -838,7 +850,8 @@ For questions regarding this process, please contact your administrator.',
   'rs.prov.ok' =>     'Provisioning completed successfully',
   'rs.pt.approve' =>  'Petition Approved',
   'rs.pt.confirm' =>  'Petition Confirmed',
-  'rs.pt.create' =>   'Petition Created', 
+  'rs.pt.create' =>   'Petition Created',
+  'rs.pt.create.from' => 'Petition created from enrollment flow "%1$s"',
   'rs.pt.create.self' => 'Petition Created. You may need to check your email for further information.', 
   'rs.pt.deny' =>     'Petition Denied',
   'rs.pt.id.attached' => 'Authenticated identifier "%1$s" attached to organizational identity',

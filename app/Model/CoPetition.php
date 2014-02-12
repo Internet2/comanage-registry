@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Model
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -286,6 +286,9 @@ class CoPetition extends AppModel {
     
     $approvalPolicy = $this->CoEnrollmentFlow->field('approval_required',
                                                      array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+    
+    $efName = $this->CoEnrollmentFlow->field('name',
+                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
     
     $initialStatus = StatusEnum::Approved;
     
@@ -859,7 +862,9 @@ class CoPetition extends AppModel {
     try {
       $this->CoPetitionHistoryRecord->record($coPetitionID,
                                              $petitionerId,
-                                             PetitionActionEnum::Created);
+                                             PetitionActionEnum::Created,
+                                             _txt('rs.pt.create.from',
+                                                  array($efName . " (" . $enrollmentFlowID . ")")));
     }
     catch(Exception $e) {
       $dbc->rollback();

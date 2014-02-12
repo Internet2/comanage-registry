@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition History Model
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -68,25 +68,8 @@ class CoPetitionHistoryRecord extends AppModel {
       $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = $comment;
     } else {
       // Figure out a default value
-      // XXX this should really use txt en.somethingorother like HistoryRecord::record()
       
-      switch($action) {
-        case PetitionActionEnum::Approved:
-          $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.approve');
-          break;
-        case PetitionActionEnum::InviteConfirmed:
-          $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.confirm');
-          break;
-        case PetitionActionEnum::Created:
-          $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.create');
-          break;
-        case PetitionActionEnum::Denied:
-          $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('rs.pt.deny');
-          break;
-        default:
-          throw new InvalidArgumentException(_txt('er.unknown', array($action)));
-          break;
-      }
+      $coPetitionHistoryData['CoPetitionHistoryRecord']['comment'] = _txt('en.action.petition', null, $action);
     }
     
     // Call create since we might have multiple history records written in a transaction
