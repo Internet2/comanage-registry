@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Petition Fields (used to display both petitions and petition-based invitations)
  *
- * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
@@ -168,21 +168,27 @@
     $coea_model = array();
     $misc_attr = array();
     
-    foreach ($co_enrollment_attributes as $ea){
-      if ($ea['hidden']) {  // Sort hidden ones out
+    foreach($co_enrollment_attributes as $ea) {
+      // Sort hidden ones out, but if this is view only don't separate out
+      // attributes with default values
+      if($ea['hidden']
+         && ($this->action != 'view'
+             || !isset($ea['default']) || !$ea['default'])) {
         $hidden_attr[] = $ea;
       } else {
-        if( isset($ea['group']) ) {  // Sort by group
+        if(isset($ea['group'])) {  // Sort by group
           $coea_model[ $ea['group'] ][] = $ea;
         } else {
           // Has no group
-          $coea_model[$ea['label']][] = $ea;
+          if(!empty($ea['label'])) {
+            $coea_model[ $ea['label'] ][] = $ea;
+          }
         }
       } 
     }
     
     // Print the hidden fields
-    foreach ($hidden_attr as $ea) {
+    foreach($hidden_attr as $ea) {
       if($ea['hidden']) {
         $fieldName = $ea['model'] . '.' . $ea['field'];
       }
@@ -191,7 +197,7 @@
     }
     
     // Print the ones not hidden
-    foreach ($coea_model as $m => $coe_attributes):
+    foreach($coea_model as $m => $coe_attributes):
     
     $mvpa = (count($coe_attributes) > 1);
   ?>
