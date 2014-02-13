@@ -209,6 +209,11 @@ class CoPetition extends AppModel {
         continue;
       }
       
+      if($efAttr['field'] == 'co_enrollment_attribute_id') {
+        // Skip the enrollment attribute id
+        continue;
+      }
+      
       if($efAttr['hidden'] && !$efAttr['default']) {
         // Skip hidden fields because they aren't user-editable, unless they are default attributes
         continue;
@@ -223,14 +228,18 @@ class CoPetition extends AppModel {
         continue;
       }
       
-      if(isset($efAttr['required']) && $efAttr['required']) {
-        // We found a required flag, so stop
-        
-        return false;
+      if(isset($efAttr['mvpa_required'])) {
+        if($efAttr['mvpa_required']) {
+          // This attribute is part of an MVPA that is required, so stop
+          return false;
+        } else {
+          // Treat this attribute as optionas
+          continue;
+        }
       }
       
-      if(isset($efAttr['mvpa_required']) && $efAttr['mvpa_required']) {
-        // This attribute is part of an MVPA that is required, so stop
+      if(isset($efAttr['required']) && $efAttr['required']) {
+        // We found a required flag, so stop
         
         return false;
       }

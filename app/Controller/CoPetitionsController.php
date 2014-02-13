@@ -344,6 +344,33 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
+    if($this->action == 'add') {
+      // Map enrollment flow ID to CO
+      
+      $coId = $this->CoPetition->CoEnrollmentFlow->field('co_id',
+                                                         array('id' => $this->enrollmentFlowID()));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.coef.unk'));
+      }
+    }
+    
+    // Or try the default behavior
+    return parent::calculateImpliedCoId();
+  }
+  
+  /**
    * Deny a petition.
    * - precondition: $id must exist and be in 'Pending Approval' state
    * - postcondition: On error, session flash message set
