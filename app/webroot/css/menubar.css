@@ -53,14 +53,19 @@
   border-left: 1px solid #666;
 }
 #name {
-  margin: 6px 4px;
+  margin: 8px 4px;
 }
 #comanage-gear {
   background: #333 url("../img/comanage-gear.png") top left no-repeat;
   height: 13px;
-  margin: 2px 4px 0 0;
+  margin: 0 4px 0 0;
   width: 13px;
 }
+#name .sf-menu li {
+  background-color: #333;
+  cursor: pointer;
+}
+
 #row1 li:first-child {
   border-left: none; /* gets rid of first pipe */
   padding-left: 0;
@@ -82,7 +87,7 @@
   float: left;
   color: #ccc;
 }
-  
+ 
 /*** Overrides for sf-menu ***/
 
 .sf-menu a {
