@@ -144,6 +144,55 @@ class CoGroupMembersController extends StandardController {
   }
   
   /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
+    $cogroupid = null;
+    $copersonid = null;
+    
+    if(isset($this->params->named['cogroup'])) {
+      $cogroupid = $this->params->named['cogroup'];
+    } elseif(isset($this->request->data['CoGroupMember']['co_group_id'])) {
+      $cogroupid = $this->request->data['CoGroupMember']['co_group_id'];
+    } elseif(isset($this->request->data['CoGroupMember']['co_person_id'])) {
+      $copersonid = $this->request->data['CoGroupMember']['co_person_id'];
+    }
+    
+    if($cogroupid) {
+      // Map CO group to CO
+      
+      $coId = $this->CoGroupMember->CoGroup->field('co_id',
+                                                   array('id' => $cogroupid));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.gr.nf', array($cogroupid)));
+      }
+    } elseif($copersonid) {
+      // Map CO person to CO
+      
+      $coId = $this->CoGroupMember->CoPerson->field('co_id',
+                                                    array('id' => $copersonid));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.cop.unk-a', array($copersonid)));
+      }
+    }
+    
+    // Or try the default behavior
+    return parent::calculateImpliedCoId();
+  }
+  
+  /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)

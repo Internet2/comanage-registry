@@ -1447,10 +1447,7 @@ class AppController extends Controller {
          // to pull the CO ID from the object being attached to, eg co person).
          ||
          (isset($model->Co)
-          && ($this->action == 'select' || $this->action == 'add'))
-         ||
-         // This should probably be pulled into a per-controller setting
-         ($req == 'CoGroupMember' && $this->action == 'update')) {
+          && ($this->action == 'select' || $this->action == 'add'))) {
         if(isset($this->params['named']['co'])) {
           $coid = $this->params['named']['co'];
         }
