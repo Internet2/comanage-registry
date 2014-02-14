@@ -55,6 +55,9 @@
 #name {
   margin: 6px 4px;
 }
+#comanage-gear {
+  background-image: url("../img/comanage-gear.png");
+}
 #row1 li:first-child {
   border-left: none; /* gets rid of first pipe */
   padding-left: 0;

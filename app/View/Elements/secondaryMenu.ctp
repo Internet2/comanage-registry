@@ -38,6 +38,7 @@
     if($this->Session->check('Auth.User.name')) {
       // Print the user's name
       print '<div id="name">';
+      print '<span id="comanage-gear"></span>';
       print generateCn($this->Session->read('Auth.User.name'));
       if($this->Session->check('Auth.User.username')) {
         print ' (' . $this->Session->read('Auth.User.username') . ')';
