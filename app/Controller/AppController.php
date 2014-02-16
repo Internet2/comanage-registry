@@ -292,14 +292,10 @@ class AppController extends Controller {
     // As a default, we'll see if we can determine the CO in a generic manner.
     // Where this doesn't work, individual Controllers can override this function.
     
-    /*
-     * MVPAs can imply a CO ID even though they technically don't require a CO.
-     *
-    if(!$this->requires_co) {
+    if(!$this->requires_co && !$this->requires_person) {
       // Controllers that don't require a CO generally can't imply one.
       return null;
     }
-    */
     
     // Get a pointer to our model
     $req = $this->modelClass;
