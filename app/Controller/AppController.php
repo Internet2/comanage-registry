@@ -302,7 +302,7 @@ class AppController extends Controller {
     $model = $this->$req;
     $modelpl = Inflector::tableize($req);
     
-    if($this->action == 'add' || $this->action == 'select') {
+    if($this->action == 'add' || $this->action == 'select' || $this->action == 'review') {
       // See if what we're adding/selecting is attached to a person
       $p = $this->parsePersonID();
       
@@ -359,19 +359,19 @@ class AppController extends Controller {
                                                         Sanitize::html($this->request->params['named']['cogroup']))));
         }
       }
-    } else {
-      // We need a parameter that is probably an object ID
-      
-      if(!empty($this->request->params['pass'][0])) {
-        try {
-          $recordCoId = $model->findCoForRecord($this->request->params['pass'][0]);
-        }
-        catch(InvalidArgumentException $e) {
-          throw new InvalidArgumentException($e->getMessage());
-        }
-        
-        return $recordCoId;
+    }
+    
+    // If we get here, assume the parameter is an object ID
+    
+    if(!empty($this->request->params['pass'][0])) {
+      try {
+        $recordCoId = $model->findCoForRecord($this->request->params['pass'][0]);
       }
+      catch(InvalidArgumentException $e) {
+        throw new InvalidArgumentException($e->getMessage());
+      }
+      
+      return $recordCoId;
     }
     
     return null;
