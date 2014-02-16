@@ -177,9 +177,9 @@
                                                 $g['id'],
                                                 'co' => $cur_co['Co']['id']));
                   // Print person's status
-                  if( !empty($c['CoPerson']['Status']) ) {
+                  if( !empty($c['CoPerson']['status']) ) {
                     print ' (' 
-                      . _txt('en.status', null, $c['CoPerson']['Status'])
+                      . _txt('en.status', null, $c['CoPerson']['status'])
                       .')';
                   }
 
