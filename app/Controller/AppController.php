@@ -292,10 +292,14 @@ class AppController extends Controller {
     // As a default, we'll see if we can determine the CO in a generic manner.
     // Where this doesn't work, individual Controllers can override this function.
     
+    /*
+     * MVPAs can imply a CO ID even though they technically don't require a CO.
+     *
     if(!$this->requires_co) {
-      // Controllers that don't require a CO can't imply one.
+      // Controllers that don't require a CO generally can't imply one.
       return null;
     }
+    */
     
     // Get a pointer to our model
     $req = $this->modelClass;
@@ -496,24 +500,24 @@ class AppController extends Controller {
               continue;
             }
             
-            if($amodel == "CoPerson") {
-              // Display field is Primary Name. Pull the old and new CO People in
+            if($amodel == "CoPerson" || $amodel == "OrgIdentity") {
+              // Display field is Primary Name. Pull the old and new CO People/Org Identity in
               // one query, though we won't know which one we'll get back first.
               
               $args = array();
-              $args['conditions']['CoPerson.id'] = array($oldval, $newval);
+              $args['conditions'][$amodel.'.id'] = array($oldval, $newval);
               $args['contain'][] = 'PrimaryName';
               
-              $copeople = $this->$amodel->find('all', $args);
+              $ppl = $this->$amodel->find('all', $args);
               
-              if(!empty($copeople)) {
+              if(!empty($ppl)) {
                 // Walk through the result set to figure out which one is old and which is new
                 
-                foreach($copeople as $c) {
-                  if(!empty($c['CoPerson']['id']) && !empty($c['PrimaryName'])) {
-                    if($c['CoPerson']['id'] == $oldval) {
+                foreach($ppl as $c) {
+                  if(!empty($c[$amodel]['id']) && !empty($c['PrimaryName'])) {
+                    if($c[$amodel]['id'] == $oldval) {
                       $oldval = generateCn($c['PrimaryName']) . " (" . $oldval . ")";
-                    } elseif($c['CoPerson']['id'] == $newval) {
+                    } elseif($c[$amodel]['id'] == $newval) {
                       $newval = generateCn($c['PrimaryName']) . " (" . $newval . ")";
                     }
                   }
@@ -565,12 +569,15 @@ class AppController extends Controller {
             }
           }
           
-          // Finally, render the change string based on the attributes found above
+          // Finally, render the change string based on the attributes found above.
+          // Notate going to or from NULL only if $newdata or $olddata (as appropriate)
+          // was populated, so as to avoid noise when a related object is added or
+          // deleted.
           
           if(isset($newval) && !isset($oldval)) {
-            $changes[] = $ftxt . ": " . _txt('fd.null') . " > " . $newval;
+            $changes[] = $ftxt . ": " . (isset($olddata) ? _txt('fd.null') . " > " : "") . $newval;
           } elseif(!isset($newval) && isset($oldval)) {
-            $changes[] = $ftxt . ": " . $oldval . " > " . _txt('fd.null');
+            $changes[] = $ftxt . ": " . $oldval . (isset($newdata) ? " > " . _txt('fd.null') : "");
           } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
             $changes[] = $ftxt . ": " . $oldval . " > " . $newval;
           }

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Multi-Value Person Attribute (MVPA) Controller
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -93,6 +93,24 @@ class MVPAController extends StandardController {
   public function generateHistory($action, $newdata, $olddata) {
     $req = $this->modelClass;
     $model = $this->$req;
+    $modelpl = Inflector::tableize($req);
+    
+    // Build a change string
+    $cstr = "";
+    
+    switch($action) {
+      case 'add':
+        $cstr = _txt('rs.added-a3', array(_txt('ct.'.$modelpl.'.1')));
+        break;
+      case 'delete':
+        $cstr = _txt('rs.deleted-a3', array(_txt('ct.'.$modelpl.'.1')));
+        break;
+      case 'edit':
+        $cstr = _txt('rs.edited-a3', array(_txt('ct.'.$modelpl.'.1')));
+        break;
+    }
+    
+    $cstr .= ": " . $this->changesToString($newdata, $olddata, array($req));
     
     switch($action) {
       case 'add':
@@ -103,7 +121,7 @@ class MVPAController extends StandardController {
                                                      $newdata[$req]['org_identity_id'],
                                                      $this->Session->read('Auth.User.co_person_id'),
                                                      ActionEnum::OrgIdEditedManual,
-                                                     $this->changesToString($newdata, $olddata, array($req)));
+                                                     $cstr);
         } elseif(!empty($newdata[$req]['co_person_role_id'])) {
           // Map CO Person Role to CO Person
           $copid = $model->CoPersonRole->field('co_person_id', array('CoPersonRole.id' => $newdata[$req]['co_person_role_id']));
@@ -113,14 +131,14 @@ class MVPAController extends StandardController {
                                                       null,
                                                       $this->Session->read('Auth.User.co_person_id'),
                                                       ActionEnum::CoPersonEditedManual,
-                                                      $this->changesToString($newdata, $olddata, array($req)));
+                                                      $cstr);
         } elseif(!empty($newdata[$req]['co_person_id'])) {
           $model->CoPerson->HistoryRecord->record($newdata[$req]['co_person_id'],
                                                   null,
                                                   null,
                                                   $this->Session->read('Auth.User.co_person_id'),
                                                   ActionEnum::CoPersonEditedManual,
-                                                  $this->changesToString($newdata, $olddata, array($req)));
+                                                  $cstr);
         }
         break;
       case 'delete':
@@ -130,7 +148,7 @@ class MVPAController extends StandardController {
                                                      $olddata[$req]['org_identity_id'],
                                                      $this->Session->read('Auth.User.co_person_id'),
                                                      ActionEnum::OrgIdEditedManual,
-                                                     $this->changesToString($newdata, $olddata, array($req)));
+                                                     $cstr);
         } elseif(!empty($olddata[$req]['co_person_role_id'])) {
           // Map CO Person Role to CO Person
           $copid = $model->CoPersonRole->field('co_person_id', array('CoPersonRole.id' => $olddata[$req]['co_person_role_id']));
@@ -140,14 +158,14 @@ class MVPAController extends StandardController {
                                                       null,
                                                       $this->Session->read('Auth.User.co_person_id'),
                                                       ActionEnum::CoPersonEditedManual,
-                                                      $this->changesToString($newdata, $olddata, array($req)));
+                                                      $cstr);
         } elseif(!empty($olddata[$req]['co_person_id'])) {
           $model->CoPerson->HistoryRecord->record($olddata[$req]['co_person_id'],
                                                   null,
                                                   null,
                                                   $this->Session->read('Auth.User.co_person_id'),
                                                   ActionEnum::CoPersonEditedManual,
-                                                  $this->changesToString($newdata, $olddata, array($req)));
+                                                  $cstr);
         }
         break;
     }

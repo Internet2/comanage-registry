@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Index View
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -302,19 +302,21 @@
                   . "\n";
               } elseif($permissions['enroll']
                        && $p['CoPerson']['status'] == StatusEnum::PendingConfirmation) {
-                print '<button class="invitebutton" title="' 
-                  . _txt('op.inv.resend') 
-                  . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
-                  . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
-                  . '\', \'' 
-                  . $this->Html->url(array('controller' => 'co_petitions',
-                                           'action'     => 'resend',
-                                           $p['CoInvite']['CoPetition']['id'],
-                                           'co'         => $cur_co['Co']['id'])) 
-                  . '\')";>' 
-                  . _txt('op.inv.resend') 
-                  . '</button>'
-                  . "\n";
+                if(!empty($p['CoInvite']['CoPetition']['id'])) {
+                  print '<button class="invitebutton" title="' 
+                    . _txt('op.inv.resend') 
+                    . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
+                    . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
+                    . '\', \'' 
+                    . $this->Html->url(array('controller' => 'co_petitions',
+                                             'action'     => 'resend',
+                                             $p['CoInvite']['CoPetition']['id'],
+                                             'co'         => $cur_co['Co']['id'])) 
+                    . '\')";>' 
+                    . _txt('op.inv.resend') 
+                    . '</button>'
+                    . "\n";
+                }
               }
             }
           ?>
