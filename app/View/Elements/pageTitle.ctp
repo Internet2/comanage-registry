@@ -22,7 +22,7 @@
 ?>
 
 <div class="pageTitle">
-  <h1>
+  <h2>
     <?php print $title; ?>
-  </h1>
+  </h2>
 </div>

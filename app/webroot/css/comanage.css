@@ -17,320 +17,281 @@
  * permissions and limitations under the License.
  *
  */
-
-/* General */
-
-.hidden {
-  display: none;
-}
-
-  /* Text */
-  
-  .largefont {
-    font: 200% "Trebuchet MS", sans-serif;
-  }
-
-  .required {
-    color: red;
-  }
-  
-  .desc {
-    font-size: small;
-    font-style: italic;
-  }
-  
-  /* Positioning */
-  
-  .right {
-    float: right;
-  }
-
-
+ 
 /* Body */
-
 body {
   font: 75% "Trebuchet MS", sans-serif;
   width: auto;
   margin: -12px auto 0 auto;
 }
 
-  /* Header */
+/* General */
+.hidden {
+  display: none;
+}
 
-  .headerLeft {
-    float:left;
-    padding: 10px 0 0 0;
-  }
+/* Text */
+.largefont {
+  font: 200% "Trebuchet MS", sans-serif;
+}
+.required {
+  color: red;
+}
+.desc {
+  font-size: small;
+  font-style: italic;
+}
 
-  .headerRight {
-    float:right;
-    width:auto;
-  }
+/* Positioning */
+.right {
+  float: right;
+}
 
-  .header span {
-    float:left;
-    color:white;
-  }
+/* Header */
+.headerLeft {
+  float:left;
+  margin: 0;
+  padding: 0;
+  color: #333;
+  font-weight: normal;
+}
+.headerRight {
+  float: right;
+  width: auto;
+}
+.header span {
+  float: left;
+}
+.header .ui-icon {
+  position: relative;
+  top: -3px;
+}
 
-  .header .ui-icon {
-    position: relative;
-    top: -3px;
-  }
+/* Content */
+#content {
+  min-width: 600px;
+  width: 100%;
+  float: left;
+  margin-left:auto;
+  margin-right:auto;
+  overflow:hidden;
+}
+h1 {
+  float: left;
+  margin: 0;
+  font-size: 3.5em;
+  font-weight: normal;
+}
+h2 {
+  font-size: 200%;
+  padding: 5px;
+}
+/* removes extra padding in lists of button links */
+a.linkbutton: last-child {
+  padding-right: 0px;
+}
 
-  /* Content */
+/* Tables */
+table {
+  width: 100%;
+}
+th, td {
+  padding: 0.5em;
+}
+/* zebra stripes for rows; 0 used for autoincrementing line counters */
+.line0 {
+  background-color: lightgray;
+}
+.line1 {
+  background-color: #EEE;
+}
+.line2 {
+  background-color: #DDD;
+}
+.menuitembutton {
+  width: 250px;
+}
+
+/* Forms */
+
+input.text {
+  margin-bottom: 12px;
+  width: 95%;
+  padding: 0.4em;
+}
   
-  #content {
-    min-width: 600px;
-    width: 100%;
-    float: left;
-    margin-left:auto;
-    margin-right:auto;
-    overflow:hidden;
-  }
+fieldset {
+  margin-top: 25px;
+}
+  
+fieldset.borderless {
+  padding: 0;
+  border: 0;
+  margin-top: 25px;
+}
 
-    /* Overrides default h1 in cake.generic.css */
-    h1 {
-      padding:5px;
-    }
+/* For Advanced Search box */
+#advancedSearch .ui-accordion-content{
+  padding: 0px;
+}
+#advancedSearch td{
+  border: none;
+}
+#advancedSearch td label{
+  top: 4px;
+  position: relative;
+}
+#advancedSearch input,
+#advancedSearch select{
+  float: right;
+  clear: both;
+  width: 130px;
+  margin-left: 8px;
+}
+#advancedSearch select{
+  width: 146px;
+}
+#advancedSearch .submit{
+  float: right;
+}
 
-    /* removes extra padding in lists of button links */
-    a.linkbutton:last-child {
-      padding-right:0px;
-    }
+/* For enrollment form */
+#formbox {
+  background-color: #F3F4F3;
+  width: 300px;
+  margin: 10px;
+  padding: 10px;
+}
+#formbox .title {
+  font-size: 14px;
+}
 
-    /* Tables */
-    
-    th, td {
-      padding:5px;
-    }
-    
-      /* zebra stripes for rows; 0 used for autoincrementing line counters */
-      .line0 {
-        background-color: lightgray;
-      }
-      .line1 {
-        background-color: #EEE;
-      }
-      .line2 {
-        background-color: #DDD;
-      }
+/* 2-column layout */
+.twocolumn{
+  border: solid gray 2px;
+  float: left;
+  margin: 0 30px 0 15px;
+  padding: 10px;
+  width: 365px;
+}
+.twocolumn .ui-widget-header{
+  padding: 0 5px;
+  overflow: hidden;
+}
+.twocolumn .ui-widget-header div {
+  margin: 8px 0;
+  float: left;
+}
+.twocolumn input[type="text"]{
+  width: 230px;
+}
+.additionalinfo{
+  padding: 5px;
+  margin: 0 0 5px 0;
+}
+.additionalinfo:last-child{
+  margin: 0;
+}
+.additionalinfo>div{
+  background: none repeat scroll 0 0 #EEEEEE;
+  padding: 5px;
+  margin: 0 0 5px 0;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.additionalinfo>div:last-child{
+  margin: 0;
+}
+.additionalinfo>div>div:first-child{
+  float: left;
+  padding: 7px 0 0 10px;
+}
+.additionalinfo>div>div:last-child{
+  border-left:1px solid white;
+  border-left: 1px solid white;
+  float: right;
+  padding-left: 5px;
+}
+.additionalinfo div a{
+  float: left;
+}
+.additionalinfo div .ui-button{
+  float: right;
+}
 
+#OrgIdentityEditForm .addbutton,
+#view_org_identity .addbutton,
+#CoPersonEditForm .addbutton,
+#CoPersonRoleEditForm .addbutton{
+  float: right;
+}
 
-    .menuitembutton {
-      width: 250px;
-    }
+/* Drag/drop ordering */
+.order .ui-icon{
+  float: left;
+}
 
-    /* Forms */
-    
-    input.text {
-      margin-bottom:12px;
-      width:95%;
-      padding: .4em;
-    }
-      
-    fieldset {
-      margin-top:25px;
-    }
-      
-    fieldset.borderless {
-      padding:0;
-      border:0;
-      margin-top:25px;
-    }
+.order {
+  padding-left: 18px;
+}     
 
-      /* For Advanced Search box */
-      #advancedSearch .ui-accordion-content{
-        padding: 0px;
-      }
-      #advancedSearch td{
-        border:none;
-      }
+/* Sidebar (right) */
+#sidebar {
+  float: left;
+  width: 247px;
+  min-height: 400px;
+  padding: 10px;
+  margin: 72px 0 0 4px;
+  border: 1px solid #4297d7;
+  background: #f5fafd;
+}
 
-      #advancedSearch td label{
-        top: 4px;
-        position: relative;
-      }
+/* Footer */
+.footer {
+  margin: 20px 0 0 0;
+  padding: 10px;
+}
+.poweredByComanage {
+  padding: 10px;
+  margin: 10px;
+  float: right;
+}
+.poweredText {
+  margin: 10px;
+  float: left;
+}
 
-      #advancedSearch input,
-      #advancedSearch select{
-        float: right;
-        clear: both;
-        width: 130px;
-        margin-left: 8px;
-      }
+/* Notifications */
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active { 
+  border: 1px solid #6eac2c !important; 
+  background: #f5f8f9 url(../js/jquery/ui/css/comanage-theme/images/ui-bg_inset-hard_100_f5f8f9_1x100.png) 50% 50% repeat-x !important;
+  font-weight: bold !important;
+  color: #6eac2c !important;
+}
+.ui-state-active .ui-icon {
+  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_6eac2c_256x240.png) !important;
+}
 
-      #advancedSearch select{
-        width: 146px;
-      }
-      
-      #advancedSearch .submit{
-        float: right;
-      }
+.noty_text{
+  font-weight: bold;
+}
 
-      /* For enrollment form */
-      #formbox {
-        background-color: #F3F4F3;
-        width:300px;
-        margin:10px;
-        padding:10px;
-      }
-
-      #formbox .title {
-        font-size:14px;
-      }
-
-/* XXX why are these here? they mess up invite form rendering
-      #CoPersonAddForm {
-        padding: 10px;
-        margin:10px;
-      }
-
-      #CoPersonAddForm div {
-        margin: 5px;
-        height: 20px;
-      }
-
-      #CoPersonAddForm input {
-       float:right;
-      }
-*/
-      /* 2-column layout */
-      .twocolumn{
-        border: solid gray 2px;
-        float: left;
-        margin: 0 30px 0 15px;
-        padding: 10px;
-        width: 365px;
-      }
-
-      .twocolumn .ui-widget-header{
-        padding:0 5px;
-        overflow:hidden;
-      }
-      .twocolumn .ui-widget-header div {
-        margin: 8px 0;
-        float:left;
-      }
-      
-      .twocolumn input[type="text"]{
-        width: 230px;
-      }
-
-      .additionalinfo{
-        padding: 5px;
-        margin: 0 0 5px 0;
-      }
-      .additionalinfo:last-child{
-        margin:0;
-      }
-
-      .additionalinfo>div{
-        background: none repeat scroll 0 0 #EEEEEE;
-        padding: 5px;
-        margin: 0 0 5px 0;
-        overflow:hidden;
-        border-radius:10px;
-      }
-      .additionalinfo>div:last-child{
-        margin:0;
-      }
-      .additionalinfo>div>div:first-child{
-        float: left;
-        padding: 7px 0 0 10px;
-      }
-      .additionalinfo>div>div:last-child{
-        border-left:1px solid white;
-        border-left: 1px solid white;
-        float: right;
-        padding-left: 5px;
-      }
-
-      .additionalinfo div a{
-        float:left;
-      }
-      .additionalinfo div .ui-button{
-        float:right;
-      }
-
-      #OrgIdentityEditForm .addbutton,
-      #view_org_identity .addbutton,
-      #CoPersonEditForm .addbutton,
-      #CoPersonRoleEditForm .addbutton{
-        float:right;
-      }
-
-    /* Drag/drop ordering */
-    .order .ui-icon{
-      float: left;
-    }
-
-    .order {
-      padding-left: 18px;
-    }     
-
-  /* Sidebar (right) */
-  #sidebar {
-    float: left;
-    width: 247px;
-    min-height: 400px;
-    padding: 10px;
-    margin: 72px 0 0 4px;
-    border: 1px solid #4297d7;
-    background: #f5fafd;
-  }
-
-  /* Footer */
-  .footer {
-    margin:20px 0 0 0;
-    padding:10px;
-  }
-
-    .poweredByComanage {
-      padding:10px;
-      margin: 10px;
-      float:right;
-    }
-
-    .poweredText {
-      margin:10px;
-      float:left;
-    }
-
-  /* Notifications */
-  .ui-state-active,
-  .ui-widget-content .ui-state-active,
-  .ui-widget-header .ui-state-active { 
-    border: 1px solid #6eac2c !important; 
-    background: #f5f8f9 url(../js/jquery/ui/css/comanage-theme/images/ui-bg_inset-hard_100_f5f8f9_1x100.png) 50% 50% repeat-x !important;
-    font-weight: bold !important;
-    color: #6eac2c !important;
-  }
-
-  .ui-state-active .ui-icon {
-    background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_6eac2c_256x240.png) !important;
-  }
-
-  .noty_text{
-    font-weight: bold;
-  }
- 
-  .noty_icon{
-    display: inline-block !important;
-    position: relative;
-    top: 3px;
-  }
-
-  .warbg{
-    background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png) !important;
-  }
-
-  .sucbg{
-    background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png) !important;
-  }
-
-  .errbg{
-    background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png) !important;
-  }
-
-  .notbg{
-    background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png) !important;
-  }
+.noty_icon{
+  display: inline-block !important;
+  position: relative;
+  top: 3px;
+}
+.warbg{
+  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png) !important;
+}
+.sucbg{
+  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png) !important;
+}
+.errbg{
+  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png) !important;
+}
+.notbg{
+  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png) !important;
+}

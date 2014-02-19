@@ -31,17 +31,73 @@
   color: white;
   background-color: #333;
 }
-.menubar {
+.rightmenu {
+  float: right;
+}
+
+/*** Globals settings for dropdown sf-menu ***/
+/* widths and heights need to match in the following selectors 
+   for the sf menus to align */
+.sf-menu {
+  cursor: pointer; 
+  margin-bottom: 0;
+}
+.sf-sub-indicator {
+  background: url("../img/arrows-333333.png") no-repeat scroll -10px -100px rgba(0, 0, 0, 0);
+}
+.sf-menu ul {
+	width: 17em; 
+}
+.sf-menu li:hover ul,
+.sf-menu li.sfHover ul {
+	top: 30px; 
+}
+ul.sf-menu li li:hover ul,
+ul.sf-menu li li.sfHover ul {
+	left:	17em;
+}
+ul.sf-menu li li li:hover ul,
+ul.sf-menu li li li.sfHover ul {
+	left:	17em; 
+}
+
+/*** Name Dropdown Menu ***/
+#name {
   margin: 0;
   padding: 0;
 }
-.rightmenu {
-    float: right;
+#row1 li.dropMenu a.menuTop { 
+  background-color: transparent;
+  color: #ccc;
+  border: none;
 }
-.menubar .label {
-  float: left;
-  margin: 9px;
+#row1 li.dropMenu a.menuTop:hover { 
+  color: #fff;
 }
+#comanage-gear {
+  background: #333 url("../img/comanage-gear.png") top left no-repeat;
+  height: 13px;
+  margin: 0 4px 0 0;
+  width: 13px;
+}
+#name .sf-menu ul:first-child {
+  display: block !important;
+  visibility: visible !important;
+}
+#name li.dropMenu a {
+  background-color: #eee;
+  color: #333;
+}
+#name .sf-menu li {
+  color: #ccc;
+  background-color: #333;
+}
+#name .sf-menu a {
+  color: #ccc;
+  background-color: #333;
+}
+
+/*** Custom Links in Row1 ***/
 #links ul {
   padding: 0;
 } 
@@ -52,30 +108,16 @@
   padding-left: 9px;
   border-left: 1px solid #666;
 }
-#name {
-  margin: 8px 4px;
-}
-#comanage-gear {
-  background: #333 url("../img/comanage-gear.png") top left no-repeat;
-  height: 13px;
-  margin: 0 4px 0 0;
-  width: 13px;
-}
-#name .sf-menu li {
-  background-color: #333;
-  cursor: pointer;
-}
-
-#row1 li:first-child {
+#links li:first-child {
   border-left: none; /* gets rid of first pipe */
   padding-left: 0;
 } 
-#row1 li a,
-#row1 li a:visited {
+#links a,
+#links a:visited {
   color: #ccc;
   text-decoration: none;
 }
-#row1 li a:hover {
+#links a:hover {
   color: white;
 }
 
@@ -88,28 +130,6 @@
   color: #ccc;
 }
  
-/*** Overrides for sf-menu ***/
-
-.sf-menu a {
-  border: none;
-  padding: 0;
-  color: #333333 !important;
-}/* override top line */
-
-.sf-menu li:hover, .sf-menu li.sfHover,
-.sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active {
-  background: none;
-  outline: 0;
-} /* overrides background blue*/
-.sf-menu li {
-  border: none;
-}/*overrides default line*/
-.sf-menu li li {
-  background: none;
-  text-indent: 5px;
-  margin: -1px;
-}  /*overrides default so background in ul can show through */
-
 /*** Notification ***/
 #notification {
   height: 18px;
@@ -127,6 +147,11 @@
 #notification>ul>li {
   background-color: #C33;
   margin: 3px 5px 2px 2px;
+}
+#notification .sf-menu a.menuTop {
+  color: white;
+  border: none;
+  padding: 0 0.25em;
 }
 #notification span,
 #notification a {
@@ -179,17 +204,16 @@
 }
 
 /*** Logout button ***/
-#logout {
+#logout a {
+  display: block;
+  color: white;
+  text-decoration: none;
   height: 18px;
-  padding: 2px 6px 2px 6px;
+  padding: 3px 14px 1px 14px;
   margin: 4px 5px 5px 5px;
   background-color: #C33;
   border-radius: 5px;
   cursor: pointer;
-}
-#logout a {
-  color: white;
-  text-decoration: none;
 }
 
 /*** header row 2 ***/
@@ -200,62 +224,34 @@
 }
 
 /*** dropdown menu ***/
-
-/*** level one ***/
-.sf-menu ul {
-  width: 200px;
-} /* overrides default width */
-
-.menubar a,
-.menubar a:visited {
-  padding: 9px; 
-  color: #333333; 
+#row3 {
+  height: 30px;
+  background-color: #eee;
+  color: #333;
+  border-bottom: 1px solid #ccc;
 }
-.menubar a:hover,
-.sf-menu li:hover {
-  color: #e6e6e6;
-  background: #d1eaff;
+#row3 li.dropMenu a.menuTop { 
+  height: 1em;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-top: none;
+  background-color: transparent;
 }
-.menubar a span {
-  border: none;
-  color: #333333;
-  display: block;
+a.menuTop > .sf-sub-indicator {
+  position: relative;
+  right: -2px;
+  top: 0;
 }
-.menubar .ui-icon {
-  width: 16px;
-  height: 16px;
-  background-image: url("jquery/ui/css/comanage-theme/images/ui-icons_cd0a0a_256x240.png");
+#row3 li.dropMenu a {
+  background-color: #eee;
+  color: #333;
 }
-/*** level one only ***/
-.menubar > ul > li {
-  background: #F3F4F3;
-  border: 1px solid #d9dad9;
+#row3 .sf-menu li {
+  color: #333;
+  background-color: transparent;
 }
-.menubar > ul > li:last-child {
-  margin-left: 10px;
-} /* Extra space between Platform and My Account */
-.menubar > ul > li > a {
-  height: 14px;
+#row3 .sf-menu a {
+  color: #ccc;
+  background-color: #333;
 }
-.menubar > ul > li span:hover {
-  color: white;
-}  /* special case for the extra span */
-
-/*** level two ***/
-.sf-menu li li li {
-  background: none;
-}  /* overrides default background so background in ul can show through */
-
-.sf-menu ul {
-  background: rgb(244,244,244); /* Old browsers */
-  /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-  background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2Y0ZjRmNCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNjNGM0YzQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+");
-  background: -moz-linear-gradient(top,  rgba(244,244,244,1) 0%, rgba(196,196,196,1) 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(244,244,244,1)), color-stop(100%,rgba(196,196,196,1))); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top,  rgba(244,244,244,1) 0%,rgba(196,196,196,1) 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top,  rgba(244,244,244,1) 0%,rgba(196,196,196,1) 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top,  rgba(244,244,244,1) 0%,rgba(196,196,196,1) 100%); /* IE10+ */
-  background: linear-gradient(top,  rgba(244,244,244,1) 0%,rgba(196,196,196,1) 100%); /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f4f4f4', endColorstr='#c4c4c4',GradientType=0 ); /* IE6-8 */
-} /* gradient for dropdown generated with http://www.colorzilla.com/gradient-editor/ */
 
