@@ -99,9 +99,13 @@ class CoEnrollmentAttributesController extends StandardController {
     $coefid = null;
     
     if($this->action == 'add' || $this->action == 'index') {
-      // Accept coefid from the url
+      // Accept coefid from the url or the form
       
-      $coefid = Sanitize::html($this->request->params['named']['coef']);
+      if(!empty($this->request->params['named']['coef'])) {
+        $coefid = Sanitize::html($this->request->params['named']['coef']);
+      } elseif(!empty($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'])) {
+        $coefid = $this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'];
+      }
     } elseif(!empty($this->request->params['pass'][0])) {
       // Map the enrollment flow from the requested object
       
