@@ -59,11 +59,6 @@ class CoGroup extends AppModel {
   
   public $actsAs = array('Containable', 'Provisioner');
 
-  // If true the data source for the model uses a relational database
-  // backend and if false then the data source is something else, perhaps
-  // Grouper or similar.
-  public $usesSqlDataSource = true;
-  
   // Validation rules for table elements
   public $validate = array(
     'co_id' => array(
@@ -98,33 +93,6 @@ class CoGroup extends AppModel {
     'status' => 'status_t'
   );
 
-  /**
-   * Constructor
-   * - precondition:
-   * - postcondition:
-   *
-   * @since COmanage Directory 0.7
-   * @return instance
-   */
-  public function __construct($id = false, $table = null, $ds = null){
-
-    // Depending on the configuration use the Grouper
-    // plugin data source or the default data source.
-    if (Configure::read('Grouper.COmanage.useGrouperDataSource')) {
-      $this->useDbConfig = 'grouperCoGroup';
-    } 
-
-    // Depending on the configuration signal that we
-    // do not use a SQL relational database backend for the
-    // data source.
-    if (!Configure::read('COmanage.groupSqlDataSource')) {
-      $this->usesSqlDataSource = false;
-    } 
-    
-    parent::__construct($id, $table, $ds);
-  }
-
-  
   /**
    * Obtain all groups for a CO person.
    *

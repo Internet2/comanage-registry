@@ -95,15 +95,7 @@ class CoGroupMembersController extends StandardController {
       
       if(count($a['CoGroupMember']) > 0)
       {
-        // When using the Grouper dataSource we need to set the
-        // atomic option for saveAll() to false.
-        if (Configure::read('Grouper.COmanage.useGrouperDataSource')) {
-          $atomic = false;
-        } else {
-          $atomic = true;
-        }
-
-        if($this->CoGroupMember->saveAll($a['CoGroupMember'], array('atomic' => $atomic)))
+        if($this->CoGroupMember->saveAll($a['CoGroupMember']))
           $this->Session->setFlash(_txt('rs.added'), '', array(), 'success');
         else
           $this->Session->setFlash($this->fieldsErrorToString($this->CoGroupMember->invalidFields()), '', array(), 'error');
