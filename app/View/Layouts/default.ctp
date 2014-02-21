@@ -402,25 +402,25 @@
         $f = $this->Session->flash('error');
        
         if($f && $f != "") {
-          print "generateFlash('". str_replace("'", "\'", $f) . "', 'error');";
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
         }
 
         $f = $this->Session->flash('info');
       
         if($f && $f != "") {
-          print "generateFlash('". str_replace("'", "\'", $f) . "', 'info');";
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'info');";
         }
         
         $f = $this->Session->flash('success');
         
         if($f && $f != "") {
-          print "generateFlash('". str_replace("'", "\'", $f) . "', 'success');";
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'success');";
         }
 
         $f = $this->Session->error();
         
         if($f && $f != "") {
-          print "generateFlash('". str_replace("'", "\'", $f) . "', 'error');";
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
         }
       ?>
     });
