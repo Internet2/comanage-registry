@@ -68,8 +68,76 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
 
 
 <div id="secondaryMenu" class="rightmenu">
+
+  <!-- Platform Dropdown -->
+  <?php if($permissions['menu']['admin']): ?>
+    <div id="platform" class="row1-dropdown">
+      <ul class="sf-menu">
+        <li class="dropMenu">
+          <a href="#"class="menuTop">
+            <span class="ui-icon ui-icon-wrench"></span>
+            <?php print _txt('me.platform');?>
+          </a>
+          <ul>
+            <li>
+              <?php
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'api_users';
+                $args['action'] = 'index';
+                
+                print $this->Html->link(_txt('ct.api_users.pl'), $args);
+              ?>
+            </li>
+            <li>
+              <?php
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'cmp_enrollment_configurations';
+                $args['action'] = 'select';
+                
+                print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $args);
+              ?>
+            </li>
+            <li>
+              <?php
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'cos';
+                $args['action'] = 'index';
+                
+                print $this->Html->link(_txt('ct.cos.pl'), $args);
+              ?>
+            </li>
+            <li>
+              <?php
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'navigation_links';
+                $args['action'] = 'index';
+                
+                print $this->Html->link(_txt('ct.navigation_links.pl'), $args);
+              ?>
+            </li>
+            <li>
+              <?php
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'organizations';
+                $args['action'] = 'index';
+                
+                print $this->Html->link(_txt('ct.organizations.pl'), $args);
+              ?>
+            </li>
+            <?php render_plugin_menus($this->Html, $plugins, 'cmp', $menuCoId); ?>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  <?php endif; ?>
+
   <?php if($this->Session->check('Auth.User.name')): ?>
-    <div id="name">
+    <div id="name" class="row1-dropdown">
       <ul class="sf-menu">
         <li class="dropMenu">
           <a href="#" class="menuTop">
@@ -189,70 +257,6 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                 }
               }
             ?>
-            
-            <!-- Platform Dropdown -->
-            <?php if($permissions['menu']['admin']): ?>
-              <li class="dropMenu">
-                <a href="#">
-                  <?php print _txt('me.platform');?>
-                  <span class="sf-sub-indicator"> »</span>
-                </a>
-                <ul>
-                  <li>
-                    <?php
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'api_users';
-                      $args['action'] = 'index';
-                      
-                      print $this->Html->link(_txt('ct.api_users.pl'), $args);
-                    ?>
-                  </li>
-                  <li>
-                    <?php
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'cmp_enrollment_configurations';
-                      $args['action'] = 'select';
-                      
-                      print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $args);
-                    ?>
-                  </li>
-                  <li>
-                    <?php
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'cos';
-                      $args['action'] = 'index';
-                      
-                      print $this->Html->link(_txt('ct.cos.pl'), $args);
-                    ?>
-                  </li>
-                  <li>
-                    <?php
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'navigation_links';
-                      $args['action'] = 'index';
-                      
-                      print $this->Html->link(_txt('ct.navigation_links.pl'), $args);
-                    ?>
-                  </li>
-                  <li>
-                    <?php
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'organizations';
-                      $args['action'] = 'index';
-                      
-                      print $this->Html->link(_txt('ct.organizations.pl'), $args);
-                    ?>
-                  </li>
-                  <?php render_plugin_menus($this->Html, $plugins, 'cmp', $menuCoId); ?>
-                </ul>
-              </li>
-            <?php endif; ?>
-            
             
           </ul>
         </li>
