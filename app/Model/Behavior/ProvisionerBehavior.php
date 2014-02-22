@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Provisioner Behavior
  *
- * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -192,6 +192,12 @@ class ProvisionerBehavior extends ModelBehavior {
       }
       
       foreach($coPersonId as $cpid) {
+        // $cpid could be null during a delete operation. If so, we're probably
+        // in the process of removing a related model, so just skip it.
+        if(empty($cpid)) {
+          continue;
+        }
+        
         try {
           $pdata = $this->marshallCoPersonData($pmodel, $cpid);
         }
@@ -272,7 +278,6 @@ class ProvisionerBehavior extends ModelBehavior {
     
     // However, deleting a CoPerson or CoGroup needs to be handled specially.
     
-    
     if(!empty($model->data[ $mname ]['id'])) {
       // Invoke all provisioning plugins
       
@@ -335,18 +340,24 @@ class ProvisionerBehavior extends ModelBehavior {
                                   $action,
                                   $provisioningData);
           
-          // Create/update the export record
+          // Create/update the export record, unless this is a delete operation
+          // (in which case we're about to delete the entity, so creating a record
+          // will interfere with the delete).
           
-          $pluginModel->CoProvisioningTarget->CoProvisioningExport->record(
-            $coProvisioningTarget['id'],
-            !empty($provisioningData['CoPerson']['id']) ? $provisioningData['CoPerson']['id'] : null,
-            !empty($provisioningData['CoGroup']['id']) ? $provisioningData['CoGroup']['id'] : null
-          );
+          if($action != ProvisioningActionEnum::CoGroupDeleted
+             && $action != ProvisioningActionEnum::CoPersonDeleted) {
+            $pluginModel->CoProvisioningTarget->CoProvisioningExport->record(
+              $coProvisioningTarget['id'],
+              !empty($provisioningData['CoPerson']['id']) ? $provisioningData['CoPerson']['id'] : null,
+              !empty($provisioningData['CoGroup']['id']) ? $provisioningData['CoGroup']['id'] : null
+            );
+          }
           
-          // Cut a history record if we're provisioning a CO Person record.
-          // Currently, there is no equivalent concept for CO Groups.
+          // Cut a history record if we're provisioning a CO Person record (and not
+          // deleting it). Currently, there is no equivalent concept for CO Groups.
           
-          if(!empty($provisioningData['CoPerson']['id'])) {
+          if(!empty($provisioningData['CoPerson']['id'])
+             && $action != ProvisioningActionEnum::CoPersonDeleted) {
             // It's a bit of a walk to get to HistoryRecord
             $pluginModel->CoProvisioningTarget->Co->CoPerson->HistoryRecord->record(
               $provisioningData['CoPerson']['id'],
@@ -572,43 +583,49 @@ class ProvisionerBehavior extends ModelBehavior {
     
     // Remove any role records that are not active
     
-    for($i = (count($coPersonData['CoPersonRole']) - 1);$i >= 0;$i--) {
-      // Count backwards so we don't trip over indices when we unset invalid roles.
-      // The role record must have a valid status (for now: Active), be within validity window,
-      // and be attached to a valid CO Person.
-      
-      if($coPersonData['CoPerson']['status'] != StatusEnum::Active
-         ||
-         $coPersonData['CoPersonRole'][$i]['status'] != StatusEnum::Active
-         ||
-         (!empty($coPersonData['CoPersonRole'][$i]['valid_from'])
-          && strtotime($coPersonData['CoPersonRole'][$i]['valid_from']) >= time())
-         ||
-         (!empty($coPersonData['CoPersonRole'][$i]['valid_through'])
-          && strtotime($coPersonData['CoPersonRole'][$i]['valid_through']) < time())) {
-        unset($coPersonData['CoPersonRole'][$i]);
+    if(!empty($coPersonData['CoPersonRole'])) {
+      for($i = (count($coPersonData['CoPersonRole']) - 1);$i >= 0;$i--) {
+        // Count backwards so we don't trip over indices when we unset invalid roles.
+        // The role record must have a valid status (for now: Active), be within validity window,
+        // and be attached to a valid CO Person.
+        
+        if($coPersonData['CoPerson']['status'] != StatusEnum::Active
+           ||
+           $coPersonData['CoPersonRole'][$i]['status'] != StatusEnum::Active
+           ||
+           (!empty($coPersonData['CoPersonRole'][$i]['valid_from'])
+            && strtotime($coPersonData['CoPersonRole'][$i]['valid_from']) >= time())
+           ||
+           (!empty($coPersonData['CoPersonRole'][$i]['valid_through'])
+            && strtotime($coPersonData['CoPersonRole'][$i]['valid_through']) < time())) {
+          unset($coPersonData['CoPersonRole'][$i]);
+        }
       }
     }
     
     // Remove any inactive identifiers
     
-    for($i = (count($coPersonData['Identifier']) - 1);$i >= 0;$i--) {
-      // Count backwards so we don't trip over indices when we unset invalid identifiers.
-      
-      if($coPersonData['Identifier'][$i]['status'] != StatusEnum::Active) {
-        unset($coPersonData['Identifier'][$i]);
+    if(!empty($coPersonData['Identifier'])) {
+      for($i = (count($coPersonData['Identifier']) - 1);$i >= 0;$i--) {
+        // Count backwards so we don't trip over indices when we unset invalid identifiers.
+        
+        if($coPersonData['Identifier'][$i]['status'] != StatusEnum::Active) {
+          unset($coPersonData['Identifier'][$i]);
+        }
       }
     }
     
     // Remove any inactive groups (ie: memberships attached to inactive groups)
     
-    for($i = (count($coPersonData['CoGroupMember']) - 1);$i >= 0;$i--) {
-      // Count backwards so we don't trip over indices when we unset invalid memberships.
-      
-      if($coPersonData['CoPerson']['status'] != StatusEnum::Active
-         ||
-         $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active) {
-        unset($coPersonData['CoGroupMember'][$i]);
+    if(!empty($coPersonData['CoGroupMember'])) {
+      for($i = (count($coPersonData['CoGroupMember']) - 1);$i >= 0;$i--) {
+        // Count backwards so we don't trip over indices when we unset invalid memberships.
+        
+        if($coPersonData['CoPerson']['status'] != StatusEnum::Active
+           ||
+           $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active) {
+          unset($coPersonData['CoGroupMember'][$i]);
+        }
       }
     }
     

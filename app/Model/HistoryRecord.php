@@ -83,6 +83,44 @@ class HistoryRecord extends AppModel {
   );
   
   /**
+   * Expunge the Actor from a Notification. This operation should only be performed
+   * as part of a CO Person expunge. A History Record will be created for the subject
+   * indicating that a participant was removed, without indicating who. This function
+   * should be called from within a transaction.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  integer $id                  History Record ID
+   * @param  integer $expungerCoPersonId  CO Person ID of person performing expunge
+   * @return boolean True on success
+   * @throws InvalidArgumentException
+   */
+  
+  public function expungeActor($id,
+                               $expungerCoPersonId) {
+    $this->id = $id;
+    
+    $subjectCoPersonId = $this->field('co_person_id');
+    $subjectCoPersonRoleId = $this->field('co_person_role_id');
+    $subjectOrgIdentityId = $this->field('org_identity_id');
+    
+    if(!$subjectCoPersonId && !$subjectOrgIdentityId) {
+      // We should have at least one CO Person ID or one Org Identity ID
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.history_records.1'), $id)));
+    }
+    
+    $this->saveField('actor_co_person_id', null);
+    
+    $this->record($subjectCoPersonId,
+                  $subjectCoPersonRoleId,
+                  $subjectOrgIdentityId,
+                  $expungerCoPersonId,
+                  ActionEnum::HistoryRecordActorExpunged,
+                  _txt('rs.hr.expunge', array($id)));
+    
+    return true;
+  }
+  
+  /**
    * Create a History Record.
    *
    * @since  COmanage Registry v0.7
