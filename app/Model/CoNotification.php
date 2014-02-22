@@ -165,6 +165,43 @@ class CoNotification extends AppModel {
   }
   
   /**
+   * Expunge a Participant from a Notification. This operation should only be performed
+   * as part of a CO Person expunge. A History Record will be created for the subject
+   * indicating that a participant was removed, without indicating who. This function
+   * should be called from within a transaction.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  integer $id                  CO Notification ID
+   * @param  string  $role                One of 'actor', 'recipient', or 'resolver'
+   * @param  integer $expungerCoPersonId  CO Person ID of person performing expunge
+   * @return boolean True on success
+   * @throws InvalidArgumentException
+   */
+  
+  public function expungeParticipant($id,
+                                     $role,
+                                     $expungerCoPersonId) {
+    $this->id = $id;
+    
+    $subjectCoPersonId = $this->field('subject_co_person_id');
+    
+    if(!$subjectCoPersonId) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_notifications.1'), $id)));
+    }
+    
+    $this->saveField($role.'_co_person_id', null);
+    
+    $this->ActorCoPerson->HistoryRecord->record($subjectCoPersonId,
+                                                null,
+                                                null,
+                                                $expungerCoPersonId,
+                                                ActionEnum::NotificationParticipantExpunged,
+                                                _txt('rs.nt.expunge', array($id, $role)));
+    
+    return true;
+  }
+  
+  /**
    * Obtain pending notifications for a CO Person
    *
    * @since  COmanage Registry v0.8.4
@@ -399,17 +436,19 @@ class CoNotification extends AppModel {
         
         // Create a history record
         
-        try {
-          $this->SubjectCoPerson->HistoryRecord->record($recipient['id'],
-                                                        null,
-                                                        null,
-                                                        $actorCoPersonId,
-                                                        ActionEnum::NotificationDelivered,
-                                                        // use rs.nt.delivered.email if an email address was found
-                                                        _txt('rs.nt.delivered', array($comment)));
-        }
-        catch(Exception $e) {
-          throw new RuntimeException($e->getMessage());
+        if(!empty($recipient['RecipientCoPerson']['id'])) {
+          try {
+            $this->SubjectCoPerson->HistoryRecord->record($recipient['RecipientCoPerson']['id'],
+                                                          null,
+                                                          null,
+                                                          $actorCoPersonId,
+                                                          ActionEnum::NotificationDelivered,
+                                                          // use rs.nt.delivered.email if an email address was found
+                                                          _txt('rs.nt.delivered', array($comment)));
+          }
+          catch(Exception $e) {
+            throw new RuntimeException($e->getMessage());
+          }
         }
       }
     } else {

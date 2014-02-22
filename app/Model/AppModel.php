@@ -139,6 +139,7 @@ class AppModel extends Model {
    * @since  COmanage Registry v0.8
    * @param  integer Record to retrieve for
    * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
+   * @throws InvalidArgumentException
    * @throws RunTimeException
    */
   
@@ -150,7 +151,13 @@ class AppModel extends Model {
     if(isset($this->validate['co_id'])) {
       // This model directly references a CO
       
-      return $this->field('co_id', array($this->alias.".id" => $id));
+      $coId = $this->field('co_id', array($this->alias.".id" => $id));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound', array($this->alias, $id)));
+      }
     } elseif(isset($this->validate['co_person_id'])) {
       // Find the CO via the CO Person
       

@@ -268,22 +268,6 @@
                                               'onclick' => 'noprop(event);')) 
                 . "\n";
               
-              // Can't delete a CO Person if they have any roles
-              if(empty($p['CoPersonRole']) && $permissions['delete'])
-                print '<button class="deletebutton" title="' 
-                  . _txt('op.delete') 
-                  . '" onclick="javascript:noprop(event);js_confirm_delete(\'' 
-                  . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
-                  . '\', \'' 
-                  . $this->Html->url(array('controller' => 'co_people', 
-                                           'action'     => 'delete', 
-                                           $p['CoPerson']['id'], 
-                                           'co'         => $cur_co['Co']['id'])) 
-                  . '\')";>' 
-                  . _txt('op.delete') 
-                  . '</button>' 
-                  . "\n";
-              
               if($permissions['invite']
                  && ($p['CoPerson']['status'] == StatusEnum::Pending
                      || $p['CoPerson']['status'] == StatusEnum::Invited)) {

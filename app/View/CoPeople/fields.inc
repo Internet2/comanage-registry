@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Fields
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -90,8 +90,7 @@
           'url'     => array(
             'controller' => 'co_people', 
             'action'     => 'provision', 
-            $co_people[0]['CoPerson']['id'], 
-            'co'         => $cur_co['Co']['id']
+            $co_people[0]['CoPerson']['id']
           )
         ); 
       }
@@ -104,8 +103,19 @@
           'url'     => array(
             'controller' => 'co_terms_and_conditions', 
             'action'     => 'review', 
-            'copersonid' => $co_people[0]['CoPerson']['id'], 
-            'co'         => $cur_co['Co']['id']
+            'copersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
+      
+      if($permissions['expunge']) {
+        $sidebarButtons[] = array(
+          'icon'    => 'circle-close',
+          'title'   => _txt('op.expunge'),
+          'url'     => array(
+            'controller' => 'co_people', 
+            'action'     => 'expunge', 
+            $co_people[0]['CoPerson']['id']
           )
         );
       }
@@ -141,8 +151,7 @@
       'url'     => array(
         'controller' => 'history_records',
         'action' => 'index',
-        'copersonid' => $co_people[0]['CoPerson']['id'],
-        'co' => $cur_co['Co']['id']
+        'copersonid' => $co_people[0]['CoPerson']['id']
       )
     );
   }
