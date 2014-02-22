@@ -107,7 +107,9 @@ else
                   print "</li>";
                 }
                 
-                render_plugin_menus($this->Html, $plugins, 'copeople', $menuCoId);
+                if(!empty($plugins)) {
+                  render_plugin_menus($this->Html, $plugins, 'copeople', $menuCoId);
+                }
                 
                 print "</ul>";
               print "</li>";
@@ -124,7 +126,9 @@ else
                 print "</li>";
               }
               
-              render_plugin_menus($this->Html, $plugins, 'cos', $menuCoId);
+              if(!empty($plugins)) {
+                render_plugin_menus($this->Html, $plugins, 'cos', $menuCoId);
+              }
               
               if($permissions['menu']['cos']) {
                 print '<li>';
@@ -240,7 +244,9 @@ else
                     print "</li>";
                   }
                   
-                  render_plugin_menus($this->Html, $plugins, 'coconfig', $menuCoId);
+                  if(!empty($plugins)) {
+                    render_plugin_menus($this->Html, $plugins, 'coconfig', $menuCoId);
+                  }
                   
                   print "</ul>";
                 print "</li>";

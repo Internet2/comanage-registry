@@ -37,15 +37,17 @@ if(isset($menuContent['plugins'])) {
  */
 
 function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
-  foreach(array_keys($plugins) as $plugin) {
-    if(isset($plugins[$plugin][$menu])) {
-      foreach(array_keys($plugins[$plugin][$menu]) as $label) {
-        $args = $plugins[$plugin][$menu][$label];
-        
-        $args['plugin'] = Inflector::underscore($plugin);
-        if($menu != 'cmp') { $args['co'] = $coId; }
-        
-        print "<li>" . $htmlHelper->link($label, $args) . "</li>\n";
+  if(!empty($plugins)) {
+    foreach(array_keys($plugins) as $plugin) {
+      if(isset($plugins[$plugin][$menu])) {
+        foreach(array_keys($plugins[$plugin][$menu]) as $label) {
+          $args = $plugins[$plugin][$menu][$label];
+          
+          $args['plugin'] = Inflector::underscore($plugin);
+          if($menu != 'cmp') { $args['co'] = $coId; }
+          
+          print "<li>" . $htmlHelper->link($label, $args) . "</li>\n";
+        }
       }
     }
   }
