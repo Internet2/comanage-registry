@@ -113,6 +113,33 @@ class CoPeopleController extends StandardController {
   }
   
   /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
+    if($this->action == "invite"
+       && !empty($this->request->params['named']['orgidentityid'])) {
+      $coId = $this->CoPerson->CoOrgIdentityLink->OrgIdentity->field('co_id',
+                                                                     array('id' => $this->request->params['named']['orgidentityid']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.org_identities.1'),
+                                                      Sanitize::html($this->request->params['named']['orgidentityid']))));
+      }
+    }
+    
+    return parent::calculateImpliedCoId();
+  }
+  
+  /**
    * Perform any dependency checks required prior to a delete operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *

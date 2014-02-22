@@ -1445,6 +1445,7 @@ class AppController extends Controller {
       
       // Only certain actions are permitted to explicitly provide a CO ID
       if($this->action == 'index'
+         || $this->action == 'find'
          || $this->action == 'search'
          // Add and select operations only when attached directly to a CO (otherwise we need
          // to pull the CO ID from the object being attached to, eg co person).
