@@ -6,7 +6,7 @@
  * Version: $Revision$
  * Date: $Date$
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -33,10 +33,9 @@ if(isset($menuContent['plugins'])) {
  * @param HtmlHelper Helper to use to render links
  * @param Array Array of plugins as created by AppController
  * @param String Which menu items to render
- * @param Integer CO ID to render
  */
 
-function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
+function render_plugin_menus($htmlHelper, $plugins, $menu) {
   if(!empty($plugins)) {
     foreach(array_keys($plugins) as $plugin) {
       if(isset($plugins[$plugin][$menu])) {
@@ -44,7 +43,6 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
           $args = $plugins[$plugin][$menu][$label];
           
           $args['plugin'] = Inflector::underscore($plugin);
-          if($menu != 'cmp') { $args['co'] = $coId; }
           
           print "<li>" . $htmlHelper->link($label, $args) . "</li>\n";
         }
@@ -131,7 +129,11 @@ function render_plugin_menus($htmlHelper, $plugins, $menu, $coId) {
                 print $this->Html->link(_txt('ct.organizations.pl'), $args);
               ?>
             </li>
-            <?php render_plugin_menus($this->Html, $plugins, 'cmp', $menuCoId); ?>
+            <?php
+              if(!empty($plugins)) {
+                render_plugin_menus($this->Html, $plugins, 'cmp');
+              }
+            ?>
           </ul>
         </li>
       </ul>
