@@ -45,12 +45,12 @@
 .sf-sub-indicator {
   background: url("../img/arrows-333333.png") no-repeat scroll -10px -100px rgba(0, 0, 0, 0);
 }
-.sf-menu ul {
-	width: 17em; 
-}
 .sf-menu li:hover ul,
 .sf-menu li.sfHover ul {
 	top: 30px; 
+}
+.sf-menu ul {
+	width: 17em; 
 }
 ul.sf-menu li li:hover ul,
 ul.sf-menu li li.sfHover ul {
@@ -61,18 +61,34 @@ ul.sf-menu li li li.sfHover ul {
 	left:	17em; 
 }
 
-/*** Name Dropdown Menu ***/
-#name {
+/*** Name / Platform Dropdown Menus ***/
+.row1-dropdown {
   margin: 0;
   padding: 0;
 }
-#row1 li.dropMenu a.menuTop { 
+.row1-dropdown li.dropMenu a.menuTop { 
   background-color: transparent;
   color: #ccc;
   border: none;
 }
-#row1 li.dropMenu a.menuTop:hover { 
+.row1-dropdown li.dropMenu a.menuTop:hover { 
   color: #fff;
+}
+.row1-dropdown .sf-menu ul:first-child {
+  display: block !important;
+  visibility: visible !important;
+}
+.row1-dropdown li.dropMenu a {
+  background-color: #eee;
+  color: #333;
+}
+.row1-dropdown .sf-menu li {
+  color: #ccc;
+  background-color: #333;
+}
+.row1-dropdown .sf-menu a {
+  color: #ccc;
+  background-color: #333;
 }
 #comanage-gear {
   background: #333 url("../img/comanage-gear.png") top left no-repeat;
@@ -80,21 +96,19 @@ ul.sf-menu li li li.sfHover ul {
   margin: 0 4px 0 0;
   width: 13px;
 }
-#name .sf-menu ul:first-child {
-  display: block !important;
-  visibility: visible !important;
+/* platform menu can be thinner */
+#platform .sf-menu ul {
+	width: 11em; 
 }
-#name li.dropMenu a {
-  background-color: #eee;
-  color: #333;
+#platform ul.sf-menu li li:hover ul,
+#platform ul.sf-menu li li.sfHover ul {
+	left:	11em;
 }
-#name .sf-menu li {
-  color: #ccc;
-  background-color: #333;
-}
-#name .sf-menu a {
-  color: #ccc;
-  background-color: #333;
+#platform .ui-icon { 
+  margin: 1px 1px 0 0;
+  height: 18px;
+  width: 18px;
+  background-image: url("jquery/ui/css/comanage-theme/images/ui-icons_cccccc_256x240.png");
 }
 
 /*** Custom Links in Row1 ***/
