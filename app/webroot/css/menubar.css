@@ -60,6 +60,9 @@ ul.sf-menu li li li:hover ul,
 ul.sf-menu li li li.sfHover ul {
 	left:	17em; 
 }
+ul.sf-menu li.dropMenu li a:hover { 
+  background-color: #e5e5e5 !important;
+}
 
 /*** Name / Platform Dropdown Menus ***/
 .row1-dropdown {

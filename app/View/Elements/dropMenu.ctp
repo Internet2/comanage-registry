@@ -65,21 +65,6 @@ else
                   print "</li>";
                 }
 
-                if(isset($permissions['menu']['orgidentities']) && $permissions['menu']['orgidentities']) {
-                  $args = array();
-                  $args['plugin'] = null;
-                  $args['controller'] = 'org_identities';
-                  $args['action'] = 'index';
-                  
-                  if(!$pool_org_identities) {
-                    $args['co'] = $menuCoId;
-                  }
-                  
-                  print "<li>";
-                    print $this->Html->link(_txt('ct.org_identities.pl'), $args);
-                  print "</li>";
-                }
-
                 if(isset($permissions['menu']['createpetition']) && $permissions['menu']['createpetition']) {
                   print "<li>";
                     $args = array();
@@ -104,6 +89,21 @@ else
                     $args['Search.status'][] = StatusEnum::PendingConfirmation;
 
                     print $this->Html->link(_txt('ct.co_petitions.pl'), $args);
+                  print "</li>";
+                }
+                
+                if(isset($permissions['menu']['orgidentities']) && $permissions['menu']['orgidentities']) {
+                  $args = array();
+                  $args['plugin'] = null;
+                  $args['controller'] = 'org_identities';
+                  $args['action'] = 'index';
+                  
+                  if(!$pool_org_identities) {
+                    $args['co'] = $menuCoId;
+                  }
+                  
+                  print "<li>";
+                    print $this->Html->link(_txt('ct.org_identities.pl'), $args);
                   print "</li>";
                 }
                 
