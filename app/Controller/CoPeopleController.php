@@ -116,7 +116,7 @@ class CoPeopleController extends StandardController {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -288,7 +288,7 @@ class CoPeopleController extends StandardController {
    * - postcondition: HTTP status returned (REST)
    * - postcondition: Session flash message updated (HTML) on suitable error
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @param  Integer CO Person identifier
    */
   

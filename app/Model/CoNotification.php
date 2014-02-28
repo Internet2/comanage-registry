@@ -170,7 +170,7 @@ class CoNotification extends AppModel {
    * indicating that a participant was removed, without indicating who. This function
    * should be called from within a transaction.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @param  integer $id                  CO Notification ID
    * @param  string  $role                One of 'actor', 'recipient', or 'resolver'
    * @param  integer $expungerCoPersonId  CO Person ID of person performing expunge

@@ -170,7 +170,7 @@ class CoPerson extends AppModel {
    * relations would permit, and update history and notifications where the CO Person
    * has a role beyond subject.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @param  integer Identifier of CO Person
    * @param  integer Identifier of CO Person performing expunge
    * @return boolean True on success
@@ -254,7 +254,7 @@ class CoPerson extends AppModel {
    * Perform a find for a CO Person, but pull exactly the associated data needed
    * for an expunge operation.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @param  Integer CO Person ID
    * @return Array CoPerson information, as returned by find (with some associated data)
    */

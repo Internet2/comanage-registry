@@ -203,7 +203,7 @@ class CoNotificationsController extends StandardController {
   /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @return Array An array suitable for use in $this->paginate
    * @throws InvalidArgumentException
    */

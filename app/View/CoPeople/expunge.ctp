@@ -17,7 +17,7 @@
  * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.9
+ * @since         COmanage Registry v0.8.5
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
