@@ -41,7 +41,6 @@ class ProvisionerBehavior extends ModelBehavior {
   public function afterDelete(Model $model) {
     // Note that in most cases this is just an edit. ie: deleting a telephone number is
     // CoPersonUpdated not CoPersonDeleted. In those cases, we can just call afterSave.
-    // CoPerson and CoGroup were already handled by beforeDelete().
     
     if($model->name != 'CoPerson' && $model->name != 'CoGroup') {
       if($model->name == 'CoGroupMember') {
@@ -52,6 +51,34 @@ class ProvisionerBehavior extends ModelBehavior {
       }
       
       return $this->afterSave($model, false);
+    }
+    
+    // Deleting a CoPerson or CoGroup needs to be handled specially.
+    
+    $model->data = $model->cacheData;
+    
+    if(!empty($model->data[ $model->name ]['id'])) {
+      // Invoke all provisioning plugins
+      
+      try {
+        $this->invokePlugins($model,
+                             $model->data,
+                             $model->name == 'CoPerson'
+                             ? ProvisioningActionEnum::CoPersonDeleted
+                             : ProvisioningActionEnum::CoGroupDeleted);
+      }    
+      // What we really want to do here is catch the result (success or exception)
+      // and set the appropriate session flash message, but we don't have access to
+      // the current session, and anyway that doesn't cover RESTful interactions.
+      // So instead we syslog (which is better than nothing).
+      catch(InvalidArgumentException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new InvalidArgumentException($e->getMessage());
+      }
+      catch(RuntimeException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new RuntimeException($e->getMessage());
+      }
     }
     
     return true;
@@ -205,6 +232,13 @@ class ProvisionerBehavior extends ModelBehavior {
           throw new InvalidArgumentException($e->getMessage());
         }
         
+        // Make sure CO Person data was retrieved (it won't be for certain operations
+        // surrounding CO Person delete)
+        
+        if(empty($pdata['CoPerson'])) {
+          continue;
+        }
+        
         // Determine the provisioning action
         
         // For now, we don't support CoPersonEnteredGracePeriod, CoPersonExpired,
@@ -258,10 +292,9 @@ class ProvisionerBehavior extends ModelBehavior {
     $mname = $model->name;
     
     // We will generally cache the data prior to delete in case we want to do
-    // something interesting with it in afterDelete. As of this writing, the only
-    // use case for this is when a CoGroupMember is removed, we need to know which
-    // CoPerson and CoGroup to rewrite, and we have to do that in afterDelete
-    // (so the CoGroupMember doesn't show up anymore) (CO-663).
+    // something interesting with it in afterDelete. This includes when a CoGroupMember
+    // is removed, we need to know which CoPerson and CoGroup to rewrite, and we have to
+    // do that in afterDelete (so the CoGroupMember doesn't show up anymore) (CO-663).
     
     // Note that $model->data is generally populated by StandardController::delete
     // calling $model->read(), but for cascading deletes that function won't be called.
@@ -271,36 +304,6 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     $model->cacheData = $model->data;
-    
-    if($mname != 'CoPerson' && $mname != 'CoGroup') {
-      return true;
-    }
-    
-    // However, deleting a CoPerson or CoGroup needs to be handled specially.
-    
-    if(!empty($model->data[ $mname ]['id'])) {
-      // Invoke all provisioning plugins
-      
-      try {
-        $this->invokePlugins($model,
-                             $model->data,
-                             $mname == 'CoPerson'
-                             ? ProvisioningActionEnum::CoPersonDeleted
-                             : ProvisioningActionEnum::CoGroupDeleted);
-      }    
-      // What we really want to do here is catch the result (success or exception)
-      // and set the appropriate session flash message, but we don't have access to
-      // the current session, and anyway that doesn't cover RESTful interactions.
-      // So instead we syslog (which is better than nothing).
-      catch(InvalidArgumentException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new InvalidArgumentException($e->getMessage());
-      }
-      catch(RuntimeException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new RuntimeException($e->getMessage());
-      }
-    }
     
     return true;
   }
@@ -626,6 +629,10 @@ class ProvisionerBehavior extends ModelBehavior {
            $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active) {
           unset($coPersonData['CoGroupMember'][$i]);
         }
+      }
+      
+      if(count($coPersonData['CoGroupMember']) == 0) {
+        unset($coPersonData['CoGroupMember']);
       }
     }
     

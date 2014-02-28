@@ -302,7 +302,10 @@ class AppController extends Controller {
     $model = $this->$req;
     $modelpl = Inflector::tableize($req);
     
-    if($this->action == 'add' || $this->action == 'select' || $this->action == 'review') {
+    if($this->action == 'add'
+       || $this->action == 'assign'
+       || $this->action == 'select'
+       || $this->action == 'review') {
       // See if what we're adding/selecting is attached to a person
       $p = $this->parsePersonID();
       

@@ -184,6 +184,21 @@ class CoPerson extends AppModel {
       throw new InvalidArgumentException(_txt('er.cop.unk-a', array($coPersonId)));
     }
     
+    // Dynamically bind extended attributes
+    
+    $c = $this->Co->CoExtendedAttribute->find('count',
+                                              array('conditions' =>
+                                                    array('co_id' => $coperson['CoPerson']['co_id'])));
+    
+    if($c > 0) {
+      $cl = 'Co' . $coperson['CoPerson']['co_id'] . 'PersonExtendedAttribute';
+      
+      $this->CoPersonRole->bindModel(array('hasOne' =>
+                                           array($cl => array('className' => $cl,
+                                                              'dependent' => true))),
+                                     false);
+    }
+    
     // Start a transaction
     $dbc = $this->getDataSource();
     $dbc->begin();
