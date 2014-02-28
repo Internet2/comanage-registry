@@ -51,9 +51,11 @@ class CoPerson extends AppModel {
   public $hasMany = array(
     // A person can have one or more groups
     "CoGroupMember" => array('dependent' => true),
+    // It's OK to delete notifications where this Person is the subject, but that's it.
     "CoNotificationSubject" => array(
       'className' => 'CoNotification',
-      'foreignKey' => 'subject_co_person_id'
+      'foreignKey' => 'subject_co_person_id',
+      'dependent' => true
     ),
     "CoNotificationActor" => array(
       'className' => 'CoNotification',
@@ -95,7 +97,6 @@ class CoPerson extends AppModel {
     "CoPetitionHistoryRecord" => array(
       'foreignKey' => 'actor_co_person_id'
     ),
-    "CoProvisioningExport" => array('dependent' => true),
     "CoTAndCAgreement" => array('dependent' => true),
     // A person can have one or more email address
     "EmailAddress" => array('dependent' => true),
@@ -104,9 +105,16 @@ class CoPerson extends AppModel {
       'dependent' => true,
       'foreignKey' => 'co_person_id'
     ),
+    "HistoryRecordActor" => array(
+      'className' => 'HistoryRecord',
+      'foreignKey' => 'actor_co_person_id'
+    ),
     // A person can have many identifiers within a CO
     "Identifier" => array('dependent' => true),
-    "Name" => array('dependent' => true)
+    "Name" => array('dependent' => true),
+    // Make this last so it doesn't get recreated by ProvisionerBehavior when
+    // deleting a CO person
+    "CoProvisioningExport" => array('dependent' => true),
   );
 
   // Default display field for cake generated views
@@ -156,6 +164,121 @@ class CoPerson extends AppModel {
   public $cm_enum_types = array(
     'status' => 'status_t'
   );
+  
+  /**
+   * Completely purge a CO Person. This will cascade deletes past where normal
+   * relations would permit, and update history and notifications where the CO Person
+   * has a role beyond subject.
+   *
+   * @since  COmanage Registry v0.8.5
+   * @param  integer Identifier of CO Person
+   * @param  integer Identifier of CO Person performing expunge
+   * @return boolean True on success
+   * @throws InvalidArgumentException
+   */
+  
+  public function expunge($coPersonId, $expungerCoPersonId) {
+    $coperson = $this->findForExpunge($coPersonId);
+    
+    if(!$coperson) {
+      throw new InvalidArgumentException(_txt('er.cop.unk-a', array($coPersonId)));
+    }
+    
+    // Dynamically bind extended attributes
+    
+    $c = $this->Co->CoExtendedAttribute->find('count',
+                                              array('conditions' =>
+                                                    array('co_id' => $coperson['CoPerson']['co_id'])));
+    
+    if($c > 0) {
+      $cl = 'Co' . $coperson['CoPerson']['co_id'] . 'PersonExtendedAttribute';
+      
+      $this->CoPersonRole->bindModel(array('hasOne' =>
+                                           array($cl => array('className' => $cl,
+                                                              'dependent' => true))),
+                                     false);
+    }
+    
+    // Start a transaction
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+    
+    // Rewrite any Notification where this person is an actor, recipient, or resolver
+    
+    foreach($coperson['CoNotificationActor'] as $n) {
+      $this->CoNotificationActor->expungeParticipant($n['id'], 'actor', $expungerCoPersonId);
+    }
+    
+    foreach($coperson['CoNotificationRecipient'] as $n) {
+      $this->CoNotificationActor->expungeParticipant($n['id'], 'recipient', $expungerCoPersonId);
+    }
+    
+    foreach($coperson['CoNotificationResolver'] as $n) {
+      $this->CoNotificationActor->expungeParticipant($n['id'], 'resolver', $expungerCoPersonId);
+    }
+    
+    // Rewrite any History Records where this person is an actor but not a recipient
+    // (since those will be purged shortly anyway)
+    
+    foreach($coperson['HistoryRecordActor'] as $h) {
+      if($h['co_person_id'] != $coPersonId) {
+        $this->HistoryRecord->expungeActor($h['id'], $expungerCoPersonId);
+      }
+    }
+    
+    // Delete the CO Person. Note that normally (CoPeopleController:checkDeleteDependencies)
+    // we verify that each COU the CO Person belongs to can be admin'd by the currently authenticated
+    // CO Person. However, at the moment CO People can only be deleted by CO and CMP admins, so there
+    // is no need for this check.
+    
+    $this->delete($coPersonId);
+    
+    // Finally, manually delete org identities since they will not cascade via org identity link.
+    // Only do this where there are no other CO People linked to the org identity.
+    // Note we're walking two links here... the first is all Org Identities attached
+    // to the current CO Person, then the second is all CO People attached to each
+    // of those Org Identities.
+    
+    foreach($coperson['CoOrgIdentityLink'] as $lnk) {
+      if(count($lnk['OrgIdentity']['CoOrgIdentityLink']) <= 1) {
+        $this->CoOrgIdentityLink->OrgIdentity->delete($lnk['OrgIdentity']['id']);
+      }
+    }
+    
+    $dbc->commit();
+    
+    return true;
+  }
+  
+  /**
+   * Perform a find for a CO Person, but pull exactly the associated data needed
+   * for an expunge operation.
+   *
+   * @since  COmanage Registry v0.8.5
+   * @param  Integer CO Person ID
+   * @return Array CoPerson information, as returned by find (with some associated data)
+   */
+  
+  public function findForExpunge($coPersonId) {
+    $args = array();
+    $args['conditions']['CoPerson.id'] = $coPersonId;
+    $args['contain'][] = 'PrimaryName';
+    $args['contain'][] = 'Co';
+    $args['contain'][] = 'CoPersonRole';
+    $args['contain']['CoPersonRole'][] = 'Cou';
+    $args['contain'][] = 'CoOrgIdentityLink';
+    $args['contain']['CoOrgIdentityLink'][] = 'OrgIdentity';
+    // This next line pulls all links for the OrgIdentity, not just the one related to this CO Person
+    $args['contain']['CoOrgIdentityLink']['OrgIdentity'][] = 'CoOrgIdentityLink';
+    $args['contain']['CoOrgIdentityLink']['OrgIdentity'][] = 'Identifier';
+    $args['contain']['CoOrgIdentityLink']['OrgIdentity'][] = 'PrimaryName';
+    $args['contain'][] = 'CoNotificationActor';
+    $args['contain'][] = 'CoNotificationRecipient';
+    $args['contain'][] = 'CoNotificationResolver';
+    $args['contain'][] = 'HistoryRecordActor';
+    
+    return $this->find('first', $args);
+  }
   
   /**
    * Obtain all people associated with a Group

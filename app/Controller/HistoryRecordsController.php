@@ -55,6 +55,34 @@ class HistoryRecordsController extends StandardController {
   // but StandardController doesn't support that yet.
   public $view_recursion = 2;
   
+  /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.8.5
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
+    // We generally want the default behavior, unless an actorcoperson was specified.
+    
+    if(!empty($this->request->params['named']['actorcopersonid'])) {
+      $coId = $this->HistoryRecord->ActorCoPerson->field('co_id',
+                                                         array('id' => $this->request->params['named']['actorcopersonid']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_people.1'),
+                                                      Sanitize::html($this->request->params['named']['actorcopersonid']))));
+      }
+    }
+    
+    return parent::calculateImpliedCoId();
+  }
+  
   function index() {
     if(!$this->restful) {
       // We need to change enough of the standard behavior that it's easier just to reimplement.
@@ -67,12 +95,17 @@ class HistoryRecordsController extends StandardController {
       
       // Use server side pagination
       
-      if(!empty($this->params['named']['copersonid'])) {
+      if(!empty($this->request->params['named']['copersonid'])
+         || !empty($this->request->params['named']['actorcopersonid'])) {
         // CO Administrators can see all records, however COU Administrators can only see records
         // with no CO Person Role ID or where the CO Person Role ID is in a COU they administer.
         
         $args = array();
-        $args['HistoryRecord.co_person_id'] = $this->params['named']['copersonid'];
+        if(!empty($this->request->params['named']['copersonid'])) {
+          $args['HistoryRecord.co_person_id'] = $this->request->params['named']['copersonid'];
+        } elseif(!empty($this->request->params['named']['actorcopersonid'])) {
+          $args['HistoryRecord.actor_co_person_id'] = $this->request->params['named']['actorcopersonid'];
+        }
         
         if(!empty($this->viewVars['permissions']['cous'])) {
           // Pull records in the COUs this user can see, as well as those with no COU attached.
@@ -96,7 +129,7 @@ class HistoryRecordsController extends StandardController {
         $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
         
         $args = array();
-        $args['HistoryRecord.org_identity_id'] = $this->params['named']['orgidentityid'];
+        $args['HistoryRecord.org_identity_id'] = $this->request->params['named']['orgidentityid'];
         
         if($pool) {
           $args['CoPerson.co_id'] = $this->cur_co['Co']['id'];

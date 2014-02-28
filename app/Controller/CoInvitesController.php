@@ -138,6 +138,20 @@ class CoInvitesController extends AppController {
       }
     }
     
+    if($this->action == "send"
+       && !empty($this->request->params['named']['copersonid'])) {
+      $coId = $this->CoInvite->CoPerson->field('co_id',
+                                               array('id' => $this->request->params['named']['copersonid']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_people.1'),
+                                                      Sanitize::html($this->request->params['named']['copersonid']))));
+      }
+    }
+    
     return null;
   }
   

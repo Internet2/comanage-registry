@@ -965,6 +965,11 @@ class CoPetition extends AppModel {
     
     $dbc->commit();
     
+    // If status is Approved, promote to Active. We do this via updateStatus to trigger
+    // various side effects, such as identifier assignment.
+    
+    $this->updateStatus($this->id, StatusEnum::Active, $petitionerId);
+    
     return $this->id;
   }
   
@@ -1143,6 +1148,19 @@ class CoPetition extends AppModel {
       }
     }
     
+    if($curStatus == StatusEnum::Approved) {
+      // An approved status doesn't itself go to Active, but migrates
+      // the CO Person and CO Person Role status. It's not really clear
+      // if this is the right place to do this, but there's not really
+      // another place at the moment. Perhaps something for CO-321.
+      
+      if($newStatus == StatusEnum::Active) {
+        $valid = true;
+        $newPetitionStatus = StatusEnum::Approved;
+        $newCoPersonStatus = $newStatus;
+      }
+    }
+    
     // If a CO Person Role is defined update the CO Person (& Role) status
     
     $coPersonRoleID = $this->field('enrollee_co_person_role_id');    
@@ -1152,6 +1170,7 @@ class CoPetition extends AppModel {
       
       // XXX This is temporary for CO-321 since there isn't currently a way for an approved person
       // to become active. This should be dropped when a more workflow-oriented mechanism is implemented.
+      // Note similar code in createPetition().
       if($newPetitionStatus == StatusEnum::Approved) {
         $newCoPersonStatus = StatusEnum::Active;
       }
@@ -1165,47 +1184,50 @@ class CoPetition extends AppModel {
       $dbc = $this->getDataSource();
       $dbc->begin();
       
-      // Update the Petition status
+      // Update the Petition status, if it changed. (Pushing from Approved to
+      // Active isn't actually a Petition status change.)
       
-      if(!$this->saveField('status', $newPetitionStatus)) {
-        throw new RuntimeException(_txt('er.db.save'));
-      }
-      
-      // If this is an approval or a denial, update the approver field as well
-      
-      if($newPetitionStatus == StatusEnum::Approved
-         || $newPetitionStatus == StatusEnum::Denied) {
-        if(!$this->saveField('approver_co_person_id', $actorCoPersonID)) {
+      if($curStatus != $newPetitionStatus) {
+        if(!$this->saveField('status', $newPetitionStatus)) {
           throw new RuntimeException(_txt('er.db.save'));
         }
-      }
-      
-      // Write a Petition History Record
-      
-      if(!$fail) {
-        $petitionAction = null;
         
-        switch($newPetitionStatus) {
-          case StatusEnum::Approved:
-            $petitionAction = PetitionActionEnum::Approved;
-            break;
-          case StatusEnum::Confirmed:
-            // We already recorded this history above, so don't do it again here
-            //$petitionAction = PetitionActionEnum::InviteConfirmed;
-            break;
-          case StatusEnum::Denied:
-            $petitionAction = PetitionActionEnum::Denied;
-            break;
+        // If this is an approval or a denial, update the approver field as well
+        
+        if($newPetitionStatus == StatusEnum::Approved
+           || $newPetitionStatus == StatusEnum::Denied) {
+          if(!$this->saveField('approver_co_person_id', $actorCoPersonID)) {
+            throw new RuntimeException(_txt('er.db.save'));
+          }
         }
         
-        if($petitionAction) {
-          try {
-            $this->CoPetitionHistoryRecord->record($id,
-                                                   $actorCoPersonID,
-                                                   $petitionAction);
+        // Write a Petition History Record
+        
+        if(!$fail) {
+          $petitionAction = null;
+          
+          switch($newPetitionStatus) {
+            case StatusEnum::Approved:
+              $petitionAction = PetitionActionEnum::Approved;
+              break;
+            case StatusEnum::Confirmed:
+              // We already recorded this history above, so don't do it again here
+              //$petitionAction = PetitionActionEnum::InviteConfirmed;
+              break;
+            case StatusEnum::Denied:
+              $petitionAction = PetitionActionEnum::Denied;
+              break;
           }
-          catch (Exception $e) {
-            $fail = true;
+          
+          if($petitionAction) {
+            try {
+              $this->CoPetitionHistoryRecord->record($id,
+                                                     $actorCoPersonID,
+                                                     $petitionAction);
+            }
+            catch (Exception $e) {
+              $fail = true;
+            }
           }
         }
       }
@@ -1237,7 +1259,8 @@ class CoPetition extends AppModel {
         }
       }
       
-      // Maybe update CO Person state, but only if it's currently Pending Approval or Pending Confirmation
+      // Maybe update CO Person state, but only if it's currently Pending Approval,
+      // Pending Confirmation, or Approved
       
       if(!$fail && isset($newCoPersonStatus)) {
         $coPersonID = $this->field('enrollee_co_person_id');
@@ -1248,7 +1271,8 @@ class CoPetition extends AppModel {
           $curCoPersonStatus = $this->EnrolleeCoPerson->field('status');
           
           if(isset($curCoPersonStatus)
-             && ($curCoPersonStatus == StatusEnum::PendingApproval
+             && ($curCoPersonStatus == StatusEnum::Approved
+                 || $curCoPersonStatus == StatusEnum::PendingApproval
                  || $curCoPersonStatus == StatusEnum::PendingConfirmation)) {
             $this->EnrolleeCoPerson->saveField('status', $newCoPersonStatus);
             

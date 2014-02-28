@@ -199,7 +199,7 @@ class NotificationShell extends AppShell {
     $coPerson = $this->CoPerson->find('first', $args);
     
     if(empty($coPerson)) {
-      throw new InvalidArgumentException(_txt('er.id.unk-a', array($identifier . "/" . $type)));
+      throw new InvalidArgumentException(_txt('er.id.unk-a', array($identifier)));
     }
     
     return $coPerson['CoPerson']['id'];

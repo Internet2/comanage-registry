@@ -167,44 +167,19 @@ class CoGroupsController extends StandardController {
     
     if(!$this->restful && $this->request->is('get'))
     {
-      // Retrieve the set of all group members but since the
-      // Grouper dataSource may be used and does not support
-      // recursion construct the necessary recursive information
-      // directly.
-      // XXX do we need this anymore? (Is Grouper dataSource going away?)
-      // If not, we should use containable to get PrimaryName alongside CoPerson.
-      $allGroupMembers = $this->CoGroup->CoGroupMember->find('all', 
-                                                             array('conditions' =>
-                                                               array('CoGroupMember.co_group_id' => $id)
-                                                             )
-                                                            );
+      // Retrieve the set of all group members for group with ID $id.
+      // Specify containable behavior to get necessary relations.
+      $conditions = array();
+      $conditions['CoGroupMember.co_group_id'] = $id;
+      $contain = array();
+      $contain['CoPerson'][] = 'PrimaryName';
+      $contain['CoPerson'][] = 'CoGroupMember';
 
-      $this->loadModel('CoPerson');
-      $this->loadModel('Name');
-      
-      foreach($allGroupMembers as &$member) {
-        $coPersonId = $member['CoGroupMember']['co_person_id'];
-        $coPerson = $this->CoPerson->find('first', 
-                                          array(
-                                            'conditions' => 
-                                              array('CoPerson.id' => $coPersonId),
-                                            'recursive' => -1
-                                            )
-                                         );
-        $name = $this->Name->find('first', 
-                                  array(
-                                    'conditions' => 
-                                      array('Name.co_person_id' => $coPersonId,
-                                            'Name.primary_name' => true),
-                                    'recursive' => -1
-                                  )
-                                 );
-        $coPerson['CoPerson']['CoGroupMember'] = array($member['CoGroupMember']);
-        $coPerson['CoPerson']['PrimaryName']   = $name['Name'];
-        $coPerson['CoPerson']['Status']        = $member['CoPerson']['status']; 
-        $member = array_merge($member, $coPerson);
-      }
-      
+      $args = array();
+      $args['conditions'] = $conditions;
+      $args['contain'] = $contain;
+
+      $allGroupMembers = $this->CoGroup->CoGroupMember->find('all', $args);
       $this->set('co_group_members', $allGroupMembers);
     }
     

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO People Controller
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -110,6 +110,33 @@ class CoPeopleController extends StandardController {
     }
     
     parent::beforeRender();
+  }
+  
+  /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.8.5
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
+    if($this->action == "invite"
+       && !empty($this->request->params['named']['orgidentityid'])) {
+      $coId = $this->CoPerson->CoOrgIdentityLink->OrgIdentity->field('co_id',
+                                                                     array('id' => $this->request->params['named']['orgidentityid']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.org_identities.1'),
+                                                      Sanitize::html($this->request->params['named']['orgidentityid']))));
+      }
+    }
+    
+    return parent::calculateImpliedCoId();
   }
   
   /**
@@ -254,6 +281,47 @@ class CoPeopleController extends StandardController {
     }
   }
 
+  /**
+   * Expunge (delete with intelligent clean up) a CO Person.
+   * - precondition: <id> must exist
+   * - postcondition: $<object>s set (with one member) if found
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Session flash message updated (HTML) on suitable error
+   *
+   * @since  COmanage Registry v0.8.5
+   * @param  Integer CO Person identifier
+   */
+  
+  public function expunge($id) {
+    if(!$this->restful) {
+      if($this->request->is('get')) {
+        $coperson = $this->CoPerson->findForExpunge($id);
+        
+        if(!empty($coperson)) {
+          // Populate data for the view
+          $this->set('vv_co_person', $coperson);
+          $this->set('title_for_layout', _txt('op.expunge-a', array(generateCn($coperson['PrimaryName']))));
+        } else {
+          $this->Session->setFlash(_txt('er.cop.unk-a', array($id)), '', array(), 'error');
+          $this->performRedirect();
+        }
+      } else {
+        // Perform the expunge
+        
+        try {
+          $this->CoPerson->expunge($id, $this->Session->read('Auth.User.co_person_id'));
+          $this->Session->setFlash(_txt('rs.expunged'), '', array(), 'success');
+        }
+        catch(Exception $e) {
+          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        }
+        
+        $this->performRedirect();
+      }
+    }
+    // XXX else we don't currently support REST
+  }
+  
   /**
    * Generate a display key to be used in messages such as "Item Added".
    *
@@ -446,6 +514,11 @@ class CoPeopleController extends StandardController {
     // checkDeleteDependencies.
     $p['delete'] = ($roles['cmadmin']
                     || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
+    // Expunge is basically delete, but since it clears history we restrict it to coadmins.
+    // (Before expanding this to COU Admins, read the note in CoPerson:expunge regarding
+    // checkDeleteDependencies.)
+    $p['expunge'] = ($roles['cmadmin'] || ($managed && $roles['coadmin']));
     
     // Edit an existing CO Person?
     $p['edit'] = ($roles['cmadmin']

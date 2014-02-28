@@ -82,9 +82,11 @@ class CoNotificationsController extends StandardController {
    */
   
   protected function calculateImpliedCoId() {
-    // Determine CO from Subject CO Person ID
+    $copersontype = null;
     
     if(!empty($this->request->params['pass'][0])) {
+      // Determine CO via Subject CO Person ID
+      
       $args = array();
       $args['conditions']['CoNotification.id'] = $this->request->params['pass'][0];
       $args['joins'][0]['table'] = 'co_notifications';
@@ -101,6 +103,28 @@ class CoNotificationsController extends StandardController {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_notifications.1'),
                                                       Sanitize::html($this->request->params['pass'][0]))));
+      }
+    } elseif(!empty($this->request->params['named']['actorcopersonid'])) {
+      $copersontype = 'actorcopersonid';
+    } elseif(!empty($this->request->params['named']['recipientcopersonid'])) {
+      $copersontype = 'recipientcopersonid';
+    } elseif(!empty($this->request->params['named']['resolvercopersonid'])) {
+      $copersontype = 'resolvercopersonid';
+    } elseif(!empty($this->request->params['named']['subjectcopersonid'])) {
+      $copersontype = 'subjectcopersonid';
+    }
+    
+    if($copersontype) {
+      // Determine CO via specified CO Person ID
+      $coId = $this->CoNotification->ActorCoPerson->field('co_id',
+                                                          array('id' => $this->request->params['named'][$copersontype]));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_people.1'),
+                                                      Sanitize::html($this->request->params['named'][$copersontype]))));
       }
     }
     
@@ -161,6 +185,10 @@ class CoNotificationsController extends StandardController {
                         && $this->Role->isNotificationSender($this->request->params['pass'][0],
                                                              $roles['copersonid'])));
     
+    // View all notifications (or a subset)?
+    // This is currently limited to coadmin since that's what's needed to support co_people/expunge
+    $p['index'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // View this notification?
     $p['view'] = ($roles['cmadmin']
                   || $roles['coadmin']
@@ -170,5 +198,37 @@ class CoNotificationsController extends StandardController {
     
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v0.8.5
+   * @return Array An array suitable for use in $this->paginate
+   * @throws InvalidArgumentException
+   */
+  
+  function paginationConditions() {
+    // Only retrieve notifications for the requested subject
+    
+    if(isset($this->request->params['named']['actorcopersonid'])) {
+      return(array(
+        'CoNotification.actor_co_person_id' => $this->request->params['named']['actorcopersonid']
+      ));
+    } elseif(isset($this->request->params['named']['recipientcopersonid'])) {
+      return(array(
+        'CoNotification.recipient_co_person_id' => $this->request->params['named']['recipientcopersonid']
+      ));
+    } elseif(isset($this->request->params['named']['resolvercopersonid'])) {
+      return(array(
+        'CoNotification.resolver_co_person_id' => $this->request->params['named']['resolvercopersonid']
+      ));
+    } elseif(isset($this->request->params['named']['subjectcopersonid'])) {
+      return(array(
+        'CoNotification.subject_co_person_id' => $this->request->params['named']['subjectcopersonid']
+      ));
+    } else {
+      throw new InvalidArgumentException(_txt('er.notprov'));
+    }
   }
 }

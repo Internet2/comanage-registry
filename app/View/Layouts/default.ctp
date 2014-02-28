@@ -26,6 +26,7 @@
   header("Expires: Thursday, 10-Jan-69 00:00:00 GMT");
   header("Cache-Control: no-store, no-cache, max-age=0, must-revalidate");
   header("Pragma: no-cache");
+  
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -402,25 +403,25 @@
         $f = $this->Session->flash('error');
        
         if($f && $f != "") {
-          print "generateFlash('". str_replace("'", "\'", $f) . "', 'error');";
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
         }
 
         $f = $this->Session->flash('info');
       
         if($f && $f != "") {
-          print "generateFlash('". str_replace("'", "\'", $f) . "', 'info');";
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'info');";
         }
         
         $f = $this->Session->flash('success');
         
         if($f && $f != "") {
-          print "generateFlash('". str_replace("'", "\'", $f) . "', 'success');";
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'success');";
         }
 
         $f = $this->Session->error();
         
         if($f && $f != "") {
-          print "generateFlash('". str_replace("'", "\'", $f) . "', 'error');";
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
         }
       ?>
     });
@@ -447,10 +448,16 @@
       <div id="row2" class="ui-widget-header">
         <div class="contentWidth">
           <div class="headerLeft">
-            <?php
-              if($this->Session->check('Auth.User'))
-                print $this->element('dropMenu');
+            <?php 
+              if(!empty($cur_co['Co']['name'])) {
+                print "<h1>" . Sanitize::html($cur_co['Co']['name']) . "</h1>"; // more to go here.
+              } else {
+                print "<h1>" . _txt('coordinate') . "</h1>";
+              }
             ?>
+            <div id="coSelector">
+              
+            </div>
           </div>
           <div class="headerRight">
             <?php
@@ -463,8 +470,17 @@
           </div>
         </div>
       </div>
+      
+      <?php if($this->Session->check('Auth.User')): ?>
+        <div id="row3">
+          <div class="contentWidth">
+            <?php print $this->element('dropMenu'); ?>
+          </div>
+        </div>
+      <?php endif ?>
+      
     </div>
-
+    
     <div id="main" class="contentWidth">
       <div id="content">
           <!-- Display view content -->
