@@ -489,6 +489,7 @@ class CoPeopleController extends StandardController {
        && ($this->action == 'compare'
            || $this->action == 'delete'
            || $this->action == 'edit'
+           || $this->action == 'expunge'
            || $this->action == 'view')) {
       $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
                                                         $this->request->params['pass'][0]);
