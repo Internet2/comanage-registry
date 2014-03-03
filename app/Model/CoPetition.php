@@ -968,7 +968,9 @@ class CoPetition extends AppModel {
     // If status is Approved, promote to Active. We do this via updateStatus to trigger
     // various side effects, such as identifier assignment.
     
-    $this->updateStatus($this->id, StatusEnum::Active, $petitionerId);
+    if($initialStatus == StatusEnum::Approved) {
+      $this->updateStatus($this->id, StatusEnum::Active, $petitionerId);
+    }
     
     return $this->id;
   }
