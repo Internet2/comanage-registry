@@ -106,7 +106,10 @@
     
     if(!empty($vv_co_person['HistoryRecordActor'])) {
       foreach($vv_co_person['HistoryRecordActor'] as $h) {
-        if($h['co_person_id'] != $vv_co_person['CoPerson']['id']) {
+        if($h['co_person_id'] != $vv_co_person['CoPerson']['id']
+           &&
+           (!empty($vv_co_person['CoOrgIdentityLink'][0]['org_identity_id'])
+            && $h['org_identity_id'] != $vv_co_person['CoOrgIdentityLink'][0]['org_identity_id'])) {
           $hrcnt++;
         }
       }
