@@ -981,11 +981,12 @@ class CoPetition extends AppModel {
    *
    * @since  COmanage Registry v0.7
    * @param  Integer CO Petition ID
+   * @param  Integer CO Person ID of actor sending the invite
    * @throws InvalidArgumentException
    * @return String Address the invitation was resent to
    */
   
-  function resend($coPetitionId) {
+  function resend($coPetitionId, $actorCoPersonId) {
     // We don't set up a transaction because once the invite goes out we've basically
     // committed (and it doesn't make sense to execute a rollback), and we're mostly
     // doing reads before that.
@@ -1036,7 +1037,7 @@ class CoPetition extends AppModel {
     
     $coInviteId = $this->CoInvite->send($this->field('enrollee_co_person_id'),
                                         $this->field('enrollee_org_identity_id'),
-                                        $this->field('petitioner_co_person_id'),
+                                        $actorCoPersonId,
                                         $email['EmailAddress']['mail'],
                                         $enrollmentFlow['CoEnrollmentFlow']['notify_from'],
                                         $this->Co->field('name',
