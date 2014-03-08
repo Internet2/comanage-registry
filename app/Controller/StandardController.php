@@ -445,14 +445,23 @@ class StandardController extends AppController {
     $req = $this->modelClass;
     $model = $this->$req;
     
-    if(isset($c[$req][$model->displayField]))
-      return($c[$req][$model->displayField]);
-    elseif(isset($this->request->data[$model->displayField]))
-      return($this->request->data[$model->displayField]);
-    elseif(isset($this->request->data[$req][$model->displayField]))
-      return($this->request->data[$req][$model->displayField]);
-    else
-      return("(?)");
+    if(isset($c[$req][$model->displayField])) {
+      return $c[$req][$model->displayField];
+    } elseif(isset($this->request->data[$model->displayField])) {
+      return $this->request->data[$model->displayField];
+    } elseif(isset($this->request->data[$req][$model->displayField])) {
+      return $this->request->data[$req][$model->displayField];
+    } elseif(strchr($model->displayField, '.')) {
+      // Display field is of the form Model.field
+      
+      $m = explode('.', $model->displayField, 2);
+      
+      if(isset($this->request->data[ $m[0] ][ $m[1] ])) {
+        return $this->request->data[ $m[0] ][ $m[1] ];
+      }
+    } else {
+      return "(?)";
+    }
   }
   
   /**
