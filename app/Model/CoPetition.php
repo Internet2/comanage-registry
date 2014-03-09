@@ -512,6 +512,33 @@ class CoPetition extends AppModel {
                                                            $orgIdentityID,
                                                            $petitionerId,
                                                            ActionEnum::CoPersonAddedPetition);
+            
+            // And add an explicit record for each group membership
+            
+            if(!empty($coData['CoGroupMember'])) {
+              foreach($coData['CoGroupMember'] as $gm) {
+                // Map the group ID to its name
+                
+                $groupName = $this->EnrolleeCoPerson
+                                  ->CoGroupMember
+                                  ->CoGroup
+                                  ->field('name',
+                                          array('CoGroup.id' => $gm['co_group_id']));
+                
+                $this->EnrolleeCoPerson
+                     ->HistoryRecord
+                     ->record($coPersonID,
+                              null,
+                              null,
+                              $petitionerId,
+                              ActionEnum::CoGroupMemberAdded,
+                              _txt('rs.grm.added-p',
+                                   array($groupName,
+                                         $gm['co_group_id'],
+                                         _txt($gm['member'] ? 'fd.yes' : 'fd.no'),
+                                         _txt($gm['owner'] ? 'fd.yes' : 'fd.no'))));
+              }
+            }
           }
           catch(Exception $e) {
             $dbc->rollback();
