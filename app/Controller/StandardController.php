@@ -671,7 +671,7 @@ class StandardController extends AppController {
           // Although requires_person is true, the UI sort of permits
           // retrieval of all items of a given type
           
-          $this->set($modelpl, $this->paginate($req));
+          $this->set($modelpl, $this->Paginator->paginate($req));
         }
       }
       else
