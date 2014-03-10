@@ -512,6 +512,33 @@ class CoPetition extends AppModel {
                                                            $orgIdentityID,
                                                            $petitionerId,
                                                            ActionEnum::CoPersonAddedPetition);
+            
+            // And add an explicit record for each group membership
+            
+            if(!empty($coData['CoGroupMember'])) {
+              foreach($coData['CoGroupMember'] as $gm) {
+                // Map the group ID to its name
+                
+                $groupName = $this->EnrolleeCoPerson
+                                  ->CoGroupMember
+                                  ->CoGroup
+                                  ->field('name',
+                                          array('CoGroup.id' => $gm['co_group_id']));
+                
+                $this->EnrolleeCoPerson
+                     ->HistoryRecord
+                     ->record($coPersonID,
+                              null,
+                              null,
+                              $petitionerId,
+                              ActionEnum::CoGroupMemberAdded,
+                              _txt('rs.grm.added-p',
+                                   array($groupName,
+                                         $gm['co_group_id'],
+                                         _txt($gm['member'] ? 'fd.yes' : 'fd.no'),
+                                         _txt($gm['owner'] ? 'fd.yes' : 'fd.no'))));
+              }
+            }
           }
           catch(Exception $e) {
             $dbc->rollback();
@@ -968,7 +995,9 @@ class CoPetition extends AppModel {
     // If status is Approved, promote to Active. We do this via updateStatus to trigger
     // various side effects, such as identifier assignment.
     
-    $this->updateStatus($this->id, StatusEnum::Active, $petitionerId);
+    if($initialStatus == StatusEnum::Approved) {
+      $this->updateStatus($this->id, StatusEnum::Active, $petitionerId);
+    }
     
     return $this->id;
   }
@@ -979,11 +1008,12 @@ class CoPetition extends AppModel {
    *
    * @since  COmanage Registry v0.7
    * @param  Integer CO Petition ID
+   * @param  Integer CO Person ID of actor sending the invite
    * @throws InvalidArgumentException
    * @return String Address the invitation was resent to
    */
   
-  function resend($coPetitionId) {
+  function resend($coPetitionId, $actorCoPersonId) {
     // We don't set up a transaction because once the invite goes out we've basically
     // committed (and it doesn't make sense to execute a rollback), and we're mostly
     // doing reads before that.
@@ -1034,7 +1064,7 @@ class CoPetition extends AppModel {
     
     $coInviteId = $this->CoInvite->send($this->field('enrollee_co_person_id'),
                                         $this->field('enrollee_org_identity_id'),
-                                        $this->field('petitioner_co_person_id'),
+                                        $actorCoPersonId,
                                         $email['EmailAddress']['mail'],
                                         $enrollmentFlow['CoEnrollmentFlow']['notify_from'],
                                         $this->Co->field('name',

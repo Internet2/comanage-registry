@@ -209,7 +209,8 @@ class HistoryRecordsController extends StandardController {
     // View history records?
     // We could allow $self to view own records, but for the moment we don't (for no specific reason)
     $p['index'] = ($roles['cmadmin']
-                   || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                   || $roles['coadmin']
+                   || ($managed && $roles['couadmin']));
     
     if($this->action == 'index' && $p['index']) {
       // Determine which COUs a person can manage, needed for index() to filter records

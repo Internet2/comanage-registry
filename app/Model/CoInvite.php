@@ -227,6 +227,13 @@ class CoInvite extends AppModel {
         // Toss the invite
         $this->delete($invite['CoInvite']['id']);
       } else {
+        if(!empty($invite['CoPetition']['id'])) {
+          // Before we can delete the invitation, we need to unlink it from the petition
+          
+          $this->CoPetition->id = $invite['CoPetition']['id'];
+          $this->CoPetition->saveField('co_invite_id', null);
+        }
+        
         $this->delete($invite['CoInvite']['id']);
         
         // Record a history record that the invitation expired

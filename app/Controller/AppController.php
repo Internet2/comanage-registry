@@ -304,9 +304,10 @@ class AppController extends Controller {
     
     if($this->action == 'add'
        || $this->action == 'assign'
+       || $this->action == 'index'
        || $this->action == 'select'
        || $this->action == 'review') {
-      // See if what we're adding/selecting is attached to a person
+      // See if what we're adding/selecting/viewing is attached to a person
       $p = $this->parsePersonID();
       
       if(!empty($p['copersonid'])

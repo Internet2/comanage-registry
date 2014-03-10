@@ -576,7 +576,7 @@ class CoPetitionsController extends StandardController {
     $recipient = null;
     
     try {
-      $recipient = $this->CoPetition->resend($id);
+      $recipient = $this->CoPetition->resend($id, $this->Session->read('Auth.User.co_person_id'));
     }
     catch(Exception $e) {
       $this->Session->setFlash($e->getMessage(), '', array(), 'error');
