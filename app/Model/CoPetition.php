@@ -999,6 +999,27 @@ class CoPetition extends AppModel {
       $this->updateStatus($this->id, StatusEnum::Active, $petitionerId);
     }
     
+    // Generate a notification for this new petition, if configured
+    
+    $notificationGroup = $this->CoEnrollmentFlow->field('notification_co_group_id',
+                                                         array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+    
+    if(!empty($notificationGroup)) {
+      $this->Co
+           ->CoGroup
+           ->CoNotificationRecipientGroup
+           ->register($coPersonID,
+                      $petitionerId,
+                      'cogroup',
+                      $notificationGroup,
+                      ActionEnum::CoPetitionCreated,
+                      _txt('rs.pt.create.not', array(generateCn($coData['PrimaryName']), $efName)),
+                      array(
+                        'controller' => 'co_petitions',
+                        'action'     => 'view',
+                        'id'         => $coPetitionID));
+    }
+    
     return $this->id;
   }
   
@@ -1458,6 +1479,128 @@ class CoPetition extends AppModel {
                                                    _txt('er.nt.email'));
           }
         }
+      }
+      
+      // Register some notifications. We'll need the enrollee's name for this.
+      
+      if(empty($coPersonID)) {
+        // In case we haven't pulled these already -- XXX we could clean this up and pull $this only once at the top
+        $coPersonID = $this->field('enrollee_co_person_id');
+      }
+      
+      $args = array();
+      $args['conditions']['EnrolleeCoPerson.id'] = $coPersonID;
+      $args['contain'][] = 'PrimaryName';
+      
+      $enrollee = $this->EnrolleeCoPerson->find('first', $args);
+      
+      if(!empty($enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'])) {
+        // If there is a notification group defined, send info on the status change
+        // -- we don't fail on notification failures
+        
+        $this->Co
+             ->CoGroup
+             ->CoNotificationRecipientGroup
+             ->register($coPersonID,
+                        $actorCoPersonID,
+                        'cogroup',
+                        $enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'],
+                        ActionEnum::CoPetitionUpdated,
+                       _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
+                                                  _txt('en.status', null, $curStatus),
+                                                  _txt('en.status', null, $newPetitionStatus),
+                                                  $enrollmentFlow['CoEnrollmentFlow']['name'])),
+                        array(
+                          'controller' => 'co_petitions',
+                          'action'     => 'view',
+                          'id'         => $id));
+      }
+      
+      if($newPetitionStatus == StatusEnum::PendingApproval) {
+        $cogroupids = array();
+        
+        if(!empty($enrollmentFlow['CoEnrollmentFlow']['approver_co_group_id'])) {
+          $cogroupids[] = $enrollmentFlow['CoEnrollmentFlow']['approver_co_group_id'];
+        } else {
+          // We need to look up the appropriate admin group(s). Start with the CO Admins.
+          
+          $args = array();
+          $args['conditions']['CoGroup.name']  = 'admin';
+          $args['conditions']['CoGroup.co_id'] = $coID;
+          $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+          $args['contain'] = false;
+          
+          $coAdminGroup = $this->Co->CoGroup->find('first', $args);
+          
+          if(!empty($coAdminGroup['CoGroup']['id'])) {
+            $cogroupids[] = $coAdminGroup['CoGroup']['id'];
+          }
+          
+          // To see if we should notify COU Admins, we need to see if this petition was
+          // attached to a COU
+          
+          $couID = $this->field('cou_id');
+          
+          if(!empty($couID)) {
+            // Map this COU ID to it's name so we can then map that to its admin group
+            
+            $couName = $this->Cou->field('name', array('Cou.id' => $couID));
+            
+            if(!empty($couName)) {
+              $args = array();
+              $args['conditions']['CoGroup.name']  = 'admin:' . $couName;
+              $args['conditions']['CoGroup.co_id'] = $coID;
+              $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+              $args['contain'] = false;
+              
+              $couAdminGroup = $this->Co->CoGroup->find('first', $args);
+              
+              if(!empty($couAdminGroup['CoGroup']['id'])) {
+                $cogroupids[] = $couAdminGroup['CoGroup']['id'];
+              }
+            }
+          }
+        }
+        
+        // Now that we have a list of groups, register the notifications
+        // -- we don't fail on notification failures
+        
+        foreach($cogroupids as $cgid) {
+          $this->Co
+               ->CoGroup
+               ->CoNotificationRecipientGroup
+               ->register($coPersonID,
+                          $actorCoPersonID,
+                          'cogroup',
+                          $cgid,
+                          ActionEnum::CoPetitionUpdated,
+                         _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
+                                                    _txt('en.status', null, $curStatus),
+                                                    _txt('en.status', null, $newPetitionStatus),
+                                                    $enrollmentFlow['CoEnrollmentFlow']['name'])),
+                          array(
+                            'controller' => 'co_petitions',
+                            'action'     => 'view',
+                            'id'         => $id
+                          ),
+                          true);
+        }
+      }
+      
+      if($curStatus == StatusEnum::PendingApproval
+         && ($newPetitionStatus == StatusEnum::Approved
+             || $newPetitionStatus == StatusEnum::Denied)) {
+        // Clear any approval notifications -- we don't fail on notification failures
+        
+        $this->Co
+             ->CoGroup
+             ->CoNotificationRecipientGroup
+             ->resolveFromSource(array(
+                                  'controller' => 'co_petitions',
+                                  'action'     => 'view',
+                                  'id'         => $id
+                                ),
+                                $actorCoPersonID);
       }
       
       if(!$fail) {

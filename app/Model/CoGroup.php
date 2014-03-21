@@ -41,7 +41,11 @@ class CoGroup extends AppModel {
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'authz_co_group_id'
     ),
-    "CoNotificationRecipient" => array(
+    "CoEnrollmentFlowNotificationGroup" => array(
+      'className' => 'CoEnrollmentFlow',
+      'foreignKey' => 'notification_co_group_id'
+    ),
+    "CoNotificationRecipientGroup" => array(
       'className' => 'CoNotification',
       'foreignKey' => 'recipient_co_group_id'
     ),

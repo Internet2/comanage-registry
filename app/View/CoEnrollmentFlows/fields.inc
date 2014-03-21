@@ -313,6 +313,35 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'])); ?>
       </td>
     </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <b><?php print _txt('fd.ef.nogr'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ef.nogr.desc'); ?></font>
+      </td>
+      <td>
+        <?php
+          if(!empty($co_groups)) {
+            $attrs = array();
+            $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['notification_co_group_id'])
+                               ? $co_enrollment_flows[0]['CoEnrollmentFlow']['notification_co_group_id']
+                               : null);
+            $attrs['empty'] = true;
+            
+            if($e) {
+              print $this->Form->select('notification_co_group_id',
+                                        $co_groups,
+                                        $attrs);
+              
+              if($this->Form->isFieldError('notification_co_group_id')) {
+                print $this->Form->error('notification_co_group_id');
+              }
+            } else {
+              print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['notification_co_group_id'] ];
+            }
+          }
+        ?>
+      </td>
+    </tr>
 <!--
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
