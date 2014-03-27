@@ -1,0 +1,87 @@
+/* TINY */
+/**************************************************************************************************************/
+/* All mobile views smaller than iPad portrait mode */
+@media only screen and (max-width: 767px) {
+  .contentWidth {
+    margin: 0 1em;
+  }
+  #co_people .panel1,
+  #co_people .panel2 {
+    width: 94%;
+  }
+}
+
+/* SMALL */
+/**************************************************************************************************************/
+/* Small devices (tablets, 768px and up) */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  .contentWidth {
+    margin: 0 1em;
+  }
+  #co_people .panel1,
+  #co_people .panel2 {
+    width: 94%;
+  }
+}
+
+/* MEDIUM */
+/**************************************************************************************************************/
+/* Medium devices (desktops, 992px and up) */
+@media only screen and (min-width: 992px)  {
+  .contentWidth {
+    max-width: 960px;
+  }
+  /* Sidebar (right) */
+  #sidebar {
+    background-color: #F5F5F5;
+    border-left: 1px solid #4297D7;
+    height: 100%;
+    margin: 0;
+    padding: 10px;
+    position: absolute;
+    right: 0;
+    width: 247px;
+  }
+  .contentWithSidebar {
+    width: 685px !important;
+  }
+  #menu li {
+    display: block;
+  }
+  #co_people .panel1,
+  #co_people .panel2 {
+    width: 635px;
+  }
+}
+
+/* WIDE */
+/**************************************************************************************************************/
+/* Large devices (large desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+  .contentWidth {
+    max-width: 1200px;
+  }
+  .contentWithSidebar {
+    width: 900px !important;
+  }
+  #co_people .panel1,
+  #co_people .panel2 {
+    width: 850px;
+  }
+}
+
+/* EXTRA WIDE */
+/**************************************************************************************************************/
+/* Large devices (large desktops, 1900px and up) */
+@media only screen and (min-width: 1900px) {
+  .contentWithSidebar {
+    width: 1200px !important;
+  }
+  #co_people {
+    width: 1200px;
+  }
+  #co_people .panel1,
+  #co_people .panel2 {
+    width: 1150px;
+  }
+}
