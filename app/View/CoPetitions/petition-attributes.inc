@@ -36,32 +36,30 @@
 ?>
   
 <style>
-  .modelbox{
-    border: solid 1px #8dbbdd;
-    margin: 5px;
+  .modelbox {
+    border: 1px solid #8DBBDD;
+    margin: 0 0 1em 0;
     padding: 9px 38px;
-    float: left;
-    border-radius: 10px;
-    width: 90%;
+    background-color: #f8f8f8;
   }
-
+  .modelbox .line0,
+  .modelbox .line1,
+  .modelbox .line2 {
+    background-color: transparent;
+  }
   .boxtitle{
     padding: 0 0 5px 0;
   }
-
   .modelbox table tr>:first-child{
     min-width: 200px;
     text-align: right;
   }
-
   .modelbox table tr>:nth-child(2){
     min-width: 150px;
   }
-
   .modelbox table tr>:nth-child(2) input {
     min-width: 380px;
   } 
-
   .modelbox table tr>:nth-child(2) select{
     min-width: 387px;
   } 
@@ -467,7 +465,7 @@
         <td>
           <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
         </td>
-        <td>
+        <td class="submitCell">
           <?php
             if($e) {
               print $this->Form->submit(_txt('op.submit'));

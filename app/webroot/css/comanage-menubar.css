@@ -19,11 +19,6 @@
  *
  */
 
-.contentWidth {
-  max-width: 960px;
-  min-width: 600px;
-  margin: auto;
-}
 
 /*** header row 1 ***/
 #row1 {
@@ -150,7 +145,7 @@ ul.sf-menu li li li.sfHover ul {
   padding: 2px 6px;
   margin: 4px 0 3px 5px;
   background-color: #C33;
-  border-radius: 5px;
+  /*border-radius: 5px;*/
   cursor: pointer;
 }
 #notification ul {
@@ -226,7 +221,7 @@ ul.sf-menu li li li.sfHover ul {
   padding: 3px 14px 1px 14px;
   margin: 4px 5px 5px 5px;
   background-color: #C33;
-  border-radius: 5px;
+  /*border-radius: 5px;*/
   cursor: pointer;
 }
 
