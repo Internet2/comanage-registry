@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO LDAP Provisioner DN Model
  *
- * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
@@ -244,7 +244,7 @@ class CoLdapProvisionerDn extends AppModel {
    * @param  Array CO Provisioning data
    * @param  String Mode: 'group' or 'person'
    * @param  Boolean Whether to assign a DN if one is not found and reassign if the DN should be changed
-   * @return Arary An array of old and new DNs (either of which might be null)
+   * @return Array An array of old and new DNs (either of which might be null)
    * @throws RuntimeException
    */
   
@@ -269,20 +269,26 @@ class CoLdapProvisionerDn extends AppModel {
       $curDn = $dnRecord['CoLdapProvisionerDn']['dn'];
     }
     
+    // We always calculate the DN, but only store it if $assign is true. This allows us
+    // to delete existing records via afterDelete() (at which point the current DN is gone).
+    // This will generally work because any renaming of the DN will likely have already
+    // taken place, so whatever the current (as of delete time) data is should be sufficient
+    // to reconstruct the DN currently in LDAP.
+    
+    // Calculate the DN
+    
+    try {
+      if($mode == 'person') {
+        $newDn = $this->assignPersonDn($coProvisioningTargetData, $provisioningData);
+      } else {
+        $newDn = $this->assignGroupDn($coProvisioningTargetData, $provisioningData);
+      }
+    }
+    catch(Exception $e) {
+      throw new RuntimeException($e->getMessage());
+    }
+    
     if($assign) {
-      // Calculate the DN
-      
-      try {
-        if($mode == 'person') {
-          $newDn = $this->assignPersonDn($coProvisioningTargetData, $provisioningData);
-        } else {
-          $newDn = $this->assignGroupDn($coProvisioningTargetData, $provisioningData);
-        }
-      }
-      catch(Exception $e) {
-        throw new RuntimeException($e->getMessage());
-      }
-      
       // If the the DN doesn't match the existing DN (including if there is no
       // existing DN), update it
       

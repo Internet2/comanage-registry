@@ -98,7 +98,7 @@ class CoEnrollmentAttributesController extends StandardController {
     
     $coefid = null;
     
-    if($this->action == 'add' || $this->action == 'index') {
+    if($this->action == 'add' || $this->action == 'index' || $this->action == 'order') {
       // Accept coefid from the url or the form
       
       if(!empty($this->request->params['named']['coef'])) {

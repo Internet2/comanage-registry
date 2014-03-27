@@ -512,6 +512,33 @@ class CoPetition extends AppModel {
                                                            $orgIdentityID,
                                                            $petitionerId,
                                                            ActionEnum::CoPersonAddedPetition);
+            
+            // And add an explicit record for each group membership
+            
+            if(!empty($coData['CoGroupMember'])) {
+              foreach($coData['CoGroupMember'] as $gm) {
+                // Map the group ID to its name
+                
+                $groupName = $this->EnrolleeCoPerson
+                                  ->CoGroupMember
+                                  ->CoGroup
+                                  ->field('name',
+                                          array('CoGroup.id' => $gm['co_group_id']));
+                
+                $this->EnrolleeCoPerson
+                     ->HistoryRecord
+                     ->record($coPersonID,
+                              null,
+                              null,
+                              $petitionerId,
+                              ActionEnum::CoGroupMemberAdded,
+                              _txt('rs.grm.added-p',
+                                   array($groupName,
+                                         $gm['co_group_id'],
+                                         _txt($gm['member'] ? 'fd.yes' : 'fd.no'),
+                                         _txt($gm['owner'] ? 'fd.yes' : 'fd.no'))));
+              }
+            }
           }
           catch(Exception $e) {
             $dbc->rollback();
@@ -965,6 +992,34 @@ class CoPetition extends AppModel {
     
     $dbc->commit();
     
+    // If status is Approved, promote to Active. We do this via updateStatus to trigger
+    // various side effects, such as identifier assignment.
+    
+    if($initialStatus == StatusEnum::Approved) {
+      $this->updateStatus($this->id, StatusEnum::Active, $petitionerId);
+    }
+    
+    // Generate a notification for this new petition, if configured
+    
+    $notificationGroup = $this->CoEnrollmentFlow->field('notification_co_group_id',
+                                                         array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+    
+    if(!empty($notificationGroup)) {
+      $this->Co
+           ->CoGroup
+           ->CoNotificationRecipientGroup
+           ->register($coPersonID,
+                      $petitionerId,
+                      'cogroup',
+                      $notificationGroup,
+                      ActionEnum::CoPetitionCreated,
+                      _txt('rs.pt.create.not', array(generateCn($coData['PrimaryName']), $efName)),
+                      array(
+                        'controller' => 'co_petitions',
+                        'action'     => 'view',
+                        'id'         => $coPetitionID));
+    }
+    
     return $this->id;
   }
   
@@ -974,11 +1029,12 @@ class CoPetition extends AppModel {
    *
    * @since  COmanage Registry v0.7
    * @param  Integer CO Petition ID
+   * @param  Integer CO Person ID of actor sending the invite
    * @throws InvalidArgumentException
    * @return String Address the invitation was resent to
    */
   
-  function resend($coPetitionId) {
+  function resend($coPetitionId, $actorCoPersonId) {
     // We don't set up a transaction because once the invite goes out we've basically
     // committed (and it doesn't make sense to execute a rollback), and we're mostly
     // doing reads before that.
@@ -1029,7 +1085,7 @@ class CoPetition extends AppModel {
     
     $coInviteId = $this->CoInvite->send($this->field('enrollee_co_person_id'),
                                         $this->field('enrollee_org_identity_id'),
-                                        $this->field('petitioner_co_person_id'),
+                                        $actorCoPersonId,
                                         $email['EmailAddress']['mail'],
                                         $enrollmentFlow['CoEnrollmentFlow']['notify_from'],
                                         $this->Co->field('name',
@@ -1143,6 +1199,19 @@ class CoPetition extends AppModel {
       }
     }
     
+    if($curStatus == StatusEnum::Approved) {
+      // An approved status doesn't itself go to Active, but migrates
+      // the CO Person and CO Person Role status. It's not really clear
+      // if this is the right place to do this, but there's not really
+      // another place at the moment. Perhaps something for CO-321.
+      
+      if($newStatus == StatusEnum::Active) {
+        $valid = true;
+        $newPetitionStatus = StatusEnum::Approved;
+        $newCoPersonStatus = $newStatus;
+      }
+    }
+    
     // If a CO Person Role is defined update the CO Person (& Role) status
     
     $coPersonRoleID = $this->field('enrollee_co_person_role_id');    
@@ -1152,6 +1221,7 @@ class CoPetition extends AppModel {
       
       // XXX This is temporary for CO-321 since there isn't currently a way for an approved person
       // to become active. This should be dropped when a more workflow-oriented mechanism is implemented.
+      // Note similar code in createPetition().
       if($newPetitionStatus == StatusEnum::Approved) {
         $newCoPersonStatus = StatusEnum::Active;
       }
@@ -1165,47 +1235,50 @@ class CoPetition extends AppModel {
       $dbc = $this->getDataSource();
       $dbc->begin();
       
-      // Update the Petition status
+      // Update the Petition status, if it changed. (Pushing from Approved to
+      // Active isn't actually a Petition status change.)
       
-      if(!$this->saveField('status', $newPetitionStatus)) {
-        throw new RuntimeException(_txt('er.db.save'));
-      }
-      
-      // If this is an approval or a denial, update the approver field as well
-      
-      if($newPetitionStatus == StatusEnum::Approved
-         || $newPetitionStatus == StatusEnum::Denied) {
-        if(!$this->saveField('approver_co_person_id', $actorCoPersonID)) {
+      if($curStatus != $newPetitionStatus) {
+        if(!$this->saveField('status', $newPetitionStatus)) {
           throw new RuntimeException(_txt('er.db.save'));
         }
-      }
-      
-      // Write a Petition History Record
-      
-      if(!$fail) {
-        $petitionAction = null;
         
-        switch($newPetitionStatus) {
-          case StatusEnum::Approved:
-            $petitionAction = PetitionActionEnum::Approved;
-            break;
-          case StatusEnum::Confirmed:
-            // We already recorded this history above, so don't do it again here
-            //$petitionAction = PetitionActionEnum::InviteConfirmed;
-            break;
-          case StatusEnum::Denied:
-            $petitionAction = PetitionActionEnum::Denied;
-            break;
+        // If this is an approval or a denial, update the approver field as well
+        
+        if($newPetitionStatus == StatusEnum::Approved
+           || $newPetitionStatus == StatusEnum::Denied) {
+          if(!$this->saveField('approver_co_person_id', $actorCoPersonID)) {
+            throw new RuntimeException(_txt('er.db.save'));
+          }
         }
         
-        if($petitionAction) {
-          try {
-            $this->CoPetitionHistoryRecord->record($id,
-                                                   $actorCoPersonID,
-                                                   $petitionAction);
+        // Write a Petition History Record
+        
+        if(!$fail) {
+          $petitionAction = null;
+          
+          switch($newPetitionStatus) {
+            case StatusEnum::Approved:
+              $petitionAction = PetitionActionEnum::Approved;
+              break;
+            case StatusEnum::Confirmed:
+              // We already recorded this history above, so don't do it again here
+              //$petitionAction = PetitionActionEnum::InviteConfirmed;
+              break;
+            case StatusEnum::Denied:
+              $petitionAction = PetitionActionEnum::Denied;
+              break;
           }
-          catch (Exception $e) {
-            $fail = true;
+          
+          if($petitionAction) {
+            try {
+              $this->CoPetitionHistoryRecord->record($id,
+                                                     $actorCoPersonID,
+                                                     $petitionAction);
+            }
+            catch (Exception $e) {
+              $fail = true;
+            }
           }
         }
       }
@@ -1237,7 +1310,8 @@ class CoPetition extends AppModel {
         }
       }
       
-      // Maybe update CO Person state, but only if it's currently Pending Approval or Pending Confirmation
+      // Maybe update CO Person state, but only if it's currently Pending Approval,
+      // Pending Confirmation, or Approved
       
       if(!$fail && isset($newCoPersonStatus)) {
         $coPersonID = $this->field('enrollee_co_person_id');
@@ -1248,7 +1322,8 @@ class CoPetition extends AppModel {
           $curCoPersonStatus = $this->EnrolleeCoPerson->field('status');
           
           if(isset($curCoPersonStatus)
-             && ($curCoPersonStatus == StatusEnum::PendingApproval
+             && ($curCoPersonStatus == StatusEnum::Approved
+                 || $curCoPersonStatus == StatusEnum::PendingApproval
                  || $curCoPersonStatus == StatusEnum::PendingConfirmation)) {
             $this->EnrolleeCoPerson->saveField('status', $newCoPersonStatus);
             
@@ -1404,6 +1479,128 @@ class CoPetition extends AppModel {
                                                    _txt('er.nt.email'));
           }
         }
+      }
+      
+      // Register some notifications. We'll need the enrollee's name for this.
+      
+      if(empty($coPersonID)) {
+        // In case we haven't pulled these already -- XXX we could clean this up and pull $this only once at the top
+        $coPersonID = $this->field('enrollee_co_person_id');
+      }
+      
+      $args = array();
+      $args['conditions']['EnrolleeCoPerson.id'] = $coPersonID;
+      $args['contain'][] = 'PrimaryName';
+      
+      $enrollee = $this->EnrolleeCoPerson->find('first', $args);
+      
+      if(!empty($enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'])) {
+        // If there is a notification group defined, send info on the status change
+        // -- we don't fail on notification failures
+        
+        $this->Co
+             ->CoGroup
+             ->CoNotificationRecipientGroup
+             ->register($coPersonID,
+                        $actorCoPersonID,
+                        'cogroup',
+                        $enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'],
+                        ActionEnum::CoPetitionUpdated,
+                       _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
+                                                  _txt('en.status', null, $curStatus),
+                                                  _txt('en.status', null, $newPetitionStatus),
+                                                  $enrollmentFlow['CoEnrollmentFlow']['name'])),
+                        array(
+                          'controller' => 'co_petitions',
+                          'action'     => 'view',
+                          'id'         => $id));
+      }
+      
+      if($newPetitionStatus == StatusEnum::PendingApproval) {
+        $cogroupids = array();
+        
+        if(!empty($enrollmentFlow['CoEnrollmentFlow']['approver_co_group_id'])) {
+          $cogroupids[] = $enrollmentFlow['CoEnrollmentFlow']['approver_co_group_id'];
+        } else {
+          // We need to look up the appropriate admin group(s). Start with the CO Admins.
+          
+          $args = array();
+          $args['conditions']['CoGroup.name']  = 'admin';
+          $args['conditions']['CoGroup.co_id'] = $coID;
+          $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+          $args['contain'] = false;
+          
+          $coAdminGroup = $this->Co->CoGroup->find('first', $args);
+          
+          if(!empty($coAdminGroup['CoGroup']['id'])) {
+            $cogroupids[] = $coAdminGroup['CoGroup']['id'];
+          }
+          
+          // To see if we should notify COU Admins, we need to see if this petition was
+          // attached to a COU
+          
+          $couID = $this->field('cou_id');
+          
+          if(!empty($couID)) {
+            // Map this COU ID to it's name so we can then map that to its admin group
+            
+            $couName = $this->Cou->field('name', array('Cou.id' => $couID));
+            
+            if(!empty($couName)) {
+              $args = array();
+              $args['conditions']['CoGroup.name']  = 'admin:' . $couName;
+              $args['conditions']['CoGroup.co_id'] = $coID;
+              $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+              $args['contain'] = false;
+              
+              $couAdminGroup = $this->Co->CoGroup->find('first', $args);
+              
+              if(!empty($couAdminGroup['CoGroup']['id'])) {
+                $cogroupids[] = $couAdminGroup['CoGroup']['id'];
+              }
+            }
+          }
+        }
+        
+        // Now that we have a list of groups, register the notifications
+        // -- we don't fail on notification failures
+        
+        foreach($cogroupids as $cgid) {
+          $this->Co
+               ->CoGroup
+               ->CoNotificationRecipientGroup
+               ->register($coPersonID,
+                          $actorCoPersonID,
+                          'cogroup',
+                          $cgid,
+                          ActionEnum::CoPetitionUpdated,
+                         _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
+                                                    _txt('en.status', null, $curStatus),
+                                                    _txt('en.status', null, $newPetitionStatus),
+                                                    $enrollmentFlow['CoEnrollmentFlow']['name'])),
+                          array(
+                            'controller' => 'co_petitions',
+                            'action'     => 'view',
+                            'id'         => $id
+                          ),
+                          true);
+        }
+      }
+      
+      if($curStatus == StatusEnum::PendingApproval
+         && ($newPetitionStatus == StatusEnum::Approved
+             || $newPetitionStatus == StatusEnum::Denied)) {
+        // Clear any approval notifications -- we don't fail on notification failures
+        
+        $this->Co
+             ->CoGroup
+             ->CoNotificationRecipientGroup
+             ->resolveFromSource(array(
+                                  'controller' => 'co_petitions',
+                                  'action'     => 'view',
+                                  'id'         => $id
+                                ),
+                                $actorCoPersonID);
       }
       
       if(!$fail) {

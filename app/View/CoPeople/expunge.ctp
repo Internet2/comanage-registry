@@ -17,7 +17,7 @@
  * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.9
+ * @since         COmanage Registry v0.8.5
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
@@ -106,7 +106,10 @@
     
     if(!empty($vv_co_person['HistoryRecordActor'])) {
       foreach($vv_co_person['HistoryRecordActor'] as $h) {
-        if($h['co_person_id'] != $vv_co_person['CoPerson']['id']) {
+        if($h['co_person_id'] != $vv_co_person['CoPerson']['id']
+           &&
+           (!empty($vv_co_person['CoOrgIdentityLink'][0]['org_identity_id'])
+            && $h['org_identity_id'] != $vv_co_person['CoOrgIdentityLink'][0]['org_identity_id'])) {
           $hrcnt++;
         }
       }

@@ -70,7 +70,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
 <div id="secondaryMenu" class="rightmenu">
 
   <!-- Platform Dropdown -->
-  <?php if($permissions['menu']['admin']): ?>
+  <?php if(!empty($permissions['menu']['admin']) && $permissions['menu']['admin']): ?>
     <div id="platform" class="row1-dropdown">
       <ul class="sf-menu">
         <li class="dropMenu">

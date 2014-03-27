@@ -519,8 +519,7 @@ class CoInvitesController extends AppController {
           $this->set('invalid_fields', $fs);
           return;
         }
-
-        $coid = $data['CoInvite']['co_id'];
+        
         $cpid = $data['CoInvite']['co_person_id'];
       }
     }
@@ -528,8 +527,7 @@ class CoInvitesController extends AppController {
     {
       // Set page title
       $this->set('title_for_layout', _txt('op.inv.send'));
-
-      $coid = $this->request->params['named']['co'];
+      
       $cpid = $this->request->params['named']['copersonid'];
     }
     

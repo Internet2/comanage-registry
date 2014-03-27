@@ -88,7 +88,7 @@ class HistoryRecord extends AppModel {
    * indicating that a participant was removed, without indicating who. This function
    * should be called from within a transaction.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @param  integer $id                  History Record ID
    * @param  integer $expungerCoPersonId  CO Person ID of person performing expunge
    * @return boolean True on success

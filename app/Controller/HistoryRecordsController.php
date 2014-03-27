@@ -59,7 +59,7 @@ class HistoryRecordsController extends StandardController {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -209,7 +209,8 @@ class HistoryRecordsController extends StandardController {
     // View history records?
     // We could allow $self to view own records, but for the moment we don't (for no specific reason)
     $p['index'] = ($roles['cmadmin']
-                   || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                   || $roles['coadmin']
+                   || ($managed && $roles['couadmin']));
     
     if($this->action == 'index' && $p['index']) {
       // Determine which COUs a person can manage, needed for index() to filter records

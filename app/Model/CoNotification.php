@@ -170,7 +170,7 @@ class CoNotification extends AppModel {
    * indicating that a participant was removed, without indicating who. This function
    * should be called from within a transaction.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @param  integer $id                  CO Notification ID
    * @param  string  $role                One of 'actor', 'recipient', or 'resolver'
    * @param  integer $expungerCoPersonId  CO Person ID of person performing expunge
@@ -347,7 +347,7 @@ class CoNotification extends AppModel {
    * @param  String  $comment           Human readable notification comment
    * @param  Mixed   $source            Link to source to review/resolve notification; may be a string (url) or cake-style array of controller+action+id (note: 'id' must be specified as array key)
    * @param  Boolean $mustResolve       If true, the notification cannot be acknowledged, only resolved via $source
-   * @return Integer CO Notification ID
+   * @return Array CO Notification ID(s)
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
@@ -395,8 +395,33 @@ class CoNotification extends AppModel {
       
       if(!empty($gr['CoGroupMember'])) {
         foreach($gr['CoGroupMember'] as $gm) {
-          $recipients[] = $gm['CoPerson'];
+          // Move EmailAddress up a level, as for 'coperson'
+          $recipients[] = array(
+            'RecipientCoPerson' => $gm['CoPerson'],
+            'EmailAddress'      => (!empty($gm['CoPerson']['EmailAdress'])
+                                    ? $gm['CoPerson']['EmailAdress']
+                                    : array())
+          );
         }
+      }
+      
+      if(!$mustResolve) {
+        // Since this notification doesn't require action but is only informational,
+        // generate one notification per person instead of per group
+        
+        $ids = array();
+        
+        foreach($recipients as $recipient) {
+          $ids[] = $this->register($subjectCoPersonId,
+                                   $actorCoPersonId,
+                                   'coperson',
+                                   $recipient['RecipientCoPerson']['id'],
+                                   $action,
+                                   $comment,
+                                   $source);
+        }
+        
+        return $ids;
       }
     } else {
       throw new InvalidArgumentException(_txt('er.unknown', array($recipientType)));
@@ -455,7 +480,7 @@ class CoNotification extends AppModel {
       throw new RuntimeException(_txt('er.db.save'));
     }
     
-    return $this->id;
+    return array($this->id);
   }
   
   /**
@@ -472,5 +497,64 @@ class CoNotification extends AppModel {
   public function resolve($id,
                           $coPersonId) {
     return $this->processResolution($id, $coPersonId, NotificationStatusEnum::Resolved);
+  }
+  
+  /**
+   * Resolve all outstanding notifications from the specified source
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Mixed   $source             Source array or URL, exactly matching what was provided previously to register()
+   * @param  Integer $resolverCoPersonId CO Person ID of person who resolved the notification
+   * @param  String  $resolution         NotificationStatusEnum
+   * @return Boolean True if notification(s) is/are resolved
+   */
+  
+  public function resolveFromSource($source,
+                                    $resolverCoPersonId,
+                                    $resolution=NotificationStatusEnum::Resolved) {
+    // When called by CoPetition via CoGroup, we have an alias of CoNotificationRecipientGroup,
+    // which causes errors for the find. As a simple workaround, we just reset our alias.
+    $this->alias = 'CoNotification';
+    
+    // updateAll has some annoying characteristics, as documented in processResolution,
+    // above. So we'll pull all matching records and then call processResolution to
+    // deal with them.
+    
+    $args = array();
+    // Status must be PendingResolution
+    $args['conditions']['status'] = NotificationStatusEnum::PendingResolution;
+    $args['contain'] = false;
+    
+    if(is_array($source)) {
+      if(!empty($source['controller'])) {
+        $args['conditions']['CoNotification.source_controller'] = $source['controller'];
+      }
+      if(!empty($source['controller'])) {
+        $args['conditions']['CoNotification.source_action'] = $source['action'];
+      }
+      if(!empty($source['controller'])) {
+        $args['conditions']['CoNotification.source_id'] = $source['id'];
+      }
+    } else {
+      $args['conditions']['CoNotification.source_url'] = $source;
+    }
+    
+    $notifications = $this->find('all', $args);
+    
+    $ret = true;
+    
+    if(!empty($notifications)) {
+      foreach($notifications as $n) {
+        $this->processResolution($n['CoNotification']['id'],
+                                 $resolverCoPersonId,
+                                 $resolution);
+        
+        // For now, if any one resolution fails, we'll return false
+        $ret = false;
+      }
+    }
+    // else fail silently
+    
+    return $ret;
   }
 }

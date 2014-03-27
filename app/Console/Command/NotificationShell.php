@@ -38,7 +38,7 @@ class NotificationShell extends AppShell {
     )->AddArgument(
       'subjectIdentifier',
       array(
-        'help'     => 'Identifier associated with CO Person to send notification to',
+        'help'     => 'Identifier associated with CO Person notification is about',
         'required' => true
       )
     )->AddArgument(
@@ -160,16 +160,18 @@ class NotificationShell extends AppShell {
     
     $resolve = $this->params['resolve'];
     
-    $id = $this->CoNotification->register($subjectCoPersonId,
-                                          $actorCoPersonId,
-                                          $recipientType,
-                                          $recipientId,
-                                          $action,
-                                          $comment,
-                                          $source,
-                                          $resolve);
+    $ids = $this->CoNotification->register($subjectCoPersonId,
+                                           $actorCoPersonId,
+                                           $recipientType,
+                                           $recipientId,
+                                           $action,
+                                           $comment,
+                                           $source,
+                                           $resolve);
     
-    $this->out(_txt('rs.nt.delivered', array($id)));
+    foreach($ids as $id) {
+      $this->out(_txt('rs.nt.delivered', array($id)));
+    }
   }
   
   /**

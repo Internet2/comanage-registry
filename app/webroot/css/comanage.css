@@ -24,6 +24,10 @@ body {
   width: auto;
   margin: -12px auto 0 auto;
 }
+.contentWidth {
+  margin: auto;
+  min-width: 600px;
+}
 
 /* General */
 .hidden {
@@ -69,12 +73,8 @@ body {
 
 /* Content */
 #content {
-  min-width: 600px;
-  width: 100%;
   float: left;
-  margin-left:auto;
-  margin-right:auto;
-  overflow:hidden;
+  width: 100%;
 }
 h1 {
   float: left;
@@ -97,33 +97,34 @@ table {
 }
 th, td {
   padding: 0.5em;
+  text-align: left;
 }
 /* zebra stripes for rows; 0 used for autoincrementing line counters */
 .line0 {
-  background-color: lightgray;
+  background-color: #e5e5e5;
 }
 .line1 {
-  background-color: #EEE;
+  background-color: #f5f5f5;
 }
 .line2 {
-  background-color: #DDD;
+  background-color: #e5e5e5;
 }
 .menuitembutton {
   width: 250px;
 }
+.submitCell {
+  text-align: right;
+}
 
 /* Forms */
-
 input.text {
   margin-bottom: 12px;
   width: 95%;
   padding: 0.4em;
 }
-  
 fieldset {
   margin-top: 25px;
 }
-  
 fieldset.borderless {
   padding: 0;
   border: 0;
@@ -193,11 +194,13 @@ fieldset.borderless {
   margin: 0;
 }
 .additionalinfo>div{
-  background: none repeat scroll 0 0 #EEEEEE;
-  padding: 5px;
-  margin: 0 0 5px 0;
+  margin: 0 0 5px;
   overflow: hidden;
-  border-radius: 10px;
+  padding: 2px 0;
+  background-color: #F5F5FF;
+}
+.additionalinfo>div:hover {
+  background-color: #eef;
 }
 .additionalinfo>div:last-child{
   margin: 0;
@@ -207,8 +210,6 @@ fieldset.borderless {
   padding: 7px 0 0 10px;
 }
 .additionalinfo>div>div:last-child{
-  border-left:1px solid white;
-  border-left: 1px solid white;
   float: right;
   padding-left: 5px;
 }
@@ -218,7 +219,6 @@ fieldset.borderless {
 .additionalinfo div .ui-button{
   float: right;
 }
-
 #OrgIdentityEditForm .addbutton,
 #view_org_identity .addbutton,
 #CoPersonEditForm .addbutton,
@@ -230,31 +230,107 @@ fieldset.borderless {
 .order .ui-icon{
   float: left;
 }
-
 .order {
   padding-left: 18px;
 }     
 
 /* Sidebar (right) */
 #sidebar {
-  float: left;
-  width: 247px;
-  min-height: 400px;
+  background-color: #F5F5F5;
+  margin: 1em;
   padding: 10px;
-  margin: 72px 0 0 4px;
-  border: 1px solid #4297d7;
-  background: #f5fafd;
+}
+#menu li,
+#menu li a {
+  display: inline;
+}
+
+/* Person Explorer */
+#personExplorer ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+}
+#personExplorer li {
+  list-style: none;
+  margin: 0 0 0.5em 0;
+}
+#personExplorer .fieldGroupName .ui-icon {
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons-16px.png") !important;
+  float: left; 
+  opacity: 0.6;
+}
+/*#personExplorer ul.fields li .ui-icon {
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_6da8d5_256x240.png") !important;
+}*/
+#personExplorer a {
+  text-decoration: none;
+}
+.explorerHead {
+  height: 20px;
+}
+#personExplorer li.fieldGroup {
+  clear: left;
+  margin: 0 0 1em 0;
+}
+#personExplorer ul.fields {
+  margin-bottom: 2em;
+}
+.fieldGroupName {
+  display: block;
+  border-bottom: 1px solid #EEEEEE;
+  color: #2E6E9E;
+  font-size: 1.1em;
+  font-weight: bold;
+  padding: 0.3em 0;
+}
+#personExplorer .coAddEditButtons .ui-state-default,
+#personExplorer .coAddEditButtons .ui-widget-content .ui-state-default,
+#personExplorer .coAddEditButtons .ui-widget-header .ui-state-default {
+  background: none;
+  border: none;
+}
+/* These two rules allow the compare fields to float side-by-side
+#compare_co_person ul.fields li div {
+  float: left;
+}
+#compare_co_person ul.fields li table {
+  outline: 1px solid #ccc;
+  margin: 0 4px 4px 0;
+}*/
+#compare_co_person ul.fields .line1 {
+  background-color: transparent;
+}
+#compare_co_person ul.fields .line0,
+#compare_co_person ul.fields .line2 {
+  background-color: #f5f5f5;
+}
+#compare_co_person ul.fields th.ui-widget-header {
+  background: none;
+  background-color: #F5F5FF;
+  color: #333;
+}
+
+/* Demographics */
+#add_co_nsf_demographic .checkbox,
+#edit_co_nsf_demographic .checkbox {
+  clear: left;
+  margin-bottom: 0.5em;
+}
+#add_co_nsf_demographic .checkbox input,
+#edit_co_nsf_demographic .checkbox input {
+  float: left;
+  margin: 0 4px 8px 0;
 }
 
 /* Footer */
 .footer {
+  clear: both;
   margin: 20px 0 0 0;
   padding: 10px;
 }
 .poweredByComanage {
-  padding: 10px;
-  margin: 10px;
-  float: right;
+  margin: 3em 0 0;
+  padding: 0;
 }
 .poweredText {
   margin: 10px;
@@ -262,36 +338,36 @@ fieldset.borderless {
 }
 
 /* Notifications */
+/*
 .ui-state-active,
 .ui-widget-content .ui-state-active,
 .ui-widget-header .ui-state-active { 
   border: 1px solid #6eac2c !important; 
-  background: #f5f8f9 url(../js/jquery/ui/css/comanage-theme/images/ui-bg_inset-hard_100_f5f8f9_1x100.png) 50% 50% repeat-x !important;
+  background: #f5f8f9 url("../js/jquery/ui/css/comanage-theme/images/ui-bg_inset-hard_100_f5f8f9_1x100.png") 50% 50% repeat-x !important;
   font-weight: bold !important;
   color: #6eac2c !important;
 }
 .ui-state-active .ui-icon {
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_6eac2c_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_6eac2c_256x240.png") !important;
 }
-
+*/
 .noty_text{
   font-weight: bold;
 }
-
 .noty_icon{
   display: inline-block !important;
   position: relative;
   top: 3px;
 }
 .warbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png") !important;
 }
 .sucbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png") !important;
 }
 .errbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png") !important;
 }
 .notbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png") !important;
 }

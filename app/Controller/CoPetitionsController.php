@@ -347,7 +347,7 @@ class CoPetitionsController extends StandardController {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v0.9
+   * @since  COmanage Registry v0.8.5
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -576,7 +576,7 @@ class CoPetitionsController extends StandardController {
     $recipient = null;
     
     try {
-      $recipient = $this->CoPetition->resend($id);
+      $recipient = $this->CoPetition->resend($id, $this->Session->read('Auth.User.co_person_id'));
     }
     catch(Exception $e) {
       $this->Session->setFlash($e->getMessage(), '', array(), 'error');
