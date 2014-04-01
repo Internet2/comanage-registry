@@ -84,8 +84,8 @@ $(function() {
   <?php endif; ?>
 });
 </script>
-<div id="<?php print $this->action; ?>_co_person" style=" float:left; height:auto;">
-  <div id="tabs" style="min-height:350px; width:550px">
+<div id="<?php print $this->action; ?>_co_person">
+  <div id="tabs">
     <ul>
       <li>
         <a href="#tabs-role">

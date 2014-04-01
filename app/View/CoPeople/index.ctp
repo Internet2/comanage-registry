@@ -23,111 +23,103 @@
  */
 -->
 
-<style>
-  #sorter{
-    padding: 5px;
-    width: 673px;
-    overflow: hidden;
-    border: 1px dotted #4297d7;
-    background: #f5fafd;
-    border-radius: 5px;
-    font-weight: bold;
-    color: #1d5987;
+<style type="text/css">
+  /* Listing Sorter */
+  #sorter {
+    color: #1D5987;
+    margin: -2em 0 1em 0;
+    float: right;
   }
-    #sorter div {
-      float: left;
-      margin-right: 5px;
-    }
+  #sorter ul,
+  #sorter li {
+    display: inline;
+  }
+  #sorter ul {
+    margin: 0;
+    padding: 0;
+  }
+  #sorter li {
+    margin-left: 0.5em;
+  }
 
+  /* People Listing */
+  #co_people {
+    clear: both;
+  }
   #co_people > .ui-accordion {
-    width: auto;
-    padding: 5px;
-    margin: 0 0 5px 0;
+    margin: 0 0 2px;
     overflow: hidden;
-    border-radius: 10px;
+    padding: 5px;
   }
-
   #co_people > div > .panel1{
     float: left;
     margin: 0 10px 0 0;
   }
-
-  .panel1{
-    width: 638px;
+  .panel2 {
+    padding: 0 0 0 10px !important;
+    margin-left: 25px;
   }
-
-  .panel2{
-    width: 664px;
-    padding: 0 0 0 10px !important;}
-
-    .panel1 div,
-    .panel2 div{
-      float: left;
-    }
-
-    .created,
-    .status,
-    .email{
-      margin-top: 6px;
-    }
-
-    .name {
-      width: 325px;
-    }
-
-    .email {
-      margin: 15px 0 0 5px;
-      position: absolute;
-    }
-
-    .admin {
-      float: right !important;
-    }
-
-    .status{
-      margin-left: 5px;
-    }
-
-  .roles{
-    width: 652px;
+  .panel1 div,
+  .panel2 div{
+    float: left;
+  }
+  .created,
+  .status,
+  .email{
+    margin-top: 6px;
+  }
+  .name {
+    width: 325px;
+    position: relative;
+    top: -4px;
+  }
+  .email {
+    margin: 13px 0 0 0px;
+    position: absolute;
+    /*color: #7FB7DB;*/
+    color: #777;
+  }
+  .admin {
+    float: right !important;
+  }
+  .status {
+    margin-left: 5px;
+  }
+  .roles {
+    width: 80%;
     padding: 5px;
     border-radius: 5px;
   }
+  .role {
+    width: 80%;
+    border: 1px solid #d0e5f5;
+    border-radius: 5px;
+    padding: 2px;
+    margin-bottom: 5px;
+  }
+  .roleinfo{
+    width: 50%;
+  }
+  .rolestatus{
+    float: right !important;
+    margin: 5px 9px 5px 5px;
+  }
+  .roledata{
+    width: 100%;
+  }
+  .roletitle{
+    width:100%;
+  }
 
-    .role{
-      width: 639px;
-      border: 1px solid #d0e5f5;
-      border-radius: 5px;
-      padding: 2px;
-      margin-bottom: 5px;
-    }
-
-      .roleinfo{
-        width: 50%;
-      }
-
-      .rolestatus{
-        float: right !important;
-        margin: 5px 9px 5px 5px;
-      }
-
-      .roledata{
-        width: 100%;
-      }
-
-        .roletitle{
-          width:100%;
-        }
-
-        .roledates{
-          text-align: right;
-          margin: 0 30px 0 0;
-        }
+  .roledates{
+    text-align: right;
+    margin: 0 30px 0 0;
+  }
 
   /* Pagination */
   .pagination {
     padding: 5px
-   }
+  }
   .outer-center {
     float: right;
     right: 50%;
@@ -140,6 +132,29 @@
   }
   .clear {
       clear: both;
+  }
+  /* jquery ui overrides */
+  #co_people .panel1 {
+    border: 1px solid transparent; /* to allow our jquery UI hovers not to change the size of the div */
+    background: inherit;
+    color: #333;
+  }
+  #co_people .ui-state-hover,
+  #co_people .ui-widget-content .ui-state-hover,
+  #co_people .ui-widget-header .ui-state-hover,
+  #co_people .ui-state-focus,
+  #co_people .ui-widget-content .ui-state-focus,
+  #co_people .ui-widget-header .ui-state-focus {
+    border: 1px solid #79b7e7;
+    background: #d0e5f5 url(jquery/css/comanage-theme/images/ui-bg_glass_75_d0e5f5_1x400.png) 50% 50% repeat-x;
+    color: #1d5987;
+  }
+  #co_people .ui-state-active,
+  #co_people .ui-widget-content .ui-state-active,
+  #co_people .ui-widget-header .ui-state-active {
+    border: 1px solid #79b7e7;
+    background: #f5f8f9 url(images/ui-bg_inset-hard_100_f5f8f9_1x100.png) 50% 50% repeat-x;
+    color: #333;
   }
 </style>
 
@@ -192,12 +207,14 @@
   $this->set('sidebarButtons', $sidebarButtons);
 ?>
 
-<div id = "sorter">
-  <div>Sort By:</div>
-  <div><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?>  </div>
-  <div><?php print $this->Paginator->sort('status', _txt('fd.status')); ?>     </div>
-  <div><?php print $this->Paginator->sort('created', _txt('fd.created')); ?>   </div>
-  <div><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?> </div>
+<div id="sorter">
+  Sort By:
+  <ul>
+    <li><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></li>
+    <li><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></li>
+    <li><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></li>
+    <li><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?></li>
+  </ul>
 </div>
 
 <div id="co_people">
@@ -388,7 +405,7 @@
     </div>
     <?php $i++; ?>
   <?php endforeach; // $co_people ?>
-  <div class="ui-widget-header pagination">
+  <div class="pagination">
     <div class="outer-center">
       <div class="product inner-center">
         <?php print $this->Paginator->numbers(); ?>
