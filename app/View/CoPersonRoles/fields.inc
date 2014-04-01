@@ -54,11 +54,6 @@
     // Make sure ID gets carried over
     if(isset($co_person_roles[0]['CoPersonRole']['id']))
       print $this->Form->hidden('id', array('default' => $co_person_roles[0]['CoPersonRole']['id']));
-    
-    echo '
-    <br />
-    <br />
-    ';
   }
   
   // Line number, for rendering
