@@ -1,0 +1,269 @@
+/**
+ *
+ * CSS for menu bar
+ *
+ * Version: $Revision: 0 $
+ * Date: $Date: 2011-11-01 10:05:17 -0700 (Tue, 01 Nov 2011) $
+ *
+ * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ */
+
+
+/*** header row 1 ***/
+#row1 {
+  height: 30px;
+  color: white;
+  background-color: #333;
+}
+.rightmenu {
+  float: right;
+}
+
+/*** Globals settings for dropdown sf-menu ***/
+/* widths and heights need to match in the following selectors 
+   for the sf menus to align */
+.sf-menu {
+  cursor: pointer; 
+  margin-bottom: 0;
+}
+.sf-sub-indicator {
+  background: url("../img/arrows-333333.png") no-repeat scroll -10px -100px rgba(0, 0, 0, 0);
+}
+.sf-menu li:hover ul,
+.sf-menu li.sfHover ul {
+	top: 30px; 
+}
+.sf-menu ul {
+	width: 17em; 
+}
+ul.sf-menu li li:hover ul,
+ul.sf-menu li li.sfHover ul {
+	left:	17em;
+}
+ul.sf-menu li li li:hover ul,
+ul.sf-menu li li li.sfHover ul {
+	left:	17em; 
+}
+ul.sf-menu li.dropMenu li a:hover { 
+  background-color: #e5e5e5 !important;
+}
+
+/*** Name / Platform Dropdown Menus ***/
+.row1-dropdown {
+  margin: 0;
+  padding: 0;
+}
+.row1-dropdown li.dropMenu a.menuTop { 
+  background-color: transparent;
+  color: #ccc;
+  border: none;
+}
+.row1-dropdown li.dropMenu a.menuTop:hover { 
+  color: #fff;
+}
+.row1-dropdown .sf-menu ul:first-child {
+  display: block !important;
+  visibility: visible !important;
+}
+.row1-dropdown li.dropMenu a {
+  background-color: #eee;
+  color: #333;
+}
+.row1-dropdown .sf-menu li {
+  color: #ccc;
+  background-color: #333;
+}
+.row1-dropdown .sf-menu a {
+  color: #ccc;
+  background-color: #333;
+}
+#comanage-gear {
+  background: #333 url("../img/comanage-gear.png") top left no-repeat;
+  height: 13px;
+  margin: 0 4px 0 0;
+  width: 13px;
+}
+/* platform menu can be thinner */
+#platform .sf-menu ul {
+	width: 11em; 
+}
+#platform ul.sf-menu li li:hover ul,
+#platform ul.sf-menu li li.sfHover ul {
+	left:	11em;
+}
+#platform .ui-icon { 
+  margin: 1px 1px 0 0;
+  height: 18px;
+  width: 18px;
+  background-image: url("jquery/ui/css/comanage-theme/images/ui-icons_cccccc_256x240.png");
+}
+
+/*** Custom Links in Row1 ***/
+#links ul {
+  padding: 0;
+} 
+#links li {
+  float: left;
+  list-style: none;
+  margin: 7px 5px 5px 5px;
+  padding-left: 9px;
+  border-left: 1px solid #666;
+}
+#links li:first-child {
+  border-left: none; /* gets rid of first pipe */
+  padding-left: 0;
+} 
+#links a,
+#links a:visited {
+  color: #ccc;
+  text-decoration: none;
+}
+#links a:hover {
+  color: white;
+}
+
+/*** Secondary Menu ***/
+#secondaryMenu {
+  margin-right: 5px;
+}
+#secondaryMenu div {
+  float: left;
+  color: #ccc;
+}
+ 
+/*** Notification ***/
+#notification {
+  height: 18px;
+  padding: 2px 6px;
+  margin: 4px 0 3px 5px;
+  background-color: #C33;
+  /*border-radius: 5px;*/
+  cursor: pointer;
+}
+#notification ul {
+  padding: 0;
+  margin: 0;
+} /*overrides default excess space*/
+
+#notification>ul>li {
+  background-color: #C33;
+  margin: 3px 5px 2px 2px;
+}
+#notification .sf-menu a.menuTop {
+  color: white;
+  border: none;
+  padding: 0 0.25em;
+}
+#notification span,
+#notification a {
+  color: white;
+}
+#notification .ui-icon {
+  width: 13px;
+  height: 13px;
+  background-image: url("jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png");
+}
+#notification ul li ul {
+  height: auto;
+  padding: 12px 15px 15px 10px;
+  margin-left: -182px;
+  margin-top: -15px;
+  min-width: 200px;
+  display: block;
+}
+#notification ul li ul li:hover {
+  background: none;
+  color: black;
+}
+#notification .sectionTitle {
+  margin: 0 5px 0 5px;
+  font-size: 14px;
+}
+#notification .names {
+  margin: 2px 5px 5px 15px;
+  line-height: 16px;
+  color: #333;
+}
+#notification .seemore {
+  text-align: right;
+  width: 100%;
+  margin: 0 0 10px 0;
+}
+#notification .titleColor,
+#notification ul li ul a {
+  color: #2B59BD !important;
+  background-color: auto !important;
+}
+#notification ul li ul a:hover {
+  color: #ce9b7f !important; 
+  background-color: auto !important;
+}
+#notification .seeOther {
+  width: 100%;
+  text-align: center;
+  margin: 10px 0 0 0;
+}
+
+/*** Logout button ***/
+#logout a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  height: 18px;
+  padding: 3px 14px 1px 14px;
+  margin: 4px 5px 5px 5px;
+  background-color: #C33;
+  /*border-radius: 5px;*/
+  cursor: pointer;
+}
+
+/*** header row 2 ***/
+#row2 {
+  padding: 10px;
+  background-color: #edeeed;
+  height: 50px;
+}
+
+/*** dropdown menu ***/
+#row3 {
+  height: 30px;
+  background-color: #eee;
+  color: #333;
+  border-bottom: 1px solid #ccc;
+}
+#row3 li.dropMenu a.menuTop { 
+  height: 1em;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-top: none;
+  background-color: transparent;
+}
+a.menuTop > .sf-sub-indicator {
+  position: relative;
+  right: -2px;
+  top: 0;
+}
+#row3 li.dropMenu a {
+  background-color: #eee;
+  color: #333;
+}
+#row3 .sf-menu li {
+  color: #333;
+  background-color: transparent;
+}
+#row3 .sf-menu a {
+  color: #ccc;
+  background-color: #333;
+}
+

@@ -35,10 +35,11 @@
     <!-- link rel="shortcut icon" href="favicon.ico" type="image/x-icon" -->
 
     <!-- Include the comanage and jquery style sheets -->
-    <?php print $this->Html->css('comanage'); ?>
-    <?php print $this->Html->css('jquery/ui/css/comanage-theme/jquery-ui-1.10.0.custom'); ?>
+    <?php print $this->Html->css('jquery/ui/css/comanage-theme/jquery-ui-1.10.0.comanage'); ?>
     <?php print $this->Html->css('jquery/superfish/css/superfish'); ?>
-    <?php print $this->Html->css('menubar'); ?>
+    <?php print $this->Html->css('comanage'); ?>
+    <?php print $this->Html->css('comanage-menubar'); ?>
+    <?php print $this->Html->css('comanage-responsive'); ?>
 
     <!-- Get jquery code -->
     <?php print $this->Html->script('jquery/ui/js/jquery-1.9.0.js'); ?>
@@ -507,23 +508,13 @@
     </div>
     
     <div id="main" class="contentWidth">
-      <div id="content">
-          <!-- Display view content -->
-          <?php print $this->fetch('content'); ?>
-      </div>
-
       <?php
         $sidebarButtons = $this->getVar('sidebarButtons');
       
         if($sidebarButtons != null):
       ?>
-          <!-- Display sidebar for content -->
-          <script>
-            $('#content').width('685');
-            jQuery(window).load(function () {
-              $('#sidebar').height( $('#content').height() - 95);
-            });
-          </script>
+          <!-- Display sidebar menu for content -->
+          <!-- Note: sidebar is now a top menu -->
           <div id="sidebar">
             <ul id="menu">
             <?php
@@ -575,6 +566,18 @@
             ?>
           </div>
       <?php endif; ?>
+
+      <?php
+        /* display the view content */
+        if($sidebarButtons != null) {
+          print '<div id="content" class="contentWithSidebar">';
+        } else {
+          print '<div id="content">';
+        }
+        print $this->fetch('content');
+        print "</div>";
+      ?>
+
     </div>
 
     <!-- Common UI components -->

@@ -24,6 +24,10 @@ body {
   width: auto;
   margin: -12px auto 0 auto;
 }
+.contentWidth {
+  margin: auto;
+  min-width: 600px;
+}
 
 /* General */
 .hidden {
@@ -69,12 +73,8 @@ body {
 
 /* Content */
 #content {
-  min-width: 600px;
-  width: 100%;
   float: left;
-  margin-left:auto;
-  margin-right:auto;
-  overflow:hidden;
+  width: 100%;
 }
 h1 {
   float: left;
@@ -113,17 +113,14 @@ th, td {
 }
 
 /* Forms */
-
 input.text {
   margin-bottom: 12px;
   width: 95%;
   padding: 0.4em;
 }
-  
 fieldset {
   margin-top: 25px;
 }
-  
 fieldset.borderless {
   padding: 0;
   border: 0;
@@ -218,7 +215,6 @@ fieldset.borderless {
 .additionalinfo div .ui-button{
   float: right;
 }
-
 #OrgIdentityEditForm .addbutton,
 #view_org_identity .addbutton,
 #CoPersonEditForm .addbutton,
@@ -230,31 +226,26 @@ fieldset.borderless {
 .order .ui-icon{
   float: left;
 }
-
 .order {
   padding-left: 18px;
 }     
 
 /* Sidebar (right) */
 #sidebar {
-  float: left;
-  width: 247px;
-  min-height: 400px;
+  background-color: #F5F5F5;
+  margin: 1em;
   padding: 10px;
-  margin: 72px 0 0 4px;
-  border: 1px solid #4297d7;
-  background: #f5fafd;
 }
 
 /* Footer */
 .footer {
+  clear: both;
   margin: 20px 0 0 0;
   padding: 10px;
 }
 .poweredByComanage {
-  padding: 10px;
-  margin: 10px;
-  float: right;
+  margin: 3em 0 0;
+  padding: 0;
 }
 .poweredText {
   margin: 10px;
@@ -277,7 +268,6 @@ fieldset.borderless {
 .noty_text{
   font-weight: bold;
 }
-
 .noty_icon{
   display: inline-block !important;
   position: relative;
