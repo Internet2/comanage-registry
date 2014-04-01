@@ -134,6 +134,20 @@ class CoPeopleController extends StandardController {
                                                 array(_txt('ct.org_identities.1'),
                                                       Sanitize::html($this->request->params['named']['orgidentityid']))));
       }
+    } elseif($this->action == "match"
+             && !empty($this->request->params['named']['coef'])) {
+      // Pull the CO from the Enrollment Flow
+      
+      $coId = $this->CoPerson->Co->CoEnrollmentFlow->field('co_id',
+                                                           array('id' => $this->request->params['named']['coef']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_enrollment_flows.1'),
+                                                      Sanitize::html($this->request->params['named']['coef']))));
+      }
     }
     
     return parent::calculateImpliedCoId();

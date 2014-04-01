@@ -32,8 +32,7 @@ $(document).ready(function() {
       // 13 is enter/return... don't search on form submit
       // XXX Don't hardcode fields here, or /registry prefix
       $.ajax({
-        url: '/registry/co_people/match/co:<?php print $cur_co['Co']['id']; ?>'
-             + '/coef:' + <?php print Sanitize::html($co_enrollment_flow_id); ?>
+        url: '/registry/co_people/match/coef:' + <?php print Sanitize::html($co_enrollment_flow_id); ?>
              + '/given:' + document.getElementById(givenNameAttr).value
              + '/family:' + document.getElementById(familyNameAttr).value
       }).done(function(data) {
