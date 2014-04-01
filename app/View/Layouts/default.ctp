@@ -44,6 +44,7 @@
     <?php print $this->Html->script('jquery/ui/js/jquery-1.9.0.js'); ?>
     <?php print $this->Html->script('jquery/ui/js/jquery-ui-1.10.0.custom.min.js'); ?>
     <?php print $this->Html->script('jquery/superfish/js/superfish.js'); ?>
+    <?php print $this->Html->script('jquery/spin.min.js'); ?>
 
     <?php print $this->Html->script('jquery/noty/jquery.noty.js'); ?>
     <?php print $this->Html->script('jquery/noty/layouts/topCenter.js'); ?>
@@ -63,9 +64,7 @@
     }
 
     // Function to confirm delete and then hand off
-  
-    function js_confirm_delete(name, url)
-    {
+    function js_confirm_delete(name, url) {
       // Generate a dialog box confirming the removal of <name>.  On confirmation, forward to <url>, which executes the delete.
 
       // Set the title of the dialog    
@@ -87,8 +86,7 @@
       $('#dialog').dialog('open');
     }
 
-    function js_confirm_generic(txt, url)
-    {
+    function js_confirm_generic(txt, url) {
       // Generate a dialog box confirming <txt>.  On confirmation, forward to <url>.
 
       // Set the title of the dialog    
@@ -109,8 +107,7 @@
       $('#dialog').dialog('open');
     }
 
-    function js_confirm_reinvite(name, url)
-    {
+    function js_confirm_reinvite(name, url) {
       // Generate a dialog box confirming a resend of an invitation to <name>.  On confirmation, forward to <url>, which executes the invite.
 
       // Set the title of the dialog    
@@ -132,8 +129,7 @@
       $('#dialog').dialog('open');
     }
     
-    function js_confirm_verification(email, url)
-    {
+    function js_confirm_verification(email, url) {
       // Generate a dialog box confirming a request to verify <email>. On confirmation, forward to <url>, which executes the sending.
       // XXX This should be merged with js_confirm_reinvite, above, perhaps as part of CO-753.
 
@@ -156,24 +152,20 @@
       $('#dialog').dialog('open');
     }
     
-    function js_onload_call_hooks()
-    {
+    function js_onload_call_hooks() {
       // On page load, call any defined initialization functions.
       // Make sure function is defined before calling.
       
-      if(window.js_local_onload)
-      {
+      if(window.js_local_onload) {
         js_local_onload();
       }
     }
     
-    function js_onsubmit_call_hooks()
-    {
+    function js_onsubmit_call_hooks() {
       // On form submit, call any defined functions.
       // Make sure function is defined before calling.
       
-      if(window.js_local_onsubmit)
-      {
+      if(window.js_local_onsubmit) {
         js_local_onsubmit();
       }
     }
@@ -391,6 +383,39 @@
           }
         }
       });
+
+      // Add a spinner when a form is submitted
+      $("input[type='submit']").click(function() {
+
+        var spinnerDiv = '<div id="coSpinner"></div>';
+        $("body").append(spinnerDiv);
+
+        var coSpinnerOpts = {
+          lines: 13, // The number of lines to draw
+          length: 20, // The length of each line
+          width: 8, // The line thickness
+          radius: 20, // The radius of the inner circle
+          corners: 0.4, // Corner roundness (0..1)
+          rotate: 0, // The rotation offset
+          direction: 1, // 1: clockwise, -1: counterclockwise
+          color: '#9FC6E2', // #rgb or #rrggbb or array of colors
+          speed: 1.2, // Rounds per second
+          trail: 60, // Afterglow percentage
+          shadow: false, // Whether to render a shadow
+          hwaccel: false, // Whether to use hardware acceleration
+          className: 'spinner', // The CSS class to assign to the spinner
+          zIndex: 100 // The z-index (defaults to 2000000000)
+        };
+        var coSpinnerTarget = document.getElementById('coSpinner');
+        var coSpinner = new Spinner(coSpinnerOpts).spin(coSpinnerTarget);
+
+        // Test for invalid fields (HTML5) and turn off spinner explicitly if found
+        if(document.querySelectorAll(":invalid").length) {
+          coSpinner.stop();
+        }
+
+      });
+
     });
 
     // Turn on the sidebar menus
