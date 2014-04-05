@@ -103,8 +103,8 @@ $(function() {
 
   $l = 1;
 ?>
-<div id="<?php print $this->action; ?>_org_identity" style=" float:left; height:auto;">
-  <div id="tabs" style="min-height:350px; width:550px">
+<div id="<?php print $this->action; ?>_org_identity" class="coTabsContainer">
+  <div id="tabs" class="coTabs">
     <ul>
       <li>
         <a href="#tabs-name">

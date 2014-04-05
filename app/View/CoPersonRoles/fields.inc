@@ -54,11 +54,6 @@
     // Make sure ID gets carried over
     if(isset($co_person_roles[0]['CoPersonRole']['id']))
       print $this->Form->hidden('id', array('default' => $co_person_roles[0]['CoPersonRole']['id']));
-    
-    echo '
-    <br />
-    <br />
-    ';
   }
   
   // Line number, for rendering
@@ -84,8 +79,8 @@ $(function() {
   <?php endif; ?>
 });
 </script>
-<div id="<?php print $this->action; ?>_co_person" style=" float:left; height:auto;">
-  <div id="tabs" style="min-height:350px; width:550px">
+<div id="<?php print $this->action; ?>_co_person">
+  <div id="tabs">
     <ul>
       <li>
         <a href="#tabs-role">
