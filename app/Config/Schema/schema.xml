@@ -1074,4 +1074,24 @@
       <unique />
     </index>
   </table>
+  
+  <table name="ssh_keys">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="comment" type="C" size="256" />
+    <field name="type" type="C" size="16" />
+    <!-- mysql doesn't want a column called "key" -->
+    <field name="skey" type="X" size="4000" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="ssh_keys_i1">
+      <col>co_person_id</col>
+    </index>
+  </table>
 </schema>

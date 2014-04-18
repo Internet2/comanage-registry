@@ -549,7 +549,8 @@ class ProvisionerBehavior extends ModelBehavior {
       'CoPersonRole.TelephoneNumber',
       'EmailAddress',
       'Identifier', 
-      'PrimaryName'
+      'PrimaryName',
+      'SshKey'
     );
     
     $coPersonData = $coPersonModel->find('first', $args);

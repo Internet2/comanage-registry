@@ -68,6 +68,10 @@ class ActionEnum
   const OrgIdAddedPetition              = 'AOIP';
   const OrgIdEditedManual               = 'EOIM';
   const OrgIdEditedPetition             = 'EOIP';
+  const SshKeyAdded                     = 'SSHA';
+  const SshKeyDeleted                   = 'SSHD';
+  const SshKeyEdited                    = 'SSHE';
+  const SshKeyUploaded                  = 'SSHU';
 }
 
 class AdministratorEnum
@@ -319,6 +323,15 @@ class RequiredEnum
     Optional      => 'Optional',
     NotPermitted  => 'NotPermitted'
   );*/
+}
+
+class SshKeyTypeEnum
+{
+  // Protocol v2
+  const DSA         = 'DSA';
+  const RSA         = 'RSA';
+  // Protocol v1
+  const RSA1        = 'RSA1';
 }
 
 class StatusEnum

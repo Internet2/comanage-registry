@@ -930,6 +930,78 @@
             </li>
           </ul>
         </li>
+        <li id="fields-sshkey" class="fieldGroup">
+          <?php
+            if($e) {
+              print '<div class="coAddEditButtons">';
+              $linktarget = array(
+                'controller' => 'ssh_keys',
+                'action'     => 'add',
+                'copersonid' => $co_people[0]['CoPerson']['id']
+              );
+              $linkparams = array('class'  => 'addbutton');
+              
+              print $this->Html->link(_txt('op.add'),
+                                      $linktarget,
+                                      $linkparams);
+              print '</div>';
+            }
+          ?>
+          <a href="#tabs-sshkeys" class="fieldGroupName">
+            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <?php print _txt('ct.ssh_keys.pl'); ?>
+          </a>
+          <ul class="fields">
+            <li>
+              <div id="tabs-sshkeys">
+                <?php print '<div class="additionalinfo">'; ?>
+                <table>
+                  <tbody>
+                  <?php
+                  $l = 1;
+                  if($e)
+                  {
+                    if(isset($co_people[0]['SshKey'])) {
+                      foreach($co_people[0]['SshKey'] as $sk) {
+                        print '<div>';
+                        print '<div>';
+                        print $this->Html->link($sk['comment'], array('controller' => 'ssh_keys', 'action' => 'edit', $sk['id']));
+                        print '</div>';
+                        print '<div>';
+                        // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                        // We use Sanitize::paranoid in the delete construction because a comment like 'user@host' will break
+                        // the javascript. There's probably a better filter we could do here (this also removes spaces).
+                        print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::paranoid($sk['comment'])) . '\', \'' . $this->Html->url(array('controller' => 'ssh_keys', 'action' => 'delete', $sk['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                        print $this->Html->link(_txt('op.edit'),
+                            array('controller' => 'ssh_keys', 'action' => 'edit', $sk['id']),
+                            array('class' => 'editbutton')) . "\n";
+                        print '</div>';
+                        print '</div>';
+                      }
+                    }
+                  } else {
+                    if(isset($co_people[0]['SshKey'])) {
+                      foreach($co_people[0]['SshKey'] as $sk) {
+                        print '<tr class="line';
+                        print ($l % 2);
+                        print '">';
+                        $l++;
+                        
+                        print '<td>';
+                        print Sanitize::html($sk['comment']) . "\n";
+                        print '</td>';
+                        print '</tr>';
+                      }
+                    }
+                  }
+                  ?>
+                  </tbody>
+                </table>
+              </div>
+              </div> <!-- tabs-sshkey -->
+            </li>
+          </ul>
+        </li>
         <li id="fields-orgid" class="fieldGroup">
           <a href="#tabs-orgid" class="fieldGroupName">
             <span class="ui-icon ui-icon-circlesmall-minus"></span>
