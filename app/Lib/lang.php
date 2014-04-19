@@ -759,6 +759,7 @@ For questions regarding this process, please contact your administrator.',
   // Informational messages
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
+  'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
   
   // Menu
   'me.account'         => 'My Account',

@@ -607,7 +607,7 @@ class CoInvitesController extends AppController {
           $this->restResultHeader(400, "No Email Address");
         else
         {
-          $this->Session->setFlash(_txt('er.orgp.nomail', array(generateCn($orgp['Name']), $orgp['OrgIdentity']['id'])), '', array(), 'error');
+          $this->Session->setFlash(_txt('er.orgp.nomail', array(generateCn($orgp['PrimaryName']), $orgp['OrgIdentity']['id'])), '', array(), 'error');
           $this->redirect(array('controller' => 'co_people', 'action' => 'index', 'co' => $this->cur_co['Co']['id']));
         }
       }

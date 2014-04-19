@@ -124,15 +124,26 @@ class CoPeopleController extends StandardController {
   protected function calculateImpliedCoId() {
     if($this->action == "invite"
        && !empty($this->request->params['named']['orgidentityid'])) {
-      $coId = $this->CoPerson->CoOrgIdentityLink->OrgIdentity->field('co_id',
-                                                                     array('id' => $this->request->params['named']['orgidentityid']));
-      
-      if($coId) {
-        return $coId;
+      if(isset($this->viewVars['pool_org_identities']) && $this->viewVars['pool_org_identities']) {
+        // When org identities are pooled, accept the CO ID from the URL
+        
+        if(isset($this->request->params['named']['co'])) {
+          return $this->request->params['named']['co'];
+        } else {
+          throw new InvalidArgumentException(_txt('er.co.specify'));
+        }
       } else {
-        throw new InvalidArgumentException(_txt('er.notfound',
-                                                array(_txt('ct.org_identities.1'),
-                                                      Sanitize::html($this->request->params['named']['orgidentityid']))));
+        // The CO ID is implied from the org identity
+        $coId = $this->CoPerson->CoOrgIdentityLink->OrgIdentity->field('co_id',
+                                                                       array('id' => $this->request->params['named']['orgidentityid']));
+        
+        if($coId) {
+          return $coId;
+        } else {
+          throw new InvalidArgumentException(_txt('er.notfound',
+                                                  array(_txt('ct.org_identities.1'),
+                                                        Sanitize::html($this->request->params['named']['orgidentityid']))));
+        }
       }
     } elseif($this->action == "match"
              && !empty($this->request->params['named']['coef'])) {

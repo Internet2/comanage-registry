@@ -230,7 +230,7 @@
     <ul>
       <li id="fields-name" class="fieldGroup">
 
-        <?php if($e): ?>
+        <?php if($e && $this->action != 'invite'): ?>
           <div class="coAddEditButtons">
             <?php
             $linktarget = array(
