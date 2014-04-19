@@ -292,7 +292,13 @@ class AppController extends Controller {
     // As a default, we'll see if we can determine the CO in a generic manner.
     // Where this doesn't work, individual Controllers can override this function.
     
-    if(!$this->requires_co && !$this->requires_person) {
+    if(!$this->requires_co
+       && (!$this->requires_person
+           ||
+           // MVPA controllers operating on org identities where pool_org_identities
+           // is false will not specify/require a CO
+           (isset($this->viewVars['pool_org_identities'])
+            && $this->viewVars['pool_org_identities']))) {
       // Controllers that don't require a CO generally can't imply one.
       return null;
     }
