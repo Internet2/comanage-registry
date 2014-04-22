@@ -311,6 +311,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   $attributes[$attr] = array();
                 }
                 break;
+              case 'sshPublicKey':
+                foreach($provisioningData['SshKey'] as $sk) {
+                  global $ssh_ti;
+                  
+                  $attributes[$attr][] = $ssh_ti[ $sk['type'] ] . " " . $sk['skey'] . " " . $sk['comment'];
+                }
+                break;
               // Attributes from models attached to CO Person Role
               case 'facsimileTelephoneNumber':
               case 'l':
@@ -431,6 +438,29 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   // says to remove any previous entry
                   $attributes[$attr] = array();
                 }
+                break;
+              // posixAccount attributes
+              case 'gecos':
+                // Construct using same name as cn
+                $attributes[$attr] = generateCn($provisioningData['PrimaryName']) . ",,,";
+                break;
+              case 'gidNumber':
+              case 'homeDirectory':
+              case 'uidNumber':
+                // We pull these attributes from Identifiers with types of the same name
+                // as an experimental implementation for CO-863.
+                foreach($provisioningData['Identifier'] as $m) {
+                  if(isset($m['type'])
+                     && $m['type'] == $attr
+                     && $m['status'] == StatusEnum::Active) {
+                    $attributes[$attr] = $m['identifier'];
+                    break;
+                  }
+                }
+                break;
+              case 'loginShell':
+                // XXX hard coded for now (CO-863)
+                $attributes[$attr] = "/bin/tcsh";
                 break;
               default:
                 throw new InternalErrorException("Unknown attribute: " . $attr);
@@ -1047,6 +1077,44 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             'extendedtype' => 'identifier_types',
             'defaulttype' => IdentifierEnum::UID,
             'description' => _txt('pl.ldapprovisioner.attr.hasmember.desc')
+          )
+        )
+      ),
+      'posixAccount' => array(
+        'objectclass' => array(
+          'required'    => false
+        ),
+        'attributes' => array(
+          'uidNumber' => array(
+            'required'   => true,
+            'multiple'   => false
+          ),
+          'gidNumber' => array(
+            'required'   => true,
+            'multiple'   => false
+          ),
+          'homeDirectory' => array(
+            'required'   => true,
+            'multiple'   => false
+          ),
+          'loginShell' => array(
+            'required'   => false,
+            'multiple'   => false
+          ),
+          'gecos' => array(
+            'required'   => false,
+            'multiple'   => false
+          )
+        )
+      ),
+      'ldapPublicKey' => array(
+        'objectclass' => array(
+          'required'     => false
+        ),
+        'attributes' => array(
+          'sshPublicKey' => array(
+            'required'   => true,
+            'multiple'   => true
           )
         )
       )
