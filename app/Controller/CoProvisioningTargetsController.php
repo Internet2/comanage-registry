@@ -125,7 +125,9 @@ class CoProvisioningTargetsController extends StandardController {
       
       // Note that we have to disable validation because we want to create an empty row.
       $this->loadModel($pluginModelName);
-      $this->$modelName->save($target, false);
+      if(!$this->$modelName->save($target, false)) {
+        return false;
+      }
       $this->_targetid = $this->$modelName->id;
     }
     
