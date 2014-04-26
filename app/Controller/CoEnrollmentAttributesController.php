@@ -172,6 +172,43 @@ class CoEnrollmentAttributesController extends StandardController {
   }
 
   /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
+    // If an enrollment flow is specified, use it to get to the CO ID
+    
+    $coef = null;
+    
+    if(!empty($this->params->named['coef'])) {
+      $coef = $this->params->named['coef'];
+    } elseif(!empty($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'])) {
+      $coef = $this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'];
+    }
+    
+    if($coef) {
+      // Map CO Enrollment Flow to CO
+      
+      $coId = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('co_id',
+                                                                    array('id' => $coef));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_flows.1'), $coef)));
+      }
+    }
+    
+    // Or try the default behavior
+    return parent::calculateImpliedCoId();
+  }
+  
+  /**
    * Perform any followups following a write operation.  Note that if this
    * method fails, it must return a warning or REST response, but that the
    * overall transaction is still considered a success (add/edit is not

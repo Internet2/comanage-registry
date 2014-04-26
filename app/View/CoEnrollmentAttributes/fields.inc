@@ -1,6 +1,6 @@
 <!--
 /**
- * COmanage Registry CMP Enrollment Attribute Fields
+ * COmanage Registry CO Enrollment Attribute Fields
  *
  * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
  * 

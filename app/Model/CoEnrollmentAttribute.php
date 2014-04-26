@@ -190,6 +190,35 @@ class CoEnrollmentAttribute extends AppModel {
   }
   
   /**
+   * Obtain the CO ID for a record.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  integer Record to retrieve for
+   * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
+   * @throws InvalidArgumentException
+   * @throws RunTimeException
+   */
+  
+  public function findCoForRecord($id) {
+    // Override the parent version since we need to retrieve via the co enrollment flow
+    
+    // First get the enrollment flow
+    $coef = $this->field('co_enrollment_flow_id', array('CoEnrollmentAttribute.id' => $id));
+    
+    if(!$coef) {
+      throw new InvalidArgumentException(_txt('er.notfound', array('ct.co_enrollment_attributes.1', $id)));
+    }
+    
+    $coId = $this->CoEnrollmentFlow->field('co_id', array("CoEnrollmentFlow.id" => $coef));
+    
+    if($coId) {
+      return $coId;
+    } else {
+      throw new InvalidArgumentException(_txt('er.notfound', array('ct.co_enrollment_flows.1', $coef)));
+    }
+  }
+    
+   /**
    * Obtain the configured attributes for a particular Enrollment Flow.
    *
    * @since  COmanage Registry 0.5

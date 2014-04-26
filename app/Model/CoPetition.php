@@ -233,8 +233,13 @@ class CoPetition extends AppModel {
           // This attribute is part of an MVPA that is required, so stop
           return false;
         } else {
-          // Treat this attribute as optionas
-          continue;
+          // Treat this attribute as optional, but check if it's set
+          
+          if(!empty($data[ $efAttr['field'] ])) {
+            return false;
+          } else {
+            continue;
+          }
         }
       }
       
@@ -244,8 +249,7 @@ class CoPetition extends AppModel {
         return false;
       }
       
-      if(isset($data[ $efAttr['field'] ]) &&
-         $data[ $efAttr['field'] ] != "") {
+      if(!empty($data[ $efAttr['field'] ])) {
         // Field is set, so stop
         
         return false;
