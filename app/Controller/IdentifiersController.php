@@ -159,6 +159,36 @@ class IdentifiersController extends MVPAController {
   }
   
   /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
+    if(isset($this->viewVars['pool_org_identities'])
+       && $this->viewVars['pool_org_identities']
+       && isset($this->request->params['named']['copersonid'])) {
+      // If org identities are pooled, we need to manually map from copersonid
+      // since otherwise AppController won't
+      
+      $coId = $this->Identifier->CoPerson->field('co_id', array('id' => $this->request->params['named']['copersonid']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_people.1'),
+                                                      Sanitize::html($this->request->params['named']['copersonid']))));
+      }
+    }
+    
+    return parent::calculateImpliedCoId();
+  }
+  
+  /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
