@@ -1701,6 +1701,30 @@ class CoPetition extends AppModel {
         } else {
           // Add the identifier and update petition and org identity history
           
+          $args = array();
+          $args['conditions'][] = 'Identifier.org_identity_id IS NOT NULL';
+          $args['conditions']['Identifier.identifier'] = $loginIdentifier;
+          $args['conditions']['Identifier.type'] = IdentifierEnum::ePPN;
+          $args['conditions']['Identifier.status'] = StatusEnum::Active;
+          
+          $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
+          
+          if(!$CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
+            // If org identities are not pooled, we need to join against org identity
+            // to filter on CO
+            
+            $args['joins'][0]['table'] = 'org_identities';
+            $args['joins'][0]['alias'] = 'OrgIdentity';
+            $args['joins'][0]['type'] = 'INNER';
+            $args['joins'][0]['conditions'][0] = 'Identifier.org_identity_id=OrgIdentity.id';
+          }
+          
+          $i = $this->EnrolleeOrgIdentity->Identifier->findForUpdate($args['conditions'], array('identifier'));
+          
+          if(!empty($i)) {
+            throw new RuntimeException(_txt('er.ia.exists', array($loginIdentifier)));
+          }
+          
           $identifier = array();
           $identifier['Identifier']['identifier'] = $loginIdentifier;
           $identifier['Identifier']['org_identity_id'] = $orgId;
