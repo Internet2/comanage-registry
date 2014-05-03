@@ -758,15 +758,22 @@ class RoleComponent extends Component {
    * @since  COmanage Registry v0.8.3
    * @param  Integer CO Person ID
    * @param  Integer CO Enrollment Flow ID
+   * @param  Integer CO Petition ID
    * @return Boolean True if the CO Person is an approver for any enrollment flow, false otherwise
    * @throws InvalidArgumentException
    */
   
-  public function isApproverForFlow($coPersonId, $coEfId) {
+  public function isApproverForFlow($coPersonId, $coEfId, $coPetitionId=null) {
     // First check the cache
     
-    if(isset($this->cache['coperson'][$coPersonId]['co_ef'][$coEfId]['approver'])) {
-      return $this->cache['coperson'][$coPersonId]['co_ef'][$coEfId]['approver'];
+    if($coPetitionId) {
+      if(isset($this->cache['coperson'][$coPersonId]['co_petition'][$coPetitionId]['approver'])) {
+        return $this->cache['coperson'][$coPersonId]['co_petition'][$coPetitionId]['approver'];
+      }
+    } else {
+      if(isset($this->cache['coperson'][$coPersonId]['co_ef'][$coEfId]['approver'])) {
+        return $this->cache['coperson'][$coPersonId]['co_ef'][$coEfId]['approver'];
+      }
     }
     
     $ret = false;
@@ -814,9 +821,24 @@ class RoleComponent extends Component {
           
           $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
         } else {
-          // (3) No authz_cou_id is specified and $coPersonId is a COU admin
+          // No authz_cou_id
           
-          $ret = $this->isCouAdmin($coPersonId);
+          $couId = null;
+          
+          if($coPetitionId) {
+            $couId = $CoEnrollmentFlow->CoPetition->field('cou_id',
+                                                          array('CoPetition.id' => $coPetitionId));
+          }
+          
+          if($couId) {
+            // (3) A COU is attached to the petition and $coPersonId is a COU admin
+            
+            $ret = $this->isCouAdmin($coPersonId, $couId);
+          } else {
+            // (4) No authz_cou_id is specified and $coPersonId is a COU admin
+            
+            $ret = $this->isCouAdmin($coPersonId);
+          }
         }
       }
     } else {

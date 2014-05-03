@@ -1138,6 +1138,7 @@ class CoPetition extends AppModel {
     
     $this->id = $id;
     $curStatus = $this->field('status');
+    $coID = $this->field('co_id');
     
     if(!$curStatus) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
@@ -1360,7 +1361,6 @@ class CoPetition extends AppModel {
       // Maybe assign identifiers, but only for new approvals
       
       if(!$fail && $newPetitionStatus == StatusEnum::Approved) {
-        $coID = $this->field('co_id');
         $coPersonID = $this->field('enrollee_co_person_id');
         
         if($coID && $coPersonID) {

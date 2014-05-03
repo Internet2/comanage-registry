@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Controller
  *
- * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -452,7 +452,13 @@ class CoPetitionsController extends StandardController {
     
     // Approve a CO Petition?
     if($this->enrollmentFlowID() != -1) {
-      $p['approve'] = $roles['cmadmin'] || $this->Role->isApproverForFlow($roles['copersonid'], $this->enrollmentFlowID());
+      if(!empty($this->request->params['pass'][0])) {
+        $p['approve'] = $roles['cmadmin'] || $this->Role->isApproverForFlow($roles['copersonid'],
+                                                                            $this->enrollmentFlowID(),
+                                                                            $this->request->params['pass'][0]);
+      } else {
+        $p['approve'] = $roles['cmadmin'] || $this->Role->isApproverForFlow($roles['copersonid'], $this->enrollmentFlowID());
+      }
     } else {
       $p['approve'] = $roles['cmadmin'] || $this->Role->isApprover($roles['copersonid']);
     }
@@ -515,13 +521,13 @@ class CoPetitionsController extends StandardController {
   
   function paginationConditions() {
     $pagcond = array();
-
+    
     // Use server side pagination
     
     if($this->requires_co) {
       $pagcond['CoPetition.co_id'] = $this->cur_co['Co']['id'];
     }
-
+    
     // Filter by status
     if(!empty($this->params['named']['Search.status'])) {
       $searchterm = $this->params['named']['Search.status'];
@@ -533,10 +539,21 @@ class CoPetitionsController extends StandardController {
     // are a CO or COU admin (in which case the following list will be empty) or they
     // are an approver by group (in which case the following list will not be empty).
     
-    $efs = $this->Role->approverFor($this->Session->read('Auth.User.co_person_id'));
+    // This isn't exactly right, though... what we really want for COU admins is
+    // to know which petitions the admin can approve. However, a COU admin may have
+    // approval privileges based on the COU a petition is attached to (rather than
+    // the enrollment flow), which requires examining all Petitions. XXX Perhaps a
+    // future enhancement.
     
-    if(!empty($efs)) {
-      $pagcond['CoPetition.co_enrollment_flow_id'] = $efs;
+    $coPersonId = $this->Session->read('Auth.User.co_person_id');
+    
+    if(!$this->Role->isCoOrCouAdmin($coPersonId, $this->cur_co['Co']['id'])) {
+      // approverFor will return groups even for a CO/COU admin, so don't check it for admins
+      $efs = $this->Role->approverFor($coPersonId);
+      
+      if(!empty($efs)) {
+        $pagcond['CoPetition.co_enrollment_flow_id'] = $efs;
+      }
     }
     
     return $pagcond;
