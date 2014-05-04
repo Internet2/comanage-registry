@@ -78,6 +78,27 @@ class NamesController extends MVPAController {
   }
   
   /**
+   * Generate a display key to be used in messages such as "Item Added".
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Array A cached object (eg: from prior to a delete)
+   * @return string A string to be included for display.
+   */
+ 
+  public function generateDisplayKey($c = null) {
+    // Get a pointer to our model
+    $req = $this->modelClass;
+    $model = $this->$req;
+    
+    if(isset($this->request->data['Name']))
+      return(generateCn($this->request->data['Name']));
+    elseif(isset($c['Name']))
+      return(generateCn($c['Name']));
+    else
+      return("(?)");
+  }
+  
+  /**
    * Generate history records for a transaction. This method is intended to be
    * overridden by model-specific controllers, and will be called from within a
    * try{} block so that HistoryRecord->record() may be called without worrying
