@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Identifier Model
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -112,10 +112,11 @@ class Identifier extends AppModel {
    * @since  COmanage Registry v0.6
    * @param  Integer CO ID
    * @param  Integer CO Person ID
+   * @param  Integer Actor CO Person ID
    * @return Array Success for each attribute, where the key is the attribute assigned and the value is 1 for success, 2 for already assigned, or an error string
    */  
   
-  function assign($coId, $coPersonId) {
+  function assign($coId, $coPersonId, $actorCoPersonId) {
     $ret = array();
     
     // First, see if there are any identifiers to autoassign for this CO. This will return the
@@ -133,7 +134,7 @@ class Identifier extends AppModel {
         // Assign will throw an error if an identifier of this type already exists.
         
         try {
-          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $coPersonId);
+          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $coPersonId, $actorCoPersonId);
           $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = 1;
         }
         catch(OverflowException $e) {

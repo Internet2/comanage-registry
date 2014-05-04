@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Identifiers Controller
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -72,7 +72,7 @@ class IdentifiersController extends MVPAController {
     
     if($coid != -1) {
       // Assign the identifiers, then walk through the result array and generate a flash message
-      $res = $this->Identifier->assign($coid, $copersonid);
+      $res = $this->Identifier->assign($coid, $copersonid, $this->Session->read('Auth.User.co_person_id'));
       
       if(!empty($res)) {
         // Loop through the results and build result messages

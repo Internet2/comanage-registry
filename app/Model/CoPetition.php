@@ -1364,7 +1364,7 @@ class CoPetition extends AppModel {
         $coPersonID = $this->field('enrollee_co_person_id');
         
         if($coID && $coPersonID) {
-          $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID);
+          $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID, $actorCoPersonID);
           
           if(!empty($res)) {
             // See if any identifiers were assigned, and if so create a history record

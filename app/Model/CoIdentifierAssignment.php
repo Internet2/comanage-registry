@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Identifier Assignment Model
  *
- * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -123,13 +123,14 @@ class CoIdentifierAssignment extends AppModel {
    * @since  COmanage Registry v0.6
    * @param  Array CoIdentifierAssignment data, as returned by find
    * @param  Integer CO Person ID
+   * @param  Integer Actor CO Person ID
    * @return Integer ID of newly created Identifier
    * @throws InvalidArgumentException
    * @throws OverflowException (identifier already exists)
    * @throws RuntimeException
    */
   
-  public function assign($coIdentifierAssignment, $coPersonID) {
+  public function assign($coIdentifierAssignment, $coPersonID, $actorCoPersonID) {
     $ret = null;
     
     // Determine if we are actually assigning an email address instead of an identifier.
@@ -255,7 +256,7 @@ class CoIdentifierAssignment extends AppModel {
               $this->Co->CoPerson->HistoryRecord->record($coPerson['CoPerson']['id'],
                                                          null,
                                                          null,
-                                                         null,
+                                                         $actorCoPersonID,
                                                          ActionEnum::IdentifierAutoAssigned,
                                                          _txt('en.action', null, ActionEnum::IdentifierAutoAssigned) . ': '
                                                          . $candidate . ' (' . $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type']
