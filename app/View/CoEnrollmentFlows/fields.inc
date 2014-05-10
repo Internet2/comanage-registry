@@ -105,11 +105,15 @@
     // Hide or show gadgets according to current state
     
     if(document.getElementById('CoEnrollmentFlowNotifyOnApproval').checked) {
-      $("#edit_co_enrollment_configuration tr:nth-child(12)").show('fade');
-      $("#edit_co_enrollment_configuration tr:nth-child(13)").show('fade');
+      $("#CoEnrollmentFlowApprovalSubject").show('fade');
+      $("#CoEnrollmentFlowApprovalSubject").closest("tr").css('display','');
+      $("#CoEnrollmentFlowApprovalBody").show('fade');
+      $("#CoEnrollmentFlowApprovalBody").closest("tr").css('display', '');
     } else {
-      $("#edit_co_enrollment_configuration tr:nth-child(12)").hide('fade');
-      $("#edit_co_enrollment_configuration tr:nth-child(13)").hide('fade');
+      $("#CoEnrollmentFlowApprovalSubject").hide('fade');
+      $("#CoEnrollmentFlowApprovalSubject").closest("tr").css('display','none');
+      $("#CoEnrollmentFlowApprovalBody").hide('fade');
+      $("#CoEnrollmentFlowApprovalBody").closest("tr").css('display','none');
     }
   }
   
