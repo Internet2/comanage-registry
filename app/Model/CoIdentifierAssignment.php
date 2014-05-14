@@ -101,6 +101,17 @@ class CoIdentifierAssignment extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'permitted' => array(
+      'rule' => array(
+        'inList',
+        array(
+          PermittedCharacterEnum::AlphaNumeric,
+          PermittedCharacterEnum::AlphaNumDotDashUS,
+          PermittedCharacterEnum::AlphaNumDDUSQuote,
+          PermittedCharacterEnum::Any
+        )
+      )
+    ),
     'collision_resolution' => array(
       'rule' => '/.*/'
     ),
@@ -192,7 +203,9 @@ class CoIdentifierAssignment extends AppModel {
       $iaFormat = $coIdentifierAssignment['CoIdentifierAssignment']['format'];
     }
     
-    $base = $this->substituteParameters($iaFormat, $coPerson['PrimaryName']);
+    $base = $this->substituteParameters($iaFormat,
+                                        $coPerson['PrimaryName'],
+                                        $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
     
     // Now that we've got our base, loop until we get a unique identifier.
     // We try a maximum of 10 (0 through 9) times, and track identifiers we've
@@ -201,7 +214,9 @@ class CoIdentifierAssignment extends AppModel {
     $tested = array();
     
     for($i = 0;$i < 10;$i++) {
-      $sequenced = $this->selectSequences($base, $i);
+      $sequenced = $this->selectSequences($base,
+                                          $i,
+                                          $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
       
       // There may or may not be a collision number format. If so, we should end
       // up with a unique candidate (though for random it's possible we won't).
@@ -333,12 +348,13 @@ class CoIdentifierAssignment extends AppModel {
    * Select the sequenced segments to be processed for the given iteration.
    *
    * @since  COmanage Registry v0.6
-   * @param  String Base string as returned by substituteParameters
+   * @param  String  Base string as returned by substituteParameters
    * @param  Integer Iteration number (between 0 and 9)
+   * @param  Enum    Acceptable characters for substituted parameters (PermittedCharacterEnum)
    * @return String Identifier with sequenced segments selected
    */
   
-  private function selectSequences($base, $iteration) {
+  private function selectSequences($base, $iteration, $permitted) {
     $sequenced = "";
     
     // Loop through the string
@@ -353,6 +369,7 @@ class CoIdentifierAssignment extends AppModel {
           break;
         case '[':
           // Sequenced segment
+          
           if($j+3 < strlen($base)) {
             $j++;
             
@@ -361,9 +378,19 @@ class CoIdentifierAssignment extends AppModel {
               // (and jump past the ':')
               $j += 2;
               
+              // Assemble the text for this segment. If after parameter substitution
+              // we end up with no permitted characters, skip this segment
+              
+              $segtext = "";
+              
               while($base[$j] != ']') {
-                $sequenced .= $base[$j];
+                $segtext .= $base[$j];
                 $j++;
+              }
+              
+              if(strlen($segtext) > 0
+                 && preg_match('/'. _txt('en.chars.permitted.re', null, $permitted) . '/', $segtext)) {
+                $sequenced .= $segtext;
               }
             } else {
               // Move to end of segment, we're not using this one yet
@@ -391,10 +418,11 @@ class CoIdentifierAssignment extends AppModel {
    * @since  COmanage Registry v0.6
    * @param  String CoIdentifierAssignment format
    * @param  Array Name array
+   * @param  Enum    Acceptable characters for substituted parameters (PermittedCharacterEnum)
    * @return String Identifier with paramaters substituted
    */
   
-  private function substituteParameters($format, $name) {
+  private function substituteParameters($format, $name, $permitted) {
     $base = "";
     
     // Loop through the format string
@@ -427,25 +455,34 @@ class CoIdentifierAssignment extends AppModel {
               }
             }
             
-            // Do the actual parameter replacement
+            // Do the actual parameter replacement, blocking out characters that aren't permitted
+            
+            $charregex = '/'. _txt('en.chars.permitted.re.not', null, $permitted) . '/';
+            
             switch($format[$i]) {
               case 'f':
-                $base .= sprintf("%.".$width."s", strtolower($name['family']));
+                $base .= sprintf("%.".$width."s",
+                                 preg_replace($charregex, '', strtolower($name['family'])));
                 break;
               case 'F':
-                $base .= sprintf("%.".$width."s", $name['family']);
+                $base .= sprintf("%.".$width."s",
+                                 preg_replace($charregex, '', $name['family']));
                 break;
               case 'g':
-                $base .= sprintf("%.".$width."s", strtolower($name['given']));
+                $base .= sprintf("%.".$width."s",
+                                 preg_replace($charregex, '', strtolower($name['given'])));
                 break;
               case 'G':
-                $base .= sprintf("%.".$width."s", $name['given']);
+                $base .= sprintf("%.".$width."s",
+                                 preg_replace($charregex, '', $name['given']));
                 break;
               case 'm':
-                $base .= sprintf("%.".$width."s", strtolower($name['middle']));
+                $base .= sprintf("%.".$width."s",
+                                 preg_replace($charregex, '', strtolower($name['middle'])));
                 break;
               case 'M':
-                $base .= sprintf("%.".$width."s", $name['middle']);
+                $base .= sprintf("%.".$width."s",
+                                 preg_replace($charregex, '', $name['middle']));
                 break;
               case '#':
                 // Convert the collision number parameter to a sprintf style specification,

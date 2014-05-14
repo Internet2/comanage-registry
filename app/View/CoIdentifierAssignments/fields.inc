@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Identifier Assignment Fields
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -194,6 +194,33 @@
     </tr>
     <tr class="line1">
       <td>
+        <b><?php print _txt('fd.ia.permitted'); ?></b><br />
+        <font class="desc"><?php print _txt('fd.ia.permitted.desc'); ?></font>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (isset($co_identifier_assignments)
+                              ? $co_identifier_assignments[0]['CoIdentifierAssignment']['permitted']
+                              : PermittedCharacterEnum::AlphaNum);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('permitted',
+                                      $cm_texts[ $cm_lang ]['en.chars.permitted'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('permitted')) {
+              print $this->Form->error('permitted');
+            }
+          } else {
+            print _txt('en.chars.permitted', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['permitted']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
         <b><?php print _txt('fd.ia.minimum'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ia.minimum.desc'); ?></font>
       </td>
@@ -201,7 +228,7 @@
         <?php print ($e ? $this->Form->input('minimum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line1">
       <td>
         <b><?php print _txt('fd.ia.maximum'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ia.maximum.desc'); ?></font>
@@ -210,7 +237,7 @@
         <?php print ($e ? $this->Form->input('maximum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line2">
       <td>
         <b><?php print _txt('fd.ia.exclusions'); ?></b><br />
         <font class="desc"><?php print _txt('fd.ia.exclusions.desc'); ?></font>

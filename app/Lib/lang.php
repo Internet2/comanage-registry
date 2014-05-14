@@ -212,7 +212,29 @@ For questions regarding this process, please contact your administrator.',
                             AffiliationEnum::Affiliate     => 'Affiliate',
                             AffiliationEnum::Employee      => 'Employee',
                             AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
+  
+  'en.chars.permitted' => array(
+    PermittedCharacterEnum::AlphaNumeric      => 'AlphaNumeric Only',
+    PermittedCharacterEnum::AlphaNumDotDashUS => 'AlphaNumeric and Dot, Dash, Underscore',
+    PermittedCharacterEnum::AlphaNumDDUSQuote => 'AlphaNumeric and Dot, Dash, Underscore, Apostrophe',
+    PermittedCharacterEnum::Any               => 'Any Character'
+  ),
 
+  'en.chars.permitted.re' => array(
+    PermittedCharacterEnum::AlphaNumeric      => '[A-Za-z]',
+    PermittedCharacterEnum::AlphaNumDotDashUS => '[A-Za-z\.\-_]',
+    PermittedCharacterEnum::AlphaNumDDUSQuote => '[A-Za-z\.\-_\']',
+    PermittedCharacterEnum::Any               => '.*'
+  ),
+  
+  // The inverse of the above (NOT permitted)
+  'en.chars.permitted.re.not' => array(
+    PermittedCharacterEnum::AlphaNumeric      => '[^A-Za-z]',
+    PermittedCharacterEnum::AlphaNumDotDashUS => '[^A-Za-z\.\-_]',
+    PermittedCharacterEnum::AlphaNumDDUSQuote => '[^A-Za-z\.\-_\']',
+    PermittedCharacterEnum::Any               => ''
+  ),
+  
   'en.contact' =>     array(ContactEnum::Fax => 'Fax',
                             ContactEnum::Home => 'Home',
                             ContactEnum::Mobile => 'Mobile',
@@ -667,6 +689,8 @@ For questions regarding this process, please contact your administrator.',
   'fd.ia.maximum.desc' => 'The maximum value for randomly generated identifiers',
   'fd.ia.minimum' =>  'Minimum',
   'fd.ia.minimum.desc' => 'The minimum value for randomly generated identifiers, or the starting value for sequences',
+  'fd.ia.permitted' => 'Permitted Characters',
+  'fd.ia.permitted.desc' => 'When substituting parameters in a format, only permit these characters to be used',
   'fd.ia.type.email' => 'Email Type',
   'fd.ia.type.email.desc' => 'For Identifier Assignments applied to Type <i>Mail</i>, an Email Address (instead of an Identifier) will be created with this type (if not blank)',
   // The next set must be named fd.model.validation-field

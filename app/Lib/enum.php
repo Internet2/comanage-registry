@@ -260,6 +260,14 @@ class NSFRaceEnum
   const White            = 'W';
 }
 
+class PermittedCharacterEnum
+{
+  const AlphaNumeric       = 'AN';
+  const AlphaNumDotDashUS  = 'AD';
+  const AlphaNumDDUSQuote  = 'AQ';
+  const Any                = 'AL';
+}
+
 class PetitionActionEnum
 {
   const Approved            = 'PY';
