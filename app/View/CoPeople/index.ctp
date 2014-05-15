@@ -26,19 +26,24 @@
 <style type="text/css">
   /* Listing Sorter */
   #sorter {
-    color: #1D5987;
-    margin: -2em 0 1em 0;
     float: right;
   }
-  #sorter ul,
-  #sorter li {
+
+  /* Listing controls */
+  .listControl {
+    color: #1D5987;
+    margin: -1em 0 1em 0;
+  }
+
+  .listControl ul,
+  .listControl li {
     display: inline;
   }
-  #sorter ul {
+  .listControl ul {
     margin: 0;
     padding: 0;
   }
-  #sorter li {
+  .listControl li {
     margin-left: 0.5em;
   }
 
@@ -151,8 +156,11 @@
   #co_people .ui-widget-content .ui-state-active,
   #co_people .ui-widget-header .ui-state-active {
     border: 1px solid #79b7e7;
-    background: #f5f8f9 url("/registry/css/jquery/ui/css/comanage-theme/images/ui-bg_inset-hard_100_f5f8f9_1x100.png") 50% 50% repeat-x;
     color: #333;
+    background-color: #F5F5F5;
+  }
+  #co_people .ui-widget-content {
+    background-color: #FAFAFA;
   }
 </style>
 
@@ -169,6 +177,14 @@
     });
 
   });
+
+  function togglePeople(state) {
+    if (state == 'open') {
+      $(".line1, .line2" ).accordion( "option", "active", 0 );
+    } else {
+      $(".line1, .line2" ).accordion( "option", "active", false );
+    }
+  }
 
 </script>
 
@@ -205,13 +221,21 @@
   $this->set('sidebarButtons', $sidebarButtons);
 ?>
 
-<div id="sorter">
-  Sort By:
+<div id="sorter" class="listControl">
+  <?php print _txt('fd.sort.by'); ?>:
   <ul>
     <li><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></li>
     <li><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></li>
     <li><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></li>
     <li><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?></li>
+  </ul>
+</div>
+
+<div id="peopleToggle" class="listControl">
+  <?php print _txt('fd.toggle.all'); ?>:
+  <ul>
+    <li><?php print $this->html->link(_txt('fd.open'),'javascript:togglePeople(\'open\');'); ?></li>
+    <li><?php print $this->html->link(_txt('fd.closed'),'javascript:togglePeople(\'closed\');'); ?></li>
   </ul>
 </div>
 
@@ -391,8 +415,8 @@
                     }
 
                     // Display COU information if present
-                    if(!empty($pr['o'])) { // FIX - don't want the "o" (that's implied by the listing itself!) we want the cou name from cou_id
-                      print " (" . $pr['o'];
+                    if(!empty($pr['cou_id'])) { // FIX - don't want the "o" (that's implied by the listing itself!) we want the cou name from cou_id
+                      print " (" . $permissions['cous'][$pr['cou_id']];
                       if(isset($pr['Cou']['name'])) {
                         print " : " . $pr['Cou']['name']; // is this valid?
                       }
@@ -408,9 +432,6 @@
 
                   print "</div>";  // roletitle
                 print "</div>";  // roleinfo
-                print "<pre>";
-                print_r($pr);
-                print "</pre>";
               print "</div>";  // role
             }
           ?>
