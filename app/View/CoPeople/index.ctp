@@ -86,14 +86,12 @@
     margin-left: 5px;
   }
   .roles {
-    width: 80%;
+    width: 98%;
     padding: 5px;
-    border-radius: 5px;
   }
   .role {
-    width: 80%;
-    border: 1px solid #d0e5f5;
-    border-radius: 5px;
+    width: 98%;
+    /*border: 1px solid #d0e5f5; */
     padding: 2px;
     margin-bottom: 5px;
   }
@@ -146,14 +144,14 @@
   #co_people .ui-widget-content .ui-state-focus,
   #co_people .ui-widget-header .ui-state-focus {
     border: 1px solid #79b7e7;
-    background: #d0e5f5 url(jquery/css/comanage-theme/images/ui-bg_glass_75_d0e5f5_1x400.png) 50% 50% repeat-x;
+    background: #d0e5f5 url("/registry/css/jquery/ui/css/comanage-theme/images/ui-bg_glass_75_d0e5f5_1x400.png") 50% 50% repeat-x;
     color: #1d5987;
   }
   #co_people .ui-state-active,
   #co_people .ui-widget-content .ui-state-active,
   #co_people .ui-widget-header .ui-state-active {
     border: 1px solid #79b7e7;
-    background: #f5f8f9 url(images/ui-bg_inset-hard_100_f5f8f9_1x100.png) 50% 50% repeat-x;
+    background: #f5f8f9 url("/registry/css/jquery/ui/css/comanage-theme/images/ui-bg_inset-hard_100_f5f8f9_1x100.png") 50% 50% repeat-x;
     color: #333;
   }
 </style>
@@ -262,6 +260,8 @@
         
         <div class="admin">
           <?php
+            // Keep for now:
+            /*
             if($permissions['compare'])
               print $this->Html->link(_txt('op.compare'),
                                       array('controller' => 'co_people', 
@@ -271,6 +271,7 @@
                                       array('class'   => 'comparebutton',
                                             'onclick' => 'noprop(event);')) 
                 . "\n";
+            */
             if(true || $myPerson) {
               // XXX for now, cou admins get all the actions, but see CO-505
               // Edit actions are unavailable if not
@@ -325,10 +326,6 @@
       </div>
       <div class = "panel2">
         <div class="roles">
-          <span> 
-            <?php print _txt('fd.roles') . ':'; ?>
-          </span>
-          <br>
           <?php
             foreach ($p['CoPersonRole'] as $pr) {
               print '<div class = "role">';
@@ -392,11 +389,28 @@
                     if(empty($pr['title'])) {
                       print _txt('fd.title.none');
                     }
-                    
-                    if(isset($pr['Cou']['name']))
-                      print " (" . $pr['Cou']['name'] . ")";
+
+                    // Display COU information if present
+                    if(!empty($pr['o'])) { // FIX - don't want the "o" (that's implied by the listing itself!) we want the cou name from cou_id
+                      print " (" . $pr['o'];
+                      if(isset($pr['Cou']['name'])) {
+                        print " : " . $pr['Cou']['name']; // is this valid?
+                      }
+                      if(!empty($pr['affiliation'])) {
+                        global $cm_lang, $cm_texts;
+                        print ", <em>" . $cm_texts[ $cm_lang ]['en.affil'][ $pr['affiliation']] . "</em>";
+                      }
+                      /*if(!empty($pr['ou'])) {
+                        print ", <em>" . $pr['ou'] . "</em>";
+                      }*/
+                      print ")";
+                    }
+
                   print "</div>";  // roletitle
                 print "</div>";  // roleinfo
+                print "<pre>";
+                print_r($pr);
+                print "</pre>";
               print "</div>";  // role
             }
           ?>

@@ -360,14 +360,14 @@ fieldset.borderless {
   top: 3px;
 }
 .warbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png") !important;
 }
 .sucbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png") !important;
 }
 .errbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png") !important;
 }
 .notbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png") !important;
 }
