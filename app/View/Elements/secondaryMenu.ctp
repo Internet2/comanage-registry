@@ -74,7 +74,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
     <div id="platform" class="row1-dropdown">
       <ul class="sf-menu">
         <li class="dropMenu">
-          <a href="#"class="menuTop">
+          <a href="#" class="menuTop">
             <span class="ui-icon ui-icon-wrench"></span>
             <?php print _txt('me.platform');?>
           </a>
@@ -279,11 +279,9 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
             <span class="ui-icon ui-icon-mail-closed"></span>
           </a>
           <ul>
-            <div>
-              <!-- XXX use this div class? -->
               <!-- XXX list maybe 10 max, then link to index view -->
               <?php foreach($vv_my_notifications as $n): ?>
-              <div class="names">
+              <li class="names">
                 <?php
                   $args = array(
                     'controller' => 'co_notifications',
@@ -297,9 +295,8 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
                                           . ")",
                                           $args);
                 ?>
-              </div>
+              </li>
               <?php endforeach; ?>
-            </div>
           </ul>
         </li>
       </ul>

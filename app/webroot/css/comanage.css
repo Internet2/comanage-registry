@@ -41,9 +41,9 @@ body {
 .required {
   color: red;
 }
-.desc {
-  font-size: small;
+.asc, .desc {
   font-style: italic;
+  font-weight: bold;
 }
 
 /* Positioning */
@@ -252,7 +252,10 @@ fieldset.borderless {
 }
 #menu li,
 #menu li a {
-  display: inline;
+  display: block;
+}
+#advancedSearch {
+  clear: both;
 }
 
 /* Person Explorer */

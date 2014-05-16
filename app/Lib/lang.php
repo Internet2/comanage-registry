@@ -90,6 +90,7 @@ $cm_texts['en_US'] = array(
   'ct.co_people.1' =>           'CO Person',
   'ct.co_people.pl' =>          'CO People',
   'ct.co_people.se' =>          'CO People Search',
+  'ct.co_people.se.select' =>   'please select...',
   'ct.co_person_roles.1' =>     'CO Person Role',
   'ct.co_person_roles.pl' =>    'CO Person Roles',
   'ct.co_petitions.1' =>        'CO Petition',

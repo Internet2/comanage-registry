@@ -23,7 +23,7 @@
  */
 -->
 
-<style type="text/css">
+<style type="text/css" scoped>
   /* Listing Sorter */
   #sorter {
     float: right;
@@ -284,32 +284,11 @@
         
         <div class="admin">
           <?php
-            // Keep for now:
-            /*
-            if($permissions['compare'])
-              print $this->Html->link(_txt('op.compare'),
-                                      array('controller' => 'co_people', 
-                                            'action'     => 'compare',
-                                            $p['CoPerson']['id'], 
-                                            'co'         => $cur_co['Co']['id']),
-                                      array('class'   => 'comparebutton',
-                                            'onclick' => 'noprop(event);')) 
-                . "\n";
-            */
             if(true || $myPerson) {
               // XXX for now, cou admins get all the actions, but see CO-505
               // Edit actions are unavailable if not
-              
-              if($permissions['edit'])
-                print $this->Html->link(_txt('op.edit'),
-                                        array('controller' => 'co_people',
-                                              'action'     => 'edit',
-                                              $p['CoPerson']['id'],
-                                              'co'         => $cur_co['Co']['id']),
-                                        array('class'   => 'editbutton',
-                                              'onclick' => 'noprop(event);')) 
-                . "\n";
-              
+
+              // Resend invitation button
               if($permissions['invite']
                  && ($p['CoPerson']['status'] == StatusEnum::Pending
                      || $p['CoPerson']['status'] == StatusEnum::Invited)) {
@@ -322,7 +301,7 @@
                                            'action'     => 'send', 
                                            'copersonid' => $p['CoPerson']['id'], 
                                            'co'         => $cur_co['Co']['id'])) 
-                  . '\')";>' 
+                  . '\');">'
                   . _txt('op.inv.resend') 
                   . '</button>'
                   . "\n";
@@ -338,13 +317,37 @@
                                              'action'     => 'resend',
                                              $p['CoInvite']['CoPetition']['id'],
                                              'co'         => $cur_co['Co']['id'])) 
-                    . '\')";>' 
+                    . '\');">'
                     . _txt('op.inv.resend') 
                     . '</button>'
                     . "\n";
                 }
               }
+
+              // Edit button
+              if($permissions['edit'])
+                print $this->Html->link(_txt('op.edit'),
+                    array('controller' => 'co_people',
+                      'action'     => 'edit',
+                      $p['CoPerson']['id'],
+                      'co'         => $cur_co['Co']['id']),
+                    array('class'   => 'editbutton',
+                      'onclick' => 'noprop(event);'))
+                  . "\n";
             }
+
+            // View button
+            /* keep for now: do we want this here?
+            if($permissions['compare'])
+              print $this->Html->link(_txt('op.view'),
+                                      array('controller' => 'co_people',
+                                            'action'     => 'compare',
+                                            $p['CoPerson']['id'],
+                                            'co'         => $cur_co['Co']['id']),
+                                      array('class'   => 'comparebutton',
+                                            'onclick' => 'noprop(event);'))
+                . "\n";
+            */
           ?>
         </div>
       </div>
@@ -415,18 +418,12 @@
                     }
 
                     // Display COU information if present
-                    if(!empty($pr['cou_id'])) { // FIX - don't want the "o" (that's implied by the listing itself!) we want the cou name from cou_id
+                    if(!empty($pr['cou_id'])) {
                       print " (" . $permissions['cous'][$pr['cou_id']];
-                      if(isset($pr['Cou']['name'])) {
-                        print " : " . $pr['Cou']['name']; // is this valid?
-                      }
                       if(!empty($pr['affiliation'])) {
                         global $cm_lang, $cm_texts;
                         print ", <em>" . $cm_texts[ $cm_lang ]['en.affil'][ $pr['affiliation']] . "</em>";
                       }
-                      /*if(!empty($pr['ou'])) {
-                        print ", <em>" . $pr['ou'] . "</em>";
-                      }*/
                       print ")";
                     }
 

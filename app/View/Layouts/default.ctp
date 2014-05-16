@@ -28,11 +28,12 @@
   header("Pragma: no-cache");
   
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
   <head>
     <title><?php print _txt('coordinate') . ': ' . $title_for_layout?></title>
-    <!-- link rel="shortcut icon" href="favicon.ico" type="image/x-icon" -->
+    <?php echo $this->Html->charset(); ?>
+    <?php echo $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
 
     <!-- Include the comanage and jquery style sheets -->
     <?php print $this->Html->css('jquery/ui/css/comanage-theme/jquery-ui-1.10.0.comanage'); ?>
