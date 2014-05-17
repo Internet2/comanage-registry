@@ -177,6 +177,12 @@ fieldset.borderless {
   font-size: 14px;
 }
 
+/* Enrollment flow form */
+#edit_co_enrollment_configuration textarea,
+#edit_co_enrollment_configuration input[type=text] {
+  width: 522px;
+}
+
 /* 2-column layout */
 .twocolumn{
   border: solid gray 2px;
