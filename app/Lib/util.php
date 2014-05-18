@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Utilities
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -152,6 +152,33 @@ function getPreferredLanguage() {
   // We don't recognize this language
   
   return "";
+}
+
+/**
+ * Process a message template, replacing parameters with respective values.
+ * Note this function is for configured templates (ie: those loaded from the
+ * database) and not for Cake templates (ie: those loaded from View/Emails).
+ *
+ * The subtitutions array should include key/value pairs for each value
+ * to replace. For example array('CO_NAME' => 'MyCO') will replace @CO_NAME
+ * with "MyCO".
+ *
+ * @since  COmanage Registry v0.9
+ * @param  String Template text
+ * @param  Array Array of substitution parameters
+ * @return String Processed template
+ */
+
+function processTemplate($template, $subtitutions) {
+  $searchKeys = array();
+  $replaceVals = array();
+  
+  foreach(array_keys($subtitutions) as $k) {
+    $searchKeys[] = "(@" . $k . ")";
+    $replaceVals[] = $subtitutions[$k];
+  }
+  
+  return str_replace($searchKeys, $replaceVals, $template);  
 }
 
 /**

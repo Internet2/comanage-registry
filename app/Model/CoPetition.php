@@ -1435,18 +1435,13 @@ class CoPetition extends AppModel {
             
             $email = new CakeEmail('default');
             
-            $viewVariables = array();
-            $viewVariables['co_name'] = $coName;
-            $viewVariables['invite_id'] = "";  // Only set because CoInvite::processTemplate requires it
+            $substitutions = array(
+              'CO_NAME' => $coName
+            );
             
             try {
-              // XXX We use CoInvite's processTemplate, which isn't specific to CoInvite.
-              // However, that should be refactored as part of the Notification work
-              // so template processing happens in a more generic location.
-              // Note at that point processTemplate (if it still exists) should be made
-              // protected again.
-              $msgSubject = $this->CoInvite->processTemplate($subjectTemplate, $viewVariables);
-              $msgBody = $this->CoInvite->processTemplate($bodyTemplate, $viewVariables);
+              $msgSubject = processTemplate($subjectTemplate, $substitutions);
+              $msgBody = processTemplate($bodyTemplate, $substitutions);
               
               $email->emailFormat('text')
                     ->to($toEmail)

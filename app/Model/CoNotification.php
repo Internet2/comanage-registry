@@ -22,6 +22,8 @@
  * @version       $Id$
  */
 
+App::uses('CakeEmail', 'Network/Email');
+
 class CoNotification extends AppModel {
   // Define class name for cake
   public $name = "CoNotification";
@@ -347,6 +349,9 @@ class CoNotification extends AppModel {
    * @param  String  $comment           Human readable notification comment
    * @param  Mixed   $source            Link to source to review/resolve notification; may be a string (url) or cake-style array of controller+action+id (note: 'id' must be specified as array key)
    * @param  Boolean $mustResolve       If true, the notification cannot be acknowledged, only resolved via $source
+   * @param  String  $fromAddress       Email Address to send the invite from (if null, use default)
+   * @param  String  $subjectTemplate   Subject template for notification email (if null, default subject is sent)
+   * @param  String  $bodyTemplate      Body template for notification email (if null, default body using $comment and $source is sent)
    * @return Array CO Notification ID(s)
    * @throws InvalidArgumentException
    * @throws RuntimeException
@@ -359,7 +364,10 @@ class CoNotification extends AppModel {
                            $action,
                            $comment,
                            $source,
-                           $mustResolve=false) {
+                           $mustResolve=false,
+                           $fromAddress=null,
+                           $subjectTemplate=null,
+                           $bodyTemplate=null) {
     // Create the notification. Perhaps this should be embedded in a transaction.
     
     $n = array();
@@ -450,14 +458,71 @@ class CoNotification extends AppModel {
       $n['CoNotification']['status'] = NotificationStatusEnum::PendingAcknowledgment;
     }
     
+    // Create the message subject and body based on the templates (if provided).
+    // We do this out of the loop for now since no parameters (other than target
+    // email address) need to change per recipient. At some point this might need
+    // to move into the recipient loop.
+    
+    $msgBody = "";
+    $msgSubject = "";
+    
+    // We need to map CoPerson to get the CO ID to get the CO Name
+    
+    $coId = $this->SubjectCoPerson->field('co_id', array('SubjectCoPerson.id' => $subjectCoPersonId));
+    $coName = $this->RecipientCoPerson->Co->field('name', array('Co.id' => $coId));
+    
+    $substitutions = array(
+      'CO_NAME'    => $coName,
+      'COMMENT'    => $comment,
+      'SOURCE_URL' => (is_array($source)
+                       ? Router::url($source, true)
+                       : $source)
+    );
+    
+    // Construct subject and body
+    
+    if($subjectTemplate) {
+      $msgSubject = processTemplate($subjectTemplate, $substitutions);
+    } else {
+      $msgSubject = processTemplate(_txt('em.notification.subject'), $substitutions);
+    }
+    
+    if($bodyTemplate) {
+      $msgBody = processTemplate($bodyTemplate, $substitutions);
+    } else {
+      $msgBody = processTemplate(_txt('em.notification.body'), $substitutions);
+    }
+    
     $this->create();
     
     if($this->save($n['CoNotification'])) {
+      // Make sure we don't lose it
+      $notificationId = $this->id;
+      
       foreach($recipients as $recipient) {
-        // Send email XXX
-        // update notification_time when email sent
-        // which email address to we use?
-        // EmailAddresses are available in (eg) $recipient['EmailAddress'][0]['mail']
+        if(!empty($recipient['EmailAddress'][0]['mail'])) {
+          // Send email, if we have an email address
+          // Which email address do we use? for now, the first one
+          
+          try {
+            $email = new CakeEmail('default');
+            
+            // If a from address was provided, use it
+            
+            if($fromAddress) {
+              $email->from($fromAddress);
+            }
+            
+            $email->emailFormat('text')
+                  ->to($recipient['EmailAddress'][0]['mail'])
+                  ->subject($msgSubject)
+                  ->send($msgBody);
+          }
+          catch(Exception $e) {
+            // Should we really abort all notifications if a send fails? Probably not...
+            throw new RuntimeException($e->getMessage());
+          }
+        }
         
         // Create a history record
         
@@ -476,6 +541,13 @@ class CoNotification extends AppModel {
           }
         }
       }
+      
+      // Now that the notifications have been done, update notification_time
+      
+      // Make sure we're writing to the right object
+      $this->id = $notificationId;
+      
+      $this->saveField('notification_time', date('Y-m-d H:i:s', time()));
     } else {
       throw new RuntimeException(_txt('er.db.save'));
     }

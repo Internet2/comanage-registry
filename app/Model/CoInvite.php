@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Invite Model
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -298,27 +298,6 @@ class CoInvite extends AppModel {
   }
   
   /**
-   * Process a message template, replacing parameters with respective values.
-   * Note this function is for configured templates (ie: those loaded from the
-   * database) and not for Cake templates (ie: those loaded from View/Emails).
-   *
-   * @since  COmanage Registry v0.8.2
-   * @param  String Template text
-   * @param  Array Array of View Variables, used to replace parameters
-   * @return String Processed template
-   */
-  
-  // XXX Revert this to protected when CoPetition::updateStatus gets refactored
-  public function processTemplate($template, $viewVars) {
-    $searchKeys = array("(@CO_NAME)",
-                        "(@INVITE_URL)");
-    $replaceVals = array($viewVars['co_name'],
-                         Router::url(array('controller' => 'co_invites', 'action' => 'reply', $viewVars['invite_id']), true));
-    
-    return str_replace($searchKeys, $replaceVals, $template);
-  }
-  
-  /**
    * Create and send an invitation. Any existing invitation for the CO Person will be removed.
    *
    * @since  COmanage Registry v0.7
@@ -365,19 +344,25 @@ class CoInvite extends AppModel {
       // Set up and send the invitation via email
       $email = new CakeEmail('default');
       
-      $viewVariables = array();
-      $viewVariables['invite_id'] = $invite['CoInvite']['invitation'];
-      $viewVariables['co_name'] = $coName;
+      $subtitutions = array(
+        'CO_NAME'   => $coName,
+        'INVITE_ID' => Router::url(array(
+                                    'controller' => 'co_invites',
+                                    'action'     => 'reply',
+                                    $viewVars['invite_id']
+                                  ),
+                                  true)
+      );
       
       try {
         if($template) {
           if($subject) {
-            $msgSubject = $this->processTemplate($subject, $viewVariables);
+            $msgSubject = processTemplate($subject, $subtitutions);
           } else {
             $msgSubject = _txt('em.invite.subject', array($coName));
           }
           
-          $msgBody = $this->processTemplate($template, $viewVariables);
+          $msgBody = processTemplate($template, $subtitutions);
 
           // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
           if($fromEmail) {
