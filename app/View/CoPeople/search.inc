@@ -73,7 +73,7 @@ global $cm_lang, $cm_texts;
           }
             $formParams = array('options' => $searchOptions,
                                 'type'    => 'select',
-                                'empty'   => '',
+                                'empty'   => ' ',
                                 'label'   => 'Status');
             print $this->Form->input('Search.status', $formParams);
           ?>

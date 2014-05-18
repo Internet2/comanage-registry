@@ -41,9 +41,9 @@ body {
 .required {
   color: red;
 }
-.desc {
-  font-size: small;
+.asc, .desc {
   font-style: italic;
+  font-weight: bold;
 }
 
 /* Positioning */
@@ -177,6 +177,12 @@ fieldset.borderless {
   font-size: 14px;
 }
 
+/* Enrollment flow form */
+#edit_co_enrollment_configuration textarea,
+#edit_co_enrollment_configuration input[type=text] {
+  width: 522px;
+}
+
 /* 2-column layout */
 .twocolumn{
   border: solid gray 2px;
@@ -252,7 +258,10 @@ fieldset.borderless {
 }
 #menu li,
 #menu li a {
-  display: inline;
+  display: block;
+}
+#advancedSearch {
+  clear: both;
 }
 
 /* Person Explorer */
@@ -360,14 +369,14 @@ fieldset.borderless {
   top: 3px;
 }
 .warbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png") !important;
 }
 .sucbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png") !important;
 }
 .errbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png") !important;
 }
 .notbg{
-  background-image: url(../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png) !important;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png") !important;
 }

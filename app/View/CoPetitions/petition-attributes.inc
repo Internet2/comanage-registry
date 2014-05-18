@@ -57,7 +57,7 @@
   .modelbox table tr>:nth-child(2){
     min-width: 150px;
   }
-  .modelbox table tr>:nth-child(2) input {
+  .modelbox table tr>:nth-child(2) input[type=text] {
     min-width: 380px;
   } 
   .modelbox table tr>:nth-child(2) select{

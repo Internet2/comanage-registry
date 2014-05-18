@@ -23,22 +23,27 @@
  */
 -->
 
-<style type="text/css">
+<style type="text/css" scoped>
   /* Listing Sorter */
   #sorter {
-    color: #1D5987;
-    margin: -2em 0 1em 0;
     float: right;
   }
-  #sorter ul,
-  #sorter li {
+
+  /* Listing controls */
+  .listControl {
+    color: #1D5987;
+    margin: -1em 0 1em 0;
+  }
+
+  .listControl ul,
+  .listControl li {
     display: inline;
   }
-  #sorter ul {
+  .listControl ul {
     margin: 0;
     padding: 0;
   }
-  #sorter li {
+  .listControl li {
     margin-left: 0.5em;
   }
 
@@ -86,14 +91,12 @@
     margin-left: 5px;
   }
   .roles {
-    width: 80%;
+    width: 98%;
     padding: 5px;
-    border-radius: 5px;
   }
   .role {
-    width: 80%;
-    border: 1px solid #d0e5f5;
-    border-radius: 5px;
+    width: 98%;
+    /*border: 1px solid #d0e5f5; */
     padding: 2px;
     margin-bottom: 5px;
   }
@@ -146,15 +149,18 @@
   #co_people .ui-widget-content .ui-state-focus,
   #co_people .ui-widget-header .ui-state-focus {
     border: 1px solid #79b7e7;
-    background: #d0e5f5 url(jquery/css/comanage-theme/images/ui-bg_glass_75_d0e5f5_1x400.png) 50% 50% repeat-x;
+    background: #d0e5f5 url("/registry/css/jquery/ui/css/comanage-theme/images/ui-bg_glass_75_d0e5f5_1x400.png") 50% 50% repeat-x;
     color: #1d5987;
   }
   #co_people .ui-state-active,
   #co_people .ui-widget-content .ui-state-active,
   #co_people .ui-widget-header .ui-state-active {
     border: 1px solid #79b7e7;
-    background: #f5f8f9 url(images/ui-bg_inset-hard_100_f5f8f9_1x100.png) 50% 50% repeat-x;
     color: #333;
+    background-color: #F5F5F5;
+  }
+  #co_people .ui-widget-content {
+    background-color: #FAFAFA;
   }
 </style>
 
@@ -171,6 +177,14 @@
     });
 
   });
+
+  function togglePeople(state) {
+    if (state == 'open') {
+      $(".line1, .line2" ).accordion( "option", "active", 0 );
+    } else {
+      $(".line1, .line2" ).accordion( "option", "active", false );
+    }
+  }
 
 </script>
 
@@ -207,13 +221,21 @@
   $this->set('sidebarButtons', $sidebarButtons);
 ?>
 
-<div id="sorter">
-  Sort By:
+<div id="sorter" class="listControl">
+  <?php print _txt('fd.sort.by'); ?>:
   <ul>
     <li><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></li>
     <li><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></li>
     <li><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></li>
     <li><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?></li>
+  </ul>
+</div>
+
+<div id="peopleToggle" class="listControl">
+  <?php print _txt('fd.toggle.all'); ?>:
+  <ul>
+    <li><?php print $this->html->link(_txt('fd.open'),'javascript:togglePeople(\'open\');'); ?></li>
+    <li><?php print $this->html->link(_txt('fd.closed'),'javascript:togglePeople(\'closed\');'); ?></li>
   </ul>
 </div>
 
@@ -262,29 +284,11 @@
         
         <div class="admin">
           <?php
-            if($permissions['compare'])
-              print $this->Html->link(_txt('op.compare'),
-                                      array('controller' => 'co_people', 
-                                            'action'     => 'compare',
-                                            $p['CoPerson']['id'], 
-                                            'co'         => $cur_co['Co']['id']),
-                                      array('class'   => 'comparebutton',
-                                            'onclick' => 'noprop(event);')) 
-                . "\n";
             if(true || $myPerson) {
               // XXX for now, cou admins get all the actions, but see CO-505
               // Edit actions are unavailable if not
-              
-              if($permissions['edit'])
-                print $this->Html->link(_txt('op.edit'),
-                                        array('controller' => 'co_people',
-                                              'action'     => 'edit',
-                                              $p['CoPerson']['id'],
-                                              'co'         => $cur_co['Co']['id']),
-                                        array('class'   => 'editbutton',
-                                              'onclick' => 'noprop(event);')) 
-                . "\n";
-              
+
+              // Resend invitation button
               if($permissions['invite']
                  && ($p['CoPerson']['status'] == StatusEnum::Pending
                      || $p['CoPerson']['status'] == StatusEnum::Invited)) {
@@ -297,7 +301,7 @@
                                            'action'     => 'send', 
                                            'copersonid' => $p['CoPerson']['id'], 
                                            'co'         => $cur_co['Co']['id'])) 
-                  . '\')";>' 
+                  . '\');">'
                   . _txt('op.inv.resend') 
                   . '</button>'
                   . "\n";
@@ -313,22 +317,42 @@
                                              'action'     => 'resend',
                                              $p['CoInvite']['CoPetition']['id'],
                                              'co'         => $cur_co['Co']['id'])) 
-                    . '\')";>' 
+                    . '\');">'
                     . _txt('op.inv.resend') 
                     . '</button>'
                     . "\n";
                 }
               }
+
+              // Edit button
+              if($permissions['edit'])
+                print $this->Html->link(_txt('op.edit'),
+                    array('controller' => 'co_people',
+                      'action'     => 'edit',
+                      $p['CoPerson']['id'],
+                      'co'         => $cur_co['Co']['id']),
+                    array('class'   => 'editbutton',
+                      'onclick' => 'noprop(event);'))
+                  . "\n";
             }
+
+            // View button
+            /* keep for now: do we want this here?
+            if($permissions['compare'])
+              print $this->Html->link(_txt('op.view'),
+                                      array('controller' => 'co_people',
+                                            'action'     => 'compare',
+                                            $p['CoPerson']['id'],
+                                            'co'         => $cur_co['Co']['id']),
+                                      array('class'   => 'comparebutton',
+                                            'onclick' => 'noprop(event);'))
+                . "\n";
+            */
           ?>
         </div>
       </div>
       <div class = "panel2">
         <div class="roles">
-          <span> 
-            <?php print _txt('fd.roles') . ':'; ?>
-          </span>
-          <br>
           <?php
             foreach ($p['CoPersonRole'] as $pr) {
               print '<div class = "role">';
@@ -392,9 +416,17 @@
                     if(empty($pr['title'])) {
                       print _txt('fd.title.none');
                     }
-                    
-                    if(isset($pr['Cou']['name']))
-                      print " (" . $pr['Cou']['name'] . ")";
+
+                    // Display COU information if present
+                    if(!empty($pr['cou_id'])) {
+                      print " (" . $permissions['cous'][$pr['cou_id']];
+                      if(!empty($pr['affiliation'])) {
+                        global $cm_lang, $cm_texts;
+                        print ", <em>" . $cm_texts[ $cm_lang ]['en.affil'][ $pr['affiliation']] . "</em>";
+                      }
+                      print ")";
+                    }
+
                   print "</div>";  // roletitle
                 print "</div>";  // roleinfo
               print "</div>";  // role
