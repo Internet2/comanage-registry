@@ -344,25 +344,25 @@ class CoInvite extends AppModel {
       // Set up and send the invitation via email
       $email = new CakeEmail('default');
       
-      $subtitutions = array(
+      $substitutions = array(
         'CO_NAME'   => $coName,
-        'INVITE_ID' => Router::url(array(
+        'INVITE_URL' => Router::url(array(
                                     'controller' => 'co_invites',
                                     'action'     => 'reply',
-                                    $viewVars['invite_id']
-                                  ),
-                                  true)
+                                    $invite['CoInvite']['invitation']
+                                   ),
+                                   true)
       );
       
       try {
         if($template) {
           if($subject) {
-            $msgSubject = processTemplate($subject, $subtitutions);
+            $msgSubject = processTemplate($subject, $substitutions);
           } else {
             $msgSubject = _txt('em.invite.subject', array($coName));
           }
           
-          $msgBody = processTemplate($template, $subtitutions);
+          $msgBody = processTemplate($template, $substitutions);
 
           // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
           if($fromEmail) {

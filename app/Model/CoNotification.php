@@ -500,7 +500,7 @@ class CoNotification extends AppModel {
       $notificationId = $this->id;
       
       foreach($recipients as $recipient) {
-        if(!empty($recipient['EmailAddress'][0]['mail'])) {
+        if(!empty($recipient['RecipientCoPerson']['EmailAddress'][0]['mail'])) {
           // Send email, if we have an email address
           // Which email address do we use? for now, the first one
           
@@ -514,7 +514,7 @@ class CoNotification extends AppModel {
             }
             
             $email->emailFormat('text')
-                  ->to($recipient['EmailAddress'][0]['mail'])
+                  ->to($recipient['RecipientCoPerson']['EmailAddress'][0]['mail'])
                   ->subject($msgSubject)
                   ->send($msgBody);
           }

@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-124 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -44,7 +44,7 @@
   // If user has edit permission, offer an edit button in the sidebar
   $sidebarButtons = $this->get('sidebarButtons');
 
-  if($permissions['edit'])
+  if(!empty($permissions['edit']) && $permissions['edit'])
   {
     $a = array('controller' => $modelpl, 'action' => 'edit', $d[0][$req]['id']);
     
