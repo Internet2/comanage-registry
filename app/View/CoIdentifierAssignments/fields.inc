@@ -202,7 +202,7 @@
           global $cm_lang, $cm_texts;
           $attrs['value'] = (isset($co_identifier_assignments)
                               ? $co_identifier_assignments[0]['CoIdentifierAssignment']['permitted']
-                              : PermittedCharacterEnum::AlphaNum);
+                              : PermittedCharacterEnum::AlphaNumeric);
           $attrs['empty'] = false;
           
           if($e) {
