@@ -412,6 +412,11 @@ class RoleComponent extends Component {
    */
   
   public function canRequestVerificationOfEmailAddress($coPersonId, $emailAddressId) {
+    if(!$coPersonId) {
+      // This is most likely a CMP admin who is not in the CO
+      return false;
+    }
+    
     // First pull the email address
     $args = array();
     $args['conditions']['EmailAddress.id'] = $emailAddressId;
