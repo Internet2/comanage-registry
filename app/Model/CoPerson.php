@@ -232,6 +232,13 @@ class CoPerson extends AppModel {
     // CO Person. However, at the moment CO People can only be deleted by CO and CMP admins, so there
     // is no need for this check.
     
+    // We first delete all dependencies and then delete the CO Person itself (again with cascading
+    // to dependencies). The reason for this is that, depending on what order Cake deletes the
+    // dependencies in, new history records might be created for the CO Person as a side effect of
+    // the delete (typically because provisioning fires off). After _deleteDependent, we should be
+    // left with only minimal new residue which the normal delete() will clean up.
+    
+    $this->_deleteDependent($coPersonId, true);
     $this->delete($coPersonId);
     
     // Finally, manually delete org identities since they will not cascade via org identity link.
