@@ -1342,6 +1342,9 @@ class AppController extends Controller {
     // Manage CO provisioning targets?
     $p['menu']['coprovtargets'] = $roles['admin'];
     
+    // Manage CO self service permissions?
+    $p['menu']['coselfsvcperm'] = $roles['admin'];
+    
     // Manage CO terms and conditions?
     $p['menu']['cotandc'] = $roles['admin'];
   

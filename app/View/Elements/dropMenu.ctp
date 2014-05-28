@@ -208,6 +208,18 @@ else
                     print "</li>";
                   }
                   
+                  if(isset($permissions['menu']['coselfsvcperm']) && $permissions['menu']['coselfsvcperm']) {
+                    print "<li>";
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_self_service_permissions';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
+                      print $this->Html->link(_txt('ct.co_self_service_permissions.pl'), $args);
+                    print "</li>";
+                  }
+                  
                   if(isset($permissions['menu']['cotandc']) && $permissions['menu']['cotandc']) {
                     print "<li>";
                       $args = array();

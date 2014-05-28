@@ -897,6 +897,7 @@
       <autoincrement />
     </field>
     <field name="co_id" type="I">
+      <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <field name="description" type="C" size="256" />
@@ -969,6 +970,7 @@
     </field>
     <field name="co_id" type="I">
       <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <field name="description" type="C" size="256" />
     <field name="title" type="C" size="256" >
@@ -1007,6 +1009,7 @@
       <autoincrement />
     </field>
     <field name="co_id" type="I">
+      <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <field name="description" type="C" size="256" />
@@ -1032,6 +1035,7 @@
       <constraint>REFERENCES cm_co_terms_and_conditions(id)</constraint>
     </field>
     <field name="co_person_id" type="I">
+      <notnull />
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
     <field name="agreement_time" type="T" />
@@ -1054,6 +1058,7 @@
       <autoincrement />
     </field>
     <field name="co_id" type="I">
+      <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <!-- mysql doesn't want a column called "key" -->
@@ -1082,6 +1087,7 @@
       <autoincrement />
     </field>
     <field name="co_person_id" type="I">
+      <notnull />
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
     <field name="comment" type="C" size="256" />
@@ -1093,6 +1099,26 @@
     
     <index name="ssh_keys_i1">
       <col>co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="co_self_service_permissions">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="model" type="C" size="40" />
+    <field name="type" type="C" size="16" />
+    <field name="permission" type="C" size="16" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_self_service_permissions_i1">
+      <col>co_id</col>
     </index>
   </table>
 </schema>

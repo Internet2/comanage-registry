@@ -260,6 +260,13 @@ class NSFRaceEnum
   const White            = 'W';
 }
 
+class PermissionEnum
+{
+  const None      = 'N';
+  const ReadOnly  = 'RO';
+  const ReadWrite = 'RW';
+}
+
 class PermittedCharacterEnum
 {
   const AlphaNumeric       = 'AN';

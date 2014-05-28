@@ -126,6 +126,10 @@ class Address extends AppModel {
   
   // Enum type hints
   
+  public $cm_enum_lang = array(
+    'type' => 'en.contact.address'
+  );
+  
   public $cm_enum_types = array(
     'type' => 'contact_t'
   );
