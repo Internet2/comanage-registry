@@ -108,6 +108,20 @@
         );
       }
       
+      if($permissions['delete'] && empty($co_people[0]['CoPersonRole'])) {
+        $sidebarButtons[] = array(
+          'icon'    => 'circle-close',
+          'title'   => _txt('op.delete'),
+          'url'     => 'javascript:js_confirm_delete("'
+                        . Sanitize::html(generateCn($co_people[0]['PrimaryName']))
+                        . '","'
+                        . $this->Html->url(array('controller' => 'co_people',
+                                                 'action'     => 'delete',
+                                                 $co_people[0]['CoPerson']['id']))
+                        . '");'
+        );
+      }
+      
       if($permissions['expunge']) {
         $sidebarButtons[] = array(
           'icon'    => 'circle-close',
