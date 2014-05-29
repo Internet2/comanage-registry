@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Index View
  *
- * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -116,6 +116,7 @@ global $cm_lang, $cm_texts;
   <thead>
     <tr class="ui-widget-header">
       <th><?php echo $this->Paginator->sort('EnrolleeCoPerson.Name.family', _txt('fd.enrollee')); ?></th>
+      <th><?php echo $this->Paginator->sort('Cou.mawe', _txt('fd.cou')); ?></th>
       <th><?php echo $this->Paginator->sort('PetitionerCoPerson.Name.family', _txt('fd.petitioner')); ?></th>
       <th><?php echo $this->Paginator->sort('SponsorCoPerson.Name.family', _txt('fd.sponsor')); ?></th>
       <th><?php echo $this->Paginator->sort('ApproverCoPerson.Name.family', _txt('fd.approver')); ?></th>
@@ -143,6 +144,9 @@ global $cm_lang, $cm_texts;
                                     'coef' => $p['CoPetition']['co_enrollment_flow_id'])
                                   );
         ?>
+      </td>
+      <td>
+        <?php if(!empty($p['Cou']['name'])) { print $p['Cou']['name']; } ?>
       </td>
       <td>
         <?php
@@ -240,7 +244,7 @@ global $cm_lang, $cm_texts;
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="8">
+      <th colspan="9">
         <?php echo $this->Paginator->numbers(); ?>
       </th>
     </tr>
