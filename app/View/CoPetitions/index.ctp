@@ -116,7 +116,7 @@ global $cm_lang, $cm_texts;
   <thead>
     <tr class="ui-widget-header">
       <th><?php echo $this->Paginator->sort('EnrolleeCoPerson.Name.family', _txt('fd.enrollee')); ?></th>
-      <th><?php echo $this->Paginator->sort('Cou.mawe', _txt('fd.cou')); ?></th>
+      <th><?php echo $this->Paginator->sort('Cou.name', _txt('fd.cou')); ?></th>
       <th><?php echo $this->Paginator->sort('PetitionerCoPerson.Name.family', _txt('fd.petitioner')); ?></th>
       <th><?php echo $this->Paginator->sort('SponsorCoPerson.Name.family', _txt('fd.sponsor')); ?></th>
       <th><?php echo $this->Paginator->sort('ApproverCoPerson.Name.family', _txt('fd.approver')); ?></th>
