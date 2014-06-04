@@ -374,6 +374,11 @@ class CoInvite extends AppModel {
                 ->subject($msgSubject)
                 ->send($msgBody);
         } else {
+          $viewVariables = array(
+            'co_name'   => $coName,
+            'invite_id' => $invite['CoInvite']['invitation']
+          );
+          
           $email->template('coinvite', 'basic')
                 ->emailFormat('text')
                 ->to($toEmail)

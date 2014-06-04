@@ -359,6 +359,8 @@ class CoPerson extends AppModel {
    */
   
   function idsForIdentifier($identifier, $identifierType=null, $login=false, $coId=null) {
+    $ret = array();
+    
     // First pull the identifier record
     
     $args = array();
@@ -395,44 +397,49 @@ class CoPerson extends AppModel {
       $args['conditions']['Identifier.type'] = $identifierType;
     }
     
-    // If identifierType is null, we might get more than one record, in which
-    // case we behave nondeterministically. We can't pull all records, since we
-    // might get multiple people. Better to supply a type.
-    $id = $this->Identifier->find('first', $args);
+    // We might get more than one record, especially if no CO ID and/or type was specified.
     
-    if(!empty($id)) {
-      if(isset($id['Identifier']['co_person_id'])) {
-        // The identifier is attached to a CO Person, return that ID.
-        
-        return array($id['Identifier']['co_person_id']);
-      } else {
-        // Map the org identity to a CO person. We might pull more than one.
-        // In this case, it's OK since they come back to the same org person.
-        
-        $args = array();
-        $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $id['Identifier']['org_identity_id'];
-        $args['fields'][] = 'CoOrgIdentityLink.co_person_id';
-        $args['contain'] = false;
-        
-        if($coId != null) {
-          $args['joins'][0]['table'] = 'co_people';
-          $args['joins'][0]['alias'] = 'CoPerson';
-          $args['joins'][0]['type'] = 'INNER';
-          $args['joins'][0]['conditions'][0] = 'CoOrgIdentityLink.co_person_id=CoPerson.id';
-          $args['conditions']['CoPerson.co_id'] = $coId;
-        }
-        
-        $links = $this->CoOrgIdentityLink->find('list', $args);
-        
-        if(!empty($links)) {
-          return array_values($links);
+    $ids = $this->Identifier->find('all', $args);
+    
+    if(!empty($ids)) {
+      foreach($ids as $i) {
+        if(isset($i['Identifier']['co_person_id'])) {
+          // The identifier is attached to a CO Person, return that ID.
+          
+          $ret[] = $i['Identifier']['co_person_id'];
+        } else {
+          // Map the org identity to a CO person. We might pull more than one.
+          // In this case, it's OK since they come back to the same org person.
+          
+          $args = array();
+          $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $i['Identifier']['org_identity_id'];
+          $args['fields'][] = 'CoOrgIdentityLink.co_person_id';
+          $args['contain'] = false;
+          
+          if($coId != null) {
+            $args['joins'][0]['table'] = 'co_people';
+            $args['joins'][0]['alias'] = 'CoPerson';
+            $args['joins'][0]['type'] = 'INNER';
+            $args['joins'][0]['conditions'][0] = 'CoOrgIdentityLink.co_person_id=CoPerson.id';
+            $args['conditions']['CoPerson.co_id'] = $coId;
+          }
+          
+          $links = $this->CoOrgIdentityLink->find('list', $args);
+          
+          if(!empty($links)) {
+            foreach(array_values($links) as $v) {
+              $ret[] = $v;
+            }
+          } else {
+            throw new InvalidArgumentException(_txt('er.cop.unk'));
+          }
         }
       }
-      
-      throw new InvalidArgumentException(_txt('er.cop.unk'));
     } else {
       throw new InvalidArgumentException(_txt('er.id.unk'));
     }
+    
+    return $ret;
   }
   
   /**
