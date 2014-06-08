@@ -34,6 +34,9 @@
     color: #1D5987;
     margin: -1em 0 1em 0;
   }
+  .listControl a {
+    color: #181CF5;
+  }
 
   .listControl ul,
   .listControl li {

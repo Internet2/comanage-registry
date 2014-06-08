@@ -5,19 +5,19 @@
  * Date: $Date: 2011-11-01 10:05:17 -0700 (Tue, 01 Nov 2011) $
  *
  * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under
  * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
  */
- 
+
 /* Body */
 body {
   font: 75% "Trebuchet MS", sans-serif;
@@ -43,9 +43,20 @@ body {
 }
 .asc, .desc {
   font-style: italic;
-  font-weight: bold;
+  text-decoration: none;
 }
-
+a.asc::before, a.desc::before {
+  position: relative;
+  left: -2px;
+  font-style: normal;
+}
+a.asc::before {
+  content: "▲"; /*\25b2 in escaped hex*/
+  top: -2px;
+}
+a.desc::before {
+  content: "▼"; /*\25bc in escaped hex*/
+}
 /* Positioning */
 .right {
   float: right;
@@ -57,8 +68,8 @@ body {
   margin: 0;
   padding: 0;
   color: #333;
-  font-weight: normal;
 }
+font-weight: normal;
 .headerRight {
   float: right;
   width: auto;
@@ -248,7 +259,7 @@ fieldset.borderless {
 }
 .order {
   padding-left: 18px;
-}     
+}
 
 /* Sidebar (right) */
 #sidebar {
