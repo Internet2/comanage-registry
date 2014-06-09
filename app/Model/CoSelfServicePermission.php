@@ -69,6 +69,121 @@ class CoSelfServicePermission extends AppModel {
     )
   );
   
+  // Cache of permissions for lookups
+  private $pcache = null;
+  
+  /**
+   * Calculate the permission for a model and view.
+   *
+   * @since  COmanage Registry 0.9
+   * @param  Integer $coId  CO ID to calculate permission for
+   * @param  String  $model   Name of model to calculate permissions for
+   * @param  String  $action  Name of action/view to calculate permissions for
+   * @param  String  $type    Type for attribute, if known
+   * @return Boolean True if the permission is granted, false otherwise
+   */
+  
+  public function calculatePermission($coId, $model, $action, $type=null) {
+    // Populate $pcache if not already populated
+    
+    if(!$this->pcache) {
+      $this->pcache = $this->findPermissions($coId);
+    }
+    
+    // What we do depends on the requested view
+    
+    switch($action) {
+      case 'add':
+        // For add, we require read/write
+        if(isset($this->pcache[$model]['*'])
+           && $this->pcache[$model]['*'] == PermissionEnum::ReadWrite) {
+          return true;
+        }
+        break;
+      case 'delete':
+      case 'edit':
+        // For delete and edit, we need read/write on the specified type, or default
+        if(($type
+            && isset($this->pcache[$model][$type])
+            && $this->pcache[$model][$type] == PermissionEnum::ReadWrite)
+           ||
+           // Check default value
+           (isset($this->pcache[$model]['*'])
+            && $this->pcache[$model]['*'] == PermissionEnum::ReadWrite)) {
+          // Use type specific value
+          
+          return true;
+        }
+        break;
+      case 'view':
+        // For view, we need read/only or read/wire on the specified type, or default
+        if(($type
+            && isset($this->pcache[$model][$type])
+            && ($this->pcache[$model][$type] == PermissionEnum::ReadOnly
+                || $this->pcache[$model][$type] == PermissionEnum::ReadWrite))
+           ||
+           // Check default value
+           (isset($this->pcache[$model]['*'])
+            && ($this->pcache[$model]['*'] == PermissionEnum::ReadOnly
+                || $this->pcache[$model]['*'] == PermissionEnum::ReadWrite))) {
+          // Use type specific value
+          
+          return true;
+        }
+        break;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Obtain the self service permissions, either for all supported models or for a specified model.
+   *
+   * @since  COmanage Registry 0.9
+   * @param  Integer $coId  CO ID to obtain permission for
+   * @param  String  $model Name of model (CamelCased) to obtain permissions for, or null for all supported models
+   * @return Array Array of the form [Model][type] = permission, where type may be '*' for default
+   */
+  
+  public function findPermissions($coId, $model = null) {
+    $ret = array();
+    
+    $args = array();
+    $args['conditions']['co_id'] = $coId;
+    if($model) {
+      $args['conditions']['model'] = $model;
+    }
+    $args['contain'] = false;
+    
+    $perms = $this->find('all', $args);
+    
+    // Start by sorting the results into the return array
+    
+    foreach($perms as $p) {
+      if(!empty($p['CoSelfServicePermission']['type'])) {
+        $ret[ $p['CoSelfServicePermission']['model'] ][ $p['CoSelfServicePermission']['type'] ] = $p['CoSelfServicePermission']['permission'];
+      } else {
+        // Default value
+        $ret[ $p['CoSelfServicePermission']['model'] ]['*'] = $p['CoSelfServicePermission']['permission'];
+      }
+    }
+    
+    // Populate missing default values for supported models
+    
+    $attrs = $this->supportedAttrs();
+    
+    foreach(array_keys($attrs['models']) as $m) {
+      if(!$model || $m == $model) {
+        // Only specified model if given
+        if(!isset($ret[$m]['*'])) {
+          $ret[$m]['*'] = PermissionEnum::ReadOnly;
+        }
+      }
+    }
+    
+    return $ret;
+  }
+  
   /**
    * Assemble a list of supported models, suitable for use in generating a select.
    *

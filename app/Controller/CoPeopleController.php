@@ -27,7 +27,7 @@ App::uses("StandardController", "Controller");
 class CoPeopleController extends StandardController {
   public $name = "CoPeople";
   
-  public $helpers = array('Time');
+  public $helpers = array('Time', 'Permission');
   
   // When using additional models, we must also specify our own
   public $uses = array('CoPerson', 'CmpEnrollmentConfiguration');
@@ -558,7 +558,6 @@ class CoPeopleController extends StandardController {
     // View all existing CO People (or a COU's worth)?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     $p['search'] = $p['index'];
-
     
     if($this->action == 'index' && $p['index']) {
       // For rendering index, we currently assume that anyone who can view the
@@ -609,6 +608,14 @@ class CoPeopleController extends StandardController {
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']
                        || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
+    if($self) {
+      // Pull self service permissions
+      
+      $p['selfsvc'] = $this->Co->CoSelfServicePermission->findPermissions($this->cur_co['Co']['id']);
+    } else {
+      $p['selfsvc'] = false;
+    }
     
     // View an existing CO Person?
     $p['view'] = ($roles['cmadmin']

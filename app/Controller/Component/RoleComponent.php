@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registy Role Component Model
+ * COmanage Registry Role Component
  *
  * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 

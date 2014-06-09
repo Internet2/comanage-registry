@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Role Fields
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -262,7 +262,7 @@ $(function() {
             </td>
             <td>
               <?php
-                if($e) {
+                if($e && !$es) {
                   echo $this->Form->submit($submit_label);
                   print $this->Form->button(_txt('op.reset'), 
                                             array('type'=>'reset'));
@@ -278,82 +278,82 @@ $(function() {
 
     <div id="tabs-phone" class="additionalinfo">
       <?php
-        if($e)
-        {
-          if(isset($co_person_roles[0]['TelephoneNumber']))
-          {
-            foreach($co_person_roles[0]['TelephoneNumber'] as $t)
-            {
+        if(isset($co_person_roles[0]['TelephoneNumber'])) {
+          foreach($co_person_roles[0]['TelephoneNumber'] as $t) {
+            $perm = $this->Permission->selfService($permissions, $e, 'TelephoneNumber', $t['type']);
+            
+            if($perm == PermissionEnum::ReadWrite) {
               print '<div>';
                 print '<div>';
-                             echo $this->Html->link($t['number'], array('controller' => 'telephone_numbers', 'action' => 'edit', $t['id'], 'co' => $cur_co['Co']['id']));
-              echo " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
-              print '</div>';
+                  print $this->Html->link($t['number'],
+                                          array('controller' => 'telephone_numbers',
+                                                'action' => 'edit',
+                                                $t['id']))
+                        . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
+                print '</div>';
                 print '<div>';
-                  // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                  echo '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['number'])) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-                  echo $this->Html->link(_txt('op.edit'),
-                                         array('controller' => 'telephone_numbers', 'action' => 'edit', $t['id'], 'co' => $cur_co['Co']['id']),
-                                         array('class' => 'editbutton')) . "\n";
+                  print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['number'])) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                  print $this->Html->link(_txt('op.edit'),
+                                          array('controller' => 'telephone_numbers',
+                                                'action' => 'edit',
+                                                $t['id']),
+                                          array('class' => 'editbutton')) . "\n";
                 print '</div>';
               print '</div>';
+            } elseif($perm == PermissionEnum::ReadOnly) {
+              print Sanitize::html($t['number']) . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
             }
           }
-          
-          echo $this->Html->link(_txt('op.add'),
-                                  array('controller' => 'telephone_numbers', 'action' => 'add', 'copersonroleid' => $co_person_roles[0]['CoPersonRole']['id'], 'co' => $cur_co['Co']['id']),
+        }
+        
+        if($this->Permission->selfService($permissions, $e, 'TelephoneNumber') == PermissionEnum::ReadWrite) {
+          print $this->Html->link(_txt('op.add'),
+                                  array('controller' => 'telephone_numbers',
+                                        'action' => 'add',
+                                        'copersonroleid' => $co_person_roles[0]['CoPersonRole']['id']),
                                   array('class' => 'addbutton'));
         }
-        else
-        {
-          if(isset($co_person_roles[0]['TelephoneNumber']))
-            foreach($co_person_roles[0]['TelephoneNumber'] as $t)
-              echo Sanitize::html($t['number']) . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
-        }
       ?>
-    </tr>
-
-
     </div>
 
     <div id="tabs-address" class="additionalinfo">
       <?php
-        if($e)
-        {
-          if(isset($co_person_roles[0]['Address']))
-          {
-            foreach($co_person_roles[0]['Address'] as $addr)
-            {
+        if(isset($co_person_roles[0]['Address'])) {
+          foreach($co_person_roles[0]['Address'] as $addr) {
+            $perm = $this->Permission->selfService($permissions, $e, 'Address', $addr['type']);
+            
+            if($perm == PermissionEnum::ReadWrite) {
               print '<div>';
                 print '<div>';
-                  echo $this->Html->link($addr['line1'], array('controller' => 'addresses', 'action' => 'edit', $addr['id'], 'co' => $cur_co['Co']['id']));
-                  echo " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
+                  print $this->Html->link($addr['line1'],
+                                          array('controller' => 'addresses',
+                                                'action' => 'edit',
+                                                $addr['id']))
+                        . " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
                 print '</div>';
                 print '<div>';
-              // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-              echo '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['line1'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-              echo $this->Html->link(_txt('op.edit'),
-                                      array('controller' => 'addresses', 'action' => 'edit', $addr['id'], 'co' => $cur_co['Co']['id']),
-                                      array('class' => 'editbutton')) . "\n";
+                  print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['line1'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                  print $this->Html->link(_txt('op.edit'),
+                                          array('controller' => 'addresses',
+                                                'action' => 'edit',
+                                                $addr['id']),
+                                          array('class' => 'editbutton')) . "\n";
                 print '</div>';
               print '</div>';
-
+            } elseif($perm == PermissionEnum::ReadOnly) {
+              print Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
             }
           }
-              
-          echo $this->Html->link(_txt('op.add'),
-                                  array('controller' => 'addresses', 'action' => 'add', 'copersonroleid' => $co_person_roles[0]['CoPersonRole']['id'], 'co' => $cur_co['Co']['id']),
+        }
+        
+        if($this->Permission->selfService($permissions, $e, 'Address') == PermissionEnum::ReadWrite) {
+          print $this->Html->link(_txt('op.add'),
+                                  array('controller' => 'addresses',
+                                        'action' => 'add',
+                                        'copersonroleid' => $co_person_roles[0]['CoPersonRole']['id']),
                                   array('class' => 'addbutton'));
         }
-        else
-        {
-          if(isset($co_person_roles[0]['Address']))
-            foreach($co_person_roles[0]['Address'] as $addr)
-              echo Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
-        }
       ?>
-      
     </div>
   <?php endif; // add ?>
-
 </div>

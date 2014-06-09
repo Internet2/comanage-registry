@@ -30,7 +30,7 @@ class Address extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Provisioner');
+  public $actsAs = array('Containable', 'Provisioner');
   
   // Association rules from this model to other models
   public $belongsTo = array(

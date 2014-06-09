@@ -25,7 +25,7 @@
 <?php
   // Globals
   global $cm_lang, $cm_texts;
-
+  
   // Determine if fields are editable
   $e = false;
   $es = false;
@@ -238,13 +238,12 @@
   });
 </script>
 
-
 <div id="<?php print $this->action; ?>_co_person" class="explorerContainer">
   <div id="personExplorer">
     <ul>
       <li id="fields-name" class="fieldGroup">
 
-        <?php if($e && $this->action != 'invite'): ?>
+        <?php if($this->action != 'invite' && $this->Permission->selfService($permissions, $e, 'Name') == PermissionEnum::ReadWrite): ?>
           <div class="coAddEditButtons">
             <?php
             $linktarget = array(
@@ -254,7 +253,7 @@
               'co'         => $cur_co['Co']['id']
             );
             $linkparams = array(
-              'class'  => 'addbutton'//,
+              'class'  => 'addbutton',
               //'escape' => false
             );
 
@@ -264,7 +263,7 @@
               $linkparams);
             ?>
           </div>
-        <?php endif; // e ?>
+        <?php endif; // invite+permission ?>
 
         <a href="#tabs-name" class="fieldGroupName">
             <span class="ui-icon ui-icon-circlesmall-minus"></span>
@@ -434,13 +433,18 @@
                 <div>
                   <div>
                     <?php
-                    if($e) {
+                    $perm = $this->Permission->selfService($permissions,
+                                                           $e,
+                                                           'Name',
+                                                           (!empty($n['type']) ? $n['type'] : null));
+                    
+                    if($perm == PermissionEnum::ReadWrite) {
                       print $this->Html->link(generateCn($n),
                         array('controller' => 'names',
                           'action' => 'edit',
                           $n['id'],
                           'co' => $cur_co['Co']['id']));
-                    } else {
+                    } elseif($perm == PermissionEnum::ReadOnly) {
                       print generateCn($n);
                     }
 
@@ -453,7 +457,7 @@
                   </div>
                   <div>
                     <?php
-                    if($e) {
+                    if($perm == PermissionEnum::ReadWrite) {
                       if(!$n['primary_name']) {
                         print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($n))) . '\', \'' . $this->Html->url(array('controller' => 'names', 'action' => 'delete', $n['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
 
@@ -603,7 +607,7 @@
         </li>
         <li id="fields-email" class="fieldGroup">
           <?php
-            if($e) {
+            if($this->Permission->selfService($permissions, $e, 'EmailAddress') == PermissionEnum::ReadWrite) {
               print '<div class="coAddEditButtons">';
               $linktarget = array(
                 'controller' => 'email_addresses',
@@ -612,7 +616,7 @@
                 'co'         => $cur_co['Co']['id']
               );
               $linkparams = array('class'  => 'addbutton');
-
+              
               print $this->Html->link(_txt('op.add'),
                 $linktarget,
                 $linkparams);
@@ -643,12 +647,17 @@
                   <?php endif; ?>
                   <?php
                   $l = 1;
-                  if($e)
-                  {
-                    if(isset($co_people[0]['EmailAddress']))
-                    {
-                      foreach($co_people[0]['EmailAddress'] as $ea)
-                      {
+                  
+                  if(isset($co_people[0]['EmailAddress'])) {
+                    foreach($co_people[0]['EmailAddress'] as $ea) {
+                      // Determine the permission for this attribute
+                      
+                      $perm = $this->Permission->selfService($permissions,
+                                                                       $e,
+                                                                       'EmailAddress',
+                                                                       (!empty($ea['type']) ? $ea['type'] : null));
+                      
+                      if($perm == PermissionEnum::ReadWrite) {
                         print '<div>';
                         print '<div>';
                         print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
@@ -656,27 +665,17 @@
                           . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
                         print '</div>';
                         print '<div>';
-                        // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                         print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $this->Html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                         print $this->Html->link(_txt('op.edit'),
                             array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']),
                             array('class' => 'editbutton')) . "\n";
                         print '</div>';
                         print '</div>';
-                      }
-                    }
-                  }
-                  else
-                  {
-                    if(isset($co_people[0]['EmailAddress']))
-                    {
-                      foreach($co_people[0]['EmailAddress'] as $ea)
-                      {
+                      } elseif($perm == PermissionEnum::ReadOnly) {
                         print '<tr class="line';
                         print ($l % 2);
                         print '">';
                         $l++;
-
                         print '<td>';
                         print Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")\n";
                         print '</td>';
@@ -725,21 +724,18 @@
         </li>
         <li id="fields-group" class="fieldGroup">
           <?php
-          if(isset($co_people[0]['CoGroupMember'])) {
-            if($e && !$es) { // XXX !$es is probably the wrong permission here
-              print '<div class="coAddEditButtons">';
-              $linktarget = array(
-                'controller' => 'co_groups',
-                'action'     => 'select',
-                'copersonid' => $co_people[0]['CoPerson']['id'],
-                'co'         => $cur_co['Co']['id']
-              );
-              $linkparams = array('class'  => 'addbutton');
-              print $this->Html->link(_txt('op.manage.grm'),
-                  $linktarget,
-                  $linkparams) . "\n";
-              print '</div>';
-            }
+          if($e) {
+            print '<div class="coAddEditButtons">';
+            $linktarget = array(
+              'controller' => 'co_groups',
+              'action'     => 'select',
+              'copersonid' => $co_people[0]['CoPerson']['id']
+            );
+            $linkparams = array('class' => 'addbutton');
+            print $this->Html->link(_txt('op.manage.grm'),
+                $linktarget,
+                $linkparams) . "\n";
+            print '</div>';
           }
           ?>
           <a href="#tabs-group" class="fieldGroupName">

@@ -44,6 +44,10 @@ class AppController extends Controller {
                              'Session',
                              'Paginator');
   
+  // We should probably add helpers here instead of in each Controller. To do so,
+  // make sure to define the default Html and Form helpers.
+  // public $helpers = array('Form', 'Html', 'Time', etc...);
+  
   // Determine if controller requires a CO to be selected
   public $requires_co = false;
   

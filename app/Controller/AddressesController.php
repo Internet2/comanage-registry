@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Addresses Controller
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -69,6 +69,8 @@ class AddressesController extends MVPAController {
     // the identifier passed in the URL, otherwise we lookup based on the record ID.
     
     $managed = false;
+    $self = false;
+    $address = null;
     
     if(!empty($roles['copersonid'])) {
       switch($this->action) {
@@ -76,6 +78,13 @@ class AddressesController extends MVPAController {
         if(!empty($pids['copersonroleid'])) {
           $managed = $this->Role->isCoOrCouAdminForCoPersonRole($roles['copersonid'],
                                                                 $pids['copersonroleid']);
+          
+          // Map the requested CO Person Role ID to its CO Person ID
+          $reqCoPersonId = $this->Address->CoPersonRole->field('co_person_id', array('id' => $pids['copersonroleid']));
+          
+          if($reqCoPersonId == $roles['copersonid']) {
+            $self = true;
+          }
         } elseif(!empty($pids['orgidentityid'])) {
           $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
                                                                $pids['orgidentityid']);
@@ -89,13 +98,17 @@ class AddressesController extends MVPAController {
           // then pass that to $this->Role->isXXX
           $args = array();
           $args['conditions']['Address.id'] = $this->request->params['pass'][0];
-          $args['contain'] = false;
+          $args['contain'][] = 'CoPersonRole';
           
           $address = $this->Address->find('first', $args);
           
           if(!empty($address['Address']['co_person_role_id'])) {
             $managed = $this->Role->isCoOrCouAdminForCoPersonRole($roles['copersonid'],
                                                                   $address['Address']['co_person_role_id']);
+            
+            if($address['CoPersonRole']['co_person_id'] == $roles['copersonid']) {
+              $self = true;
+            }
           } elseif(!empty($address['Address']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                                                                  $address['Address']['org_identity_id']);
@@ -105,12 +118,30 @@ class AddressesController extends MVPAController {
       }
     }
     
-    // It's not really clear that people should always be able to edit their own addresses.
-    // For now, we won't enable self-service, pending requirements review. (See CO-92.)
+    // Self service is a bit complicated because permission can vary by type.
+    // Self service only applies to CO Person-attached attributes.
     
-    // Self is true if this is an add operation & the current user's own person role/org id is in the url
-    // OR for other operations the record is attached to the current user's person role/org id.
-    $self = false;
+    $selfperms = array(
+      'add'    => false,
+      'delete' => false,
+      'edit'   => false,
+      'view'   => false
+    );
+    
+    if($self) {
+      foreach(array_keys($selfperms) as $a) {
+        $selfperms[$a] = $this->Address
+                              ->CoPersonRole
+                              ->CoPerson
+                              ->Co
+                              ->CoSelfServicePermission
+                              ->calculatePermission($this->cur_co['Co']['id'],
+                                                    'Address',
+                                                    $a,
+                                                    ($a != 'add' && !empty($address['Address']['type']))
+                                                     ? $address['Address']['type'] : null);
+      }
+    }
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
@@ -118,17 +149,17 @@ class AddressesController extends MVPAController {
     // Add a new Address?
     $p['add'] = ($roles['cmadmin']
                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                 || $self);
+                 || $selfperms['add']);
     
     // Delete an existing Address?
     $p['delete'] = ($roles['cmadmin']
                     || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                    || $self);
+                    || $selfperms['delete']);
     
     // Edit an existing Address?
     $p['edit'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $self);
+                  || $selfperms['edit']);
     
     // View all existing Addresses?
     // Currently only supported via REST since there's no use case for viewing all
@@ -137,7 +168,7 @@ class AddressesController extends MVPAController {
     // View an existing Address?
     $p['view'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $self);
+                  || $selfperms['view']);
     
     $this->set('permissions', $p);
     return $p[$this->action];

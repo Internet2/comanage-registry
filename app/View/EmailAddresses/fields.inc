@@ -73,7 +73,7 @@
       </td>
       <td>
         <?php
-          global $cm_lang, $cm_texts;
+          global $cm_lang, $cm_texts, $contact_t;
           $attrs['value'] = (isset($email_addresses) ? $email_addresses[0]['EmailAddress']['type'] : "O");
           $attrs['empty'] = false;
           

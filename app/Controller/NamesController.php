@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Names Controller
  *
- * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -194,6 +194,8 @@ class NamesController extends MVPAController {
     // the identifier passed in the URL, otherwise we lookup based on the record ID.
     
     $managed = false;
+    $self = false;
+    $name = null;
     
     if(!empty($roles['copersonid'])) {
       switch($this->action) {
@@ -201,6 +203,10 @@ class NamesController extends MVPAController {
         if(!empty($pids['copersonid'])) {
           $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
                                                             $pids['copersonid']);
+          
+          if($pids['copersonid'] == $roles['copersonid']) {
+            $self = true;
+          }
         } elseif(!empty($pids['orgidentityid'])) {
           $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
                                                                $pids['orgidentityid']);
@@ -221,6 +227,10 @@ class NamesController extends MVPAController {
           if(!empty($name['Name']['co_person_id'])) {
             $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
                                                               $name['Name']['co_person_id']);
+            
+            if($name['Name']['co_person_id'] == $roles['copersonid']) {
+              $self = true;
+            }
           } elseif(!empty($name['Name']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                                                                  $name['Name']['org_identity_id']);
@@ -230,9 +240,29 @@ class NamesController extends MVPAController {
       }
     }
     
-    // Self is true if this is an add operation & the current user's own person role/org id is in the url
-    // OR for other operations the record is attached to the current user's person role/org id.
-    $self = false;
+    // Self service is a bit complicated because permission can vary by type.
+    // Self service only applies to CO Person-attached attributes.
+    
+    $selfperms = array(
+      'add'    => false,
+      'delete' => false,
+      'edit'   => false,
+      'view'   => false
+    );
+    
+    if($self) {
+      foreach(array_keys($selfperms) as $a) {
+        $selfperms[$a] = $this->Name
+                              ->CoPerson
+                              ->Co
+                              ->CoSelfServicePermission
+                              ->calculatePermission($this->cur_co['Co']['id'],
+                                                    'Name',
+                                                    $a,
+                                                    ($a != 'add' && !empty($name['Name']['type']))
+                                                     ? $name['Name']['type'] : null);
+      }
+    }
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
@@ -240,17 +270,17 @@ class NamesController extends MVPAController {
     // Add a new Name?
     $p['add'] = ($roles['cmadmin']
                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                 || $self);
+                 || $selfperms['add']);
     
     // Delete an existing Name?
     $p['delete'] = ($roles['cmadmin']
                     || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                    || $self);
+                    || $selfperms['delete']);
     
     // Edit an existing Name?
     $p['edit'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $self);
+                  || $selfperms['edit']);
     // Making a name primary is the same as editing
     $p['primary'] = $p['edit'];
     
@@ -261,7 +291,7 @@ class NamesController extends MVPAController {
     // View an existing Name?
     $p['view'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $self);
+                  || $selfperms['view']);
     
     $this->set('permissions', $p);
     return $p[$this->action];

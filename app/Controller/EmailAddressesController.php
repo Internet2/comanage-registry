@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Email Addresses Controller
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -69,6 +69,8 @@ class EmailAddressesController extends MVPAController {
     // the identifier passed in the URL, otherwise we lookup based on the record ID.
     
     $managed = false;
+    $self = false;
+    $emailaddress = null;
     
     if(!empty($roles['copersonid'])) {
       switch($this->action) {
@@ -76,6 +78,10 @@ class EmailAddressesController extends MVPAController {
         if(!empty($pids['copersonid'])) {
           $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
                                                             $pids['copersonid']);
+          
+          if($pids['copersonid'] == $roles['copersonid']) {
+            $self = true;
+          }
         } elseif(!empty($pids['orgidentityid'])) {
           $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
                                                                $pids['orgidentityid']);
@@ -96,6 +102,10 @@ class EmailAddressesController extends MVPAController {
           if(!empty($emailaddress['EmailAddress']['co_person_id'])) {
             $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
                                                               $emailaddress['EmailAddress']['co_person_id']);
+            
+            if($emailaddress['EmailAddress']['co_person_id'] == $roles['copersonid']) {
+              $self = true;
+            }
           } elseif(!empty($emailaddress['EmailAddress']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                                                                  $emailaddress['EmailAddress']['org_identity_id']);
@@ -105,12 +115,29 @@ class EmailAddressesController extends MVPAController {
       }
     }
     
-    // It's not really clear that people should always be able to edit their own email addresses.
-    // For now, we won't enable self-service, pending requirements review. (See CO-92.)
+    // Self service is a bit complicated because permission can vary by type.
+    // Self service only applies to CO Person-attached attributes.
     
-    // Self is true if this is an add operation & the current user's own person role/org id is in the url
-    // OR for other operations the record is attached to the current user's person role/org id.
-    $self = false;
+    $selfperms = array(
+      'add'    => false,
+      'delete' => false,
+      'edit'   => false,
+      'view'   => false
+    );
+    
+    if($self) {
+      foreach(array_keys($selfperms) as $a) {
+        $selfperms[$a] = $this->EmailAddress
+                              ->CoPerson
+                              ->Co
+                              ->CoSelfServicePermission
+                              ->calculatePermission($this->cur_co['Co']['id'],
+                                                    'EmailAddress',
+                                                    $a,
+                                                    ($a != 'add' && !empty($emailaddress['EmailAddress']['type']))
+                                                     ? $emailaddress['EmailAddress']['type'] : null);
+      }
+    }
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
@@ -118,17 +145,17 @@ class EmailAddressesController extends MVPAController {
     // Add a new Email Address?
     $p['add'] = ($roles['cmadmin']
                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                 || $self);
+                 || $selfperms['add']);
     
     // Delete an existing Email Address?
     $p['delete'] = ($roles['cmadmin']
                     || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                    || $self);
+                    || $selfperms['delete']);
     
     // Edit an existing Email Address?
     $p['edit'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $self);
+                  || $selfperms['edit']);
     
     // View all existing Email Addresses?
     // Currently only supported via REST since there's no use case for viewing all
@@ -143,7 +170,7 @@ class EmailAddressesController extends MVPAController {
     // View an existing Email Address?
     $p['view'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $self);
+                  || $selfperms['view']);
     
     $this->set('permissions', $p);
     return $p[$this->action];
