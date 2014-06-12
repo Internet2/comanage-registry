@@ -315,7 +315,7 @@ class IdentifiersController extends MVPAController {
     $p['add'] = ($roles['cmadmin']
                  || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
-    // Assign (autogenerate) Identifiers?
+    // Assign (autogenerate) Identifiers? (Same logic is in CoPeopleController)
     $p['assign'] = ($roles['cmadmin']
                     || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     

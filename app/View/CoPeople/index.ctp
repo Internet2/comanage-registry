@@ -253,10 +253,9 @@
                                     array(
                                       'controller' => 'co_people',
                                       'action' => ($permissions['edit']
-                                                   ? 'edit'
+                                                   ? 'canvas'
                                                    : ($permissions['view'] ? 'view' : '')),
-                                      $p['CoPerson']['id'],
-                                      'co' => $cur_co['Co']['id'])
+                                      $p['CoPerson']['id'])
                                     );
           ?>
         </div>
@@ -331,9 +330,8 @@
               if($permissions['edit'])
                 print $this->Html->link(_txt('op.edit'),
                     array('controller' => 'co_people',
-                      'action'     => 'edit',
-                      $p['CoPerson']['id'],
-                      'co'         => $cur_co['Co']['id']),
+                      'action'     => 'canvas',
+                      $p['CoPerson']['id']),
                     array('class'   => 'editbutton',
                       'onclick' => 'noprop(event);'))
                   . "\n";
