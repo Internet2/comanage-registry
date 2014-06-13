@@ -130,9 +130,8 @@ class IdentifiersController extends MVPAController {
     if(!$this->restful) {
       // Redirect to CO Person view
       $rargs['controller'] = 'co_people';
-      $rargs['action'] = 'edit';
+      $rargs['action'] = 'canvas';
       $rargs[] = $copersonid;
-      $rargs['co'] = $this->cur_co['Co']['id'];
       
       $this->redirect($rargs);
     }
@@ -338,5 +337,4 @@ class IdentifiersController extends MVPAController {
     $this->set('permissions', $p);
     return $p[$this->action];
   }
-
 }

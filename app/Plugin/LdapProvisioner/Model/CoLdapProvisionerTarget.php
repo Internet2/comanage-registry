@@ -206,7 +206,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 break;
               case 'sn':
                 // Currently only preferred name supported (CO-333)
-                $attributes[$attr] = $provisioningData['PrimaryName']['family'];
+                if(!empty($provisioningData['PrimaryName']['family'])) {
+                  $attributes[$attr] = $provisioningData['PrimaryName']['family'];
+                }
                 break;
               // Attributes from CO Person Role
               case 'eduPersonAffiliation':
@@ -382,7 +384,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 break;
               // Group attributes (cn is covered above)
               case 'description':
-                $attributes[$attr] = $provisioningData['CoGroup']['description'];
+                // A blank description is invalid, so don't populate if empty
+                if(!empty($provisioningData['CoGroup']['description'])) {
+                  $attributes[$attr] = $provisioningData['CoGroup']['description'];
+                }
                 break;
               // hasMember and isMember of are both part of the eduMember objectclass, which can apply
               // to both people and group entries. Check what type of data we're working with for both.
@@ -407,7 +412,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               case 'isMemberOf':
-                if($person) {
+                if($person && !empty($provisioningData['CoGroupMember'])) {
                   foreach($provisioningData['CoGroupMember'] as $gm) {
                     if(isset($gm['member']) && $gm['member']
                        && !empty($gm['CoGroup']['name'])) {
@@ -421,7 +426,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               case 'member':
-                $attributes[$attr] = $this->CoLdapProvisionerDn->dnsForMembers($provisioningData['CoGroupMember']);
+                if(!empty($provisioningData['CoGroupMember'])) {
+                  $attributes[$attr] = $this->CoLdapProvisionerDn->dnsForMembers($provisioningData['CoGroupMember']);
+                }
+                
                 if(empty($attributes[$attr])) {
                   // groupofnames requires at least one member
                   throw new UnderflowException('member');
