@@ -438,15 +438,22 @@ class CoNotification extends AppModel {
     $n['CoNotification']['action'] = $action;
     $n['CoNotification']['comment'] = $comment;
     
+    $csource = array();
+    
     if(is_array($source)) {
+      // While we're here, "fix" $source since it has an "id" key but Cake doesn't expect it
+      
       if(!empty($source['controller'])) {
         $n['CoNotification']['source_controller'] = $source['controller'];
+        $csource['controller'] = $source['controller'];
       }
       if(!empty($source['controller'])) {
         $n['CoNotification']['source_action'] = $source['action'];
+        $csource['action'] = $source['action'];
       }
       if(!empty($source['controller'])) {
         $n['CoNotification']['source_id'] = $source['id'];
+        $csource[] = $source['id'];
       }
     } else {
       $n['CoNotification']['source_url'] = $source;
@@ -475,7 +482,7 @@ class CoNotification extends AppModel {
       'CO_NAME'    => $coName,
       'COMMENT'    => $comment,
       'SOURCE_URL' => (is_array($source)
-                       ? Router::url($source, true)
+                       ? Router::url($csource, true) // Use the source formatted for cake
                        : $source)
     );
     
