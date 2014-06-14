@@ -631,9 +631,8 @@ class AppController extends Controller {
       $co = $this->request->data[$req]['co'];
     elseif(!empty($this->request->data[$req]['co_id']))
       $co = $this->request->data[$req]['co_id'];
-      
-    if($this->redirectTab != null)
-    {
+    
+    if($this->redirectTab != null && $orgiid) {
       $redirect['tab'] = $this->redirectTab;
     }
 
@@ -650,10 +649,8 @@ class AppController extends Controller {
       }
       else
       {
-        $redirect['action'] = 'edit';
+        $redirect['action'] = 'canvas';
         $redirect[] = $copid;
-        if($co != null)
-          $redirect['co'] = $co;
         $rc = 1;
       }
     }
@@ -735,12 +732,7 @@ class AppController extends Controller {
             break;
         }
       }
-
-      // Add in tab for pages that have tabbed redirects
-      if(isset($this->params['named']['tab']))
-      {
-        $redirect['tab'] = $this->params['named']['tab'];
-      }
+      
       $this->set('redirect', $redirect);
     }
     
