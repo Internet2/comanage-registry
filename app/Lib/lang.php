@@ -146,6 +146,15 @@ For questions regarding this process, please contact your administrator.',
   'em.notification.body'     => '(@COMMENT)
 
 (@SOURCE_URL)',
+  'em.resolution.subject'    => 'Notification for (@CO_NAME) Resolved',
+  'em.resolution.body'       => 'The action required for the notification
+  
+(@COMMENT)
+
+has been resolved by (@ACTOR_NAME). For more information, see the
+original notification at
+
+(@SOURCE_URL)',
 
   // Enumerations, corresponding to enum.php
   // Default history comments

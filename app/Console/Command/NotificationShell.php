@@ -78,7 +78,7 @@ class NotificationShell extends AppShell {
         'help' => 'If set, resolution is required (not just acknowledgment)',
         'boolean' => true,
       )
-    )->description("Manuallly generate a Notification")
+    )->description("Manually generate a Notification")
     ->epilog("Identifiers are specified as <type>:<value>, eg: 'eppn:plee@university.edu', corresponding to cm_identifiers");
     
     return $parser;
@@ -153,7 +153,11 @@ class NotificationShell extends AppShell {
        || strncmp('https://', $this->args[6], 8)==0) {
       $source = $this->args[6];
     } else {
-      $source = explode(",", $this->args[6], 3);
+      $s = explode(",", $this->args[6], 3);
+      
+      $source['controller'] = $s[0];
+      $source['action'] = $s[1];
+      $source['id'] = $s[2];
     }
     
     // Resolution Required
