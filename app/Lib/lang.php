@@ -768,6 +768,7 @@ original notification at
   'fd.sponsor' =>     'Sponsor',
   'fd.sponsor.desc' =>'(for continued membership)',
   'fd.status' =>      'Status',
+  'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petiton',
   'fd.subject' =>     'Subject',
   'fd.tc.agree.desc' => 'You must agree to the following Terms and Conditions before continuing.<br />You must review the T&C before you can click <i>I Agree</i>, and you must agree before you can submit.',
   'fd.tc.agree.no' => 'Not Agreed',
