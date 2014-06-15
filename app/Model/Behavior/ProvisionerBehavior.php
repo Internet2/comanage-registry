@@ -374,7 +374,9 @@ class ProvisionerBehavior extends ModelBehavior {
     // Cache a copy of the current data for comparison in afterSave. Currently only
     // used to detect if a person or group goes to or from Active status.
     
-    if($model->name == 'CoGroup' || $model->name == 'CoPerson') {
+    if(($model->name == 'CoGroup' || $model->name == 'CoPerson')
+       // This will only be set on edit, not add
+       && !empty($model->data[ $model->alias ]['id'])) {
       $args = array();
       $args['conditions'][ $model->alias.'.id'] = $model->data[ $model->alias ]['id'];
       $args['contain'] = false;
