@@ -243,9 +243,10 @@ class CoNotification extends AppModel {
    * Process the resolution of an outstanding notification
    *
    * @since  COmanage Registry v0.8.4
-   * @param  Integer  $id         CO Notification ID
-   * @param  Integer  $coPersonId CO Person ID of person ackowledging the notification
-   * @param  String   $resolution NotificationStatusEnum
+   * @param  Integer  $id          CO Notification ID
+   * @param  Integer  $coPersonId  CO Person ID of person ackowledging the notification
+   * @param  String   $resolution  NotificationStatusEnum
+   * @param  String   $fromAddress Email Address to send the invite from (if null, use default)
    * @return Boolean  True if notification is resolved
    * @throws InvalidArgumentException
    * @throws RuntimeException
@@ -253,7 +254,8 @@ class CoNotification extends AppModel {
   
   protected function processResolution($id,
                                        $coPersonId,
-                                       $resolution) {
+                                       $resolution,
+                                       $fromAddress=null) {
     // First make sure the notification is pending acknowledgment
     
     $args = array();
@@ -332,6 +334,69 @@ class CoNotification extends AppModel {
     }
     catch(Exception $e) {
       throw new RuntimeException($e->getMessage());
+    }
+    
+    // If a notification is resolved (not acknowledged) and had a receipient group,
+    // send email to the non-actor group members notifying them it was resolved.
+    // Do this after the history record is created in case something goes wrong.
+    
+    if($resolution == NotificationStatusEnum::Resolved
+       && !empty($not['CoNotification']['recipient_co_group_id'])) {
+      $coId = $this->RecipientCoGroup->field('co_id', array('RecipientCoGroup.id' => $not['CoNotification']['recipient_co_group_id']));
+      $coName = $this->RecipientCoGroup->Co->field('name', array('Co.id' => $coId));
+      
+      $sourceurl = $not['CoNotification']['source_url'];
+      
+      $args = array();
+      $args['conditions']['ActorCoPerson.id'] = $coPersonId;
+      $args['contain'][] = 'PrimaryName';
+      
+      $actor = $this->ActorCoPerson->find('first', $args);
+      
+      if(!$sourceurl) {
+        /*
+         * Something wacky is happening with Router::url here (vs in register(), where
+         * it works fine). The array notation throws an error, though string notation works ok.
+        $s = array();
+        $s['controller'] = $not['CoNotification']['source_controller'];
+        $s['action'] = $not['CoNotification']['source_action'];
+        $s[] = $not['CoNotification']['source_id'];
+        */
+        
+        $sourceurl = Router::url("/" . $not['CoNotification']['source_controller']
+                                 . "/" . $not['CoNotification']['source_action']
+                                 . "/" . $not['CoNotification']['source_id'],
+                                 true);
+      }
+      
+      $args = array();
+      $args['conditions']['RecipientCoGroup.id'] = $not['CoNotification']['recipient_co_group_id'];
+      $args['contain']['CoGroupMember']['CoPerson'] = 'EmailAddress';
+      
+      $gr = $this->RecipientCoGroup->find('first', $args);
+      
+      if(!empty($gr['CoGroupMember'])) {
+        foreach($gr['CoGroupMember'] as $gm) {
+          if(!empty($gm['CoPerson']['EmailAddress'][0]['mail'])) {
+            // For now we just pick the first email address, but eventually we should
+            // use whatever login register() implements (first delivery address, etc)
+            
+            try {
+              $this->sendEmail($gm['CoPerson']['EmailAddress'][0]['mail'],
+                               _txt('em.resolution.subject'),
+                               _txt('em.resolution.body'),
+                               $coName,
+                               $not['CoNotification']['comment'],
+                               $sourceurl,
+                               generateCn($actor['PrimaryName']),
+                               $fromAddress);
+            }
+            catch(Exception $e) {
+              throw new RuntimeException($e->getMessage());
+            }
+          }
+        }
+      }
     }
     
     return true;
@@ -438,15 +503,22 @@ class CoNotification extends AppModel {
     $n['CoNotification']['action'] = $action;
     $n['CoNotification']['comment'] = $comment;
     
+    $csource = array();
+    
     if(is_array($source)) {
+      // While we're here, "fix" $source since it has an "id" key but Cake doesn't expect it
+      
       if(!empty($source['controller'])) {
         $n['CoNotification']['source_controller'] = $source['controller'];
+        $csource['controller'] = $source['controller'];
       }
       if(!empty($source['controller'])) {
         $n['CoNotification']['source_action'] = $source['action'];
+        $csource['action'] = $source['action'];
       }
       if(!empty($source['controller'])) {
         $n['CoNotification']['source_id'] = $source['id'];
+        $csource[] = $source['id'];
       }
     } else {
       $n['CoNotification']['source_url'] = $source;
@@ -458,40 +530,13 @@ class CoNotification extends AppModel {
       $n['CoNotification']['status'] = NotificationStatusEnum::PendingAcknowledgment;
     }
     
-    // Create the message subject and body based on the templates (if provided).
-    // We do this out of the loop for now since no parameters (other than target
-    // email address) need to change per recipient. At some point this might need
-    // to move into the recipient loop.
-    
-    $msgBody = "";
-    $msgSubject = "";
-    
     // We need to map CoPerson to get the CO ID to get the CO Name
     
     $coId = $this->SubjectCoPerson->field('co_id', array('SubjectCoPerson.id' => $subjectCoPersonId));
     $coName = $this->RecipientCoPerson->Co->field('name', array('Co.id' => $coId));
-    
-    $substitutions = array(
-      'CO_NAME'    => $coName,
-      'COMMENT'    => $comment,
-      'SOURCE_URL' => (is_array($source)
-                       ? Router::url($source, true)
-                       : $source)
-    );
-    
-    // Construct subject and body
-    
-    if($subjectTemplate) {
-      $msgSubject = processTemplate($subjectTemplate, $substitutions);
-    } else {
-      $msgSubject = processTemplate(_txt('em.notification.subject'), $substitutions);
-    }
-    
-    if($bodyTemplate) {
-      $msgBody = processTemplate($bodyTemplate, $substitutions);
-    } else {
-      $msgBody = processTemplate(_txt('em.notification.body'), $substitutions);
-    }
+    $sourceurl = (is_array($source)
+                  ? Router::url($csource, true) // Use the source formatted for cake
+                  : $source);
     
     $this->create();
     
@@ -500,26 +545,25 @@ class CoNotification extends AppModel {
       $notificationId = $this->id;
       
       foreach($recipients as $recipient) {
+        $toaddr = null;
+        
         if(!empty($recipient['RecipientCoPerson']['EmailAddress'][0]['mail'])) {
           // Send email, if we have an email address
-          // Which email address do we use? for now, the first one
+          // Which email address do we use? for now, the first one (same as in processResolution())
+          // (ultimately we probably want the first address of type delivery)
+          $toaddr = $recipient['RecipientCoPerson']['EmailAddress'][0]['mail'];
           
           try {
-            $email = new CakeEmail('default');
-            
-            // If a from address was provided, use it
-            
-            if($fromAddress) {
-              $email->from($fromAddress);
-            }
-            
-            $email->emailFormat('text')
-                  ->to($recipient['RecipientCoPerson']['EmailAddress'][0]['mail'])
-                  ->subject($msgSubject)
-                  ->send($msgBody);
+            $this->sendEmail($toaddr,
+                             ($subjectTemplate ? $subjectTemplate : _txt('em.notification.subject')),
+                             ($bodyTemplate ? $bodyTemplate : _txt('em.notification.body')),
+                             $coName,
+                             $sourceurl,
+                             $comment,
+                             null,
+                             $fromAddress);
           }
           catch(Exception $e) {
-            // Should we really abort all notifications if a send fails? Probably not...
             throw new RuntimeException($e->getMessage());
           }
         }
@@ -527,14 +571,21 @@ class CoNotification extends AppModel {
         // Create a history record
         
         if(!empty($recipient['RecipientCoPerson']['id'])) {
+          $c = "";
+          
+          if($toaddr) {
+            $c = _txt('rs.nt.delivered.email', array($toaddr, $comment));
+          } else {
+            $c = _txt('rs.nt.delivered', array($comment));
+          }
+          
           try {
             $this->SubjectCoPerson->HistoryRecord->record($recipient['RecipientCoPerson']['id'],
                                                           null,
                                                           null,
                                                           $actorCoPersonId,
                                                           ActionEnum::NotificationDelivered,
-                                                          // use rs.nt.delivered.email if an email address was found
-                                                          _txt('rs.nt.delivered', array($comment)));
+                                                          $c);
           }
           catch(Exception $e) {
             throw new RuntimeException($e->getMessage());
@@ -628,5 +679,69 @@ class CoNotification extends AppModel {
     // else fail silently
     
     return $ret;
+  }
+  
+  /**
+   * Send email for a notification or notification resolution
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Array   $recipient         Address to send notification to
+   * @param  String  $subjectTemplate   Subject template for notification email
+   * @param  String  $bodyTemplate      Body template for notification email
+   * @param  String  $coName            CO Name, for template substitution
+   * @param  String  $comment           Comment, for template substitution
+   * @param  String  $sourceUrl         Source URL, for template substitution
+   * @param  String  $actorName         Human readable name of Actor, for template substitution
+   * @param  String  $fromAddress       Email Address to send the invite from (if null, use default)
+   * @throws RuntimeException
+   */
+  
+  protected function sendEmail($recipient,
+                               $subjectTemplate,
+                               $bodyTemplate,
+                               $coName,
+                               $comment,
+                               $sourceUrl,
+                               $actorName=null,
+                               $fromAddress=null) {
+    // Create the message subject and body based on the templates.
+    
+    $msgBody = "";
+    $msgSubject = "";
+    
+    $substitutions = array(
+      'ACTOR_NAME' => ($actorName ? $actorName : ""),
+      'CO_NAME'    => $coName,
+      'COMMENT'    => $comment,
+      'SOURCE_URL' => $sourceUrl
+    );
+    
+    // Construct subject and body
+    
+    $msgSubject = processTemplate($subjectTemplate, $substitutions);
+    $msgBody = processTemplate($bodyTemplate, $substitutions);
+    
+    // Send email, if we have an email address
+    // Which email address do we use? for now, the first one
+    // (ultimately we probably want the first address of type delivery)
+    
+    try {
+      $email = new CakeEmail('default');
+      
+      // If a from address was provided, use it
+      
+      if($fromAddress) {
+        $email->from($fromAddress);
+      }
+      
+      $email->emailFormat('text')
+            ->to($recipient)
+            ->subject($msgSubject)
+            ->send($msgBody);
+    }
+    catch(Exception $e) {
+      // Should we really abort all notifications if a send fails? Probably not...
+      throw new RuntimeException($e->getMessage());
+    }
   }
 }

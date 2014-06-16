@@ -118,24 +118,57 @@ class ProvisionerBehavior extends ModelBehavior {
     // We should be able to skip 3 - 5, but to do so we'd need to know we were called
     // because a Group was deleted and not because (say) a Person was deleted, and at
     // the moment we don't have a way to do that.
+    //
+    // If the model is CoPerson or CoGroup and the status went to or from Active, we need
+    // to rewrite group memberships under both the person and all their groups (or under
+    // the group and all its people).
+    
+    // Track which group or groups need to be rewritten.
+    $coGroupIds = array();
+    $gmodel = null;
+    
+    // If a CO Person status has changed to or from Active, find all the groups
+    // with which that person has an association and rewrite them.
+    
+    if($model->name == 'CoPerson') {
+      if(isset($model->cacheData[ $model->alias ]['status'])
+         && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
+         && ($model->cacheData[ $model->alias ]['status'] == StatusEnum::Active
+             || $model->data[ $model->alias ]['status'] == StatusEnum::Active)) {
+        // We have a CO Person status change to or from Active. Trigger a rewrite
+        // of all groups of which the person is a member.
+        
+        $args = array();
+        $args['conditions']['CoGroupMember.co_person_id'] = $model->data[ $model->alias ]['id'];
+        $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_group_id');
+        $args['contain'] = false;
+        
+        $gms = $model->CoGroupMember->find('list', $args);
+        
+        if(!empty($gms)) {
+          $coGroupIds = array_values($gms);
+          $gmodel = $model->CoGroupMember->CoGroup;
+        }
+      }
+    }
     
     if($model->name == 'CoGroup' || $model->name == 'CoGroupMember') {
-      // First, find the co_group_id and pull the record
-      
-      $coGroupId = -1;
+      // Find the group id
       
       if($model->name == 'CoGroup'
          && !empty($model->data['CoGroup']['id'])) {
-        $pmodel = $model;
-        $coGroupId = $model->data['CoGroup']['id'];
+        $gmodel = $model;
+        $coGroupIds[] = $model->data['CoGroup']['id'];
       } elseif(!empty($model->data[ $model->name ]['co_group_id'])) {
-        $pmodel = $model->CoGroup;
-        $coGroupId = $model->data[ $model->name ]['co_group_id'];
+        $gmodel = $model->CoGroup;
+        $coGroupIds[] = $model->data[ $model->name ]['co_group_id'];
       }
-      
-      if($pmodel){
+    }
+    
+    if($gmodel){
+      foreach($coGroupIds as $coGroupId) {
         try {
-          $pdata = $this->marshallCoGroupData($pmodel, $coGroupId);
+          $pdata = $this->marshallCoGroupData($gmodel, $coGroupId);
         }
         catch(InvalidArgumentException $e) {
           throw new InvalidArgumentException($e->getMessage());
@@ -151,7 +184,7 @@ class ProvisionerBehavior extends ModelBehavior {
         // Invoke all provisioning plugins
         
         try {
-          $this->invokePlugins($pmodel,
+          $this->invokePlugins($gmodel,
                                $pdata,
                                $paction);
         }    
@@ -167,14 +200,18 @@ class ProvisionerBehavior extends ModelBehavior {
           syslog(LOG_ERR, $e->getMessage());
           //throw new RuntimeException($e->getMessage());
         }
-      } else {
-        // We're probably CoGroupMember being promoted to afterSave in the middle of
-        // a CoGroup being deleted. In that scenario, we don't actually need to try
-        // to re-provision the CoGroup, so just move on to the person.
       }
     }
+    // else we could be CoGroupMember being promoted to afterSave in the middle of
+    // a CoGroup being deleted. In that scenario, we don't actually need to try
+    // to re-provision the CoGroup, so just move on to the person.
     
-    if($model->name != 'CoGroup') {
+    if($model->name != 'CoGroup'
+       // If a group goes to or from Active, we need to rewrite its members (or really their group memberships)
+       || (isset($model->cacheData[ $model->alias ]['status'])
+           && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
+           && ($model->cacheData[ $model->alias ]['status'] == StatusEnum::Active
+               || $model->data[ $model->alias ]['status'] == StatusEnum::Active))) {
       // First, find the co_person_id (directly or indirectly) and pull the record.
       // We could have more than one if an Org Identity is updated.
       
@@ -184,6 +221,11 @@ class ProvisionerBehavior extends ModelBehavior {
          && !empty($model->data['CoPerson']['id'])) {
         $pmodel = $model;
         $coPersonId[] = $model->data['CoPerson']['id'];
+      } elseif($model->name == 'EnrolleeCoPerson'
+         && !empty($model->data['EnrolleeCoPerson']['id'])) {
+        // Petitions present an EnrolleeCoPerson, not a CoPerson
+        $pmodel = $model;
+        $coPersonId[] = $model->data['EnrolleeCoPerson']['id'];
       } elseif(!empty($model->data[ $model->name ]['co_person_id'])) {
         $pmodel = $model->CoPerson;
         $coPersonId[] = $model->data[ $model->name ]['co_person_id'];
@@ -210,6 +252,20 @@ class ProvisionerBehavior extends ModelBehavior {
         }
         
         $pmodel = $model->CoPerson;
+      } elseif($model->name == 'CoGroup') {
+        // Find the members of the group
+        
+        $args = array();
+        $args['conditions']['CoGroupMember.co_group_id'] = $model->data[ $model->alias ]['id'];
+        $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_person_id');
+        $args['contain'] = false;
+        
+        $gms = $model->CoGroupMember->find('list', $args);
+        
+        if(!empty($gms)) {
+          $coPersonId = array_values($gms);
+          $pmodel = $model->CoGroupMember->CoPerson;
+        }
       } else {
         // For the moment, we'll just return true here since we may be processing
         // a multi-model transaction (eg: unlinking a dependency before deleting a
@@ -289,8 +345,6 @@ class ProvisionerBehavior extends ModelBehavior {
     // CoPersonUpdated not CoPersonDeleted. However, in those cases we don't want to
     // process anything until afterDelete().
     
-    $mname = $model->name;
-    
     // We will generally cache the data prior to delete in case we want to do
     // something interesting with it in afterDelete. This includes when a CoGroupMember
     // is removed, we need to know which CoPerson and CoGroup to rewrite, and we have to
@@ -304,6 +358,31 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     $model->cacheData = $model->data;
+    
+    return true;
+  }
+  
+  /**
+   * Handle provisioning following (before) save of Model.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Model $model Model instance.
+   * @return boolean true on success, false on failure
+   */
+  
+  public function beforeSave(Model $model, $options = array()) {
+    // Cache a copy of the current data for comparison in afterSave. Currently only
+    // used to detect if a person or group goes to or from Active status.
+    
+    if(($model->name == 'CoGroup' || $model->name == 'CoPerson')
+       // This will only be set on edit, not add
+       && !empty($model->data[ $model->alias ]['id'])) {
+      $args = array();
+      $args['conditions'][ $model->alias.'.id'] = $model->data[ $model->alias ]['id'];
+      $args['contain'] = false;
+      
+      $model->cacheData = $model->find('first', $args);
+    }
     
     return true;
   }
@@ -515,9 +594,38 @@ class ProvisionerBehavior extends ModelBehavior {
     $args = array();
     $args['conditions']['CoGroup.id'] = $coGroupId;
     // Only pull related models relevant for provisioning
-    $args['contain'][] = 'CoGroupMember';
+    $args['contain'] = array(
+      'CoGroupMember',
+      'CoGroupMember.CoPerson'
+    );
     
-    return $coGroupModel->find('first', $args);
+    $coGroupData = $coGroupModel->find('first', $args);
+    
+    // At the moment, if a group is inactive we behave similarly to marshallCoPersonData:
+    // we remove all the group memberships and return just the metadata.
+    
+    if($coGroupData['CoGroup']['status'] != StatusEnum::Active) {
+      unset($coGroupData['CoGroupMember']);
+    }
+    
+    // Remove any inactive CO People (ie: memberships attached to inactive CO People)
+    
+    if(!empty($coGroupData['CoGroupMember'])) {
+      for($i = (count($coGroupData['CoGroupMember']) - 1);$i >= 0;$i--) {
+        // Count backwards so we don't trip over indices when we unset invalid memberships.
+        
+        if(!isset($coGroupData['CoGroupMember'][$i]['CoPerson']['status'])
+           || $coGroupData['CoGroupMember'][$i]['CoPerson']['status'] != StatusEnum::Active) {
+          unset($coGroupData['CoGroupMember'][$i]);
+        }
+      }
+      
+      if(count($coGroupData['CoGroupMember']) == 0) {
+        unset($coGroupData['CoGroupMember']);
+      }
+    }
+    
+    return $coGroupData;
   }
   
   /**

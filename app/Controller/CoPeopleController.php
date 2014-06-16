@@ -57,7 +57,7 @@ class CoPeopleController extends StandardController {
    * @since  COmanage Registry v0.1
    */
   
-  function beforeFilter() {
+  public function beforeFilter() {
     // This controller may or may not require a CO, depending on how
     // the CMP Enrollment Configuration is set up. Check and adjust before
     // beforeFilter is called.
@@ -78,7 +78,7 @@ class CoPeopleController extends StandardController {
    * @since  COmanage Registry v0.4
    */
 
-  function beforeRender() {
+  public function beforeRender() {
     if(!$this->restful){
       // generate list of sponsors
       $this->set('sponsors', $this->CoPerson->sponsorList($this->cur_co['Co']['id']));
@@ -163,6 +163,25 @@ class CoPeopleController extends StandardController {
     
     return parent::calculateImpliedCoId();
   }
+
+  /**
+   * Generate the canvas view.
+   * - precondition: <id> must exist
+   * - postcondition: $<object>s set (with one member) if found
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Session flash message updated (HTML) on suitable error
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Integer CO Person identifier
+   */
+  
+  public function canvas($id) {
+    // This is pretty similar to the standard view or edit methods.
+    
+    if(!$this->restful && $this->request->is('get')) {
+      $this->edit($id);
+    }
+  }
   
   /**
    * Perform any dependency checks required prior to a delete operation.
@@ -173,7 +192,7 @@ class CoPeopleController extends StandardController {
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkDeleteDependencies($curdata) {
+  public function checkDeleteDependencies($curdata) {
     // Check if the target person is a member of any COU that the current user
     // does not have permissions over. If so, fail.
     
@@ -241,12 +260,13 @@ class CoPeopleController extends StandardController {
    * @return boolean true if dependency checks succeed, false otherwise.
    */
 
-  function checkWriteDependencies($reqdata, $curdata = null) {
+  public function checkWriteDependencies($reqdata, $curdata = null) {
     // Check that an org identity being added is not already a member of the CO.
     // (A person can't be added to the same CO twice... that's what Person Roles
     // are for.) Note the REST check is in co_org_identity_links_controller.
     
     if(!$this->restful
+       && $this->action != 'edit'
        && (!$curdata
            ||
            ($reqdata['CoOrgIdentityLink'][0]['org_identity_id']
@@ -272,7 +292,7 @@ class CoPeopleController extends StandardController {
     
     return true;      
   }
-
+  
   /**
    * Retrieve CO and Org attributes for comparison.
    * - precondition: <id> must exist
@@ -284,7 +304,7 @@ class CoPeopleController extends StandardController {
    * @param  Integer CO Person identifier
    */
   
-  function compare($id) {
+  public function compare($id) {
     // This is pretty similar to the standard view or edit methods.
     // We'll just retrieve and set the Org Person, then invoke view.
     // (We could invoke edit instead, presumably.)
@@ -305,7 +325,7 @@ class CoPeopleController extends StandardController {
       $this->view($id);
     }
   }
-
+  
   /**
    * Expunge (delete with intelligent clean up) a CO Person.
    * - precondition: <id> must exist
@@ -355,19 +375,31 @@ class CoPeopleController extends StandardController {
    * @return string A string to be included for display.
    */
  
-  function generateDisplayKey($c = null) {
+  public function generateDisplayKey($c = null) {
     // Get a pointer to our model
     $req = $this->modelClass;
     $model = $this->$req;
-
-    if(isset($c[$req][$model->displayField]))
-      return($c[$req][$model->displayField]);
-    elseif(isset($this->request->data['PrimaryName']))
-      return(generateCn($this->request->data['PrimaryName']));
-    elseif(isset($c['PrimaryName']))
-      return(generateCn($c['PrimaryName']));
-    else
-      return("(?)");
+    
+    if(isset($c[$req][$model->displayField])) {
+      return $c[$req][$model->displayField];
+    } elseif(isset($this->request->data['PrimaryName'])) {
+      return generateCn($this->request->data['PrimaryName']);
+    } elseif(isset($c['PrimaryName'])) {
+      return generateCn($c['PrimaryName']);
+    } elseif($this->action == 'edit') {
+      // Pull the PrimaryName (we're probably here from an edit directly on canvas)
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $this->request->data['CoPerson']['id'];
+      $args['contain'][] = 'PrimaryName';
+      
+      $p = $this->CoPerson->find('first', $args);
+      
+      if($p) {
+        return generateCn($p['PrimaryName']);
+      }
+    }
+    
+    return "(?)";
   }
 
   /**
@@ -410,11 +442,12 @@ class CoPeopleController extends StandardController {
       case 'edit':
         $this->CoPerson->HistoryRecord->record($this->CoPerson->id,
                                                null,
-                                               $newdata['CoOrgIdentityLink'][0]['org_identity_id'],
+                                               (isset($newdata['CoOrgIdentityLink'][0]['org_identity_id'])
+                                                ? $newdata['CoOrgIdentityLink'][0]['org_identity_id'] : null),
                                                $this->Session->read('Auth.User.co_person_id'),
                                                ActionEnum::CoPersonEditedManual,
                                                _txt('en.action', null, ActionEnum::CoPersonEditedManual) . ": " .
-                                               $this->changesToString($newdata, $olddata, array('CoPerson', 'PrimaryName')));
+                                               $this->changesToString($newdata, $olddata, array('CoPerson')));
         break;
     }
     
@@ -458,7 +491,7 @@ class CoPeopleController extends StandardController {
    * @since  COmanage Registry v0.1
    */
   
-  function invite() {
+  public function invite() {
     $orgp = $this->CoPerson->CoOrgIdentityLink->OrgIdentity->findById($this->request->params['named']['orgidentityid']);
     
     if(!empty($orgp))
@@ -492,7 +525,7 @@ class CoPeopleController extends StandardController {
    * @return Array Permissions
    */
   
-  function isAuthorized() {
+  public function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
     
     // Is this our own record?
@@ -511,7 +544,8 @@ class CoPeopleController extends StandardController {
     if(isset($roles['copersonid'])
        && $roles['copersonid']
        && isset($this->request->params['pass'][0])
-       && ($this->action == 'compare'
+       && ($this->action == 'canvas'
+           || $this->action == 'compare'
            || $this->action == 'delete'
            || $this->action == 'edit'
            || $this->action == 'expunge'
@@ -528,6 +562,15 @@ class CoPeopleController extends StandardController {
     $p['enroll'] = $p['add'];
     // Via invite?
     $p['invite'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    
+    // Assign (autogenerate) Identifiers? (Same logic is in IdentifiersController)
+    $p['assign'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
+    // Access the canvas for a CO Person? (Basically 'view' but with links)
+    $p['canvas'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $self);
     
     // Compare CO attributes and Org attributes?
     $p['compare'] = ($roles['cmadmin']
@@ -546,10 +589,11 @@ class CoPeopleController extends StandardController {
     // checkDeleteDependencies.)
     $p['expunge'] = ($roles['cmadmin'] || ($managed && $roles['coadmin']));
     
-    // Edit an existing CO Person?
+    // Edit an existing CO Person? This allows changes to cm_co_people.
+    // For now, we restrict this to CO admins, though plausibly it should be
+    // expanded to COU admins with a valid role to manage.
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $self);
+                  || ($managed && $roles['coadmin']));
     
     // Are we allowed to edit our own record?
     // If we're an admin, we act as an admin, not self.
@@ -641,7 +685,7 @@ class CoPeopleController extends StandardController {
    * @since  COmanage Registry v0.5
    */
   
-  function match() {
+  public function match() {
     $criteria['Name.given'] = "";
     $criteria['Name.family'] = "";
     
@@ -678,7 +722,7 @@ class CoPeopleController extends StandardController {
    * @return Array An array suitable for use in $this->paginate
    */
   
-  function paginationConditions() {
+  public function paginationConditions() {
     $pagcond = array();
     
     // Set page title
@@ -718,16 +762,22 @@ class CoPeopleController extends StandardController {
    * @since  COmanage Registry v0.1
    */
   
-  function performRedirect() {
+  public function performRedirect() {
     // On add, redirect to send view for notification of invite
           
-    if($this->action == 'add')
+    if($this->action == 'add') {
       $this->redirect(array('controller' => 'co_invites',
                             'action' => 'send',
                             'copersonid' => $this->CoPerson->id,
                             'co' => $this->cur_co['Co']['id']));
-    else
+    } elseif($this->action == 'edit') {
+      // Redirect to canvas
+      $this->redirect(array('controller' => 'co_people',
+                            'action' => 'canvas',
+                            $this->CoPerson->id));
+    } else {
       parent::performRedirect();
+    }
   }
   
   /**
@@ -737,7 +787,7 @@ class CoPeopleController extends StandardController {
    * @since  COmanage Registry v0.8
    */
   
-  function provision($id) {
+  public function provision($id) {
     if(!$this->restful) {
       // Pull some data for the view to be able to render
       $this->set('co_provisioning_status', $this->CoPerson->provisioningStatus($id));
@@ -757,7 +807,7 @@ class CoPeopleController extends StandardController {
    * @since  COmanage Registry v0.4
    */
   
-  function regenerateForm() {
+  public function regenerateForm() {
     // co_people/add needs to go back to co_people/invite
     
     if($this->request->params['action'] == 'add') {
@@ -780,7 +830,8 @@ class CoPeopleController extends StandardController {
    *
    * @since  COmanage Registry v0.8
    */
-  function search() {
+  
+  public function search() {
     // the page we will redirect to
     $url['action'] = 'index';
      

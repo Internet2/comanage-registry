@@ -25,16 +25,16 @@
 <?php
   // Globals
   global $cm_lang, $cm_texts;
-  
-  // Determine if fields are editable
+
+  // Determine if fields are editable -- this isn't quite the right description for this view
   $e = false;
   $es = false;
 
   if(($this->action == "invite" && $permissions['invite'])
-      || ($this->action == "edit" && $permissions['edit']))
+      || ($this->action == "canvas" && $permissions['canvas']))
     $e = true;
 
-  if($this->action == "edit" && $permissions['editself'])
+  if($this->action == "canvas" && $permissions['editself'])
     $es = true;
 
   // We shouldn't get here if we don't have at least read permission, but check just in case
@@ -74,7 +74,7 @@
       );
       
       // Autogenerate Identifiers button
-      if(!empty($co_identifier_assignments)) {
+      if($permissions['assign'] && !empty($co_identifier_assignments)) {
         $sidebarButtons[] = array(
             'icon'    => 'script',
             'title'   => _txt('op.id.auto'),
@@ -137,24 +137,14 @@
     
     // Populate the cross reference
     print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
-    print $this->Form->hidden('CoOrgIdentityLink.0.id'). "\n";
-    if(!empty($co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])) {
-      print $this->Form->hidden('CoOrgIdentityLink.0.org_identity_id', array('default' => $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])). "\n";
+    if(!$this->action != "canvas") {
+      print $this->Form->hidden('CoOrgIdentityLink.0.id'). "\n";
+      if(!empty($co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])) {
+        print $this->Form->hidden('CoOrgIdentityLink.0.org_identity_id', array('default' => $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id'])). "\n";
+      }
+      // Default status is 'Pending'
+      print $this->Form->hidden('status', array('default' => 'P')). "\n";
     }
-    // Default status is 'Pending'
-    print $this->Form->hidden('status', array('default' => 'P')). "\n";
-  }
-  else
-  {
-    // Back button
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-arrow-w',
-      'title'   => _txt('op.back'),
-      'url'     => array(
-        'controller' => 'co_people', 
-        'action' => 'index', 
-        'co' => $cur_co['Co']['id'])
-    );
   }
   
   // View History button
@@ -169,13 +159,13 @@
       )
     );
   }
-  if($this->action == "edit") {
+  if($this->action == "canvas") {
     $sidebarButtons[] = array(
       'icon'    => 'person',
       'title'   => _txt('op.view'),
       'url'     => array(
         'controller' => 'co_people',
-        'action' => 'compare',
+        'action' => 'view',
         $co_people[0]['CoPerson']['id']
       )
     );
@@ -214,7 +204,7 @@
     // Autogenerate dialog
     $("#autogenerate-dialog").dialog({
       autoOpen: false,
-      <?php if($this->action == 'edit'): ?>
+      <?php if($this->action == 'canvas'): ?>
       buttons: {
         "<?php print _txt('op.cancel'); ?>": function() {
           $(this).dialog("close");
@@ -233,7 +223,7 @@
       hide: {
         effect: "fade"
       }
-      <?php endif; // edit ?>
+      <?php endif; // canvas ?>
     });
   });
 </script>
@@ -242,7 +232,6 @@
   <div id="personExplorer">
     <ul>
       <li id="fields-name" class="fieldGroup">
-
         <?php if($this->action != 'invite' && $this->Permission->selfService($permissions, $e, 'Name') == PermissionEnum::ReadWrite): ?>
           <div class="coAddEditButtons">
             <?php
@@ -794,6 +783,77 @@
             </li>
           </ul>
         </li>
+        <li id="fields-coperson" class="fieldGroup">
+          <?php
+            print $this->Form->end();
+            // Restart the form since the Form elements emitted above for add/invite cause blackholes for edit
+            print $this->Form->create('CoPerson', array('action'=>'edit'));
+            print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'])). "\n";
+          ?>
+          <a href="#tabs-coperson" class="fieldGroupName">
+            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <?php print _txt('fd.attrs.cop'); ?>
+          </a>
+          <ul class="fields">
+            <li>
+              <div id="tabs-coperson">
+                <?php print '<div class="additionalinfo">'; ?>
+                <table>
+                  <tbody>
+                    <tr class="line1">
+                      <th class="ui-widget-header">
+                        <?php print _txt('fd.status'); ?>
+                      </th>
+                      <td>
+                        <?php
+                          if($e && $permissions['edit']) {
+                            global $cm_lang, $cm_texts;
+                            
+                            $attrs = array();
+                            $attrs['value'] = $co_people[0]['CoPerson']['status'];
+                            $attrs['empty'] = false;
+                            
+                            print $this->Form->select('CoPerson.status',
+                                                      $cm_texts[ $cm_lang ]['en.status'],
+                                                      $attrs);
+                            
+                            if($this->Form->isFieldError('CoPerson.status')) {
+                              print $this->Form->error('CoPerson.status');
+                            }
+                          } else {
+                            if(!empty($co_people[0]['CoPerson']['status'])) {
+                              print _txt('en.status', null, $co_people[0]['CoPerson']['status']);
+                            }
+                          }
+                        ?>
+                        <?php if($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
+                                 || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation): ?>
+                        <div>
+                          <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                          <i><?php print _txt('fd.status.change'); ?></i>
+                        </div>
+                        <?php endif; ?>
+                      </td>
+                    </tr>
+                    <?php if($e && $permissions['edit']): ?>
+                    <tr class="line2">
+                      <td></td>
+                      <td>
+                        <?php
+                          print $this->Form->submit($submit_label);
+                          print $this->Form->button(_txt('op.reset'),
+                                                    array('type'=>'reset'));
+                        ?>
+                      </td>
+                    </tr>
+                    <?php endif; // edit ?>
+                  </tbody>
+                </table>
+              </div>
+              </div> <!-- tabs-coperson -->
+            </li>
+          </ul>
+        </li>
         <li id="fields-role" class="fieldGroup">
           <?php
             if($this->action != "compare" && $e && !$es) {
@@ -910,7 +970,7 @@
                                           'coef' => $r['CoPetition'][0]['co_enrollment_flow_id']),
                                         array('class' => 'petitionbutton'));
                                     }
-                                    if($permissions['edit'])
+                                    if($permissions['canvas'])
                                       print $this->Html->link(_txt('op.edit'),
                                           array('controller' => 'co_person_roles', 'action' => 'edit', $r['id'], 'co' => $cur_co['Co']['id']),
                                           array('class' => 'editbutton')) . "\n";
