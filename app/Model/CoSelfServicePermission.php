@@ -103,32 +103,32 @@ class CoSelfServicePermission extends AppModel {
       case 'delete':
       case 'edit':
         // For delete and edit, we need read/write on the specified type, or default
-        if(($type
-            && isset($this->pcache[$model][$type])
-            && $this->pcache[$model][$type] == PermissionEnum::ReadWrite)
-           ||
-           // Check default value
-           (isset($this->pcache[$model]['*'])
-            && $this->pcache[$model]['*'] == PermissionEnum::ReadWrite)) {
-          // Use type specific value
-          
-          return true;
+        if($type && isset($this->pcache[$model][$type])) {
+          // Use the type specific value if it is set
+          if($this->pcache[$model][$type] == PermissionEnum::ReadWrite) {
+            return true;
+          }
+        } else {
+          // Use the default if type specific value not set
+          if($this->pcache[$model]['*'] == PermissionEnum::ReadWrite) {
+            return true;
+          }
         }
         break;
       case 'view':
-        // For view, we need read/only or read/wire on the specified type, or default
-        if(($type
-            && isset($this->pcache[$model][$type])
-            && ($this->pcache[$model][$type] == PermissionEnum::ReadOnly
-                || $this->pcache[$model][$type] == PermissionEnum::ReadWrite))
-           ||
-           // Check default value
-           (isset($this->pcache[$model]['*'])
-            && ($this->pcache[$model]['*'] == PermissionEnum::ReadOnly
-                || $this->pcache[$model]['*'] == PermissionEnum::ReadWrite))) {
-          // Use type specific value
-          
-          return true;
+        // For view, we need read/only or read/write on the specified type, or default
+        if($type && isset($this->pcache[$model][$type])) {
+          // Use the type specific value if it is set
+          if($this->pcache[$model][$type] == PermissionEnum::ReadOnly
+             || $this->pcache[$model][$type] == PermissionEnum::ReadWrite) {
+            return true;
+          }
+        } else {
+          // Use the default if type specific value not set
+          if($this->pcache[$model]['*'] == PermissionEnum::ReadOnly
+             || $this->pcache[$model]['*'] == PermissionEnum::ReadWrite) {
+            return true;
+          }
         }
         break;
     }

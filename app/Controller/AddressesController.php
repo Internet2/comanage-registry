@@ -118,6 +118,9 @@ class AddressesController extends MVPAController {
       }
     }
     
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+    
     // Self service is a bit complicated because permission can vary by type.
     // Self service only applies to CO Person-attached attributes.
     
@@ -141,10 +144,11 @@ class AddressesController extends MVPAController {
                                                     ($a != 'add' && !empty($address['Address']['type']))
                                                      ? $address['Address']['type'] : null);
       }
+      
+      $p['selfsvc'] = $this->Co->CoSelfServicePermission->findPermissions($this->cur_co['Co']['id']);
+    } else {
+      $p['selfsvc'] = null;
     }
-    
-    // Construct the permission set for this user, which will also be passed to the view.
-    $p = array();
     
     // Add a new Address?
     $p['add'] = ($roles['cmadmin']

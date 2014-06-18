@@ -78,6 +78,105 @@ class MVPAController extends StandardController {
   }
   
   /**
+   * Callback after controller methods are invoked but before views are rendered.
+   * - precondition: Request Handler component has set $this->request
+   * - postcondition: Set $sponsors
+   *
+   * @since  COmanage Registry v0.9
+   */
+
+  public function beforeRender() {
+    // Get a pointer to our model
+    $req = $this->modelClass;
+    $model = $this->$req;
+    
+    if(!$this->restful){
+      // Provide a hint as to available types for this model -- currently not supported
+      // for Identifier since it already supports extended types
+      
+      if($req != 'Identifier') {
+        global $cm_texts, $cm_lang;
+        $availableTypes = array();
+        
+        if(!empty($this->viewVars['permissions']['selfsvc'])) {
+          foreach(array_keys($cm_texts[ $cm_lang ][ $model->cm_enum_lang['type'] ]) as $k) {
+            // We use edit for the permission even if we're adding or viewing because
+            // add has different semantics for calculatePermission (whether or not the person
+            // can add a new item).
+            if($this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
+                                                                       $req,
+                                                                       'edit',
+                                                                       $k)) {
+              $availableTypes[$k] = $cm_texts[ $cm_lang ][ $model->cm_enum_lang['type'] ][$k];
+            }
+          }
+        } else {
+          $availableTypes = $cm_texts[ $cm_lang ][ $model->cm_enum_lang['type'] ];
+        }
+        
+        $this->set('vv_available_types', $availableTypes);
+      }
+    }
+    
+    parent::beforeRender();
+  }
+  
+  /**
+   * Perform any dependency checks required prior to a write (add/edit) operation.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Array Request data
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkWriteDependencies($reqdata, $curdata = null) {
+    // Get a pointer to our model
+    $req = $this->modelClass;
+    $model = $this->$req;
+    
+    if(!empty($this->viewVars['permissions']['selfsvc'])) {
+      // Update validation rules based on self-service permissions
+      
+      $defaultPerm = $this->viewVars['permissions']['selfsvc'][$req]['*'];
+      $perms = array();
+      
+      if($defaultPerm == PermissionEnum::ReadWrite) {
+        // Default is readwrite, so start with the current types and remove those
+        // explicitly not permitted
+        
+        $perms = $model->validator()->getfield('type')->getRule('content')->rule[1];
+        
+        foreach(array_keys($this->viewVars['permissions']['selfsvc'][$req]) as $a) {
+          if($a != '*' // Skip default
+             && $this->viewVars['permissions']['selfsvc'][$req][$a] != PermissionEnum::ReadWrite) {
+            $i = array_search($a, $perms);
+            
+            if($i !== false) {
+              unset($perms[$i]);
+            }
+          }
+        }
+      } else {
+        // Default is readonly, so start with nothing and add in types explicitly permitted
+        
+        foreach(array_keys($this->viewVars['permissions']['selfsvc'][$req]) as $a) {
+          if($a != '*' // Skip default
+             && $this->viewVars['permissions']['selfsvc'][$req][$a] == PermissionEnum::ReadWrite) {
+            $perms[] = $a;
+          }
+        }
+      }
+      
+      // Update the validation rule
+      $model->validator()->getfield('type')->getRule('content')->rule[1] = $perms;
+    }
+    
+    return true;
+  }
+  
+  /**
    * Generate history records for a transaction. This method is intended to be
    * overridden by model-specific controllers, and will be called from within a
    * try{} block so that HistoryRecord->record() may be called without worrying

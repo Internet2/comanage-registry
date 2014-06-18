@@ -109,8 +109,6 @@
       </td>
       <td>
         <?php
-          global $cm_lang, $cm_texts;
-          
           $attrs = array();
           $attrs['value'] = (isset($names[0]['Name']['type'])
                              ? $names[0]['Name']['type']
@@ -119,7 +117,7 @@
           
           if($e) {
             print $this->Form->select('Name.type',
-                                      $cm_texts[ $cm_lang ]['en.name'],
+                                      $vv_available_types,
                                       $attrs);
             
             if($this->Form->isFieldError('Name.type')) {

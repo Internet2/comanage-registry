@@ -171,9 +171,8 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
                   print "<li>";
                     $args = array(
                       'controller' => 'co_people',
-                      'action' => 'edit',
-                      $co['co_person_id'],
-                      'co' => $co['co_id']
+                      'action' => 'canvas',
+                      $co['co_person_id']
                     );
                     print $this->Html->link(_txt('me.for', array($co['co_name'])), $args);
                   print "</li>";
