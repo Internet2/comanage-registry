@@ -173,7 +173,10 @@ $(function() {
               <?php echo _txt('fd.o'); ?>
             </td>
             <td>
-              <?php echo (($e && !$es) ? $this->Form->input('o', array('default' => $cur_co['Co']['name']))
+              <?php echo (($e && !$es) ? $this->Form->input('o',
+                                                            ($this->action == 'add'
+                                                             ? array('default' => $cur_co['Co']['name'])
+                                                             : array()))
                                        : Sanitize::html($co_person_roles[0]['CoPersonRole']['o'])); ?>
             </td>
           </tr>

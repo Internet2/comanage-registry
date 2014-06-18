@@ -395,10 +395,8 @@ class CoPersonRolesController extends StandardController {
       $this->redirect($params);
     } else {
       $params = array('controller' => 'co_people',
-                      'action'     => 'edit',
-                      $this->viewVars['co_people'][0]['CoPerson']['id'],
-                      'co'         => $this->cur_co['Co']['id'],
-                      'tab'        => 'role'
+                      'action'     => 'canvas',
+                      $this->viewVars['co_people'][0]['CoPerson']['id']
                      );
       $this->redirect($params);
     }
