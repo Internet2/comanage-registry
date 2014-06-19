@@ -23,10 +23,14 @@
  */
 ?>
 
-<?php if($this->Session->check('Auth.User')): ?>
-<p>Please select an action from the menu.</p>
-<?php else: // Authenticated user? ?>
-<p>
-Welcome to COmanage Registry. Please login.
-</p>
-<?php endif; ?>
+<div id="firstPrompt">
+  <?php if($this->Session->check('Auth.User')): ?>
+  <p>
+    Please select an action from the menu.
+  </p>
+  <?php else: // Authenticated user? ?>
+  <p>
+    Welcome to COmanage Registry. Please login.
+  </p>
+  <?php endif; ?>
+</div>

@@ -528,7 +528,7 @@
                         print '<div>';
                         print '<div>';
                         print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
-                        print " (" . $id['type'] . ")";
+                        print " &#160;(" . $id['type'] . ")";
                         print '</div>';
                         print '<div>';
                         // XXX we already checked for $permissions['edit'], but not ['delete']... should we?

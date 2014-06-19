@@ -95,11 +95,13 @@ h1 {
 }
 h2 {
   font-size: 200%;
-  padding: 5px;
 }
 /* removes extra padding in lists of button links */
 a.linkbutton: last-child {
   padding-right: 0px;
+}
+#firstPrompt {
+  margin-bottom: 12em;
 }
 
 /* Tables */
@@ -359,14 +361,13 @@ fieldset.borderless {
 .footer {
   clear: both;
   margin: 20px 0 0 0;
-  padding: 10px;
 }
 .poweredByComanage {
   margin: 3em 0 0;
   padding: 0;
 }
 .poweredText {
-  margin: 10px;
+  margin: 10px 10px 10px 0;
   float: left;
 }
 
