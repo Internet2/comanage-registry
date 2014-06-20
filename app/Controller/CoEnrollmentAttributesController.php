@@ -71,6 +71,15 @@ class CoEnrollmentAttributesController extends StandardController {
     }
     
     parent::add();
+    
+    if(!$this->restful) {
+      // Override page title
+      
+      // ->id was set in beforeFilter();
+      $efname = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('name');
+      
+      $this->set('title_for_layout', $this->viewVars['title_for_layout'] . " (" . $efname . ")");
+    }
   }
 
   /**
@@ -237,6 +246,54 @@ class CoEnrollmentAttributesController extends StandardController {
     }
     
     return true;      
+  }
+  
+  /**
+   * Update a Standard Object.
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - precondition: <id> must exist
+   * - postcondition: On GET, $<object>s set (HTML)
+   * - postcondition: On POST success, object updated
+   * - postcondition: On POST, session flash message updated (HTML) or HTTP status returned (REST)
+   * - postcondition: On POST error, $invalid_fields set (REST)
+   *
+   * @since  COmanage Registry v0.9
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+  
+  function edit($id) {
+    parent::edit($id);
+    
+    if(!$this->restful) {
+      // Override page title
+      
+      // ->id was set in beforeFilter();
+      $efname = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('name');
+      
+      $this->set('title_for_layout', $this->viewVars['title_for_layout'] . " (" . $efname . ")");
+    }
+  }
+  
+  /**
+   * Obtain all Standard Objects (of the model's type).
+   * - postcondition: $<object>s set on success (REST or HTML), using pagination (HTML only)
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Session flash message updated (HTML) on suitable error
+   *
+   * @since  COmanage Registry v0.9
+   */
+  
+  function index() {
+    parent::index();
+    
+    if(!$this->restful) {
+      // Override page title
+      
+      // ->id was set in beforeFilter();
+      $efname = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('name');
+      
+      $this->set('title_for_layout', $efname . ": " . _txt('ct.co_enrollment_attributes.pl'));
+    }
   }
   
   /**
