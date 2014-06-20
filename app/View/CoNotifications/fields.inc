@@ -56,7 +56,7 @@
       </td>
       <td>
         <?php
-          print _txt('en.status.not', null, $co_notifications[0]['CoNotification']['status']);
+          print '<div class="notificationStatus">' . _txt('en.status.not', null, $co_notifications[0]['CoNotification']['status']) . '</div>';
           
           if($co_notifications[0]['CoNotification']['status'] == NotificationStatusEnum::PendingAcknowledgment
              && $permissions['acknowledge']) {

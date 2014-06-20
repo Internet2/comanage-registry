@@ -360,7 +360,7 @@ fieldset.borderless {
 /* Footer */
 .footer {
   clear: both;
-  margin: 20px 0 0 0;
+  padding: 0.5em 0 0 0;
 }
 .poweredByComanage {
   margin: 3em 0 0;
@@ -371,7 +371,7 @@ fieldset.borderless {
   float: left;
 }
 
-/* Notifications */
+/* Messages */
 .noty_text{
   font-weight: bold;
 }
@@ -391,4 +391,11 @@ fieldset.borderless {
 }
 .notbg{
   background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png") !important;
+}
+
+/* Notification table */
+.notificationStatus {
+  float: left;
+  margin-right: 1em;
+  margin-top: 5px;
 }
