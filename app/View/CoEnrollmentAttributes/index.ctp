@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Index View
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -68,6 +68,7 @@
       <th><?php print $this->Paginator->sort('label', _txt('fd.ea.label')); ?></th>
       <th><?php print $this->Paginator->sort('attribute', _txt('fd.attribute')); ?></th>
       <th><?php print $this->Paginator->sort('ordr', _txt('fd.ea.order')); ?></th>
+      <th><?php print $this->Paginator->sort('required', _txt('fd.required')); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
@@ -87,6 +88,7 @@
       </td>
       <td><?php print $vv_available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
       <td><?php print Sanitize::html($c['CoEnrollmentAttribute']['ordr']); ?></td>
+      <td><?php print Sanitize::html(_txt('en.required', null, $c['CoEnrollmentAttribute']['required'])); ?></td>
       <td>
         <?php
           if($permissions['edit'])
@@ -109,7 +111,7 @@
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="4">
+      <th colspan="5">
         <?php print $this->Paginator->numbers(); ?>
       </th>
     </tr>
