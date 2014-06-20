@@ -46,7 +46,7 @@
 
   if(!empty($permissions['edit']) && $permissions['edit'])
   {
-    $a = array('controller' => $modelpl, 'action' => 'edit', $d[0][$req]['id']);
+    $a = array('controller' => $modelpl, 'action' => 'canvas', $d[0][$req]['id']);
     
     if(isset($this->params['named']['co']))
       $a['co'] = $this->params['named']['co'];

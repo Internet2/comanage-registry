@@ -233,6 +233,7 @@ ul.sf-menu li.dropMenu li a:hover {
   padding: 10px;
   background-color: #edeeed;
   height: 50px;
+  text-align: right;
 }
 
 /*** dropdown menu ***/
