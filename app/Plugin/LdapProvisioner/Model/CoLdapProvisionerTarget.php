@@ -273,12 +273,33 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                    && $configuredAttributes[$attr]['use_org_value']) {
                   // Use organizational identity value for this attribute
                   
-                  // It's unclear what to do here if there is more than one CoOrgIdentityLink...
-                  // which identity do we choose? For now, the first one.
+                  // If there is more than one CoOrgIdentityLink, for attributes
+                  // that support multiple values (mail, uid) push them all onto $modelList.
+                  // For the others, it's unclear what to do. For now, we'll just
+                  // pick the first one.
                   
-                  if(isset($provisioningData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ])) {
-                    // Don't use =& syntax here, it changes $provisioningData
-                    $modelList = $provisioningData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ];
+                  if($attr == 'mail' || $attr == 'uid') {
+                    // Multi-valued
+                    
+                    // The structure is something like
+                    // $provisioningData['CoOrgIdentityLink'][0]['OrgIdentity']['Identifier'][0][identifier]
+                    
+                    if(isset($provisioningData['CoOrgIdentityLink'])) {
+                      foreach($provisioningData['CoOrgIdentityLink'] as $lnk) {
+                        if(isset($lnk['OrgIdentity'][ $mods[$attr] ])) {
+                          foreach($lnk['OrgIdentity'][ $mods[$attr] ] as $x) {
+                            $modelList[] = $x;
+                          }
+                        }
+                      }
+                    }
+                  } else {
+                    // Single valued
+                    
+                    if(isset($provisioningData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ])) {
+                      // Don't use =& syntax here, it changes $provisioningData
+                      $modelList = $provisioningData['CoOrgIdentityLink'][0]['OrgIdentity'][ $mods[$attr] ];
+                    }
                   }
                 } elseif(isset($provisioningData[ $mods[$attr] ])) {
                   // Use CO Person value for this attribute
@@ -1021,7 +1042,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           ),
           'uid' => array(
             'required'    => false,
-            'multiple'    => false,
+            'multiple'    => true,
             'alloworgvalue' => true,
             'extendedtype' => 'identifier_types',
             'defaulttype' => IdentifierEnum::UID
