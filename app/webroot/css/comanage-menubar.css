@@ -175,23 +175,21 @@ ul.sf-menu li.dropMenu li a:hover {
   background-image: url("jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png");
 }
 #notification ul li ul {
-  height: auto;
-  padding: 12px 15px 15px 10px;
-  margin-left: -182px;
-  margin-top: -15px;
-  min-width: 200px;
-  display: block;
+  margin-left: -207px;
+  margin-top: -10px;
+  min-width: 250px;
+  padding: 0;
 }
 #notification ul li ul li:hover {
   background: none;
-  color: black;
+  color: #333;
 }
 #notification .sectionTitle {
   margin: 0 5px 0 5px;
   font-size: 14px;
 }
 #notification .names {
-  margin: 2px 5px 5px 15px;
+  margin: 0;
   line-height: 16px;
   color: #333;
 }
@@ -202,12 +200,12 @@ ul.sf-menu li.dropMenu li a:hover {
 }
 #notification .titleColor,
 #notification ul li ul a {
-  color: #2B59BD !important;
-  background-color: auto !important;
+  color: #333 !important;
+  background-color: #eee !important;
 }
 #notification ul li ul a:hover {
-  color: #ce9b7f !important; 
-  background-color: auto !important;
+  color: #333 !important;
+  background-color: #e5e5e5 !important;
 }
 #notification .seeOther {
   width: 100%;
