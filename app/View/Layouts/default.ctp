@@ -175,6 +175,9 @@
     // jQuery stuff
     
     $(function() {
+      // Focus any designated form element
+      $(".focusFirst").focus();
+
       // Accordion
       $(".accordion").accordion();
       

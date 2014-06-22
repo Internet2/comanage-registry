@@ -50,10 +50,10 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.address.line1'); ?><font class="required">*</font>
+        <?php echo _txt('fd.address.line1'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('line1') : Sanitize::html($addresses[0]['Address']['line1'])); ?>
+        <?php echo ($e ? $this->Form->input('line1', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['line1'])); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -149,7 +149,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

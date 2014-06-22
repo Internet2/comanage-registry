@@ -40,16 +40,16 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.name'); ?><font class="required">*</font><br />
+        <?php echo _txt('fd.name'); ?><span class="required">*</span><br />
         <i><?php echo _txt('fd.lan.desc'); ?></i>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('name') : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
+        <?php echo ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.name.d'); ?><font class="required">*</font>
+        <?php echo _txt('fd.name.d'); ?><span class="required">*</span>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['display_name'])); ?>
@@ -57,7 +57,7 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.type'); ?><font class="required">*</font>
+        <?php echo _txt('fd.type'); ?><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -97,7 +97,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

@@ -37,6 +37,9 @@
   #menu li a {
     float: left;
   }
+  .modelbox table tr > *:first-child {
+     min-width: 50px !important;
+   }
 }
 
 /* MEDIUM */

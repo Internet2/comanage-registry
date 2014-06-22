@@ -49,7 +49,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.desc'); ?><font class="required">*</font>
+        <?php print _txt('fd.desc'); ?><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['description'])); ?>
@@ -57,8 +57,8 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.plugin'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('fd.plugin.ptwarn'); ?></font>
+        <?php print _txt('fd.plugin'); ?><span class="required">*</span><br />
+        <span class="descr"><?php print _txt('fd.plugin.ptwarn'); ?></span>
       </td>
       <td>
         <?php
@@ -99,7 +99,7 @@
     <tr class="line1">
       <td>
         <?php print _txt('fd.status'); ?><br />
-        <font class="desc"><?php print _txt('en.status.prov.desc'); ?></font>
+        <span class="descr"><?php print _txt('en.status.prov.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -123,7 +123,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

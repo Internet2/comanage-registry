@@ -61,7 +61,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

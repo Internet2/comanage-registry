@@ -161,7 +161,7 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-                <?php echo _txt('fd.name.given'); ?><font class="required">*</font>
+                <?php echo _txt('fd.name.given'); ?><span class="required">*</span>
             </td>
             <td>
               <?php echo ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
@@ -302,7 +302,7 @@ $(function() {
           <?php endif; // add ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.affiliation'); ?><font class="required">*</font>
+              <?php echo _txt('fd.affiliation'); ?><span class="required">*</span>
             </td>
             <td>
               <?php
@@ -333,7 +333,7 @@ $(function() {
               <?php echo _txt('fd.title'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('title', array('size' => 60))
+              <?php echo ($e ? $this->Form->input('title', array('size' => 60,'class' => 'focusFirst'))
                              : Sanitize::html($org_identities[0]['OrgIdentity']['title'])); ?>
             </td>
           </tr>
@@ -357,7 +357,7 @@ $(function() {
           </tr>
           <tr>
             <td>
-              <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
+              <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />
             </td>
             <td>
               <?php

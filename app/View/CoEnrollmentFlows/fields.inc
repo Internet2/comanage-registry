@@ -126,7 +126,7 @@
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('name', array('default' => _txt('fd.untitled')))
+                     ? $this->Form->input('name', array('default' => _txt('fd.untitled'),'class' => 'focusFirst'))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['name'])); ?>
       </td>
     </tr>
@@ -157,7 +157,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.authz'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.authz.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.authz.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -232,7 +232,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.match'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.match.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.match.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -257,7 +257,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.appr'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.appr.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.appr.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -281,7 +281,7 @@
                   print $this->Form->error('approver_co_group_id');
                 }
                 
-                print '<br /><span class="description">' . _txt('fd.ef.appr.gr') . '</span>';
+                print '<br /><span class="descr">' . _txt('fd.ef.appr.gr') . '</span>';
               } else {
                 print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id'] ];
               }
@@ -293,7 +293,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.ce'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.ce.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.ce.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -304,7 +304,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.authn'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.authn.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.authn.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -315,7 +315,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.nogr'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.nogr.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.nogr.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -345,7 +345,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.epx'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.epx.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.epx.desc'); ?></span>
       </td>
       <td>
         <?php /*print ($e
@@ -356,7 +356,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.px'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.px.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.px.desc'); ?></span>
       </td>
       <td>
         <?php /*print ($e
@@ -367,7 +367,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.noep'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.noep.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.noep.desc'); ?></span>
       </td>
       <td>
         <?php /*print ($e
@@ -378,7 +378,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.nop'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.nop.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.nop.desc'); ?></span>
       </td>
       <td>
         <?php /*print ($e
@@ -389,7 +389,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.noa'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.noa.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.noa.desc'); ?></span>
       </td>
       <td>
         <?php /*print ($e
@@ -401,7 +401,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.efn'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.efn.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.efn.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -412,7 +412,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.vsub'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.vsub.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.vsub.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -424,7 +424,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.vbody'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.vbody.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.vbody.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -436,7 +436,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.noap'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.noap.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.noap.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -448,7 +448,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.asub'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.asub.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.asub.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -460,7 +460,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.abody'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.abody.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.abody.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -472,7 +472,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.intro'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.intro.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.intro.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -483,7 +483,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.rd.submit'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.rd.submit.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.rd.submit.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -494,7 +494,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.rd.confirm'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ef.rd.confirm.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ef.rd.confirm.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -506,7 +506,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('fd.ea.ignauth'); ?></strong><br />
-        <span class="description"><?php print _txt('fd.ea.ignauth.desc'); ?></span>
+        <span class="descr"><?php print _txt('fd.ea.ignauth.desc'); ?></span>
       </td>
       <td>
         <?php

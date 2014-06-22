@@ -46,7 +46,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        Organization<font class="required">*</font>
+        Organization<span class="required">*</span>
       </td>
       <td>
         <?php echo $this->Form->select('organization', $r); ?>
@@ -62,7 +62,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required">* denotes required field</font></i><br />
+        <i><span class="required">* denotes required field</span></i><br />
       </td>
       <td>
         <?php echo $this->Form->submit('Search'); ?>

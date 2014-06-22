@@ -106,7 +106,7 @@ $(function() {
           <?php if(!empty($permissions['cous'])): ?>
           <tr class="line<?php echo ($l % 2); $l++; ?>">
             <td>
-              <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'); ?><font class="required">*</font>
+              <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'); ?><span class="required">*</span>
             </td>
             <td>
               <?php
@@ -132,7 +132,7 @@ $(function() {
           </tr>
           <tr class="line<?php echo ($l % 2); $l++; ?>">
             <td>
-              <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'); ?><font class="required">*</font>
+              <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'); ?><span class="required">*</span>
             </td>
             <td>
               <?php
@@ -161,7 +161,7 @@ $(function() {
               <?php echo $cur_co['Co']['name'] . " " . _txt('fd.title'); ?>
             </td>
             <td>
-              <?php echo (($e && !$es) ? $this->Form->input('title', array('default' =>
+              <?php echo (($e && !$es) ? $this->Form->input('title', array('class' => 'focusFirst','default' =>
                                                                            isset($co_person_roles[0]['CoPersonRole']['title'])
                                                                            ? $co_person_roles[0]['CoPersonRole']['title']
                                                                            : ""))
@@ -261,7 +261,7 @@ $(function() {
           ?>
           <tr>
             <td>
-              <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+              <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
             </td>
             <td>
               <?php

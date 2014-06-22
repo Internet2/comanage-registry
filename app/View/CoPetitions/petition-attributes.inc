@@ -206,7 +206,7 @@
           // Is the MVPA required? We'll just check the first attribute since they
           // should all be the same.
           if($mvpa && $coe_attributes[0]['mvpa_required']) {
-            print "<font class=\"required\">*</font>\n";
+            print "<span class=\"required\">*</span>\n";
           }
           
           // Only print the description once if it's the same for all items
@@ -219,12 +219,12 @@
           $descTypeCount = count(array_count_values($descriptions));
           
           if($descTypeCount == 1 && !empty($coe_attributes[0]['description'])) {
-            print "</br>\n<font class=\"desc\">" . $ea['description'] . "</font>\n";
+            print "</br>\n<span class=\"desc\">" . $ea['description'] . "</span>\n";
             $groupDesc = true; // Set flag for later
           }
           
           if($mvpa && !$coe_attributes[0]['mvpa_required']) {
-            print "<br /><font class=\"required\">" . _txt('fd.pt.required') . "</font>\n";
+            print "<br /><span class=\"required\">" . _txt('fd.pt.required') . "</span>\n";
           }
         ?>
       </div>
@@ -254,16 +254,16 @@
                   
                   if($ea['required']) {
                     if($mvpa && !$ea['mvpa_required']) {
-                      print "<font class=\"required\">&dagger;</font>\n";
+                      print "<span class=\"required\">&dagger;</span>\n";
                     } else {
-                      print "<font class=\"required\">*</font>\n";
+                      print "<span class=\"required\">*</span>\n";
                     }
                   }
                   
                   if(isset($ea['description'])
                     && !$groupDesc
                     && $ea['description'] != "") {
-                    print "</br>\n<font class=\"desc\">" . $ea['description'] . "</font>\n";
+                    print "</br>\n<span class=\"desc\">" . $ea['description'] . "</span>\n";
                   }
                 ?>
               </td>
@@ -420,7 +420,7 @@
     <div class="ui-widget modelbox">
       <div class="boxtitle">
         <b><?php print _txt('op.tc.agree'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.tc.agree.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.tc.agree.desc'); ?></span>
       </div>
       <table id="<?php print $this->action; ?>_co_petition_tandc" class="ui-widget">
         <tbody>
@@ -463,7 +463,7 @@
     <tbody>
       <tr>
         <td>
-          <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+          <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
         </td>
         <td class="submitCell">
           <?php

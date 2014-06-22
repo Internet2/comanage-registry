@@ -58,7 +58,7 @@
         <?php print _txt('fd.email_address.mail'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('mail') : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
+        <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
       </td>
       <?php if($e && $isVerified): ?>
       <td>
@@ -129,7 +129,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

@@ -46,11 +46,11 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.username.api'); ?></b></b><font class="required">*</font>
+        <b><?php print _txt('fd.username.api'); ?></b></b><span class="required">*</span>
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('username')
+                     ? $this->Form->input('username', array('class' => 'focusFirst'))
                      : Sanitize::html($api_users[0]['ApiUser']['username'])); ?>
       </td>
       <td>
@@ -60,7 +60,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.password'); ?></b><font class="required">*</font>
+        <b><?php print _txt('fd.password'); ?></b><span class="required">*</span>
       </td>
       <td>
         <?php print ($e
@@ -70,7 +70,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

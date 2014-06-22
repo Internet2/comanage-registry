@@ -47,7 +47,7 @@
         <?php print _txt('fd.sshkey.comment'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('comment') : Sanitize::html($ssh_keys[0]['SshKey']['comment'])); ?>
+        <?php print ($e ? $this->Form->input('comment', array('class' => 'focusFirst')) : Sanitize::html($ssh_keys[0]['SshKey']['comment'])); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -86,7 +86,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

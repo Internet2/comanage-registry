@@ -45,7 +45,7 @@
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('description')
+                     ? $this->Form->input('description', array('class' => 'focusFirst'))
                      : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['description'])); ?>
       </td>
     </tr>

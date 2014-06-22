@@ -69,10 +69,10 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-          <?php print _txt('fd.name.given'); ?><font class="required">*</font>
+          <?php print _txt('fd.name.given'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('Name.given') : Sanitize::html($names[0]['Name']['given'])); ?>
+        <?php print ($e ? $this->Form->input('Name.given', array('class' => 'focusFirst')) : Sanitize::html($names[0]['Name']['given'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -159,7 +159,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

@@ -59,7 +59,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.key'); ?></b><font class="required">*</font>
+        <b><?php print _txt('fd.key'); ?></b><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -89,7 +89,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.language'); ?></b><font class="required">*</font>
+        <b><?php print _txt('fd.language'); ?></b><span class="required">*</span>
       </td>
       <td>
         <?php print ($e
@@ -99,11 +99,11 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.text'); ?></b><font class="required">*</font><br />
+        <b><?php print _txt('fd.text'); ?></b><span class="required">*</span><br />
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('text', array('size' => '80'))
+                     ? $this->Form->input('text', array('size' => '80','class' => 'focusFirst'))
                      : Sanitize::html($co_localizations[0]['CoLocalization']['text'])); ?>
       </td>
     </tr>
@@ -118,7 +118,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

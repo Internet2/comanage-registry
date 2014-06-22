@@ -77,7 +77,7 @@
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('description')
+                     ? $this->Form->input('description', array('class' => 'focusFirst'))
                      : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['description'])); ?>
       </td>
     </tr>
@@ -109,7 +109,7 @@
     <tr class="line1">
       <td>
         <b><?php print _txt('fd.ia.type.email'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ia.type.email.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ia.type.email.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -138,7 +138,7 @@
     <tr class="line2">
       <td>
         <b><?php print _txt('fd.identifier.login'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.identifier.login.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.identifier.login.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('login') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['login'])); ?>
@@ -147,7 +147,7 @@
     <tr class="line1">
       <td>
         <b><?php print _txt('fd.ia.algorithm'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ia.algorithm.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ia.algorithm.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -175,7 +175,7 @@
     <tr class="line2">
       <td>
         <b><?php print _txt('fd.ia.format'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ia.format.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ia.format.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('format') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['format'])); ?>
@@ -195,7 +195,7 @@
     <tr class="line1">
       <td>
         <b><?php print _txt('fd.ia.permitted'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ia.permitted.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ia.permitted.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -222,7 +222,7 @@
     <tr class="line2">
       <td>
         <b><?php print _txt('fd.ia.minimum'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ia.minimum.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ia.minimum.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('minimum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'])); ?>
@@ -231,7 +231,7 @@
     <tr class="line1">
       <td>
         <b><?php print _txt('fd.ia.maximum'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ia.maximum.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ia.maximum.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('maximum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'])); ?>
@@ -240,7 +240,7 @@
     <tr class="line2">
       <td>
         <b><?php print _txt('fd.ia.exclusions'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ia.exclusions.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ia.exclusions.desc'); ?></span>
       </td>
     </tr>
   </tbody>

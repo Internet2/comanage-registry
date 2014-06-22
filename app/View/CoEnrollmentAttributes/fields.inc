@@ -238,18 +238,18 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td width="50%"> <!-- force a width here and below so the two tables line up -->
         <b><?php print _txt('fd.ea.label'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ea.label.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ea.label.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('label', array('default' => _txt('fd.untitled')))
+                     ? $this->Form->input('label', array('default' => _txt('fd.untitled'),'class' => 'focusFirst'))
                      : Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['label'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.ea.desc'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ea.desc.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ea.desc.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -386,7 +386,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.ea.ignauth'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ea.ignauth.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ea.ignauth.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -402,7 +402,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.ea.order'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ea.order.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ea.order.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -527,7 +527,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.ed.modify'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ed.modify.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ed.modify.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -540,7 +540,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.hidden'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.hidden.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.hidden.desc'); ?></span>
       </td>
       <td>
         <?php // Note this is a CoEnrollmentAttribute field, not CoEnrollmentAttributeDefault

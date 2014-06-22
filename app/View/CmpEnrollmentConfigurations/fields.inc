@@ -139,7 +139,7 @@
         <tr class="line1">
           <td>
             <b><?php print _txt('fd.ef.ldap'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.ldap.desc'); ?></font>
+            <span class="descr"><?php print _txt('fd.ef.ldap.desc'); ?></span>
           </td>
           <td>
             <?php print ($e
@@ -150,7 +150,7 @@
         <tr class="line2">
           <td>
             <b><?php print _txt('fd.ef.saml'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.saml.desc'); ?></font>
+            <span class="descr"><?php print _txt('fd.ef.saml.desc'); ?></span>
           </td>
           <td>
             <?php print ($e
@@ -161,7 +161,7 @@
         <tr class="line1">
           <td>
             <b><?php print _txt('fd.ef.env'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.env.desc'); ?></font>
+            <span class="descr"><?php print _txt('fd.ef.env.desc'); ?></span>
           </td>
           <td>
             <?php print ($e
@@ -172,7 +172,7 @@
         <tr class="line2">
           <td>
             <b><?php print _txt('fd.ef.coef'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.coef.desc'); ?></font>
+            <span class="descr"><?php print _txt('fd.ef.coef.desc'); ?></span>
           </td>
           <td>
             <?php print ($e
@@ -183,7 +183,7 @@
         <tr class="line1">
           <td>
             <b><?php print _txt('fd.ef.pool'); ?></b><br />
-            <font class="desc"><?php print _txt('fd.ef.pool.desc'); ?></font>
+            <span class="descr"><?php print _txt('fd.ef.pool.desc'); ?></span>
           </td>
           <td>
             <?php print ($e

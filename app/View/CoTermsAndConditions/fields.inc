@@ -40,17 +40,17 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.desc'); ?></b><font class="required">*</font>
+        <b><?php print _txt('fd.desc'); ?></b><span class="required">*</span>
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('description', array('size' => '60'))
+                     ? $this->Form->input('description', array('size' => '60','class' => 'focusFirst'))
                      : Sanitize::html($co_terms_and_conditions[0]['CoTermsAndConditions']['description'])); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.status'); ?></b><font class="required">*</font>
+        <b><?php print _txt('fd.status'); ?></b><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -76,8 +76,8 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.url'); ?></b></b><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('fd.tc.url.desc'); ?></font>
+        <b><?php print _txt('fd.url'); ?></b></b><span class="required">*</span><br />
+        <span class="descr"><?php print _txt('fd.tc.url.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -88,7 +88,7 @@
     <tr class="line2">
       <td>
         <b><?php print _txt('fd.cou'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.tc.cou.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.tc.cou.desc'); ?></span>
       </td>
       <td>
         <?php

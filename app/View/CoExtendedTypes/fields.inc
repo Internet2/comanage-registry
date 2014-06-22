@@ -59,16 +59,16 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.name'); ?><font class="required">*</font><br />
+        <?php print _txt('fd.name'); ?><span class="required">*</span><br />
         <i><?php print _txt('fd.an.desc'); ?></i>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('name') : Sanitize::html($co_extended_types[0]['CoExtendedType']['name'])); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_types[0]['CoExtendedType']['name'])); ?>
       </td>
     </tr>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.name.d'); ?><font class="required">*</font>
+        <?php print _txt('fd.name.d'); ?><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_types[0]['CoExtendedType']['display_name'])); ?>
@@ -76,7 +76,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.status'); ?><font class="required">*</font>
+        <?php print _txt('fd.status'); ?><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -100,7 +100,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

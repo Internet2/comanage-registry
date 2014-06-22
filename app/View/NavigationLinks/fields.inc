@@ -43,7 +43,7 @@
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('description')
+                     ? $this->Form->input('description', array('class' => 'focusFirst'))
                      : Sanitize::html($navigation_links[0]['NavigationLink']['description'])); ?>
       </td>
     </tr>

@@ -86,7 +86,7 @@
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.model'); ?></b><font class="required">*</font>
+        <b><?php print _txt('fd.model'); ?></b><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -116,7 +116,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <b><?php print _txt('fd.type'); ?></b><br />
-        <font class="desc"><?php print _txt('fd.ssp.type.desc'); ?></font>
+        <span class="descr"><?php print _txt('fd.ssp.type.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -144,7 +144,7 @@
     </tr>    
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.perm'); ?></b><font class="required">*</font>
+        <b><?php print _txt('fd.perm'); ?></b><span class="required">*</span>
       </td>
       <td>
         <?php

@@ -78,7 +78,7 @@
         <?php echo _txt('fd.identifier.identifier'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('identifier', array('type' => 'text'))
+        <?php echo ($e ? $this->Form->input('identifier', array('type' => 'text','class' => 'focusFirst'))
                        : Sanitize::html($identifiers[0]['Identifier']['identifier'])); ?>
       </td>
     </tr>
@@ -118,7 +118,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

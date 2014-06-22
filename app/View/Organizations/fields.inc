@@ -36,10 +36,10 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.name'); ?><font class="required">*</font>
+        <?php echo _txt('fd.name'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('name') : Sanitize::html($organizations[0]['Organization']['name'])); ?>
+        <?php echo ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($organizations[0]['Organization']['name'])); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -68,7 +68,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php echo _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php
