@@ -149,6 +149,13 @@ fieldset.borderless {
   border: 0;
   margin-top: 25px;
 }
+.form-error {
+  background-color: #fee !important; /* override default focus color */
+}
+.error-message {
+  font-style: italic;
+  color: red;
+}
 
 /* Tabbed Boxes */
 .coTabsContainer {
