@@ -76,7 +76,7 @@ class HistoryRecord extends AppModel {
       'allowEmpty' => false
     ),
     'comment' => array(
-      'rule' => array('maxLength', 160),
+      'rule' => array('maxLength', 256),
       'required' => false,
       'allowEmpty' => false
     )
