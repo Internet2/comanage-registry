@@ -462,19 +462,29 @@ class CoNotification extends AppModel {
       // A clever contain will perform our join, but nest our data
       $args = array();
       $args['conditions']['RecipientCoGroup.id'] = $recipientId;
+      $args['conditions']['RecipientCoGroup.status'] = SuspendableStatusEnum::Active;
       $args['contain']['CoGroupMember']['CoPerson'] = 'EmailAddress';
       
       $gr = $this->RecipientCoGroup->find('first', $args);
       
       if(!empty($gr['CoGroupMember'])) {
         foreach($gr['CoGroupMember'] as $gm) {
-          // Move EmailAddress up a level, as for 'coperson'
-          $recipients[] = array(
-            'RecipientCoPerson' => $gm['CoPerson'],
-            'EmailAddress'      => (!empty($gm['CoPerson']['EmailAdress'])
-                                    ? $gm['CoPerson']['EmailAdress']
-                                    : array())
-          );
+          // Check that the person is a group member and that the person is active.
+          // We do this here rather than in the find() because the find is pulling
+          // CO Groups and the join to filter related models would be rather complex.
+          
+          if(isset($gm['member']) && $gm['member']
+             &&
+             isset($gm['CoPerson']['status'])
+             && $gm['CoPerson']['status'] == StatusEnum::Active) {
+            // Move EmailAddress up a level, as for 'coperson'
+            $recipients[] = array(
+              'RecipientCoPerson' => $gm['CoPerson'],
+              'EmailAddress'      => (!empty($gm['CoPerson']['EmailAddress'])
+                                      ? $gm['CoPerson']['EmailAddress']
+                                      : array())
+            );
+          }
         }
       }
       
@@ -485,13 +495,16 @@ class CoNotification extends AppModel {
         $ids = array();
         
         foreach($recipients as $recipient) {
-          $ids[] = $this->register($subjectCoPersonId,
-                                   $actorCoPersonId,
-                                   'coperson',
-                                   $recipient['RecipientCoPerson']['id'],
-                                   $action,
-                                   $comment,
-                                   $source);
+          $r = $this->register($subjectCoPersonId,
+                               $actorCoPersonId,
+                               'coperson',
+                               $recipient['RecipientCoPerson']['id'],
+                               $action,
+                               $comment,
+                               $source);
+          
+          // We get an array back but it should only have one entry
+          $ids[] = $r[0];
         }
         
         return $ids;
