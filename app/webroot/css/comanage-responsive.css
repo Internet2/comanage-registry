@@ -31,11 +31,9 @@
   #menu {
     border: none;
   }
-  #menu li {
-    display: inline;
-  }
+  #menu li,
   #menu li a {
-    float: left;
+    display: inline;
   }
   .modelbox table tr > *:first-child {
      min-width: 50px !important;
