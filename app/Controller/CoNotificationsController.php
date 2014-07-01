@@ -186,8 +186,20 @@ class CoNotificationsController extends StandardController {
                                                              $roles['copersonid'])));
     
     // View all notifications (or a subset)?
-    // This is currently limited to coadmin since that's what's needed to support co_people/expunge
-    $p['index'] = $roles['cmadmin'] || $roles['coadmin'];
+    $p['index'] = ($roles['cmadmin']
+                   || $roles['coadmin']
+                   // Anyone can see their own notifications. We have to be careful to
+                   // check the CO Person ID in the same order as paginationConditions
+                   // so that someone can't view someone else's notifications.
+                   // (paginationConditions will use the first named parameter specified.)
+                   || (isset($this->request->params['named']['actorcopersonid'])
+                       && $this->request->params['named']['actorcopersonid'] == $roles['copersonid'])
+                   || (isset($this->request->params['named']['recipientcopersonid'])
+                       && $this->request->params['named']['recipientcopersonid'] == $roles['copersonid'])
+                   || (isset($this->request->params['named']['resolvercopersonid'])
+                       && $this->request->params['named']['resolvercopersonid'] == $roles['copersonid'])
+                   || (isset($this->request->params['named']['subjectcopersonid'])
+                       && $this->request->params['named']['subjectcopersonid'] == $roles['copersonid']));
     
     // View this notification?
     $p['view'] = ($roles['cmadmin']
@@ -211,6 +223,7 @@ class CoNotificationsController extends StandardController {
   function paginationConditions() {
     // Only retrieve notifications for the requested subject
     
+    // Keep this order in sync with isAuthorized (index check), above
     if(isset($this->request->params['named']['actorcopersonid'])) {
       return(array(
         'CoNotification.actor_co_person_id' => $this->request->params['named']['actorcopersonid']
