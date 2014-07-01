@@ -459,24 +459,27 @@ class CoNotification extends AppModel {
     } elseif($recipientType == 'cogroup') {
       $n['CoNotification']['recipient_co_group_id'] = $recipientId;
       
-      // A clever contain will perform our join, but nest our data
+      // A clever contain will perform our join and filter, but nest our data
       $args = array();
       $args['conditions']['RecipientCoGroup.id'] = $recipientId;
       $args['conditions']['RecipientCoGroup.status'] = SuspendableStatusEnum::Active;
-      $args['contain']['CoGroupMember']['CoPerson'] = 'EmailAddress';
+      $args['contain'] = array(
+        'CoGroupMember' => array(
+          // We only want group members, not owners
+          'conditions' => array('CoGroupMember.member' => true),
+          'CoPerson' => array(
+            // We only want active people
+            'conditions' => array('CoPerson.status' => StatusEnum::Active),
+            'EmailAddress'
+          )
+        )
+      );
       
       $gr = $this->RecipientCoGroup->find('first', $args);
       
       if(!empty($gr['CoGroupMember'])) {
         foreach($gr['CoGroupMember'] as $gm) {
-          // Check that the person is a group member and that the person is active.
-          // We do this here rather than in the find() because the find is pulling
-          // CO Groups and the join to filter related models would be rather complex.
-          
-          if(isset($gm['member']) && $gm['member']
-             &&
-             isset($gm['CoPerson']['status'])
-             && $gm['CoPerson']['status'] == StatusEnum::Active) {
+          if(!empty($gm['CoPerson'])) {
             // Move EmailAddress up a level, as for 'coperson'
             $recipients[] = array(
               'RecipientCoPerson' => $gm['CoPerson'],
