@@ -132,7 +132,8 @@
     <strong><?php print _txt('op.expunge.info.not.act', array(count($vv_co_person['CoNotificationActor']),
                                                               $this->Html->url(array('controller'      => 'co_notifications',
                                                                                      'action'          => 'index',
-                                                                                     'actorcopersonid' => $vv_co_person['CoPerson']['id'])))); ?></strong>
+                                                                                     'actorcopersonid' => $vv_co_person['CoPerson']['id'],
+                                                                                     '?'               => array('status' => 'all'))))); ?></strong>
   </p>
   <?php endif; ?>
   
@@ -142,7 +143,8 @@
     <strong><?php print _txt('op.expunge.info.not.rec', array(count($vv_co_person['CoNotificationRecipient']),
                                                               $this->Html->url(array('controller'          => 'co_notifications',
                                                                                      'action'              => 'index',
-                                                                                     'recipientcopersonid' => $vv_co_person['CoPerson']['id'])))); ?></strong>
+                                                                                     'recipientcopersonid' => $vv_co_person['CoPerson']['id'],
+                                                                                     '?'                   => array('status' => 'all'))))); ?></strong>
   </p>
   <?php endif; ?>
   
@@ -152,7 +154,8 @@
     <strong><?php print _txt('op.expunge.info.not.res', array(count($vv_co_person['CoNotificationResolver']),
                                                               $this->Html->url(array('controller'         => 'co_notifications',
                                                                                      'action'             => 'index',
-                                                                                     'resolvercopersonid' => $vv_co_person['CoPerson']['id'])))); ?></strong>
+                                                                                     'resolvercopersonid' => $vv_co_person['CoPerson']['id'],
+                                                                                     '?'                  => array('status' => 'all'))))); ?></strong>
   </p>
   <?php endif; ?>
   

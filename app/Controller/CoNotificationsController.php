@@ -155,6 +155,46 @@ class CoNotificationsController extends StandardController {
   }
   
   /**
+   * Obtain all Standard Objects (of the model's type).
+   * - postcondition: $<object>s set on success (REST or HTML), using pagination (HTML only)
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Session flash message updated (HTML) on suitable error
+   *
+   * @since  COmanage Registry v0.9
+   */
+  
+  public function index() {
+    parent::index();
+    
+    if(!$this->restful) {
+      // Attempt to generate a more descriptive page title. If we fail at any point
+      // we'll automatically revert back to the default title.
+      
+      if(!empty($this->cur_co_person_id)) {
+        // Look up the subject's name
+        
+        $args = array();
+        $args['conditions']['SubjectCoPerson.id'] = $this->cur_co_person_id;
+        $args['contain'][] = 'PrimaryName';
+        
+        $cop = $this->CoNotification->SubjectCoPerson->find('first', $args);
+        
+        if(!empty($cop)) {
+          global $cm_texts, $cm_lang;
+          
+          $this->set('title_for_layout', _txt('fd.not.for', array(generateCn($cop['PrimaryName']),
+                                                                  $this->cur_request_type_txt,
+                                                                  $this->cur_request_filter_txt)));
+          
+          $this->set('vv_request_type', $this->cur_request_type_key);
+          $this->set('vv_co_person_id', $this->cur_co_person_id);
+          $this->set('vv_notification_statuses', $cm_texts[ $cm_lang ]['en.status.not']);
+        }
+      }
+    }
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -223,25 +263,57 @@ class CoNotificationsController extends StandardController {
   function paginationConditions() {
     // Only retrieve notifications for the requested subject
     
+    $ret = array();
+    
+    if(!empty($this->request->query['status'])) {
+      // Status is expected to be the corresponding short code. (Or omitted, for unresolved,
+      // or "all" for all.) An unknown status code should generate some noise, but nothing more.
+      
+      $status = Sanitize::paranoid($this->request->query['status']);
+      
+      if($status == 'all') {
+        $this->cur_request_filter_txt = _txt('fd.all');
+      } else {
+        $this->cur_request_filter_txt = _txt('en.status.not', null, $status);
+        $ret['CoNotification.status'] = $status;
+      }
+    } else {
+      // Default is to show notifications in pending status
+      $this->cur_request_filter_txt = _txt('fd.unresolved');
+      $ret['CoNotification.status'] = array(NotificationStatusEnum::PendingAcknowledgment,
+                                            NotificationStatusEnum::PendingResolution);
+    }
+    
     // Keep this order in sync with isAuthorized (index check), above
     if(isset($this->request->params['named']['actorcopersonid'])) {
-      return(array(
-        'CoNotification.actor_co_person_id' => $this->request->params['named']['actorcopersonid']
-      ));
+      // Track the CO Person ID we use for rendering later
+      $this->cur_co_person_id = $this->request->params['named']['actorcopersonid'];
+      $this->cur_request_type_txt = _txt('fd.actor');
+      $this->cur_request_type_key = 'actorcopersonid';
+      
+      $ret['CoNotification.actor_co_person_id'] = $this->request->params['named']['actorcopersonid'];
     } elseif(isset($this->request->params['named']['recipientcopersonid'])) {
-      return(array(
-        'CoNotification.recipient_co_person_id' => $this->request->params['named']['recipientcopersonid']
-      ));
+      $this->cur_co_person_id = $this->request->params['named']['recipientcopersonid'];
+      $this->cur_request_type_txt = _txt('fd.recipient');
+      $this->cur_request_type_key = 'recipientcopersonid';
+      
+      $ret['CoNotification.recipient_co_person_id'] = $this->request->params['named']['recipientcopersonid'];
     } elseif(isset($this->request->params['named']['resolvercopersonid'])) {
-      return(array(
-        'CoNotification.resolver_co_person_id' => $this->request->params['named']['resolvercopersonid']
-      ));
+      $this->cur_co_person_id = $this->request->params['named']['resolvercopersonid'];
+      $this->cur_request_type_txt = _txt('fd.resolver');
+      $this->cur_request_type_key = 'resolvercopersonid';
+      
+      $ret['CoNotification.resolver_co_person_id'] = $this->request->params['named']['resolvercopersonid'];
     } elseif(isset($this->request->params['named']['subjectcopersonid'])) {
-      return(array(
-        'CoNotification.subject_co_person_id' => $this->request->params['named']['subjectcopersonid']
-      ));
+      $this->cur_co_person_id = $this->request->params['named']['subjectcopersonid'];
+      $this->cur_request_type_txt = _txt('fd.subject');
+      $this->cur_request_type_key = 'subjectcopersonid';
+      
+      $ret['CoNotification.subject_co_person_id'] = $this->request->params['named']['subjectcopersonid'];
     } else {
       throw new InvalidArgumentException(_txt('er.notprov'));
     }
+    
+    return $ret;
   }
 }

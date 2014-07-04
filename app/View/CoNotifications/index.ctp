@@ -22,11 +22,37 @@
  * @version       $Id$
  */
 
-  $params = array('title' => _txt('ct.co_notifications.pl'));
+  $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
+  
+  // It seems easier to generate the form manually than with FormHelper, since it's not really a form as Cake knows it
+  $curstatus = "";
+  
+  if(!empty($this->request->query['status'])) {
+    $curstatus = Sanitize::paranoid($this->request->query['status']);
+  }
 ?>
 
-<table id="org_identities" class="ui-widget">
+<form method="get" action="/registry/co_notifications/index/<?php print $vv_request_type; ?>:<?php print $vv_co_person_id; ?>">
+  <select name="status">
+    <option value=""><?php print _txt('fd.unresolved'); ?></option>
+    <option value="all"<?php if($curstatus == "all") print " selected";?>><?php print _txt('fd.all'); ?></option>
+    <?php
+      foreach(array_keys($vv_notification_statuses) as $s) {
+        print "<option value=\"" . $s . "\"";
+        
+        if($s == $curstatus) {
+          print " selected";
+        }
+        
+        print ">" . $vv_notification_statuses[$s] . "</option>\n";
+      }
+    ?>
+  </select>
+  <input type="submit" value="<?php print _txt('op.filter.status'); ?>" />
+</form>
+
+<table id="co_notifications" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('action', _txt('fd.action')); ?></th>
