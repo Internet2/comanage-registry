@@ -49,8 +49,6 @@
     echo $this->Form->hidden('Co.id', array('default' => $cur_co['Co']['id'])). "\n";
     // And this is to link to the co person
     echo $this->Form->hidden('co_person_id', array('default' => $co_people[0]['CoPerson']['id'])). "\n";
-    // Default status is 'Active'
-    echo $this->Form->hidden('status', array('default' => 'A')). "\n";
     // Make sure ID gets carried over
     if(isset($co_person_roles[0]['CoPersonRole']['id']))
       print $this->Form->hidden('id', array('default' => $co_person_roles[0]['CoPersonRole']['id']));
@@ -137,6 +135,7 @@ $(function() {
             <td>
               <?php
                 global $cm_lang, $cm_texts;
+                $attrs = array();
                 $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
                                    ? $co_person_roles[0]['CoPersonRole']['affiliation']
                                    : "M");
@@ -154,6 +153,43 @@ $(function() {
                   print $cm_texts[ $cm_lang ]['en.affil'][ $co_person_roles[0]['CoPersonRole']['affiliation']];
                 }
               ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td>
+              <?php print _txt('fd.status'); ?><span class="required">*</span>
+            </td>
+            <td>
+              <?php
+                global $cm_lang, $cm_texts;
+                $attrs = array();
+                $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['status'])
+                                   ? $co_person_roles[0]['CoPersonRole']['status']
+                                   : StatusEnum::Active);
+                $attrs['empty'] = false;
+                
+                if($e && !$es) {
+                  print $this->Form->select('status',
+                                            $cm_texts[ $cm_lang ]['en.status'],
+                                            $attrs);
+                  
+                  if($this->Form->isFieldError('status')) {
+                    print $this->Form->error('status');
+                  }
+                } else {
+                  if(!empty($co_person_roles[0]['CoPersonRole']['status'])) {
+                    print _txt('en.status', null, $co_person_roles[0]['CoPersonRole']['status']);
+                  }
+                }
+              ?>
+              <?php if($e && !$es
+                       && ($co_person_roles[0]['CoPersonRole']['status'] == StatusEnum::PendingApproval
+                           || $co_person_roles[0]['CoPersonRole']['status'] == StatusEnum::PendingConfirmation)): ?>
+              <div>
+                <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                <i><?php print _txt('fd.status.change'); ?></i>
+              </div>
+              <?php endif; ?>
             </td>
           </tr>
           <tr class="line<?php echo ($l % 2); $l++; ?>">
