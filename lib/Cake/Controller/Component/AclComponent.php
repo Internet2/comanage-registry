@@ -21,8 +21,8 @@ App::uses('AclInterface', 'Controller/Component/Acl');
  * Access Control List factory class.
  *
  * Uses a strategy pattern to allow custom ACL implementations to be used with the same component interface.
- * You can define by changing `Configure::write('Acl.classname', 'DbAcl');` in your core.php. Concrete ACL
- * implementations should extend `AclBase` and implement the methods it defines.
+ * You can define by changing `Configure::write('Acl.classname', 'DbAcl');` in your core.php. The adapter
+ * you specify must implement `AclInterface`
  *
  * @package       Cake.Controller.Component
  * @link http://book.cakephp.org/2.0/en/core-libraries/components/access-control-lists.html
@@ -53,8 +53,8 @@ class AclComponent extends Component {
 /**
  * Constructor. Will return an instance of the correct ACL class as defined in `Configure::read('Acl.classname')`
  *
- * @param ComponentCollection $collection
- * @param array $settings
+ * @param ComponentCollection $collection Collection instance.
+ * @param array $settings Settings list.
  * @throws CakeException when Acl.classname could not be loaded.
  */
 	public function __construct(ComponentCollection $collection, $settings = array()) {

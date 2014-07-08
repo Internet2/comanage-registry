@@ -48,6 +48,8 @@ class ControllerTestDispatcher extends Dispatcher {
 /**
  * Returns the test controller
  *
+ * @param CakeRequest $request The request instance.
+ * @param CakeResponse $response The response instance.
  * @return Controller
  */
 	protected function _getController($request, $response) {
@@ -94,6 +96,7 @@ class InterceptContentHelper extends Helper {
  * Intercepts and stores the contents of the view before the layout is rendered
  *
  * @param string $viewFile The view file
+ * @return void
  */
 	public function afterRender($viewFile) {
 		$this->_View->assign('__view_no_layout__', $this->_View->fetch('content'));
@@ -214,11 +217,11 @@ abstract class ControllerTestCase extends CakeTestCase {
 	protected function _testAction($url = '', $options = array()) {
 		$this->vars = $this->result = $this->view = $this->contents = $this->headers = null;
 
-		$options = array_merge(array(
+		$options += array(
 			'data' => array(),
 			'method' => 'POST',
 			'return' => 'result'
-		), $options);
+		);
 
 		$restore = array('get' => $_GET, 'post' => $_POST);
 
@@ -292,7 +295,7 @@ abstract class ControllerTestCase extends CakeTestCase {
  * ### Mocks:
  *
  * - `methods` Methods to mock on the controller. `_stop()` is mocked by default
- * - `models` Models to mock. Models are added to the ClassRegistry so they any
+ * - `models` Models to mock. Models are added to the ClassRegistry so any
  *   time they are instantiated the mock will be created. Pass as key value pairs
  *   with the value being specific methods on the model to mock. If `true` or
  *   no value is passed, the entire model will be mocked.

@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -33,6 +31,22 @@ abstract class DispatcherFilter implements CakeEventListener {
  * @var integer
  */
 	public $priority = 10;
+
+/**
+ * Settings for this filter
+ *
+ * @var array
+ */
+	public $settings = array();
+
+/**
+ * Constructor.
+ *
+ * @param array $settings Configuration settings for the filter.
+ */
+	public function __construct($settings = array()) {
+		$this->settings = Hash::merge($this->settings, $settings);
+	}
 
 /**
  * Returns the list of events this filter listens to.

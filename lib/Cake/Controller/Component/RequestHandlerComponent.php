@@ -159,7 +159,7 @@ class RequestHandlerComponent extends Component {
 			return;
 		}
 
-		$accepts = $this->response->mapType($this->request->parseAccept());
+		$accepts = $this->response->mapType($accept);
 		$preferedTypes = current($accepts);
 		if (array_intersect($preferedTypes, array('html', 'xhtml'))) {
 			return null;
@@ -224,7 +224,7 @@ class RequestHandlerComponent extends Component {
  * Helper method to parse xml input data, due to lack of anonymous functions
  * this lives here.
  *
- * @param string $xml
+ * @param string $xml XML string.
  * @return array Xml array data
  */
 	public function convertXml($xml) {
@@ -246,7 +246,7 @@ class RequestHandlerComponent extends Component {
  * @param Controller $controller A reference to the controller
  * @param string|array $url A string or array containing the redirect location
  * @param integer|array $status HTTP Status for redirect
- * @param boolean $exit
+ * @param boolean $exit Whether to exit script, defaults to `true`.
  * @return void
  */
 	public function beforeRedirect(Controller $controller, $url, $status = null, $exit = true) {
@@ -279,7 +279,7 @@ class RequestHandlerComponent extends Component {
  * render process is skipped. And the client will get a blank response with a
  * "304 Not Modified" header.
  *
- * @params Controller $controller
+ * @param Controller $controller Controller instance.
  * @return boolean false if the render process should be aborted
  */
 	public function beforeRender(Controller $controller) {
@@ -444,9 +444,10 @@ class RequestHandlerComponent extends Component {
 /**
  * Gets remote client IP
  *
- * @param boolean $safe
+ * @param boolean $safe Use safe = false when you think the user might manipulate
+ *   their HTTP_CLIENT_IP header. Setting $safe = false will also look at HTTP_X_FORWARDED_FOR
  * @return string Client IP address
- * @deprecated use $this->request->clientIp() from your,  controller instead.
+ * @deprecated use $this->request->clientIp() from your, controller instead.
  */
 	public function getClientIP($safe = true) {
 		return $this->request->clientIp($safe);
@@ -525,7 +526,7 @@ class RequestHandlerComponent extends Component {
 			return $this->mapType($contentType);
 		}
 		if (is_string($type)) {
-			return ($type == $this->mapType($contentType));
+			return ($type === $this->mapType($contentType));
 		}
 	}
 
@@ -603,13 +604,12 @@ class RequestHandlerComponent extends Component {
 		if (Configure::read('App.encoding') !== null) {
 			$defaults['charset'] = Configure::read('App.encoding');
 		}
-		$options = array_merge($defaults, $options);
+		$options += $defaults;
 
 		if ($type === 'ajax') {
 			$controller->layout = $this->ajaxLayout;
 			return $this->respondAs('html', $options);
 		}
-		$controller->ext = '.ctp';
 
 		$pluginDot = null;
 		$viewClassMap = $this->viewClassMap();

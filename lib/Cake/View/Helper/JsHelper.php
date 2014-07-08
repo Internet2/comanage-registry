@@ -158,6 +158,7 @@ class JsHelper extends AppHelper {
  *
  * @param mixed $val A PHP variable to be converted to JSON
  * @param boolean $quoteString If false, leaves string values unquoted
+ * @param string $key Key name.
  * @return string a JavaScript-safe/JSON representation of $val
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/js.html#JsHelper::value
  */
@@ -194,7 +195,7 @@ class JsHelper extends AppHelper {
 			'onDomReady' => $domReady, 'inline' => true,
 			'cache' => false, 'clear' => true, 'safe' => true
 		);
-		$options = array_merge($defaults, $options);
+		$options += $defaults;
 		$script = implode("\n", $this->getBuffer($options['clear']));
 
 		if (empty($script)) {

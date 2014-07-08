@@ -56,7 +56,8 @@ class Sqlite extends DboSource {
  */
 	protected $_baseConfig = array(
 		'persistent' => false,
-		'database' => null
+		'database' => null,
+		'flags' => array()
 	);
 
 /**
@@ -71,6 +72,7 @@ class Sqlite extends DboSource {
 		'integer' => array('name' => 'integer', 'limit' => null, 'formatter' => 'intval'),
 		'biginteger' => array('name' => 'bigint', 'limit' => 20),
 		'float' => array('name' => 'float', 'formatter' => 'floatval'),
+		'decimal' => array('name' => 'decimal', 'formatter' => 'floatval'),
 		'datetime' => array('name' => 'datetime', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
 		'timestamp' => array('name' => 'timestamp', 'format' => 'Y-m-d H:i:s', 'formatter' => 'date'),
 		'time' => array('name' => 'time', 'format' => 'H:i:s', 'formatter' => 'date'),
@@ -105,7 +107,7 @@ class Sqlite extends DboSource {
  */
 	public function connect() {
 		$config = $this->config;
-		$flags = array(
+		$flags = $config['flags'] + array(
 			PDO::ATTR_PERSISTENT => $config['persistent'],
 			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 		);
@@ -250,9 +252,8 @@ class Sqlite extends DboSource {
 		}
 
 		$col = strtolower(str_replace(')', '', $real));
-		$limit = null;
 		if (strpos($col, '(') !== false) {
-			list($col, $limit) = explode('(', $col);
+			list($col) = explode('(', $col);
 		}
 
 		$standard = array(
@@ -278,7 +279,7 @@ class Sqlite extends DboSource {
 			return 'binary';
 		}
 		if (strpos($col, 'numeric') !== false || strpos($col, 'decimal') !== false) {
-			return 'float';
+			return 'decimal';
 		}
 		return 'text';
 	}
@@ -394,7 +395,7 @@ class Sqlite extends DboSource {
  */
 	public function buildColumn($column) {
 		$name = $type = null;
-		$column = array_merge(array('null' => true), $column);
+		$column += array('null' => true);
 		extract($column);
 
 		if (empty($name) || empty($type)) {

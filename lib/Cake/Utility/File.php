@@ -202,7 +202,7 @@ class File {
  * all other platforms will use "\n"
  *
  * @param string $data Data to prepare for writing.
- * @param boolean $forceWindows
+ * @param boolean $forceWindows If true forces usage Windows newline string.
  * @return string The with converted line endings.
  * @link http://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#File::prepare
  */
@@ -558,7 +558,7 @@ class File {
 			if (!$finfo) {
 				return false;
 			}
-			list($type, $charset) = explode(';', $finfo);
+			list($type) = explode(';', $finfo);
 			return $type;
 		}
 		if (function_exists('mime_content_type')) {
@@ -582,6 +582,34 @@ class File {
 		}
 
 		return clearstatcache();
+	}
+
+/**
+ * Searches for a given text and replaces the text if found.
+ *
+ * @param string|array $search Text(s) to search for.
+ * @param string|array $replace Text(s) to replace with.
+ * @return boolean Success
+ */
+	public function replaceText($search, $replace) {
+		if (!$this->open('r+')) {
+			return false;
+		}
+
+		if ($this->lock !== null) {
+			if (flock($this->handle, LOCK_EX) === false) {
+				return false;
+			}
+		}
+
+		$replaced = $this->write(str_replace($search, $replace, $this->read()), 'w', true);
+
+		if ($this->lock !== null) {
+			flock($this->handle, LOCK_UN);
+		}
+		$this->close();
+
+		return $replaced;
 	}
 
 }

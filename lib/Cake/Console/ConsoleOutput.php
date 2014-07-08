@@ -46,21 +46,29 @@ class ConsoleOutput {
 
 /**
  * Raw output constant - no modification of output text.
+ *
+ * @var integer
  */
 	const RAW = 0;
 
 /**
  * Plain output - tags will be stripped.
+ *
+ * @var integer
  */
 	const PLAIN = 1;
 
 /**
  * Color output - Convert known tags in to ANSI color escape codes.
+ *
+ * @var integer
  */
 	const COLOR = 2;
 
 /**
  * Constant for a newline.
+ *
+ * @var string
  */
 	const LF = PHP_EOL;
 
@@ -195,7 +203,7 @@ class ConsoleOutput {
 /**
  * Replace tags with color codes.
  *
- * @param array $matches.
+ * @param array $matches An array of matches to replace.
  * @return string
  */
 	protected function _replaceTags($matches) {
@@ -287,7 +295,9 @@ class ConsoleOutput {
  * Clean up and close handles
  */
 	public function __destruct() {
-		fclose($this->_output);
+		if (is_resource($this->_output)) {
+			fclose($this->_output);
+		}
 	}
 
 }

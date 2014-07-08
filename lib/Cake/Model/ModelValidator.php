@@ -119,7 +119,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable {
  * If you do not want this to happen, make a copy of `$data` before passing it
  * to this method
  *
- * @param array $data Record data to validate. This should be an array indexed by association name.
+ * @param array &$data Record data to validate. This should be an array indexed by association name.
  * @param array $options Options to use when validating record data (see above), See also $options of validates().
  * @return array|boolean If atomic: True on success, or false on failure.
  *    Otherwise: array similar to the $data array passed, but values are set to true/false
@@ -127,7 +127,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable {
  */
 	public function validateAssociated(&$data, $options = array()) {
 		$model = $this->getModel();
-		$options = array_merge(array('atomic' => true, 'deep' => false), $options);
+		$options += array('atomic' => true, 'deep' => false);
 		$model->validationErrors = $validationErrors = $return = array();
 		$model->create(null);
 		$return[$model->alias] = true;
@@ -196,7 +196,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable {
  * If you do not want this to happen, make a copy of `$data` before passing it
  * to this method
  *
- * @param array $data Record data to validate. This should be a numerically-indexed array
+ * @param array &$data Record data to validate. This should be a numerically-indexed array
  * @param array $options Options to use when validating record data (see above), See also $options of validates().
  * @return mixed If atomic: True on success, or false on failure.
  *    Otherwise: array similar to the $data array passed, but values are set to true/false
@@ -204,7 +204,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable {
  */
 	public function validateMany(&$data, $options = array()) {
 		$model = $this->getModel();
-		$options = array_merge(array('atomic' => true, 'deep' => false), $options);
+		$options += array('atomic' => true, 'deep' => false);
 		$model->validationErrors = $validationErrors = $return = array();
 		foreach ($data as $key => &$record) {
 			if ($options['deep']) {
@@ -247,7 +247,15 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable {
 			return $model->validationErrors;
 		}
 
-		$fieldList = isset($options['fieldList']) ? $options['fieldList'] : array();
+		$fieldList = $model->whitelist;
+		if (empty($fieldList) && !empty($options['fieldList'])) {
+			if (!empty($options['fieldList'][$model->alias]) && is_array($options['fieldList'][$model->alias])) {
+				$fieldList = $options['fieldList'][$model->alias];
+			} else {
+				$fieldList = $options['fieldList'];
+			}
+		}
+
 		$exists = $model->exists();
 		$methods = $this->getMethods();
 		$fields = $this->_validationList($fieldList);
@@ -374,32 +382,19 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable {
 	}
 
 /**
- * Processes the Model's whitelist or passed fieldList and returns the list of fields
- * to be validated
+ * Processes the passed fieldList and returns the list of fields to be validated
  *
  * @param array $fieldList list of fields to be used for validation
  * @return array List of validation rules to be applied
  */
 	protected function _validationList($fieldList = array()) {
-		$model = $this->getModel();
-		$whitelist = $model->whitelist;
-
-		if (!empty($fieldList)) {
-			if (!empty($fieldList[$model->alias]) && is_array($fieldList[$model->alias])) {
-				$whitelist = $fieldList[$model->alias];
-			} else {
-				$whitelist = $fieldList;
-			}
-		}
-		unset($fieldList);
-
-		if (empty($whitelist) || Hash::dimensions($whitelist) > 1) {
+		if (empty($fieldList) || Hash::dimensions($fieldList) > 1) {
 			return $this->_fields;
 		}
 
 		$validateList = array();
 		$this->validationErrors = array();
-		foreach ((array)$whitelist as $f) {
+		foreach ((array)$fieldList as $f) {
 			if (!empty($this->_fields[$f])) {
 				$validateList[$f] = $this->_fields[$f];
 			}
@@ -447,7 +442,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable {
 /**
  * Propagates beforeValidate event
  *
- * @param array $options
+ * @param array $options Options to pass to callback.
  * @return boolean
  */
 	protected function _triggerBeforeValidate($options = array()) {
@@ -549,7 +544,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable {
  *		));
  * }}}
  *
- * @param string $field The name of the field from which the rule will be removed
+ * @param string $field The name of the field where the rule is to be added
  * @param string|array|CakeValidationSet $name name of the rule to be added or list of rules for the field
  * @param array|CakeValidationRule $rule or list of rules to be added to the field's rule set
  * @return ModelValidator this instance

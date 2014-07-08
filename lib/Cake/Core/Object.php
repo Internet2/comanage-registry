@@ -84,7 +84,7 @@ class Object {
 		if ($arrayUrl && !isset($extra['data'])) {
 			$extra['data'] = array();
 		}
-		$extra = array_merge(array('autoRender' => 0, 'return' => 1, 'bare' => 1, 'requested' => 1), $extra);
+		$extra += array('autoRender' => 0, 'return' => 1, 'bare' => 1, 'requested' => 1);
 		$data = isset($extra['data']) ? $extra['data'] : null;
 		unset($extra['data']);
 
@@ -95,7 +95,7 @@ class Object {
 			$request = new CakeRequest($url);
 		} elseif (is_array($url)) {
 			$params = $url + array('pass' => array(), 'named' => array(), 'base' => false);
-			$params = array_merge($params, $extra);
+			$params = $extra + $params;
 			$request = new CakeRequest(Router::reverse($params));
 		}
 		if (isset($data)) {
@@ -152,6 +152,8 @@ class Object {
  *
  * @param string $msg Log message
  * @param integer $type Error type constant. Defined in app/Config/core.php.
+ * @param null|string|array $scope The scope(s) a log message is being created in.
+ *    See CakeLog::config() for more information on logging scopes.
  * @return boolean Success of log write
  */
 	public function log($msg, $type = LOG_ERR, $scope = null) {

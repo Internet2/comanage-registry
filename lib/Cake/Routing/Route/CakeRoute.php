@@ -173,6 +173,10 @@ class CakeRoute {
 		foreach ($this->keys as $key) {
 			unset($this->defaults[$key]);
 		}
+
+		$keys = $this->keys;
+		sort($keys);
+		$this->keys = array_reverse($keys);
 	}
 
 /**
@@ -420,7 +424,6 @@ class CakeRoute {
 		$named = $pass = array();
 
 		foreach ($url as $key => $value) {
-
 			// keys that exist in the defaults and have different values is a match failure.
 			$defaultExists = array_key_exists($key, $defaults);
 			if ($defaultExists && $defaults[$key] != $value) {
@@ -490,7 +493,7 @@ class CakeRoute {
 			$prefixed = $params['prefix'] . '_';
 		}
 		if (isset($prefixed, $params['action']) && strpos($params['action'], $prefixed) === 0) {
-			$params['action'] = substr($params['action'], strlen($prefixed) * -1);
+			$params['action'] = substr($params['action'], strlen($prefixed));
 			unset($params['prefix']);
 		}
 
@@ -517,20 +520,26 @@ class CakeRoute {
 		}
 		$out = $this->template;
 
-		$search = $replace = array();
-		foreach ($this->keys as $key) {
-			$string = null;
-			if (isset($params[$key])) {
-				$string = $params[$key];
-			} elseif (strpos($out, $key) != strlen($out) - strlen($key)) {
-				$key .= '/';
-			}
-			$search[] = ':' . $key;
-			$replace[] = $string;
-		}
-		$out = str_replace($search, $replace, $out);
+		if (!empty($this->keys)) {
+			$search = $replace = array();
 
-		if (strpos($this->template, '*')) {
+			foreach ($this->keys as $key) {
+				$string = null;
+				if (isset($params[$key])) {
+					$string = $params[$key];
+				} elseif (strpos($out, $key) != strlen($out) - strlen($key)) {
+					$key .= '/';
+				}
+				$search[] = ':' . $key;
+				$replace[] = $string;
+			}
+			$out = str_replace($search, $replace, $out);
+		}
+
+		if (strpos($this->template, '**') !== false) {
+			$out = str_replace('**', $params['pass'], $out);
+			$out = str_replace('%2F', '/', $out);
+		} elseif (strpos($this->template, '*') !== false) {
 			$out = str_replace('*', $params['pass'], $out);
 		}
 		$out = str_replace('//', '/', $out);

@@ -356,9 +356,9 @@ class CakeLog {
 /**
  * Gets the logging engine from the active streams.
  *
- * @see BaseLog
  * @param string $streamName Key name of a configured stream to get.
  * @return mixed instance of BaseLog or false if not found
+ * @see BaseLog
  */
 	public static function stream($streamName) {
 		if (empty(self::$_Collection)) {
@@ -368,18 +368,6 @@ class CakeLog {
 			return self::$_Collection->{$streamName};
 		}
 		return false;
-	}
-
-/**
- * Configures the automatic/default stream a FileLog.
- *
- * @return void
- */
-	protected static function _autoConfig() {
-		self::$_Collection->load('default', array(
-			'engine' => 'File',
-			'path' => LOGS,
-		));
 	}
 
 /**
@@ -453,11 +441,7 @@ class CakeLog {
 				$logged = true;
 			}
 		}
-		if (!$logged) {
-			self::_autoConfig();
-			self::stream('default')->write($type, $message);
-		}
-		return true;
+		return $logged;
 	}
 
 /**

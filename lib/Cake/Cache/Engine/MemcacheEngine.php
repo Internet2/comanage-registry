@@ -21,7 +21,8 @@
  * control you have over expire times far in the future. See MemcacheEngine::write() for
  * more information.
  *
- * @package       Cake.Cache.Engine
+ * @package Cake.Cache.Engine
+ * @deprecated You should use the Memcached adapter instead.
  */
 class MemcacheEngine extends CacheEngine {
 
@@ -198,20 +199,21 @@ class MemcacheEngine extends CacheEngine {
 /**
  * Delete all keys from the cache
  *
- * @param boolean $check
+ * @param boolean $check If true no deletes will occur and instead CakePHP will rely
+ *   on key TTL values.
  * @return boolean True if the cache was successfully cleared, false otherwise
  */
 	public function clear($check) {
 		if ($check) {
 			return true;
 		}
-		foreach ($this->_Memcache->getExtendedStats('slabs') as $slabs) {
+		foreach ($this->_Memcache->getExtendedStats('slabs', 0) as $slabs) {
 			foreach (array_keys($slabs) as $slabId) {
 				if (!is_numeric($slabId)) {
 					continue;
 				}
 
-				foreach ($this->_Memcache->getExtendedStats('cachedump', $slabId) as $stats) {
+				foreach ($this->_Memcache->getExtendedStats('cachedump', $slabId, 0) as $stats) {
 					if (!is_array($stats)) {
 						continue;
 					}
@@ -281,6 +283,7 @@ class MemcacheEngine extends CacheEngine {
  * Increments the group value to simulate deletion of all keys under a group
  * old values will remain in storage until they expire.
  *
+ * @param string $group The group to clear.
  * @return boolean success
  */
 	public function clearGroup($group) {
