@@ -34,7 +34,8 @@
 ?>
 
 <form method="get" action="/registry/co_notifications/index/<?php print $vv_request_type; ?>:<?php print $vv_co_person_id; ?>">
-  <select name="status">
+  <span class="select-name"><?php print _txt('op.filter.status'); ?></span>
+  <select name="status" onchange="this.form.submit();">
     <option value=""><?php print _txt('fd.unresolved'); ?></option>
     <option value="all"<?php if($curstatus == "all") print " selected";?>><?php print _txt('fd.all'); ?></option>
     <?php
@@ -49,7 +50,6 @@
       }
     ?>
   </select>
-  <input type="submit" value="<?php print _txt('op.filter.status'); ?>" />
 </form>
 
 <table id="co_notifications" class="ui-widget">

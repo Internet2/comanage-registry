@@ -193,10 +193,12 @@ ul.sf-menu li.dropMenu li a:hover {
   line-height: 16px;
   color: #333;
 }
-#notification .seemore {
-  text-align: right;
-  width: 100%;
-  margin: 0 0 10px 0;
+#notification .see-all a {
+  font-style: italic;
+  background-color: #e5e5e5 !important;
+}
+#notification .see-all a:hover {
+  background-color: #ddd !important;
 }
 #notification .titleColor,
 #notification ul li ul a {

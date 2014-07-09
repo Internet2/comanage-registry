@@ -271,31 +271,39 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
     <div id="notification">
       <ul class="sf-menu">
         <li>
-          <a class="menuTop">
+          <a class="menuTop" href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id; ?>">
             <span>
               <?php print count($vv_my_notifications); ?>
             </span>
             <span class="ui-icon ui-icon-mail-closed"></span>
           </a>
           <ul>
-              <!-- XXX list maybe 10 max, then link to index view -->
-              <?php foreach($vv_my_notifications as $n): ?>
-              <li class="names">
-                <?php
-                  $args = array(
-                    'controller' => 'co_notifications',
-                    'action'     => 'view',
-                    $n['CoNotification']['id']
-                  );
-                  
-                  print $this->Html->link($n['CoNotification']['comment']
-                                          . " ("
-                                          . $this->Time->timeAgoInWords($n['CoNotification']['created'])
-                                          . ")",
-                                          $args);
-                ?>
-              </li>
-              <?php endforeach; ?>
+            <?php $notificationCount = 0; ?>
+            <?php foreach($vv_my_notifications as $n): ?>
+            <li class="names">
+              <?php
+                $args = array(
+                  'controller' => 'co_notifications',
+                  'action'     => 'view',
+                  $n['CoNotification']['id']
+                );
+
+                print $this->Html->link($n['CoNotification']['comment']
+                                        . " ("
+                                        . $this->Time->timeAgoInWords($n['CoNotification']['created'])
+                                        . ")",
+                                        $args);
+
+                $notificationCount++;
+                if ($notificationCount > 8) {
+                  break;
+                }
+              ?>
+            </li>
+            <?php endforeach; ?>
+            <li class="see-all">
+              <a href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id; ?>"><?php print _txt('op.see.notifications')?></a>
+            </li>
           </ul>
         </li>
       </ul>
