@@ -1745,6 +1745,21 @@ class CoPetition extends AppModel {
             throw new RuntimeException($e->getMessage());
           }
         }
+        
+        // Store the authenticated identifier in the petition. We don't do this as
+        // a foreign key because (1) there is no corresponding co_enrollment_attribute
+        // and (2) the identifier might subsequently be deleted from the identifiers table.
+        
+        if(!$this->saveField('authenticated_identifier', $loginIdentifier)) {
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+        
+        // Create a petition history record
+        
+        $this->CoPetitionHistoryRecord->record($id,
+                                               $actorCoPersonId,
+                                               PetitionActionEnum::IdentifierAuthenticated,
+                                               _txt('rs.pt.id.auth', array($loginIdentifier)));
       } else {
         throw new InvalidArgumentException(_txt('er.notprov.id', array('ct.org_identities.1')));
       }

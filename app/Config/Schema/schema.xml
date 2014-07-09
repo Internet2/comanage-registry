@@ -717,6 +717,7 @@
     <field name="co_invite_id" type="I">
       <constraint>REFERENCES cm_co_invites(id)</constraint>
     </field>
+    <field name="authenticated_identifier" type="C" size="256" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

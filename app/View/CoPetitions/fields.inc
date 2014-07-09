@@ -220,6 +220,16 @@ $(function() {
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
+                <th><?php print _txt('fd.identifier.identifier'); ?></th>
+                <td>
+                  <?php
+                    if(!empty($co_petitions[0]['CoPetition']['authenticated_identifier'])) {
+                      print Sanitize::html($co_petitions[0]['CoPetition']['authenticated_identifier']);
+                    }
+                  ?>
+                </td>
+              </tr>
+              <tr class="line<?php print ($l % 2); $l++; ?>">
                 <th><?php print _txt('fd.created'); ?></th>
                 <td><?php print $this->Time->nice($co_petitions[0]['CoPetition']['created']); ?></td>
               </tr>

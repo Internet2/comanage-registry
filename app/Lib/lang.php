@@ -961,6 +961,7 @@ original notification at
   'rs.pt.create.self' => 'Petition Created. You may need to check your email for further information.', 
   'rs.pt.deny' =>     'Petition Denied',
   'rs.pt.id.attached' => 'Authenticated identifier "%1$s" attached to organizational identity',
+  'rs.pt.id.auth' =>  'Identifier "%1$s" authenticated',
   'rs.pt.id.login' => 'Identifier "%1$s" flagged for login',
   'rs.pt.login' =>    'Petition Created. You have been logged out, and an activation URL has been sent to your email address. Please click the link in that email to continue.',
   'rs.pt.relogin' =>  'Petition Confirmed. You have been logged out, and will need to login again for your new identity to take effect.',

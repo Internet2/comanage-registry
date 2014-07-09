@@ -277,15 +277,16 @@ class PermittedCharacterEnum
 
 class PetitionActionEnum
 {
-  const Approved            = 'PY';
-  const Created             = 'PC';
-  const Declined            = 'PX';
-  const Denied              = 'PN';
-  const Finalized           = 'PF';
-  const IdentifiersAssigned = 'IA';
-  const InviteConfirmed     = 'IC';
-  const InviteSent          = 'IS';
-  const NotificationSent    = 'NS';
+  const Approved                = 'PY';
+  const Created                 = 'PC';
+  const Declined                = 'PX';
+  const Denied                  = 'PN';
+  const Finalized               = 'PF';
+  const IdentifierAuthenticated = 'ID';
+  const IdentifiersAssigned     = 'IA';
+  const InviteConfirmed         = 'IC';
+  const InviteSent              = 'IS';
+  const NotificationSent        = 'NS';
 }
 
 // The status of a provisioning plugin
