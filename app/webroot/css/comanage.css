@@ -242,10 +242,10 @@ fieldset.borderless {
   margin: 0 0 5px;
   overflow: hidden;
   padding: 2px 0;
-  background-color: #F5F5FF;
+  background-color: #F5F5F5;
 }
 .additionalinfo>div:hover {
-  background-color: #eef;
+  background-color: #eee;
 }
 .additionalinfo>div:last-child{
   margin: 0;
