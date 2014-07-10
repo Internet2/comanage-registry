@@ -99,7 +99,7 @@ h2 {
   font-size: 200%;
 }
 /* removes extra padding in lists of button links */
-a.linkbutton: last-child {
+a.linkbutton:last-child {
   padding-right: 0px;
 }
 #firstPrompt {
@@ -155,6 +155,9 @@ fieldset.borderless {
 .error-message {
   font-style: italic;
   color: red;
+}
+.select-name {
+  font-size: 1.4em;
 }
 
 /* Tabbed Boxes */
@@ -239,10 +242,10 @@ fieldset.borderless {
   margin: 0 0 5px;
   overflow: hidden;
   padding: 2px 0;
-  background-color: #F5F5FF;
+  background-color: #F5F5F5;
 }
 .additionalinfo>div:hover {
-  background-color: #eef;
+  background-color: #eee;
 }
 .additionalinfo>div:last-child{
   margin: 0;

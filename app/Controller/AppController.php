@@ -1264,6 +1264,7 @@ class AppController extends Controller {
       $this->loadModel('CoNotification');
       
       $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid));
+      $this->set('vv_co_person_id', $copersonid);
     }
   }
   

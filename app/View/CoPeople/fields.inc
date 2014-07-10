@@ -437,7 +437,7 @@
                       print generateCn($n);
                     }
 
-                    print " ("
+                    print "&nbsp;("
                       . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
                       . _txt('en.name', null, $n['type'])
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
@@ -650,7 +650,7 @@
                         print '<div>';
                         print '<div>';
                         print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
-                        print " (" . _txt('en.contact.mail', null, $ea['type']) . ", "
+                        print " &nbsp;(" . _txt('en.contact.mail', null, $ea['type']) . ", "
                           . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
                         print '</div>';
                         print '<div>';

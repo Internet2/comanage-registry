@@ -1,4 +1,8 @@
-/app/Config
+/app/Config/core.php
+/app/Config/email.php
+/app/Config/database.php
+/app/Config/security.salt
+/app/Config/security.seed
 /app/tmp
 /app/tmp.not
 /lib/Cake/Console/Templates/skel/tmp/
@@ -8,3 +12,4 @@
 tags
 .idea/
 comanage-registry.iml
+app/webroot/auth/login/.htaccess
