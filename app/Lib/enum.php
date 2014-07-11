@@ -46,6 +46,7 @@ class ActionEnum
   const CoPetitionUpdated               = 'CPUP';
   const CoTAndCAgreement                = 'TCAG';
   const CoTAndCAgreementBehalf          = 'TCAB';
+  const CommentAdded                    = 'CMNT';
   const EmailAddressVerified            = 'EMLV';
   const EmailAddressVerifyCanceled      = 'EMLC';
   const EmailAddressVerifyReqSent       = 'EMLS';
