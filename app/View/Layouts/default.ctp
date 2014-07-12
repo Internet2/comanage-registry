@@ -64,7 +64,7 @@
         theme: 'comanage'
       });
     }
-
+    
     // Function to confirm delete and then hand off
     function js_confirm_delete(name, url) {
       // Generate a dialog box confirming the removal of <name>.  On confirmation, forward to <url>, which executes the delete.
@@ -88,22 +88,30 @@
       $('#dialog').dialog('open');
     }
 
-    function js_confirm_generic(txt, url) {
+    function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt) {
       // Generate a dialog box confirming <txt>.  On confirmation, forward to <url>.
-
+      // Use confirmbtxt and cancelbtxt as text for the buttons, if provided.
+      
+      var confbutton = confirmbtxt;
+      var cxlbutton = cancelbtxt;
+      
+      if(confbutton == undefined) confbutton = "<?php print _txt('op.ok'); ?>";
+      if(cxlbutton == undefined) cxlbutton = "<?php print _txt('op.cancel'); ?>";
+      
       // Set the title of the dialog    
-      $("#dialog").dialog("option", "title", "<?php print _txt('op.confirm'); ?>" + " " + name);
-
+      $("#dialog").dialog("option", "title", "<?php print _txt('op.confirm'); ?>");
+      
       // Set the body of the dialog
       $("#dialog-text").text(txt);
-    
+      
       // Set the dialog buttons
+      var dbuttons = {};
+      dbuttons[cxlbutton] = function() { $(this).dialog("close"); };
+      dbuttons[confbutton] = function() { window.location=url; };
+      
       $("#dialog").dialog("option",
                           "buttons",
-                          {
-                            "<?php print _txt('op.cancel'); ?>": function() { $(this).dialog("close"); },
-                            "<?php print _txt('op.remove'); ?>": function() { window.location=url; }
-                          });
+                          dbuttons);
      
       // Open the dialog
       $('#dialog').dialog('open');
@@ -529,25 +537,37 @@
                                . $link['icon'] 
                                . '"></span>'
                                . $link['title'];
-                   
+                  
                   $url = $link['url'];
-
-                  if(isset($link['options']))
+                  
+                  $options = array();
+                  
+                  if(isset($link['options'])) {
                     $options = (array)$link['options'];
+                  }
+                  
                   $options['escape'] = FALSE;
-
-                  // Use the built in Cakephp popup
-                  if(isset($link['popup']))
-                    $popup = $link['popup'];
-                  else
-                    $popup = null;
+                  
+                  if(!empty($link['confirm'])) {
+                    // There is a built in Cake popup, which can be accessed by putting the confirmation text
+                    // as the fourth parameter to link. However, that uses a javascript popup rather than a
+                    // jquery popup, which is inconsistent with our look and feel.
+                    
+                    $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt($link['confirm']) . "', '" . Router::url($url) . "'";
+                    
+                    if(!empty($link['confirmbtxt'])) {
+                      // Set the text for the confirmation button
+                      $options['onclick'] .= ", '" . $link['confirmbtxt'] . "'";
+                    }
+                    
+                    $options['onclick'] .= ");return false";
+                  }
                   
                   print $this->Html->link(
                     $icontitle,
                     $url,
-                    $options,
-                    $popup
-                  ); // end of a
+                    $options
+                  );
                 print '</li>';
               }
             ?>

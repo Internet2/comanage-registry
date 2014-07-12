@@ -226,13 +226,21 @@ global $cm_lang, $cm_texts;
             print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($p['CoPetition']['id'])) . '\', \'' . $this->Html->url(array('controller' => 'co_petitions', 'action' => 'delete', $p['CoPetition']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . "</button>\n";
           
           if($permissions['resend'] && $p['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
+            $url = array(
+              'controller' => 'co_petitions',
+              'action' => 'resend',
+              $p['CoPetition']['id']
+            );
+            
+            $options = array();
+            $options['class'] = 'invitebutton';
+            $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt(_txt('op.inv.resend.confirm', array(generateCn($p['EnrolleeCoPerson']['PrimaryName'])))) . "', '"
+                                                                 . Router::url($url) . "', '"
+                                                                 . _txt('op.inv.resend') . "');return false";
+            
             print $this->Html->link(_txt('op.inv.resend'),
-                                    array('controller' => 'co_petitions',
-                                          'action' => 'resend',
-                                          $p['CoPetition']['id'],
-                                          'co' => $cur_co['Co']['id'],
-                                          'coef' => $p['CoPetition']['co_enrollment_flow_id']),
-                                    array('class' => 'invitebutton')) . "\n";
+                                    $url,
+                                    $options) . "\n";
           }
         ?>
         <?php ; ?>

@@ -70,7 +70,22 @@ $(function() {
   if($this->action != "add") {
     // Get any existing buttons
     $sidebarButtons = $this->get('sidebarButtons');
-
+    
+    // If status is pending confirmation, offer a link to resend the invite
+    if($permissions['resend']
+       && !empty($co_petitions[0]['CoPetition']['status'])
+       && $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'mail-closed',
+        'title'   => _txt('op.inv.resend'),
+        'url'     => array('controller'    => 'co_petitions',
+                           'action'        => 'resend',
+                           $co_petitions[0]['CoPetition']['id']),
+        'confirm' => _txt('op.inv.resend.confirm', array(generateCn($co_petitions[0]['EnrolleeCoPerson']['PrimaryName']))),
+        'confirmbtxt' => _txt('op.inv.resend')
+      );
+    }
+    
     // Add button for related Org Identity
     $sidebarButtons[]  = array(
       'icon'    => 'note',
@@ -82,7 +97,7 @@ $(function() {
         'co'            => $co_petitions[0]['CoPetition']['co_id']
       )
     );
-
+    
     // Add button for related CO Person
     $sidebarButtons[]  = array(
       'icon'    => 'note',
@@ -93,7 +108,7 @@ $(function() {
         $co_petitions[0]['CoPetition']['enrollee_co_person_id']
       )
     );
-
+    
     $this->set('sidebarButtons', $sidebarButtons);
   }
   // Determine if fields are editable
