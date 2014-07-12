@@ -1258,13 +1258,34 @@ class AppController extends Controller {
    */
   
   protected function getNotifications() {
+    $this->loadModel('CoNotification');
+    
     $copersonid = $this->Session->read('Auth.User.co_person_id');
     
-    if(!empty($copersonid)) {
-      $this->loadModel('CoNotification');
+    if(!isset($this->cur_co)) {
+      $mycos = $this->Session->read('Auth.User.cos');
       
-      $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid));
-      $this->set('vv_co_person_id', $copersonid);
+      if(!empty($mycos)) {
+        $n = array();
+        
+        foreach($mycos as $co) {
+          if(!empty($co['co_person_id'])) {
+            $n[] = array(
+              'co_id'         => $co['co_id'],
+              'co_name'       => $co['co_name'],
+              'co_person_id'  => $co['co_person_id'],
+              'notifications' => $this->CoNotification->pending($co['co_person_id'])
+            );
+          }
+        }
+        
+        $this->set('vv_all_notifications', $n);
+      }
+    } else {
+      if(!empty($copersonid)) {
+        $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid));
+        $this->set('vv_co_person_id', $copersonid);
+      }
     }
   }
   
