@@ -71,43 +71,34 @@ global $cm_lang, $cm_texts;
   <?php print _txt('op.filter.status');?>
 </button>
 
-<div id="statusfilterdialog" title="Filter by Status">
+<div id="statusfilterdialog" title="<?php print _txt('op.filter.status.by'); ?>">
   <?php
-    print $this->Form->create('CoPetition',array('action'=>'search'));
-      print $this->Form->hidden('CoPetition.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    print $this->Form->create('CoPetition', array('action'=>'search'));
+    print $this->Form->hidden('CoPetition.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    
+    // Build array of options based on model validation
+    $statusOptions = array_keys($cm_texts[ $cm_lang ]['en.status']);
 
-      // Build array of options based on model validation
-      $statusOptions = array(StatusEnum::Active,
-                             StatusEnum::Approved,
-                             StatusEnum::Declined,
-                             StatusEnum::Deleted,
-                             StatusEnum::Denied,
-                             StatusEnum::Invited,
-                             StatusEnum::Pending,
-                             StatusEnum::PendingApproval,
-                             StatusEnum::PendingConfirmation,
-                             StatusEnum::Suspended);
+    foreach ($statusOptions as $s) {
+      $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
+    }
 
-      foreach ($statusOptions as $s) {
-        $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
+    // Build array to check off actively used filters on the page
+    $selected = array();
+    if(isset($this->passedArgs['search.status'])) {
+      foreach($this->passedArgs['search.status'] as $a) {
+        $selected[] = $a;
       }
-
-      // Build array to check off actively used filters on the page
-      $selected = array();
-      if (isset($this->passedArgs['Search.status'])) {
-        foreach($this->passedArgs['Search.status'] as $a) {
-          $selected[] = $a;
-        }
-      }
-
-      // Collect parameters and print checkboxes
-      $formParams = array('options'  => $searchOptions,
-                          'multiple' => 'checkbox',
-                          'label'    => false,
-                          'selected' => $selected);
-      print $this->Form->input('Search.status', $formParams);
-
-      print $this->Form->submit('Search'); 
+    }
+    
+    // Collect parameters and print checkboxes
+    $formParams = array('options'  => $searchOptions,
+                        'multiple' => 'checkbox',
+                        'label'    => false,
+                        'selected' => $selected);
+    print $this->Form->input('search.status', $formParams);
+    
+    print $this->Form->submit(_txt('op.search')); 
     print $this->Form->end();
   ?>
 </div>

@@ -49,8 +49,7 @@
   {
     // Add related links to the sidebar
     
-    if($this->action != "invite")
-    { 
+    if($this->action != "add" && $this->action != "invite") { 
       // Adjust the link to the NSF Demographics Controller according to whether or
       // not data has been set.
       
@@ -67,25 +66,28 @@
       
       $l['co'] = $co_people[0]['CoPerson']['co_id'];
       
+      // View History button
+      $sidebarButtons[] = array(
+        'icon'    => 'note',
+        'title'   => _txt('op.history'),
+        'url'     => array(
+          'controller' => 'history_records',
+          'action' => 'index',
+          'copersonid' => $co_people[0]['CoPerson']['id']
+        )
+      );
+      
+      // NSF Demographics
       $sidebarButtons[] = array(
         'icon'    => 'image',
         'title'   => _txt('ct.co_nsf_demographics.1'),
         'url'     => $l
       );
       
-      // Autogenerate Identifiers button
-      if($permissions['assign'] && !empty($co_identifier_assignments)) {
-        $sidebarButtons[] = array(
-            'icon'    => 'script',
-            'title'   => _txt('op.id.auto'),
-            'url'     => 'javascript:js_confirm_autogenerate();' // Does not work when added in options
-        );
-      }
-      
       // Provisioning status
       if($permissions['provision']) {
         $sidebarButtons[] = array(
-          'icon'    => 'note',
+          'icon'    => 'gear',
           'title'   => _txt('op.prov.view'),
           'url'     => array(
             'controller' => 'co_people', 
@@ -105,6 +107,30 @@
             'action'     => 'review', 
             'copersonid' => $co_people[0]['CoPerson']['id']
           )
+        );
+      }
+      
+      // Petitions
+      $sidebarButtons[] = array(
+        'icon'    => 'script',
+        'title'   => _txt('ct.co_petitions.pl'),
+        'url'     => array(
+          'controller' => 'co_petitions',
+          'action' => 'index',
+          // Since this is an index view, we still need the CO ID. paginationConditions
+          // will restrict searching to eligible enrollments.
+          'co' => $co_people[0]['CoPerson']['co_id'],
+          'sort' => 'modified',
+          'search.copersonid' => $co_people[0]['CoPerson']['id']
+        )
+      );
+      
+      // Autogenerate Identifiers button
+      if($permissions['assign'] && !empty($co_identifier_assignments)) {
+        $sidebarButtons[] = array(
+            'icon'    => 'contact',
+            'title'   => _txt('op.id.auto'),
+            'url'     => 'javascript:js_confirm_autogenerate();' // Does not work when added in options
         );
       }
       
@@ -145,30 +171,6 @@
       // Default status is 'Pending'
       print $this->Form->hidden('status', array('default' => 'P')). "\n";
     }
-  }
-  
-  // View History button
-  if($this->action != "add" && $this->action != "invite") {
-    $sidebarButtons[] = array(
-      'icon'    => 'note',
-      'title'   => _txt('op.history'),
-      'url'     => array(
-        'controller' => 'history_records',
-        'action' => 'index',
-        'copersonid' => $co_people[0]['CoPerson']['id']
-      )
-    );
-  }
-  if($this->action == "canvas") {
-    $sidebarButtons[] = array(
-      'icon'    => 'person',
-      'title'   => _txt('op.view'),
-      'url'     => array(
-        'controller' => 'co_people',
-        'action' => 'view',
-        $co_people[0]['CoPerson']['id']
-      )
-    );
   }
   
   // Set buttons for rendering in sidebar  

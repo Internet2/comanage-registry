@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Fields
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -75,7 +75,7 @@ $(function() {
   if($this->action != "add") {
     // Get any existing buttons
     $sidebarButtons = $this->get('sidebarButtons');
-
+    
     $sidebarButtons[]  = array(
       'icon'    => 'note',
       'title'   => _txt('op.history'),
@@ -86,7 +86,22 @@ $(function() {
         'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
       )
     );
-
+    
+    // Petitions
+    $sidebarButtons[] = array(
+      'icon'    => 'script',
+      'title'   => _txt('ct.co_petitions.pl'),
+      'url'     => array(
+        'controller' => 'co_petitions',
+        'action' => 'index',
+        // Since this is an index view, we still need the CO ID. paginationConditions
+        // will restrict searching to eligible enrollments.
+        'co' => ($pool_org_identities ? false : $cur_co['Co']['id']),
+        'sort' => 'modified',
+        'search.orgidentityid' => $org_identities[0]['OrgIdentity']['id']
+      )
+    );
+    
     $this->set('sidebarButtons', $sidebarButtons);
   }
 

@@ -100,8 +100,8 @@ else
                     $args['action'] = 'index';
                     $args['co'] = $menuCoId;
                     $args['sort'] = 'created';
-                    $args['Search.status'][] = StatusEnum::PendingApproval;
-                    $args['Search.status'][] = StatusEnum::PendingConfirmation;
+                    $args['search.status'][] = StatusEnum::PendingApproval;
+                    $args['search.status'][] = StatusEnum::PendingConfirmation;
 
                     print $this->Html->link(_txt('ct.co_petitions.pl'), $args);
                   print "</li>";

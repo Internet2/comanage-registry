@@ -530,9 +530,19 @@ class CoPetitionsController extends StandardController {
     }
     
     // Filter by status
-    if(!empty($this->params['named']['Search.status'])) {
-      $searchterm = $this->params['named']['Search.status'];
+    if(!empty($this->params['named']['search.status'])) {
+      $searchterm = $this->params['named']['search.status'];
       $pagcond['CoPetition.status'] = $searchterm;
+    }
+    
+    // Filter by CO Person ID
+    if(!empty($this->params['named']['search.copersonid'])) {
+      $pagcond['CoPetition.enrollee_co_person_id'] = $this->params['named']['search.copersonid'];
+    }
+    
+    // Filter by Org Identity ID
+    if(!empty($this->params['named']['search.orgidentityid'])) {
+      $pagcond['CoPetition.enrollee_org_identity_id'] = $this->params['named']['search.orgidentityid'];
     }
     
     // Potentially filter by enrollment flow ID. Our assumption is that if we make it
