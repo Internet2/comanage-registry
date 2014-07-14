@@ -86,9 +86,21 @@ $(function() {
       );
     }
     
+    if($permissions['edit']) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'note',
+        'title'   => _txt('op.petition.comment'),
+        'url'     => array(
+          'controller'    => 'co_petition_history_records',
+          'action'        => 'add',
+          'copetitionid'  => $co_petitions[0]['CoPetition']['id']
+        )
+      );
+    }
+    
     // Add button for related Org Identity
     $sidebarButtons[]  = array(
-      'icon'    => 'note',
+      'icon'    => 'extlink',
       'title'   => _txt('ct.org_identities.1'),
       'url'     => array(
         'controller'    => 'org_identities',
@@ -100,7 +112,7 @@ $(function() {
     
     // Add button for related CO Person
     $sidebarButtons[]  = array(
-      'icon'    => 'note',
+      'icon'    => 'extlink',
       'title'   => _txt('ct.co_people.1'),
       'url'     => array(
         'controller'    => 'co_people',

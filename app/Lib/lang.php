@@ -92,6 +92,8 @@ $cm_texts['en_US'] = array(
   'ct.co_people.se' =>          'CO People Search',
   'ct.co_person_roles.1' =>     'CO Person Role',
   'ct.co_person_roles.pl' =>    'CO Person Roles',
+  'ct.co_petition_history_records.1' => 'CO Petition History Record',
+  'ct.co_petition_history_records.pl' => 'CO Petition History Records',
   'ct.co_petitions.1' =>        'CO Petition',
   'ct.co_petitions.pl' =>       'CO Petitions',
   'ct.co_provisioning_targets.1'  => 'Provisioning Target',
@@ -205,6 +207,7 @@ original notification at
   
   'en.action.petition' => array(
     PetitionActionEnum::Approved            => 'Petition Approved',
+    PetitionActionEnum::CommentAdded        => 'Comment Added',
     PetitionActionEnum::Created             => 'Petition Created',
     PetitionActionEnum::Declined            => 'Petition Declined',
     PetitionActionEnum::Denied              => 'Petition Denied',
@@ -888,6 +891,7 @@ original notification at
   'op.logout' =>      'Logout',
   'op.ok' =>          'OK',
   'op.petition' =>    'Petition',
+  'op.petition.comment' => 'Add Comment',
   'op.petition.create' => 'Create Petition',
   'op.primary' =>     'Make Primary',
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',

@@ -279,6 +279,7 @@ class PermittedCharacterEnum
 class PetitionActionEnum
 {
   const Approved                = 'PY';
+  const CommentAdded            = 'CM';
   const Created                 = 'PC';
   const Declined                = 'PX';
   const Denied                  = 'PN';
