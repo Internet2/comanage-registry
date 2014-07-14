@@ -198,7 +198,10 @@ $(function() {
                           array('class' => 'checkbutton')
                         );
                       }
-                      
+                    }
+                    
+                    if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval
+                       || $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
                       if($permissions['deny']) {
                         print $this->Html->link(
                           _txt('op.deny'),
