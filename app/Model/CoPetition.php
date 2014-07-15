@@ -1480,6 +1480,20 @@ class CoPetition extends AppModel {
         }
       }
       
+      // If this is a denial of a petition pending confirmation, clear out the
+      // pending invitation.
+      
+      if(!$fail && $curStatus == StatusEnum::PendingConfirmation
+         && $newPetitionStatus == StatusEnum::Denied) {
+        $inviteid = $this->field('co_invite_id');
+        
+        if($inviteid) {
+          if($this->saveField('co_invite_id', null)) {
+            $this->CoInvite->delete($inviteid);
+          }
+        }
+      }
+      
       // Register some notifications. We'll need the enrollee's name for this.
       
       if(empty($coPersonID)) {
