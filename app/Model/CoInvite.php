@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -310,11 +310,21 @@ class CoInvite extends AppModel {
    * @param  String Subject text (for configured templates stored in the database)
    * @param  String Template text (for configured templates stored in the database)
    * @param  Integer Email Address ID to verify
+   * @param  Integer Time, in minutes, the invitation is valid for (default = 1440 = 1 day)
    * @return Integer CO Invitation ID
    * @throws RuntimeException
    */
   
-  public function send($coPersonId, $orgIdentityID, $actorPersonId, $toEmail, $fromEmail=null, $coName, $subject=null, $template=null, $emailAddressID=null) {
+  public function send($coPersonId,
+                       $orgIdentityID,
+                       $actorPersonId,
+                       $toEmail,
+                       $fromEmail=null,
+                       $coName,
+                       $subject=null,
+                       $template=null,
+                       $emailAddressID=null,
+                       $expiry=null) {
     // Toss any prior invitations for $coPersonId to $toEmail
     
     try {
@@ -325,13 +335,14 @@ class CoInvite extends AppModel {
       throw new RuntimeException($e->getMessage());
     }
     
+    global $def_inv_validity;
+    
     $invite = array();
     $invite['CoInvite']['co_person_id'] = $coPersonId;
     $invite['CoInvite']['invitation'] = Security::generateAuthKey();
     $invite['CoInvite']['mail'] = $toEmail;
-    // XXX make expiration time configurable
     // XXX date format may not be portable
-    $invite['CoInvite']['expires'] = date('Y-m-d H:i:s', strtotime('+1 day'));
+    $invite['CoInvite']['expires'] = date('Y-m-d H:i:s', strtotime('+' . ($expiry ? $expiry : $def_inv_validity) . ' minutes'));
     if($emailAddressID) {
       $invite['CoInvite']['email_address_id'] = $emailAddressID;
     }

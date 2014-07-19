@@ -601,6 +601,7 @@
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
     <field name="verify_email" type="L" />
+    <field name="invitation_validity" type="I" />
     <field name="require_authn" type="L" />
     <field name="early_provisioning_exec" type="C" size="128" />
     <field name="provisioning_exec" type="C" size="128" />

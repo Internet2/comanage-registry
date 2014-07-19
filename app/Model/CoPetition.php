@@ -961,6 +961,9 @@ class CoPetition extends AppModel {
         $bodyTemplate = $this->CoEnrollmentFlow->field('verification_body',
                                                         array('CoEnrollmentFlow.id' => $enrollmentFlowID));
         
+        $invValidity = $this->CoEnrollmentFlow->field('invitation_validity',
+                                                      array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
         $coName = $this->Co->field('name', array('Co.id' => $coId));
         
         $coInviteId = $this->CoInvite->send($coPersonID,
@@ -970,7 +973,9 @@ class CoPetition extends AppModel {
                                             $notifyFrom,
                                             $coName,
                                             $subjectTemplate,
-                                            $bodyTemplate);
+                                            $bodyTemplate,
+                                            null,
+                                            $invValidity);
         
         // Add the invite ID to the petition record
         
@@ -1097,7 +1102,10 @@ class CoPetition extends AppModel {
                                         !empty($enrollmentFlow['CoEnrollmentFlow']['verification_subject'])
                                         ? $enrollmentFlow['CoEnrollmentFlow']['verification_subject'] : null,
                                         !empty($enrollmentFlow['CoEnrollmentFlow']['verification_body'])
-                                        ? $enrollmentFlow['CoEnrollmentFlow']['verification_body'] : null);
+                                        ? $enrollmentFlow['CoEnrollmentFlow']['verification_body'] : null,
+                                        null,
+                                        !empty($enrollmentFlow['CoEnrollmentFlow']['invitation_validity'])
+                                        ? $enrollmentFlow['CoEnrollmentFlow']['invitation_validity'] : null);
     
     // Update the CO Petition with the new invite ID
     

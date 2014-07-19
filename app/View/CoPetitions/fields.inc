@@ -217,6 +217,13 @@ $(function() {
                   ?>
                 </td>
               </tr>
+              <?php if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation
+                       && !empty($co_petitions[0]['CoInvite']['expires'])): ?>
+              <tr class="line<?php print ($l % 2); $l++; ?>">
+                <th><?php print _txt('fd.inv.exp'); ?></th>
+                <td><?php print $this->Time->nice($co_petitions[0]['CoInvite']['expires']); ?></td>
+              </tr>
+              <?php endif; // Invitation expires ?>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <th><?php print _txt('fd.petitioner'); ?></th>
                 <td>

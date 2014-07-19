@@ -57,7 +57,8 @@ class CoPetitionsController extends StandardController {
       'ActorCoPerson' => array(
         'PrimaryName'
       )
-    )
+    ),
+    'CoInvite'
   );
   
   /**
