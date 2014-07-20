@@ -1123,4 +1123,26 @@
       <col>co_id</col>
     </index>
   </table>
+  
+  <table name="co_settings">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+      <unique />
+    </field>
+    <field name="enable_nsf_demo" type="L" />
+    <field name="invitation_validity" type="I" />
+    <field name="required_fields_addr" type="C" size="160" />
+    <field name="required_fields_name" type="C" size="160" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_settings_i1">
+      <col>co_id</col>
+    </index>
+  </table>
 </schema>

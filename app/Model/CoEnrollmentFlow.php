@@ -123,7 +123,7 @@ class CoEnrollmentFlow extends AppModel {
     'invitation_validity' => array(
       'rule' => 'numeric',
       'required' => false,
-      'allowEmpty'
+      'allowEmpty' => true
     ),
     'require_authn' => array(
       'rule' => array('boolean')

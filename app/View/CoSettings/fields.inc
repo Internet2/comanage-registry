@@ -1,0 +1,97 @@
+<!--
+/**
+ * COmanage Registry CO Settings Fields
+ *
+ * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @link          http://www.internet2.edu/comanage COmanage Project
+ * @package       registry
+ * @since         COmanage Registry v0.9.1
+ * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * @version       $Id$
+ */
+-->
+<?php
+  // Determine if fields are editable
+  $e = false;
+  
+  if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit']))
+    $e = true;
+    
+  // We shouldn't get here if we don't have at least read permission, but check just in case
+  
+  if(!$e && !$permissions['view'])
+    return(false);
+  
+  print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+  
+  $l = 1;
+?>
+<table id="<?php print $this->action; ?>_co_settings" class="ui-widget">
+  <tbody>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.de.enable'); ?></strong>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('enable_nsf_demo')
+                     : (isset($co_settings[0]['CoSetting']['enable_nsf_demo'])
+                        && $co_settings[0]['CoSetting']['enable_nsf_demo']
+                        ? _txt('fd.yes') : _txt('fd.no')));
+        ?>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.ef.invval'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.invval.desc'); ?></span>
+      </td>
+      <td>
+        <?php global $def_inv_validity;
+              print ($e
+                     ? $this->Form->input('invitation_validity',
+                                          array('default' => $def_inv_validity))
+                     : Sanitize::html($co_settings[0]['CoSetting']['invitation_validity'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.required.addr'); ?></strong>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.required.name'); ?></strong>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
+      </td>
+      <td>
+        <?php
+          if($e) {
+            print $this->Form->submit($submit_label);
+            print $this->Form->button(_txt('op.reset'), 
+                                      array('type'=>'reset'));
+          }
+        ?>
+      </td>
+    </tr>
+  </tbody>
+</table>
