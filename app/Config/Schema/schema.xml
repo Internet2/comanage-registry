@@ -491,8 +491,10 @@
       <autoincrement />
     </field>
     <field name="subject_co_person_id" type="I">
-      <notnull />
       <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="subject_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
     <field name="actor_co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
@@ -512,6 +514,8 @@
     <field name="source_controller" type="C" size="80" />
     <field name="source_action" type="C" size="80" />
     <field name="source_id" type="I" />
+    <field name="source_arg0" type="C" size="80" />
+    <field name="source_val0" type="C" size="80" />
     <field name="status" type="C" size="2" />
     <field name="notification_time" type="T" />
     <field name="resolution_time" type="T" />
@@ -525,7 +529,20 @@
       <col>recipient_co_person_id</col>
     </index>
     <index name="co_notifications_i3">
-      <col>recipient_co_graup_id</col>
+      <col>recipient_co_group_id</col>
+    </index>
+    <index name="co_notifications_i4">
+      <col>source_url</col>
+    </index>
+    <index name="co_notifications_i5">
+      <col>source_controller</col>
+      <col>source_action</col>
+      <col>source_id</col>
+      <col>source_arg0</col>
+      <col>source_val0</col>
+    </index>
+    <index name="co_notifications_i6">
+      <col>subject_co_group_id</col>
     </index>
   </table>
   

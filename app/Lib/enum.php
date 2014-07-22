@@ -69,6 +69,7 @@ class ActionEnum
   const OrgIdAddedPetition              = 'AOIP';
   const OrgIdEditedManual               = 'EOIM';
   const OrgIdEditedPetition             = 'EOIP';
+  const ProvisionerFailed               = 'PRVX';
   const SshKeyAdded                     = 'SSHA';
   const SshKeyDeleted                   = 'SSHD';
   const SshKeyEdited                    = 'SSHE';

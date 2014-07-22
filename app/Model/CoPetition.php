@@ -1018,6 +1018,7 @@ class CoPetition extends AppModel {
            ->CoGroup
            ->CoNotificationRecipientGroup
            ->register($coPersonID,
+                      null,
                       $petitionerId,
                       'cogroup',
                       $notificationGroup,
@@ -1523,14 +1524,15 @@ class CoPetition extends AppModel {
              ->CoGroup
              ->CoNotificationRecipientGroup
              ->register($coPersonID,
+                        null,
                         $actorCoPersonID,
                         'cogroup',
                         $enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'],
                         ActionEnum::CoPetitionUpdated,
-                       _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
-                                                  _txt('en.status', null, $curStatus),
-                                                  _txt('en.status', null, $newPetitionStatus),
-                                                  $enrollmentFlow['CoEnrollmentFlow']['name'])),
+                        _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
+                                                   _txt('en.status', null, $curStatus),
+                                                   _txt('en.status', null, $newPetitionStatus),
+                                                   $enrollmentFlow['CoEnrollmentFlow']['name'])),
                         array(
                           'controller' => 'co_petitions',
                           'action'     => 'view',
@@ -1591,6 +1593,7 @@ class CoPetition extends AppModel {
                ->CoGroup
                ->CoNotificationRecipientGroup
                ->register($coPersonID,
+                          null,
                           $actorCoPersonID,
                           'cogroup',
                           $cgid,
