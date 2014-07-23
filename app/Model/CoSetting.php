@@ -66,4 +66,53 @@ class CoSetting extends AppModel {
       'allowEmpty' => true
     )
   );
+  
+  /**
+   * Get the default enrollment invitation validity for the specified CO.
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coId CO ID
+   * @return integer Invitation validity in minutes
+   */
+  
+  public function getInvitationValidity($coId) {
+    global $def_inv_validity;
+    $ret = $def_inv_validity;
+    
+    try {
+      $ret = $this->lookupValue($coId, 'invitation_validity');
+    }
+    catch(UnderflowException $e) {
+      // Use default value
+    }
+    
+    return $ret;
+  }
+  
+  /**
+   * Obtain a single CO setting.
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coId CO ID
+   * @param  string  $field Field name to retrieve, corresponding to column/field name
+   * @return mixed   Value for setting
+   * @throws UnderflowException (if no row found)
+   */
+  
+  protected function lookupValue($coId, $field) {
+    // We'll rely on Cake's caching here
+    
+    $args = array();
+    $args['conditions']['CoSetting.co_id'] = $coId;
+    $args['contain'] = false;
+    
+    $s = $this->find('first', $args);
+    
+    if(isset($s['CoSetting'][$field])) {
+      return $s['CoSetting'][$field];
+    } else {
+      // If not present throw error to distinguish from null/0/false/etc
+      throw new UnderflowException($coId);
+    }
+  }
 }

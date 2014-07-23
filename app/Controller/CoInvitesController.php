@@ -562,7 +562,11 @@ class CoInvitesController extends AppController {
                                 $this->Session->read('Auth.User.co_person_id'),
                                 $orgp['EmailAddress'][0]['mail'],
                                 null,
-                                $this->cur_co['Co']['name']);
+                                $this->cur_co['Co']['name'],
+                                null,
+                                null,
+                                null,
+                                $this->CoInvite->CoPerson->Co->CoSetting->getInvitationValidity($this->cur_co['Co']['id']));
           
           $this->Session->setFlash(_txt('em.invite.ok', array($orgp['EmailAddress'][0]['mail'])), '', array(), 'success');
         }
