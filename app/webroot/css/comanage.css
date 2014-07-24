@@ -84,6 +84,13 @@ a.desc::before {
   top: -3px;
 }
 
+/* Breadcrumbs */
+#breadcrumbs {
+  font-size: 0.8em;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
 /* Content */
 #content {
   float: left;
@@ -151,6 +158,7 @@ fieldset.borderless {
 }
 .form-error {
   background-color: #fee !important; /* override default focus color */
+  border: 1px solid red;
 }
 .error-message {
   font-style: italic;
@@ -282,7 +290,7 @@ fieldset.borderless {
 /* Sidebar (right) */
 #sidebar {
   background-color: #F5F5F5;
-  margin: 1em 0;
+  margin: 1em 0 0 0;
   padding: 10px;
 }
 #menu li,

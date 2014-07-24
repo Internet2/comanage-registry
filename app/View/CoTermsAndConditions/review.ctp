@@ -24,6 +24,9 @@
 
   print $this->element("pageTitle", array('title' => _txt('fd.tc.for',
                                                           array(generateCn($vv_co_person['PrimaryName']), $cur_co['Co']['name']))));
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.co_terms_and_conditions.pl'));
 ?>
 <script type="text/javascript">
   function open_tandc(title, tandcUrl, mode, agreeUrl) {

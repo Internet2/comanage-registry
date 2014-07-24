@@ -26,6 +26,9 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.cous.pl'));
+
   if($permissions['add'])
     echo $this->Html->link(_txt('op.add') . ' ' . _txt('ct.cous.1'),
                            array('controller' => 'cous', 'action' => 'add', 'co' => $this->params['named']['co']),

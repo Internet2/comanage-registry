@@ -23,13 +23,24 @@
  */
 -->
 <?php
+
   if($this->action == 'select') {
     $params = array('title' => _txt('op.gr.memadd',
                                     array($name_for_title)
                                    )
                    );
+    // Add breadcrumbs
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_groups';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+    $this->Html->addCrumb(_txt('op.manage.grm'));
   } else {
     $params = array('title' => _txt('ct.co_groups.pl'));
+    // Add breadcrumbs
+    $this->Html->addCrumb(_txt('ct.co_groups.pl'));
   }
   print $this->element("pageTitle", $params);
 

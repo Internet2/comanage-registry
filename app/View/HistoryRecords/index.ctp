@@ -24,7 +24,7 @@
 
   $params = array('title' => _txt('ct.history_records.pl'));
   print $this->element("pageTitle", $params);
-  
+
   if($permissions['add']) {
     $args = array();
     $args['controller'] = 'history_records';
@@ -40,6 +40,9 @@
                             $args,
                             array('class' => 'addbutton'));
   }
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.history_records.pl'));
 ?>
 
 <table id="org_identities" class="ui-widget">

@@ -26,6 +26,9 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.co_provisioning_targets.pl'));
+
   if($permissions['add']) {
     print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_provisioning_targets.1'),
                            array('controller' => 'co_provisioning_targets',
