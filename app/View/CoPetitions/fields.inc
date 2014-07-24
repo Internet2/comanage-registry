@@ -98,6 +98,22 @@ $(function() {
       );
     }
     
+    // If status is pending confirmation or approval, offer ability to flag as duplicate.
+    if($permissions['dupe']
+       && !empty($co_petitions[0]['CoPetition']['status'])
+       && ($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval
+           || $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation)) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'flag',
+        'title'   => _txt('op.petition.dupe'),
+        'url'     => array('controller'    => 'co_petitions',
+                           'action'        => 'dupe',
+                           $co_petitions[0]['CoPetition']['id']),
+        'confirm' => _txt('op.petition.dupe.confirm'),
+        'confirmbtxt' => _txt('op.petition.dupe')
+      );
+    }
+    
     // Add button for related Org Identity
     $sidebarButtons[]  = array(
       'icon'    => 'extlink',

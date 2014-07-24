@@ -135,6 +135,7 @@ class CoPetition extends AppModel {
       'rule' => array('inList', array(StatusEnum::Approved,
                                       StatusEnum::Declined,
                                       StatusEnum::Denied,
+                                      StatusEnum::Duplicate,
                                       StatusEnum::Invited,
                                       StatusEnum::PendingApproval,
                                       StatusEnum::PendingConfirmation)),
@@ -1179,6 +1180,7 @@ class CoPetition extends AppModel {
       if($newStatus == StatusEnum::Approved
          || $newStatus == StatusEnum::Confirmed
          || $newStatus == StatusEnum::Denied
+         || $newStatus == StatusEnum::Duplicate
          || $newStatus == StatusEnum::PendingApproval) {
         $valid = true;
       }
@@ -1208,7 +1210,8 @@ class CoPetition extends AppModel {
       // A Petition can go from PendingApproval to Approved or Denied
       
       if($newStatus == StatusEnum::Approved
-         || $newStatus == StatusEnum::Denied) {
+         || $newStatus == StatusEnum::Denied
+         || $newStatus == StatusEnum::Duplicate) {
         $valid = true;
       }
     }
@@ -1281,6 +1284,9 @@ class CoPetition extends AppModel {
               break;
             case StatusEnum::Denied:
               $petitionAction = PetitionActionEnum::Denied;
+              break;
+            case StatusEnum::Duplicate:
+              $petitionAction = PetitionActionEnum::FlaggedDuplicate;
               break;
           }
           

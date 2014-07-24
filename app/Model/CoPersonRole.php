@@ -126,6 +126,7 @@ class CoPersonRole extends AppModel {
                                         StatusEnum::Declined,
                                         StatusEnum::Deleted,
                                         StatusEnum::Denied,
+                                        StatusEnum::Duplicate,
                                         StatusEnum::Invited,
                                         StatusEnum::Pending,
                                         StatusEnum::PendingApproval,
