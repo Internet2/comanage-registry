@@ -69,6 +69,7 @@ class ActionEnum
   const OrgIdAddedPetition              = 'AOIP';
   const OrgIdEditedManual               = 'EOIM';
   const OrgIdEditedPetition             = 'EOIP';
+  const ProvisionerFailed               = 'PRVX';
   const SshKeyAdded                     = 'SSHA';
   const SshKeyDeleted                   = 'SSHD';
   const SshKeyEdited                    = 'SSHE';
@@ -279,10 +280,12 @@ class PermittedCharacterEnum
 class PetitionActionEnum
 {
   const Approved                = 'PY';
+  const CommentAdded            = 'CM';
   const Created                 = 'PC';
   const Declined                = 'PX';
   const Denied                  = 'PN';
   const Finalized               = 'PF';
+  const FlaggedDuplicate        = 'FD';
   const IdentifierAuthenticated = 'ID';
   const IdentifiersAssigned     = 'IA';
   const InviteConfirmed         = 'IC';
@@ -358,6 +361,7 @@ class StatusEnum
   const Confirmed           = 'C';
   const Deleted             = 'D';
   const Denied              = 'N';
+  const Duplicate           = 'D2';
   const Invited             = 'I';
   const Pending             = 'P';
   const PendingApproval     = 'PA';
@@ -498,6 +502,7 @@ $ssh_ti = array(
 $status_t = array(
   'A'  => 'Active',
   'D'  => 'Deleted',
+  'D2' => 'Duplicate',
   'I'  => 'Invited',
   'N'  => 'Denied',
   'P'  => 'Pending',
@@ -510,6 +515,7 @@ $status_t = array(
 $status_ti = array(
   'Active'          => 'A',
   'Deleted'         => 'D',
+  'Duplicate'       => 'D2',
   'Invited'         => 'I',
   'Denied'          => 'N',
   'Pending'         => 'P',

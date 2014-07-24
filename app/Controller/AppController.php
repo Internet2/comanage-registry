@@ -1363,6 +1363,9 @@ class AppController extends Controller {
     // Manage CO self service permissions?
     $p['menu']['coselfsvcperm'] = $roles['admin'];
     
+    // Manage CO settings?
+    $p['menu']['cosettings'] = $roles['admin'];
+    
     // Manage CO terms and conditions?
     $p['menu']['cotandc'] = $roles['admin'];
   

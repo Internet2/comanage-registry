@@ -49,6 +49,10 @@ class CoGroup extends AppModel {
       'className' => 'CoNotification',
       'foreignKey' => 'recipient_co_group_id'
     ),
+    "CoNotificationSubjectGroup" => array(
+      'className' => 'CoNotification',
+      'foreignKey' => 'subject_co_group_id'
+    ),
     "CoProvisioningExport" => array('dependent' => true)
   );
 

@@ -454,11 +454,32 @@ class ProvisionerBehavior extends ModelBehavior {
           }
         }
         catch(InvalidArgumentException $e) {
+          $this->registerFailureNotification($coProvisioningTarget,
+                                             (!empty($provisioningData['CoPerson']['id'])
+                                              ? $provisioningData['CoPerson']['id'] : null),
+                                             (!empty($provisioningData['CoGroup']['id'])
+                                              ? $provisioningData['CoGroup']['id'] : null),
+                                             $e->getMessage());
+          
           throw new InvalidArgumentException($e->getMessage());
         }
         catch(RuntimeException $e) {
+          $this->registerFailureNotification($coProvisioningTarget,
+                                             (!empty($provisioningData['CoPerson']['id'])
+                                              ? $provisioningData['CoPerson']['id'] : null),
+                                             (!empty($provisioningData['CoGroup']['id'])
+                                              ? $provisioningData['CoGroup']['id'] : null),
+                                             $e->getMessage());
+          
           throw new RuntimeException($e->getMessage());
         }
+        
+        // On success clear any pending notifications
+        $this->resolveNotifications($coProvisioningTarget['id'],
+                                    (!empty($provisioningData['CoPerson']['id'])
+                                     ? $provisioningData['CoPerson']['id'] : null),
+                                    (!empty($provisioningData['CoGroup']['id'])
+                                     ? $provisioningData['CoGroup']['id'] : null));
       } else {
         throw new InvalidArgumentException(_txt('er.copt.unk'));
       }
@@ -746,5 +767,93 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     return $coPersonData;
+  }
+  
+  /**
+   * Register a Notification on failure
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coProvisionerTarget CO Provisioner Target object
+   * @param  integer $targetCoPersonId CO Person being provisioned
+   * @param  integer $targetCoGroupId CO Group being provisioned
+   * @param  string  $msg Error message
+   */
+  
+  protected function registerFailureNotification($coProvisionerTarget,
+                                                 $targetCoPersonId,
+                                                 $targetCoGroupId,
+                                                 $msg) {
+    $Co = ClassRegistry::init('Co');
+    
+    // We need to pull the admin group to notify
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $coProvisionerTarget['co_id'];
+    $args['conditions']['CoGroup.name'] = "admin";
+    $args['contain'] = false;
+    
+    $cogr = $Co->CoGroup->find('first', $args);
+    
+    if($cogr) {
+      // Assemble the source array for the notification
+      $src = array();
+      
+      if(!empty($targetCoPersonId)) {
+        $src['controller'] = 'co_people';
+        $src['action'] = 'provision';
+        $src['id'] = $targetCoPersonId;
+      } elseif(!empty($targetCoGroupId)) {
+        $src['controller'] = 'co_groups';
+        $src['action'] = 'provision';
+        $src['id'] = $targetCoGroupId;
+      }
+      
+      $src['arg0'] = 'coprovisioningtargetid';
+      $src['val0'] = $coProvisionerTarget['id'];
+      
+      // Register the notification
+      $Co->CoPerson->CoNotificationSubject->register($targetCoPersonId,
+                                                     $targetCoGroupId,
+                                                     CakeSession::read('Auth.User.co_person_id'),
+                                                     'cogroup',
+                                                     $cogr['CoGroup']['id'],
+                                                     ActionEnum::ProvisionerFailed,
+                                                     _txt('er.prov.plugin', array($coProvisionerTarget['description'], $msg)),
+                                                     $src,
+                                                     true);
+    }
+  }
+  
+  /**
+   * Resolve any Notifications
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coProvisionerTargetId CO Provisioner Target invoked
+   * @param  integer $targetCoPersonId CO Person being provisioned
+   * @param  integer $targetCoGroupId CO Group being provisioned
+   */
+  
+  protected function resolveNotifications($coProvisionerTargetId,
+                                          $targetCoPersonId,
+                                          $targetCoGroupId) {
+    $CoNotification = ClassRegistry::init('CoNotification');
+    
+    // Assemble the source array for the notification
+    $src = array();
+    
+    if(!empty($targetCoPersonId)) {
+      $src['controller'] = 'co_people';
+      $src['action'] = 'provision';
+      $src['id'] = $targetCoPersonId;
+    } elseif(!empty($targetCoGroupId)) {
+      $src['controller'] = 'co_groups';
+      $src['action'] = 'provision';
+      $src['id'] = $targetCoGroupId;
+    }
+    
+    $src['arg0'] = 'coprovisioningtargetid';
+    $src['val0'] = $coProvisionerTargetId;
+    
+    // Resolve any outstanding notifications
+    $CoNotification->resolveFromSource($src, CakeSession::read('Auth.User.co_person_id'));
   }
 }

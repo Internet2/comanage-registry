@@ -114,9 +114,37 @@ $(function() {
       );
     }
     
+    if($permissions['edit']) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'note',
+        'title'   => _txt('op.petition.comment'),
+        'url'     => array(
+          'controller'    => 'co_petition_history_records',
+          'action'        => 'add',
+          'copetitionid'  => $co_petitions[0]['CoPetition']['id']
+        )
+      );
+    }
+    
+    // If status is pending confirmation or approval, offer ability to flag as duplicate.
+    if($permissions['dupe']
+       && !empty($co_petitions[0]['CoPetition']['status'])
+       && ($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval
+           || $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation)) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'flag',
+        'title'   => _txt('op.petition.dupe'),
+        'url'     => array('controller'    => 'co_petitions',
+                           'action'        => 'dupe',
+                           $co_petitions[0]['CoPetition']['id']),
+        'confirm' => _txt('op.petition.dupe.confirm'),
+        'confirmbtxt' => _txt('op.petition.dupe')
+      );
+    }
+    
     // Add button for related Org Identity
     $sidebarButtons[]  = array(
-      'icon'    => 'note',
+      'icon'    => 'extlink',
       'title'   => _txt('ct.org_identities.1'),
       'url'     => array(
         'controller'    => 'org_identities',
@@ -128,7 +156,7 @@ $(function() {
     
     // Add button for related CO Person
     $sidebarButtons[]  = array(
-      'icon'    => 'note',
+      'icon'    => 'extlink',
       'title'   => _txt('ct.co_people.1'),
       'url'     => array(
         'controller'    => 'co_people',
@@ -204,7 +232,10 @@ $(function() {
                           array('class' => 'checkbutton')
                         );
                       }
-                      
+                    }
+                    
+                    if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval
+                       || $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
                       if($permissions['deny']) {
                         print $this->Html->link(
                           _txt('op.deny'),
@@ -220,6 +251,13 @@ $(function() {
                   ?>
                 </td>
               </tr>
+              <?php if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation
+                       && !empty($co_petitions[0]['CoInvite']['expires'])): ?>
+              <tr class="line<?php print ($l % 2); $l++; ?>">
+                <th><?php print _txt('fd.inv.exp'); ?></th>
+                <td><?php print $this->Time->nice($co_petitions[0]['CoInvite']['expires']); ?></td>
+              </tr>
+              <?php endif; // Invitation expires ?>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <th><?php print _txt('fd.petitioner'); ?></th>
                 <td>

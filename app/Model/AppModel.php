@@ -226,18 +226,6 @@ class AppModel extends Model {
       if(!empty($copt['CoProvisioningTarget']['co_id'])) {
         return $copt['CoProvisioningTarget']['co_id'];
       }
-    } elseif(isset($this->validate['subject_co_person_id'])) {
-      // Notifications will reference a subject CO Person
-      
-      $args = array();
-      $args['conditions'][$this->alias.'.id'] = $id;
-      $args['contain'][] = 'SubjectCoPerson';
-      
-      $cop = $this->find('first', $args);
-      
-      if(!empty($cop['SubjectCoPerson']['co_id'])) {
-        return $cop['SubjectCoPerson']['co_id'];
-      }
     } else {
       throw new LogicException(_txt('er.co.fail'));
     }

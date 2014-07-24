@@ -68,7 +68,7 @@ class NotificationShell extends AppShell {
     )->AddArgument(
       'source',
       array(
-        'help'     => 'Source of notification, either as a URL or a comma separated list of controller/action/id',
+        'help'     => 'Source of notification, either as a URL or a comma separated list of controller,action,id,arg0,val0 (arg0/val0 are optional)',
         'required' => true
       )
     )->addOption(
@@ -153,11 +153,19 @@ class NotificationShell extends AppShell {
        || strncmp('https://', $this->args[6], 8)==0) {
       $source = $this->args[6];
     } else {
-      $s = explode(",", $this->args[6], 3);
+      $s = explode(",", $this->args[6], 5);
       
       $source['controller'] = $s[0];
       $source['action'] = $s[1];
       $source['id'] = $s[2];
+      
+      if(isset($s[3])) {
+        $source['arg0'] = $s[3];
+        
+        if(isset($s[4])) {
+          $source['val0'] = $s[4];
+        }
+      }
     }
     
     // Resolution Required

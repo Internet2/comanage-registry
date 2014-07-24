@@ -6,7 +6,7 @@
  * Version: $Revision$
  * Date: $Date$
  *
- * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -135,7 +135,19 @@ else
                   print '<a>' . _txt('me.configuration') . '</a>
                          <span class="sf-sub-indicator"> »</span>';
                   print '<ul>';
-
+                  
+                  if(isset($permissions['menu']['cosettings']) && $permissions['menu']['cosettings']) {
+                    print "<li>";
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_settings';
+                      $args['action'] = 'add';
+                      $args['co'] = $menuCoId;
+                      
+                      print $this->Html->link(_txt('ct.co_settings.pl'), $args);
+                    print "</li>";
+                  }
+                  
                   if(isset($permissions['menu']['coef']) && $permissions['menu']['coef']) {
                     print "<li>";
                       $args = array();
@@ -147,7 +159,7 @@ else
                       print $this->Html->link(_txt('ct.co_enrollment_flows.pl'), $args);
                     print "</li>";
                   }
-  
+                  
                   if(isset($permissions['menu']['cous']) && $permissions['menu']['cous']) {
                     print "<li>";
                       $args = array();
