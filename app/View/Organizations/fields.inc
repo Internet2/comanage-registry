@@ -30,6 +30,18 @@
   
   if(!$e && !$permissions['view'])
     return(false);
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.organizations.pl'), array('controller' => 'organizations', 'action' => 'index'));
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.organizations.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.organizations.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.organizations.1'));
+  }
     
 ?>
 <table id="<?php echo $this->action; ?>_organization" class="ui-widget">

@@ -26,6 +26,9 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.co_extended_attributes.pl'));
+
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
 

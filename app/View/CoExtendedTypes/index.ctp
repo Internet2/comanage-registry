@@ -25,6 +25,9 @@
 <?php
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.co_extended_types.pl'));
 ?>
 <?php
   if(!isset($any_extended) || !$any_extended):

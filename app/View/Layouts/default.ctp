@@ -528,8 +528,8 @@
     
     <div id="main" class="contentWidth">
       <?php
+        // insert the sidebar when it exists
         $sidebarButtons = $this->getVar('sidebarButtons');
-      
         if($sidebarButtons != null):
       ?>
           <!-- Display sidebar menu for content -->
@@ -605,6 +605,13 @@
         } else {
           print '<div id="content">';
         }
+
+        // insert breadcrumbs on all but the homepage
+        if ($this->request->here != $this->request->webroot) {
+          echo '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', 'Home') . "</div>";
+        }
+
+        // insert the page internal content
         print $this->fetch('content');
         print "</div>";
       ?>

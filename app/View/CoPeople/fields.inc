@@ -42,6 +42,29 @@
   if(!$e && !$permissions['view'])
     return(false);
 
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_people';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('me.population'), $args);
+  if($this->action == "view") {
+    $this->Html->addCrumb($co_people[0]['PrimaryName']['given'] . ' ' . $co_people[0]['PrimaryName']['family']);
+  } else {
+    $args = array(
+      'controller' => 'co_people',
+      'action' => 'view',
+      $co_people[0]['CoPerson']['id']);
+    $this->Html->addCrumb($co_people[0]['PrimaryName']['given'] . ' ' . $co_people[0]['PrimaryName']['family'], $args);
+    if($this->action == "canvas") {
+      $this->Html->addCrumb(_txt('op.edit'));
+    }
+    if($this->action == "invite") {
+      $this->Html->addCrumb(_txt('op.invite'));
+    }
+  }
+
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
   

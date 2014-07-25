@@ -65,8 +65,36 @@ $(function() {
 </script>
 
 <?php
-  // Add links to sidebar
+  // Determine if fields are editable
+  $e = false;
+  
+  if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit']))
+    $e = true;
+    
+  // We shouldn't get here if we don't have at least read permission, but check just in case
+  
+  if(!$e && !$permissions['view'])
+    return(false);
 
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_petitions';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $args['sort'] = 'created';
+  $args['Search.status'][] = StatusEnum::PendingApproval;
+  $args['Search.status'][] = StatusEnum::PendingConfirmation;
+
+  $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.petitions.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.petitions.1'));
+  }
+
+  // Add links to sidebar
   if($this->action != "add") {
     // Get any existing buttons
     $sidebarButtons = $this->get('sidebarButtons');
@@ -139,17 +167,7 @@ $(function() {
     
     $this->set('sidebarButtons', $sidebarButtons);
   }
-  // Determine if fields are editable
-  $e = false;
-  
-  if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit']))
-    $e = true;
-    
-  // We shouldn't get here if we don't have at least read permission, but check just in case
-  
-  if(!$e && !$permissions['view'])
-    return(false);
-    
+
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   

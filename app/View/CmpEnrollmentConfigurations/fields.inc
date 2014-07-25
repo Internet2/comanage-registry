@@ -38,6 +38,15 @@
   foreach($cmp_enrollment_configurations[0]['CmpEnrollmentAttribute'] as $a) {
     $currentAttributes[ $a['attribute'] ] = $a;
   }
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.cmp_enrollment_configurations.pl'), array('controller' => 'cmp_enrollment_configurations', 'action' => 'select'));
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit'));
+  }
 ?>
 <script type="text/javascript">
   <!-- JS specific to these fields -->

@@ -57,8 +57,11 @@
 // Globals
 global $cm_lang, $cm_texts;
 
-  $params = array('title' => $cur_co['Co']['name'] . " Petitions"); // XXX I18N
+  $params = array('title' => $cur_co['Co']['name'] . ' ' . _txt('ct.petitions.pl'));
   print $this->element("pageTitle", $params);
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.petitions.pl'));
   
   if($permissions['add']) {
     print $this->Html->link(_txt('op.enroll'),

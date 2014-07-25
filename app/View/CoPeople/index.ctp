@@ -195,6 +195,9 @@
   $params = array('title' => _txt('fd.people', array($cur_co['Co']['name'])));
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('me.population'));
+
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
 

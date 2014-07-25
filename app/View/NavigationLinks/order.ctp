@@ -28,6 +28,10 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.navigation_links.pl'), array('controller' => 'navigation_links', 'action' => 'index'));
+  $this->Html->addCrumb(_txt('op.reorder') . ' ' . _txt('ct.navigation_links.pl'));
+
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
   
