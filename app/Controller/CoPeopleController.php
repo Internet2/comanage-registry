@@ -88,7 +88,7 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-      $args['contain'][] = false;
+      $args['contain'] = false;
       
       $this->set('co_enrollment_flows', $this->Co->CoEnrollmentFlow->find('all', $args));
       
@@ -96,7 +96,7 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
-      $args['contain'][] = false;
+      $args['contain'] = false;
       
       $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
       
@@ -104,9 +104,12 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
-      $args['contain'][] = false;
+      $args['contain'] = false;
       
       $this->set('vv_co_tandc_count', $this->Co->CoTermsAndConditions->find('count', $args));
+      
+      // Show NSF Demographics?
+      $this->set('vv_enable_nsf_demo', $this->Co->CoSetting->nsfDemgraphicsEnabled($this->cur_co['Co']['id']));
     }
     
     parent::beforeRender();

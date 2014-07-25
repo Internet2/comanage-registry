@@ -115,4 +115,25 @@ class CoSetting extends AppModel {
       throw new UnderflowException($coId);
     }
   }
+  
+  /**
+   * Determine if NSF Demographics are enabled for the specified CO.
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coId CO ID
+   * @return boolean True if enabled, false otherwise
+   */
+  
+  public function nsfDemgraphicsEnabled($coId) {
+    $ret = false;
+    
+    try {
+      $ret = $this->lookupValue($coId, 'enable_nsf_demo');
+    }
+    catch(UnderflowException $e) {
+      // Use default value
+    }
+    
+    return (boolean)$ret;
+  }
 }

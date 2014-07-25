@@ -113,6 +113,20 @@ class CoSettingsController extends StandardController {
   }
   
   /**
+   * Generate a display key to be used in messages such as "Item Added".
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  Array A cached object (eg: from prior to a delete)
+   * @return string A string to be included for display.
+   */
+  
+  function generateDisplayKey($c = null) {
+    // In this case, we always use the string "CO Settings"
+    
+    return _txt('ct.co_settings.pl');
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

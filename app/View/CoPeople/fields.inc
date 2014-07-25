@@ -64,7 +64,7 @@
       $this->Html->addCrumb(_txt('op.invite'));
     }
   }
-
+  
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
   
@@ -72,23 +72,7 @@
   {
     // Add related links to the sidebar
     
-    if($this->action != "add" && $this->action != "invite") { 
-      // Adjust the link to the NSF Demographics Controller according to whether or
-      // not data has been set.
-      
-      $l = array();
-      $l['controller'] = 'co_nsf_demographics';
-      
-      if(empty($co_people[0]['CoNsfDemographic']['id'])) {
-        $l['action'] = 'add';
-        $l['copersonid'] = $co_people[0]['CoPerson']['id'];
-      } else {
-        $l['action'] = 'edit';
-        $l[] = $co_people[0]['CoNsfDemographic']['id'];
-      }
-      
-      $l['co'] = $co_people[0]['CoPerson']['co_id'];
-      
+    if($this->action != "add" && $this->action != "invite") {
       // View History button
       $sidebarButtons[] = array(
         'icon'    => 'note',
@@ -100,12 +84,30 @@
         )
       );
       
-      // NSF Demographics
-      $sidebarButtons[] = array(
-        'icon'    => 'image',
-        'title'   => _txt('ct.co_nsf_demographics.1'),
-        'url'     => $l
-      );
+      if($vv_enable_nsf_demo) {
+        // Adjust the link to the NSF Demographics Controller according to whether or
+        // not data has been set.
+        
+        $l = array();
+        $l['controller'] = 'co_nsf_demographics';
+        
+        if(empty($co_people[0]['CoNsfDemographic']['id'])) {
+          $l['action'] = 'add';
+          $l['copersonid'] = $co_people[0]['CoPerson']['id'];
+        } else {
+          $l['action'] = 'edit';
+          $l[] = $co_people[0]['CoNsfDemographic']['id'];
+        }
+        
+        $l['co'] = $co_people[0]['CoPerson']['co_id'];
+        
+        // NSF Demographics
+        $sidebarButtons[] = array(
+          'icon'    => 'image',
+          'title'   => _txt('ct.co_nsf_demographics.1'),
+          'url'     => $l
+        );
+      }
       
       // Provisioning status
       if($permissions['provision']) {
