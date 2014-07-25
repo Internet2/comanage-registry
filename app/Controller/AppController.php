@@ -141,6 +141,11 @@ class AppController extends Controller {
     // Tell the Auth module to call the controller's isAuthorized() function.
     $this->Auth->authorize = array('Controller');
     
+    // Set the redirect and error message for auth failures. Note that we can generate
+    // a stack trace instead of a redirect by setting unauthorizedRedirect to false.
+    $this->Auth->unauthorizedRedirect = "/";
+    $this->Auth->authError = _txt('er.permission');
+    
     // First, determine if we're handling a RESTful request.
     // If so, we'll do a few things differently.
     
@@ -1326,6 +1331,9 @@ class AppController extends Controller {
     // as is 'admin' below (which really implies cmadmin)
     $p['menu']['cos'] = $roles['admin'] || $roles['subadmin'];
     
+    // Manage any CO configuration?
+    $p['menu']['coconfig'] = $roles['admin'];
+    
     // Select from available enrollment flows?
     $p['menu']['createpetition'] = $roles['user'];
     
@@ -1397,7 +1405,7 @@ class AppController extends Controller {
       // Find name associated with that ID
       $this->loadModel('OrgIdentity');
       $orgName = $this->OrgIdentity->read('o',$orgIDs[0]['org_id']);
-  
+      
       // Set for home ID name in menu
       $menu['orgName'] = $orgName['OrgIdentity']['o'];
     }
@@ -1406,7 +1414,14 @@ class AppController extends Controller {
     $this->loadModel('CmpEnrollmentConfiguration');
     $this->set('pool_org_identities', $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
     
-    // Set the COs for display
+    // Set the COs for display. Start with the user's COs.
+    
+    if($this->Session->check('Auth.User.cos')) {
+      $menu['cos'] = $this->Session->read('Auth.User.cos');
+    } else {
+      $menu['cos'] = array();
+    }
+    
     if($this->viewVars['permissions']['menu']['admin']) {
       // Show all active COs for admins
       $this->loadModel('Co');
@@ -1415,13 +1430,16 @@ class AppController extends Controller {
                       'recursive'  => false
                      );
       $codata = $this->Co->find('all', $params);
-
-      foreach($codata as $data)
-        $menu['cos'][ $data['Co']['id'] ] = $data['Co']['name'];
-    } elseif($this->Session->check('Auth.User.cos')) {
-      // Show only COs that a user is a member of
-      foreach($this->Session->read('Auth.User.cos') as $name => $data)
-        $menu['cos'][ $data['co_id'] ] = $data['co_name'];
+      
+      foreach($codata as $data) {
+        // Don't clobber the COs we've already loaded
+        if(!isset($menu['cos'][ $data['Co']['name'] ])) {
+          $menu['cos'][ $data['Co']['name'] ] = array(
+            'co_id'   => $data['Co']['id'],
+            'co_name' => $data['Co']['name'] . " (" . _txt('er.co.notmember') . ")"
+          );
+        }
+      }
     }
     
     // Determine what menu contents plugins want available
@@ -1432,29 +1450,7 @@ class AppController extends Controller {
         $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus;
       }
     }
-
-    // Determine user's own NSF Demographics ids
-    $this->loadModel('CoNsfDemographic');
-
-    foreach($this->Session->read('Auth.User.cos') as $name => $data){
-      // Grab co person id
-      $demodata = $this->CoNsfDemographic->findByCoPersonId($data['co_person_id']);
-
-      if(!empty($demodata)) {
-        // Edit if it already exists for this CO
-        $menu['CoNsfDemographic'][] = array('id'      => $demodata['CoNsfDemographic']['id'],
-                                            'action'  => 'edit',
-                                            'co_id'   => $data['co_id'],
-                                            'co_name' => $data['co_name']
-                                            );
-      } else {
-        // Add if it does not exist for this CO
-        $menu['CoNsfDemographic'][] = array('action'       => 'add',
-                                            'co_id'        => $data['co_id'],
-                                            'co_name'      => $data['co_name'],
-                                            'co_person_id' => $data['co_person_id']);
-      }
-    }
+    
     $this->set('menuContent', $menu);
   }
   

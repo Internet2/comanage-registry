@@ -19,17 +19,16 @@
  * permissions and limitations under the License.
  *
  */
-
+ 
 // Load the list of COs
-if(isset($this->viewVars['menuContent']['cos']))
+if($menuContent['cos']) {
   $cos = $this->viewVars['menuContent']['cos'];
-else
+} else {
   $cos = array();
-
+}
 ?>
 
 <ul class="sf-menu">
-
 <!-- Organizations Dropdown -->
   <li class="dropMenu">
     <a class="menuTop">
@@ -39,12 +38,23 @@ else
       <span class="sf-sub-indicator"> »</span>
     </a>
     <?php
-      //loop for each CO
+      //loop over each CO
       if(count($cos) > 0) {
         print "<ul>";
-        foreach ($cos as $menuCoId => $menuCoName) {
+        foreach($cos as $menuCoName => $menuCoData) {
+          $menuCoId = $menuCoData['co_id'];
+          
+          if((!isset($menuCoData['co_person']['status'])
+              || $menuCoData['co_person']['status'] != StatusEnum::Active)
+             && !$permissions['menu']['admin']) {
+            // Don't render this CO, the person is not an active member (or a CMP admin)
+            continue;
+          }
+          
           print '<li>';
-            print '<a>' . $menuCoName . '</a>
+            // We use $menuCoData here and not $menuCoName because the former will indicate
+            // 'Not a Member' for CMP Admins (where they are not a member of the CO)
+            print '<a>' . $menuCoData['co_name'] . '</a>
                    <span class="sf-sub-indicator"> »</span>';
             print '<ul>';
 
@@ -130,7 +140,7 @@ else
                 render_plugin_menus($this->Html, $plugins, 'cos', $menuCoId);
               }
               
-              if($permissions['menu']['cos']) {
+              if($permissions['menu']['coconfig']) {
                 print '<li>';
                   print '<a>' . _txt('me.configuration') . '</a>
                          <span class="sf-sub-indicator"> »</span>';
@@ -244,7 +254,7 @@ else
                     print "</li>";
                   }
                   
-                  if(isset($permissions['menu']['conavigationlinks'])) {
+                  if(isset($permissions['menu']['conavigationlinks']) && $permissions['menu']['conavigationlinks']) {
                     print "<li>";
                       $args = array();
                       $args['plugin'] = null;
@@ -256,7 +266,7 @@ else
                     print "</li>";
                   }
                   
-                  if(isset($permissions['menu']['colocalizations'])) {
+                  if(isset($permissions['menu']['colocalizations']) && $permissions['menu']['colocalizations']) {
                     print "<li>";
                       $args = array();
                       $args['plugin'] = null;

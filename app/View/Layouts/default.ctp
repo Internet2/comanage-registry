@@ -443,9 +443,16 @@
         if($f && $f != "") {
           print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
         }
-
+        
+        // auth = errors from AuthComponent
+        $f = $this->Session->flash('auth');
+       
+        if($f && $f != "") {
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
+        }
+        
         $f = $this->Session->flash('info');
-      
+        
         if($f && $f != "") {
           print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'info');";
         }
@@ -455,7 +462,7 @@
         if($f && $f != "") {
           print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'success');";
         }
-
+        
         $f = $this->Session->error();
         
         if($f && $f != "") {

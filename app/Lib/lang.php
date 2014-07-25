@@ -457,12 +457,17 @@ original notification at
 
   // Errors
   'er.auth' =>        'Not authenticated',
+  'er.auth.co' =>     'You are not a member of any COs. Please contact an administrator for assistance.',
+  'er.auth.empty' =>  'Found empty username at login. Please contact an administrator for assistance.',
+  'er.auth.org' =>    'The identifier "%1$s" is not registered. Please contact an administrator for assistance.',
+  'er.auth.roles' =>  'You do not have any current roles. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
   'er.co.cm.edit' =>  'Cannot edit COmanage CO',
   'er.co.cm.rm' =>    'Cannot remove COmanage CO',
   'er.co.exists' =>   'A CO named "%1$s" already exists',
   'er.co.fail' =>     'Unable to find CO',
   'er.co.gr.admin' => 'CO created, but failed to create initial admin group',
   'er.co.none' =>     'No COs found (did you run setup.php?)',
+  'er.co.notmember' => 'Not a Member',
   'er.co.mismatch' => 'Requested CO does not match CO of %1$s %2$s',
   'er.co.specify' =>  'No CO Specified',
   'er.co.unk' =>      'Unknown CO',
@@ -532,6 +537,7 @@ original notification at
   'er.notfound' =>    '%1$s "%2$s" Not Found',
   'er.notprov' =>     'Not Provided',
   'er.notprov.id' =>  '%1$s ID Not Provided',
+  'er.permission' =>  'Permission Denied',
   'er.person.noex' => 'Person does not exist',
   'er.person.none' => 'No CO Person, CO Person Role, or Org Identity specified',
   'er.plugin.fail' => 'Failed to load plugin "%1$s"',
@@ -833,8 +839,7 @@ original notification at
   'me.changepassword'  => 'Change Password',
   'me.collaborations'  => 'Collaborations',
   'me.configuration'   => 'Configuration',
-  'me.for'             => 'For %1$s',
-  'me.identity'        => 'Identity',
+  'me.identity.for'    => 'My %1$s Identity',
   'me.label'           => 'Manage:',
   'me.people'          => 'People',
   'me.platform'        => 'Platform',
@@ -886,6 +891,8 @@ original notification at
   'op.grm.edit' =>    'Edit Members of %1$s Group %2$s',
   'op.grm.manage' =>  'Manage My Group Memberships',
   'op.history' =>     'View History',
+  'op.home.login' =>  'Welcome to %1$s. Please login.',
+  'op.home.select' => 'Welcome to %1$s. Please select an action from the menus, above.',
   'op.id.auto' =>     'Autogenerate Identifiers',
   'op.id.auto.confirm' => 'Are you sure you wish to autogenerate identifiers?',
   'op.inv' =>         'Invite',
@@ -1011,7 +1018,7 @@ original notification at
   'se.security.salt' =>   'Creating security salt file',
   'se.security.seed' =>   'Creating security seed file',
   'se.done' =>            'Setup complete',
-  'se.users.view' =>      'Creating users view'
+  'se.users.view' =>      'Creating users view',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

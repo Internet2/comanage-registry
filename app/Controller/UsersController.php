@@ -101,6 +101,7 @@ class UsersController extends AppController {
           // data we need in one clever find
           $args['contain'][] = 'PrimaryName';
           $args['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
+          $args['contain']['CoOrgIdentityLink']['CoPerson'][1] = 'CoPersonRole';
           $args['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
           
           $orgIdentities = $this->OrgIdentity->find('all', $args);
@@ -124,7 +125,8 @@ class UsersController extends AppController {
               $cos[ $l['CoPerson']['Co']['name'] ] = array(
                 'co_id' => $l['CoPerson']['Co']['id'],
                 'co_name' => $l['CoPerson']['Co']['name'],
-                'co_person_id' => $l['co_person_id']
+                'co_person_id' => $l['co_person_id'],
+                'co_person' => $l['CoPerson']
               );
               
               // And assemble the Group Memberships
@@ -132,16 +134,16 @@ class UsersController extends AppController {
               $params = array(
                 'conditions' => array(
                   'CoGroupMember.co_person_id' => $l['co_person_id']
-                  )
-                );
+                )
+              );
               $memberships = $this->CoGroupMember->find('all', $params);
-
+              
               foreach($memberships as $m){
                 $params = array(
                   'conditions' => array(
                     'CoGroup.id' => $m['CoGroupMember']['co_group_id']
-                    )
-                  );
+                  )
+                );
                 $result = $this->CoGroup->find('first', $params);
                 
                 if(!empty($result)) {
@@ -152,13 +154,12 @@ class UsersController extends AppController {
                     'name' => $group['name'],
                     'member' => $m['CoGroupMember']['member'],
                     'owner' => $m['CoGroupMember']['owner']
-                    );
+                  );
                 }
               }
             }
           }
           
-
           $this->Session->write('Auth.User.org_identities', $orgs);
           $this->Session->write('Auth.User.cos', $cos);
           
@@ -173,7 +174,7 @@ class UsersController extends AppController {
           // This is an API user. We don't do anything special at the moment.
         }
       } else {
-        throw new RuntimeException("Found empty username at login");
+        throw new RuntimeException(_txt('er.auth.empty'));
       }
     } else {
       // We're probably here because the session timed out
