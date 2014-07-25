@@ -65,8 +65,6 @@
     }
   }
 
-print_r($co_people[0]['PrimaryName']);
-
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
   
