@@ -83,6 +83,15 @@ class CoPetitionsController extends StandardController {
                  $this->CoPetition->CoEnrollmentFlow->field('name',
                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID)));
       
+      $authnReq = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
+                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+      
+      if(!$authnReq && !$this->Session->check('Auth.User.name')) {
+        // If authentication is not required, and we're not authenticated as
+        // a valid user, hide the login/logout button to minimize confusion
+        $this->set('noLoginLogout', true);
+      }
+      
       if($this->request->is('post')) {
         // Set the view var. We need this on both success and failure.
         
@@ -97,9 +106,6 @@ class CoPetitionsController extends StandardController {
           
           $matchPolicy = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
                                                                     array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-          
-          $authnReq = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
-                                                                 array('CoEnrollmentFlow.id' => $enrollmentFlowID));
           
           $authzLevel = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
                                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));

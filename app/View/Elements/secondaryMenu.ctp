@@ -244,7 +244,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
     </div>
   <?php endif; ?>
 
-  <?php if (!isset($noLoginLogout)) : ?>
+  <?php if(!isset($noLoginLogout) || !$noLoginLogout) : ?>
   <div id="logout">
     <span>
       <?php // Print the login/logout buttons
