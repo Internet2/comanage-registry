@@ -178,6 +178,16 @@ class UsersController extends AppController {
       }
     } else {
       // We're probably here because the session timed out
+      
+      // This is a bit of a hack. As of Cake v2.5.2, AuthComponent sets a flash message
+      // ($this->Auth->authError) on an unauthenticated request, before handing the
+      // request off to the login handler. This generates a "Permission Denied" flash
+      // after the user authenticates, which is confusing because it appears on a page
+      // that they do have permission to see. As a workaround, we'll just clobber the
+      // existing auth flash message.
+      // (Test case: new user authenticates against an enrollment flow requiring authn.)
+      CakeSession::delete('Message.auth');
+      
       $this->redirect("/auth/login");
       //throw new RuntimeException("Failed to invoke Auth component login");
     }
