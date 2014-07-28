@@ -193,6 +193,10 @@ class AppModel extends Model {
       $args = array();
       $args['conditions'][$this->alias.'.id'] = $id;
       $args['contain'][] = 'CoPersonRole';
+      if(isset($this->validate['org_identity_id'])) {
+        // This is an MVPA
+        $args['contain'][] = 'OrgIdentity';
+      }
       
       $copr = $this->find('first', $args);
       
@@ -209,6 +213,12 @@ class AppModel extends Model {
       }
       
       // Is this an MVPA where this is an org identity?
+      
+      if(!empty($copr['OrgIdentity']['co_id'])) {
+        return $copr['OrgIdentity']['co_id'];
+      }
+      
+      // If this is an MVPA, don't fail on no CO ID since that may not be the current configuration
       
       if(empty($copr[ $this->alias ]['co_person_id'])
          && !empty($copr[ $this->alias ]['org_identity_id'])) {
