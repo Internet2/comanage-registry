@@ -376,6 +376,13 @@ original notification at
   'en.required' =>    array(RequiredEnum::Required => 'Required',
                             RequiredEnum::Optional => 'Optional',
                             RequiredEnum::NotPermitted => 'Not Permitted'),
+  
+  'en.required.address' => array(RequiredAddressFieldsEnum::Line1                       => 'Line1',
+                                 RequiredAddressFieldsEnum::Line1CityStatePostal        => 'Line1,City,State,ZIP/Postal Code',
+                                 RequiredAddressFieldsEnum::Line1CityStatePostalCountry => 'Line1,City,State,ZIP/Postal Code,Country'),
+  
+  'en.required.name' => array(RequiredNameFieldsEnum::Given       => 'Given',
+                              RequiredNameFieldsEnum::GivenFamily => 'Given,Family'),
 
   'en.sshkey.type' => array(
     SshKeyTypeEnum::DSA  => 'DSA',

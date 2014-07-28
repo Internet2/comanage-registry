@@ -70,6 +70,27 @@
         <strong class="fieldTitle"><?php print _txt('fd.required.addr'); ?></strong>
       </td>
       <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['required_fields_addr'])
+                             ? $co_settings[0]['CoSetting']['required_fields_addr']
+                             : "");
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('required_fields_addr',
+                                      $cm_texts[ $cm_lang ]['en.required.address'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('required_fields_addr')) {
+              print $this->Form->error('required_fields_addr');
+            }
+          } else {
+            print _txt('en.required.address', null, $co_settings[0]['CoSetting']['required_fields_addr']);
+          }
+        ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -77,11 +98,32 @@
         <strong class="fieldTitle"><?php print _txt('fd.required.name'); ?></strong>
       </td>
       <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['required_fields_name'])
+                             ? $co_settings[0]['CoSetting']['required_fields_name']
+                             : "");
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('required_fields_name',
+                                      $cm_texts[ $cm_lang ]['en.required.name'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('required_fields_name')) {
+              print $this->Form->error('required_fields_name');
+            }
+          } else {
+            print _txt('en.required.name', null, $co_settings[0]['CoSetting']['required_fields_name']);
+          }
+        ?>
       </td>
     </tr>
     <tr>
       <td>
-        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
+        <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

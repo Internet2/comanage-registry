@@ -50,7 +50,10 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.address.line1'); ?><span class="required">*</span>
+        <?php echo _txt('fd.address.line1'); ?>
+        <?php if(in_array('line1', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('line1', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['line1'])); ?>
@@ -59,6 +62,9 @@
     <tr class="line2">
       <td>
         <?php echo _txt('fd.address.line2'); ?>
+        <?php if(in_array('line2', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('line2') : Sanitize::html($addresses[0]['Address']['line2'])); ?>
@@ -67,6 +73,9 @@
     <tr class="line1">
       <td>
         <?php echo _txt('fd.address.locality'); ?>
+        <?php if(in_array('locality', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
@@ -75,6 +84,9 @@
     <tr class="line2">
       <td>
         <?php echo _txt('fd.address.state'); ?>
+        <?php if(in_array('state', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
@@ -83,6 +95,9 @@
     <tr class="line1">
       <td>
         <?php echo _txt('fd.address.postal_code'); ?>
+        <?php if(in_array('postal_code', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
@@ -91,6 +106,9 @@
     <tr class="line2">
       <td>
         <?php echo _txt('fd.address.country'); ?>
+        <?php if(in_array('country', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>

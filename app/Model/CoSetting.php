@@ -90,6 +90,62 @@ class CoSetting extends AppModel {
   }
   
   /**
+   * Get required address fields for the specified CO.
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coId CO ID, or null to get default values
+   * @return array Array of required fields
+   */
+  
+  public function getRequiredAddressFields($coId=null) {
+    // It would probably be better to get this from the model somehow
+    $ret = explode(",", RequiredAddressFieldsEnum::Line1);
+    
+    if($coId) {
+      try {
+        $str = $this->lookupValue($coId, 'required_fields_addr');
+        
+        if($str && $str != "") {
+          $ret = explode(",", $str);
+        }
+      }
+      catch(UnderflowException $e) {
+        // Use default value
+      }
+    }
+    
+    return $ret;
+  }
+  
+  /**
+   * Get required name fields for the specified CO.
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coId CO ID, or null to get default values
+   * @return array Array of required fields
+   */
+  
+  public function getRequiredNameFields($coId=null) {
+    // It would probably be better to get this from the model somehow
+    $ret = explode(",", RequiredNameFieldsEnum::Given);
+    
+    if($coId) {
+      try {
+        $str = $this->lookupValue($coId, 'required_fields_name');
+        
+        if($str && $str != "") {
+          $ret = explode(",", $str);
+        }
+      }
+      catch(UnderflowException $e) {
+        // Use default value
+      }
+    }
+    
+    return $ret;
+  }
+
+  /**
    * Obtain a single CO setting.
    *
    * @since  COmanage Registry v0.9.1

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Names Fields
  *
- * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -69,7 +69,10 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-          <?php print _txt('fd.name.given'); ?><span class="required">*</span>
+        <?php print _txt('fd.name.given'); ?>
+        <?php if(in_array('given', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('Name.given', array('class' => 'focusFirst')) : Sanitize::html($names[0]['Name']['given'])); ?>
@@ -78,6 +81,9 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php print _txt('fd.name.middle'); ?>
+        <?php if(in_array('middle', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('Name.middle') : Sanitize::html($names[0]['Name']['middle'])); ?>
@@ -85,6 +91,9 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php print _txt('fd.name.family'); ?>
+        <?php if(in_array('family', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('Name.family') : Sanitize::html($names[0]['Name']['family'])); ?>

@@ -345,6 +345,20 @@ class RequiredEnum
   );*/
 }
 
+// We use the actual field names here to simplify form rendering
+class RequiredAddressFieldsEnum
+{
+  const Line1                       = "line1";
+  const Line1CityStatePostal        = "line1,locality,state,postal_code";
+  const Line1CityStatePostalCountry = "line1,locality,state,postal_code,country";
+}
+
+class RequiredNameFieldsEnum
+{
+  const Given       = "given";
+  const GivenFamily = "given,family";
+}
+
 class SshKeyTypeEnum
 {
   // Protocol v2

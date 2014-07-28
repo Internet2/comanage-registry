@@ -133,4 +133,44 @@ class Address extends AppModel {
   public $cm_enum_types = array(
     'type' => 'contact_t'
   );
+  
+  /**
+   * Actions to take before a validate operation is executed.
+   *
+   * @since  COmanage Registry v0.9.1
+   */
+  
+  public function beforeValidate($options = array()) {
+    // Update validation rules according to CO Settings, but only for records attached
+    // to a CO Person Role
+    
+    if(!empty($this->data['Address']['co_person_role_id'])) {
+      // Map to the CO ID
+      
+      $args = array();
+      $args['joins'][0]['table'] = 'cm_co_person_roles';
+      $args['joins'][0]['alias'] = 'CoPersonRole';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
+      $args['conditions']['CoPersonRole.id'] = $this->data['Address']['co_person_role_id'];
+      $args['contain'] = false;
+      
+      $cop = $this->CoPersonRole->CoPerson->find('first', $args);
+      
+      if($cop) {
+        $fields = $this->CoPersonRole->CoPerson->Co->CoSetting->getRequiredAddressFields($cop['CoPerson']['co_id']);
+        
+        foreach($fields as $f) {
+          // Make this field required
+          $this->validator()->getField($f)->getRule('content')->required = true;
+          $this->validator()->getField($f)->getRule('content')->allowEmpty = false;
+          $this->validator()->getField($f)->getRule('content')->message = _txt('fd.required');
+        }
+      } else {
+        // If for some reason we can't find the CO, fall back to the defaults
+      }
+    }
+    
+    return true;
+  }
 }
