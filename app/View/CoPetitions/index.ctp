@@ -26,9 +26,7 @@
   $(function() {
     $( "#statusfilterdialog" ).dialog({
       autoOpen: false,
-      height: 300,
-      width: 350,
-      height: 265,
+      width: 200,
       modal: true
     });
 
@@ -43,13 +41,18 @@
     width: 50%;
     margin: 0 0 0 2px;
   }
-
   #statusfilter {
     overflow: hidden;
   }
-
   #statusfilter .input>label {
     float: left;
+  }
+  #statusfilterdialog .required {
+    color: black;
+  }
+  #statusfilterdialog .submit {
+    margin: 0.5em 0;
+    float: right !important;
   }
 </style>
 
@@ -101,7 +104,7 @@ global $cm_lang, $cm_texts;
                         'selected' => $selected);
     print $this->Form->input('search.status', $formParams);
     
-    print $this->Form->submit(_txt('op.search')); 
+    print $this->Form->submit(_txt('op.filter'));
     print $this->Form->end();
   ?>
 </div>
