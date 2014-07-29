@@ -156,6 +156,11 @@ fieldset.borderless {
   border: 0;
   margin-top: 25px;
 }
+.checkbox,
+.checkbox label,
+.checkbox input {
+  cursor: pointer;
+}
 .form-error {
   background-color: #fee !important; /* override default focus color */
   border: 1px solid red;
