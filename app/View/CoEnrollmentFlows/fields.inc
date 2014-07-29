@@ -512,6 +512,17 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
+        <strong class="fieldTitle"><?php print _txt('fd.ef.concl'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.concl.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('conclusion_text')
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['conclusion_text'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.rd.submit'); ?></strong><br />
         <span class="descr"><?php print _txt('fd.ef.rd.submit.desc'); ?></span>
       </td>

@@ -161,6 +161,14 @@
 </div>
 
 <div style = "overflow:hidden;">
+  <?php
+    // Render introductory text for new petitions
+    
+    if($this->action == 'add' && !empty($vv_introduction_text)) {
+      print '<div class="ui-widget modelbox">' . $vv_introduction_text . "</div>";
+    }
+  ?>
+
   <?php 
     // Sort attributes by model for printing
     $coea_model = array();
@@ -457,8 +465,16 @@
       </table>
     </div>
     <?php endif; // action == view ?>
-  <?php endif; ?>
-
+  <?php endif; // T&C ?>
+  
+  <?php
+    // Render conclusion text for new petitions
+    
+    if($this->action == 'add' && !empty($vv_conclusion_text)) {
+      print '<div class="ui-widget modelbox">' . $vv_conclusion_text . "</div>";
+    }
+  ?>
+  
   <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
     <tbody>
       <tr>

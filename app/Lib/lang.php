@@ -654,6 +654,8 @@ original notification at
   'fd.ef.ce.desc' =>  'Confirm email addresses provided by sending a confirmation URL to the address',
   'fd.ef.coef' =>     'Enable Organizational Attributes Via CO Enrollment Flow',
   'fd.ef.coef.desc' => 'If enabled, allow organizational identity attributes to be collected via forms during CO enrollment flows (these attributes will be less authoritative than those obtained via LDAP or SAML)',
+  'fd.ef.concl' =>    'Conclusion',
+  'fd.ef.concl.desc' => 'Optional text to display at the bottom of a Petition form, before the Submit button',
   'fd.ef.efn'      => 'From Address For Notifications',
   'fd.ef.efn.desc' => 'Email address notifications will come from',
   'fd.ef.env'      => 'Enable Environment Attribute Retrieval',

@@ -181,34 +181,26 @@ $(function() {
   // refactored at some point.
 ?>
 <div style="min-height: 350px;">
+  <?php if($this->action != 'add'): // Enable tabs only if we're viewing an existing petition ?>
   <div id="tabs">
     <ul>
-      <?php if($this->action != 'add'): ?>
-        <li>
-          <a href="#tabs-petition">
-            <?php print _txt('ct.co_petitions.1'); ?>
-          </a>
-        </li>
-      <?php endif; ?>
-
-      <?php if($this->action != "invite"): ?>
-        <li>
-          <a href="#tabs-attributes">
-            <?php print _txt('fd.attrs.pet'); ?>
-          </a>
-        </li>
-      <?php endif; ?>
-        
-      <?php if($this->action != 'add'): ?>
-        <li>
-          <a href="#tabs-history">
-            <?php print _txt('fd.history.pt'); ?>
-          </a>
-        </li>
-      <?php endif; ?>
-
-      
+      <li>
+        <a href="#tabs-petition">
+          <?php print _txt('ct.co_petitions.1'); ?>
+        </a>
+      </li>
+      <li>
+        <a href="#tabs-attributes">
+          <?php print _txt('fd.attrs.pet'); ?>
+        </a>
+      </li>
+      <li>
+        <a href="#tabs-history">
+          <?php print _txt('fd.history.pt'); ?>
+        </a>
+      </li>
     </ul>
+  <?php endif; // action = add ?>
     <div id="tabs-petition">
       <?php if($this->action != 'add'): ?>
         <div>
@@ -315,15 +307,12 @@ $(function() {
     </div>
     <div id="tabs-attributes">
       <?php
-        if($this->action == 'add' && !empty($vv_introduction_text)) {
-          print "<p>" . $vv_introduction_text . "</p>";
-        }
-      ?>
-      <?php
         include('petition-attributes.inc');
       ?>
     </div>
+      <?php if($this->action != 'add'): ?>
   </div>
+      <?php endif; ?>
 </div>
 
 
