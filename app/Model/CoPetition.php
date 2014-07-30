@@ -201,7 +201,6 @@ class CoPetition extends AppModel {
     // Since when we're called createPetition has already pulled $efAttrs from the
     // database, we traverse it looking for $efAttrID rather than do another database
     // call for just the relevant records.
-    
     foreach($efAttrs as $efAttr) {
       // More than one entry can match a given attribute ID.
       
@@ -210,8 +209,12 @@ class CoPetition extends AppModel {
         continue;
       }
       
-      if($efAttr['field'] == 'co_enrollment_attribute_id') {
-        // Skip the enrollment attribute id
+      // Skip metadata fields
+      if($efAttr['field'] == 'co_enrollment_attribute_id'
+         || $efAttr['field'] == 'type'
+         || $efAttr['field'] == 'language'
+         || $efAttr['field'] == 'primary_name') {
+        
         continue;
       }
       
