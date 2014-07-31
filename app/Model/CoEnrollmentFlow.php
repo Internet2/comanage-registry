@@ -182,6 +182,18 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'conclusion_text' => array(
+      'rule' => 'notEmpty',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    't_and_c_mode' => array(
+      'rule' => array('inList',
+                      array(TermsAndConditionsModeEnum::ExplicitConsent,
+                            TermsAndConditionsModeEnum::ImpliedConsent,
+                            TermsAndConditionsModeEnum::SplashPage,
+                            TermsAndConditionsModeEnum::Ignore))
+    ),
     'redirect_on_submit' => array(
       'rule' => array('url', true),
       'required' => false,

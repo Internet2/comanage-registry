@@ -98,8 +98,10 @@
     // Open dialog
     $("#dialog-review").dialog("open");
     
+    <?php if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent): ?>
     // Enable the checkbox
     document.getElementById('CoTermsAndConditions'+id).disabled = false;
+    <?php endif; // explicit consent ?>
   }
   
   function maybe_enable_submit() {
@@ -107,11 +109,13 @@
     
     var allagreed = 1;
     
+    <?php if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent): ?>
     for(var i = 0;i < tandcids.length;i++) {
       if(!document.getElementById('CoTermsAndConditions'+tandcids[i]).checked) {
         allagreed = 0;
       }
     }
+    <?php endif; // explicit consent ?>
     
     if(allagreed) {
       $(":submit").removeAttr('disabled');
@@ -126,6 +130,7 @@
   {
     // Local (to this view) initializations
     
+    <?php if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent): ?>
     // Disable checkboxes until individual T&C are reviewed
     for(var i = 0;i < tandcids.length;i++) {
       // If the box is already ticked (eg: if the form re-renders), make sure it remains enabled
@@ -133,6 +138,7 @@
         document.getElementById('CoTermsAndConditions'+tandcids[i]).disabled = true;
       }
     }
+    <?php endif; // explicit consent ?>
     
     // Disable submit button until all T&C are agreed to
     maybe_enable_submit();
@@ -198,7 +204,7 @@
       if($ea['hidden']) {
         $fieldName = $ea['model'] . '.' . $ea['field'];
       }
-        
+      
       print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n"; 
     }
     
@@ -253,7 +259,6 @@
                 $fieldName = $ea['model'] . '.' . $ea['field'];
               }
           ?>
-          
             <tr class="line<?php print ($l % 2); $l++; ?>">
               <td>
                 <?php
@@ -424,11 +429,16 @@
                                 array('class' => 'linkbutton'));
       ?>
     </div>
-    <?php else: // action == view ?>
+    <?php elseif($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent
+                 || $vv_tandc_mode == TermsAndConditionsModeEnum::ImpliedConsent): // action == view ?>
     <div class="ui-widget modelbox">
       <div class="boxtitle">
         <b><?php print _txt('op.tc.agree'); ?></b><br />
+        <?php if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent): ?>
         <span class="descr"><?php print _txt('fd.tc.agree.desc'); ?></span>
+        <?php elseif($vv_tandc_mode == TermsAndConditionsModeEnum::ImpliedConsent): ?>
+        <span class="descr"><?php print _txt('fd.tc.agree.impl'); ?></span>
+        <?php endif; // vv_tandc_mode ?>
       </div>
       <table id="<?php print $this->action; ?>_co_petition_tandc" class="ui-widget">
         <tbody>
@@ -438,11 +448,25 @@
               <?php
                 print _txt('op.tc.agree.i');
                 
+                $fieldName = "CoTermsAndConditions." . $t['CoTermsAndConditions']['id'];
                 $args = array();
                 $args['value'] = $this->Session->read('Auth.User.username');
-                $args['onClick'] = "maybe_enable_submit()";
                 
-                $fieldName = "CoTermsAndConditions." . $t['CoTermsAndConditions']['id'];
+                if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent) {
+                  // Explicit consent, render a checkbox
+                  $args['onClick'] = "maybe_enable_submit()";
+                } elseif($vv_tandc_mode == TermsAndConditionsModeEnum::ImpliedConsent) {
+                  // Implicit consent, render as hidden fields instead
+                  $args['checked'] = true;
+                  // Disabling the checkbox prevents the value from POSTing, and there
+                  // is no READONLY attribute on a checkbox. A hack is to use javascript.
+                  // A better options would be to use a hidden field here, but that is
+                  // triggering a blackhole on submit. Processing entirely server side
+                  // is also problematic in the edge case where a new T&C is added after
+                  // the form is rendered.
+                  //$args['disabled'] = true;
+                  $args['onClick'] = "return false";
+                }
                 
                 print $this->Form->checkbox($fieldName, $args);
               ?>

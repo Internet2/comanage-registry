@@ -368,6 +368,41 @@ original notification at
                             NameEnum::FKA => 'FKA',
                             NameEnum::Official => 'Official',
                             NameEnum::Preferred => 'Preferred'),
+  
+  // Navigation links
+  'en.nav.location' =>     array(LinkLocationEnum::topBar => 'Top Bar'),
+
+  // Demographics
+  'en.nsf.gender' =>       array(NSFGenderEnum::Female => 'Female',
+                                 NSFGenderEnum::Male   => 'Male'),
+
+  'en.nsf.citizen' =>      array(NSFCitizenshipEnum::USCitizen           => 'U.S. Citizen',
+                                 NSFCitizenshipEnum::USPermanentResident => 'U.S. Permanent Resident',
+                                 NSFCitizenshipEnum::Other               => 'Other non-U.S. Citizen'),
+
+  'en.nsf.ethnic' =>       array(NSFEthnicityEnum::Hispanic    => 'Hispanic or Latino',
+                                 NSFEthnicityEnum::NotHispanic => 'Not Hispanic or Latino'),
+
+  'en.nsf.ethnic.desc' =>       array(NSFEthnicityEnum::Hispanic => 'A person of Mexican, Puerto Rican, Cuban, South or Central American, or other Spanish culture or origin, regardless of race',),
+
+
+  'en.nsf.race' =>         array(NSFRaceEnum::Asian          => 'Asian',
+                                 NSFRaceEnum::AmericanIndian => 'American Indian or Alaskan Native',
+                                 NSFRaceEnum::Black          => 'Black or African American',
+                                 NSFRaceEnum::NativeHawaiian => 'Native Hawaiian or Pacific Islander',
+                                 NSFRaceEnum::White          => 'White'
+                                ),
+
+  'en.nsf.race.desc' =>         array(NSFRaceEnum::Asian          => 'A person having origins in any of the original peoples of the Far East, Southeast Asia, or the Indian subcontinent including, for example, Cambodia, China, India, Japan, Korea, Malaysia, Pakistan, the Philippine Islands, Thailand, and Vietnam',
+                                      NSFRaceEnum::AmericanIndian => 'A person having origins in any of the original peoples of North and South America (including Central America), and who maintains tribal affiliation or community attachment',
+                                      NSFRaceEnum::Black          => 'A person having origins in any of the black racial groups of Africa',
+                                      NSFRaceEnum::NativeHawaiian => 'A person having origins in any of the original peoples of Hawaii, Guan, Samoa, or other Pacific Islands',
+                                      NSFRaceEnum::White          => 'A person having origins in any of the original peoples of Europe, the Middle East, or North Africa'),
+
+  'en.nsf.disab' =>        array(NSFDisabilityEnum::Hearing  => 'Hearing Impaired',
+                                 NSFDisabilityEnum::Visual   => 'Visual Impaired',
+                                 NSFDisabilityEnum::Mobility => 'Mobility/Orthopedic Impairment',
+                                 NSFDisabilityEnum::Other    => 'Other Impairment'),
 
   'en.permission'  => array(PermissionEnum::None      => 'None',
                             PermissionEnum::ReadOnly  => 'Read Only',
@@ -431,40 +466,12 @@ original notification at
     SuspendableStatusEnum::Suspended           => 'Suspended'
   ),
   
-  // Navigation links
-  'en.nav.location' =>     array(LinkLocationEnum::topBar => 'Top Bar'),
-
-  // Demographics
-  'en.nsf.gender' =>       array(NSFGenderEnum::Female => 'Female',
-                                 NSFGenderEnum::Male   => 'Male'),
-
-  'en.nsf.citizen' =>      array(NSFCitizenshipEnum::USCitizen           => 'U.S. Citizen',
-                                 NSFCitizenshipEnum::USPermanentResident => 'U.S. Permanent Resident',
-                                 NSFCitizenshipEnum::Other               => 'Other non-U.S. Citizen'),
-
-  'en.nsf.ethnic' =>       array(NSFEthnicityEnum::Hispanic    => 'Hispanic or Latino',
-                                 NSFEthnicityEnum::NotHispanic => 'Not Hispanic or Latino'),
-
-  'en.nsf.ethnic.desc' =>       array(NSFEthnicityEnum::Hispanic => 'A person of Mexican, Puerto Rican, Cuban, South or Central American, or other Spanish culture or origin, regardless of race',),
-
-
-  'en.nsf.race' =>         array(NSFRaceEnum::Asian          => 'Asian',
-                                 NSFRaceEnum::AmericanIndian => 'American Indian or Alaskan Native',
-                                 NSFRaceEnum::Black          => 'Black or African American',
-                                 NSFRaceEnum::NativeHawaiian => 'Native Hawaiian or Pacific Islander',
-                                 NSFRaceEnum::White          => 'White'
-                                ),
-
-  'en.nsf.race.desc' =>         array(NSFRaceEnum::Asian          => 'A person having origins in any of the original peoples of the Far East, Southeast Asia, or the Indian subcontinent including, for example, Cambodia, China, India, Japan, Korea, Malaysia, Pakistan, the Philippine Islands, Thailand, and Vietnam',
-                                      NSFRaceEnum::AmericanIndian => 'A person having origins in any of the original peoples of North and South America (including Central America), and who maintains tribal affiliation or community attachment',
-                                      NSFRaceEnum::Black          => 'A person having origins in any of the black racial groups of Africa',
-                                      NSFRaceEnum::NativeHawaiian => 'A person having origins in any of the original peoples of Hawaii, Guan, Samoa, or other Pacific Islands',
-                                      NSFRaceEnum::White          => 'A person having origins in any of the original peoples of Europe, the Middle East, or North Africa'),
-
-  'en.nsf.disab' =>        array(NSFDisabilityEnum::Hearing  => 'Hearing Impaired',
-                                 NSFDisabilityEnum::Visual   => 'Visual Impaired',
-                                 NSFDisabilityEnum::Mobility => 'Mobility/Orthopedic Impairment',
-                                 NSFDisabilityEnum::Other    => 'Other Impairment'),
+  'en.tandc.mode' => array(
+    TermsAndConditionsModeEnum::ExplicitConsent => 'Explicit Consent',
+    TermsAndConditionsModeEnum::ImpliedConsent  => 'Implied Consent',
+    TermsAndConditionsModeEnum::SplashPage      => 'Splash Page',
+    TermsAndConditionsModeEnum::Ignore          => 'Ignore'
+  ),
 
   // Errors
   'er.auth' =>        'Not authenticated',
@@ -696,6 +703,8 @@ original notification at
   'fd.ef.saml.desc' => 'If the enrollee is authenticated via a SAML IdP with attributes released, examine the SAML assertion for authoritative attributes',
   'fd.ef.sea' =>      'Require Authentication For Self Enrollment',
   'fd.ef.sea.desc' => 'If self enrollment is enabled, require enrollees who are self-enrolling to authenticate to the platform',
+  'fd.ef.tandc' =>    'Terms and Conditions Mode',
+  'fd.ef.tandc.desc' => 'How to handle Terms and Conditions, if any are defined. See <a href="https://spaces.internet2.edu/display/COmanage/Registry+Terms+and+Conditions">Terms and Conditions</a>',
   'fd.ef.vbody' =>    'Verification Email Body',
   'fd.ef.vbody.desc' => 'Body for email message sent as part of verification step. Max 4000 characters.',
   'fd.ef.vsub' =>     'Subject For Verification Email',
@@ -815,6 +824,7 @@ original notification at
   'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petiton',
   'fd.subject' =>     'Subject',
   'fd.tc.agree.desc' => 'You must agree to the following Terms and Conditions before continuing.<br />You must review the T&C before you can click <i>I Agree</i>, and you must agree before you can submit.',
+  'fd.tc.agree.impl' => 'By clicking <i>Submit</i>, you are agreeing to the following Terms and Conditions.<br />Please review the T&C before continuing.',
   'fd.tc.agree.no' => 'Not Agreed',
   'fd.tc.agree.yes' => 'Agreed',
   'fd.tc.cou.desc' => 'If set, this T&C only applies to members of the specified COU',

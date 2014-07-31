@@ -308,6 +308,14 @@ class CoPetitionsController extends StandardController {
           
           $this->set('vv_terms_and_conditions',
                      $this->CoPetition->Co->CoTermsAndConditions->find('all', $tArgs));
+          
+          // Also pass through the T&C Mode
+          
+          $tcmode = $this->CoPetition
+                         ->CoEnrollmentFlow->field('t_and_c_mode',
+                                                   array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+          
+          $this->set('vv_tandc_mode', (!empty($tcmode) ? $tcmode : TermsAndConditionsModeEnum::ExplicitConsent));
         }
         
         // See if there is introductory text

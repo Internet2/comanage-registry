@@ -408,6 +408,14 @@ class SuspendableStatusEnum
   const Suspended           = 'S';
 }
 
+class TermsAndConditionsModeEnum
+{
+  const ExplicitConsent = 'EC';
+  const ImpliedConsent  = 'IC';
+  const SplashPage      = 'S';
+  const Ignore          = 'X';
+}
+
 // Old style enums below, deprecated
 // In order to switch away from them, AppController::convertRestPost
 // and checkRestPost must be rewritten, as well as Model/CoEnrollmentAttribute::enrollmentFlowAttributes.
