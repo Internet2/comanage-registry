@@ -307,6 +307,9 @@ class CoPetition extends AppModel {
     $efName = $this->CoEnrollmentFlow->field('name',
                                              array('CoEnrollmentFlow.id' => $enrollmentFlowID));
     
+    $tAndCMode = $this->CoEnrollmentFlow->field('t_and_c_mode',
+                                                array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+    
     $initialStatus = StatusEnum::Approved;
     
     if($verifyEmail || $requireAuthn) {
@@ -927,6 +930,33 @@ class CoPetition extends AppModel {
                                                                     $coPersonID,
                                                                     $coPersonID,
                                                                     $requestData['CoTermsAndConditions'][$coTAndCId]);
+          
+          // Also create a Petition History Record of the agreement
+          
+          $tcenum = null;
+          $tccomment = "";
+          $tcdesc = $this->Co->CoTermsAndConditions->field('description',
+                                                           array('CoTermsAndConditions.id' => $coTAndCId))
+                  . " (" . $coTAndCId . ")";
+          
+          switch($tAndCMode) {
+            case TermsAndConditionsModeEnum::ExplicitConsent:
+              $tcenum = PetitionActionEnum::TCExplicitAgreement;
+              $tccomment = _txt('rs.pt.tc.explicit', array($tcdesc));
+              break;
+            case TermsAndConditionsModeEnum::ImpliedConsent:
+              $tcenum = PetitionActionEnum::TCImpliedAgreement;
+              $tccomment = _txt('rs.pt.tc.implied', array($tcdesc));
+              break;
+            default:
+              throw new InvalidArgumentException("Unknown Terms and Conditions Mode");
+              break;
+          }
+          
+          $this->CoPetitionHistoryRecord->record($coPetitionID,
+                                                 $petitionerId,
+                                                 $tcenum,
+                                                 $tccomment);
         }
         catch(Exception $e) {
           $dbc->rollback();

@@ -291,6 +291,8 @@ class PetitionActionEnum
   const InviteConfirmed         = 'IC';
   const InviteSent              = 'IS';
   const NotificationSent        = 'NS';
+  const TCExplicitAgreement     = 'TE';
+  const TCImpliedAgreement      = 'TI';
 }
 
 // The status of a provisioning plugin

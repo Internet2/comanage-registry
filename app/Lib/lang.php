@@ -222,7 +222,9 @@ original notification at
     PetitionActionEnum::IdentifiersAssigned => 'Identifiers Assigned',
     PetitionActionEnum::InviteConfirmed     => 'Invitation Confirmed',
     PetitionActionEnum::InviteSent          => 'Invitation Sent',
-    PetitionActionEnum::NotificationSent    => 'Notification Sent'
+    PetitionActionEnum::NotificationSent    => 'Notification Sent',
+    PetitionActionEnum::TCExplicitAgreement => 'Terms and Conditions Explicit Agreement',
+    PetitionActionEnum::TCImpliedAgreement  => 'Terms and Conditions Implied Agreement'
   ),
 
   'en.admin' =>       array(AdministratorEnum::NoAdmin => 'None',
@@ -1018,6 +1020,8 @@ original notification at
   'rs.pt.login' =>    'Petition Created. You have been logged out, and an activation URL has been sent to your email address. Please click the link in that email to continue.',
   'rs.pt.relogin' =>  'Petition Confirmed. You have been logged out, and will need to login again for your new identity to take effect.',
   'rs.pt.status' =>   'Petition for %1$s changed status from %2$s to %3$s (%4$s)',
+  'rs.pt.tc.explicit' => 'Explicit agreement to Terms and Conditions "%1$s"',
+  'rs.pt.tc.implied' => 'Implied agreement to Terms and Conditions "%1$s"',
   'rs.tc.agree' =>    'Terms and Conditions "%1$s" agreed to',
   'rs.tc.agree.behalf' => 'Terms and Conditions "%1$s" agreed to on behalf of',
   'rs.tc.agree.ok' => 'Agreement to Terms and Conditions recorded',
