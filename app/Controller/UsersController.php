@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Users Controller
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -25,7 +25,11 @@
 class UsersController extends AppController {
   public $name = 'Users';
   
-  public $uses = array("CoGroup", "CoGroupMember", "OrgIdentity");
+  public $uses = array("CoGroup",
+                       "CoGroupMember",
+                       "CoSetting",
+                       "CoTermsAndConditions",
+                       "OrgIdentity");
 
   public $components = array(
     'Auth' => array(
@@ -167,6 +171,25 @@ class UsersController extends AppController {
           
           if(isset($orgIdentities[0]['PrimaryName'])) {
             $this->Session->write('Auth.User.name', $orgIdentities[0]['PrimaryName']);
+          }
+          
+          // Determine if there are any pending T&Cs
+          
+          foreach($cos as $co) {
+            // First see if T&Cs are enforced at login for this CO
+            
+            if($this->CoSetting->getTAndCLoginMode($co['co_id']) == TAndCLoginModeEnum::RegistryLogin) {
+              $pending = $this->CoTermsAndConditions->pending($co['co_person_id']);
+              
+              if(!empty($pending)) {
+                // Store the pending T&C in the session so that beforeFilter() can check it.
+                // This isn't ideal, but should be preferable to beforeFilter performing the
+                // check before every action. It also means T&C are enforced once per login
+                // rather than if the T&C change in the middle of a user's session.
+                
+                $this->Session->write('Auth.User.tandc.pending.' . $co['co_id'], $pending);
+              }
+            }
           }
           
           $this->redirect($this->Auth->redirectUrl());

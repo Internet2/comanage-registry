@@ -233,6 +233,36 @@ class AppController extends Controller {
             $this->Session->setFlash($e->getMessage(), '', array(), 'error');
             $this->redirect("/");
           }
+          
+          // See if there are any pending Terms and Conditions. If so, redirect the user.
+          // But don't do this if the current request is for T&C. We might also consider
+          // skipping for admins. Pending T&C are retrieved by UsersController at login.
+          // It would be cleaner to retrieve them here, but more efficient once at login
+          // rather than before each request.
+          
+          if($this->modelClass != 'CoTermsAndConditions'
+             // Also skip CoSetting so that an admin can change the mode
+             && $this->modelClass != 'CoSetting') {
+            $tandc = $this->Session->read('Auth.User.tandc.pending.' . $this->cur_co['Co']['id']);
+            
+            if(!empty($tandc)) {
+              // Un-agreed T&C, redirect to review
+              
+              // Pull the CO Person from the session info. There should probable be a
+              // better way to get it.
+              
+              $cos = $this->Session->read('Auth.User.cos');
+              
+              $args = array(
+                'controller' => 'co_terms_and_conditions',
+                'action'     => 'review',
+                'copersonid' => $cos[ $this->cur_co['Co']['name'] ]['co_person_id'],
+                'mode'       => 'login'
+              );
+              
+              $this->redirect($args);
+            }
+          }
         } else {
           $this->Session->setFlash(_txt('er.co.unk-a', array($coid)), '', array(), 'error');
           $this->redirect("/");

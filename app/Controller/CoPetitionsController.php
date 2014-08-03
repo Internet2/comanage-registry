@@ -315,7 +315,7 @@ class CoPetitionsController extends StandardController {
                          ->CoEnrollmentFlow->field('t_and_c_mode',
                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
           
-          $this->set('vv_tandc_mode', (!empty($tcmode) ? $tcmode : TermsAndConditionsModeEnum::ExplicitConsent));
+          $this->set('vv_tandc_mode', (!empty($tcmode) ? $tcmode : TAndCEnrollmentModeEnum::ExplicitConsent));
         }
         
         // See if there is introductory text

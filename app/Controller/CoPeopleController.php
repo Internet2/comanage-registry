@@ -602,6 +602,11 @@ class CoPeopleController extends StandardController {
     // If we're an admin, we act as an admin, not self.
     $p['editself'] = $self && !$roles['cmadmin'] && !$roles['coadmin'] && !$roles['couadmin'];
     
+    // View history? This correlates with HistoryRecordsController
+    $p['history'] = ($roles['cmadmin']
+                     || $roles['coadmin']
+                     || ($managed && $roles['couadmin']));
+    
     // View all existing CO People (or a COU's worth)?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     $p['search'] = $p['index'];
@@ -651,6 +656,10 @@ class CoPeopleController extends StandardController {
                      ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
                       || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     }
+    
+    // View petitions?
+    $p['petitions'] = ($roles['cmadmin']
+                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']

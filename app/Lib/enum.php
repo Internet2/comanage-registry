@@ -410,12 +410,19 @@ class SuspendableStatusEnum
   const Suspended           = 'S';
 }
 
-class TermsAndConditionsModeEnum
+class TAndCEnrollmentModeEnum
 {
   const ExplicitConsent = 'EC';
   const ImpliedConsent  = 'IC';
   const SplashPage      = 'S';
   const Ignore          = 'X';
+}
+
+class TAndCLoginModeEnum
+{
+  const NotEnforced        = 'X';
+  const RegistryLogin      = 'R';
+  const DisableAllServices = 'D';
 }
 
 // Old style enums below, deprecated

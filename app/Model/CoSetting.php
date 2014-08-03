@@ -64,11 +64,19 @@ class CoSetting extends AppModel {
       'rule' => '/.*/',
       'required' => false,
       'allowEmpty' => true
+    ),
+    't_and_c_login' => array(
+      'rule' => array('inList',
+                      array(TAndCLoginModeEnum::NotEnforced,
+                            TAndCLoginModeEnum::RegistryLogin)),
+                            // DisableAllServices not currently supported (CO-928)
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
   /**
-   * Get the default enrollment invitation validity for the specified CO.
+   * Get the invitation validity for the specified CO.
    *
    * @since  COmanage Registry v0.9.1
    * @param  integer $coId CO ID
@@ -145,6 +153,27 @@ class CoSetting extends AppModel {
     return $ret;
   }
 
+  /**
+   * Get the T&C login mode for the specified CO.
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coId CO ID
+   * @return TAndCLoginModeEnum T&C Login Mode
+   */
+  
+  public function getTAndCLoginMode($coId) {
+    $ret = TAndCLoginModeEnum::NotEnforced;
+    
+    try {
+      $ret = $this->lookupValue($coId, 't_and_c_login_mode');
+    }
+    catch(UnderflowException $e) {
+      // Use default value
+    }
+    
+    return $ret;
+  }
+  
   /**
    * Obtain a single CO setting.
    *

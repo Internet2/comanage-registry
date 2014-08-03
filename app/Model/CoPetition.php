@@ -940,11 +940,11 @@ class CoPetition extends AppModel {
                   . " (" . $coTAndCId . ")";
           
           switch($tAndCMode) {
-            case TermsAndConditionsModeEnum::ExplicitConsent:
+            case TAndCEnrollmentModeEnum::ExplicitConsent:
               $tcenum = PetitionActionEnum::TCExplicitAgreement;
               $tccomment = _txt('rs.pt.tc.explicit', array($tcdesc));
               break;
-            case TermsAndConditionsModeEnum::ImpliedConsent:
+            case TAndCEnrollmentModeEnum::ImpliedConsent:
               $tcenum = PetitionActionEnum::TCImpliedAgreement;
               $tccomment = _txt('rs.pt.tc.implied', array($tcdesc));
               break;

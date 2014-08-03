@@ -98,7 +98,7 @@
     // Open dialog
     $("#dialog-review").dialog("open");
     
-    <?php if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent): ?>
+    <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
     // Enable the checkbox
     document.getElementById('CoTermsAndConditions'+id).disabled = false;
     <?php endif; // explicit consent ?>
@@ -109,7 +109,7 @@
     
     var allagreed = 1;
     
-    <?php if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent): ?>
+    <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
     for(var i = 0;i < tandcids.length;i++) {
       if(!document.getElementById('CoTermsAndConditions'+tandcids[i]).checked) {
         allagreed = 0;
@@ -130,7 +130,7 @@
   {
     // Local (to this view) initializations
     
-    <?php if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent): ?>
+    <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
     // Disable checkboxes until individual T&C are reviewed
     for(var i = 0;i < tandcids.length;i++) {
       // If the box is already ticked (eg: if the form re-renders), make sure it remains enabled
@@ -429,14 +429,14 @@
                                 array('class' => 'linkbutton'));
       ?>
     </div>
-    <?php elseif($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent
-                 || $vv_tandc_mode == TermsAndConditionsModeEnum::ImpliedConsent): // action == view ?>
+    <?php elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent
+                 || $vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): // action == view ?>
     <div class="ui-widget modelbox">
       <div class="boxtitle">
         <b><?php print _txt('op.tc.agree'); ?></b><br />
-        <?php if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent): ?>
+        <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
         <span class="descr"><?php print _txt('fd.tc.agree.desc'); ?></span>
-        <?php elseif($vv_tandc_mode == TermsAndConditionsModeEnum::ImpliedConsent): ?>
+        <?php elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): ?>
         <span class="descr"><?php print _txt('fd.tc.agree.impl'); ?></span>
         <?php endif; // vv_tandc_mode ?>
       </div>
@@ -452,10 +452,10 @@
                 $args = array();
                 $args['value'] = $this->Session->read('Auth.User.username');
                 
-                if($vv_tandc_mode == TermsAndConditionsModeEnum::ExplicitConsent) {
+                if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent) {
                   // Explicit consent, render a checkbox
                   $args['onClick'] = "maybe_enable_submit()";
-                } elseif($vv_tandc_mode == TermsAndConditionsModeEnum::ImpliedConsent) {
+                } elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent) {
                   // Implicit consent, render as hidden fields instead
                   $args['checked'] = true;
                   // Disabling the checkbox prevents the value from POSTing, and there

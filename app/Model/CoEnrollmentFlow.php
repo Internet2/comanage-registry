@@ -189,10 +189,10 @@ class CoEnrollmentFlow extends AppModel {
     ),
     't_and_c_mode' => array(
       'rule' => array('inList',
-                      array(TermsAndConditionsModeEnum::ExplicitConsent,
-                            TermsAndConditionsModeEnum::ImpliedConsent,
-                            TermsAndConditionsModeEnum::SplashPage,
-                            TermsAndConditionsModeEnum::Ignore))
+                      array(TAndCEnrollmentModeEnum::ExplicitConsent,
+                            TAndCEnrollmentModeEnum::ImpliedConsent,
+                            // TAndCEnrollmentModeEnum::SplashPage, not implemented CO-923
+                            TAndCEnrollmentModeEnum::Ignore))
     ),
     'redirect_on_submit' => array(
       'rule' => array('url', true),

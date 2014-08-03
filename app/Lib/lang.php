@@ -468,11 +468,17 @@ original notification at
     SuspendableStatusEnum::Suspended           => 'Suspended'
   ),
   
-  'en.tandc.mode' => array(
-    TermsAndConditionsModeEnum::ExplicitConsent => 'Explicit Consent',
-    TermsAndConditionsModeEnum::ImpliedConsent  => 'Implied Consent',
-    TermsAndConditionsModeEnum::SplashPage      => 'Splash Page',
-    TermsAndConditionsModeEnum::Ignore          => 'Ignore'
+  'en.tandc.mode.enroll' => array(
+    TAndCEnrollmentModeEnum::ExplicitConsent => 'Explicit Consent',
+    TAndCEnrollmentModeEnum::ImpliedConsent  => 'Implied Consent',
+    TAndCEnrollmentModeEnum::SplashPage      => 'Splash Page',
+    TAndCEnrollmentModeEnum::Ignore          => 'Ignore'
+  ),
+  
+  'en.tandc.mode.login' => array(
+    TAndCLoginModeEnum::NotEnforced          => 'Do Not Enforce',
+    TAndCLoginModeEnum::RegistryLogin        => 'Require At Registry Login'
+    // TAndCLoginModeEnum::DisableAllServices   => 'Disable All Services' // not currently implemented
   ),
 
   // Errors
@@ -706,7 +712,7 @@ original notification at
   'fd.ef.sea' =>      'Require Authentication For Self Enrollment',
   'fd.ef.sea.desc' => 'If self enrollment is enabled, require enrollees who are self-enrolling to authenticate to the platform',
   'fd.ef.tandc' =>    'Terms and Conditions Mode',
-  'fd.ef.tandc.desc' => 'How to handle Terms and Conditions, if any are defined. See <a href="https://spaces.internet2.edu/display/COmanage/Registry+Terms+and+Conditions">Terms and Conditions</a>',
+  'fd.ef.tandc.desc' => 'How to handle Terms and Conditions at enrollment, if any are defined. See <a href="https://spaces.internet2.edu/display/COmanage/Registry+Terms+and+Conditions">Terms and Conditions</a>',
   'fd.ef.vbody' =>    'Verification Email Body',
   'fd.ef.vbody.desc' => 'Body for email message sent as part of verification step. Max 4000 characters.',
   'fd.ef.vsub' =>     'Subject For Verification Email',
@@ -827,10 +833,13 @@ original notification at
   'fd.subject' =>     'Subject',
   'fd.tc.agree.desc' => 'You must agree to the following Terms and Conditions before continuing.<br />You must review the T&C before you can click <i>I Agree</i>, and you must agree before you can submit.',
   'fd.tc.agree.impl' => 'By clicking <i>Submit</i>, you are agreeing to the following Terms and Conditions.<br />Please review the T&C before continuing.',
+  'fd.tc.agree.login' => 'You must agree to all of the following Terms and Conditions before continuing.',
   'fd.tc.agree.no' => 'Not Agreed',
   'fd.tc.agree.yes' => 'Agreed',
   'fd.tc.cou.desc' => 'If set, this T&C only applies to members of the specified COU',
   'fd.tc.for' =>      'Terms and Conditions for %1$s (%2$s)',
+  'fd.tc.mode.login' => 'Terms and Conditions Mode',
+  'fd.tc.mode.login.desc' => 'How to handle Terms and Conditions at login, if any are defined. See <a href="https://spaces.internet2.edu/display/COmanage/Registry+Terms+and+Conditions">Terms and Conditions</a>',
   'fd.tc.none' =>     'There are no applicable Terms and Conditions',
   'fd.tc.url.desc' => 'The URL to the Terms and Conditions, which will be displayed in a popup',
   // This must be named fd.model.validation-field

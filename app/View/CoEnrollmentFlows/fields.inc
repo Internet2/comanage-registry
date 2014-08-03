@@ -531,19 +531,19 @@
           global $cm_lang, $cm_texts;
           $attrs['value'] = (isset($co_enrollment_flows)
                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']
-                             : TermsAndConditionsModeEnum::ExplicitConsent);
+                             : TAndCEnrollmentModeEnum::ExplicitConsent);
           $attrs['empty'] = false;
           
           if($e) {
             print $this->Form->select('t_and_c_mode',
-                                      $cm_texts[ $cm_lang ]['en.tandc.mode'],
+                                      $cm_texts[ $cm_lang ]['en.tandc.mode.enroll'],
                                       $attrs);
             
             if($this->Form->isFieldError('t_and_c_mode')) {
               print $this->Form->error('t_and_c_mode');
             }
           } else {
-            print _txt('en.tandc.mode', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']);
+            print _txt('en.tandc.mode.enroll', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']);
           }
         ?>
       </td>
