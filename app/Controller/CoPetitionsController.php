@@ -308,6 +308,14 @@ class CoPetitionsController extends StandardController {
           
           $this->set('vv_terms_and_conditions',
                      $this->CoPetition->Co->CoTermsAndConditions->find('all', $tArgs));
+          
+          // Also pass through the T&C Mode
+          
+          $tcmode = $this->CoPetition
+                         ->CoEnrollmentFlow->field('t_and_c_mode',
+                                                   array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+          
+          $this->set('vv_tandc_mode', (!empty($tcmode) ? $tcmode : TAndCEnrollmentModeEnum::ExplicitConsent));
         }
         
         // See if there is introductory text
@@ -317,6 +325,15 @@ class CoPetitionsController extends StandardController {
         
         if($introText) {
           $this->set('vv_introduction_text', $introText);
+        }
+        
+        // Or conclusion text
+        
+        $conclText = $this->CoPetition->CoEnrollmentFlow->field('conclusion_text',
+                                                                array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
+        if($conclText) {
+          $this->set('vv_conclusion_text', $conclText);
         }
       }
       

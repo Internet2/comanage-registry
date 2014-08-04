@@ -74,15 +74,17 @@
     
     if($this->action != "add" && $this->action != "invite") {
       // View History button
-      $sidebarButtons[] = array(
-        'icon'    => 'note',
-        'title'   => _txt('op.history'),
-        'url'     => array(
-          'controller' => 'history_records',
-          'action' => 'index',
-          'copersonid' => $co_people[0]['CoPerson']['id']
-        )
-      );
+      if($permissions['history']) {
+        $sidebarButtons[] = array(
+          'icon'    => 'note',
+          'title'   => _txt('op.history'),
+          'url'     => array(
+            'controller' => 'history_records',
+            'action' => 'index',
+            'copersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
       
       if($vv_enable_nsf_demo) {
         // Adjust the link to the NSF Demographics Controller according to whether or
@@ -135,20 +137,22 @@
         );
       }
       
-      // Petitions
-      $sidebarButtons[] = array(
-        'icon'    => 'script',
-        'title'   => _txt('ct.co_petitions.pl'),
-        'url'     => array(
-          'controller' => 'co_petitions',
-          'action' => 'index',
-          // Since this is an index view, we still need the CO ID. paginationConditions
-          // will restrict searching to eligible enrollments.
-          'co' => $co_people[0]['CoPerson']['co_id'],
-          'sort' => 'modified',
-          'search.copersonid' => $co_people[0]['CoPerson']['id']
-        )
-      );
+      // View Petitions
+      if($permissions['petitions']) {
+        $sidebarButtons[] = array(
+          'icon'    => 'script',
+          'title'   => _txt('ct.co_petitions.pl'),
+          'url'     => array(
+            'controller' => 'co_petitions',
+            'action' => 'index',
+            // Since this is an index view, we still need the CO ID. paginationConditions
+            // will restrict searching to eligible enrollments.
+            'co' => $co_people[0]['CoPerson']['co_id'],
+            'sort' => 'modified',
+            'search.copersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
       
       // Autogenerate Identifiers button
       if($permissions['assign'] && !empty($co_identifier_assignments)) {

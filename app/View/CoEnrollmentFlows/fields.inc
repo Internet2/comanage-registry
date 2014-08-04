@@ -512,6 +512,44 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
+        <strong class="fieldTitle"><?php print _txt('fd.ef.concl'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.concl.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('conclusion_text')
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['conclusion_text'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.ef.tandc'); ?></strong><span class="required">*</span><br />
+        <span class="descr"><?php print _txt('fd.ef.tandc.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (isset($co_enrollment_flows)
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']
+                             : TAndCEnrollmentModeEnum::ExplicitConsent);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('t_and_c_mode',
+                                      $cm_texts[ $cm_lang ]['en.tandc.mode.enroll'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('t_and_c_mode')) {
+              print $this->Form->error('t_and_c_mode');
+            }
+          } else {
+            print _txt('en.tandc.mode.enroll', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.rd.submit'); ?></strong><br />
         <span class="descr"><?php print _txt('fd.ef.rd.submit.desc'); ?></span>
       </td>

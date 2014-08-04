@@ -121,6 +121,35 @@
         ?>
       </td>
     </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.tc.mode.login'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.tc.mode.login.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['t_and_c_login_mode'])
+                             ? $co_settings[0]['CoSetting']['t_and_c_login_mode']
+                             : "");
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('t_and_c_login_mode',
+                                      $cm_texts[ $cm_lang ]['en.tandc.mode.login'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('t_and_c_login_mode')) {
+              print $this->Form->error('t_and_c_login_mode');
+            }
+          } else {
+            print _txt('en.tandc.mode.login', null, $co_settings[0]['CoSetting']['t_and_c_login_mode']);
+          }
+        ?>
+      </td>
+    </tr>
     <tr>
       <td>
         <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />

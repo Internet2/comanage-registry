@@ -201,7 +201,6 @@ class CoPetition extends AppModel {
     // Since when we're called createPetition has already pulled $efAttrs from the
     // database, we traverse it looking for $efAttrID rather than do another database
     // call for just the relevant records.
-    
     foreach($efAttrs as $efAttr) {
       // More than one entry can match a given attribute ID.
       
@@ -210,8 +209,12 @@ class CoPetition extends AppModel {
         continue;
       }
       
-      if($efAttr['field'] == 'co_enrollment_attribute_id') {
-        // Skip the enrollment attribute id
+      // Skip metadata fields
+      if($efAttr['field'] == 'co_enrollment_attribute_id'
+         || $efAttr['field'] == 'type'
+         || $efAttr['field'] == 'language'
+         || $efAttr['field'] == 'primary_name') {
+        
         continue;
       }
       
@@ -303,6 +306,9 @@ class CoPetition extends AppModel {
     
     $efName = $this->CoEnrollmentFlow->field('name',
                                              array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+    
+    $tAndCMode = $this->CoEnrollmentFlow->field('t_and_c_mode',
+                                                array('CoEnrollmentFlow.id' => $enrollmentFlowID));
     
     $initialStatus = StatusEnum::Approved;
     
@@ -924,6 +930,33 @@ class CoPetition extends AppModel {
                                                                     $coPersonID,
                                                                     $coPersonID,
                                                                     $requestData['CoTermsAndConditions'][$coTAndCId]);
+          
+          // Also create a Petition History Record of the agreement
+          
+          $tcenum = null;
+          $tccomment = "";
+          $tcdesc = $this->Co->CoTermsAndConditions->field('description',
+                                                           array('CoTermsAndConditions.id' => $coTAndCId))
+                  . " (" . $coTAndCId . ")";
+          
+          switch($tAndCMode) {
+            case TAndCEnrollmentModeEnum::ExplicitConsent:
+              $tcenum = PetitionActionEnum::TCExplicitAgreement;
+              $tccomment = _txt('rs.pt.tc.explicit', array($tcdesc));
+              break;
+            case TAndCEnrollmentModeEnum::ImpliedConsent:
+              $tcenum = PetitionActionEnum::TCImpliedAgreement;
+              $tccomment = _txt('rs.pt.tc.implied', array($tcdesc));
+              break;
+            default:
+              throw new InvalidArgumentException("Unknown Terms and Conditions Mode");
+              break;
+          }
+          
+          $this->CoPetitionHistoryRecord->record($coPetitionID,
+                                                 $petitionerId,
+                                                 $tcenum,
+                                                 $tccomment);
         }
         catch(Exception $e) {
           $dbc->rollback();

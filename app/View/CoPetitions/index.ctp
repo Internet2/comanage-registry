@@ -136,9 +136,7 @@ global $cm_lang, $cm_texts;
                                     'action' => ($permissions['edit']
                                                  ? 'view'
                                                  : ($permissions['view'] ? 'view' : '')),
-                                    $p['CoPetition']['id'],
-                                    'co' => $p['CoPetition']['co_id'],
-                                    'coef' => $p['CoPetition']['co_enrollment_flow_id'])
+                                    $p['CoPetition']['id'])
                                   );
         ?>
       </td>
@@ -151,9 +149,8 @@ global $cm_lang, $cm_texts;
             print $this->Html->link(generateCn($p['PetitionerCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
-                                      'action' => 'view',
-                                      $p['PetitionerCoPerson']['id'],
-                                      'co' => $p['CoPetition']['co_id'])
+                                      'action' => 'canvas',
+                                      $p['PetitionerCoPerson']['id'])
                                     );
           }
         ?>
@@ -164,9 +161,8 @@ global $cm_lang, $cm_texts;
             print $this->Html->link(generateCn($p['SponsorCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
-                                      'action' => 'view',
-                                      $p['SponsorCoPerson']['id'],
-                                      'co' => $p['CoPetition']['co_id'])
+                                      'action' => 'canvas',
+                                      $p['SponsorCoPerson']['id'])
                                     );
           }
         ?>
@@ -177,9 +173,8 @@ global $cm_lang, $cm_texts;
             print $this->Html->link(generateCn($p['ApproverCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
-                                      'action' => 'view',
-                                      $p['ApproverCoPerson']['id'],
-                                      'co' => $p['CoPetition']['co_id'])
+                                      'action' => 'canvas',
+                                      $p['ApproverCoPerson']['id'])
                                     );
           }
         ?>
@@ -213,9 +208,7 @@ global $cm_lang, $cm_texts;
             print $this->Html->link(_txt('op.view'),
                                     array('controller' => 'co_petitions',
                                           'action' => 'view',
-                                          $p['CoPetition']['id'],
-                                          'co' => $cur_co['Co']['id'],
-                                          'coef' => $p['CoPetition']['co_enrollment_flow_id']),
+                                          $p['CoPetition']['id']),
                                     array('class' => 'editbutton')) . "\n";
           }
           

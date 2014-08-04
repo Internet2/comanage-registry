@@ -110,6 +110,7 @@ if($menuContent['cos']) {
                     $args['action'] = 'index';
                     $args['co'] = $menuCoId;
                     $args['sort'] = 'created';
+                    $args['direction'] = 'desc';
                     $args['search.status'][] = StatusEnum::PendingApproval;
                     $args['search.status'][] = StatusEnum::PendingConfirmation;
 

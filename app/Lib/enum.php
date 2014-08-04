@@ -291,6 +291,8 @@ class PetitionActionEnum
   const InviteConfirmed         = 'IC';
   const InviteSent              = 'IS';
   const NotificationSent        = 'NS';
+  const TCExplicitAgreement     = 'TE';
+  const TCImpliedAgreement      = 'TI';
 }
 
 // The status of a provisioning plugin
@@ -406,6 +408,21 @@ class SuspendableStatusEnum
 {
   const Active              = 'A';
   const Suspended           = 'S';
+}
+
+class TAndCEnrollmentModeEnum
+{
+  const ExplicitConsent = 'EC';
+  const ImpliedConsent  = 'IC';
+  const SplashPage      = 'S';
+  const Ignore          = 'X';
+}
+
+class TAndCLoginModeEnum
+{
+  const NotEnforced        = 'X';
+  const RegistryLogin      = 'R';
+  const DisableAllServices = 'D';
 }
 
 // Old style enums below, deprecated
