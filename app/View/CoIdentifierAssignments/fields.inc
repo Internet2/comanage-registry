@@ -259,13 +259,17 @@
         <b><?php print _txt('fd.ia.exclusions'); ?></b><br />
         <span class="descr"><?php print _txt('fd.ia.exclusions.desc'); ?></span>
       </td>
+      <td></td>
     </tr>
+
+    <?php
+    if($e) {
+      print '<tr><td></td><td>';
+      print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+      print $this->Form->button(_txt('op.reset'), array('type'=>'reset'));
+      print '</td></tr>';
+    }
+    ?>
+
   </tbody>
 </table>
-<?php
-  if($e) {
-    print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-    print $this->Form->button(_txt('op.reset'), 
-                              array('type'=>'reset'));
-  }
-?>

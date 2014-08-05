@@ -76,7 +76,7 @@ $(document).ready(function () {
         <?php
           print $this->Html->link(Sanitize::html(generateCn($p['PrimaryName'])),
                                   array('controller' => 'co_people',
-                                        'action' => 'edit',
+                                        'action' => 'canvas',
                                         $p['CoPerson']['id'],
                                         'co' => $cur_co['Co']['id']));
         ?>
@@ -125,6 +125,7 @@ $(document).ready(function () {
       </th>
     </tr>
     <tr>
+      <td colspan="2"></td>
       <td>
         <?php
           $options = array('style' => 'float:left;');

@@ -207,13 +207,13 @@
       </th>
     </tr>
     <tr>
+      <td colspan="4"></td>
       <td>
         <?php
+
           if($this->action == 'select') {
             print $this->Form->submit(_txt('op.save'));
-            print $this->Form->button(_txt('op.reset'), 
-                                      array('type'=>'reset'));
-
+            print $this->Form->button(_txt('op.reset'), array('type'=>'reset'));
           }
           
           print $this->Form->end();
