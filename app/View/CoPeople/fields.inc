@@ -49,17 +49,14 @@
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('me.population'), $args);
-  if($this->action == "view") {
-    $this->Html->addCrumb($co_people[0]['PrimaryName']['given'] . ' ' . $co_people[0]['PrimaryName']['family']);
+  if($this->action == "canvas") {
+    $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']));
   } else {
     $args = array(
       'controller' => 'co_people',
-      'action' => 'view',
+      'action' => 'canvas',
       $co_people[0]['CoPerson']['id']);
-    $this->Html->addCrumb($co_people[0]['PrimaryName']['given'] . ' ' . $co_people[0]['PrimaryName']['family'], $args);
-    if($this->action == "canvas") {
-      $this->Html->addCrumb(_txt('op.edit'));
-    }
+    $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']), $args);
     if($this->action == "invite") {
       $this->Html->addCrumb(_txt('op.invite'));
     }

@@ -33,19 +33,72 @@
   
   if(!$e && !$permissions['view'])
     return(false);
+
+  $idForBreadcrumbs = '';
   
   // Migrate the target person from a named argument to a form field
-  if(isset($this->request->params['named']['copersonid']))
+  if(isset($this->request->params['named']['copersonid'])) {
     echo $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
-  elseif(isset($this->request->data['Identifier']['co_person_id']))
+    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+  } elseif(isset($this->request->data['Identifier']['co_person_id'])) {
     echo $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['Identifier']['co_person_id']))) . "\n";
-  elseif(isset($this->params['named']['orgidentityid']))
+    $idForBreadcrumbs = Sanitize::html($this->request->data['Identifier']['co_person_id']);
+  } elseif(isset($this->params['named']['orgidentityid'])){
     echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
-  elseif(isset($this->request->data['Identifier']['org_identity_id']))
+    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+  } elseif(isset($this->request->data['Identifier']['org_identity_id'])) {
     echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['Identifier']['org_identity_id']))) . "\n";
-    
+    $idForBreadcrumbs = Sanitize::html($this->request->data['Identifier']['org_identity_id']);
+  }
+
   if(isset($cur_co))
     echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+
+  // Add breadcrumbs
+  if(isset($this->request->params['named']['copersonid']) || isset($this->request->data['Identifier']['co_person_id'])) {
+    // CO Person History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_people';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('me.population'), $args);
+
+    $args = array(
+      'controller' => 'co_people',
+      'action' => 'canvas',
+      $idForBreadcrumbs);
+    $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
+
+  } elseif(isset($this->request->params['named']['orgidentityid']) || isset($this->request->data['Identifier']['org_identity_id'])) {
+    // Org ID History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'org_identities';
+    $args['action'] = 'index';
+    if(!$pool_org_identities) {
+      $args['co'] = $cur_co['Co']['id'];
+    }
+    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
+
+    $args = array(
+      'controller' => 'orgIdentities',
+      'action' => 'edit',
+      $idForBreadcrumbs);
+    $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
+
+  }
+
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.identifiers.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.identifiers.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.identifiers.1'));
+  }
+
 ?>
 <table id="<?php echo $this->action; ?>_identifier" class="ui-widget">
   <tbody>

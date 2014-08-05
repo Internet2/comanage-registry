@@ -38,6 +38,15 @@ $(document).ready(function () {
   $params = array('title' => _txt('op.grm.edit', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])));
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_groups';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+  $this->Html->addCrumb(_txt('ct.co_group_members.pl'));
+
 ?>
 
 <table id="co_people" class="ui-widget">

@@ -156,6 +156,7 @@ fieldset.borderless {
   border: 0;
   margin-top: 25px;
 }
+label,
 .checkbox,
 .checkbox label,
 .checkbox input {
@@ -198,8 +199,7 @@ fieldset.borderless {
 #advancedSearch select{
   float: right;
   clear: both;
-  width: 130px;
-  margin-left: 8px;
+  width: 120px;
 }
 #advancedSearch select{
   width: 146px;
@@ -351,16 +351,6 @@ fieldset.borderless {
   background: none;
   border: none;
 }
-/* These two rules allow the compare fields to float side-by-side.
-   Keep here, as we will likely use them based on a switch in the UI*/
-/*
-#compare_co_person ul.fields li div {
-  float: left;
-}
-#compare_co_person ul.fields li table {
-  outline: 1px solid #ccc;
-  margin: 0 4px 4px 0;
-}*/
 #compare_co_person ul.fields .line1 {
   background-color: transparent;
 }
@@ -373,7 +363,10 @@ fieldset.borderless {
   background-color: #F5F5FF;
   color: #333;
 }
-
+/* Petitions */
+#view_co_petition .checkbutton {
+  margin-left: 1em;
+}
 /* Demographics */
 #add_co_nsf_demographic .checkbox,
 #edit_co_nsf_demographic .checkbox {

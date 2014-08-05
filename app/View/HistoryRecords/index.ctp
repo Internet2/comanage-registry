@@ -42,6 +42,42 @@
   }
 
   // Add breadcrumbs
+  if(isset($this->request->params['named']['copersonid'])) {
+    // CO Person History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_people';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('me.population'), $args);
+
+    $args = array(
+      'controller' => 'co_people',
+      'action' => 'canvas',
+      Sanitize::html($this->request->params['named']['copersonid']));
+    if (isset($display_name)) {
+      $this->Html->addCrumb($display_name, $args);
+    } else {
+      $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
+    }
+
+  } elseif(isset($this->request->params['named']['orgidentityid'])) {
+    // Org ID History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'org_identities';
+    $args['action'] = 'index';
+    if(!$pool_org_identities) {
+      $args['co'] = $cur_co['Co']['id'];
+    }
+    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
+
+    $args = array(
+      'controller' => 'orgIdentities',
+      'action' => 'edit',
+      Sanitize::html($this->request->params['named']['orgidentityid']));
+    $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
+  }
   $this->Html->addCrumb(_txt('ct.history_records.pl'));
 ?>
 
@@ -101,7 +137,7 @@
               generateCn($h['CoPerson']['PrimaryName']),
               array(
                 'controller' => 'co_people',
-                'action' => 'view',
+                'action' => 'canvas',
                 $h['CoPerson']['id'],
                 'co' => $h['CoPerson']['co_id']
               )

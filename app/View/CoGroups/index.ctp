@@ -25,22 +25,30 @@
 <?php
 
   if($this->action == 'select') {
-    $params = array('title' => _txt('op.gr.memadd',
-                                    array($name_for_title)
-                                   )
-                   );
+    $params = array('title' => _txt('op.gr.memadd', array($name_for_title)));
+
     // Add breadcrumbs
     $args = array();
     $args['plugin'] = null;
-    $args['controller'] = 'co_groups';
+    $args['controller'] = 'co_people';
     $args['action'] = 'index';
     $args['co'] = $cur_co['Co']['id'];
-    $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+    $this->Html->addCrumb(_txt('me.population'), $args);
+
+    $args = array(
+      'controller' => 'co_people',
+      'action' => 'canvas',
+      Sanitize::html($this->request->params['named']['copersonid']));
+    $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
+
     $this->Html->addCrumb(_txt('op.manage.grm'));
+
   } else {
     $params = array('title' => _txt('ct.co_groups.pl'));
+
     // Add breadcrumbs
     $this->Html->addCrumb(_txt('ct.co_groups.pl'));
+
   }
   print $this->element("pageTitle", $params);
 
