@@ -70,15 +70,7 @@ $(function() {
     $args['co'] = $cur_co['Co']['id'];
   }
   $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.org_identities.1'));
-  }
-  if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.org_identities.1'));
-  }
-  if($this->action == "view") {
-    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.org_identities.1'));
-  }
+  $this->Html->addCrumb(_txt('ct.org_identities.1'));
 
   if($e)
   {

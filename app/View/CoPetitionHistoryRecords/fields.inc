@@ -43,6 +43,27 @@
   
   print $this->Form->hidden('action', array('default' => PetitionActionEnum::CommentAdded));
   print $this->Form->hidden('actor_co_person_id', array('default' => $this->Session->read('Auth.User.co_person_id')));
+
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_petitions';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $args['sort'] = 'created';
+  $args['Search.status'][] = StatusEnum::PendingApproval;
+  $args['Search.status'][] = StatusEnum::PendingConfirmation;
+  $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
+
+  $args = array(
+    'controller' => 'co_petitions',
+    'action' => 'view',
+    Sanitize::html($this->request->params['named']['copetitionid'])
+  );
+  $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.petitions.1'), $args);
+
+  $this->Html->addCrumb(_txt('op.petition.comment'));
+
 ?>
 <table id="<?php print $this->action; ?>_co_petition_history_record" class="ui-widget">
   <tbody>

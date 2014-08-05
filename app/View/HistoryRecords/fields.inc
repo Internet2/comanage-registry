@@ -33,7 +33,61 @@
   
   if(!$e && !$permissions['view'])
     return false;
-  
+
+  // Add breadcrumbs
+  if(isset($this->request->params['named']['copersonid'])) {
+    // CO Person History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_people';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('me.population'), $args);
+
+    $args = array(
+      'controller' => 'co_people',
+      'action' => 'canvas',
+      Sanitize::html($this->request->params['named']['copersonid']));
+    /* XXX When we carry the display name through all actions, we can uncomment this section;
+       It works now for add, but not for the index of history records.
+    if (isset($display_name)) {
+      $this->Html->addCrumb($display_name, $args);
+    } else { */
+      $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
+    /*}*/
+
+    $args = array(
+      'controller' => 'history_records',
+      'action' => 'index',
+      'copersonid' => Sanitize::html($this->request->params['named']['copersonid']));
+    $this->Html->addCrumb(_txt('ct.history_records.pl'), $args);
+
+  } elseif(isset($this->request->params['named']['orgidentityid'])) {
+    // Org ID History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'org_identities';
+    $args['action'] = 'index';
+    if(!$pool_org_identities) {
+      $args['co'] = $cur_co['Co']['id'];
+    }
+    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
+
+    $args = array(
+      'controller' => 'orgIdentities',
+      'action' => 'edit',
+      Sanitize::html($this->request->params['named']['orgidentityid']));
+    $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
+
+    $args = array(
+        'controller' => 'history_records',
+        'action' => 'index',
+        'orgidentityid' => Sanitize::html($this->request->params['named']['orgidentityid']));
+    $this->Html->addCrumb(_txt('ct.history_records.pl'), $args);
+  }
+
+  $this->Html->addCrumb(_txt('op.add'));
+
   // Set up the hidden values
   
   if(isset($this->request->params['named']['copersonid'])) {

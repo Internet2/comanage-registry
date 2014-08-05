@@ -88,6 +88,7 @@ class HistoryRecordsController extends StandardController {
       
       if(!empty($n['PrimaryName'])) {
         $this->set('title_for_layout', $this->viewVars['title_for_layout'] . " (" . generateCn($n['PrimaryName']) . ")");
+        $this->set('display_name', generateCn($n['PrimaryName']));
       }
     }
   }

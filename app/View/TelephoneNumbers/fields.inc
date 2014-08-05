@@ -33,19 +33,72 @@
   
   if(!$e && !$permissions['view'])
     return(false);
-  
+
+  $idForBreadcrumbs = '';
+
   // Migrate the target person from a named argument to a form field
-  if(isset($this->request->params['named']['copersonroleid']))
+  if(isset($this->request->params['named']['copersonroleid'])) {
     echo $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->params['named']['copersonroleid']))) . "\n";
-  elseif(isset($this->request->data['TelephoneNumber']['co_person_role_id']))
+    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonroleid']);
+  } elseif(isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
     echo $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->data['TelephoneNumber']['co_person_role_id']))) . "\n";
-  elseif(isset($this->request->params['named']['orgidentityid']))
+    $idForBreadcrumbs = Sanitize::html($this->request->data['TelephoneNumber']['co_person_role_id']);
+  } elseif(isset($this->request->params['named']['orgidentityid'])) {
     echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
-  elseif(isset($this->request->data['TelephoneNumber']['org_identity_id']))
+    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+  } elseif(isset($this->request->data['TelephoneNumber']['org_identity_id'])) {
     echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['TelephoneNumber']['org_identity_id']))) . "\n";
-    
+    $idForBreadcrumbs = Sanitize::html($this->request->data['TelephoneNumber']['org_identity_id']);
+  }
+
   if(isset($this->params['named']['co']))
     echo $this->Form->hidden('co_id', array('default' => Sanitize::html($this->params['named']['co']))) . "\n";
+
+  // Add breadcrumbs
+  if(isset($this->request->params['named']['copersonroleid']) || isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
+    // CO Person History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_people';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('me.population'), $args);
+
+    $args = array(
+      'controller' => 'co_person_roles',
+      'action' => 'edit',
+      $idForBreadcrumbs);
+    $this->Html->addCrumb(_txt('ct.co_person_roles.1'), $args);
+
+  } elseif(isset($this->request->params['named']['orgidentityid']) || isset($this->request->data['TelephoneNumber']['org_identity_id'])) {
+    // Org ID History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'org_identities';
+    $args['action'] = 'index';
+    if(!$pool_org_identities) {
+      $args['co'] = $cur_co['Co']['id'];
+    }
+    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
+
+    $args = array(
+      'controller' => 'orgIdentities',
+      'action' => 'edit',
+      $idForBreadcrumbs);
+    $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
+
+  }
+
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.telephone_numbers.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.telephone_numbers.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.telephone_numbers.1'));
+  }
+
 ?>
 <table id="<?php echo $this->action; ?>_telephone_number" class="ui-widget">
   <tbody>

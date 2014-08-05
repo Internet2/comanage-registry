@@ -76,22 +76,24 @@ $(function() {
   if(!$e && !$permissions['view'])
     return(false);
 
-  // Add breadcrumbs
-  $args = array();
-  $args['plugin'] = null;
-  $args['controller'] = 'co_petitions';
-  $args['action'] = 'index';
-  $args['co'] = $cur_co['Co']['id'];
-  $args['sort'] = 'created';
-  $args['Search.status'][] = StatusEnum::PendingApproval;
-  $args['Search.status'][] = StatusEnum::PendingConfirmation;
+  // Add breadcrumbs (if user is logged into the platform)
+  if(!isset($noLoginLogout) || !$noLoginLogout) {
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_petitions';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $args['sort'] = 'created';
+    $args['Search.status'][] = StatusEnum::PendingApproval;
+    $args['Search.status'][] = StatusEnum::PendingConfirmation;
 
-  $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.petitions.1'));
-  }
-  if($this->action == "view") {
-    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.petitions.1'));
+    $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
+    if ($this->action == "add") {
+      $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.petitions.1'));
+    }
+    if ($this->action == "view") {
+      $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.petitions.1'));
+    }
   }
 
   // Add links to sidebar

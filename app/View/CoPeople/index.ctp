@@ -81,6 +81,9 @@
     position: relative;
     top: -4px;
   }
+  .nameWithoutEmail {
+    top: 6px;
+  }
   .email {
     margin: 13px 0 0 0px;
     position: absolute;
@@ -250,7 +253,13 @@
   <?php foreach ($co_people as $p): ?>
     <div class="line<?php print ($i % 2)+1; ?>">
       <div class = "panel1">
-        <div class="name">
+        <?php
+          $nameWithoutEmailClass = 'nameWithEmail';
+          if(!isset($p['EmailAddress'][0]['mail'])) {
+            $nameWithoutEmailClass = 'nameWithoutEmail';
+          }
+        ?>
+        <div class="name <?php print $nameWithoutEmailClass; ?>">
           <?php
             print $this->Html->link(generateCn($p['PrimaryName']),
                                     array(
