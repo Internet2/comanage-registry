@@ -44,10 +44,23 @@ class CoPeopleController extends StandardController {
   public $requires_co = true;
 
   // For CO Person group renderings, we need all CoGroup data, so we need more recursion
-  public $edit_recursion = 2;
   public $view_recursion = 2;
   // We also need Name on delete
   public $delete_recursion = 2;
+  
+  // Use and edit_contains to select the associaeed models we need for canvas.
+  // Should also migrate view_ and delete_ (though delete_ is not yet supported.) (CO-195)
+  public $edit_contains = array(
+    'CoGroupMember' => array('CoGroup'),
+    'CoNsfDemographic',
+    'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier')),
+    'CoPersonRole' => array('CoPetition'),
+    'EmailAddress',
+    'Identifier',
+    'Name',
+    'PrimaryName',
+    'SshKey'
+  );
   
   /**
    * Callback before other controller methods are invoked or views are rendered.

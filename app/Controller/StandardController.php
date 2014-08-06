@@ -279,13 +279,24 @@ class StandardController extends AppController {
 
     $model->id = $id;
     
-    if(isset($this->edit_recursion))
-      $model->recursive = $this->edit_recursion;
-
-    // Make sure $id exists
+    if(isset($this->edit_contains)) {
+      // New style: use containable behavior
+      
+      $args = array();
+      
+      $args['conditions'][$req.'.id'] = $id;
+      $args['contain'] = $this->edit_contains;
+      
+      $curdata = $model->find('first', $args);
+    } else {
+      // Old style: use recursion (if set)
+      
+      if(isset($this->edit_recursion))
+        $model->recursive = $this->edit_recursion;
+      
+      $curdata = $model->read();
+    }
     
-    $curdata = $model->read();
-
     if(empty($curdata))
     {
       if($this->restful)
@@ -342,7 +353,7 @@ class StandardController extends AppController {
       if($this->request->is('get'))
       {
         // Nothing to do yet... return current data and let the form render
-
+        
         $this->request->data = $curdata;
         $this->set($modelpl, array(0 => $curdata));
         
