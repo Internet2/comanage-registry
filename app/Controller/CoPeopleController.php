@@ -585,8 +585,8 @@ class CoPeopleController extends StandardController {
     
     // Access the canvas for a CO Person? (Basically 'view' but with links)
     $p['canvas'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $self);
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $self);
     
     // Compare CO attributes and Org attributes?
     $p['compare'] = ($roles['cmadmin']
@@ -677,6 +677,9 @@ class CoPeopleController extends StandardController {
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']
                        || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
+    // Relink an Org Identity to a different CO Person?
+    $p['relink'] = $roles['cmadmin'] || $roles['coadmin'];
     
     if($self) {
       // Pull self service permissions
@@ -848,7 +851,42 @@ class CoPeopleController extends StandardController {
     
     return true;
   }
+  
+  /**
+   * Identify the target CO Person for a relinking operations.
+   *
+   * @param Integer $copersonid CO Person ID to move record from
+   * @since  COmanage Registry v0.9.1
+   */
 
+  public function relink($copersonid) {
+    if(!$this->restful) {
+      // We basically want the index behavior
+      
+      $this->index();
+      
+      // But we also need to pass a bit extra data (and also for the confirmation page)
+      
+      if(!empty($this->request->params['named']['linkid'])) {
+        $args = array();
+        $args['conditions']['CoOrgIdentityLink.id'] = $this->request->params['named']['linkid'];
+        $args['contain']['CoPerson'] = 'PrimaryName';
+        $args['contain']['OrgIdentity'] = array('CoPetition', 'PrimaryName');
+        
+        $this->set('vv_co_org_identity_link', $this->CoPerson->CoOrgIdentityLink->find('first', $args));
+      }
+      
+      if(!empty($this->request->params['named']['tocopersonid'])) {
+        $args = array();
+        $args['conditions']['CoPerson.id'] = $this->request->params['named']['tocopersonid'];
+        $args['contain'][] = 'PrimaryName';
+        
+        $this->set('vv_to_co_person', $this->CoPerson->find('first', $args));
+        $this->set('title_for_layout', _txt('op.relink'));
+      }
+    }
+  }
+  
   /**
    * Insert search parameters into URL for index.
    * - postcondition: Redirect generated

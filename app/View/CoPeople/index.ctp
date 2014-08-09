@@ -198,37 +198,53 @@
   $params = array('title' => _txt('fd.people', array($cur_co['Co']['name'])));
   print $this->element("pageTitle", $params);
 
-  // Add breadcrumbs
-  $this->Html->addCrumb(_txt('me.population'));
-
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
-
-  if($permissions['enroll'] && !empty($co_enrollment_flows)) {
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-plus',
-      'title'   => _txt('op.enroll'),
-      'url'     => array(
-        'controller' => 'co_enrollment_flows',
-        'action'     => 'select',
-        'co'         => $cur_co['Co']['id']
-      )
-    );    
-
-  } elseif($permissions['add']) {
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-plus',
-      'title'   => _txt('op.inv'),
-      'url'     => array(
-        'controller' => 'org_identities', 
-        'action'     => 'find', 
-        'co'         => $cur_co['Co']['id']
-      )
-    );
-  }  
-
-  $this->set('sidebarButtons', $sidebarButtons);
+  if($this->action == 'relink') {
+    // Add breadcrumbs
+    $this->Html->addCrumb(_txt('op.relink'));
+  } else {
+    // Add breadcrumbs
+    $this->Html->addCrumb(_txt('me.population'));
+    
+    // Add buttons to sidebar
+    $sidebarButtons = $this->get('sidebarButtons');
+    
+    if($permissions['enroll'] && !empty($co_enrollment_flows)) {
+      $sidebarButtons[] = array(
+        'icon'    => 'circle-plus',
+        'title'   => _txt('op.enroll'),
+        'url'     => array(
+          'controller' => 'co_enrollment_flows',
+          'action'     => 'select',
+          'co'         => $cur_co['Co']['id']
+        )
+      );    
+    
+    } elseif($permissions['add']) {
+      $sidebarButtons[] = array(
+        'icon'    => 'circle-plus',
+        'title'   => _txt('op.inv'),
+        'url'     => array(
+          'controller' => 'org_identities', 
+          'action'     => 'find', 
+          'co'         => $cur_co['Co']['id']
+        )
+      );
+    }  
+    
+    $this->set('sidebarButtons', $sidebarButtons);
+  }
 ?>
+
+<?php if($this->action == 'relink'): ?>
+<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+  <p>
+    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <strong><?php print _txt('op.relink.select', array(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),
+                                                       $vv_co_org_identity_link['OrgIdentity']['id'])); ?></strong>
+  </p>
+</div>
+<br />
+<?php endif; // relink ?>
 
 <div id="sorter" class="listControl">
   <?php print _txt('fd.sort.by'); ?>:
@@ -301,52 +317,70 @@
             if(true || $myPerson) {
               // XXX for now, cou admins get all the actions, but see CO-505
               // Edit actions are unavailable if not
-
-              // Resend invitation button
-              if($permissions['invite']
-                 && ($p['CoPerson']['status'] == StatusEnum::Pending
-                     || $p['CoPerson']['status'] == StatusEnum::Invited)) {
-                print '<button class="invitebutton" title="' 
-                  . _txt('op.inv.resend') 
-                  . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
-                  . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
-                  . '\', \'' 
-                  . $this->Html->url(array('controller' => 'co_invites',
-                                           'action'     => 'send', 
-                                           'copersonid' => $p['CoPerson']['id'], 
-                                           'co'         => $cur_co['Co']['id'])) 
-                  . '\');">'
-                  . _txt('op.inv.resend') 
-                  . '</button>'
-                  . "\n";
-              } elseif($permissions['enroll']
-                       && $p['CoPerson']['status'] == StatusEnum::PendingConfirmation) {
-                if(!empty($p['CoInvite']['CoPetition']['id'])) {
+              
+              if($this->action != 'relink') {
+                // Resend invitation button
+                if($permissions['invite']
+                   && ($p['CoPerson']['status'] == StatusEnum::Pending
+                       || $p['CoPerson']['status'] == StatusEnum::Invited)) {
                   print '<button class="invitebutton" title="' 
                     . _txt('op.inv.resend') 
                     . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
                     . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
                     . '\', \'' 
-                    . $this->Html->url(array('controller' => 'co_petitions',
-                                             'action'     => 'resend',
-                                             $p['CoInvite']['CoPetition']['id'],
+                    . $this->Html->url(array('controller' => 'co_invites',
+                                             'action'     => 'send', 
+                                             'copersonid' => $p['CoPerson']['id'], 
                                              'co'         => $cur_co['Co']['id'])) 
                     . '\');">'
                     . _txt('op.inv.resend') 
                     . '</button>'
                     . "\n";
+                } elseif($permissions['enroll']
+                         && $p['CoPerson']['status'] == StatusEnum::PendingConfirmation) {
+                  if(!empty($p['CoInvite']['CoPetition']['id'])) {
+                    print '<button class="invitebutton" title="' 
+                      . _txt('op.inv.resend') 
+                      . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
+                      . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
+                      . '\', \'' 
+                      . $this->Html->url(array('controller' => 'co_petitions',
+                                               'action'     => 'resend',
+                                               $p['CoInvite']['CoPetition']['id'],
+                                               'co'         => $cur_co['Co']['id'])) 
+                      . '\');">'
+                      . _txt('op.inv.resend') 
+                      . '</button>'
+                      . "\n";
+                  }
                 }
               }
-
+              
               // Edit button
               if($permissions['edit'])
-                print $this->Html->link(_txt('op.edit'),
+                print $this->Html->link(($this->action == 'relink'
+                                         ? _txt('op.view')
+                                         : _txt('op.edit')),
                     array('controller' => 'co_people',
                       'action'     => 'canvas',
                       $p['CoPerson']['id']),
                     array('class'   => 'editbutton',
                       'onclick' => 'noprop(event);'))
                   . "\n";
+              
+              if($this->action == 'relink'
+                 // Don't allow linking back to the current CO Person
+                 && $vv_co_org_identity_link['CoOrgIdentityLink']['co_person_id'] != $p['CoPerson']['id']) {
+                print $this->Html->link(_txt('op.relink'),
+                                        array('controller'    => 'co_people',
+                                              'action'        => 'relink',
+                                              $vv_co_org_identity_link['CoOrgIdentityLink']['co_person_id'],
+                                              'linkid'        => $vv_co_org_identity_link['CoOrgIdentityLink']['id'],
+                                              'tocopersonid' => $p['CoPerson']['id']),
+                                        array('class'   => 'relinkbutton',
+                                              'onclick' => 'noprop(event);'))
+                      . "\n";
+              }
             }
 
             // View button
@@ -408,7 +442,9 @@
                                                       'co' => $pr['CoPetition'][0]['co_id'],
                                                       'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']));
                       } else {
-                        print $this->Html->link(_txt('op.edit'),
+                        print $this->Html->link(($this->action == 'relink'
+                                                 ? _txt('op.view')
+                                                 : _txt('op.edit')),
                                                 array('controller' => 'co_person_roles',
                                                       'action' => ($permissions['edit'] ? "edit" : "view"),
                                                       $pr['id'],

@@ -176,7 +176,7 @@
   <p>
     <?php
       print $this->Form->checkbox('confirm', array('onClick' => "maybe_enable_submit()"));
-      print $this->Form->label('confirm',_txt('op.expunge.ack'));
+      print $this->Form->label('confirm',_txt('op.confirm.box'));
     ?>
   </p>
   

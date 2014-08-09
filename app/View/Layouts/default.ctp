@@ -197,130 +197,150 @@
       $(".addbutton").button({
         icons: {
           primary: 'ui-icon-circle-plus'
-        }
+        },
+        text: true
       });
       
       $(".autobutton").button({
         icons: {
           primary: 'ui-icon-script'
-        }
+        },
+        text: true
       });
       
       $(".backbutton").button({
         icons: {
           primary: 'ui-icon-circle-arrow-w'
-        }
+        },
+        text: true
       });
       
       $(".cancelbutton").button({
         icons: {
           primary: 'ui-icon-circle-close'
-        }
+        },
+        text: true
       });
       
       $(".checkbutton").button({
         icons: {
           primary: 'ui-icon-circle-check'
-        }
+        },
+        text: true
       });
       
       $(".comparebutton").button({
         icons: {
           primary: 'ui-icon-person'
         },
-        text: false
+        text: true
       });
 
       $(".configurebutton").button({
         icons: {
           primary: 'ui-icon-pencil'
-        }
+        },
+        text: true
       });
       
       $(".deletebutton").button({
         icons: {
           primary: 'ui-icon-circle-close'
         },
-        text: false
+        text: true
       });
 
       $(".editbutton").button({
         icons: {
           primary: 'ui-icon-pencil'
         },
-        text: false
+        text: true
       });
 
       $(".forwardbutton").button({
         icons: {
           primary: 'ui-icon-circle-arrow-e'
-        }
+        },
+        text: true
       });
       
       $(".historybutton").button({
         icons: {
           primary: 'ui-icon-note'
-        }
+        },
+        text: true
       });
       
       $(".invitebutton").button({
         icons: {
           primary: 'ui-icon-mail-closed'
         },
-        text: false
+        text: true
       });
 
       $(".linkbutton").button({
         icons: {
           primary: 'ui-icon-extlink'
         },
+        text: true
       });
       
       $(".logoutbutton").button({
         icons: {
           primary: 'ui-icon-power'
         },
+        text: true
       });
 
       $(".menubutton").button({
         icons: {
           primary: 'ui-icon-home'
         },
+        text: true
       });
 
       $(".menuitembutton").button({
         icons: {
           primary: 'ui-icon-circle-triangle-e'
         },
+        text: true
       });
       
       $(".searchbutton").button({
         icons: {
           primary: 'ui-icon-search'
         },
+        text: true
       });
 
       $(".petitionbutton").button({
         icons: {
           primary: 'ui-icon-script'
         },
-        text: false
+        text: true
       });
       
       $(".provisionbutton").button({
         icons: {
           primary: 'ui-icon-gear'
         },
-        text: false
+        text: true
       });
       
       $(".primarybutton").button({
         icons: {
           primary: 'ui-icon-arrowthickstop-1-n'
         },
-        text: false
+        text: true
       });
-
+      
+      $(".relinkbutton").button({
+        icons: {
+          primary: 'ui-icon-link'
+        },
+        text: true
+      });
+      
       $("button:reset").button();
       $("button:reset").css('float', 'left');
       
@@ -328,14 +348,14 @@
         icons: {
           primary: 'ui-icon-cancel'
         },
-        text: false
+        text: true
       });
       
       $(".viewbutton").button({
         icons: {
           primary: 'ui-icon-extlink'
         },
-        text: false
+        text: true
       });
       
       // Datepickers

@@ -36,6 +36,7 @@ class CoPetitionsController extends StandardController {
     ),
     'contain' => array(
       'ApproverCoPerson' => 'PrimaryName',
+      'CoEnrollmentFlow',
       'Cou',
       'EnrolleeCoPerson' => 'PrimaryName',
       'PetitionerCoPerson' => 'PrimaryName',

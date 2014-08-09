@@ -1118,9 +1118,8 @@
                         <tr class="line<?php print ($l % 2); $l++; ?>">
                           <th class="ui-widget-header"></th>
                           <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
-                          <th class="ui-widget-header"><?php print _txt('fd.ou'); ?></th>
-                          <th class="ui-widget-header"><?php print _txt('fd.title'); ?></th>
                           <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.identifier.ids.login'); ?></th>
                           <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                         </tr>
                         <?php foreach($co_people[0]['CoOrgIdentityLink'] as $link): ?>
@@ -1136,35 +1135,40 @@
                             </td>
                             <td>
                               <?php
-                              if(isset($link['OrgIdentity']['ou']))
-                                print Sanitize::html($link['OrgIdentity']['ou']);
-                              ?>
-                            </td>
-                            <td>
-                              <?php
-                              if(isset($link['OrgIdentity']['title']))
-                                print Sanitize::html($link['OrgIdentity']['title']);
-                              ?>
-                            </td>
-                            <td>
-                              <?php
                               if(isset($link['OrgIdentity']['affiliation']))
                                 print $cm_texts[ $cm_lang ]['en.affil'][ $link['OrgIdentity']['affiliation'] ];
                               ?>
                             </td>
                             <td>
                               <?php
-                              print $this->Html->link(_txt('op.view'),
+                              if(!empty($link['OrgIdentity']['Identifier'])) {
+                                foreach($link['OrgIdentity']['Identifier'] as $id) {
+                                  if(!empty($id['identifier'])
+                                     && $id['login']
+                                     && $id['status'] == StatusEnum::Active) {
+                                    print $id['identifier'] . " (" . $id['type'] . ")<br />";
+                                  }
+                                }
+                              }
+                              ?>
+                            </td>
+                            <td>
+                              <?php
+                              print $this->Html->link(_txt($e && !$es ? 'op.edit' : 'op.view'),
                                   array('controller' => 'org_identities',
                                     'action' => ($e && !$es ? 'edit' : 'view'),
                                     $link['OrgIdentity']['id'],
                                     'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
                                   array('class' => ($e && !$es ? 'editbutton' : 'viewbutton'))) . "\n";
-
+                              
+                              if($permissions['relink']) {
+                                print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'linkid' => $link['id'])) . '\')";>' . _txt('op.relink') . '</a>' . "\n";
+                              }
+                              
                               if($permissions['delete']
                                 && count($co_people[0]['CoOrgIdentityLink']) > 1) {
                                 // An Org Identity Link can only be removed if there is at least one other remaining
-
+                                
                                 print '<a class="unlinkbutton" title="' . _txt('op.unlink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.unlink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_org_identity_links', 'action' => 'delete', $link['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.unlink') . '</a>' . "\n";
                               }
                               ?>

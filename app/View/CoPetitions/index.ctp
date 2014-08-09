@@ -112,15 +112,16 @@ global $cm_lang, $cm_texts;
 <table id="co_people" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('EnrolleeCoPerson.Name.family', _txt('fd.enrollee')); ?></th>
-      <th><?php echo $this->Paginator->sort('Cou.name', _txt('fd.cou')); ?></th>
-      <th><?php echo $this->Paginator->sort('PetitionerCoPerson.Name.family', _txt('fd.petitioner')); ?></th>
-      <th><?php echo $this->Paginator->sort('SponsorCoPerson.Name.family', _txt('fd.sponsor')); ?></th>
-      <th><?php echo $this->Paginator->sort('ApproverCoPerson.Name.family', _txt('fd.approver')); ?></th>
-      <th><?php echo $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php echo $this->Paginator->sort('created', _txt('fd.created')); ?></th>
-      <th><?php echo $this->Paginator->sort('modified', _txt('fd.modified')); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort('EnrolleeCoPerson.Name.family', _txt('fd.enrollee')); ?></th>
+      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+      <th><?php print $this->Paginator->sort('CoEnrollmentFlow.name', _txt('ct.co_enrollment_flows.1')); ?></th>
+      <th><?php print $this->Paginator->sort('Cou.name', _txt('fd.cou')); ?></th>
+      <th><?php print $this->Paginator->sort('PetitionerCoPerson.Name.family', _txt('fd.petitioner')); ?></th>
+      <th><?php print $this->Paginator->sort('SponsorCoPerson.Name.family', _txt('fd.sponsor')); ?></th>
+      <th><?php print $this->Paginator->sort('ApproverCoPerson.Name.family', _txt('fd.approver')); ?></th>
+      <th><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></th>
+      <th><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -139,6 +140,18 @@ global $cm_lang, $cm_texts;
                                     $p['CoPetition']['id'])
                                   );
         ?>
+      </td>
+      <td>
+        <?php
+          global $status_t;
+          
+          if(!empty($p['CoPetition']['status'])) {
+            print _txt('en.status', null, $p['CoPetition']['status']);
+          }
+        ?>
+      </td>
+      <td>
+        <?php if(!empty($p['CoEnrollmentFlow']['name'])) { print $p['CoEnrollmentFlow']['name']; } ?>
       </td>
       <td>
         <?php if(!empty($p['Cou']['name'])) { print $p['Cou']['name']; } ?>
@@ -176,15 +189,6 @@ global $cm_lang, $cm_texts;
                                       'action' => 'canvas',
                                       $p['ApproverCoPerson']['id'])
                                     );
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          global $status_t;
-          
-          if(!empty($p['CoPetition']['status'])) {
-            print _txt('en.status', null, $p['CoPetition']['status']);
           }
         ?>
       </td>
@@ -242,7 +246,7 @@ global $cm_lang, $cm_texts;
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="9">
+      <th colspan="10">
         <?php echo $this->Paginator->numbers(); ?>
       </th>
     </tr>
