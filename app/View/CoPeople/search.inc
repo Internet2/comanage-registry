@@ -30,7 +30,7 @@ global $cm_lang, $cm_texts;
   $(function() {
     $( "#advancedSearch" ).accordion({
       collapsible: true,
-      active     : false
+      active     : 0
     });
   });
 </script>

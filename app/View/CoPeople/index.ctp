@@ -29,6 +29,51 @@
     float: right;
   }
 
+  /* Alpha search  */
+  #peopleAlphabet {
+    margin: 0.5em 0;
+    font-size: 1.2em;
+    border: 1px solid #eee;
+  }
+  #peopleAlphabet ul {
+    display: table;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  #peopleAlphabet li {
+    display: table-cell;
+    width: 3.8%;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    text-align: center;
+  }
+  #peopleAlphabet li:nth-child(odd) {
+    background-color: #e5e5e5;
+  }
+  #peopleAlphabet li.selected {
+    background-color: #888;
+  }
+  #peopleAlphabet a {
+    display: inline-block;
+    text-decoration: none;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    padding: 4px 0;
+    margin: 0;
+    color: #666;
+  }
+  #peopleAlphabet li.selected a {
+    color: #eee;
+  }
+  #peopleAlphabet a:hover,
+  #peopleAlphabet li.selected a:hover {
+    background-color: #ffe;
+    color: #333;
+  }
+
   /* Listing controls */
   .listControl {
     color: #1D5987;
@@ -36,6 +81,10 @@
   }
   .listControl a {
     color: #181CF5;
+  }
+  .listControl a:hover {
+    color: #444;
+    text-decoration: none;
   }
 
   .listControl ul,
@@ -50,6 +99,7 @@
     margin-left: 0.5em;
   }
 
+
   /* People Listing */
   #co_people {
     clear: both;
@@ -62,6 +112,11 @@
   #co_people > div > .panel1{
     float: left;
     margin: 0 10px 0 0;
+  }
+  #noResults {
+    margin: 1.5em 0 0 0;
+    font-size: 1.2em;
+    font-weight: bold;
   }
   .panel2 {
     padding: 0 0 0 10px !important;
@@ -142,6 +197,8 @@
   .clear {
       clear: both;
   }
+
+
   /* jquery ui overrides */
   #co_people .panel1 {
     border: 1px solid transparent; /* to allow our jquery UI hovers not to change the size of the div */
@@ -172,10 +229,6 @@
 
 <script>
   $(function() {
-    $( "#advancedSearch" ).accordion({
-      collapsible: true,
-      active     : false
-    });
 
     $( ".line1, .line2" ).accordion({
       collapsible: true,
@@ -245,6 +298,27 @@
   <ul>
     <li><?php print $this->html->link(_txt('fd.open'),'javascript:togglePeople(\'open\');'); ?></li>
     <li><?php print $this->html->link(_txt('fd.closed'),'javascript:togglePeople(\'closed\');'); ?></li>
+  </ul>
+</div>
+
+<div id="peopleAlphabet" class="listControl">
+  <ul>
+    <?php
+      $args = array();
+      $args['controller'] = 'co_people';
+      $args['action'] = 'index';
+      $args['co'] = $cur_co['Co']['id'];
+      foreach(range('a','z') as $i) {
+        $args['Search.familyNameStart'] = $i;
+        $curAlphaSearch = Sanitize::html($this->request->params['named']['Search.familyNameStart']);
+        if ($curAlphaSearch == $i) {
+          print '<li class="selected">' . $this->html->link($i,$args) . '</li>';
+        }  else {
+          print '<li>' . $this->html->link($i,$args) . '</li>';
+        }
+
+      }
+    ?>
   </ul>
 </div>
 
@@ -450,6 +524,22 @@
     </div>
     <?php $i++; ?>
   <?php endforeach; // $co_people ?>
+
+  <?php
+    if(empty($co_people)) {
+      // No search results, or there are no people in this CO
+      print('<div id="noResults">' . _txt('ct.co_people.se.no_results') . '</div>');
+      print('<div id="restoreLink">');
+      $args = array();
+      $args['plugin'] = null;
+      $args['controller'] = 'co_people';
+      $args['action'] = 'index';
+      $args['co'] = $cur_co['Co']['id'];
+      print $this->Html->link(_txt('ct.co_people.se.restore'), $args);
+      print('</div>');
+    }
+  ?>
+
   <div class="pagination">
     <div class="outer-center">
       <div class="product inner-center">
