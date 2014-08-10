@@ -52,9 +52,6 @@
   #peopleAlphabet li:nth-child(odd) {
     background-color: #e5e5e5;
   }
-  #peopleAlphabet li.selected {
-    background-color: #888;
-  }
   #peopleAlphabet a {
     display: inline-block;
     text-decoration: none;
@@ -65,11 +62,12 @@
     margin: 0;
     color: #666;
   }
-  #peopleAlphabet li.selected a {
+  #peopleAlphabet li.selected a,
+  #peopleAlphabet li.selected a:hover{
+    background-color: #888;
     color: #eee;
   }
-  #peopleAlphabet a:hover,
-  #peopleAlphabet li.selected a:hover {
+  #peopleAlphabet a:hover {
     background-color: #ffe;
     color: #333;
   }
