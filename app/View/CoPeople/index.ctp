@@ -161,9 +161,6 @@
     padding: 2px;
     margin-bottom: 5px;
   }
-  .roleinfo{
-    width: 50%;
-  }
   .rolestatus{
     float: right !important;
     margin: 5px 9px 5px 5px;
@@ -235,6 +232,12 @@
       active     : false
     });
 
+    // allow names to link to the person canvas
+    $(".name a").click(function() {
+      window.location = $(this).attr('href');
+      return false;
+    });
+
   });
 
   function togglePeople(state) {
@@ -244,7 +247,6 @@
       $(".line1, .line2" ).accordion( "option", "active", false );
     }
   }
-
 </script>
 
 <?php
@@ -336,13 +338,11 @@
         <div class="name <?php print $nameWithoutEmailClass; ?>">
           <?php
             print $this->Html->link(generateCn($p['PrimaryName']),
-                                    array(
-                                      'controller' => 'co_people',
-                                      'action' => ($permissions['edit']
-                                                   ? 'canvas'
-                                                   : ($permissions['view'] ? 'view' : '')),
-                                      $p['CoPerson']['id'])
-                                    );
+              array(
+                'controller' => 'co_people',
+                'action' => ($permissions['edit'] ? 'canvas' : ($permissions['view'] ? 'view' : '')),
+                $p['CoPerson']['id'])
+            );
           ?>
         </div>
 
@@ -422,19 +422,6 @@
                       'onclick' => 'noprop(event);'))
                   . "\n";
             }
-
-            // View button
-            /* keep for now: do we want this here?
-            if($permissions['compare'])
-              print $this->Html->link(_txt('op.view'),
-                                      array('controller' => 'co_people',
-                                            'action'     => 'compare',
-                                            $p['CoPerson']['id'],
-                                            'co'         => $cur_co['Co']['id']),
-                                      array('class'   => 'comparebutton',
-                                            'onclick' => 'noprop(event);'))
-                . "\n";
-            */
           ?>
         </div>
       </div>
