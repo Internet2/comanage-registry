@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Relink View
+ * COmanage Registry Link View
  *
  * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -27,35 +27,35 @@
   $req = Inflector::singularize($model);
   $modelpl = Inflector::tableize($req);
   
-  if(empty($this->request->params['named']['tocopersonid'])) {
+  if(empty($this->request->params['pass']['0'])) {
     // Render index view as people picker
     include(APP . "View/" . $model . "/index.ctp");
   }
   
-  if(!empty($this->request->params['named']['tocopersonid'])) {
+  if(!empty($this->request->params['pass']['0'])) {
     $params = array('title' => $title_for_layout);
     print $this->element("pageTitle", $params);
     
     // Add breadcrumbs
     $args = array();
     $args['plugin'] = null;
-    $args['controller'] = 'co_people';
+    $args['controller'] = 'org_identities';
     $args['action'] = 'index';
-    $args['co'] = $cur_co['Co']['id'];
-    $this->Html->addCrumb(_txt('me.population'), $args);
+    $args['co'] = $cur_co['Co']['id']; // This will be ignored if not pooled
+    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
     $args = array(
-      'controller' => 'co_people',
-      'action' => 'canvas',
-      $vv_co_org_identity_link['CoPerson']['id']
+      'controller' => 'org_identities',
+      'action' => 'edit',
+      $vv_org_identity['OrgIdentity']['id']
     );
-    $this->Html->addCrumb(generateCn($vv_co_org_identity_link['CoPerson']['PrimaryName']), $args);
-    $this->Html->addCrumb(_txt('op.relink'));
+    $this->Html->addCrumb(generateCn($vv_org_identity['PrimaryName']), $args);
+    $this->Html->addCrumb(_txt('op.link'));
     
     // And start the form
     print $this->Form->Create(
       'CoOrgIdentityLink',
       array(
-        'action' => 'edit/' . $vv_co_org_identity_link['CoOrgIdentityLink']['id'],
+        'action' => 'add',
         'type'   => 'post',
         'inputDefaults' => array(
           'label' => false,
@@ -65,13 +65,14 @@
     );
     
     print $this->Form->hidden('org_identity_id',
-                              array('default' => $vv_co_org_identity_link['CoOrgIdentityLink']['org_identity_id'])) . "\n";
+                              array('default' => $vv_org_identity['OrgIdentity']['id'])) . "\n";
+    
     // Set the target (new) CO Person ID
     print $this->Form->hidden('co_person_id',
-                              array('default' => $vv_to_co_person['CoPerson']['id'])) . "\n";
+                              array('default' => $vv_co_person['CoPerson']['id'])) . "\n";
   }
 ?>
-<?php if(!empty($this->request->params['named']['tocopersonid'])): ?>
+<?php if(!empty($this->request->params['pass']['0'])): ?>
 <script type="text/javascript">
   function maybe_enable_submit() {
     // If the checkbox is checked, enable submit
@@ -94,34 +95,30 @@
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
   <p>
     <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-    <strong><?php print _txt('op.relink.confirm'); ?></strong>
+    <strong><?php print _txt('op.link.confirm'); ?></strong>
   </p>
 </div>
 <div style="float:left;width:100%;">
   <ul>
     <li>
-    <?php print _txt('op.relink.info',
-                     array($this->Html->link(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),
+    <?php print _txt('op.link.info',
+                     array($this->Html->link(generateCn($vv_org_identity['PrimaryName']),
                                              array('controller' => 'org_identities',
                                                    'action'     => 'view',
-                                                   $vv_co_org_identity_link['OrgIdentity']['id'])),
-                           $this->Html->link(generateCn($vv_co_org_identity_link['CoPerson']['PrimaryName']),
+                                                   $vv_org_identity['OrgIdentity']['id'])),
+                           $this->Html->link(generateCn($vv_co_person['PrimaryName']),
                                              array('controller' => 'co_people',
                                                    'action'     => 'canvas',
-                                                   $vv_co_org_identity_link['CoPerson']['id'])),
-                           $this->Html->link(generateCn($vv_to_co_person['PrimaryName']),
-                                             array('controller' => 'co_people',
-                                                   'action'     => 'canvas',
-                                                   $vv_to_co_person['CoPerson']['id'])))); ?>
+                                                   $vv_co_person['CoPerson']['id'])))); ?>
     </li>
   
   <?php
-    if(!empty($vv_co_org_identity_link['OrgIdentity']['CoPetition'])) {
-      foreach($vv_co_org_identity_link['OrgIdentity']['CoPetition'] as $p) {
+    if(!empty($vv_org_identity['CoPetition'])) {
+      foreach($vv_org_identity['CoPetition'] as $p) {
         if(isset($p['status'])
            && ($p['status'] == StatusEnum::PendingApproval
                || $p['status'] == StatusEnum::PendingConfirmation)) {
-          print "<li>" . _txt('op.relink.petition',
+          print "<li>" . _txt('op.link.petition',
                               array(_txt('en.status', null, $p['status']),
                                     $this->Html->link($p['id'],
                                                       array('controller' => 'co_petitions',
@@ -142,9 +139,9 @@
   
   <p>
     <?php
-      print $this->Form->submit(_txt('op.relink'));
+      print $this->Form->submit(_txt('op.link'));
     ?>
   </p>
 </div>
 <?php print $this->Form->end(); ?>
-<?php endif; // tocopersonid ?>
+<?php endif; // params pass 0 ?>

@@ -32,6 +32,7 @@ $(function() {
   tabid["email"] = 2;
   tabid["phone"] = 3;
   tabid["address"]  = 4;
+  tabid["copeople"] = 5;
 
   // Turn on Tabs
   var $tabs = $( "#tabs" ).tabs();
@@ -157,6 +158,11 @@ $(function() {
         <li>
           <a href="#tabs-address">
             <?php print _txt('fd.address'); ?>
+          </a>
+        </li>
+        <li>
+          <a href="#tabs-copeople">
+            <?php print _txt('ct.co_people.pl'); ?>
           </a>
         </li>
       <?php endif; ?>
@@ -628,6 +634,59 @@ $(function() {
               {
                 print '<div>';
                   print Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")\n";
+                print '</div>';
+              }
+            }
+          }
+        ?>
+        <br>
+      </div>
+      
+      <div id="tabs-copeople" class="additionalinfo">
+        <?php
+          if($e) {
+            if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
+              foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
+                print '<div>';
+                  print '<div>';
+                    print $this->Html->link(generateCn($o['CoPerson']['PrimaryName']),
+                                            array('controller' => 'co_people',
+                                                  'action'     => 'canvas',
+                                                  $o['CoPerson']['id']));
+                    
+                    print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
+                  print '</div>';
+                  print '<div>';
+                  
+                  // We don't currently offer an unlink button here, that can only (currently)
+                  // be done from CO Person Canvas, which places some restrictions on that action.
+                  
+                  print $this->Html->link(_txt('op.view'),
+                                          array('controller' => 'co_people',
+                                                'action'     => 'canvas',
+                                                $o['CoPerson']['id']),
+                                          array('class' => 'editbutton')) . "\n";
+                  print '</div>';
+                print '</div>';
+              }
+            }
+            
+            if($permissions['link']) {
+              foreach($vv_linkable_cos as $lcoid => $lconame) {
+                print $this->Html->link(_txt('op.link.to.co', array($lconame)),
+                                        array('controller'    => 'co_people',
+                                              'action'        => 'link',
+                                              'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                              'co'            => $lcoid),
+                                        array('class'  => 'addbutton'));
+                                          
+              }
+            }
+          } else {
+            if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
+              foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
+                print '<div>';
+                  print Sanitize::html(generateCn($o['CoPerson']['PrimaryName'])) . "\n";
                 print '</div>';
               }
             }

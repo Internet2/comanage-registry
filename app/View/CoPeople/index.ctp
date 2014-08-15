@@ -198,7 +198,10 @@
   $params = array('title' => _txt('fd.people', array($cur_co['Co']['name'])));
   print $this->element("pageTitle", $params);
 
-  if($this->action == 'relink') {
+  if($this->action == 'link') {
+    // Add breadcrumbs
+    $this->Html->addCrumb(_txt('op.link'));
+  } elseif($this->action == 'relink') {
     // Add breadcrumbs
     $this->Html->addCrumb(_txt('op.relink'));
   } else {
@@ -235,7 +238,16 @@
   }
 ?>
 
-<?php if($this->action == 'relink'): ?>
+<?php if($this->action == 'link'): ?>
+<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+  <p>
+    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <strong><?php print _txt('op.link.select', array(generateCn($vv_org_identity['PrimaryName']),
+                                                     $vv_org_identity['OrgIdentity']['id'])); ?></strong>
+  </p>
+</div>
+<br />
+<?php elseif($this->action == 'relink'): ?>
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
   <p>
     <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
@@ -318,7 +330,7 @@
               // XXX for now, cou admins get all the actions, but see CO-505
               // Edit actions are unavailable if not
               
-              if($this->action != 'relink') {
+              if($this->action == 'index') {
                 // Resend invitation button
                 if($permissions['invite']
                    && ($p['CoPerson']['status'] == StatusEnum::Pending
@@ -358,7 +370,8 @@
               
               // Edit button
               if($permissions['edit'])
-                print $this->Html->link(($this->action == 'relink'
+                print $this->Html->link((($this->action == 'relink'
+                                          || $this->action == 'link')
                                          ? _txt('op.view')
                                          : _txt('op.edit')),
                     array('controller' => 'co_people',
@@ -368,9 +381,18 @@
                       'onclick' => 'noprop(event);'))
                   . "\n";
               
-              if($this->action == 'relink'
-                 // Don't allow linking back to the current CO Person
-                 && $vv_co_org_identity_link['CoOrgIdentityLink']['co_person_id'] != $p['CoPerson']['id']) {
+              if($this->action == 'link') {
+                print $this->Html->link(_txt('op.link'),
+                          array('controller'    => 'co_people',
+                                'action'        => 'link',
+                                $p['CoPerson']['id'],
+                                'orgidentityid'        => $vv_org_identity['OrgIdentity']['id']),
+                          array('class'   => 'relinkbutton',
+                                'onclick' => 'noprop(event);'))
+                      . "\n";  
+              } elseif($this->action == 'relink'
+                       // Don't allow linking back to the current CO Person
+                       && $vv_co_org_identity_link['CoOrgIdentityLink']['co_person_id'] != $p['CoPerson']['id']) {
                 print $this->Html->link(_txt('op.relink'),
                                         array('controller'    => 'co_people',
                                               'action'        => 'relink',

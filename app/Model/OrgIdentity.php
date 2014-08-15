@@ -222,6 +222,64 @@ class OrgIdentity extends AppModel {
     
     return($ret);
   }
+  
+  /**
+   * Determine which COs $id is eligible to be linked into. ie: Return the set of
+   * COs $id is not a member of.
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  Integer Org Identity ID
+   * @return Array Array of CO IDs and CO name
+   */
+  
+  public function linkableCos($id) {
+    $cos = array();
+    
+    $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
+    
+    if($CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
+      // First pull the set of COs that $id is in
+      
+      $args = array();
+      $args['joins'][0]['table'] = 'co_org_identity_links';
+      $args['joins'][0]['alias'] = 'CoOrgIdentityLink';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoOrgIdentityLink.co_person_id';
+      $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $id;
+      $args['fields'] = array('CoPerson.co_id', 'CoPerson.id');
+      $args['contain'] = false;
+      
+      $inCos = $this->Co->CoPerson->find('list', $args);
+      
+      // Then pull the set of COs that aren't listed above
+      
+      $args = array();
+      $args['conditions']['NOT']['Co.id'] = array_keys($inCos);
+      $args['fields'] = array('Co.id', 'Co.name');
+      $args['contain'] = false;
+      
+      $cos = $this->Co->find('list', $args);
+    } else {
+      // Pull the Org Identity, it's CO, and it's Link via containable. If no link,
+      // then this CO is linkable.
+      
+      $args = array();
+      $args['conditions']['OrgIdentity.id'] = $id;
+      $args['contain'][] = 'Co';
+      $args['contain'][] = 'CoOrgIdentityLink';
+      
+      $orgid = $this->find('first', $args);
+      
+      if(empty($orgid['CoOrgIdentityLink'])) {
+        $cos[ $orgid['Co']['id'] ] = $orgid['Co']['name'];
+      }
+    }
+    // determine if pooled
+    // if not, pull list of cos
+    // for each CO, see if a link exists from $id to a co person in that CO
+    
+    return $cos;
+  }
 
   /**
    * Pool Organizational Identities. This will delete all links from Org Identities

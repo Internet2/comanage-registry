@@ -83,7 +83,7 @@ class CoOrgIdentityLinksController extends StandardController {
       return false;
     }
     
-    if($this->restful) {
+    if($this->restful || $this->action == 'add') {
       // Check that an org identity being added is not already a member of the CO.
       // (A person can't be added to the same CO twice... that's what Person Roles
       // are for.) Note the UI check is in co_people_controller.
@@ -111,28 +111,10 @@ class CoOrgIdentityLinksController extends StandardController {
    */
  
   public function generateDisplayKey($c = null) {
-    // Get a pointer to our model
-    $req = $this->modelClass;
-    $model = $this->$req;
+    // A message like "Pat Lee deleted" probably isn't right, something like
+    // "Link deleted" is better.
     
-    if($this->action == 'edit') {
-      // Pull the PrimaryName (we're probably here from a relink). We arbitrarily
-      // pick the OrgIdentity name, since the Org Identity stays the same in a relink.
-      
-      $args = array();
-      $args['conditions']['OrgIdentity.id'] = $this->request->data['CoOrgIdentityLink']['org_identity_id'];
-      $args['contain'][] = 'PrimaryName';
-      
-      $p = $this->CoOrgIdentityLink->OrgIdentity->find('first', $args);
-      
-      if($p) {
-        return generateCn($p['PrimaryName']);
-      }
-    } else {
-      parent::generateDisplayKey($c);
-    }
-    
-    return "(?)";
+    return _txt('ct.co_org_identity_links.1');
   }
   
   /**
@@ -201,34 +183,36 @@ class CoOrgIdentityLinksController extends StandardController {
     // Is this a record we can manage?
     $managed = false;
     
-    if(isset($roles['copersonid'])
-       && $roles['copersonid']
-       && isset($this->request->params['pass'][0])
-       && $this->action == 'edit') {
-      // Pull the link and see if copersonid can manage both the org identity and
-      // the CO Person.
-      
-      $args = array();
-      $args['conditions']['CoOrgIdentityLink.id'] = $this->request->params['pass'][0];
-      $args['contain'] = false;
-      
-      $lnk = $this->CoOrgIdentityLink->find('first', $args);
-      
-      if(!empty($lnk)) {
-        $managed = $this->Role->isCoAdminForCoPerson($roles['copersonid'],
-                                                     $lnk['CoOrgIdentityLink']['co_person_id'])
-                   && $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
-                                                                $lnk['CoOrgIdentityLink']['org_identity_id']);
+    if(isset($roles['copersonid']) && $roles['copersonid']) {
+      if(isset($this->request->params['pass'][0])) {   // Edit, delete, view
+        // Pull the link and see if copersonid can manage both the org identity and
+        // the CO Person.
         
-        if(!empty($this->request->data['CoOrgIdentityLink'])) {
-          // If this is an edit operation, check those identifiers as well.
-          
+        $args = array();
+        $args['conditions']['CoOrgIdentityLink.id'] = $this->request->params['pass'][0];
+        $args['contain'] = false;
+        
+        $lnk = $this->CoOrgIdentityLink->find('first', $args);
+        
+        if(!empty($lnk)) {
+          $managed = $this->Role->isCoAdminForCoPerson($roles['copersonid'],
+                                                       $lnk['CoOrgIdentityLink']['co_person_id'])
+                     && $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
+                                                                  $lnk['CoOrgIdentityLink']['org_identity_id']);
+        }
+        
+        if(!empty($this->request->data['CoOrgIdentityLink'])) {   // Edit
           $managed = $managed
                      && $this->Role->isCoAdminForCoPerson($roles['copersonid'],
                                                           $this->request->data['CoOrgIdentityLink']['co_person_id'])
                      && $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
                                                                   $this->request->data['CoOrgIdentityLink']['org_identity_id']);
         }
+      } elseif(!empty($this->request->data['CoOrgIdentityLink'])) {   // Add
+        $managed = $this->Role->isCoAdminForCoPerson($roles['copersonid'],
+                                                     $this->request->data['CoOrgIdentityLink']['co_person_id'])
+                   && $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
+                                                                $this->request->data['CoOrgIdentityLink']['org_identity_id']);
       }
     }
     
@@ -238,7 +222,8 @@ class CoOrgIdentityLinksController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new Person Source?
-    $p['add'] = $roles['cmadmin'];
+    $p['add'] = ($roles['cmadmin']
+                 || ($managed && $roles['coadmin']));
     
     // Delete an existing Person Source?
     $p['delete'] = ($roles['cmadmin']
@@ -252,7 +237,8 @@ class CoOrgIdentityLinksController extends StandardController {
     $p['index'] = $roles['cmadmin'];
           
     // View an existing Person Source?
-    $p['view'] = $roles['cmadmin'];
+    $p['view'] = ($roles['cmadmin']
+                  || ($managed && $roles['coadmin']));
     
     $this->set('permissions', $p);
     return $p[$this->action];
