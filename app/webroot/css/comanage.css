@@ -185,6 +185,12 @@ label,
 }
 
 /* For Advanced Search box */
+#advancedSearch {
+  margin-top: 0.5em;
+}
+#advancedSearch .ui-accordion-header {
+  font-weight: normal;
+}
 #advancedSearch .ui-accordion-content{
   padding: 0px;
 }

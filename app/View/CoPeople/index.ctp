@@ -29,6 +29,49 @@
     float: right;
   }
 
+  /* Alpha search  */
+  #peopleAlphabet {
+    margin: 0.5em 0;
+    font-size: 1.2em;
+    border: 1px solid #eee;
+  }
+  #peopleAlphabet ul {
+    display: table;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  #peopleAlphabet li {
+    display: table-cell;
+    width: 3.8%;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    text-align: center;
+  }
+  #peopleAlphabet li:nth-child(odd) {
+    background-color: #e5e5e5;
+  }
+  #peopleAlphabet a {
+    display: inline-block;
+    text-decoration: none;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    padding: 4px 0;
+    margin: 0;
+    color: #666;
+  }
+  #peopleAlphabet li.selected a,
+  #peopleAlphabet li.selected a:hover{
+    background-color: #888;
+    color: #eee;
+  }
+  #peopleAlphabet a:hover {
+    background-color: #ffe;
+    color: #333;
+  }
+
   /* Listing controls */
   .listControl {
     color: #1D5987;
@@ -36,6 +79,10 @@
   }
   .listControl a {
     color: #181CF5;
+  }
+  .listControl a:hover {
+    color: #444;
+    text-decoration: none;
   }
 
   .listControl ul,
@@ -50,6 +97,7 @@
     margin-left: 0.5em;
   }
 
+
   /* People Listing */
   #co_people {
     clear: both;
@@ -62,6 +110,11 @@
   #co_people > div > .panel1{
     float: left;
     margin: 0 10px 0 0;
+  }
+  #noResults {
+    margin: 1.5em 0 0 0;
+    font-size: 1.2em;
+    font-weight: bold;
   }
   .panel2 {
     padding: 0 0 0 10px !important;
@@ -106,9 +159,6 @@
     padding: 2px;
     margin-bottom: 5px;
   }
-  .roleinfo{
-    width: 50%;
-  }
   .rolestatus{
     float: right !important;
     margin: 5px 9px 5px 5px;
@@ -142,6 +192,8 @@
   .clear {
       clear: both;
   }
+
+
   /* jquery ui overrides */
   #co_people .panel1 {
     border: 1px solid transparent; /* to allow our jquery UI hovers not to change the size of the div */
@@ -172,14 +224,16 @@
 
 <script>
   $(function() {
-    $( "#advancedSearch" ).accordion({
-      collapsible: true,
-      active     : false
-    });
 
     $( ".line1, .line2" ).accordion({
       collapsible: true,
       active     : false
+    });
+
+    // allow names to link to the person canvas
+    $(".name a").click(function() {
+      window.location = $(this).attr('href');
+      return false;
     });
 
   });
@@ -191,7 +245,6 @@
       $(".line1, .line2" ).accordion( "option", "active", false );
     }
   }
-
 </script>
 
 <?php
@@ -284,6 +337,27 @@
   </ul>
 </div>
 
+<div id="peopleAlphabet" class="listControl">
+  <ul>
+    <?php
+      $args = array();
+      $args['controller'] = 'co_people';
+      $args['action'] = 'index';
+      $args['co'] = $cur_co['Co']['id'];
+      foreach(range('a','z') as $i) {
+        $args['Search.familyNameStart'] = $i;
+        $curAlphaSearch = Sanitize::html($this->request->params['named']['Search.familyNameStart']);
+        if ($curAlphaSearch == $i) {
+          print '<li class="selected">' . $this->html->link($i,$args) . '</li>';
+        }  else {
+          print '<li>' . $this->html->link($i,$args) . '</li>';
+        }
+
+      }
+    ?>
+  </ul>
+</div>
+
 <div id="co_people">
   <?php $i = 0; ?>
   <?php foreach ($co_people as $p): ?>
@@ -298,13 +372,11 @@
         <div class="name <?php print $nameWithoutEmailClass; ?>">
           <?php
             print $this->Html->link(generateCn($p['PrimaryName']),
-                                    array(
-                                      'controller' => 'co_people',
-                                      'action' => ($permissions['edit']
-                                                   ? 'canvas'
-                                                   : ($permissions['view'] ? 'view' : '')),
-                                      $p['CoPerson']['id'])
-                                    );
+              array(
+                'controller' => 'co_people',
+                'action' => ($permissions['edit'] ? 'canvas' : ($permissions['view'] ? 'view' : '')),
+                $p['CoPerson']['id'])
+            );
           ?>
         </div>
 
@@ -426,19 +498,6 @@
                       . "\n";
               }
             }
-
-            // View button
-            /* keep for now: do we want this here?
-            if($permissions['compare'])
-              print $this->Html->link(_txt('op.view'),
-                                      array('controller' => 'co_people',
-                                            'action'     => 'compare',
-                                            $p['CoPerson']['id'],
-                                            'co'         => $cur_co['Co']['id']),
-                                      array('class'   => 'comparebutton',
-                                            'onclick' => 'noprop(event);'))
-                . "\n";
-            */
           ?>
         </div>
       </div>
@@ -530,6 +589,22 @@
     </div>
     <?php $i++; ?>
   <?php endforeach; // $co_people ?>
+
+  <?php
+    if(empty($co_people)) {
+      // No search results, or there are no people in this CO
+      print('<div id="noResults">' . _txt('ct.co_people.se.no_results') . '</div>');
+      print('<div id="restoreLink">');
+      $args = array();
+      $args['plugin'] = null;
+      $args['controller'] = 'co_people';
+      $args['action'] = 'index';
+      $args['co'] = $cur_co['Co']['id'];
+      print $this->Html->link(_txt('ct.co_people.se.restore'), $args);
+      print('</div>');
+    }
+  ?>
+
   <div class="pagination">
     <div class="outer-center">
       <div class="product inner-center">
