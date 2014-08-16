@@ -998,12 +998,20 @@
                                           'coef' => $r['CoPetition'][0]['co_enrollment_flow_id']),
                                         array('class' => 'petitionbutton'));
                                     }
-                                    if($permissions['canvas'])
+                                    
+                                    if($permissions['canvas']) {
                                       print $this->Html->link(_txt('op.edit'),
                                           array('controller' => 'co_person_roles', 'action' => 'edit', $r['id'], 'co' => $cur_co['Co']['id']),
                                           array('class' => 'editbutton')) . "\n";
-                                    if($permissions['delete'])
+                                    }
+                                    
+                                    if($permissions['relink']) {
+                                      print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.role.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'copersonroleid' => $r['id'])) . '\')";>' . _txt('op.relink') . '</a>' . "\n";
+                                    }
+                                    
+                                    if($permissions['delete']) {
                                       print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($co_people[0]['PrimaryName']))) . '\', \'' . $this->Html->url(array('controller' => 'co_person_roles', 'action' => 'delete', $r['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                                    }
                                   } elseif($permissions['view']) {
                                     print $this->Html->link(_txt('op.view'),
                                         array('controller' => 'co_person_roles', 'action' => 'view', $r['id'], 'co' => $cur_co['Co']['id']),

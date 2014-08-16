@@ -247,7 +247,7 @@
   </p>
 </div>
 <br />
-<?php elseif($this->action == 'relink'): ?>
+<?php elseif($this->action == 'relink' && !empty($vv_co_org_identity_link['OrgIdentity'])): ?>
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
   <p>
     <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
@@ -256,7 +256,15 @@
   </p>
 </div>
 <br />
-<?php endif; // relink ?>
+<?php elseif($this->action == 'relink' && !empty($vv_co_person_role['CoPersonRole'])): ?>
+<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+  <p>
+    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <strong><?php print _txt('op.relink.role.select', array($vv_co_person_role['CoPersonRole']['title'],
+                                                       $vv_co_person_role['CoPersonRole']['id'])); ?></strong>
+  </p>
+</div>
+<br /><?php endif; // relink ?>
 
 <div id="sorter" class="listControl">
   <?php print _txt('fd.sort.by'); ?>:
@@ -391,6 +399,7 @@
                                 'onclick' => 'noprop(event);'))
                       . "\n";  
               } elseif($this->action == 'relink'
+                       && !empty($vv_co_org_identity_link['CoOrgIdentityLink'])
                        // Don't allow linking back to the current CO Person
                        && $vv_co_org_identity_link['CoOrgIdentityLink']['co_person_id'] != $p['CoPerson']['id']) {
                 print $this->Html->link(_txt('op.relink'),
@@ -398,6 +407,19 @@
                                               'action'        => 'relink',
                                               $vv_co_org_identity_link['CoOrgIdentityLink']['co_person_id'],
                                               'linkid'        => $vv_co_org_identity_link['CoOrgIdentityLink']['id'],
+                                              'tocopersonid'  => $p['CoPerson']['id']),
+                                        array('class'   => 'relinkbutton',
+                                              'onclick' => 'noprop(event);'))
+                      . "\n";
+              } elseif($this->action == 'relink'
+                       && !empty($vv_co_person_role['CoPersonRole'])
+                       // Don't allow linking back to the current CO Person
+                       && $vv_co_person_role['CoPersonRole']['co_person_id'] != $p['CoPerson']['id']) {
+                print $this->Html->link(_txt('op.relink'),
+                                        array('controller'     => 'co_people',
+                                              'action'         => 'relink',
+                                              $vv_co_person_role['CoPersonRole']['co_person_id'],
+                                              'copersonroleid' => $vv_co_person_role['CoPersonRole']['id'],
                                               'tocopersonid' => $p['CoPerson']['id']),
                                         array('class'   => 'relinkbutton',
                                               'onclick' => 'noprop(event);'))

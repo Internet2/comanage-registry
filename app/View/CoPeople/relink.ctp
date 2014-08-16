@@ -43,108 +43,67 @@
     $args['action'] = 'index';
     $args['co'] = $cur_co['Co']['id'];
     $this->Html->addCrumb(_txt('me.population'), $args);
-    $args = array(
-      'controller' => 'co_people',
-      'action' => 'canvas',
-      $vv_co_org_identity_link['CoPerson']['id']
-    );
-    $this->Html->addCrumb(generateCn($vv_co_org_identity_link['CoPerson']['PrimaryName']), $args);
+    if(!empty($vv_co_org_identity_link['CoPerson'])) {
+      $args = array(
+        'controller' => 'co_people',
+        'action' => 'canvas',
+        $vv_co_org_identity_link['CoPerson']['id']
+      );
+      $this->Html->addCrumb(generateCn($vv_co_org_identity_link['CoPerson']['PrimaryName']), $args);
+    } elseif(!empty($vv_co_person_role['CoPersonRole'])) {
+      $args = array(
+        'controller' => 'co_people',
+        'action' => 'canvas',
+        $vv_co_person_role['CoPersonRole']['co_person_id']
+      );
+      $this->Html->addCrumb(generateCn($vv_co_person_role['CoPerson']['PrimaryName']), $args);
+    }
     $this->Html->addCrumb(_txt('op.relink'));
     
-    // And start the form
-    print $this->Form->Create(
-      'CoOrgIdentityLink',
-      array(
-        'action' => 'edit/' . $vv_co_org_identity_link['CoOrgIdentityLink']['id'],
-        'type'   => 'post',
-        'inputDefaults' => array(
-          'label' => false,
-          'div'   => false
-        )
-      )
-    );
+    // And start the form according to what we're relinking
     
-    print $this->Form->hidden('org_identity_id',
-                              array('default' => $vv_co_org_identity_link['CoOrgIdentityLink']['org_identity_id'])) . "\n";
+    if(!empty($vv_co_org_identity_link['CoPerson'])) {
+      print $this->Form->Create(
+        'CoOrgIdentityLink',
+        array(
+          'action' => 'edit/' . $vv_co_org_identity_link['CoOrgIdentityLink']['id'],
+          'type'   => 'post',
+          'inputDefaults' => array(
+            'label' => false,
+            'div'   => false
+          )
+        )
+      );
+      
+      print $this->Form->hidden('org_identity_id',
+                                array('default' => $vv_co_org_identity_link['CoOrgIdentityLink']['org_identity_id'])) . "\n";
+    } elseif(!empty($vv_co_person_role['CoPersonRole'])) {
+      print $this->Form->Create(
+        'CoPersonRole',
+        array(
+          'action' => 'relink/' . $vv_co_person_role['CoPersonRole']['id'],
+          'type'   => 'post',
+          'inputDefaults' => array(
+            'label' => false,
+            'div'   => false
+          )
+        )
+      );
+    }
+    
     // Set the target (new) CO Person ID
     print $this->Form->hidden('co_person_id',
                               array('default' => $vv_to_co_person['CoPerson']['id'])) . "\n";
   }
 ?>
-<?php if(!empty($this->request->params['named']['tocopersonid'])): ?>
-<script type="text/javascript">
-  function maybe_enable_submit() {
-    // If the checkbox is checked, enable submit
+<?php
+  if(!empty($this->request->params['named']['tocopersonid'])) {
+    // Pull the appropriate confirmation message
     
-    if(document.getElementById('CoOrgIdentityLinkConfirm').checked) {
-      $(":submit").removeAttr('disabled');
-    } else {
-      $(":submit").attr('disabled', true);
+    if(!empty($vv_co_org_identity_link['CoPerson'])) {
+      include(APP . "View/" . $model . "/relink-org.ctp");
+    } elseif(!empty($vv_co_person_role['CoPersonRole'])) {
+      include(APP . "View/" . $model . "/relink-role.ctp");
     }
   }
-  
-  function js_local_onload()
-  {
-    // Local (to this view) initializations
-    
-    // Disable submit button until confirmation is ticked
-    maybe_enable_submit();
-  }
-</script>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-  <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-    <strong><?php print _txt('op.relink.confirm'); ?></strong>
-  </p>
-</div>
-<div style="float:left;width:100%;">
-  <ul>
-    <li>
-    <?php print _txt('op.relink.info',
-                     array($this->Html->link(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),
-                                             array('controller' => 'org_identities',
-                                                   'action'     => 'view',
-                                                   $vv_co_org_identity_link['OrgIdentity']['id'])),
-                           $this->Html->link(generateCn($vv_co_org_identity_link['CoPerson']['PrimaryName']),
-                                             array('controller' => 'co_people',
-                                                   'action'     => 'canvas',
-                                                   $vv_co_org_identity_link['CoPerson']['id'])),
-                           $this->Html->link(generateCn($vv_to_co_person['PrimaryName']),
-                                             array('controller' => 'co_people',
-                                                   'action'     => 'canvas',
-                                                   $vv_to_co_person['CoPerson']['id'])))); ?>
-    </li>
-  
-  <?php
-    if(!empty($vv_co_org_identity_link['OrgIdentity']['CoPetition'])) {
-      foreach($vv_co_org_identity_link['OrgIdentity']['CoPetition'] as $p) {
-        if(isset($p['status'])
-           && ($p['status'] == StatusEnum::PendingApproval
-               || $p['status'] == StatusEnum::PendingConfirmation)) {
-          print "<li>" . _txt('op.relink.petition',
-                              array(_txt('en.status', null, $p['status']),
-                                    $this->Html->link($p['id'],
-                                                      array('controller' => 'co_petitions',
-                                                            'action'     => 'view',
-                                                            $p['id'])))) . "</li>\n";
-        }
-      }
-    }
-  ?>
-  </ul>
-  
-  <p>
-    <?php
-      print $this->Form->checkbox('confirm', array('onClick' => "maybe_enable_submit()"));
-      print $this->Form->label('confirm', _txt('op.confirm.box'));
-    ?>
-  </p>
-  
-  <p>
-    <?php
-      print $this->Form->submit(_txt('op.relink'));
-    ?>
-  </p>
-</div>
-<?php print $this->Form->end(); ?>
-<?php endif; // tocopersonid ?>
+?>

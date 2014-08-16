@@ -207,6 +207,7 @@ $(function() {
                 }
               ?>
               <?php if($e && !$es
+                       && !empty($co_person_roles[0]['CoPersonRole']['status'])
                        && ($co_person_roles[0]['CoPersonRole']['status'] == StatusEnum::PendingApproval
                            || $co_person_roles[0]['CoPersonRole']['status'] == StatusEnum::PendingConfirmation)): ?>
               <div>

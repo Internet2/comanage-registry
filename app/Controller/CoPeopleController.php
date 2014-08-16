@@ -54,7 +54,7 @@ class CoPeopleController extends StandardController {
     'CoGroupMember' => array('CoGroup'),
     'CoNsfDemographic',
     'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier')),
-    'CoPersonRole' => array('CoPetition'),
+    'CoPersonRole' => array('CoPetition', 'Cou'),
     'EmailAddress',
     'Identifier',
     'Name',
@@ -683,7 +683,7 @@ class CoPeopleController extends StandardController {
     $p['provision'] = ($roles['cmadmin']
                        || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
-    // Relink an Org Identity to a different CO Person?
+    // Relink an Org Identity or Role to a different CO Person?
     $p['relink'] = $roles['cmadmin'] || $roles['coadmin'];
     
     if($self) {
@@ -915,6 +915,15 @@ class CoPeopleController extends StandardController {
         $args['contain']['OrgIdentity'] = array('CoPetition', 'PrimaryName');
         
         $this->set('vv_co_org_identity_link', $this->CoPerson->CoOrgIdentityLink->find('first', $args));
+      }
+      
+      if(!empty($this->request->params['named']['copersonroleid'])) {
+        $args = array();
+        $args['conditions']['CoPersonRole.id'] = $this->request->params['named']['copersonroleid'];
+        $args['contain']['CoPerson'] = 'PrimaryName';
+        $args['contain'][] = 'CoPetition';
+        
+        $this->set('vv_co_person_role', $this->CoPerson->CoPersonRole->find('first', $args));
       }
       
       if(!empty($this->request->params['named']['tocopersonid'])) {
