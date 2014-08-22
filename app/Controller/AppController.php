@@ -347,9 +347,11 @@ class AppController extends Controller {
     $model = $this->$req;
     $modelpl = Inflector::tableize($req);
     
+    // XXX This list should really be set on a per-CO basis (eg: link only applies to CoPeople)
     if($this->action == 'add'
        || $this->action == 'assign'
        || $this->action == 'index'
+       || $this->action == 'link'
        || $this->action == 'select'
        || $this->action == 'review') {
       // See if what we're adding/selecting/viewing is attached to a person
@@ -386,8 +388,12 @@ class AppController extends Controller {
                                                   array(_txt('ct.co_person_roles.1'),
                                                         Sanitize::html($p['copersonroleid']))));
         }
-      } elseif(!empty($p['orgidentityid']) && isset($model->OrgIdentity)) {
-        $coId = $model->OrgIdentity->field('co_id', array('id' => $p['orgidentityid']));
+      } elseif(!empty($p['orgidentityid'])) {
+        if(isset($model->OrgIdentity)) {
+          $coId = $model->OrgIdentity->field('co_id', array('id' => $p['orgidentityid']));
+        } elseif(isset($model->CoOrgIdentityLink->OrgIdentity)) {
+          $coId = $model->CoOrgIdentityLink->OrgIdentity->field('co_id', array('id' => $p['orgidentityid']));
+        }
         
         if($coId) {
           return $coId;

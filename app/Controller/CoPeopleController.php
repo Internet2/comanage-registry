@@ -48,13 +48,13 @@ class CoPeopleController extends StandardController {
   // We also need Name on delete
   public $delete_recursion = 2;
   
-  // Use and edit_contains to select the associaeed models we need for canvas.
+  // Use edit_contains to select the associaeed models we need for canvas.
   // Should also migrate view_ and delete_ (though delete_ is not yet supported.) (CO-195)
   public $edit_contains = array(
     'CoGroupMember' => array('CoGroup'),
     'CoNsfDemographic',
     'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier')),
-    'CoPersonRole' => array('CoPetition'),
+    'CoPersonRole' => array('CoPetition', 'Cou'),
     'EmailAddress',
     'Identifier',
     'Name',
@@ -138,7 +138,9 @@ class CoPeopleController extends StandardController {
    */
   
   protected function calculateImpliedCoId() {
-    if($this->action == "invite"
+    if(($this->action == "invite"
+        // The first pass through link will not include a CO Person ID, but the second will
+        || ($this->action == "link" && !empty($this->request->params['passed'][0])))
        && !empty($this->request->params['named']['orgidentityid'])) {
       if(isset($this->viewVars['pool_org_identities']) && $this->viewVars['pool_org_identities']) {
         // When org identities are pooled, accept the CO ID from the URL
@@ -585,8 +587,8 @@ class CoPeopleController extends StandardController {
     
     // Access the canvas for a CO Person? (Basically 'view' but with links)
     $p['canvas'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $self);
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $self);
     
     // Compare CO attributes and Org attributes?
     $p['compare'] = ($roles['cmadmin']
@@ -648,6 +650,9 @@ class CoPeopleController extends StandardController {
       $p['view'] = true;
     }
     
+    // Link an Org Identity to a CO Person?
+    $p['link'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // Match against existing CO People?
     // Note this same permission exists in CO Petitions
     
@@ -678,6 +683,9 @@ class CoPeopleController extends StandardController {
     $p['provision'] = ($roles['cmadmin']
                        || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
+    // Relink an Org Identity or Role to a different CO Person?
+    $p['relink'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     if($self) {
       // Pull self service permissions
       
@@ -702,6 +710,41 @@ class CoPeopleController extends StandardController {
     
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * Identify the target CO Person for a linking operations. Linking takes an Org Identity
+   * with no CO attachment and attaches it to the CO.
+   *
+   * @param Integer $copersonid CO Person ID to move record from
+   * @since  COmanage Registry v0.9.1
+   */
+
+  public function link($copersonid=null) {
+    if(!$this->restful) {
+      // We basically want the index behavior
+      
+      $this->index();
+      
+      // But we also need to pass a bit extra data (and also for the confirmation page)
+      
+      if(!empty($this->request->params['named']['orgidentityid'])) {
+        $args = array();
+        $args['conditions']['OrgIdentity.id'] = $this->request->params['named']['orgidentityid'];
+        $args['contain'] = array('CoPetition', 'PrimaryName');
+        
+        $this->set('vv_org_identity', $this->CoPerson->CoOrgIdentityLink->OrgIdentity->find('first', $args));
+        $this->set('title_for_layout', _txt('op.link'));
+      }
+      
+      if(!empty($copersonid)) {
+        $args = array();
+        $args['conditions']['CoPerson.id'] = $copersonid;
+        $args['contain'] = 'PrimaryName';
+        
+        $this->set('vv_co_person', $this->CoPerson->find('first', $args));
+      }
+    }
   }
   
   /**
@@ -854,7 +897,52 @@ class CoPeopleController extends StandardController {
     
     return true;
   }
+  
+  /**
+   * Identify the target CO Person for a relinking operations. Relinking takes an
+   * Org Identity and moves it from one CO Person to another.
+   *
+   * @param Integer $copersonid CO Person ID to move record from
+   * @since  COmanage Registry v0.9.1
+   */
 
+  public function relink($copersonid) {
+    if(!$this->restful) {
+      // We basically want the index behavior
+      
+      $this->index();
+      
+      // But we also need to pass a bit extra data (and also for the confirmation page)
+      
+      if(!empty($this->request->params['named']['linkid'])) {
+        $args = array();
+        $args['conditions']['CoOrgIdentityLink.id'] = $this->request->params['named']['linkid'];
+        $args['contain']['CoPerson'] = 'PrimaryName';
+        $args['contain']['OrgIdentity'] = array('CoPetition', 'PrimaryName');
+        
+        $this->set('vv_co_org_identity_link', $this->CoPerson->CoOrgIdentityLink->find('first', $args));
+      }
+      
+      if(!empty($this->request->params['named']['copersonroleid'])) {
+        $args = array();
+        $args['conditions']['CoPersonRole.id'] = $this->request->params['named']['copersonroleid'];
+        $args['contain']['CoPerson'] = 'PrimaryName';
+        $args['contain'][] = 'CoPetition';
+        
+        $this->set('vv_co_person_role', $this->CoPerson->CoPersonRole->find('first', $args));
+      }
+      
+      if(!empty($this->request->params['named']['tocopersonid'])) {
+        $args = array();
+        $args['conditions']['CoPerson.id'] = $this->request->params['named']['tocopersonid'];
+        $args['contain'][] = 'PrimaryName';
+        
+        $this->set('vv_to_co_person', $this->CoPerson->find('first', $args));
+        $this->set('title_for_layout', _txt('op.relink'));
+      }
+    }
+  }
+  
   /**
    * Insert search parameters into URL for index.
    * - postcondition: Redirect generated

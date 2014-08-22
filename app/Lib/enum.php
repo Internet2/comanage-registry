@@ -40,6 +40,7 @@ class ActionEnum
   const CoPersonRoleDeletedManual       = 'DCRM';
   const CoPersonRoleEditedManual        = 'ECRM';
   const CoPersonRoleEditedPetition      = 'ECRP';
+  const CoPersonRoleRelinked            = 'LCRM';
   const CoPersonOrgIdLinked             = 'LOCP';
   const CoPersonOrgIdUnlinked           = 'UOCP';
   const CoPetitionCreated               = 'CPPC';

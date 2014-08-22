@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Controller
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -37,6 +37,28 @@ class OrgIdentitiesController extends StandardController {
       'PrimaryName.family' => 'asc',
       'PrimaryName.given' => 'asc'
     )
+  );
+  
+  public $edit_contains = array(
+    'Address',
+    'Co',
+    'CoOrgIdentityLink' => array('CoPerson' => array('Co', 'PrimaryName')),
+    'EmailAddress',
+    'Identifier',
+    'Name',
+    'PrimaryName',
+    'TelephoneNumber'
+  );
+  
+  public $view_contains = array(
+    'Address',
+    'Co',
+    'CoOrgIdentityLink' => array('CoPerson' => array('Co', 'PrimaryName')),
+    'EmailAddress',
+    'Identifier',
+    'Name',
+    'PrimaryName',
+    'TelephoneNumber'
   );
   
   function addvialdap()
@@ -146,6 +168,44 @@ class OrgIdentitiesController extends StandardController {
     return true;
   }
 
+  /**
+   * Generate the edit view.
+   * - precondition: <id> must exist
+   * - postcondition: $<object>s set (with one member) if found
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Session flash message updated (HTML) on suitable error
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  Integer Org Identity identifier
+   */
+  
+  public function edit($id) {
+    // We mostly want the standard behavior, but we need to determine if the org
+    // identity is eligible to be linked into any CO and if so provide that info
+    // to the view.
+    
+    parent::edit($id);
+    
+    // Pull the list of linkable CO IDs from the model, then filter list according to
+    // current user being CMP admin or CO admin
+    
+    $cos = array();
+    
+    if($this->Role->identifierIsCmpAdmin($this->Session->read('Auth.User.username'))) {
+      // CMP Admins can do any linking, at least for now
+      
+      $cos = $this->OrgIdentity->linkableCos($id);
+    } else {
+      foreach($this->OrgIdentity->linkableCos($id) as $coid => $coname) {
+        if($this->Role->isCoAdmin($this->Session->read('Auth.User.co_person_id'), $coid)) {
+          $cos[$coid] = $coname;
+        }
+      }
+    }
+    
+    $this->set('vv_linkable_cos', $cos);
+  }
+  
   /**
    * Find an organizational identity to add to the co $coid.  This method doesn't add or
    * invite the person, but redirects back to co_person_role controller to handle that.
@@ -290,8 +350,6 @@ class OrgIdentitiesController extends StandardController {
     // whether or not organizational identities are pooled -- if they are, we need
     // to restrict access to only org identities in the same CO.
     
-    $this->loadModel('CmpEnrollmentConfiguration');
-    
     if($this->CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
       // Add a new Org Person?
       $p['add'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
@@ -312,7 +370,9 @@ class OrgIdentitiesController extends StandardController {
       // View all existing Org People?
       $p['index'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       $p['search'] = $p['index'];
-
+      
+      // Explicit linking of an Org Identity to a CO Person?
+      $p['link'] = ($roles['cmadmin'] || $roles['admin']);
       
       // View an existing Org Person?
       $p['view'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin'] || $self);
@@ -347,6 +407,9 @@ class OrgIdentitiesController extends StandardController {
         $p['edit'] = true;
         $p['view'] = true;
       }
+      
+      // Explicit linking of an Org Identity to a CO Person?
+      $p['link'] = ($roles['cmadmin'] || $roles['admin']);
       
       // View an existing Org Person?
       $p['view'] = ($roles['cmadmin']

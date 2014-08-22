@@ -998,12 +998,20 @@
                                           'coef' => $r['CoPetition'][0]['co_enrollment_flow_id']),
                                         array('class' => 'petitionbutton'));
                                     }
-                                    if($permissions['canvas'])
+                                    
+                                    if($permissions['canvas']) {
                                       print $this->Html->link(_txt('op.edit'),
                                           array('controller' => 'co_person_roles', 'action' => 'edit', $r['id'], 'co' => $cur_co['Co']['id']),
                                           array('class' => 'editbutton')) . "\n";
-                                    if($permissions['delete'])
+                                    }
+                                    
+                                    if($permissions['relink']) {
+                                      print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.role.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'copersonroleid' => $r['id'])) . '\')";>' . _txt('op.relink') . '</a>' . "\n";
+                                    }
+                                    
+                                    if($permissions['delete']) {
                                       print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($co_people[0]['PrimaryName']))) . '\', \'' . $this->Html->url(array('controller' => 'co_person_roles', 'action' => 'delete', $r['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                                    }
                                   } elseif($permissions['view']) {
                                     print $this->Html->link(_txt('op.view'),
                                         array('controller' => 'co_person_roles', 'action' => 'view', $r['id'], 'co' => $cur_co['Co']['id']),
@@ -1118,9 +1126,8 @@
                         <tr class="line<?php print ($l % 2); $l++; ?>">
                           <th class="ui-widget-header"></th>
                           <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
-                          <th class="ui-widget-header"><?php print _txt('fd.ou'); ?></th>
-                          <th class="ui-widget-header"><?php print _txt('fd.title'); ?></th>
                           <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.identifier.ids.login'); ?></th>
                           <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                         </tr>
                         <?php foreach($co_people[0]['CoOrgIdentityLink'] as $link): ?>
@@ -1136,36 +1143,43 @@
                             </td>
                             <td>
                               <?php
-                              if(isset($link['OrgIdentity']['ou']))
-                                print Sanitize::html($link['OrgIdentity']['ou']);
-                              ?>
-                            </td>
-                            <td>
-                              <?php
-                              if(isset($link['OrgIdentity']['title']))
-                                print Sanitize::html($link['OrgIdentity']['title']);
-                              ?>
-                            </td>
-                            <td>
-                              <?php
                               if(isset($link['OrgIdentity']['affiliation']))
                                 print $cm_texts[ $cm_lang ]['en.affil'][ $link['OrgIdentity']['affiliation'] ];
                               ?>
                             </td>
                             <td>
                               <?php
-                              print $this->Html->link(_txt('op.view'),
+                              if(!empty($link['OrgIdentity']['Identifier'])) {
+                                foreach($link['OrgIdentity']['Identifier'] as $id) {
+                                  if(!empty($id['identifier'])
+                                     && $id['login']
+                                     && $id['status'] == StatusEnum::Active) {
+                                    print $id['identifier'] . " (" . $id['type'] . ")<br />";
+                                  }
+                                }
+                              }
+                              ?>
+                            </td>
+                            <td>
+                              <?php
+                              print $this->Html->link(_txt($e && !$es ? 'op.edit' : 'op.view'),
                                   array('controller' => 'org_identities',
                                     'action' => ($e && !$es ? 'edit' : 'view'),
                                     $link['OrgIdentity']['id'],
                                     'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
                                   array('class' => ($e && !$es ? 'editbutton' : 'viewbutton'))) . "\n";
-
+                              
+                              if($permissions['relink']) {
+                                print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'linkid' => $link['id'])) . '\')";>' . _txt('op.relink') . '</a>' . "\n";
+                              }
+                              
                               if($permissions['delete']
                                 && count($co_people[0]['CoOrgIdentityLink']) > 1) {
                                 // An Org Identity Link can only be removed if there is at least one other remaining
-
-                                print '<a class="unlinkbutton" title="' . _txt('op.unlink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.unlink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_org_identity_links', 'action' => 'delete', $link['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.unlink') . '</a>' . "\n";
+                                // XXX Is this still a valid restriction? As of 0.9.1 one can relink an org identity
+                                // away, even if it's the last one attached to the CO Preson.
+                                
+                                print '<a class="unlinkbutton" title="' . _txt('op.unlink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.unlink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_org_identity_links', 'action' => 'delete', $link['id'])) . '\')";>' . _txt('op.unlink') . '</a>' . "\n";
                               }
                               ?>
                             </td>
