@@ -989,7 +989,8 @@
                                     // so give them an edit button, too.
 
                                     if($permissions['enroll']
-                                      && $r['status'] == StatusEnum::PendingApproval) {
+                                      && $r['status'] == StatusEnum::PendingApproval
+                                      && !empty($r['CoPetition'][0]['id'])) {
                                       print $this->Html->link(_txt('op.petition'),
                                         array('controller' => 'co_petitions',
                                           'action' => 'view',
