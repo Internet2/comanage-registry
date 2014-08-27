@@ -346,16 +346,16 @@
       $args['co'] = $cur_co['Co']['id'];
       foreach(range('a','z') as $i) {
         $args['Search.familyNameStart'] = $i;
-        
+        $alphaStyle = '';
+
         if(!empty($this->request->params['named']['Search.familyNameStart'])) {
           $curAlphaSearch = Sanitize::html($this->request->params['named']['Search.familyNameStart']);
-          
-          if($curAlphaSearch == $i) {
-            print '<li class="selected">' . $this->html->link($i,$args) . '</li>';
-          }  else {
-            print '<li>' . $this->html->link($i,$args) . '</li>';
+          if ($curAlphaSearch == $i) {
+            $alphaStyle = ' class="selected"';
           }
         }
+
+        print '<li' . $alphaStyle . '>' . $this->html->link($i,$args) . '</li>';
       }
     ?>
   </ul>
