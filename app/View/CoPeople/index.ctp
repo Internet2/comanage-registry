@@ -344,17 +344,18 @@
       $args['controller'] = 'co_people';
       $args['action'] = 'index';
       $args['co'] = $cur_co['Co']['id'];
+      $alphaSearch = '';
+
+      if(!empty($this->request->params['named']['Search.familyNameStart'])) {
+        $alphaSearch = Sanitize::html($this->request->params['named']['Search.familyNameStart']);
+      }
+
       foreach(range('a','z') as $i) {
         $args['Search.familyNameStart'] = $i;
         $alphaStyle = '';
-
-        if(!empty($this->request->params['named']['Search.familyNameStart'])) {
-          $curAlphaSearch = Sanitize::html($this->request->params['named']['Search.familyNameStart']);
-          if ($curAlphaSearch == $i) {
-            $alphaStyle = ' class="selected"';
-          }
+        if ($alphaSearch == $i) {
+          $alphaStyle = ' class="selected"';
         }
-
         print '<li' . $alphaStyle . '>' . $this->html->link($i,$args) . '</li>';
       }
     ?>
