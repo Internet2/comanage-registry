@@ -392,7 +392,7 @@ class StandardController extends AppController {
     $data[$req]['id'] = $id;
     
     // Set the view var since views require it on error... we need this
-    // before any further returns
+    // before any further returns.
     $this->set($modelpl, array(0 => $curdata));
 
     // Perform model specific checks
@@ -404,6 +404,11 @@ class StandardController extends AppController {
 
     if($model->saveAll($data))
     {
+      // Update the view var in case the controller requires the updated values
+      // for performRedirect or some other post-processing.
+      
+      $this->set($modelpl, array(0 => $data));
+      
       if(!$this->recordHistory('edit', $data, $curdata)
          || !$this->checkWriteFollowups($data, $curdata)) {
         if(!$this->restful)

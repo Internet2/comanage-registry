@@ -70,6 +70,7 @@ class ActionEnum
   const OrgIdAddedPetition              = 'AOIP';
   const OrgIdEditedManual               = 'EOIM';
   const OrgIdEditedPetition             = 'EOIP';
+  const ProvisionerAction               = 'PRVA';
   const ProvisionerFailed               = 'PRVX';
   const SshKeyAdded                     = 'SSHA';
   const SshKeyDeleted                   = 'SSHD';
@@ -436,7 +437,7 @@ global $contact_t, $contact_ti;
 global $extattr_t, $extattr_ti;
 global $identifier_t, $identifier_ti;
 global $name_t, $name_ti;
-global $ssh_ti;  // Used for ldap provisioner
+global $ssh_ti;  // Used for ldap and github provisioner
 global $status_t, $status_ti;
 
 $affil_t = array(

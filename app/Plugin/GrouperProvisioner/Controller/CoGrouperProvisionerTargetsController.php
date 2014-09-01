@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Grouper Provisioner Targets Controller
  *
- * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -22,9 +22,9 @@
  * @version       $Id$
  */
 
-App::uses("StandardController", "Controller");
+App::uses("SPTController", "Controller");
 
-class CoGrouperProvisionerTargetsController extends StandardController {
+class CoGrouperProvisionerTargetsController extends SPTController {
   // Class name, used by Cake
   public $name = "CoGrouperProvisionerTargets";
   
@@ -35,23 +35,6 @@ class CoGrouperProvisionerTargetsController extends StandardController {
       'serverurl' => 'asc'
     )
   );
-  
-  // This controller needs a CO to be set
-  public $requires_co = true;
-  
-  /**
-   * Add a Standard Object.
-   * - precondition: Model specific attributes in $this->request->data (optional)
-   * - postcondition: On success, new Object created
-   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
-   * - postcondition: $<object>_id or $invalid_fields set (REST)
-   *
-   * @since  COmanage Registry v0.8
-   */
-  
-  function add() {
-    parent::add();
-  }
   
   /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
@@ -80,42 +63,6 @@ class CoGrouperProvisionerTargetsController extends StandardController {
     }
     
     return true;
-  }
-  
-  /**
-   * Update a Standard Object.
-   * - precondition: Model specific attributes in $this->request->data (optional)
-   * - precondition: <id> must exist
-   * - postcondition: On GET, $<object>s set (HTML)
-   * - postcondition: On POST success, object updated
-   * - postcondition: On POST, session flash message updated (HTML) or HTTP status returned (REST)
-   * - postcondition: On POST error, $invalid_fields set (REST)
-   *
-   * @since  COmanage Registry v0.8
-   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
-   */
-  
-  function edit($id) {
-    parent::edit($id);
-  }
-  
-  /**
-   * Perform a redirect back to the controller's default view.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v0.8
-   */
-  
-  function performRedirect() {
-    // We generally want to return to CoProvisioningTargetController
-    
-    $target = array();
-    $target['plugin'] = null;
-    $target['controller'] = "co_provisioning_targets";
-    $target['action'] = 'index';
-    $target['co'] = $this->cur_co['Co']['id'];
-    
-    $this->redirect($target);
   }
   
   /**

@@ -210,6 +210,8 @@ original notification at
     ActionEnum::OrgIdAddedPetition          => 'Org Identity Created (Petition)',
     ActionEnum::OrgIdEditedManual           => 'Org Identity Edited (Manual)',
     ActionEnum::OrgIdEditedPetition         => 'Org Identity Edited (Petition)',
+    ActionEnum::ProvisionerAction           => 'Provisioner Action',
+    ActionEnum::ProvisionerFailed           => 'Provisioner Failed',
     ActionEnum::SshKeyAdded                 => 'SSH Key Added',
     ActionEnum::SshKeyDeleted               => 'SSH Key Deleted',
     ActionEnum::SshKeyEdited                => 'SSH Key Edited',

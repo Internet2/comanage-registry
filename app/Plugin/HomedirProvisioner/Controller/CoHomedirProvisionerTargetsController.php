@@ -22,9 +22,9 @@
  * @version       $Id$
  */
 
-App::uses("StandardController", "Controller");
+App::uses("SPTController", "Controller");
 
-class CoHomedirProvisionerTargetsController extends StandardController {
+class CoHomedirProvisionerTargetsController extends SPTController {
   // Class name, used by Cake
   public $name = "CoHomedirProvisionerTargets";
   
@@ -35,48 +35,7 @@ class CoHomedirProvisionerTargetsController extends StandardController {
       'logfile' => 'asc'
     )
   );
-  
-  // This controller needs a CO to be set
-  public $requires_co = true;
-  
-  // XXX docblock
-  // XXX move to some sort of parent controller?
-  
-  function add() {
-    if(!$this->restful) {
-      // In case we error out, we need to re-propagate the co provisioning target ID
-      // to the form. XXX this needs to be done for all ProvisionerTargets.
-      
-      if(isset($this->request->params['named']['ptid'])) {
-        $this->set('co_provisioning_target_id', $this->request->params['named']['ptid']);
-      } elseif(isset($this->request->data['CoHomedirProvisionerTarget']['co_provisioning_target_id'])) {
-        $this->set('co_provisioning_target_id', $this->request->data['CoHomedirProvisionerTarget']['co_provisioning_target_id']);
-      }
-    }
     
-    parent::add();
-  }
-  
-  /**
-   * Perform a redirect back to the controller's default view.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v0.9
-   */
-  // XXX move to some sort of parent controller?
-  
-  function performRedirect() {
-    // We generally want to return to CoProvisioningTargetController
-    
-    $target = array();
-    $target['plugin'] = null;
-    $target['controller'] = "co_provisioning_targets";
-    $target['action'] = 'index';
-    $target['co'] = $this->cur_co['Co']['id'];
-    
-    $this->redirect($target);
-  }
-  
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions

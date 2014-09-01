@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Changelog Provisioning Target Fields
  *
- * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
@@ -34,34 +34,8 @@
   if(!$e && !$permissions['view'])
     return false;
   
-  // Find the ID of our parent
-  $ptid = -1;
-  
-  if(isset($this->params->named['ptid'])) {
-    $ptid = Sanitize::html($this->params->named['ptid']);
-  } elseif(isset($co_provisioning_target_id)) {
-    $ptid = $co_provisioning_target_id;
-  } else {
-    $ptid = $co_changelog_provisioner_targets[0]['CoChangelogProvisionerTarget']['co_provisioning_target_id'];
-  }
-  
-  if($e) {
-    print $this->Html->link(_txt('op.cancel'),
-                           array('plugin' => null, 'controller' => 'co_provisioning_targets', 'action' => 'edit', $ptid, 'co' => $cur_co['Co']['id']),
-                           array('class' => 'cancelbutton'));
-  } else {
-    print $this->Html->link(_txt('op.back'),
-                           array('plugin' => null, 'controller' => 'co_provisioning_targets', 'action' => 'edit', $ptid, 'co' => $cur_co['Co']['id']),
-                           array('class' => 'backbutton'));
-  }
-  
-  print '
-    <br />
-    <br />
-    ';
-  
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
-  print $this->Form->hidden('co_provisioning_target_id', array('default' => $ptid)) . "\n";
+  print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
 ?>
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
   <p>
@@ -74,7 +48,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php print _txt('pl.changelogprovisioner.logfile'); ?><font class="required">*</font><br />
+        <strong class="fieldTitle"><?php print _txt('pl.changelogprovisioner.logfile'); ?></strong><font class="required">*</font><br />
         <font class="desc"><?php print _txt('pl.changelogprovisioner.logfile.desc'); ?></font>
       </td>
       <td>

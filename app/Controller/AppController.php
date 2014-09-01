@@ -429,6 +429,19 @@ class AppController extends Controller {
       return $recordCoId;
     }
     
+    // Possibly via a form
+    
+    if(!empty($this->request->data[$req]['id'])) {
+      try {
+        $recordCoId = $model->findCoForRecord($this->request->data[$req]['id']);
+      }
+      catch(InvalidArgumentException $e) {
+        throw new InvalidArgumentException($e->getMessage());
+      }
+      
+      return $recordCoId;
+    }
+    
     return null;
   }
   
