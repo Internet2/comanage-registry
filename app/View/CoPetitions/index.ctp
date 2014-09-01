@@ -36,26 +36,6 @@
   });
 </script>
 
-<style>
-  #filters {
-    width: 50%;
-    margin: 0 0 0 2px;
-  }
-  #statusfilter {
-    overflow: hidden;
-  }
-  #statusfilter .input>label {
-    float: left;
-  }
-  #statusfilterdialog .required {
-    color: black;
-  }
-  #statusfilterdialog .submit {
-    margin: 0.5em 0;
-    float: right !important;
-  }
-</style>
-
 <?php
 // Globals
 global $cm_lang, $cm_texts;

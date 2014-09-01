@@ -32,10 +32,10 @@
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('me.population'), $args);
-  $args = array(
-    'controller' => 'co_people',
-    'action' => 'canvas',
-    $vv_co_person['CoPerson']['id']);
+  $args = array();
+  $args['controller'] = 'co_people';
+  $args['action'] = 'canvas';
+  $args[] = $vv_co_person['CoPerson']['id'];
   $this->Html->addCrumb(generateCn($vv_co_person['PrimaryName']), $args);
   $this->Html->addCrumb(_txt('op.expunge'));
 
