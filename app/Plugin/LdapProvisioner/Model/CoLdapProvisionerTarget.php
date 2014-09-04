@@ -539,6 +539,37 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
     }
     
+    // We can't send the same value twice for multi-valued attributes. For example,
+    // eduPersonAffiliation can't have two entries for "staff", though it can have
+    // one for "staff" and one for "employee". We'll walk through the multi-valued
+    // attributes and remove any duplicate values. (We wouldn't have to do this here
+    // if we checked before inserting each value, above, but that would require a
+    // fairly large refactoring.)
+    
+    foreach(array_keys($attributes) as $a) {
+      if(is_array($attributes[$a])) {
+        // Multi-valued. The easiest thing to do is reconstruct the array. We can't
+        // just use array_unique since we have to compare case-insensitively.
+        // (Strictly speaking, we should set case-sensitivity based on the attribute
+        // definition.)
+        
+        // This array is what we'll put back -- we need to preserve case.
+        $newa = array();
+        
+        // This hash is what we'll use to see if there are existing values.
+        $h = array();
+        
+        foreach($attributes[$a] as $v) {
+          if(!isset($h[ strtolower($v) ])) {
+            $newa[] = $v;
+            $h[ strtolower($v) ] = true;
+          }
+        }
+        
+        $attributes[$a] = $newa;
+      }
+    }
+    
     return $attributes;
   }
   
