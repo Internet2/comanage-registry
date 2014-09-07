@@ -184,11 +184,23 @@
             }
           }
           else {
-            if($e)
-              echo $this->Html->link(_txt('op.edit'),
-                               array('controller' => 'co_groups', 'action' => 'edit', $c['CoGroup']['id'], 'co' => $this->request->params['named']['co']),
-                               array('class' => 'editbutton')) . "\n";
-              
+            if($e) {
+              print $this->Html->link(_txt('op.edit'),
+                                      array('controller' => 'co_groups',
+                                            'action' => 'edit',
+                                            $c['CoGroup']['id']),
+                                      array('class' => 'editbutton'))
+              . "\n";
+            }
+            elseif($v) {
+              print $this->Html->link(_txt('op.view'),
+                                      array('controller' => 'co_groups',
+                                            'action'     => 'view',
+                                            $c['CoGroup']['id']),
+                                      array('class'      => 'viewbutton'))
+                    . "\n";
+            }
+            
             if($d)
               echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoGroup']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_groups', 'action' => 'delete', $c['CoGroup']['id'], 'co' => $this->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
           }
