@@ -804,20 +804,20 @@ class CoPeopleController extends StandardController {
 
     // Filter by given name
     if(!empty($this->params['named']['Search.givenName'])) {
-      $searchterm = $this->params['named']['Search.givenName'];
-      $pagcond['PrimaryName.given LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.givenName']);
+      $pagcond['LOWER(PrimaryName.given) LIKE'] = "%$searchterm%";
     }
 
     // Filter by Family name
     if(!empty($this->params['named']['Search.familyName'])) {
-      $searchterm = $this->params['named']['Search.familyName'];
-      $pagcond['PrimaryName.family LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.familyName']);
+      $pagcond['LOWER(PrimaryName.family) LIKE'] = "%$searchterm%";
     }
 
     // Filter by start of Family name (starts with searchterm)
     if(!empty($this->params['named']['Search.familyNameStart'])) {
-      $searchterm = $this->params['named']['Search.familyNameStart'];
-      $pagcond['PrimaryName.family LIKE'] = "$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.familyNameStart']);
+      $pagcond['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
     }
 
     // Filter by status
