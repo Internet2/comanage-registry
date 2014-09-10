@@ -492,7 +492,7 @@ original notification at
   'er.auth' =>        'Not authenticated',
   'er.auth.co' =>     'You are not a member of any COs. Please contact an administrator for assistance.',
   'er.auth.empty' =>  'Found empty username at login. Please contact an administrator for assistance.',
-  'er.auth.org' =>    'The identifier "%1$s" is not registered. Please contact an administrator for assistance.',
+  'er.auth.org' =>    'The identifier "%1$s" is not registered. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
   'er.auth.roles' =>  'You do not have any current roles. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
   'er.co.cm.edit' =>  'Cannot edit COmanage CO',
   'er.co.cm.rm' =>    'Cannot remove COmanage CO',
