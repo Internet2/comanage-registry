@@ -509,7 +509,7 @@
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
     <field name="action" type="C" size="4" />
-    <field name="comment" type="C" size="160" />
+    <field name="comment" type="C" size="256" />
     <field name="source_url" type="C" size="160" />
     <field name="source_controller" type="C" size="80" />
     <field name="source_action" type="C" size="80" />

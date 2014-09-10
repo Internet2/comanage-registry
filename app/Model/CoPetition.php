@@ -949,7 +949,7 @@ class CoPetition extends AppModel {
               $tccomment = _txt('rs.pt.tc.implied', array($tcdesc));
               break;
             default:
-              throw new InvalidArgumentException("Unknown Terms and Conditions Mode");
+              throw new InvalidArgumentException("Unknown Terms and Conditions Mode: $tAndCMode");
               break;
           }
           

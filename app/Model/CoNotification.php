@@ -103,7 +103,7 @@ class CoNotification extends AppModel {
       'allowEmpty' => true
     ),
     'comment' => array(
-      'rule' => array('maxLength', 160),
+      'rule' => array('maxLength', 256),
       'required' => false,
       'allowEmpty' => true
     ),
