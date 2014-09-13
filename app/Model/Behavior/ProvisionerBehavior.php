@@ -123,8 +123,11 @@ class ProvisionerBehavior extends ModelBehavior {
     // to rewrite group memberships under both the person and all their groups (or under
     // the group and all its people).
     
+    $syncGroups = false;
+    
     // Track which group or groups need to be rewritten.
     $coGroupIds = array();
+    $copid = null; // CO Person ID, not to be confused with $coPersonId, used below
     $gmodel = null;
     
     // If a CO Person status has changed to or from Active, find all the groups
@@ -138,17 +141,45 @@ class ProvisionerBehavior extends ModelBehavior {
         // We have a CO Person status change to or from Active. Trigger a rewrite
         // of all groups of which the person is a member.
         
-        $args = array();
-        $args['conditions']['CoGroupMember.co_person_id'] = $model->data[ $model->alias ]['id'];
-        $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_group_id');
-        $args['contain'] = false;
+        $syncGroups = true;
+        $gmodel = $model->CoGroupMember->CoGroup;
+        $copid = $model->data[ $model->alias ]['id'];
+      }
+    }
+    
+    // If identifiers have changed, resync groups as well since group memberships
+    // may be keyed on one of them.
+    
+    if($model->name == 'Identifier'
+       && !empty($model->data['Identifier']['co_person_id'])) {
+      if(!isset($model->cacheData['Identifier']['identifier'])
+         && !empty($model->data['Identifier']['identifier'])) {
+        $syncGroups = true;
+      } elseif(!empty($model->cacheData['Identifier']['modified'])
+               && !empty($model->data['Identifier']['modified'])
+               && ($model->cacheData['Identifier']['modified']
+                   != $model->data['Identifier']['modified'])) {
+        // Use modified as a proxy for seeing if anything has changed in the record
         
-        $gms = $model->CoGroupMember->find('list', $args);
-        
-        if(!empty($gms)) {
-          $coGroupIds = array_values($gms);
-          $gmodel = $model->CoGroupMember->CoGroup;
-        }
+        $syncGroups = true;
+      }
+      
+      if($syncGroups) {
+        $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
+        $copid = $model->data['Identifier']['co_person_id'];
+      }
+    }
+    
+    if($syncGroups) {
+      $args = array();
+      $args['conditions']['CoGroupMember.co_person_id'] = $copid;
+      $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_group_id');
+      $args['contain'] = false;
+      
+      $gms = $gmodel->CoGroupMember->find('list', $args);
+      
+      if(!empty($gms)) {
+        $coGroupIds = array_values($gms);
       }
     }
     
@@ -374,7 +405,9 @@ class ProvisionerBehavior extends ModelBehavior {
     // Cache a copy of the current data for comparison in afterSave. Currently only
     // used to detect if a person or group goes to or from Active status.
     
-    if(($model->name == 'CoGroup' || $model->name == 'CoPerson')
+    if(($model->name == 'CoGroup'
+        || $model->name == 'CoPerson'
+        || $model->name == 'Identifier')
        // This will only be set on edit, not add
        && !empty($model->data[ $model->alias ]['id'])) {
       $args = array();
