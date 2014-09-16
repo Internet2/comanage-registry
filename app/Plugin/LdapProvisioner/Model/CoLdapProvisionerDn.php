@@ -244,13 +244,19 @@ class CoLdapProvisionerDn extends AppModel {
    * @param  Array CO Provisioning data
    * @param  String Mode: 'group' or 'person'
    * @param  Boolean Whether to assign a DN if one is not found and reassign if the DN should be changed
-   * @return Array An array of old and new DNs (either of which might be null)
+   * @return Array An array of the following:
+   *               - olddn: Old (current) DN (may be null)
+   *               - olddnid: Database row ID of old dn (may be null, to facilitate delete)
+   *               - newdn: New DN (may be null)
+   *               - newdnerr: Error message if new in cannot be assigned
    * @throws RuntimeException
    */
   
   public function obtainDn($coProvisioningTargetData, $provisioningData, $mode, $assign=true) {
     $curDn = null;
+    $curDnId = null;
     $newDn = null;
+    $newDnErr = null;
     
     // First see if we have already assigned a DN
     
@@ -267,15 +273,10 @@ class CoLdapProvisionerDn extends AppModel {
     
     if(!empty($dnRecord)) {
       $curDn = $dnRecord['CoLdapProvisionerDn']['dn'];
+      $curDnId = $dnRecord['CoLdapProvisionerDn']['id'];
     }
     
-    // We always calculate the DN, but only store it if $assign is true. This allows us
-    // to delete existing records via afterDelete() (at which point the current DN is gone).
-    // This will generally work because any renaming of the DN will likely have already
-    // taken place, so whatever the current (as of delete time) data is should be sufficient
-    // to reconstruct the DN currently in LDAP.
-    
-    // Calculate the DN
+    // We always try to (re)calculate the DN, but only store it if $assign is true.
     
     try {
       if($mode == 'person') {
@@ -285,7 +286,12 @@ class CoLdapProvisionerDn extends AppModel {
       }
     }
     catch(Exception $e) {
-      throw new RuntimeException($e->getMessage());
+      // Rather than throw an exception, store the error in the return array.
+      // We do this because there are many common times we will fail to assign a
+      // DN (especially on user creation and deletion), so we'll pass the error
+      // up the stack and let the calling function decide what to do.
+      
+      $newDnErr = $e->getMessage();
     }
     
     if($assign) {
@@ -312,6 +318,9 @@ class CoLdapProvisionerDn extends AppModel {
       }
     }
     
-    return array('olddn' => $curDn, 'newdn' => $newDn);
+    return array('olddn'    => $curDn,
+                 'olddnid'  => $curDnId,
+                 'newdn'    => $newDn,
+                 'newdnerr' => $newDnErr);
   }
 }

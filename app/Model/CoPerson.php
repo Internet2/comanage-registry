@@ -228,6 +228,28 @@ class CoPerson extends AppModel {
       }
     }
     
+    // Manually delete org identities since they will not cascade via org identity link.
+    // Only do this where there are no other CO People linked to the org identity.
+    // Note we're walking two links here... the first is all Org Identities attached
+    // to the current CO Person, then the second is all CO People attached to each
+    // of those Org Identities.
+    
+    // We need to do this before deleting the CO Person due to some deep Cake error
+    // when selecting the dependency data related to the Org Identity to prepare for
+    // deletion generating an invalid SELECT statement and throwing an error.
+    
+    foreach($coperson['CoOrgIdentityLink'] as $lnk) {
+      if(count($lnk['OrgIdentity']['CoOrgIdentityLink']) <= 1) {
+        if(!empty($lnk['OrgIdentity']['CoOrgIdentityLink'][0]['id'])) {
+          // We need to manually remove this link since it hasn't been removed via
+          // the CO Person record yet.
+          $this->CoOrgIdentityLink->delete($lnk['OrgIdentity']['CoOrgIdentityLink'][0]['id']);
+        }
+        
+        $this->CoOrgIdentityLink->OrgIdentity->delete($lnk['OrgIdentity']['id']);
+      }
+    }
+    
     // Delete the CO Person. Note that normally (CoPeopleController:checkDeleteDependencies)
     // we verify that each COU the CO Person belongs to can be admin'd by the currently authenticated
     // CO Person. However, at the moment CO People can only be deleted by CO and CMP admins, so there
@@ -242,16 +264,10 @@ class CoPerson extends AppModel {
     $this->_deleteDependent($coPersonId, true);
     $this->delete($coPersonId);
     
-    // Finally, manually delete org identities since they will not cascade via org identity link.
-    // Only do this where there are no other CO People linked to the org identity.
-    // Note we're walking two links here... the first is all Org Identities attached
-    // to the current CO Person, then the second is all CO People attached to each
-    // of those Org Identities.
-    
-    foreach($coperson['CoOrgIdentityLink'] as $lnk) {
-      if(count($lnk['OrgIdentity']['CoOrgIdentityLink']) <= 1) {
-        $this->CoOrgIdentityLink->OrgIdentity->delete($lnk['OrgIdentity']['id']);
-      }
+    // Need to check if there was an error since we can't see if something failed
+    // with provisioners. Note this only catches SQL issues, not general provisioner errors.
+    if($dbc->lastError() != null) {
+      throw new RuntimeException($dbc->lastError());
     }
     
     $dbc->commit();

@@ -40,7 +40,7 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'er.ldapprovisioner.dn.component'   => 'DN component %1$s not available',
   'er.ldapprovisioner.dn.config'      => 'DN configuration invalid',
   'er.ldapprovisioner.dn.noattr'      => 'DN attributes not found for CO Person %1$s',
-  'er.ldapprovisioner.dn.none'        => 'DN not found for CO Person %1$s',
+  'er.ldapprovisioner.dn.none'        => 'DN not found for %1$s %2$s (%3$s)',
   
   // Plugin texts
   'pl.ldapprovisioner.attr.hasmember.desc'  => 'Applies to Group',

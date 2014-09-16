@@ -53,34 +53,6 @@ class ProvisionerBehavior extends ModelBehavior {
       return $this->afterSave($model, false);
     }
     
-    // Deleting a CoPerson or CoGroup needs to be handled specially.
-    
-    $model->data = $model->cacheData;
-    
-    if(!empty($model->data[ $model->name ]['id'])) {
-      // Invoke all provisioning plugins
-      
-      try {
-        $this->invokePlugins($model,
-                             $model->data,
-                             $model->name == 'CoPerson'
-                             ? ProvisioningActionEnum::CoPersonDeleted
-                             : ProvisioningActionEnum::CoGroupDeleted);
-      }    
-      // What we really want to do here is catch the result (success or exception)
-      // and set the appropriate session flash message, but we don't have access to
-      // the current session, and anyway that doesn't cover RESTful interactions.
-      // So instead we syslog (which is better than nothing).
-      catch(InvalidArgumentException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new InvalidArgumentException($e->getMessage());
-      }
-      catch(RuntimeException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new RuntimeException($e->getMessage());
-      }
-    }
-    
     return true;
   }
   
@@ -389,6 +361,37 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     $model->cacheData = $model->data;
+    
+    if($model->name == 'CoGroup' || $model->name == 'CoPerson') {
+      // Deleting a CoPerson or CoGroup needs to be handled specially.
+      // We need to invoke the provisioners before the final model is deleted
+      // so provisioners can manually clean up any database associations before
+      // the delete of the final model.
+      
+      if(!empty($model->data[ $model->name ]['id'])) {
+        // Invoke all provisioning plugins
+        
+        try {
+          $this->invokePlugins($model,
+                               $model->data,
+                               $model->name == 'CoPerson'
+                               ? ProvisioningActionEnum::CoPersonDeleted
+                               : ProvisioningActionEnum::CoGroupDeleted);
+        }    
+        // What we really want to do here is catch the result (success or exception)
+        // and set the appropriate session flash message, but we don't have access to
+        // the current session, and anyway that doesn't cover RESTful interactions.
+        // So instead we syslog (which is better than nothing).
+        catch(InvalidArgumentException $e) {
+          syslog(LOG_ERR, $e->getMessage());
+          //throw new InvalidArgumentException($e->getMessage());
+        }
+        catch(RuntimeException $e) {
+          syslog(LOG_ERR, $e->getMessage());
+          //throw new RuntimeException($e->getMessage());
+        }
+      }
+    }
     
     return true;
   }

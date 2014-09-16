@@ -30,8 +30,10 @@ class LdapProvisioner extends AppModel {
   public $cmPluginMenus = array();
   
   // Document foreign keys
+  /* As of CO-950, we no longer use dependency delete. We delete the DN manually
+   * when the CO Person or CO Group is finally deleted.
   public $cmPluginHasMany = array(
     "CoGroup"  => array("CoLdapProvisionerDn"),
     "CoPerson" => array("CoLdapProvisionerDn")
-  );
+  );*/
 }
