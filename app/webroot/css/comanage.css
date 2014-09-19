@@ -60,6 +60,7 @@ a.asc::before {
 a.desc::before {
   content: "▼"; /*\25bc in escaped hex*/
 }
+
 /* Positioning */
 .right {
   float: right;
@@ -84,6 +85,13 @@ a.desc::before {
   top: -3px;
 }
 
+/* Breadcrumbs */
+#breadcrumbs {
+  font-size: 0.8em;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
 /* Content */
 #content {
   float: left;
@@ -104,6 +112,35 @@ a.linkbutton:last-child {
 }
 #firstPrompt {
   margin-bottom: 12em;
+}
+
+/* Messages */
+.noty_text{
+  font-weight: bold;
+}
+.noty_icon{
+  display: inline-block !important;
+  position: relative;
+  top: 3px;
+}
+.warbg{
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png") !important;
+}
+.sucbg{
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png") !important;
+}
+.errbg{
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png") !important;
+}
+.notbg{
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png") !important;
+}
+
+/* Notification table */
+.notificationStatus {
+  float: left;
+  margin-right: 1em;
+  margin-top: 5px;
 }
 
 /* Tables */
@@ -149,8 +186,15 @@ fieldset.borderless {
   border: 0;
   margin-top: 25px;
 }
+label,
+.checkbox,
+.checkbox label,
+.checkbox input {
+  cursor: pointer;
+}
 .form-error {
   background-color: #fee !important; /* override default focus color */
+  border: 1px solid red;
 }
 .error-message {
   font-style: italic;
@@ -171,6 +215,12 @@ fieldset.borderless {
 }
 
 /* For Advanced Search box */
+#advancedSearch {
+  margin-top: 0.5em;
+}
+#advancedSearch .ui-accordion-header {
+  font-weight: normal;
+}
 #advancedSearch .ui-accordion-content{
   padding: 0px;
 }
@@ -185,8 +235,7 @@ fieldset.borderless {
 #advancedSearch select{
   float: right;
   clear: both;
-  width: 130px;
-  margin-left: 8px;
+  width: 120px;
 }
 #advancedSearch select{
   width: 146px;
@@ -282,7 +331,7 @@ fieldset.borderless {
 /* Sidebar (right) */
 #sidebar {
   background-color: #F5F5F5;
-  margin: 1em 0;
+  margin: 1em 0 0 0;
   padding: 10px;
 }
 #menu li,
@@ -307,10 +356,6 @@ fieldset.borderless {
   float: left;
   opacity: 0.6;
 }
-/* Keep for now:
-#personExplorer ul.fields li .ui-icon {
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_6da8d5_256x240.png") !important;
-}*/
 #personExplorer a {
   text-decoration: none;
 }
@@ -338,16 +383,6 @@ fieldset.borderless {
   background: none;
   border: none;
 }
-/* These two rules allow the compare fields to float side-by-side.
-   Keep here, as we will likely use them based on a switch in the UI*/
-/*
-#compare_co_person ul.fields li div {
-  float: left;
-}
-#compare_co_person ul.fields li table {
-  outline: 1px solid #ccc;
-  margin: 0 4px 4px 0;
-}*/
 #compare_co_person ul.fields .line1 {
   background-color: transparent;
 }
@@ -359,6 +394,57 @@ fieldset.borderless {
   background: none;
   background-color: #F5F5FF;
   color: #333;
+}
+
+/* Petitions */
+#view_co_petition .checkbutton {
+  margin-left: 1em;
+}
+#filters {
+  width: 50%;
+  margin: 0 0 0 2px;
+}
+#statusfilter {
+  overflow: hidden;
+}
+#statusfilter .input>label {
+  float: left;
+}
+#statusfilterdialog .required {
+  color: black;
+}
+#statusfilterdialog .submit {
+  margin: 0.5em 0;
+  float: right !important;
+}
+
+/* Petition Attributes */
+.modelbox {
+  border: 1px solid #8DBBDD;
+  margin: 0 0 1em 0;
+  padding: 9px 38px;
+  background-color: #f8f8f8;
+}
+.modelbox .line0,
+.modelbox .line1,
+.modelbox .line2 {
+  background-color: transparent;
+}
+.boxtitle{
+  padding: 0 0 5px 0;
+}
+.modelbox table tr>:first-child{
+  min-width: 200px;
+  text-align: right;
+}
+.modelbox table tr>:nth-child(2){
+  min-width: 150px;
+}
+.modelbox table tr>:nth-child(2) input[type=text] {
+  min-width: 380px;
+}
+.modelbox table tr>:nth-child(2) select{
+  min-width: 387px;
 }
 
 /* Demographics */
@@ -373,6 +459,197 @@ fieldset.borderless {
   margin: 0 4px 8px 0;
 }
 
+/********************************/
+/* My Population - People Index */
+/********************************/
+/* Listing Sorter */
+#sorter {
+ float: right;
+}
+/* Alpha search  */
+#peopleAlphabet {
+  margin: 0.5em 0;
+  font-size: 1.2em;
+  border: 1px solid #eee;
+}
+#peopleAlphabet ul {
+  display: table;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+#peopleAlphabet li {
+  display: table-cell;
+  width: 3.8%;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  text-align: center;
+}
+#peopleAlphabet li:nth-child(odd) {
+  background-color: #e5e5e5;
+}
+#peopleAlphabet a {
+  display: inline-block;
+  text-decoration: none;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  padding: 4px 0;
+  margin: 0;
+  color: #666;
+}
+#peopleAlphabet li.selected a,
+#peopleAlphabet li.selected a:hover{
+  background-color: #888;
+  color: #eee;
+}
+#peopleAlphabet a:hover {
+  background-color: #ffe;
+  color: #333;
+}
+/* Listing controls */
+.listControl {
+  color: #1D5987;
+  margin: -1em 0 1em 0;
+}
+.listControl a {
+  color: #181CF5;
+}
+.listControl a:hover {
+  color: #444;
+  text-decoration: none;
+}
+.listControl ul,
+.listControl li {
+  display: inline;
+}
+.listControl ul {
+  margin: 0;
+  padding: 0;
+}
+.listControl li {
+  margin-left: 0.5em;
+}
+/* People Listing */
+#co_people {
+  clear: both;
+}
+#co_people > .ui-accordion {
+  margin: 0 0 2px;
+  overflow: hidden;
+  padding: 5px;
+}
+#co_people > div > .panel1{
+  float: left;
+  margin: 0 10px 0 0;
+}
+#noResults {
+  margin: 1.5em 0 0 0;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.panel2 {
+  padding: 0 0 0 10px !important;
+  margin-left: 25px;
+}
+.panel1 div,
+.panel2 div{
+  float: left;
+}
+.created,
+.status,
+.email{
+  margin-top: 6px;
+}
+.name {
+  width: 325px;
+  position: relative;
+  top: -4px;
+}
+.nameWithoutEmail {
+  top: 6px;
+}
+.email {
+  margin: 13px 0 0 0px;
+  position: absolute;
+  /*color: #7FB7DB;*/
+  color: #777;
+}
+.admin {
+  float: right !important;
+}
+.status {
+  margin-left: 5px;
+}
+.roles {
+  width: 98%;
+  padding: 5px;
+}
+.role {
+  width: 98%;
+  /*border: 1px solid #d0e5f5; */
+  padding: 2px;
+  margin-bottom: 5px;
+}
+.rolestatus{
+  float: right !important;
+  margin: 5px 9px 5px 5px;
+}
+.roledata{
+  width: 100%;
+}
+.roletitle{
+  width:100%;
+}
+.roledates{
+  text-align: right;
+  margin: 0 30px 0 0;
+}
+/* Pagination */
+.pagination {
+  padding: 5px
+}
+.outer-center {
+  float: right;
+  right: 50%;
+  position: relative;
+}
+.inner-center {
+  float: right;
+  right: -50%;
+  position: relative;
+}
+.clear {
+  clear: both;
+}
+/* people index jquery ui overrides */
+#co_people .panel1 {
+  border: 1px solid transparent; /* to allow our jquery UI hovers not to change the size of the div */
+  background: inherit;
+  color: #333;
+}
+#co_people .ui-state-hover,
+#co_people .ui-widget-content .ui-state-hover,
+#co_people .ui-widget-header .ui-state-hover,
+#co_people .ui-state-focus,
+#co_people .ui-widget-content .ui-state-focus,
+#co_people .ui-widget-header .ui-state-focus {
+  border: 1px solid #79b7e7;
+  background: #d0e5f5 url("/registry/css/jquery/ui/css/comanage-theme/images/ui-bg_glass_75_d0e5f5_1x400.png") 50% 50% repeat-x;
+  color: #1d5987;
+}
+#co_people .ui-state-active,
+#co_people .ui-widget-content .ui-state-active,
+#co_people .ui-widget-header .ui-state-active {
+  border: 1px solid #79b7e7;
+  color: #333;
+  background-color: #F5F5F5;
+}
+#co_people .ui-widget-content {
+  background-color: #FAFAFA;
+}
+
 /* Footer */
 .footer {
   clear: both;
@@ -385,33 +662,4 @@ fieldset.borderless {
 .poweredText {
   margin: 10px 10px 10px 0;
   float: left;
-}
-
-/* Messages */
-.noty_text{
-  font-weight: bold;
-}
-.noty_icon{
-  display: inline-block !important;
-  position: relative;
-  top: 3px;
-}
-.warbg{
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png") !important;
-}
-.sucbg{
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png") !important;
-}
-.errbg{
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png") !important;
-}
-.notbg{
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png") !important;
-}
-
-/* Notification table */
-.notificationStatus {
-  float: left;
-  margin-right: 1em;
-  margin-top: 5px;
 }

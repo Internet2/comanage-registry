@@ -32,25 +32,81 @@
   
   if(!$e && !$permissions['view'])
     return(false);
+
+  $idForBreadcrumbs = '';
   
   // Migrate the target person from a named argument to a form field
-  if(isset($this->request->params['named']['copersonroleid']))
+  if(isset($this->request->params['named']['copersonroleid'])) {
     echo $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->params['named']['copersonroleid']))) . "\n";
-  elseif(isset($this->request->data['Address']['co_person_role_id']))
+    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonroleid']);
+  } elseif(isset($this->request->data['Address']['co_person_role_id'])) {
     echo $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->data['Address']['co_person_role_id']))) . "\n";
-  elseif(isset($this->request->params['named']['orgidentityid']))
+    $idForBreadcrumbs = Sanitize::html($this->request->data['Address']['co_person_role_id']);
+  } elseif(isset($this->request->params['named']['orgidentityid'])) {
     echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
-  elseif(isset($this->request->data['Address']['org_identity_id']))
+    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+  } elseif(isset($this->request->data['Address']['org_identity_id'])) {
     echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['Address']['org_identity_id']))) . "\n";
+    $idForBreadcrumbs = Sanitize::html($this->request->data['Address']['org_identity_id']);
+  }
+
     
   if(isset($this->request->params['named']['co']))
     echo $this->Form->hidden('co_id', array('default' => Sanitize::html($this->request->params['named']['co']))) . "\n";
+
+  // Add breadcrumbs
+  if(isset($this->request->params['named']['copersonroleid']) || isset($this->request->data['Address']['co_person_role_id'])) {
+    // CO Person History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_people';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('me.population'), $args);
+
+    $args = array(
+      'controller' => 'co_person_roles',
+      'action' => 'edit',
+      $idForBreadcrumbs);
+    $this->Html->addCrumb(_txt('ct.co_person_roles.1'), $args);
+
+  } elseif(isset($this->request->params['named']['orgidentityid']) || isset($this->request->data['Address']['org_identity_id'])) {
+    // Org ID History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'org_identities';
+    $args['action'] = 'index';
+    if(!$pool_org_identities) {
+      $args['co'] = $cur_co['Co']['id'];
+    }
+    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
+
+    $args = array(
+      'controller' => 'orgIdentities',
+      'action' => 'edit',
+      $idForBreadcrumbs);
+    $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
+
+  }
+
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.addresses.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.addresses.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.addresses.1'));
+  }
 ?>
 <table id="<?php echo $this->action; ?>_address" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.address.line1'); ?><span class="required">*</span>
+        <?php echo _txt('fd.address.line1'); ?>
+        <?php if(in_array('line1', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('line1', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['line1'])); ?>
@@ -59,6 +115,9 @@
     <tr class="line2">
       <td>
         <?php echo _txt('fd.address.line2'); ?>
+        <?php if(in_array('line2', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('line2') : Sanitize::html($addresses[0]['Address']['line2'])); ?>
@@ -67,6 +126,9 @@
     <tr class="line1">
       <td>
         <?php echo _txt('fd.address.locality'); ?>
+        <?php if(in_array('locality', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
@@ -75,6 +137,9 @@
     <tr class="line2">
       <td>
         <?php echo _txt('fd.address.state'); ?>
+        <?php if(in_array('state', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
@@ -83,6 +148,9 @@
     <tr class="line1">
       <td>
         <?php echo _txt('fd.address.postal_code'); ?>
+        <?php if(in_array('postal_code', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
@@ -91,6 +159,9 @@
     <tr class="line2">
       <td>
         <?php echo _txt('fd.address.country'); ?>
+        <?php if(in_array('country', $required_fields)): ?>
+        <span class="required">*</span>
+        <?php endif; // required_fields ?>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>

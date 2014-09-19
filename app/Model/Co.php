@@ -58,6 +58,10 @@ class Co extends AppModel {
     "OrgIdentity" => array('dependent' => true)
   );
   
+  public $hasOne = array(
+    "CoSetting" => array('dependent' => true)
+  );
+  
   // Default display field for cake generated views
   public $displayField = "name";
   

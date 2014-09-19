@@ -23,13 +23,32 @@
  */
 -->
 <?php
+
   if($this->action == 'select') {
-    $params = array('title' => _txt('op.gr.memadd',
-                                    array($name_for_title)
-                                   )
-                   );
+    $params = array('title' => _txt('op.gr.memadd', array($name_for_title)));
+
+    // Add breadcrumbs
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_people';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('me.population'), $args);
+
+    $args = array(
+      'controller' => 'co_people',
+      'action' => 'canvas',
+      Sanitize::html($this->request->params['named']['copersonid']));
+    $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
+
+    $this->Html->addCrumb(_txt('op.manage.grm'));
+
   } else {
     $params = array('title' => _txt('ct.co_groups.pl'));
+
+    // Add breadcrumbs
+    $this->Html->addCrumb(_txt('ct.co_groups.pl'));
+
   }
   print $this->element("pageTitle", $params);
 
@@ -165,11 +184,23 @@
             }
           }
           else {
-            if($e)
-              echo $this->Html->link(_txt('op.edit'),
-                               array('controller' => 'co_groups', 'action' => 'edit', $c['CoGroup']['id'], 'co' => $this->request->params['named']['co']),
-                               array('class' => 'editbutton')) . "\n";
-              
+            if($e) {
+              print $this->Html->link(_txt('op.edit'),
+                                      array('controller' => 'co_groups',
+                                            'action' => 'edit',
+                                            $c['CoGroup']['id']),
+                                      array('class' => 'editbutton'))
+              . "\n";
+            }
+            elseif($v) {
+              print $this->Html->link(_txt('op.view'),
+                                      array('controller' => 'co_groups',
+                                            'action'     => 'view',
+                                            $c['CoGroup']['id']),
+                                      array('class'      => 'viewbutton'))
+                    . "\n";
+            }
+            
             if($d)
               echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoGroup']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_groups', 'action' => 'delete', $c['CoGroup']['id'], 'co' => $this->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
           }
@@ -188,13 +219,13 @@
       </th>
     </tr>
     <tr>
+      <td colspan="4"></td>
       <td>
         <?php
+
           if($this->action == 'select') {
             print $this->Form->submit(_txt('op.save'));
-            print $this->Form->button(_txt('op.reset'), 
-                                      array('type'=>'reset'));
-
+            print $this->Form->button(_txt('op.reset'), array('type'=>'reset'));
           }
           
           print $this->Form->end();

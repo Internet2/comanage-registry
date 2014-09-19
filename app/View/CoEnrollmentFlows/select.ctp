@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Flow Select View
  *
- * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -24,6 +24,9 @@
 <?php
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('op.select') . ' ' . _txt('ct.enrollment_flows.1'));
 ?>
 
 <table id="cous" class="ui-widget">
@@ -50,8 +53,7 @@
                                     array(
                                       'controller' => 'co_petitions',
                                       'action' => 'add',
-                                      'coef' => $c['CoEnrollmentFlow']['id'],
-                                      'co' => $this->request->params['named']['co']
+                                      'coef' => $c['CoEnrollmentFlow']['id']
                                     ),
                                     array('class' => 'forwardbutton')) . "\n";
           }

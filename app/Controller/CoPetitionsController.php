@@ -36,6 +36,7 @@ class CoPetitionsController extends StandardController {
     ),
     'contain' => array(
       'ApproverCoPerson' => 'PrimaryName',
+      'CoEnrollmentFlow',
       'Cou',
       'EnrolleeCoPerson' => 'PrimaryName',
       'PetitionerCoPerson' => 'PrimaryName',
@@ -57,7 +58,8 @@ class CoPetitionsController extends StandardController {
       'ActorCoPerson' => array(
         'PrimaryName'
       )
-    )
+    ),
+    'CoInvite'
   );
   
   /**
@@ -82,6 +84,15 @@ class CoPetitionsController extends StandardController {
                  $this->CoPetition->CoEnrollmentFlow->field('name',
                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID)));
       
+      $authnReq = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
+                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+      
+      if(!$authnReq && !$this->Session->check('Auth.User.name')) {
+        // If authentication is not required, and we're not authenticated as
+        // a valid user, hide the login/logout button to minimize confusion
+        $this->set('noLoginLogout', true);
+      }
+      
       if($this->request->is('post')) {
         // Set the view var. We need this on both success and failure.
         
@@ -96,9 +107,6 @@ class CoPetitionsController extends StandardController {
           
           $matchPolicy = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
                                                                     array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-          
-          $authnReq = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
-                                                                 array('CoEnrollmentFlow.id' => $enrollmentFlowID));
           
           $authzLevel = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
                                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
@@ -301,6 +309,14 @@ class CoPetitionsController extends StandardController {
           
           $this->set('vv_terms_and_conditions',
                      $this->CoPetition->Co->CoTermsAndConditions->find('all', $tArgs));
+          
+          // Also pass through the T&C Mode
+          
+          $tcmode = $this->CoPetition
+                         ->CoEnrollmentFlow->field('t_and_c_mode',
+                                                   array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+          
+          $this->set('vv_tandc_mode', (!empty($tcmode) ? $tcmode : TAndCEnrollmentModeEnum::ExplicitConsent));
         }
         
         // See if there is introductory text
@@ -310,6 +326,15 @@ class CoPetitionsController extends StandardController {
         
         if($introText) {
           $this->set('vv_introduction_text', $introText);
+        }
+        
+        // Or conclusion text
+        
+        $conclText = $this->CoPetition->CoEnrollmentFlow->field('conclusion_text',
+                                                                array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
+        if($conclText) {
+          $this->set('vv_conclusion_text', $conclText);
         }
       }
       
@@ -373,7 +398,7 @@ class CoPetitionsController extends StandardController {
   
   /**
    * Deny a petition.
-   * - precondition: $id must exist and be in 'Pending Approval' state
+   * - precondition: $id must exist and be in 'Pending Approval' or 'Pending Confirmation' state
    * - postcondition: On error, session flash message set
    * - postcondition: Redirect generated
    *
@@ -388,6 +413,31 @@ class CoPetitionsController extends StandardController {
                                       $this->Session->read('Auth.User.co_person_id'));
       
       $this->Session->setFlash(_txt('rs.pt.deny'), '', array(), 'success');
+    }
+    catch (Exception $e) {
+      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+    }
+    
+    $this->performRedirect();
+  }
+  
+  /**
+   * Flag a petition as a duplicate.
+   * - precondition: $id must exist and be in 'Pending Approval' or 'Pending Confirmation' state
+   * - postcondition: On error, session flash message set
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  Integer Petition ID
+   */
+  
+  public function dupe($id) {
+    try {
+      $this->CoPetition->updateStatus($id,
+                                      StatusEnum::Duplicate,
+                                      $this->Session->read('Auth.User.co_person_id'));
+      
+      $this->Session->setFlash(_txt('rs.pt.dupe'), '', array(), 'success');
     }
     catch (Exception $e) {
       $this->Session->setFlash($e->getMessage(), '', array(), 'error');
@@ -463,12 +513,17 @@ class CoPetitionsController extends StandardController {
     } else {
       $p['approve'] = $roles['cmadmin'] || $this->Role->isApprover($roles['copersonid']);
     }
-    $p['deny'] = $p['approve'];
     
     // Delete an existing CO Petition?
     // For now, this is restricted to CMP and CO Admins, until we have a better policy
     $p['delete'] = ($roles['cmadmin']
                     || ($flowAuthorized && $roles['coadmin']));
+    
+    // Deny an existing CO Petition?
+    $p['deny'] = $p['approve'];
+    
+    // Flag an existing CO Petition as a duplicate?
+    $p['dupe'] = $p['deny'];
     
     // Edit an existing CO Petition?
     $p['edit'] = ($roles['cmadmin']
@@ -530,9 +585,19 @@ class CoPetitionsController extends StandardController {
     }
     
     // Filter by status
-    if(!empty($this->params['named']['Search.status'])) {
-      $searchterm = $this->params['named']['Search.status'];
+    if(!empty($this->params['named']['search.status'])) {
+      $searchterm = $this->params['named']['search.status'];
       $pagcond['CoPetition.status'] = $searchterm;
+    }
+    
+    // Filter by CO Person ID
+    if(!empty($this->params['named']['search.copersonid'])) {
+      $pagcond['CoPetition.enrollee_co_person_id'] = $this->params['named']['search.copersonid'];
+    }
+    
+    // Filter by Org Identity ID
+    if(!empty($this->params['named']['search.orgidentityid'])) {
+      $pagcond['CoPetition.enrollee_org_identity_id'] = $this->params['named']['search.orgidentityid'];
     }
     
     // Potentially filter by enrollment flow ID. Our assumption is that if we make it

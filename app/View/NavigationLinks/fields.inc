@@ -32,7 +32,16 @@
   // We shouldn't get here if we don't have at least read permission, but check just in case
   
   if(!$e && !$permissions['view'])
-    return(false);  
+    return(false);
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.navigation_links.pl'), array('controller' => 'navigation_links', 'action' => 'index'));
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.navigation_links.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.navigation_links.1'));
+  }
 ?>
 
 <table id="<?php print $this->action; ?>_link" class="ui-widget">
@@ -101,13 +110,14 @@
       </td>
     </tr>
 
+    <?php
+    if($e) {
+      print '<tr><td></td><td>';
+      print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+      print $this->Form->button(_txt('op.reset'), array('type'=>'reset'));
+      print '</td></tr>';
+    }
+    ?>
 
   </tbody>
 </table>
-<?php
-  if($e) {
-    print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-    print $this->Form->button(_txt('op.reset'), 
-                              array('type'=>'reset'));
-  }
-?>

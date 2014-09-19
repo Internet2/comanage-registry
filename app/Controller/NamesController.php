@@ -38,19 +38,37 @@ class NamesController extends MVPAController {
 
   /**
    * Callback to set relevant tab to open when redirecting to another page
-   * - precondition:
-   * - postcondition: Auth component is configured
-   * - postcondition:
    *
    * @since  COmanage Registry v0.8.3
    */
 
   function beforeFilter() {
     $this->redirectTab = 'name';
-
+    
     parent::beforeFilter();
   }
 
+  /**
+   * Callback before views are rendered.
+   *
+   * @since  COmanage Registry v0.9.1
+   */
+  
+  function beforeRender() {
+    parent::beforeRender();
+    
+    // Set required fields according to whether or not this is attached to a CO Person (Role)
+    
+    $pids = $this->parsePersonID();
+    
+    if($pids['copersonid']) {
+      $this->set('required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields($this->cur_co['Co']['id']));
+    } else {
+      // Always use default settings for org identities
+      $this->set('required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields());
+    }
+  }
+  
   /**
    * Perform any dependency checks required prior to a delete operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)

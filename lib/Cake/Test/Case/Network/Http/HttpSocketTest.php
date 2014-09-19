@@ -93,7 +93,7 @@ class TestHttpSocket extends HttpSocket {
  * Convenience method for testing protected method
  *
  * @param string|array $uri URI to parse
- * @param boolean|array $base If true use default URI config, otherwise indexed array to set 'scheme', 'host', 'port', etc.
+ * @param bool|array $base If true use default URI config, otherwise indexed array to set 'scheme', 'host', 'port', etc.
  * @return array Parsed URI
  */
 	public function parseUri($uri = null, $base = array()) {
@@ -145,7 +145,7 @@ class TestHttpSocket extends HttpSocket {
 /**
  * Convenience method for testing protected method
  *
- * @param boolean $hex true to get them as HEX values, false otherwise
+ * @param bool $hex true to get them as HEX values, false otherwise
  * @return array Escape chars
  */
 	public function tokenEscapeChars($hex = true, $chars = null) {
@@ -174,14 +174,14 @@ class HttpSocketTest extends CakeTestCase {
 /**
  * Socket property
  *
- * @var mixed null
+ * @var mixed
  */
 	public $Socket = null;
 
 /**
  * RequestSocket property
  *
- * @var mixed null
+ * @var mixed
  */
 	public $RequestSocket = null;
 
@@ -1074,6 +1074,16 @@ class HttpSocketTest extends CakeTestCase {
 		));
 		$this->assertEquals($this->Socket->request['auth'], array('Basic' => array('user' => 'joel', 'pass' => 'hunter2')));
 		$this->assertTrue(strpos($this->Socket->request['header'], 'Authorization: Basic am9lbDpodW50ZXIy') !== false);
+
+		$this->Socket->configAuth('Basic', 'mark', 'password');
+		$this->Socket->request(array(
+			'method' => 'GET',
+			'uri' => 'http://example.com/test',
+			'header' => array(
+				'Authorization' => 'OtherAuth Hi.There'
+			)
+		));
+		$this->assertPattern('/Authorization: OtherAuth Hi\.There/m', $this->Socket->request['header']);
 	}
 
 /**
@@ -1089,6 +1099,15 @@ class HttpSocketTest extends CakeTestCase {
 
 		$this->Socket->get('/test2');
 		$this->assertTrue(strpos($this->Socket->request['header'], 'Authorization: Basic bWFyazpzZWNyZXQ=') !== false);
+
+		$this->Socket->request(array(
+			'method' => 'GET',
+			'uri' => 'http://example.com/test',
+			'header' => array(
+				'Authorization' => 'OtherAuth Hi.There'
+			)
+		));
+		$this->assertPattern('/Authorization: OtherAuth Hi\.There/m', $this->Socket->request['header']);
 
 		$this->Socket->get('/test3');
 		$this->assertTrue(strpos($this->Socket->request['header'], 'Authorization: Basic bWFyazpzZWNyZXQ=') !== false);

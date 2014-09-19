@@ -539,6 +539,37 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
     }
     
+    // We can't send the same value twice for multi-valued attributes. For example,
+    // eduPersonAffiliation can't have two entries for "staff", though it can have
+    // one for "staff" and one for "employee". We'll walk through the multi-valued
+    // attributes and remove any duplicate values. (We wouldn't have to do this here
+    // if we checked before inserting each value, above, but that would require a
+    // fairly large refactoring.)
+    
+    foreach(array_keys($attributes) as $a) {
+      if(is_array($attributes[$a])) {
+        // Multi-valued. The easiest thing to do is reconstruct the array. We can't
+        // just use array_unique since we have to compare case-insensitively.
+        // (Strictly speaking, we should set case-sensitivity based on the attribute
+        // definition.)
+        
+        // This array is what we'll put back -- we need to preserve case.
+        $newa = array();
+        
+        // This hash is what we'll use to see if there are existing values.
+        $h = array();
+        
+        foreach($attributes[$a] as $v) {
+          if(!isset($h[ strtolower($v) ])) {
+            $newa[] = $v;
+            $h[ strtolower($v) ] = true;
+          }
+        }
+        
+        $attributes[$a] = $newa;
+      }
+    }
+    
     return $attributes;
   }
   
@@ -558,6 +589,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // First figure out what to do
     $assigndn = false;
     $delete   = false;
+    $deletedn = false;
     $add      = false;
     $modify   = false;
     $rename   = false;
@@ -574,6 +606,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $person = true;
         break;
       case ProvisioningActionEnum::CoPersonDeleted:
+        // Because of the complexity of how related models are deleted and the
+        // provisioner behavior invoked, we do not allow dependent=true to delete
+        // the DN. Instead, we manually delete it
+        $deletedn = true;
+        // Fall through, we want the rest of expired behavior
       case ProvisioningActionEnum::CoPersonExpired:
         // Currently, expiration is treated the same as delete, but that is subject to change
         $assigndn = false;
@@ -606,6 +643,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         break;
       case ProvisioningActionEnum::CoGroupDeleted:
         $delete = true;
+        $deletedn = true;
         $group = true;
         break;
       case ProvisioningActionEnum::CoGroupUpdated:
@@ -625,7 +663,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     if($group) {
-      // If this is a group action and no Group DN is defined, or oc_groupofnames is false,
+      // If this is a group action and no Group Base DN is defined, or oc_groupofnames is false,
       // then don't try to do anything.
       
       if(!isset($coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'])
@@ -647,20 +685,20 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       throw new RuntimeException($e->getMessage());
     }
     
-    $dn = $dns['newdn'];
-    
     // We might have to handle a rename if the DN changed
     
     if($dns['olddn'] && $dns['newdn'] && ($dns['olddn'] != $dns['newdn'])) {
       $rename = true;
     }
     
-    if($add || $modify) {
+    if($dns['newdn'] && ($add || $modify)) {
       // Find out what attributes went into the DN to make sure they got populated into
       // the attribute array
       
       try {
-        $dnAttributes = $this->CoLdapProvisionerDn->dnAttributes($coProvisioningTargetData, $dn, $person ? 'person' : 'group');
+        $dnAttributes = $this->CoLdapProvisionerDn->dnAttributes($coProvisioningTargetData,
+                                                                 $dns['newdn'],
+                                                                 $person ? 'person' : 'group');
       }
       catch(RuntimeException $e) {
         throw new RuntimeException($e->getMessage());
@@ -704,21 +742,36 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     if($delete) {
       // Delete any previous entry. For now, ignore any error.
       
-      if($rename) {
-        // If we're also renaming, make sure to delete using the old DN
+      if($rename || !$dns['newdn']) {
+        // Use the old DN if we're renaming or if there is no new DN
+        // (which should be the case for a delete operation).
         @ldap_delete($cxn, $dns['olddn']);
       } else {
-        if(!$dns['newdn']) {
-          $dn = $dns['olddn'];
-        }
+        // It's actually not clear when we'd get here -- perhaps cleaning up
+        // a record that exists in LDAP even though it's new to Registry?
+        @ldap_delete($cxn, $dns['newdn']);
+      }
+      
+      if($deletedn) {
+        // Delete the old DN from the database. (It's not done via dependency to ensure
+        // we have it when we finally delete the record.)
         
-        @ldap_delete($cxn, $dn);
+        if($dns['olddnid']) {
+          $this->CoLdapProvisionerDn->delete($dns['olddnid']);
+        }
       }
     }
     
     if($rename
        // Skip this if we're doing a delete and an add, which is basically a rename
        && !($delete && $add)) {
+      if(!$dns['newdn']) {
+        throw new RuntimeException(_txt('er.ldapprovisioner.dn.none',
+                                        array($person ? _txt('ct.co_people.1') : _txt('ct.co_groups.1'),
+                                              $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
+                                              $dns['newdnerr'])));
+      }
+      
       // Perform the rename operation before we try to do anything else. Note that
       // the old DN is complete while the new DN is relative.
       
@@ -739,11 +792,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     if($modify) {
-      if(!$dn) {
-        throw new RuntimeException(_txt('er.ldapprovisioner.dn.none', array($provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'])));
+      if(!$dns['newdn']) {
+        throw new RuntimeException(_txt('er.ldapprovisioner.dn.none',
+                                        array($person ? _txt('ct.co_people.1') : _txt('ct.co_groups.1'),
+                                              $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
+                                              $dns['newdnerr'])));
       }
       
-      if(!@ldap_mod_replace($cxn, $dn, $attributes)) {
+      if(!@ldap_mod_replace($cxn, $dns['newdn'], $attributes)) {
         if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
           // Change to an add operation. We call ourselves recursively because
           // we need to recalculate $attributes. Modify wants array() to indicate
@@ -765,11 +821,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     if($add) {
       // Write a new entry
       
-      if(!$dn) {
-        throw new RuntimeException(_txt('er.ldapprovisioner.dn.none', array($provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'])));
+      if(!$dns['newdn']) {
+        throw new RuntimeException(_txt('er.ldapprovisioner.dn.none',
+                                        array($provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
+                                              $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
+                                              $dns['newdnerr'])));
       }
       
-      if(!@ldap_add($cxn, $dn, $attributes)) {
+      if(!@ldap_add($cxn, $dns['newdn'], $attributes)) {
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
     }

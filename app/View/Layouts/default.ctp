@@ -64,7 +64,7 @@
         theme: 'comanage'
       });
     }
-
+    
     // Function to confirm delete and then hand off
     function js_confirm_delete(name, url) {
       // Generate a dialog box confirming the removal of <name>.  On confirmation, forward to <url>, which executes the delete.
@@ -88,22 +88,30 @@
       $('#dialog').dialog('open');
     }
 
-    function js_confirm_generic(txt, url) {
+    function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt) {
       // Generate a dialog box confirming <txt>.  On confirmation, forward to <url>.
-
+      // Use confirmbtxt and cancelbtxt as text for the buttons, if provided.
+      
+      var confbutton = confirmbtxt;
+      var cxlbutton = cancelbtxt;
+      
+      if(confbutton == undefined) confbutton = "<?php print _txt('op.ok'); ?>";
+      if(cxlbutton == undefined) cxlbutton = "<?php print _txt('op.cancel'); ?>";
+      
       // Set the title of the dialog    
-      $("#dialog").dialog("option", "title", "<?php print _txt('op.confirm'); ?>" + " " + name);
-
+      $("#dialog").dialog("option", "title", "<?php print _txt('op.confirm'); ?>");
+      
       // Set the body of the dialog
       $("#dialog-text").text(txt);
-    
+      
       // Set the dialog buttons
+      var dbuttons = {};
+      dbuttons[cxlbutton] = function() { $(this).dialog("close"); };
+      dbuttons[confbutton] = function() { window.location=url; };
+      
       $("#dialog").dialog("option",
                           "buttons",
-                          {
-                            "<?php print _txt('op.cancel'); ?>": function() { $(this).dialog("close"); },
-                            "<?php print _txt('op.remove'); ?>": function() { window.location=url; }
-                          });
+                          dbuttons);
      
       // Open the dialog
       $('#dialog').dialog('open');
@@ -189,130 +197,150 @@
       $(".addbutton").button({
         icons: {
           primary: 'ui-icon-circle-plus'
-        }
+        },
+        text: true
       });
       
       $(".autobutton").button({
         icons: {
           primary: 'ui-icon-script'
-        }
+        },
+        text: true
       });
       
       $(".backbutton").button({
         icons: {
           primary: 'ui-icon-circle-arrow-w'
-        }
+        },
+        text: true
       });
       
       $(".cancelbutton").button({
         icons: {
           primary: 'ui-icon-circle-close'
-        }
+        },
+        text: true
       });
       
       $(".checkbutton").button({
         icons: {
           primary: 'ui-icon-circle-check'
-        }
+        },
+        text: true
       });
       
       $(".comparebutton").button({
         icons: {
           primary: 'ui-icon-person'
         },
-        text: false
+        text: true
       });
 
       $(".configurebutton").button({
         icons: {
           primary: 'ui-icon-pencil'
-        }
+        },
+        text: true
       });
       
       $(".deletebutton").button({
         icons: {
           primary: 'ui-icon-circle-close'
         },
-        text: false
+        text: true
       });
 
       $(".editbutton").button({
         icons: {
           primary: 'ui-icon-pencil'
         },
-        text: false
+        text: true
       });
 
       $(".forwardbutton").button({
         icons: {
           primary: 'ui-icon-circle-arrow-e'
-        }
+        },
+        text: true
       });
       
       $(".historybutton").button({
         icons: {
           primary: 'ui-icon-note'
-        }
+        },
+        text: true
       });
       
       $(".invitebutton").button({
         icons: {
           primary: 'ui-icon-mail-closed'
         },
-        text: false
+        text: true
       });
 
       $(".linkbutton").button({
         icons: {
           primary: 'ui-icon-extlink'
         },
+        text: true
       });
       
       $(".logoutbutton").button({
         icons: {
           primary: 'ui-icon-power'
         },
+        text: true
       });
 
       $(".menubutton").button({
         icons: {
           primary: 'ui-icon-home'
         },
+        text: true
       });
 
       $(".menuitembutton").button({
         icons: {
           primary: 'ui-icon-circle-triangle-e'
         },
+        text: true
       });
       
       $(".searchbutton").button({
         icons: {
           primary: 'ui-icon-search'
         },
+        text: true
       });
 
       $(".petitionbutton").button({
         icons: {
           primary: 'ui-icon-script'
         },
-        text: false
+        text: true
       });
       
       $(".provisionbutton").button({
         icons: {
           primary: 'ui-icon-gear'
         },
-        text: false
+        text: true
       });
       
       $(".primarybutton").button({
         icons: {
           primary: 'ui-icon-arrowthickstop-1-n'
         },
-        text: false
+        text: true
       });
-
+      
+      $(".relinkbutton").button({
+        icons: {
+          primary: 'ui-icon-link'
+        },
+        text: true
+      });
+      
       $("button:reset").button();
       $("button:reset").css('float', 'left');
       
@@ -320,14 +348,14 @@
         icons: {
           primary: 'ui-icon-cancel'
         },
-        text: false
+        text: true
       });
       
       $(".viewbutton").button({
         icons: {
           primary: 'ui-icon-extlink'
         },
-        text: false
+        text: true
       });
       
       // Datepickers
@@ -435,9 +463,16 @@
         if($f && $f != "") {
           print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
         }
-
+        
+        // auth = errors from AuthComponent
+        $f = $this->Session->flash('auth');
+       
+        if($f && $f != "") {
+          print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
+        }
+        
         $f = $this->Session->flash('info');
-      
+        
         if($f && $f != "") {
           print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'info');";
         }
@@ -447,7 +482,7 @@
         if($f && $f != "") {
           print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'success');";
         }
-
+        
         $f = $this->Session->error();
         
         if($f && $f != "") {
@@ -513,8 +548,8 @@
     
     <div id="main" class="contentWidth">
       <?php
+        // insert the sidebar when it exists
         $sidebarButtons = $this->getVar('sidebarButtons');
-      
         if($sidebarButtons != null):
       ?>
           <!-- Display sidebar menu for content -->
@@ -529,25 +564,37 @@
                                . $link['icon'] 
                                . '"></span>'
                                . $link['title'];
-                   
+                  
                   $url = $link['url'];
-
-                  if(isset($link['options']))
+                  
+                  $options = array();
+                  
+                  if(isset($link['options'])) {
                     $options = (array)$link['options'];
+                  }
+                  
                   $options['escape'] = FALSE;
-
-                  // Use the built in Cakephp popup
-                  if(isset($link['popup']))
-                    $popup = $link['popup'];
-                  else
-                    $popup = null;
+                  
+                  if(!empty($link['confirm'])) {
+                    // There is a built in Cake popup, which can be accessed by putting the confirmation text
+                    // as the fourth parameter to link. However, that uses a javascript popup rather than a
+                    // jquery popup, which is inconsistent with our look and feel.
+                    
+                    $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt($link['confirm']) . "', '" . Router::url($url) . "'";
+                    
+                    if(!empty($link['confirmbtxt'])) {
+                      // Set the text for the confirmation button
+                      $options['onclick'] .= ", '" . $link['confirmbtxt'] . "'";
+                    }
+                    
+                    $options['onclick'] .= ");return false";
+                  }
                   
                   print $this->Html->link(
                     $icontitle,
                     $url,
-                    $options,
-                    $popup
-                  ); // end of a
+                    $options
+                  );
                 print '</li>';
               }
             ?>
@@ -578,6 +625,13 @@
         } else {
           print '<div id="content">';
         }
+
+        // insert breadcrumbs on all but the homepage
+        if ($this->request->here != $this->request->webroot) {
+          echo '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', 'Home') . "</div>";
+        }
+
+        // insert the page internal content
         print $this->fetch('content');
         print "</div>";
       ?>

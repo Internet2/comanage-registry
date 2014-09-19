@@ -24,7 +24,21 @@
   
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
-  
+
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_people';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('me.population'), $args);
+  $args = array();
+  $args['controller'] = 'co_people';
+  $args['action'] = 'canvas';
+  $args[] = $vv_co_person['CoPerson']['id'];
+  $this->Html->addCrumb(generateCn($vv_co_person['PrimaryName']), $args);
+  $this->Html->addCrumb(_txt('op.expunge'));
+
   print $this->Form->Create(
     'CoPerson',
     array(
@@ -69,7 +83,7 @@
     <ul>
       <li><?php print _txt('op.expunge.info.cop', array(generateCn($vv_co_person['PrimaryName']),
                                                         $this->Html->url(array('controller' => 'co_people',
-                                                                               'action'     => 'view',
+                                                                               'action'     => 'canvas',
                                                                                $vv_co_person['CoPerson']['id'])),
                                                         $this->Html->url(array('controller' => 'history_records',
                                                                                'action'     => 'index',
@@ -161,8 +175,8 @@
   
   <p>
     <?php
-      print $this->Form->checkbox('confirm', array('onClick' => "maybe_enable_submit()"))
-            . " " . _txt('op.expunge.ack');
+      print $this->Form->checkbox('confirm', array('onClick' => "maybe_enable_submit()"));
+      print $this->Form->label('confirm',_txt('op.confirm.box'));
     ?>
   </p>
   

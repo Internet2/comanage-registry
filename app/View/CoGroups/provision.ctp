@@ -26,6 +26,16 @@
 // XXX this is basically the same as the version in CoPeople
   $params = array('title' => _txt('fd.prov.status.for', array($co_group['CoGroup']['name'])));
   print $this->element("pageTitle", $params);
+
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_groups';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+  $this->Html->addCrumb(_txt('fd.prov.status'));
+
 ?>
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->

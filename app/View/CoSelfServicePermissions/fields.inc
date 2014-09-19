@@ -77,6 +77,23 @@
   
   if(!$e && !$permissions['view'])
     return(false);
+
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_self_service_permissions';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_self_service_permissions.pl'), $args);
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_self_service_permissions.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.co_self_service_permissions.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.co_self_service_permissions.1'));
+  }
   
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
@@ -172,12 +189,14 @@
         ?>
       </td>
     </tr>
+
+    <?php
+    if($e) {
+      print '<tr><td></td><td>';
+      print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+      print $this->Form->button(_txt('op.reset'), array('type'=>'reset'));
+      print '</td></tr>';
+    }
+    ?>
   </tbody>
 </table>
-<?php
-  if($e) {
-    print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-    print $this->Form->button(_txt('op.reset'), 
-                              array('type'=>'reset'));
-  }
-?>

@@ -120,6 +120,11 @@ class CoEnrollmentFlow extends AppModel {
     'verify_email' => array(
       'rule' => array('boolean')
     ),
+    'invitation_validity' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'require_authn' => array(
       'rule' => array('boolean')
     ),
@@ -176,6 +181,18 @@ class CoEnrollmentFlow extends AppModel {
       'rule' => 'notEmpty',
       'required' => false,
       'allowEmpty' => true
+    ),
+    'conclusion_text' => array(
+      'rule' => 'notEmpty',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    't_and_c_mode' => array(
+      'rule' => array('inList',
+                      array(TAndCEnrollmentModeEnum::ExplicitConsent,
+                            TAndCEnrollmentModeEnum::ImpliedConsent,
+                            // TAndCEnrollmentModeEnum::SplashPage, not implemented CO-923
+                            TAndCEnrollmentModeEnum::Ignore))
     ),
     'redirect_on_submit' => array(
       'rule' => array('url', true),

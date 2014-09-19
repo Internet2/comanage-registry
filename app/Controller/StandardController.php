@@ -279,13 +279,24 @@ class StandardController extends AppController {
 
     $model->id = $id;
     
-    if(isset($this->edit_recursion))
-      $model->recursive = $this->edit_recursion;
-
-    // Make sure $id exists
+    if(isset($this->edit_contains)) {
+      // New style: use containable behavior
+      
+      $args = array();
+      
+      $args['conditions'][$req.'.id'] = $id;
+      $args['contain'] = $this->edit_contains;
+      
+      $curdata = $model->find('first', $args);
+    } else {
+      // Old style: use recursion (if set)
+      
+      if(isset($this->edit_recursion))
+        $model->recursive = $this->edit_recursion;
+      
+      $curdata = $model->read();
+    }
     
-    $curdata = $model->read();
-
     if(empty($curdata))
     {
       if($this->restful)
@@ -342,7 +353,7 @@ class StandardController extends AppController {
       if($this->request->is('get'))
       {
         // Nothing to do yet... return current data and let the form render
-
+        
         $this->request->data = $curdata;
         $this->set($modelpl, array(0 => $curdata));
         
@@ -381,7 +392,7 @@ class StandardController extends AppController {
     $data[$req]['id'] = $id;
     
     // Set the view var since views require it on error... we need this
-    // before any further returns
+    // before any further returns.
     $this->set($modelpl, array(0 => $curdata));
 
     // Perform model specific checks
@@ -393,6 +404,11 @@ class StandardController extends AppController {
 
     if($model->saveAll($data))
     {
+      // Update the view var in case the controller requires the updated values
+      // for performRedirect or some other post-processing.
+      
+      $this->set($modelpl, array(0 => $data));
+      
       if(!$this->recordHistory('edit', $data, $curdata)
          || !$this->checkWriteFollowups($data, $curdata)) {
         if(!$this->restful)
@@ -818,25 +834,35 @@ class StandardController extends AppController {
    *
    * @since  COmanage Registry v0.8.3
    */
+  
   function search() {
-
     // the page we will redirect to
     $url['action'] = 'index';
-     
+    
+    // CoPeople uses "Search", but should use "search" like CoPetition (CO-906)
+    
     // build a URL will all the search elements in it
     // the resulting URL will be 
     // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
     if(isset($this->data['Search'])) {
       foreach ($this->data['Search'] as $field=>$value){
-        if(!empty($value))
+        if(!empty($value)) {
           $url['Search.'.$field] = $value; 
+        }
+      }
+    } elseif(isset($this->data['search'])) {
+      foreach ($this->data['search'] as $field=>$value){
+        if(!empty($value)) {
+          $url['search.'.$field] = $value; 
+        }
       }
     }
-
+    
     // Insert CO into URL
-    if(isset($this->cur_co['Co']['id']))
+    if(isset($this->cur_co['Co']['id'])) {
       $url['co'] = $this->cur_co['Co']['id'];
-
+    }
+    
     // redirect the user to the url
     $this->redirect($url, null, true);
   }

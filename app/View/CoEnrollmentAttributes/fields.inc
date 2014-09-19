@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Fields
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -306,22 +306,13 @@
           <select
             id="CoEnrollmentAttributeAddressFields"
             onchange="javascript:document.getElementById('CoEnrollmentAttributeRequiredFields').value=this.value">
-            <option value="line1"><?php
-              print _txt('fd.address.line1') . " (" . _txt('fd.default') . ")";
-            ?></option>
-            <option value="line1,locality,state,postal_code"><?php
-              print _txt('fd.address.line1') . ", "
-                  . _txt('fd.address.locality') . ", "
-                  . _txt('fd.address.state') . ", "
-                  . _txt('fd.address.postal_code');
-            ?></option>
-            <option value="line1,locality,state,postal_code,country"><?php
-              print _txt('fd.address.line1') . ", "
-                  . _txt('fd.address.locality') . ", "
-                  . _txt('fd.address.state') . ", "
-                  . _txt('fd.address.postal_code') . ", "
-                  . _txt('fd.address.country');
-            ?></option>
+            <?php
+              global $cm_lang, $cm_texts;
+              
+              foreach($cm_texts[ $cm_lang ]['en.required.address'] as $key => $txt):
+            ?>
+            <option value="<?php print $key; ?>"><?php print $txt; ?></option>
+            <?php endforeach; ?>
           </select>
         </div>
         <div id="name_required_fields_div" style="display: none">
@@ -329,13 +320,13 @@
           <select
             id="CoEnrollmentAttributeNameFields"
             onchange="javascript:document.getElementById('CoEnrollmentAttributeRequiredFields').value=this.value">
-            <option value="given"><?php
-              print _txt('fd.name.given') . " (" . _txt('fd.default') . ")";
-            ?></option>
-            <option value="given,family"><?php
-              print _txt('fd.name.given') . ", "
-                  . _txt('fd.name.family');
-            ?></option>
+            <?php
+              global $cm_lang, $cm_texts;
+              
+              foreach($cm_texts[ $cm_lang ]['en.required.name'] as $key => $txt):
+            ?>
+            <option value="<?php print $key; ?>"><?php print $txt; ?></option>
+            <?php endforeach; ?>
           </select>
         </div>
         <div id="required_fields_div" style="display: none">

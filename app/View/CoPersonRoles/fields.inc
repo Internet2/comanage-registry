@@ -56,6 +56,30 @@
   
   // Line number, for rendering
   $l = 1;
+
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_people';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('me.population'), $args);
+
+  $args = array(
+    'controller' => 'co_people',
+    'action' => 'canvas',
+    $co_people[0]['CoPerson']['id']);
+  $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
+
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_person_roles.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.co_person_roles.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.co_person_roles.1'));
+  }
 ?>
 
 <script>
@@ -183,6 +207,7 @@ $(function() {
                 }
               ?>
               <?php if($e && !$es
+                       && !empty($co_person_roles[0]['CoPersonRole']['status'])
                        && ($co_person_roles[0]['CoPersonRole']['status'] == StatusEnum::PendingApproval
                            || $co_person_roles[0]['CoPersonRole']['status'] == StatusEnum::PendingConfirmation)): ?>
               <div>

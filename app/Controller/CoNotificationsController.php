@@ -85,20 +85,19 @@ class CoNotificationsController extends StandardController {
     $copersontype = null;
     
     if(!empty($this->request->params['pass'][0])) {
-      // Determine CO via Subject CO Person ID
+      // Determine CO via Subject CO Person ID or Subject CO Group ID
       
       $args = array();
       $args['conditions']['CoNotification.id'] = $this->request->params['pass'][0];
-      $args['joins'][0]['table'] = 'co_notifications';
-      $args['joins'][0]['alias'] = 'CoNotification';
-      $args['joins'][0]['type'] = 'INNER';
-      $args['joins'][0]['conditions'][0] = 'SubjectCoPerson.id=CoNotification.subject_co_person_id';
-      $args['contain'] = false;
+      $args['contain'][] = 'SubjectCoPerson';
+      $args['contain'][] = 'SubjectCoGroup';
       
-      $coPerson = $this->CoNotification->SubjectCoPerson->find('first', $args);
+      $coNote = $this->CoNotification->find('first', $args);
       
-      if(!empty($coPerson['SubjectCoPerson']['co_id'])) {
-        return $coPerson['SubjectCoPerson']['co_id'];
+      if(!empty($coNote['SubjectCoPerson']['co_id'])) {
+        return $coNote['SubjectCoPerson']['co_id'];
+      } elseif(!empty($coNote['SubjectCoGroup']['co_id'])) {
+        return $coNote['SubjectCoGroup']['co_id'];
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_notifications.1'),
@@ -297,7 +296,27 @@ class CoNotificationsController extends StandardController {
       $this->cur_request_type_txt = _txt('fd.recipient');
       $this->cur_request_type_key = 'recipientcopersonid';
       
-      $ret['CoNotification.recipient_co_person_id'] = $this->request->params['named']['recipientcopersonid'];
+      // We also need to add in any active groups that the requested person is a member of
+      
+      $args = array();
+      $args['joins'][0]['table'] = 'co_group_members';
+      $args['joins'][0]['alias'] = 'CoGroupMember';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'RecipientCoGroup.id=CoGroupMember.co_group_id';
+      $args['conditions']['CoGroupMember.co_person_id'] = $this->request->params['named']['recipientcopersonid'];
+      $args['conditions']['CoGroupMember.member'] = true;
+      $args['conditions']['RecipientCoGroup.status'] = StatusEnum::Active;
+      $args['fields'] = array('RecipientCoGroup.id', 'RecipientCoGroup.id');
+      $args['contain'] = false;
+      
+      $groups = $this->CoNotification->RecipientCoGroup->find('list', $args);
+      
+      if(!empty($groups)) {
+        $ret['OR']['CoNotification.recipient_co_group_id'] = $groups;
+        $ret['OR']['CoNotification.recipient_co_person_id'] = $this->request->params['named']['recipientcopersonid'];
+      } else {
+        $ret['CoNotification.recipient_co_person_id'] = $this->request->params['named']['recipientcopersonid'];
+      }
     } elseif(isset($this->request->params['named']['resolvercopersonid'])) {
       $this->cur_co_person_id = $this->request->params['named']['resolvercopersonid'];
       $this->cur_request_type_txt = _txt('fd.resolver');
@@ -310,6 +329,12 @@ class CoNotificationsController extends StandardController {
       $this->cur_request_type_key = 'subjectcopersonid';
       
       $ret['CoNotification.subject_co_person_id'] = $this->request->params['named']['subjectcopersonid'];
+    } elseif(isset($this->request->params['named']['subjectcogroupid'])) {
+      $this->cur_co_group_id = $this->request->params['named']['subjectcogroupid'];
+      $this->cur_request_type_txt = _txt('fd.subject');
+      $this->cur_request_type_key = 'subjectcogroupid';
+      
+      $ret['CoNotification.subject_co_group_id'] = $this->request->params['named']['subjectcogroupid'];
     } else {
       throw new InvalidArgumentException(_txt('er.notprov'));
     }

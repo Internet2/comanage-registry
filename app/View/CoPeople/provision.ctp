@@ -25,6 +25,20 @@
 <?php
   $params = array('title' => _txt('fd.prov.status.for', array(generateCn($co_person['PrimaryName']))));
   print $this->element("pageTitle", $params);
+
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_people';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('me.population'), $args);
+  $args = array(
+    'controller' => 'co_people',
+    'action' => 'canvas',
+    $co_person['CoPerson']['id']);
+  $this->Html->addCrumb(generateCn($co_person['PrimaryName']), $args);
+  $this->Html->addCrumb(_txt('op.prov.view'));
 ?>
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Fields
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -32,6 +32,7 @@ $(function() {
   tabid["email"] = 2;
   tabid["phone"] = 3;
   tabid["address"]  = 4;
+  tabid["copeople"] = 5;
 
   // Turn on Tabs
   var $tabs = $( "#tabs" ).tabs();
@@ -61,6 +62,17 @@ $(function() {
   if(!$e && !$permissions['view'])
     return(false);
 
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'org_identities';
+  $args['action'] = 'index';
+  if(!$pool_org_identities) {
+    $args['co'] = $cur_co['Co']['id'];
+  }
+  $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
+  $this->Html->addCrumb(_txt('ct.org_identities.1'));
+
   if($e)
   {
     // Populate CO ID if approporiate
@@ -75,7 +87,7 @@ $(function() {
   if($this->action != "add") {
     // Get any existing buttons
     $sidebarButtons = $this->get('sidebarButtons');
-
+    
     $sidebarButtons[]  = array(
       'icon'    => 'note',
       'title'   => _txt('op.history'),
@@ -86,7 +98,22 @@ $(function() {
         'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
       )
     );
-
+    
+    // Petitions
+    $sidebarButtons[] = array(
+      'icon'    => 'script',
+      'title'   => _txt('ct.co_petitions.pl'),
+      'url'     => array(
+        'controller' => 'co_petitions',
+        'action' => 'index',
+        // Since this is an index view, we still need the CO ID. paginationConditions
+        // will restrict searching to eligible enrollments.
+        'co' => ($pool_org_identities ? false : $cur_co['Co']['id']),
+        'sort' => 'modified',
+        'search.orgidentityid' => $org_identities[0]['OrgIdentity']['id']
+      )
+    );
+    
     $this->set('sidebarButtons', $sidebarButtons);
   }
 
@@ -131,6 +158,11 @@ $(function() {
         <li>
           <a href="#tabs-address">
             <?php print _txt('fd.address'); ?>
+          </a>
+        </li>
+        <li>
+          <a href="#tabs-copeople">
+            <?php print _txt('ct.co_people.pl'); ?>
           </a>
         </li>
       <?php endif; ?>
@@ -602,6 +634,59 @@ $(function() {
               {
                 print '<div>';
                   print Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")\n";
+                print '</div>';
+              }
+            }
+          }
+        ?>
+        <br>
+      </div>
+      
+      <div id="tabs-copeople" class="additionalinfo">
+        <?php
+          if($e) {
+            if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
+              foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
+                print '<div>';
+                  print '<div>';
+                    print $this->Html->link(generateCn($o['CoPerson']['PrimaryName']),
+                                            array('controller' => 'co_people',
+                                                  'action'     => 'canvas',
+                                                  $o['CoPerson']['id']));
+                    
+                    print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
+                  print '</div>';
+                  print '<div>';
+                  
+                  // We don't currently offer an unlink button here, that can only (currently)
+                  // be done from CO Person Canvas, which places some restrictions on that action.
+                  
+                  print $this->Html->link(_txt('op.view'),
+                                          array('controller' => 'co_people',
+                                                'action'     => 'canvas',
+                                                $o['CoPerson']['id']),
+                                          array('class' => 'editbutton')) . "\n";
+                  print '</div>';
+                print '</div>';
+              }
+            }
+            
+            if($permissions['link']) {
+              foreach($vv_linkable_cos as $lcoid => $lconame) {
+                print $this->Html->link(_txt('op.link.to.co', array($lconame)),
+                                        array('controller'    => 'co_people',
+                                              'action'        => 'link',
+                                              'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                              'co'            => $lcoid),
+                                        array('class'  => 'addbutton'));
+                                          
+              }
+            }
+          } else {
+            if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
+              foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
+                print '<div>';
+                  print Sanitize::html(generateCn($o['CoPerson']['PrimaryName'])) . "\n";
                 print '</div>';
               }
             }

@@ -23,6 +23,9 @@
   $params = array('title' => _txt('ct.organizations.pl'));
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.organizations.pl'));
+
   if($permissions['add'])
     echo $this->Html->link(_txt('op.add'),
                            array('controller' => 'organizations', 'action' => 'add'),

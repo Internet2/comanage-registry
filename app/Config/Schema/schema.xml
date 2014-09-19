@@ -491,8 +491,10 @@
       <autoincrement />
     </field>
     <field name="subject_co_person_id" type="I">
-      <notnull />
       <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="subject_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
     <field name="actor_co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
@@ -507,11 +509,13 @@
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
     <field name="action" type="C" size="4" />
-    <field name="comment" type="C" size="160" />
+    <field name="comment" type="C" size="256" />
     <field name="source_url" type="C" size="160" />
     <field name="source_controller" type="C" size="80" />
     <field name="source_action" type="C" size="80" />
     <field name="source_id" type="I" />
+    <field name="source_arg0" type="C" size="80" />
+    <field name="source_val0" type="C" size="80" />
     <field name="status" type="C" size="2" />
     <field name="notification_time" type="T" />
     <field name="resolution_time" type="T" />
@@ -525,7 +529,20 @@
       <col>recipient_co_person_id</col>
     </index>
     <index name="co_notifications_i3">
-      <col>recipient_co_graup_id</col>
+      <col>recipient_co_group_id</col>
+    </index>
+    <index name="co_notifications_i4">
+      <col>source_url</col>
+    </index>
+    <index name="co_notifications_i5">
+      <col>source_controller</col>
+      <col>source_action</col>
+      <col>source_id</col>
+      <col>source_arg0</col>
+      <col>source_val0</col>
+    </index>
+    <index name="co_notifications_i6">
+      <col>subject_co_group_id</col>
     </index>
   </table>
   
@@ -601,6 +618,7 @@
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
     <field name="verify_email" type="L" />
+    <field name="invitation_validity" type="I" />
     <field name="require_authn" type="L" />
     <field name="early_provisioning_exec" type="C" size="128" />
     <field name="provisioning_exec" type="C" size="128" />
@@ -618,6 +636,8 @@
     <field name="approval_subject" type="C" size="256" />
     <field name="approval_body" type="X" size="4000" />
     <field name="introduction_text" type="X" size="4000" />
+    <field name="conclusion_text" type="X" size="4000" />
+    <field name="t_and_c_mode" type="C" size="2" />
     <field name="redirect_on_submit" type="C" size="256" />
     <field name="redirect_on_confirm" type="C" size="256" />
     <field name="ignore_authoritative" type="L" />
@@ -717,6 +737,7 @@
     <field name="co_invite_id" type="I">
       <constraint>REFERENCES cm_co_invites(id)</constraint>
     </field>
+    <field name="authenticated_identifier" type="C" size="256" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -1118,6 +1139,29 @@
     <field name="modified" type="T" />
     
     <index name="co_self_service_permissions_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="co_settings">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+      <unique />
+    </field>
+    <field name="enable_nsf_demo" type="L" />
+    <field name="invitation_validity" type="I" />
+    <field name="required_fields_addr" type="C" size="160" />
+    <field name="required_fields_name" type="C" size="160" />
+    <field name="t_and_c_login_mode" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_settings_i1">
       <col>co_id</col>
     </index>
   </table>

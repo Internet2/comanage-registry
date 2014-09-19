@@ -52,6 +52,27 @@ class AddressesController extends MVPAController {
   }
 
   /**
+   * Callback before views are rendered.
+   *
+   * @since  COmanage Registry v0.9.1
+   */
+  
+  function beforeRender() {
+    parent::beforeRender();
+    
+    // Set required fields according to whether or not this is attached to a CO Person (Role)
+    
+    $pids = $this->parsePersonID();
+    
+    if($pids['copersonroleid']) {
+      $this->set('required_fields', $this->Address->CoPersonRole->CoPerson->Co->CoSetting->getRequiredAddressFields($this->cur_co['Co']['id']));
+    } else {
+      // Always use default settings for org identities
+      $this->set('required_fields', $this->Address->CoPersonRole->CoPerson->Co->CoSetting->getRequiredAddressFields());
+    }
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

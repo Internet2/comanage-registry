@@ -358,6 +358,9 @@ class CoPersonRolesController extends StandardController {
       $p['view'] = true;
     }
     
+    // Relink a Role to a different CO Person?
+    $p['relink'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     if($self) {
       // Pull self service permissions
       
@@ -399,6 +402,90 @@ class CoPersonRolesController extends StandardController {
                       $this->viewVars['co_people'][0]['CoPerson']['id']
                      );
       $this->redirect($params);
+    }
+  }
+  
+  /**
+   * Move a CO Person Role from one CO Person to another.
+   *
+   * @param Integer $id CO Person Role ID to move
+   * @since  COmanage Registry v0.9.1
+   */
+
+  public function relink($id) {
+    if(!$this->restful) {
+      // The selection process is handled by CoPeopleController. We execute here.
+      // We're only passed the field to update, not a full CO Person Role record,
+      // so just execute a field update.
+      
+      if(!empty($this->request->data['CoPersonRole']['co_person_id'])) {
+        // Pull the current Role and CO Person
+        
+        $args = array();
+        $args['conditions']['CoPersonRole.id'] = $id;
+        $args['contain']['CoPerson'] = 'PrimaryName';
+        
+        $copr = $this->CoPersonRole->find('first', $args);
+        
+        if(!empty($copr)) {
+          $this->CoPersonRole->id = $copr['CoPersonRole']['id'];
+          
+          if($this->CoPersonRole->saveField('co_person_id', $this->request->data['CoPersonRole']['co_person_id'])) {
+            // Assemble a result string that we'll use in a few places. Pull the Primary Name
+            // for the new CO Person.
+            
+            $args = array();
+            $args['conditions']['CoPerson.id'] = Sanitize::html($this->request->data['CoPersonRole']['co_person_id']);
+            $args['contain'][] = 'PrimaryName';
+            
+            $newcop = $this->CoPersonRole->CoPerson->find('first', $args);
+            
+            if($newcop) {
+              $res = _txt('rs.moved.copr', array($copr['CoPersonRole']['title'],
+                                                 Sanitize::html($id),
+                                                 generateCn($copr['CoPerson']['PrimaryName']),
+                                                 $copr['CoPersonRole']['co_person_id'],
+                                                 generateCn($newcop['PrimaryName']),
+                                                 $newcop['CoPerson']['id']));
+              
+              $this->Session->setFlash($res, '', array(), 'success');
+              
+              // Update history, once for old and once for new
+              
+              try {
+                // Original
+                $this->CoPersonRole->HistoryRecord->record($copr['CoPersonRole']['co_person_id'],
+                                                           $copr['CoPersonRole']['id'],
+                                                           null,
+                                                           $this->Session->read('Auth.User.co_person_id'),
+                                                           ActionEnum::CoPersonRoleRelinked,
+                                                           $res);
+                
+                // New
+                $this->CoPersonRole->HistoryRecord->record($newcop['CoPerson']['id'],
+                                                           $copr['CoPersonRole']['id'],
+                                                           null,
+                                                           $this->Session->read('Auth.User.co_person_id'),
+                                                           ActionEnum::CoPersonRoleRelinked,
+                                                           $res);
+              }
+              catch(Exception $e) {
+                $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+              }
+            } else {
+              $this->Session->setFlash(_txt('er.notfound',
+                                            array(_txt('ct.co_people.1'), Sanitize::html($this->request->data['CoPersonRole']['co_person_id']))),
+                                       '', array(), 'error');
+            }
+          } else {
+            $this->Session->setFlash(_txt('er.db.save'), '', array(), 'error');
+          }
+        } else {
+          $this->Session->setFlash(_txt('er.cop.nf', array(Sanitize::html($id))), '', array(), 'error');
+        }
+      }
+      
+      $this->performRedirect();
     }
   }
 }

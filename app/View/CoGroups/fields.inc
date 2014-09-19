@@ -53,6 +53,23 @@
   
   if(!$e && !$v)
     return(false);
+
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_groups';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_groups.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.co_groups.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.co_groups.1'));
+  }
   
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
@@ -168,21 +185,29 @@
               foreach($c['CoPerson']['CoGroupMember'] as $g) {
                 // We get all the group memberships, but are only interested in the current group
                 if($g['co_group_id'] == $co_groups[0]['CoGroup']['id']) {
+                  // XXX the edit/delete buttons should really be right aligned
+                  print $this->Html->link(_txt('op.edit'),
+                                          array('controller' => 'co_group_members',
+                                                'action' => 'edit',
+                                                $g['id']),
+                                          array('class' => 'editbutton'));
+                  
                   if($dok) {
                     print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $g['co_person_id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                   }
+                  
                   print $this->Html->link(generateCn($c['CoPerson']['PrimaryName']),
-                                          array('controller' => 'co_group_members',
-                                                'action' => 'edit',
-                                                $g['id'],
-                                                'co' => $cur_co['Co']['id']));
+                                          array('controller' => 'co_people',
+                                                'action' => 'canvas',
+                                                $c['CoPerson']['id']));
+                  
                   // Print person's status
                   if( !empty($c['CoPerson']['status']) ) {
                     print ' (' 
                       . _txt('en.status', null, $c['CoPerson']['status'])
                       .')';
                   }
-
+                  
                   if($g['owner']) {
                     if(!$g['member']) {
                       print " " . _txt('fd.group.own.only');
@@ -190,6 +215,7 @@
                       print " " . _txt('fd.group.own');
                     }
                   }
+                  
                   print "<br />\n";
                   break;
                 }

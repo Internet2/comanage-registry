@@ -141,6 +141,11 @@ class AppController extends Controller {
     // Tell the Auth module to call the controller's isAuthorized() function.
     $this->Auth->authorize = array('Controller');
     
+    // Set the redirect and error message for auth failures. Note that we can generate
+    // a stack trace instead of a redirect by setting unauthorizedRedirect to false.
+    $this->Auth->unauthorizedRedirect = "/";
+    $this->Auth->authError = _txt('er.permission');
+    
     // First, determine if we're handling a RESTful request.
     // If so, we'll do a few things differently.
     
@@ -228,6 +233,36 @@ class AppController extends Controller {
             $this->Session->setFlash($e->getMessage(), '', array(), 'error');
             $this->redirect("/");
           }
+          
+          // See if there are any pending Terms and Conditions. If so, redirect the user.
+          // But don't do this if the current request is for T&C. We might also consider
+          // skipping for admins. Pending T&C are retrieved by UsersController at login.
+          // It would be cleaner to retrieve them here, but more efficient once at login
+          // rather than before each request.
+          
+          if($this->modelClass != 'CoTermsAndConditions'
+             // Also skip CoSetting so that an admin can change the mode
+             && $this->modelClass != 'CoSetting') {
+            $tandc = $this->Session->read('Auth.User.tandc.pending.' . $this->cur_co['Co']['id']);
+            
+            if(!empty($tandc)) {
+              // Un-agreed T&C, redirect to review
+              
+              // Pull the CO Person from the session info. There should probable be a
+              // better way to get it.
+              
+              $cos = $this->Session->read('Auth.User.cos');
+              
+              $args = array(
+                'controller' => 'co_terms_and_conditions',
+                'action'     => 'review',
+                'copersonid' => $cos[ $this->cur_co['Co']['name'] ]['co_person_id'],
+                'mode'       => 'login'
+              );
+              
+              $this->redirect($args);
+            }
+          }
         } else {
           $this->Session->setFlash(_txt('er.co.unk-a', array($coid)), '', array(), 'error');
           $this->redirect("/");
@@ -312,9 +347,11 @@ class AppController extends Controller {
     $model = $this->$req;
     $modelpl = Inflector::tableize($req);
     
+    // XXX This list should really be set on a per-CO basis (eg: link only applies to CoPeople)
     if($this->action == 'add'
        || $this->action == 'assign'
        || $this->action == 'index'
+       || $this->action == 'link'
        || $this->action == 'select'
        || $this->action == 'review') {
       // See if what we're adding/selecting/viewing is attached to a person
@@ -351,8 +388,12 @@ class AppController extends Controller {
                                                   array(_txt('ct.co_person_roles.1'),
                                                         Sanitize::html($p['copersonroleid']))));
         }
-      } elseif(!empty($p['orgidentityid']) && isset($model->OrgIdentity)) {
-        $coId = $model->OrgIdentity->field('co_id', array('id' => $p['orgidentityid']));
+      } elseif(!empty($p['orgidentityid'])) {
+        if(isset($model->OrgIdentity)) {
+          $coId = $model->OrgIdentity->field('co_id', array('id' => $p['orgidentityid']));
+        } elseif(isset($model->CoOrgIdentityLink->OrgIdentity)) {
+          $coId = $model->CoOrgIdentityLink->OrgIdentity->field('co_id', array('id' => $p['orgidentityid']));
+        }
         
         if($coId) {
           return $coId;
@@ -380,6 +421,19 @@ class AppController extends Controller {
     if(!empty($this->request->params['pass'][0])) {
       try {
         $recordCoId = $model->findCoForRecord($this->request->params['pass'][0]);
+      }
+      catch(InvalidArgumentException $e) {
+        throw new InvalidArgumentException($e->getMessage());
+      }
+      
+      return $recordCoId;
+    }
+    
+    // Possibly via a form
+    
+    if(!empty($this->request->data[$req]['id'])) {
+      try {
+        $recordCoId = $model->findCoForRecord($this->request->data[$req]['id']);
       }
       catch(InvalidArgumentException $e) {
         throw new InvalidArgumentException($e->getMessage());
@@ -1258,13 +1312,34 @@ class AppController extends Controller {
    */
   
   protected function getNotifications() {
+    $this->loadModel('CoNotification');
+    
     $copersonid = $this->Session->read('Auth.User.co_person_id');
     
-    if(!empty($copersonid)) {
-      $this->loadModel('CoNotification');
+    if(!isset($this->cur_co)) {
+      $mycos = $this->Session->read('Auth.User.cos');
       
-      $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid));
-      $this->set('vv_co_person_id', $copersonid);
+      if(!empty($mycos)) {
+        $n = array();
+        
+        foreach($mycos as $co) {
+          if(!empty($co['co_person_id'])) {
+            $n[] = array(
+              'co_id'         => $co['co_id'],
+              'co_name'       => $co['co_name'],
+              'co_person_id'  => $co['co_person_id'],
+              'notifications' => $this->CoNotification->pending($co['co_person_id'])
+            );
+          }
+        }
+        
+        $this->set('vv_all_notifications', $n);
+      }
+    } else {
+      if(!empty($copersonid)) {
+        $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid));
+        $this->set('vv_co_person_id', $copersonid);
+      }
     }
   }
   
@@ -1305,6 +1380,9 @@ class AppController extends Controller {
     // as is 'admin' below (which really implies cmadmin)
     $p['menu']['cos'] = $roles['admin'] || $roles['subadmin'];
     
+    // Manage any CO configuration?
+    $p['menu']['coconfig'] = $roles['admin'];
+    
     // Select from available enrollment flows?
     $p['menu']['createpetition'] = $roles['user'];
     
@@ -1342,6 +1420,9 @@ class AppController extends Controller {
     // Manage CO self service permissions?
     $p['menu']['coselfsvcperm'] = $roles['admin'];
     
+    // Manage CO settings?
+    $p['menu']['cosettings'] = $roles['admin'];
+    
     // Manage CO terms and conditions?
     $p['menu']['cotandc'] = $roles['admin'];
   
@@ -1373,7 +1454,7 @@ class AppController extends Controller {
       // Find name associated with that ID
       $this->loadModel('OrgIdentity');
       $orgName = $this->OrgIdentity->read('o',$orgIDs[0]['org_id']);
-  
+      
       // Set for home ID name in menu
       $menu['orgName'] = $orgName['OrgIdentity']['o'];
     }
@@ -1382,7 +1463,14 @@ class AppController extends Controller {
     $this->loadModel('CmpEnrollmentConfiguration');
     $this->set('pool_org_identities', $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
     
-    // Set the COs for display
+    // Set the COs for display. Start with the user's COs.
+    
+    if($this->Session->check('Auth.User.cos')) {
+      $menu['cos'] = $this->Session->read('Auth.User.cos');
+    } else {
+      $menu['cos'] = array();
+    }
+    
     if($this->viewVars['permissions']['menu']['admin']) {
       // Show all active COs for admins
       $this->loadModel('Co');
@@ -1391,13 +1479,16 @@ class AppController extends Controller {
                       'recursive'  => false
                      );
       $codata = $this->Co->find('all', $params);
-
-      foreach($codata as $data)
-        $menu['cos'][ $data['Co']['id'] ] = $data['Co']['name'];
-    } elseif($this->Session->check('Auth.User.cos')) {
-      // Show only COs that a user is a member of
-      foreach($this->Session->read('Auth.User.cos') as $name => $data)
-        $menu['cos'][ $data['co_id'] ] = $data['co_name'];
+      
+      foreach($codata as $data) {
+        // Don't clobber the COs we've already loaded
+        if(!isset($menu['cos'][ $data['Co']['name'] ])) {
+          $menu['cos'][ $data['Co']['name'] ] = array(
+            'co_id'   => $data['Co']['id'],
+            'co_name' => $data['Co']['name'] . " (" . _txt('er.co.notmember') . ")"
+          );
+        }
+      }
     }
     
     // Determine what menu contents plugins want available
@@ -1408,29 +1499,7 @@ class AppController extends Controller {
         $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus;
       }
     }
-
-    // Determine user's own NSF Demographics ids
-    $this->loadModel('CoNsfDemographic');
-
-    foreach($this->Session->read('Auth.User.cos') as $name => $data){
-      // Grab co person id
-      $demodata = $this->CoNsfDemographic->findByCoPersonId($data['co_person_id']);
-
-      if(!empty($demodata)) {
-        // Edit if it already exists for this CO
-        $menu['CoNsfDemographic'][] = array('id'      => $demodata['CoNsfDemographic']['id'],
-                                            'action'  => 'edit',
-                                            'co_id'   => $data['co_id'],
-                                            'co_name' => $data['co_name']
-                                            );
-      } else {
-        // Add if it does not exist for this CO
-        $menu['CoNsfDemographic'][] = array('action'       => 'add',
-                                            'co_id'        => $data['co_id'],
-                                            'co_name'      => $data['co_name'],
-                                            'co_person_id' => $data['co_person_id']);
-      }
-    }
+    
     $this->set('menuContent', $menu);
   }
   

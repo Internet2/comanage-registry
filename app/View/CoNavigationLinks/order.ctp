@@ -28,6 +28,8 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
+  $this->Html->addCrumb(_txt('op.reorder') . ' ' . _txt('ct.co_navigation_links.pl'));
+
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
   

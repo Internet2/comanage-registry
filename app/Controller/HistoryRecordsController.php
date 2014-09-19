@@ -2,7 +2,7 @@
 /**
  * COmanage History Record Controller
  *
- * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
@@ -56,6 +56,44 @@ class HistoryRecordsController extends StandardController {
   public $view_recursion = 2;
   
   /**
+   * Add a History Record.
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - postcondition: On success, new Object created
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   * - postcondition: $<object>_id or $invalid_fields set (REST)
+   *
+   * @since  COmanage Registry v0.9
+   */
+  
+  public function add() {
+    parent::add();
+    
+    if(!$this->restful) {
+      // Override page title
+      $n = array();
+      
+      if(!empty($this->request->params['named']['copersonid'])) {
+        $args = array();
+        $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
+        $args['contain'][] = 'PrimaryName';
+        
+        $n = $this->HistoryRecord->CoPerson->find('first', $args);
+      } elseif(!empty($this->request->params['named']['orgidentityid'])) {
+        $args = array();
+        $args['conditions']['OrgIdentity.id'] = $this->request->params['named']['orgidentityid'];
+        $args['contain'][] = 'PrimaryName';
+        
+        $n = $this->HistoryRecord->OrgIdentity->find('first', $args);
+      }
+      
+      if(!empty($n['PrimaryName'])) {
+        $this->set('title_for_layout', $this->viewVars['title_for_layout'] . " (" . generateCn($n['PrimaryName']) . ")");
+        $this->set('display_name', generateCn($n['PrimaryName']));
+      }
+    }
+  }
+  
+  /**
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
@@ -83,7 +121,16 @@ class HistoryRecordsController extends StandardController {
     return parent::calculateImpliedCoId();
   }
   
-  function index() {
+  /**
+   * Obtain all History Records.
+   * - postcondition: $<object>s set on success (REST or HTML), using pagination (HTML only)
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Session flash message updated (HTML) on suitable error
+   *
+   * @since  COmanage Registry v0.7
+   */
+  
+  public function index() {
     if(!$this->restful) {
       // We need to change enough of the standard behavior that it's easier just to reimplement.
       
@@ -202,15 +249,13 @@ class HistoryRecordsController extends StandardController {
     // Determine what operations this user can perform
     
     // Add history records?
-    // For now, this is only permitted via the REST API. Otherwise various operations trigger
-    // history records, not user-driven views.
-    $p['add'] = ($this->restful && $roles['cmadmin']);
+    $p['add'] = ($roles['cmadmin']
+                 || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
     // View history records?
     // We could allow $self to view own records, but for the moment we don't (for no specific reason)
     $p['index'] = ($roles['cmadmin']
-                   || $roles['coadmin']
-                   || ($managed && $roles['couadmin']));
+                   || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
     if($this->action == 'index' && $p['index']) {
       // Determine which COUs a person can manage, needed for index() to filter records

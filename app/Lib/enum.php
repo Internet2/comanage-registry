@@ -40,12 +40,14 @@ class ActionEnum
   const CoPersonRoleDeletedManual       = 'DCRM';
   const CoPersonRoleEditedManual        = 'ECRM';
   const CoPersonRoleEditedPetition      = 'ECRP';
+  const CoPersonRoleRelinked            = 'LCRM';
   const CoPersonOrgIdLinked             = 'LOCP';
   const CoPersonOrgIdUnlinked           = 'UOCP';
   const CoPetitionCreated               = 'CPPC';
   const CoPetitionUpdated               = 'CPUP';
   const CoTAndCAgreement                = 'TCAG';
   const CoTAndCAgreementBehalf          = 'TCAB';
+  const CommentAdded                    = 'CMNT';
   const EmailAddressVerified            = 'EMLV';
   const EmailAddressVerifyCanceled      = 'EMLC';
   const EmailAddressVerifyReqSent       = 'EMLS';
@@ -68,6 +70,8 @@ class ActionEnum
   const OrgIdAddedPetition              = 'AOIP';
   const OrgIdEditedManual               = 'EOIM';
   const OrgIdEditedPetition             = 'EOIP';
+  const ProvisionerAction               = 'PRVA';
+  const ProvisionerFailed               = 'PRVX';
   const SshKeyAdded                     = 'SSHA';
   const SshKeyDeleted                   = 'SSHD';
   const SshKeyEdited                    = 'SSHE';
@@ -277,15 +281,20 @@ class PermittedCharacterEnum
 
 class PetitionActionEnum
 {
-  const Approved            = 'PY';
-  const Created             = 'PC';
-  const Declined            = 'PX';
-  const Denied              = 'PN';
-  const Finalized           = 'PF';
-  const IdentifiersAssigned = 'IA';
-  const InviteConfirmed     = 'IC';
-  const InviteSent          = 'IS';
-  const NotificationSent    = 'NS';
+  const Approved                = 'PY';
+  const CommentAdded            = 'CM';
+  const Created                 = 'PC';
+  const Declined                = 'PX';
+  const Denied                  = 'PN';
+  const Finalized               = 'PF';
+  const FlaggedDuplicate        = 'FD';
+  const IdentifierAuthenticated = 'ID';
+  const IdentifiersAssigned     = 'IA';
+  const InviteConfirmed         = 'IC';
+  const InviteSent              = 'IS';
+  const NotificationSent        = 'NS';
+  const TCExplicitAgreement     = 'TE';
+  const TCImpliedAgreement      = 'TI';
 }
 
 // The status of a provisioning plugin
@@ -340,6 +349,20 @@ class RequiredEnum
   );*/
 }
 
+// We use the actual field names here to simplify form rendering
+class RequiredAddressFieldsEnum
+{
+  const Line1                       = "line1";
+  const Line1CityStatePostal        = "line1,locality,state,postal_code";
+  const Line1CityStatePostalCountry = "line1,locality,state,postal_code,country";
+}
+
+class RequiredNameFieldsEnum
+{
+  const Given       = "given";
+  const GivenFamily = "given,family";
+}
+
 class SshKeyTypeEnum
 {
   // Protocol v2
@@ -356,6 +379,7 @@ class StatusEnum
   const Confirmed           = 'C';
   const Deleted             = 'D';
   const Denied              = 'N';
+  const Duplicate           = 'D2';
   const Invited             = 'I';
   const Pending             = 'P';
   const PendingApproval     = 'PA';
@@ -388,6 +412,21 @@ class SuspendableStatusEnum
   const Suspended           = 'S';
 }
 
+class TAndCEnrollmentModeEnum
+{
+  const ExplicitConsent = 'EC';
+  const ImpliedConsent  = 'IC';
+  const SplashPage      = 'S';
+  const Ignore          = 'X';
+}
+
+class TAndCLoginModeEnum
+{
+  const NotEnforced        = 'X';
+  const RegistryLogin      = 'R';
+  const DisableAllServices = 'D';
+}
+
 // Old style enums below, deprecated
 // In order to switch away from them, AppController::convertRestPost
 // and checkRestPost must be rewritten, as well as Model/CoEnrollmentAttribute::enrollmentFlowAttributes.
@@ -398,7 +437,7 @@ global $contact_t, $contact_ti;
 global $extattr_t, $extattr_ti;
 global $identifier_t, $identifier_ti;
 global $name_t, $name_ti;
-global $ssh_ti;  // Used for ldap provisioner
+global $ssh_ti;  // Used for ldap and github provisioner
 global $status_t, $status_ti;
 
 $affil_t = array(
@@ -496,6 +535,7 @@ $ssh_ti = array(
 $status_t = array(
   'A'  => 'Active',
   'D'  => 'Deleted',
+  'D2' => 'Duplicate',
   'I'  => 'Invited',
   'N'  => 'Denied',
   'P'  => 'Pending',
@@ -508,6 +548,7 @@ $status_t = array(
 $status_ti = array(
   'Active'          => 'A',
   'Deleted'         => 'D',
+  'Duplicate'       => 'D2',
   'Invited'         => 'I',
   'Denied'          => 'N',
   'Pending'         => 'P',

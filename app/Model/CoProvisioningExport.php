@@ -93,6 +93,9 @@ class CoProvisioningExport extends AppModel {
       $data['CoProvisioningExport']['id'] = $export['CoProvisioningExport']['id'];
     }
     
+    // Reset the model state in case we're called more than once
+    $this->create($data);
+    
     if(!$this->save($data)) {
       throw new RuntimeException(_txt('er.db.save'));
     }

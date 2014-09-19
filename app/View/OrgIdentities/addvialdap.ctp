@@ -23,6 +23,17 @@
   $params = array('title' => "Add a New Organizational Person");
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'org_identities';
+  $args['action'] = 'index';
+  if(!$pool_org_identities) { // XXX is this required here?
+    $args['co'] = $cur_co['Co']['id'];
+  }
+  $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
+  $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.org_identities.1'));
+
   // XXX this page needs I18N and maybe sanitize_html
 
   // Assemble list of organizations

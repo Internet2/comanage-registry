@@ -26,6 +26,10 @@
 global $group_sep;
 $group_sep = ":";
 
+// Default invitation validity, in minutes (used in various places, should probably be moved elsewhere)
+global $def_inv_validity;
+$def_inv_validity = 1440;
+
 /**
  * Find an attribute within an array, specifically intended for working with
  * Enrollment Flow Attributes.

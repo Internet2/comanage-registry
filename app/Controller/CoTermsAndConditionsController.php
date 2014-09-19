@@ -36,6 +36,9 @@ class CoTermsAndConditionsController extends StandardController {
     )
   );
   
+  // When using $uses, include the Controller's model first
+  public $uses = array("CoTermsAndConditions", "CoSetting");
+ 
   // This controller needs a CO to be set
   public $requires_co = true;
 
@@ -73,12 +76,27 @@ class CoTermsAndConditionsController extends StandardController {
       }
       
       if(!$this->restful) {
-        // Perform redirect to CO Person view
+        if($this->CoSetting->getTAndCLoginMode($this->cur_co['Co']['id']) == TAndCLoginModeEnum::RegistryLogin) {
+          // Update the session cache set by UsersController
+          
+          $pending = $this->CoTermsAndConditions->pending($copersonid);
+          
+          if(!empty($pending)) {
+            $this->Session->write('Auth.User.tandc.pending.' . $this->cur_co['Co']['id'], $pending);
+          } else {
+            $this->Session->delete('Auth.User.tandc.pending.' . $this->cur_co['Co']['id']);
+          }
+        }
         
-        $args = array('controller' => 'co_people',
-                      'action'     => 'edit',
-                      $copersonid,
-                      'co'         => $this->cur_co['Co']['id']);
+        // Perform redirect back to list of T&C
+        
+        $args = array('controller' => 'co_terms_and_conditions',
+                      'action'     => 'review',
+                      'copersonid' => $copersonid);
+        
+        if(!empty($this->request->params['named']['mode'])) {
+          $args['mode'] = $this->request->params['named']['mode'];
+        }
         
         $this->redirect($args);
       }

@@ -138,4 +138,40 @@ class Name extends AppModel {
   public $cm_enum_types = array(
     'type' => 'name_t'
   );
+  
+  /**
+   * Actions to take before a validate operation is executed.
+   *
+   * @since  COmanage Registry v0.9.1
+   */
+  
+  public function beforeValidate($options = array()) {
+    // Update validation rules according to CO Settings, but only for records attached
+    // to a CO Person
+    
+    if(!empty($this->data['Name']['co_person_id'])) {
+      // Map to the CO ID
+      
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $this->data['Name']['co_person_id'];
+      $args['contain'] = false;
+      
+      $cop = $this->CoPerson->find('first', $args);
+      
+      if($cop) {
+        $fields = $this->CoPerson->Co->CoSetting->getRequiredNameFields($cop['CoPerson']['co_id']);
+        
+        foreach($fields as $f) {
+          // Make this field required
+          $this->validator()->getField($f)->getRule('content')->required = true;
+          $this->validator()->getField($f)->getRule('content')->allowEmpty = false;
+          $this->validator()->getField($f)->getRule('content')->message = _txt('fd.required');
+        }
+      } else {
+        // If for some reason we can't find the CO, fall back to the defaults
+      }
+    }
+    
+    return true;
+  }
 }

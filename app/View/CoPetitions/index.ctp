@@ -26,9 +26,7 @@
   $(function() {
     $( "#statusfilterdialog" ).dialog({
       autoOpen: false,
-      height: 300,
-      width: 350,
-      height: 265,
+      width: 200,
       modal: true
     });
 
@@ -38,27 +36,15 @@
   });
 </script>
 
-<style>
-  #filters {
-    width: 50%;
-    margin: 0 0 0 2px;
-  }
-
-  #statusfilter {
-    overflow: hidden;
-  }
-
-  #statusfilter .input>label {
-    float: left;
-  }
-</style>
-
 <?php
 // Globals
 global $cm_lang, $cm_texts;
 
-  $params = array('title' => $cur_co['Co']['name'] . " Petitions"); // XXX I18N
+  $params = array('title' => $cur_co['Co']['name'] . ' ' . _txt('ct.petitions.pl'));
   print $this->element("pageTitle", $params);
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.petitions.pl'));
   
   if($permissions['add']) {
     print $this->Html->link(_txt('op.enroll'),
@@ -71,43 +57,34 @@ global $cm_lang, $cm_texts;
   <?php print _txt('op.filter.status');?>
 </button>
 
-<div id="statusfilterdialog" title="Filter by Status">
+<div id="statusfilterdialog" title="<?php print _txt('op.filter.status.by'); ?>">
   <?php
-    print $this->Form->create('CoPetition',array('action'=>'search'));
-      print $this->Form->hidden('CoPetition.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    print $this->Form->create('CoPetition', array('action'=>'search'));
+    print $this->Form->hidden('CoPetition.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    
+    // Build array of options based on model validation
+    $statusOptions = array_keys($cm_texts[ $cm_lang ]['en.status']);
 
-      // Build array of options based on model validation
-      $statusOptions = array(StatusEnum::Active,
-                             StatusEnum::Approved,
-                             StatusEnum::Declined,
-                             StatusEnum::Deleted,
-                             StatusEnum::Denied,
-                             StatusEnum::Invited,
-                             StatusEnum::Pending,
-                             StatusEnum::PendingApproval,
-                             StatusEnum::PendingConfirmation,
-                             StatusEnum::Suspended);
+    foreach ($statusOptions as $s) {
+      $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
+    }
 
-      foreach ($statusOptions as $s) {
-        $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
+    // Build array to check off actively used filters on the page
+    $selected = array();
+    if(isset($this->passedArgs['search.status'])) {
+      foreach($this->passedArgs['search.status'] as $a) {
+        $selected[] = $a;
       }
-
-      // Build array to check off actively used filters on the page
-      $selected = array();
-      if (isset($this->passedArgs['Search.status'])) {
-        foreach($this->passedArgs['Search.status'] as $a) {
-          $selected[] = $a;
-        }
-      }
-
-      // Collect parameters and print checkboxes
-      $formParams = array('options'  => $searchOptions,
-                          'multiple' => 'checkbox',
-                          'label'    => false,
-                          'selected' => $selected);
-      print $this->Form->input('Search.status', $formParams);
-
-      print $this->Form->submit('Search'); 
+    }
+    
+    // Collect parameters and print checkboxes
+    $formParams = array('options'  => $searchOptions,
+                        'multiple' => 'checkbox',
+                        'label'    => false,
+                        'selected' => $selected);
+    print $this->Form->input('search.status', $formParams);
+    
+    print $this->Form->submit(_txt('op.filter'));
     print $this->Form->end();
   ?>
 </div>
@@ -115,15 +92,16 @@ global $cm_lang, $cm_texts;
 <table id="co_people" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('EnrolleeCoPerson.Name.family', _txt('fd.enrollee')); ?></th>
-      <th><?php echo $this->Paginator->sort('Cou.name', _txt('fd.cou')); ?></th>
-      <th><?php echo $this->Paginator->sort('PetitionerCoPerson.Name.family', _txt('fd.petitioner')); ?></th>
-      <th><?php echo $this->Paginator->sort('SponsorCoPerson.Name.family', _txt('fd.sponsor')); ?></th>
-      <th><?php echo $this->Paginator->sort('ApproverCoPerson.Name.family', _txt('fd.approver')); ?></th>
-      <th><?php echo $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php echo $this->Paginator->sort('created', _txt('fd.created')); ?></th>
-      <th><?php echo $this->Paginator->sort('modified', _txt('fd.modified')); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort('EnrolleeCoPerson.Name.family', _txt('fd.enrollee')); ?></th>
+      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+      <th><?php print $this->Paginator->sort('CoEnrollmentFlow.name', _txt('ct.co_enrollment_flows.1')); ?></th>
+      <th><?php print $this->Paginator->sort('Cou.name', _txt('fd.cou')); ?></th>
+      <th><?php print $this->Paginator->sort('PetitionerCoPerson.Name.family', _txt('fd.petitioner')); ?></th>
+      <th><?php print $this->Paginator->sort('SponsorCoPerson.Name.family', _txt('fd.sponsor')); ?></th>
+      <th><?php print $this->Paginator->sort('ApproverCoPerson.Name.family', _txt('fd.approver')); ?></th>
+      <th><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></th>
+      <th><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -139,11 +117,21 @@ global $cm_lang, $cm_texts;
                                     'action' => ($permissions['edit']
                                                  ? 'view'
                                                  : ($permissions['view'] ? 'view' : '')),
-                                    $p['CoPetition']['id'],
-                                    'co' => $p['CoPetition']['co_id'],
-                                    'coef' => $p['CoPetition']['co_enrollment_flow_id'])
+                                    $p['CoPetition']['id'])
                                   );
         ?>
+      </td>
+      <td>
+        <?php
+          global $status_t;
+          
+          if(!empty($p['CoPetition']['status'])) {
+            print _txt('en.status', null, $p['CoPetition']['status']);
+          }
+        ?>
+      </td>
+      <td>
+        <?php if(!empty($p['CoEnrollmentFlow']['name'])) { print $p['CoEnrollmentFlow']['name']; } ?>
       </td>
       <td>
         <?php if(!empty($p['Cou']['name'])) { print $p['Cou']['name']; } ?>
@@ -154,9 +142,8 @@ global $cm_lang, $cm_texts;
             print $this->Html->link(generateCn($p['PetitionerCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
-                                      'action' => 'view',
-                                      $p['PetitionerCoPerson']['id'],
-                                      'co' => $p['CoPetition']['co_id'])
+                                      'action' => 'canvas',
+                                      $p['PetitionerCoPerson']['id'])
                                     );
           }
         ?>
@@ -167,9 +154,8 @@ global $cm_lang, $cm_texts;
             print $this->Html->link(generateCn($p['SponsorCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
-                                      'action' => 'view',
-                                      $p['SponsorCoPerson']['id'],
-                                      'co' => $p['CoPetition']['co_id'])
+                                      'action' => 'canvas',
+                                      $p['SponsorCoPerson']['id'])
                                     );
           }
         ?>
@@ -180,19 +166,9 @@ global $cm_lang, $cm_texts;
             print $this->Html->link(generateCn($p['ApproverCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
-                                      'action' => 'view',
-                                      $p['ApproverCoPerson']['id'],
-                                      'co' => $p['CoPetition']['co_id'])
+                                      'action' => 'canvas',
+                                      $p['ApproverCoPerson']['id'])
                                     );
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          global $status_t;
-          
-          if(!empty($p['CoPetition']['status'])) {
-            print _txt('en.status', null, $p['CoPetition']['status']);
           }
         ?>
       </td>
@@ -216,9 +192,7 @@ global $cm_lang, $cm_texts;
             print $this->Html->link(_txt('op.view'),
                                     array('controller' => 'co_petitions',
                                           'action' => 'view',
-                                          $p['CoPetition']['id'],
-                                          'co' => $cur_co['Co']['id'],
-                                          'coef' => $p['CoPetition']['co_enrollment_flow_id']),
+                                          $p['CoPetition']['id']),
                                     array('class' => 'editbutton')) . "\n";
           }
           
@@ -226,13 +200,21 @@ global $cm_lang, $cm_texts;
             print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($p['CoPetition']['id'])) . '\', \'' . $this->Html->url(array('controller' => 'co_petitions', 'action' => 'delete', $p['CoPetition']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . "</button>\n";
           
           if($permissions['resend'] && $p['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
+            $url = array(
+              'controller' => 'co_petitions',
+              'action' => 'resend',
+              $p['CoPetition']['id']
+            );
+            
+            $options = array();
+            $options['class'] = 'invitebutton';
+            $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt(_txt('op.inv.resend.confirm', array(generateCn($p['EnrolleeCoPerson']['PrimaryName'])))) . "', '"
+                                                                 . Router::url($url) . "', '"
+                                                                 . _txt('op.inv.resend') . "');return false";
+            
             print $this->Html->link(_txt('op.inv.resend'),
-                                    array('controller' => 'co_petitions',
-                                          'action' => 'resend',
-                                          $p['CoPetition']['id'],
-                                          'co' => $cur_co['Co']['id'],
-                                          'coef' => $p['CoPetition']['co_enrollment_flow_id']),
-                                    array('class' => 'invitebutton')) . "\n";
+                                    $url,
+                                    $options) . "\n";
           }
         ?>
         <?php ; ?>
@@ -244,7 +226,7 @@ global $cm_lang, $cm_texts;
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="9">
+      <th colspan="10">
         <?php echo $this->Paginator->numbers(); ?>
       </th>
     </tr>

@@ -34,6 +34,23 @@
   if(!$e && !$permissions['view'])
     return(false);
 
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_extended_attributes';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_extended_attributes.pl'), $args);
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_extended_attributes.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.co_extended_attributes.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.co_extended_attributes.1'));
+  }
+
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
 <table id="<?php echo $this->action; ?>_co_extended_attribute" class="ui-widget">

@@ -34,6 +34,25 @@
   
   if(!$e && !$permissions['view'])
     return(false);
+
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'cous';
+  $args['action'] = 'index';
+  if(isset($cur_co)) {
+    $args['co'] = $cur_co['Co']['id'];
+  }
+  $this->Html->addCrumb(_txt('ct.cous.pl'), $args);
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.cous.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.cous.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.cous.1'));
+  }
     
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";

@@ -53,34 +53,6 @@ class ProvisionerBehavior extends ModelBehavior {
       return $this->afterSave($model, false);
     }
     
-    // Deleting a CoPerson or CoGroup needs to be handled specially.
-    
-    $model->data = $model->cacheData;
-    
-    if(!empty($model->data[ $model->name ]['id'])) {
-      // Invoke all provisioning plugins
-      
-      try {
-        $this->invokePlugins($model,
-                             $model->data,
-                             $model->name == 'CoPerson'
-                             ? ProvisioningActionEnum::CoPersonDeleted
-                             : ProvisioningActionEnum::CoGroupDeleted);
-      }    
-      // What we really want to do here is catch the result (success or exception)
-      // and set the appropriate session flash message, but we don't have access to
-      // the current session, and anyway that doesn't cover RESTful interactions.
-      // So instead we syslog (which is better than nothing).
-      catch(InvalidArgumentException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new InvalidArgumentException($e->getMessage());
-      }
-      catch(RuntimeException $e) {
-        syslog(LOG_ERR, $e->getMessage());
-        //throw new RuntimeException($e->getMessage());
-      }
-    }
-    
     return true;
   }
   
@@ -123,8 +95,11 @@ class ProvisionerBehavior extends ModelBehavior {
     // to rewrite group memberships under both the person and all their groups (or under
     // the group and all its people).
     
+    $syncGroups = false;
+    
     // Track which group or groups need to be rewritten.
     $coGroupIds = array();
+    $copid = null; // CO Person ID, not to be confused with $coPersonId, used below
     $gmodel = null;
     
     // If a CO Person status has changed to or from Active, find all the groups
@@ -138,17 +113,45 @@ class ProvisionerBehavior extends ModelBehavior {
         // We have a CO Person status change to or from Active. Trigger a rewrite
         // of all groups of which the person is a member.
         
-        $args = array();
-        $args['conditions']['CoGroupMember.co_person_id'] = $model->data[ $model->alias ]['id'];
-        $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_group_id');
-        $args['contain'] = false;
+        $syncGroups = true;
+        $gmodel = $model->CoGroupMember->CoGroup;
+        $copid = $model->data[ $model->alias ]['id'];
+      }
+    }
+    
+    // If identifiers have changed, resync groups as well since group memberships
+    // may be keyed on one of them.
+    
+    if($model->name == 'Identifier'
+       && !empty($model->data['Identifier']['co_person_id'])) {
+      if(!isset($model->cacheData['Identifier']['identifier'])
+         && !empty($model->data['Identifier']['identifier'])) {
+        $syncGroups = true;
+      } elseif(!empty($model->cacheData['Identifier']['modified'])
+               && !empty($model->data['Identifier']['modified'])
+               && ($model->cacheData['Identifier']['modified']
+                   != $model->data['Identifier']['modified'])) {
+        // Use modified as a proxy for seeing if anything has changed in the record
         
-        $gms = $model->CoGroupMember->find('list', $args);
-        
-        if(!empty($gms)) {
-          $coGroupIds = array_values($gms);
-          $gmodel = $model->CoGroupMember->CoGroup;
-        }
+        $syncGroups = true;
+      }
+      
+      if($syncGroups) {
+        $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
+        $copid = $model->data['Identifier']['co_person_id'];
+      }
+    }
+    
+    if($syncGroups) {
+      $args = array();
+      $args['conditions']['CoGroupMember.co_person_id'] = $copid;
+      $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_group_id');
+      $args['contain'] = false;
+      
+      $gms = $gmodel->CoGroupMember->find('list', $args);
+      
+      if(!empty($gms)) {
+        $coGroupIds = array_values($gms);
       }
     }
     
@@ -359,6 +362,37 @@ class ProvisionerBehavior extends ModelBehavior {
     
     $model->cacheData = $model->data;
     
+    if($model->name == 'CoGroup' || $model->name == 'CoPerson') {
+      // Deleting a CoPerson or CoGroup needs to be handled specially.
+      // We need to invoke the provisioners before the final model is deleted
+      // so provisioners can manually clean up any database associations before
+      // the delete of the final model.
+      
+      if(!empty($model->data[ $model->name ]['id'])) {
+        // Invoke all provisioning plugins
+        
+        try {
+          $this->invokePlugins($model,
+                               $model->data,
+                               $model->name == 'CoPerson'
+                               ? ProvisioningActionEnum::CoPersonDeleted
+                               : ProvisioningActionEnum::CoGroupDeleted);
+        }    
+        // What we really want to do here is catch the result (success or exception)
+        // and set the appropriate session flash message, but we don't have access to
+        // the current session, and anyway that doesn't cover RESTful interactions.
+        // So instead we syslog (which is better than nothing).
+        catch(InvalidArgumentException $e) {
+          syslog(LOG_ERR, $e->getMessage());
+          //throw new InvalidArgumentException($e->getMessage());
+        }
+        catch(RuntimeException $e) {
+          syslog(LOG_ERR, $e->getMessage());
+          //throw new RuntimeException($e->getMessage());
+        }
+      }
+    }
+    
     return true;
   }
   
@@ -374,7 +408,9 @@ class ProvisionerBehavior extends ModelBehavior {
     // Cache a copy of the current data for comparison in afterSave. Currently only
     // used to detect if a person or group goes to or from Active status.
     
-    if(($model->name == 'CoGroup' || $model->name == 'CoPerson')
+    if(($model->name == 'CoGroup'
+        || $model->name == 'CoPerson'
+        || $model->name == 'Identifier')
        // This will only be set on edit, not add
        && !empty($model->data[ $model->alias ]['id'])) {
       $args = array();
@@ -454,11 +490,32 @@ class ProvisionerBehavior extends ModelBehavior {
           }
         }
         catch(InvalidArgumentException $e) {
+          $this->registerFailureNotification($coProvisioningTarget,
+                                             (!empty($provisioningData['CoPerson']['id'])
+                                              ? $provisioningData['CoPerson']['id'] : null),
+                                             (!empty($provisioningData['CoGroup']['id'])
+                                              ? $provisioningData['CoGroup']['id'] : null),
+                                             $e->getMessage());
+          
           throw new InvalidArgumentException($e->getMessage());
         }
         catch(RuntimeException $e) {
+          $this->registerFailureNotification($coProvisioningTarget,
+                                             (!empty($provisioningData['CoPerson']['id'])
+                                              ? $provisioningData['CoPerson']['id'] : null),
+                                             (!empty($provisioningData['CoGroup']['id'])
+                                              ? $provisioningData['CoGroup']['id'] : null),
+                                             $e->getMessage());
+          
           throw new RuntimeException($e->getMessage());
         }
+        
+        // On success clear any pending notifications
+        $this->resolveNotifications($coProvisioningTarget['id'],
+                                    (!empty($provisioningData['CoPerson']['id'])
+                                     ? $provisioningData['CoPerson']['id'] : null),
+                                    (!empty($provisioningData['CoGroup']['id'])
+                                     ? $provisioningData['CoGroup']['id'] : null));
       } else {
         throw new InvalidArgumentException(_txt('er.copt.unk'));
       }
@@ -596,7 +653,8 @@ class ProvisionerBehavior extends ModelBehavior {
     // Only pull related models relevant for provisioning
     $args['contain'] = array(
       'CoGroupMember',
-      'CoGroupMember.CoPerson'
+      'CoGroupMember.CoPerson',
+      'CoGroupMember.CoPerson.Identifier'
     );
     
     $coGroupData = $coGroupModel->find('first', $args);
@@ -746,5 +804,93 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     return $coPersonData;
+  }
+  
+  /**
+   * Register a Notification on failure
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coProvisionerTarget CO Provisioner Target object
+   * @param  integer $targetCoPersonId CO Person being provisioned
+   * @param  integer $targetCoGroupId CO Group being provisioned
+   * @param  string  $msg Error message
+   */
+  
+  protected function registerFailureNotification($coProvisionerTarget,
+                                                 $targetCoPersonId,
+                                                 $targetCoGroupId,
+                                                 $msg) {
+    $Co = ClassRegistry::init('Co');
+    
+    // We need to pull the admin group to notify
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $coProvisionerTarget['co_id'];
+    $args['conditions']['CoGroup.name'] = "admin";
+    $args['contain'] = false;
+    
+    $cogr = $Co->CoGroup->find('first', $args);
+    
+    if($cogr) {
+      // Assemble the source array for the notification
+      $src = array();
+      
+      if(!empty($targetCoPersonId)) {
+        $src['controller'] = 'co_people';
+        $src['action'] = 'provision';
+        $src['id'] = $targetCoPersonId;
+      } elseif(!empty($targetCoGroupId)) {
+        $src['controller'] = 'co_groups';
+        $src['action'] = 'provision';
+        $src['id'] = $targetCoGroupId;
+      }
+      
+      $src['arg0'] = 'coprovisioningtargetid';
+      $src['val0'] = $coProvisionerTarget['id'];
+      
+      // Register the notification
+      $Co->CoPerson->CoNotificationSubject->register($targetCoPersonId,
+                                                     $targetCoGroupId,
+                                                     CakeSession::read('Auth.User.co_person_id'),
+                                                     'cogroup',
+                                                     $cogr['CoGroup']['id'],
+                                                     ActionEnum::ProvisionerFailed,
+                                                     _txt('er.prov.plugin', array($coProvisionerTarget['description'], $msg)),
+                                                     $src,
+                                                     true);
+    }
+  }
+  
+  /**
+   * Resolve any Notifications
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer $coProvisionerTargetId CO Provisioner Target invoked
+   * @param  integer $targetCoPersonId CO Person being provisioned
+   * @param  integer $targetCoGroupId CO Group being provisioned
+   */
+  
+  protected function resolveNotifications($coProvisionerTargetId,
+                                          $targetCoPersonId,
+                                          $targetCoGroupId) {
+    $CoNotification = ClassRegistry::init('CoNotification');
+    
+    // Assemble the source array for the notification
+    $src = array();
+    
+    if(!empty($targetCoPersonId)) {
+      $src['controller'] = 'co_people';
+      $src['action'] = 'provision';
+      $src['id'] = $targetCoPersonId;
+    } elseif(!empty($targetCoGroupId)) {
+      $src['controller'] = 'co_groups';
+      $src['action'] = 'provision';
+      $src['id'] = $targetCoGroupId;
+    }
+    
+    $src['arg0'] = 'coprovisioningtargetid';
+    $src['val0'] = $coProvisionerTargetId;
+    
+    // Resolve any outstanding notifications
+    $CoNotification->resolveFromSource($src, CakeSession::read('Auth.User.co_person_id'));
   }
 }

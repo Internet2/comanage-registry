@@ -65,37 +65,6 @@ $(function() {
 </script>
 
 <?php
-  // Add links to sidebar
-
-  if($this->action != "add") {
-    // Get any existing buttons
-    $sidebarButtons = $this->get('sidebarButtons');
-
-    // Add button for related Org Identity
-    $sidebarButtons[]  = array(
-      'icon'    => 'note',
-      'title'   => _txt('ct.org_identities.1'),
-      'url'     => array(
-        'controller'    => 'org_identities',
-        'action'        => 'view',
-        $co_petitions[0]['CoPetition']['enrollee_org_identity_id'],
-        'co'            => $co_petitions[0]['CoPetition']['co_id']
-      )
-    );
-
-    // Add button for related CO Person
-    $sidebarButtons[]  = array(
-      'icon'    => 'note',
-      'title'   => _txt('ct.co_people.1'),
-      'url'     => array(
-        'controller'    => 'co_people',
-        'action'        => 'canvas',
-        $co_petitions[0]['CoPetition']['enrollee_co_person_id']
-      )
-    );
-
-    $this->set('sidebarButtons', $sidebarButtons);
-  }
   // Determine if fields are editable
   $e = false;
   
@@ -106,7 +75,101 @@ $(function() {
   
   if(!$e && !$permissions['view'])
     return(false);
+
+  // Add breadcrumbs (if user is logged into the platform)
+  if(!isset($noLoginLogout) || !$noLoginLogout) {
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_petitions';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $args['sort'] = 'created';
+    $args['Search.status'][] = StatusEnum::PendingApproval;
+    $args['Search.status'][] = StatusEnum::PendingConfirmation;
+
+    $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
+    if ($this->action == "add") {
+      $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.petitions.1'));
+    }
+    if ($this->action == "view") {
+      $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.petitions.1'));
+    }
+  }
+
+  // Add links to sidebar
+  if($this->action != "add") {
+    // Get any existing buttons
+    $sidebarButtons = $this->get('sidebarButtons');
     
+    // If status is pending confirmation, offer a link to resend the invite
+    if($permissions['resend']
+       && !empty($co_petitions[0]['CoPetition']['status'])
+       && $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'mail-closed',
+        'title'   => _txt('op.inv.resend'),
+        'url'     => array('controller'    => 'co_petitions',
+                           'action'        => 'resend',
+                           $co_petitions[0]['CoPetition']['id']),
+        'confirm' => _txt('op.inv.resend.confirm', array(generateCn($co_petitions[0]['EnrolleeCoPerson']['PrimaryName']))),
+        'confirmbtxt' => _txt('op.inv.resend')
+      );
+    }
+    
+    if($permissions['edit']) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'note',
+        'title'   => _txt('op.petition.comment'),
+        'url'     => array(
+          'controller'    => 'co_petition_history_records',
+          'action'        => 'add',
+          'copetitionid'  => $co_petitions[0]['CoPetition']['id']
+        )
+      );
+    }
+    
+    // If status is pending confirmation or approval, offer ability to flag as duplicate.
+    if($permissions['dupe']
+       && !empty($co_petitions[0]['CoPetition']['status'])
+       && ($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval
+           || $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation)) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'flag',
+        'title'   => _txt('op.petition.dupe'),
+        'url'     => array('controller'    => 'co_petitions',
+                           'action'        => 'dupe',
+                           $co_petitions[0]['CoPetition']['id']),
+        'confirm' => _txt('op.petition.dupe.confirm'),
+        'confirmbtxt' => _txt('op.petition.dupe')
+      );
+    }
+    
+    // Add button for related Org Identity
+    $sidebarButtons[]  = array(
+      'icon'    => 'extlink',
+      'title'   => _txt('ct.org_identities.1'),
+      'url'     => array(
+        'controller'    => 'org_identities',
+        'action'        => 'view',
+        $co_petitions[0]['CoPetition']['enrollee_org_identity_id'],
+        'co'            => $co_petitions[0]['CoPetition']['co_id']
+      )
+    );
+    
+    // Add button for related CO Person
+    $sidebarButtons[]  = array(
+      'icon'    => 'extlink',
+      'title'   => _txt('ct.co_people.1'),
+      'url'     => array(
+        'controller'    => 'co_people',
+        'action'        => 'canvas',
+        $co_petitions[0]['CoPetition']['enrollee_co_person_id']
+      )
+    );
+    
+    $this->set('sidebarButtons', $sidebarButtons);
+  }
+
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
@@ -120,34 +183,26 @@ $(function() {
   // refactored at some point.
 ?>
 <div style="min-height: 350px;">
+  <?php if($this->action != 'add'): // Enable tabs only if we're viewing an existing petition ?>
   <div id="tabs">
     <ul>
-      <?php if($this->action != 'add'): ?>
-        <li>
-          <a href="#tabs-petition">
-            <?php print _txt('ct.co_petitions.1'); ?>
-          </a>
-        </li>
-      <?php endif; ?>
-
-      <?php if($this->action != "invite"): ?>
-        <li>
-          <a href="#tabs-attributes">
-            <?php print _txt('fd.attrs.pet'); ?>
-          </a>
-        </li>
-      <?php endif; ?>
-        
-      <?php if($this->action != 'add'): ?>
-        <li>
-          <a href="#tabs-history">
-            <?php print _txt('fd.history.pt'); ?>
-          </a>
-        </li>
-      <?php endif; ?>
-
-      
+      <li>
+        <a href="#tabs-petition">
+          <?php print _txt('ct.co_petitions.1'); ?>
+        </a>
+      </li>
+      <li>
+        <a href="#tabs-attributes">
+          <?php print _txt('fd.attrs.pet'); ?>
+        </a>
+      </li>
+      <li>
+        <a href="#tabs-history">
+          <?php print _txt('fd.history.pt'); ?>
+        </a>
+      </li>
     </ul>
+  <?php endif; // action = add ?>
     <div id="tabs-petition">
       <?php if($this->action != 'add'): ?>
         <div>
@@ -171,7 +226,10 @@ $(function() {
                           array('class' => 'checkbutton')
                         );
                       }
-                      
+                    }
+                    
+                    if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval
+                       || $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
                       if($permissions['deny']) {
                         print $this->Html->link(
                           _txt('op.deny'),
@@ -187,6 +245,13 @@ $(function() {
                   ?>
                 </td>
               </tr>
+              <?php if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation
+                       && !empty($co_petitions[0]['CoInvite']['expires'])): ?>
+              <tr class="line<?php print ($l % 2); $l++; ?>">
+                <th><?php print _txt('fd.inv.exp'); ?></th>
+                <td><?php print $this->Time->nice($co_petitions[0]['CoInvite']['expires']); ?></td>
+              </tr>
+              <?php endif; // Invitation expires ?>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <th><?php print _txt('fd.petitioner'); ?></th>
                 <td>
@@ -220,6 +285,16 @@ $(function() {
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
+                <th><?php print _txt('fd.identifier.identifier'); ?></th>
+                <td>
+                  <?php
+                    if(!empty($co_petitions[0]['CoPetition']['authenticated_identifier'])) {
+                      print Sanitize::html($co_petitions[0]['CoPetition']['authenticated_identifier']);
+                    }
+                  ?>
+                </td>
+              </tr>
+              <tr class="line<?php print ($l % 2); $l++; ?>">
                 <th><?php print _txt('fd.created'); ?></th>
                 <td><?php print $this->Time->nice($co_petitions[0]['CoPetition']['created']); ?></td>
               </tr>
@@ -234,15 +309,12 @@ $(function() {
     </div>
     <div id="tabs-attributes">
       <?php
-        if($this->action == 'add' && !empty($vv_introduction_text)) {
-          print "<p>" . $vv_introduction_text . "</p>";
-        }
-      ?>
-      <?php
         include('petition-attributes.inc');
       ?>
     </div>
+      <?php if($this->action != 'add'): ?>
   </div>
+      <?php endif; ?>
 </div>
 
 

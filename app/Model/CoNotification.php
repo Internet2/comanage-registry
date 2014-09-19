@@ -33,9 +33,14 @@ class CoNotification extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
+    // At leaste one Subject and one Recipient is required, but we currently don't enforce this
     "SubjectCoPerson" => array(
       'className' => 'CoPerson',
       'foreignKey' => 'subject_co_person_id'
+    ),
+    "SubjectCoGroup" => array(
+      'className' => 'CoGroup',
+      'foreignKey' => 'subject_co_group_id'
     ),
     "ActorCoPerson" => array(
       'className' => 'CoPerson',
@@ -64,8 +69,13 @@ class CoNotification extends AppModel {
   public $validate = array(
     'subject_co_person_id' => array(
       'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'subject_co_group_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     ),
     'actor_co_person_id' => array(
       'rule' => 'numeric',
@@ -93,7 +103,7 @@ class CoNotification extends AppModel {
       'allowEmpty' => true
     ),
     'comment' => array(
-      'rule' => array('maxLength', 160),
+      'rule' => array('maxLength', 256),
       'required' => false,
       'allowEmpty' => true
     ),
@@ -114,6 +124,16 @@ class CoNotification extends AppModel {
     ),
     'source_id' => array(
       'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'source_arg0' => array(
+      'rule' => array('maxLength', 80),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'source_val0' => array(
+      'rule' => array('maxLength', 80),
       'required' => false,
       'allowEmpty' => true
     ),
@@ -201,6 +221,35 @@ class CoNotification extends AppModel {
                                                 _txt('rs.nt.expunge', array($id, $role)));
     
     return true;
+  }
+  
+  /**
+   * Obtain the CO ID for a record.
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  integer Record to retrieve for
+   * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
+   * @throws InvalidArgumentException
+   * @throws RunTimeException
+   */
+  
+  public function findCoForRecord($id) {
+    // CoNotification needs to get the CO via the Subject CO Person or Subject CO Group
+    
+    $args = array();
+    $args['conditions'][$this->alias.'.id'] = $id;
+    $args['contain'][] = 'SubjectCoPerson';
+    $args['contain'][] = 'SubjectCoGroup';
+    
+    $cop = $this->find('first', $args);
+      
+    if(!empty($cop['SubjectCoPerson']['co_id'])) {
+      return $cop['SubjectCoPerson']['co_id'];
+    } elseif(!empty($cop['SubjectCoGroup']['co_id'])) {
+      return $cop['SubjectCoGroup']['co_id'];
+    }
+    
+    return parent::findCoForRecord($id);
   }
   
   /**
@@ -363,10 +412,19 @@ class CoNotification extends AppModel {
         $s[] = $not['CoNotification']['source_id'];
         */
         
-        $sourceurl = Router::url("/" . $not['CoNotification']['source_controller']
-                                 . "/" . $not['CoNotification']['source_action']
-                                 . "/" . $not['CoNotification']['source_id'],
-                                 true);
+        $surl = "/" . $not['CoNotification']['source_controller']
+                . "/" . $not['CoNotification']['source_action']
+                . "/" . $not['CoNotification']['source_id'];
+        
+        if(!empty($not['CoNotification']['source_arg0'])) {
+          $surl .= "/" . $not['CoNotification']['source_arg0'];
+          
+          if(!empty($not['CoNotification']['source_val0'])) {
+            $surl .= ":" . $not['CoNotification']['source_val0'];
+          }
+        }
+        
+        $sourceurl = Router::url($surl, true);
       }
       
       $args = array();
@@ -407,12 +465,13 @@ class CoNotification extends AppModel {
    *
    * @since  COmanage Registry v0.8.4
    * @param  Integer $subjectCoPersonId CO Person ID of subject of notification
+   * @param  Integer $subjectCoGroupId  CO Group ID of subject of notification
    * @param  Integer $actorCoPersonId   CO Person ID of actor who generated notification (or null)
    * @param  String  $recipientType     "coperson" or "cogroup"
    * @param  Integer $recipientId       CO Person ID or CO Group ID of recipient, according to $recipientType
    * @param  String  $action            ActionEnum describing notification
    * @param  String  $comment           Human readable notification comment
-   * @param  Mixed   $source            Link to source to review/resolve notification; may be a string (url) or cake-style array of controller+action+id (note: 'id' must be specified as array key)
+   * @param  Mixed   $source            Link to source to review/resolve notification; may be a string (url) or cake-style array of controller+action+id (note: 'id' must be specified as array key; 'arg0' and 'val0' also accepted)
    * @param  Boolean $mustResolve       If true, the notification cannot be acknowledged, only resolved via $source
    * @param  String  $fromAddress       Email Address to send the invite from (if null, use default)
    * @param  String  $subjectTemplate   Subject template for notification email (if null, default subject is sent)
@@ -423,6 +482,7 @@ class CoNotification extends AppModel {
    */
   
   public function register($subjectCoPersonId,
+                           $subjectCoGroupId,
                            $actorCoPersonId,
                            $recipientType,
                            $recipientId,
@@ -437,7 +497,13 @@ class CoNotification extends AppModel {
     
     $n = array();
     
-    $n['CoNotification']['subject_co_person_id'] = $subjectCoPersonId;
+    if(!empty($subjectCoPersonId)) {
+      $n['CoNotification']['subject_co_person_id'] = $subjectCoPersonId;
+    }
+    
+    if(!empty($subjectCoGroupId)) {
+      $n['CoNotification']['subject_co_group_id'] = $subjectCoGroupId;
+    }
     
     if(!empty($actorCoPersonId)) {
       $n['CoNotification']['actor_co_person_id'] = $actorCoPersonId;
@@ -499,6 +565,7 @@ class CoNotification extends AppModel {
         
         foreach($recipients as $recipient) {
           $r = $this->register($subjectCoPersonId,
+                               $subjectCoGroupId,
                                $actorCoPersonId,
                                'coperson',
                                $recipient['RecipientCoPerson']['id'],
@@ -528,13 +595,23 @@ class CoNotification extends AppModel {
         $n['CoNotification']['source_controller'] = $source['controller'];
         $csource['controller'] = $source['controller'];
       }
-      if(!empty($source['controller'])) {
+      if(!empty($source['action'])) {
         $n['CoNotification']['source_action'] = $source['action'];
         $csource['action'] = $source['action'];
       }
-      if(!empty($source['controller'])) {
+      if(!empty($source['id'])) {
         $n['CoNotification']['source_id'] = $source['id'];
         $csource[] = $source['id'];
+      }
+      if(!empty($source['arg0'])) {
+        $n['CoNotification']['source_arg0'] = $source['arg0'];
+        
+        if(!empty($source['val0'])) {
+          $n['CoNotification']['source_val0'] = $source['val0'];
+          $csource[ $source['arg0'] ] = $source['val0'];
+        } else {
+          $csource[] = $source['arg0'];
+        }
       }
     } else {
       $n['CoNotification']['source_url'] = $source;
@@ -548,7 +625,13 @@ class CoNotification extends AppModel {
     
     // We need to map CoPerson to get the CO ID to get the CO Name
     
-    $coId = $this->SubjectCoPerson->field('co_id', array('SubjectCoPerson.id' => $subjectCoPersonId));
+    $coId = null;
+    
+    if($subjectCoPersonId) {
+      $coId = $this->SubjectCoPerson->field('co_id', array('SubjectCoPerson.id' => $subjectCoPersonId));
+    } elseif($subjectCoGroupId) {
+      $coId = $this->SubjectCoGroup->field('co_id', array('SubjectCoGroup.id' => $subjectCoGroupId));
+    }
     $coName = $this->RecipientCoPerson->Co->field('name', array('Co.id' => $coId));
     $sourceurl = (is_array($source)
                   ? Router::url($csource, true) // Use the source formatted for cake
@@ -668,11 +751,17 @@ class CoNotification extends AppModel {
       if(!empty($source['controller'])) {
         $args['conditions']['CoNotification.source_controller'] = $source['controller'];
       }
-      if(!empty($source['controller'])) {
+      if(!empty($source['action'])) {
         $args['conditions']['CoNotification.source_action'] = $source['action'];
       }
-      if(!empty($source['controller'])) {
+      if(!empty($source['id'])) {
         $args['conditions']['CoNotification.source_id'] = $source['id'];
+      }
+      if(!empty($source['arg0'])) {
+        $args['conditions']['CoNotification.source_arg0'] = $source['arg0'];
+      }
+      if(!empty($source['val0'])) {
+        $args['conditions']['CoNotification.source_val0'] = $source['val0'];
       }
     } else {
       $args['conditions']['CoNotification.source_url'] = $source;

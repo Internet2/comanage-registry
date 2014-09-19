@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Configuration Fields
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -33,6 +33,23 @@
   
   if(!$e && !$permissions['view'])
     return(false);
+
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_flows';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_enrollment_flows.pl'), $args);
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_enrollment_flows.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.co_enrollment_flows.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.co_enrollment_flows.1'));
+  }
      
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
@@ -303,6 +320,19 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
+        <strong class="fieldTitle"><?php print _txt('fd.ef.invval'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.invval.desc'); ?></span>
+      </td>
+      <td>
+        <?php global $def_inv_validity;
+              print ($e
+                     ? $this->Form->input('invitation_validity',
+                                          array('default' => $def_inv_validity))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['invitation_validity'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.authn'); ?></strong><br />
         <span class="descr"><?php print _txt('fd.ef.authn.desc'); ?></span>
       </td>
@@ -482,6 +512,44 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
+        <strong class="fieldTitle"><?php print _txt('fd.ef.concl'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.concl.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('conclusion_text')
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['conclusion_text'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.ef.tandc'); ?></strong><span class="required">*</span><br />
+        <span class="descr"><?php print _txt('fd.ef.tandc.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (isset($co_enrollment_flows)
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']
+                             : TAndCEnrollmentModeEnum::ExplicitConsent);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('t_and_c_mode',
+                                      $cm_texts[ $cm_lang ]['en.tandc.mode.enroll'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('t_and_c_mode')) {
+              print $this->Form->error('t_and_c_mode');
+            }
+          } else {
+            print _txt('en.tandc.mode.enroll', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
         <strong class="fieldTitle"><?php print _txt('fd.ef.rd.submit'); ?></strong><br />
         <span class="descr"><?php print _txt('fd.ef.rd.submit.desc'); ?></span>
       </td>
@@ -519,12 +587,14 @@
       </td>
     </tr>
     <?php endif; ?>
+
+    <?php
+    if($e) {
+      print '<tr><td></td><td>';
+      print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+      print $this->Form->button(_txt('op.reset'), array('type'=>'reset'));
+      print '</td></tr>';
+    }
+    ?>
   </tbody>
 </table>
-<?php
-  if($e) {
-    print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-    print $this->Form->button(_txt('op.reset'), 
-                              array('type'=>'reset'));
-  }
-?>

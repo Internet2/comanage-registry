@@ -193,6 +193,10 @@ class AppModel extends Model {
       $args = array();
       $args['conditions'][$this->alias.'.id'] = $id;
       $args['contain'][] = 'CoPersonRole';
+      if(isset($this->validate['org_identity_id'])) {
+        // This is an MVPA
+        $args['contain'][] = 'OrgIdentity';
+      }
       
       $copr = $this->find('first', $args);
       
@@ -210,6 +214,12 @@ class AppModel extends Model {
       
       // Is this an MVPA where this is an org identity?
       
+      if(!empty($copr['OrgIdentity']['co_id'])) {
+        return $copr['OrgIdentity']['co_id'];
+      }
+      
+      // If this is an MVPA, don't fail on no CO ID since that may not be the current configuration
+      
       if(empty($copr[ $this->alias ]['co_person_id'])
          && !empty($copr[ $this->alias ]['org_identity_id'])) {
         return null;
@@ -225,18 +235,6 @@ class AppModel extends Model {
       
       if(!empty($copt['CoProvisioningTarget']['co_id'])) {
         return $copt['CoProvisioningTarget']['co_id'];
-      }
-    } elseif(isset($this->validate['subject_co_person_id'])) {
-      // Notifications will reference a subject CO Person
-      
-      $args = array();
-      $args['conditions'][$this->alias.'.id'] = $id;
-      $args['contain'][] = 'SubjectCoPerson';
-      
-      $cop = $this->find('first', $args);
-      
-      if(!empty($cop['SubjectCoPerson']['co_id'])) {
-        return $cop['SubjectCoPerson']['co_id'];
       }
     } else {
       throw new LogicException(_txt('er.co.fail'));

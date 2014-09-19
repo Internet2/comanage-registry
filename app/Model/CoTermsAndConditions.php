@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Terms and Conditions Model
  *
- * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -83,6 +83,30 @@ class CoTermsAndConditions extends AppModel {
   public $cm_enum_types = array(
     'status' => 'status_t'
   );
+  
+  /**
+   * Obtain the set of pending (un-agreed-to) T&C for a CO Person
+   *
+   * @since  COmanage Registry v0.9.1
+   * @param  Integer CO Person identifier
+   * @return Array An array of Terms&Conditions as returned by find(), including any Agreements for the CO Person
+   */
+  
+  public function pending($copersonid) {
+    // Use status to pull the full set then walk through the results
+    
+    $ret = array();
+    
+    foreach($this->status($copersonid) as $tc) {
+      if(empty($tc['CoTAndCAgreement'])) {
+        // This T&C has not yet been agreed to, so push it onto the list
+        
+        $ret[] = $tc;
+      }
+    }
+    
+    return $ret;
+  }
   
   /**
    * Determine the T&C Status for a CO Person

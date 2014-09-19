@@ -33,6 +33,19 @@
   
   if(!$e && !$permissions['view'])
     return false;
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.api_users.pl'), array('controller' => 'api_users', 'action' => 'index'));
+  if($this->action == "add") {
+    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.api_users.1'));
+  }
+  if($this->action == "edit") {
+    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.api_users.1'));
+  }
+  if($this->action == "view") {
+    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.api_users.1'));
+  }
+
 ?>
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 
 0 .7em;"> 

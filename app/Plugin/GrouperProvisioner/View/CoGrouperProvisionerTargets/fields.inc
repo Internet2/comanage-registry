@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Grouper Provisioning Target Fields
  *
- * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8.3
@@ -35,17 +35,8 @@
   if(!$e && !$permissions['view'])
     return false;
   
-  // Find the ID of our parent
-  $ptid = -1;
-  
-  if(isset($this->params->named['ptid'])) {
-    $ptid = Sanitize::html($this->params->named['ptid']);
-  } else {
-    $ptid = $co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['co_provisioning_target_id'];
-  }
-  
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
-  print $this->Form->hidden('co_provisioning_target_id', array('default' => $ptid)) . "\n";
+  print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
   
 ?>
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 

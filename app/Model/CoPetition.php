@@ -135,6 +135,7 @@ class CoPetition extends AppModel {
       'rule' => array('inList', array(StatusEnum::Approved,
                                       StatusEnum::Declined,
                                       StatusEnum::Denied,
+                                      StatusEnum::Duplicate,
                                       StatusEnum::Invited,
                                       StatusEnum::PendingApproval,
                                       StatusEnum::PendingConfirmation)),
@@ -200,7 +201,6 @@ class CoPetition extends AppModel {
     // Since when we're called createPetition has already pulled $efAttrs from the
     // database, we traverse it looking for $efAttrID rather than do another database
     // call for just the relevant records.
-    
     foreach($efAttrs as $efAttr) {
       // More than one entry can match a given attribute ID.
       
@@ -209,8 +209,12 @@ class CoPetition extends AppModel {
         continue;
       }
       
-      if($efAttr['field'] == 'co_enrollment_attribute_id') {
-        // Skip the enrollment attribute id
+      // Skip metadata fields
+      if($efAttr['field'] == 'co_enrollment_attribute_id'
+         || $efAttr['field'] == 'type'
+         || $efAttr['field'] == 'language'
+         || $efAttr['field'] == 'primary_name') {
+        
         continue;
       }
       
@@ -302,6 +306,9 @@ class CoPetition extends AppModel {
     
     $efName = $this->CoEnrollmentFlow->field('name',
                                              array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+    
+    $tAndCMode = $this->CoEnrollmentFlow->field('t_and_c_mode',
+                                                array('CoEnrollmentFlow.id' => $enrollmentFlowID));
     
     $initialStatus = StatusEnum::Approved;
     
@@ -923,6 +930,33 @@ class CoPetition extends AppModel {
                                                                     $coPersonID,
                                                                     $coPersonID,
                                                                     $requestData['CoTermsAndConditions'][$coTAndCId]);
+          
+          // Also create a Petition History Record of the agreement
+          
+          $tcenum = null;
+          $tccomment = "";
+          $tcdesc = $this->Co->CoTermsAndConditions->field('description',
+                                                           array('CoTermsAndConditions.id' => $coTAndCId))
+                  . " (" . $coTAndCId . ")";
+          
+          switch($tAndCMode) {
+            case TAndCEnrollmentModeEnum::ExplicitConsent:
+              $tcenum = PetitionActionEnum::TCExplicitAgreement;
+              $tccomment = _txt('rs.pt.tc.explicit', array($tcdesc));
+              break;
+            case TAndCEnrollmentModeEnum::ImpliedConsent:
+              $tcenum = PetitionActionEnum::TCImpliedAgreement;
+              $tccomment = _txt('rs.pt.tc.implied', array($tcdesc));
+              break;
+            default:
+              throw new InvalidArgumentException("Unknown Terms and Conditions Mode: $tAndCMode");
+              break;
+          }
+          
+          $this->CoPetitionHistoryRecord->record($coPetitionID,
+                                                 $petitionerId,
+                                                 $tcenum,
+                                                 $tccomment);
         }
         catch(Exception $e) {
           $dbc->rollback();
@@ -961,6 +995,9 @@ class CoPetition extends AppModel {
         $bodyTemplate = $this->CoEnrollmentFlow->field('verification_body',
                                                         array('CoEnrollmentFlow.id' => $enrollmentFlowID));
         
+        $invValidity = $this->CoEnrollmentFlow->field('invitation_validity',
+                                                      array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
         $coName = $this->Co->field('name', array('Co.id' => $coId));
         
         $coInviteId = $this->CoInvite->send($coPersonID,
@@ -970,7 +1007,9 @@ class CoPetition extends AppModel {
                                             $notifyFrom,
                                             $coName,
                                             $subjectTemplate,
-                                            $bodyTemplate);
+                                            $bodyTemplate,
+                                            null,
+                                            $invValidity);
         
         // Add the invite ID to the petition record
         
@@ -1013,6 +1052,7 @@ class CoPetition extends AppModel {
            ->CoGroup
            ->CoNotificationRecipientGroup
            ->register($coPersonID,
+                      null,
                       $petitionerId,
                       'cogroup',
                       $notificationGroup,
@@ -1097,7 +1137,10 @@ class CoPetition extends AppModel {
                                         !empty($enrollmentFlow['CoEnrollmentFlow']['verification_subject'])
                                         ? $enrollmentFlow['CoEnrollmentFlow']['verification_subject'] : null,
                                         !empty($enrollmentFlow['CoEnrollmentFlow']['verification_body'])
-                                        ? $enrollmentFlow['CoEnrollmentFlow']['verification_body'] : null);
+                                        ? $enrollmentFlow['CoEnrollmentFlow']['verification_body'] : null,
+                                        null,
+                                        !empty($enrollmentFlow['CoEnrollmentFlow']['invitation_validity'])
+                                        ? $enrollmentFlow['CoEnrollmentFlow']['invitation_validity'] : null);
     
     // Update the CO Petition with the new invite ID
     
@@ -1170,6 +1213,7 @@ class CoPetition extends AppModel {
       if($newStatus == StatusEnum::Approved
          || $newStatus == StatusEnum::Confirmed
          || $newStatus == StatusEnum::Denied
+         || $newStatus == StatusEnum::Duplicate
          || $newStatus == StatusEnum::PendingApproval) {
         $valid = true;
       }
@@ -1199,7 +1243,8 @@ class CoPetition extends AppModel {
       // A Petition can go from PendingApproval to Approved or Denied
       
       if($newStatus == StatusEnum::Approved
-         || $newStatus == StatusEnum::Denied) {
+         || $newStatus == StatusEnum::Denied
+         || $newStatus == StatusEnum::Duplicate) {
         $valid = true;
       }
     }
@@ -1272,6 +1317,9 @@ class CoPetition extends AppModel {
               break;
             case StatusEnum::Denied:
               $petitionAction = PetitionActionEnum::Denied;
+              break;
+            case StatusEnum::Duplicate:
+              $petitionAction = PetitionActionEnum::FlaggedDuplicate;
               break;
           }
           
@@ -1480,6 +1528,20 @@ class CoPetition extends AppModel {
         }
       }
       
+      // If this is a denial of a petition pending confirmation, clear out the
+      // pending invitation.
+      
+      if(!$fail && $curStatus == StatusEnum::PendingConfirmation
+         && $newPetitionStatus == StatusEnum::Denied) {
+        $inviteid = $this->field('co_invite_id');
+        
+        if($inviteid) {
+          if($this->saveField('co_invite_id', null)) {
+            $this->CoInvite->delete($inviteid);
+          }
+        }
+      }
+      
       // Register some notifications. We'll need the enrollee's name for this.
       
       if(empty($coPersonID)) {
@@ -1501,14 +1563,15 @@ class CoPetition extends AppModel {
              ->CoGroup
              ->CoNotificationRecipientGroup
              ->register($coPersonID,
+                        null,
                         $actorCoPersonID,
                         'cogroup',
                         $enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'],
                         ActionEnum::CoPetitionUpdated,
-                       _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
-                                                  _txt('en.status', null, $curStatus),
-                                                  _txt('en.status', null, $newPetitionStatus),
-                                                  $enrollmentFlow['CoEnrollmentFlow']['name'])),
+                        _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
+                                                   _txt('en.status', null, $curStatus),
+                                                   _txt('en.status', null, $newPetitionStatus),
+                                                   $enrollmentFlow['CoEnrollmentFlow']['name'])),
                         array(
                           'controller' => 'co_petitions',
                           'action'     => 'view',
@@ -1569,6 +1632,7 @@ class CoPetition extends AppModel {
                ->CoGroup
                ->CoNotificationRecipientGroup
                ->register($coPersonID,
+                          null,
                           $actorCoPersonID,
                           'cogroup',
                           $cgid,
@@ -1745,6 +1809,21 @@ class CoPetition extends AppModel {
             throw new RuntimeException($e->getMessage());
           }
         }
+        
+        // Store the authenticated identifier in the petition. We don't do this as
+        // a foreign key because (1) there is no corresponding co_enrollment_attribute
+        // and (2) the identifier might subsequently be deleted from the identifiers table.
+        
+        if(!$this->saveField('authenticated_identifier', $loginIdentifier)) {
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+        
+        // Create a petition history record
+        
+        $this->CoPetitionHistoryRecord->record($id,
+                                               $actorCoPersonId,
+                                               PetitionActionEnum::IdentifierAuthenticated,
+                                               _txt('rs.pt.id.auth', array($loginIdentifier)));
       } else {
         throw new InvalidArgumentException(_txt('er.notprov.id', array('ct.org_identities.1')));
       }

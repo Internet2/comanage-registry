@@ -24,6 +24,19 @@
 
   print $this->element("pageTitle", array('title' => _txt('fd.tc.for',
                                                           array(generateCn($vv_co_person['PrimaryName']), $cur_co['Co']['name']))));
+
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.co_terms_and_conditions.pl'));
+  
+  // Determine if there are any not-agreed-to-t&c
+  $pending = false;
+  
+  foreach($vv_co_terms_and_conditions as $c) {
+    if(empty($c['CoTAndCAgreement'])) {
+      $pending = true;
+      break;
+    }
+  }
 ?>
 <script type="text/javascript">
   function open_tandc(title, tandcUrl, mode, agreeUrl) {
@@ -77,7 +90,16 @@
     <strong><?php print _txt('fd.tc.none'); ?></strong>
   </p>
 </div>
-<?php else: ?>
+<?php else: // vv_co_terms_and_conditions ?>
+<?php if(isset($this->params['named']['mode']) && $this->params['named']['mode'] == 'login'
+         && $pending): ?>
+<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+  <p>
+    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <strong><?php print _txt('fd.tc.agree.login'); ?></strong>
+  </p>
+</div>
+<?php endif; // mode=login ?>
 <table id="cous" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
@@ -125,13 +147,19 @@
                                     '<?php print addslashes($c['CoTermsAndConditions']['url']); ?>',
                                     'agree',
                                     '<?php
-                                        print $this->Html->url(
-                                          array('controller' => 'co_terms_and_conditions',
-                                                'action' => 'agree',
-                                                $c['CoTermsAndConditions']['id'],
-                                                'copersonid' => $vv_co_person['CoPerson']['id'],
-                                                'co' => $cur_co['Co']['id'])
+                                        $args = array(
+                                          'controller' => 'co_terms_and_conditions',
+                                          'action' => 'agree',
+                                          $c['CoTermsAndConditions']['id'],
+                                          'copersonid' => $vv_co_person['CoPerson']['id']
                                         );
+                                        
+                                        // Pass through the mode for subsequent rendering
+                                        if(!empty($this->params['named']['mode'])) {
+                                          $args['mode'] = $this->params['named']['mode'];
+                                        }
+                                        
+                                        print $this->Html->url($args);
                                       ?>')">
           <?php print _txt('op.tc.agree'); ?>
         </button>
@@ -148,7 +176,7 @@
     </tr>
   </tfoot>
 </table>
-<?php endif; ?>
+<?php endif; // vv_co_terms_and_conditions ?>
 
 <div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
   <iframe id="tandc_content" height="600" width="700">

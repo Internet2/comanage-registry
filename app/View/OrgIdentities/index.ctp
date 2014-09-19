@@ -28,6 +28,9 @@ global $cm_lang, $cm_texts;
   $params = array('title' => _txt('ct.org_identities.pl'));
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $this->Html->addCrumb(_txt('ct.org_identities.pl'));
+
   if($permissions['add']) {
     // Add button to sidebar
     $sidebarButtons = $this->get('sidebarButtons');

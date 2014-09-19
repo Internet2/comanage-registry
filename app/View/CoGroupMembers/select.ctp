@@ -38,6 +38,15 @@ $(document).ready(function () {
   $params = array('title' => _txt('op.grm.edit', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])));
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_groups';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+  $this->Html->addCrumb(_txt('ct.co_group_members.pl'));
+
 ?>
 
 <table id="co_people" class="ui-widget">
@@ -67,7 +76,7 @@ $(document).ready(function () {
         <?php
           print $this->Html->link(Sanitize::html(generateCn($p['PrimaryName'])),
                                   array('controller' => 'co_people',
-                                        'action' => 'edit',
+                                        'action' => 'canvas',
                                         $p['CoPerson']['id'],
                                         'co' => $cur_co['Co']['id']));
         ?>
@@ -116,6 +125,7 @@ $(document).ready(function () {
       </th>
     </tr>
     <tr>
+      <td colspan="2"></td>
       <td>
         <?php
           $options = array('style' => 'float:left;');
