@@ -33,7 +33,7 @@ class CakePlugin {
 	protected static $_plugins = array();
 
 /**
- * Loads a plugin and optionally loads bootstrapping, routing files or loads a initialization function
+ * Loads a plugin and optionally loads bootstrapping, routing files or loads an initialization function
  *
  * Examples:
  *
@@ -183,7 +183,7 @@ class CakePlugin {
  *
  * @param string $plugin name of the plugin, if null will operate on all plugins having enabled the
  * loading of routes files
- * @return boolean
+ * @return bool
  */
 	public static function routes($plugin = null) {
 		if ($plugin === null) {
@@ -237,7 +237,7 @@ class CakePlugin {
  * Include file, ignoring include error if needed if file is missing
  *
  * @param string $file File to include
- * @param boolean $ignoreMissing Whether to ignore include error for missing files
+ * @param bool $ignoreMissing Whether to ignore include error for missing files
  * @return mixed
  */
 	protected static function _includeFile($file, $ignoreMissing = false) {

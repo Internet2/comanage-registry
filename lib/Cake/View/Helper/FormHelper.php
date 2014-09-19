@@ -255,7 +255,7 @@ class FormHelper extends AppHelper {
  * Returns if a field is required to be filled based on validation properties from the validating object.
  *
  * @param CakeValidationSet $validationRules Validation rules set.
- * @return boolean true if field is required to be filled, false otherwise
+ * @return bool true if field is required to be filled, false otherwise
  */
 	protected function _isRequiredField($validationRules) {
 		if (empty($validationRules) || count($validationRules) === 0) {
@@ -329,7 +329,7 @@ class FormHelper extends AppHelper {
  *   If an array is passed and $options argument is empty, the array will be used as options.
  *   If `false` no model is used.
  * @param array $options An array of html attributes and options.
- * @return string An formatted opening FORM tag.
+ * @return string A formatted opening FORM tag.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#options-for-create
  */
 	public function create($model = null, $options = array()) {
@@ -635,7 +635,7 @@ class FormHelper extends AppHelper {
  * Determine which fields of a form should be used for hash.
  * Populates $this->fields
  *
- * @param boolean $lock Whether this field should be part of the validation
+ * @param bool $lock Whether this field should be part of the validation
  *     or excluded as part of the unlockedFields.
  * @param string|array $field Reference to field to be secured. Should be dot separated to indicate nesting.
  * @param mixed $value Field value, if value should not be tampered with.
@@ -674,7 +674,7 @@ class FormHelper extends AppHelper {
  * Returns true if there is an error for the given field, otherwise false
  *
  * @param string $field This should be "Modelname.fieldname"
- * @return boolean If there are errors this method returns true, else false.
+ * @return bool If there are errors this method returns true, else false.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::isFieldError
  */
 	public function isFieldError($field) {
@@ -1256,7 +1256,7 @@ class FormHelper extends AppHelper {
  *
  * @param string $fieldName Field name.
  * @param array $options Options list.
- * @return boolean|string false or Generated label element
+ * @return bool|string false or Generated label element
  */
 	protected function _getLabel($fieldName, $options) {
 		if ($options['type'] === 'radio') {
@@ -1483,7 +1483,7 @@ class FormHelper extends AppHelper {
  * - `hiddenField` - boolean to indicate if you want the results of radio() to include
  *    a hidden input with a value of ''. This is useful for creating radio sets that non-continuous
  * - `disabled` - Set to `true` or `disabled` to disable all the radio buttons.
- * - `empty` - Set to `true` to create a input with the value '' as the first option. When `true`
+ * - `empty` - Set to `true` to create an input with the value '' as the first option. When `true`
  *   the radio label will be 'empty'. Set this option to a string to control the label value.
  *
  * @param string $fieldName Name of a field, like this "Modelname.fieldname"
@@ -1789,7 +1789,7 @@ class FormHelper extends AppHelper {
  * @param string $title The content to be wrapped by <a> tags.
  * @param string|array $url Cake-relative URL or array of URL parameters, or external URL (starts with http://)
  * @param array $options Array of HTML attributes.
- * @param boolean|string $confirmMessage JavaScript confirmation message.
+ * @param bool|string $confirmMessage JavaScript confirmation message.
  * @return string An `<a />` element.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::postLink
  */
@@ -2204,8 +2204,8 @@ class FormHelper extends AppHelper {
  * - `value` The selected value of the input.
  *
  * @param string $fieldName Prefix name for the SELECT element
- * @param integer $minYear First year in sequence
- * @param integer $maxYear Last year in sequence
+ * @param int $minYear First year in sequence
+ * @param int $maxYear Last year in sequence
  * @param array $attributes Attribute array for the select elements.
  * @return string Completed year select input
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::year
@@ -2257,7 +2257,7 @@ class FormHelper extends AppHelper {
  * ### Attributes:
  *
  * - `monthNames` - If false, 2 digit numbers will be used instead of text.
- *   If a array, the given array will be used.
+ *   If an array, the given array will be used.
  * - `empty` - If true, the empty select option is shown. If a string,
  *   that string is displayed as the empty element.
  * - `value` The selected value of the input.
@@ -2302,7 +2302,7 @@ class FormHelper extends AppHelper {
  * - `value` The selected value of the input.
  *
  * @param string $fieldName Prefix name for the SELECT element
- * @param boolean $format24Hours True for 24 hours format
+ * @param bool $format24Hours True for 24 hours format
  * @param array $attributes List of HTML attributes
  * @return string Completed hour select input
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::hour
@@ -2455,7 +2455,7 @@ class FormHelper extends AppHelper {
  * ### Attributes:
  *
  * - `monthNames` If false, 2 digit numbers will be used instead of text.
- *   If a array, the given array will be used.
+ *   If an array, the given array will be used.
  * - `minYear` The lowest year to use in the year select
  * - `maxYear` The maximum year to use in the year select
  * - `interval` The interval for the minutes select. Defaults to 1
@@ -2623,7 +2623,7 @@ class FormHelper extends AppHelper {
  * Parse the value for a datetime selected value
  *
  * @param string|array $value The selected value.
- * @param integer $timeFormat The time format
+ * @param int $timeFormat The time format
  * @return array Array of selected value.
  */
 	protected function _getDateTimeValue($value, $timeFormat) {
@@ -2713,7 +2713,7 @@ class FormHelper extends AppHelper {
  *
  * @param array $elements Elements to format.
  * @param array $parents Parents for OPTGROUP.
- * @param boolean $showParents Whether to show parents.
+ * @param bool $showParents Whether to show parents.
  * @param array $attributes HTML attributes.
  * @return array
  */
@@ -2933,7 +2933,7 @@ class FormHelper extends AppHelper {
  *   Disabling the field using the `disabled` option, will also omit the field from being
  *   part of the hashed key.
  *
- * This method will convert a numerically indexed 'disabled' into a associative
+ * This method will convert a numerically indexed 'disabled' into an associative
  * value. FormHelper's internals expect associative options.
  *
  * @param string $field Name of the field to initialize options for.
@@ -3013,7 +3013,7 @@ class FormHelper extends AppHelper {
  * Set/Get inputDefaults for form elements
  *
  * @param array $defaults New default values
- * @param boolean $merge Merge with current defaults
+ * @param bool $merge Merge with current defaults
  * @return array inputDefaults
  */
 	public function inputDefaults($defaults = null, $merge = false) {
