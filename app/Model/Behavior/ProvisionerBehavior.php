@@ -353,12 +353,11 @@ class ProvisionerBehavior extends ModelBehavior {
     // is removed, we need to know which CoPerson and CoGroup to rewrite, and we have to
     // do that in afterDelete (so the CoGroupMember doesn't show up anymore) (CO-663).
     
-    // Note that $model->data is generally populated by StandardController::delete
-    // calling $model->read(), but for cascading deletes that function won't be called.
+    // Always reread $model data to make sure we're handling delete of multiple
+    // instances of the same model. StandardController::delete will often call
+    // read(), so we might be doing some extra work in non-cascading deletes.
     
-    if(empty($model->data)) {
-      $model->read();
-    }
+    $model->read();
     
     $model->cacheData = $model->data;
     
