@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Org Identity Find View
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-1\43 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -58,12 +58,7 @@
                                               'co'                     => ($pool_org_identities ? false : $cur_co['Co']['id']))); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
-      <td><?php   // Globals
-             global $cm_lang, $cm_texts;
-             if(isset($p['OrgIdentity']['affiliation'])) {
-               echo $cm_texts[ $cm_lang ]['en.affil'][ $p['OrgIdentity']['affiliation'] ];
-             }
-          ?></td>
+      <td><?php print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); ?></td>
       <td><?php foreach($p['EmailAddress'] as $ea) echo Sanitize::html($ea['mail']) . "<br />"; ?></td>
       <td><?php echo $this->Html->link(_txt('op.inv'),
                                  array('controller' => 'co_people',

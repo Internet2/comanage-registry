@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Extended Types Controller
  *
- * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -29,7 +29,16 @@ class CoExtendedTypesController extends StandardController {
   public $name = "CoExtendedTypes";
   
   // When using additional models, we must also specify our own
-  public $uses = array('CoExtendedType', 'Identifier');
+  public $uses = array('CoExtendedType',
+                       'Address',
+                       'CoPersonRole',
+                       'EmailAddress',
+                       'Identifier',
+                       'Name',
+                       'TelephoneNumber',
+                       'CoEnrollmentAttribute',
+                       'CoIdentifierAssignment',
+                       'CoSelfServicePermission');
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
@@ -43,51 +52,64 @@ class CoExtendedTypesController extends StandardController {
   public $requires_co = true;
   
   /**
-   * Callback before other controller methods are invoked or views are rendered.
-   * - postcondition: Redirect may be issued
+   * Insert the default types for an Extended Type for the current CO.
    *
-   * @since  COmanage Registry v0.6
+   * @since  COmanage Registry v0.9.2
    */
   
-  function beforeFilter() {
-    parent::beforeFilter();
-    
-    // If no attribute parameter is provided, and this is not index (which will figure it
-    // out on it's own) redirect to index. We skip this entire check on POST, since the
-    // model validation rules will handle everything.
-    
-    if(!$this->restful && $this->request->is('get')) {
-      if(!isset($this->params['named']['attr'])) {
-        if($this->action == 'index') {
-          // Currently, we only support one attr so we can simply append it and redirect.
-          // This will clearly need to change at some point. When it does, index.ctp should
-          // not render anything after the select if $attr is not defined.
-          // Relatedly, we may also need to override perform_redirect to set the right URL
-          // after a POST operation is handled.
-          $this->redirect(array('controller' => 'co_extended_types',
-                                'action' => 'index',
-                                'co' => $this->cur_co['Co']['id'],
-                                'attr' => 'Identifier'));
-        } else {
-          // Redirect to index to get the attr parameter. (We shouldn't have gotten to /add
-          // or whatever anyway without one, unless someone is manually munging URLs.)
-          $this->redirect(array('controller' => 'co_extended_types',
-                                'action' => 'index',
-                                'co' => $this->cur_co['Co']['id']));
-        }
-      } else {
-        // Make sure attr is valid.
+  public function addDefaults() {
+    if(!empty($this->request->query['attr'])) {
+      try {
+        $this->CoExtendedType->addDefault($this->cur_co['Co']['id'],
+                                          Sanitize::html($this->request->query['attr']));
         
-        if(!array_key_exists(Sanitize::html($this->params['named']['attr']),
-                             $this->CoExtendedType->supportedAttrs())) {
-          $this->redirect(array('controller' => 'co_extended_types',
-                                'action' => 'index',
-                                'co' => $this->cur_co['Co']['id']));
+        $this->Session->setFlash(_txt('rs.types.defaults'), '', array(), 'success');
+      }
+      catch(Exception $e) {
+        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      }
+    } else {
+      $this->Session->setFlash(_txt('er.notprov'), '', array(), 'error');
+    }
+    
+    // redirect back to index page
+    $this->performRedirect();
+  }
+  
+  /**
+   * Callback before views are rendered.
+   *
+   * @since  COmanage Registry v0.9.2
+   */
+  
+  function beforeRender() {
+    parent::beforeRender();
+    
+    // Provide a list of supported attributes for the attribute select menu
+    $this->set('vv_supported_attrs', $this->CoExtendedType->supportedAttrs());
+    
+    // Provide a hint to the view if this attribute is suspendable or not
+    if($this->action == 'edit') {
+      $inUse = false;
+      
+      if(!empty($this->CoExtendedType->data['CoExtendedType']['status'])
+         && $this->CoExtendedType->data['CoExtendedType']['status'] == SuspendableStatusEnum::Active) {
+        try {
+          $this->typeInUse($this->CoExtendedType->data['CoExtendedType']['attribute'],
+                           $this->CoExtendedType->data['CoExtendedType']['name']);
+        }
+        catch(Exception $e) {
+          // Type is in use
+          
+          $inUse = true;
         }
       }
       
-      // Provide a list of supported attributes for the attribute select menu
-      $this->set('supported_attrs', $this->CoExtendedType->supportedAttrs());
+      $this->set('vv_type_in_use', $inUse);
+    } elseif($this->action == 'add') {
+      // No need to perform the database query
+      
+      $this->set('vv_type_in_use', false);
     }
   }
   
@@ -101,29 +123,32 @@ class CoExtendedTypesController extends StandardController {
    */
   
   function checkDeleteDependencies($curdata) {
-    // Don't allow delete if there are any attributes still using this type
+    // Don't allow delete if there are any attributes still using this type.
+    // The attribute is provided in Model.field format, split it up.
     
-    // First check that there are no identifiers of this type attached to any CO People
-    // within the CO.
-    
-    if($this->Identifier->typeInUse($curdata['CoExtendedType']['name'],
-                                    $this->cur_co['Co']['id'])) {
-      if($this->restful)
-        $this->restResultHeader(403, "Type In Use");
-      else
-        $this->Session->setFlash(_txt('er.et.inuse', array($curdata['CoExtendedType']['name'])), '', array(), 'error');
-      
-      return false;
+    if(!empty($curdata['CoExtendedType']['attribute'])
+       && !empty($curdata['CoExtendedType']['name'])) {
+      try {
+        $this->typeInUse($curdata['CoExtendedType']['attribute'],
+                         $curdata['CoExtendedType']['name']);
+      }
+      catch(Exception $e) {
+        // Type is in use
+        
+        if($this->restful)
+          $this->restResultHeader(403, "Type In Use");
+        else
+          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        
+        return false;
+      }
     }
-
-// XXX implement this check
-// enrollment flows with type of a defined attribute -- need to do this check on status change to Suspended
     
     return true;
   }
   
   /**
-   * Perform any dependency checks required prior to a write (add/edit) operation.
+   * Perform any dependency checks requiTred prior to a write (add/edit) operation.
    *
    * @since  COmanage Registry v0.6
    * @param  Array Request data
@@ -146,32 +171,6 @@ class CoExtendedTypesController extends StandardController {
       }
     }
     
-    if($curdata == null) {
-      // Only do this check on add() (ie: where there is no current data). We do this
-      // check at checkWriteDependencies rather than checkWriteFollowups because at
-      // follow up time there will be an extended type, so anyDefined will return true.
-      
-      if(!$this->CoExtendedType->anyDefined($this->cur_co['Co']['id'],
-                                            $reqdata['CoExtendedType']['attribute'],
-                                            false)) {
-        // If there are no active extended types yet, copy in all the default types.
-        // This simplifies extending attributes since we don't have to worry about
-        // cleaning up any attributes that may have been defined already with the
-        // default types. The downside is if a new default type is added in the future,
-        // it won't automatically be available. That might really be a good thing, though.
-        
-        if(!$this->CoExtendedType->addDefault($this->cur_co['Co']['id'],
-                                              $reqdata['CoExtendedType']['attribute'])) {
-          if($this->restful)
-            $this->restResultHeader(500, "Default Copy Error");
-          else
-            $this->Session->setFlash(_txt('er.et.default'), '', array(), 'error');
-          
-          return false;
-        }
-      }
-    }
-    
     if(!isset($curdata)
        || ($curdata['CoExtendedType']['name'] != $reqdata['CoExtendedType']['name'])) {
       // Make sure the name doesn't exist for the attribute for this CO
@@ -191,6 +190,44 @@ class CoExtendedTypesController extends StandardController {
       }
     }
     
+    if(!empty($curdata['CoExtendedType']['status'])
+       && $reqdata['CoExtendedType']['status'] == SuspendableStatusEnum::Suspended
+       && $curdata['CoExtendedType']['status'] == SuspendableStatusEnum::Active) {
+      // Transitioning from active to suspend. It might be preferable to allow
+      // existing values to remain and just stop assigning new values, but we can't
+      // do this if the type is in use because some things will break, due to the use
+      // of CoExtendedType->active(). Specifically, rendering of existing values will
+      // fail, and mapping to eduPersonAffiliation will fail.
+      
+      try {
+        $this->typeInUse($curdata['CoExtendedType']['attribute'],
+                         $curdata['CoExtendedType']['name']);
+      }
+      catch(Exception $e) {
+        // Type is in use
+        
+        if($this->restful)
+          $this->restResultHeader(403, "Type In Use");
+        else
+          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        
+        return false;
+      }
+    }
+    
+    if($curdata['CoExtendedType']['attribute'] == 'Name.type'
+       && $curdata['CoExtendedType']['name'] == NameEnum::Official
+       && $reqdata['CoExtendedType']['name'] != NameEnum::Official) {
+      // NameEnum::official cannot be renamed (CO-955)
+      
+      if($this->restful)
+        $this->restResultHeader(403, "Type In Use");
+      else
+        $this->Session->setFlash(_txt('er.nm.official.et'), '', array(), 'error');
+      
+      return false;
+    }
+    
     return true;
   }
   
@@ -202,11 +239,16 @@ class CoExtendedTypesController extends StandardController {
 
   public function index() {
     if(!$this->restful) {
-      // Set some hints for the view before we invoke the standard behavior
-      
-      // Are there any extended types defined?
-      $this->set('any_extended', $this->CoExtendedType->anyDefined($this->cur_co['Co']['id'],
-                                                                   $this->request->params['named']['attr']));
+      if(empty($this->request->query['attr'])) {
+        // Make sure an attribute is selected. We'll arbitrarily pick identifier,
+        // since it was the first Extended Type.
+        
+        $this->redirect(array('action' => 'index',
+                              'co' => $this->cur_co['Co']['id'],
+                              '?' => array(
+                                'attr' => 'Identifier.type'
+                              )));
+      }
     }
     
     parent::index();
@@ -231,6 +273,9 @@ class CoExtendedTypesController extends StandardController {
     
     // Add a new Extended Type?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Add/restore default Types?
+    $p['addDefaults'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Delete an existing Extended Type?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
@@ -264,11 +309,29 @@ class CoExtendedTypesController extends StandardController {
       $ret['CoExtendedType.co_id'] = $this->cur_co['Co']['id'];
     }
     
-    if(isset($this->request->params['named']['attr'])) {
-      $ret['CoExtendedType.attribute'] = $this->request->params['named']['attr'];
+    if(!empty($this->request->query['attr'])) {
+      $ret['CoExtendedType.attribute'] = Sanitize::html($this->request->query['attr']);
     }
     
     return $ret;
+  }
+  
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v0.9.2
+   * @return Integer The CO ID if found, or -1 if not
+   */
+  
+  public function parseCOID() {
+    if($this->action == 'addDefaults') {
+      if(isset($this->request->params['named']['co'])) {
+        return $this->request->params['named']['co'];
+      }
+    }
+    
+    return parent::parseCOID();
   }
   
   /**
@@ -281,14 +344,79 @@ class CoExtendedTypesController extends StandardController {
   function performRedirect() {
     // Make sure the attribute is included in the URL
     
-    if(isset($this->request->params['named']['attr'])) {
+    if(!empty($this->request->query['attr'])) {
+      $attr = $this->request->query['attr'];
+    } elseif(!empty($this->request->params['named']['attr'])) {
       $attr = $this->request->params['named']['attr'];
-    } else {
+    } elseif(!empty($this->request->data['CoExtendedType']['attribute'])) {
       $attr = $this->request->data['CoExtendedType']['attribute'];
+    } else {
+      $attr = "unknown";
     }
     
     $this->redirect(array('action' => 'index',
                           'co' => $this->cur_co['Co']['id'],
-                          'attr' => $attr));
+                          '?' => array(
+                            'attr' => Sanitize::html($attr)
+                          )));
+  }
+  
+  /**
+   * Perform checks to see if a given Extended Type is in use.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String $attribute Attribute name, of Model.field forw
+   * @param  String $name      Extended Type name
+   * @return Boolean False if the type is not in use
+   * @throws OverflowException
+   */
+  
+  protected function typeInUse($attribute, $typeName) {
+    // It would be easier if extended types were referenced by foreign keys
+    // (co_extended_type_id instead of directly referencing the type, eg "official"),
+    // but for historical reason (types were previously hardcoded enums) they aren't.
+    // CO-956.
+    
+    // Before we do anything, Name::official cannot be deleted (CO-955).
+    
+    if($attribute == 'Name.type' && $typeName == NameEnum::Official) {
+      throw new OverflowException(_txt('er.nm.official.et'));
+    }
+    
+    // Check with the relevant model
+    
+    $attr = explode('.', $attribute);
+    $model = $attr[0];
+    
+    if($this->$model->typeInUse($attribute,
+                                $typeName,
+                                $this->cur_co['Co']['id'])) {
+      throw new OverflowException(_txt('er.et.inuse', array($typeName)));
+    }
+    
+    // Next make sure the attribute isn't in use in an Enrollment Attribute
+    
+    if($this->CoEnrollmentAttribute->typeInUse($attribute,
+                                               $typeName,
+                                               $this->cur_co['Co']['id'])) {
+      throw new OverflowException(_txt('er.et.inuse.ef', array($typeName)));
+    }
+    
+    // Make sure the attribute isn't in use by a Self Service Permission
+    
+    if($this->CoSelfServicePermission->typeInUse($attribute,
+                                                 $typeName,
+                                                 $this->cur_co['Co']['id'])) {
+      throw new OverflowException(_txt('er.et.inuse.sp', array($typeName)));
+    }
+    
+    // Or by any Identifier Assignments (if attribute == Identifier.type)
+    if($this->CoIdentifierAssignment->typeInUse($attribute,
+                                                $typeName,
+                                                $this->cur_co['Co']['id'])) {
+      throw new OverflowException(_txt('er.et.inuse.ia', array($typeName)));
+    }
+    
+    return false;
   }
 }

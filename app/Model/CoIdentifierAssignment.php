@@ -48,15 +48,17 @@ class CoIdentifierAssignment extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'identifier_type' => array(
-      'rule' => array('validateExtendedType',
-                      array('attribute' => 'Identifier',
-                            'default' => array(IdentifierEnum::ePPN,
-                                               IdentifierEnum::ePTID,
-                                               IdentifierEnum::Mail,
-                                               IdentifierEnum::OpenID,
-                                               IdentifierEnum::UID))),
-      'required' => false,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'Identifier.type',
+                              'default' => array(IdentifierEnum::ePPN,
+                                                 IdentifierEnum::ePTID,
+                                                 IdentifierEnum::Mail,
+                                                 IdentifierEnum::OpenID,
+                                                 IdentifierEnum::UID))),
+        'required' => false,
+        'allowEmpty' => false
+      )
     ),
     'email_type' => array(
       'rule' => array(
@@ -509,5 +511,36 @@ class CoIdentifierAssignment extends AppModel {
     
     return $base;
   }
+  
+  /**
+   * Check if a given extended type is in use by any CO Identifier Assignment.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String Attribute, of the form Model.field
+   * @param  String Name of attribute (any default or extended type may be specified)
+   * @param  Integer CO ID
+   * @return Boolean True if the extended type is in use, false otherwise
+   */
+  
+  public function typeInUse($attribute, $attributeName, $coId) {
+    // Note we are effectively overriding AppModel::typeInUse().
+    
+    // Inflect the model names
+    $attr = explode('.', $attribute, 2);
+    
+    if($attr[0] == 'Identifier' && $attr[1] == 'type') {
+      // For MVPA attribute, we need to see if the type is specified as part of the
+      // attribute name.
+      
+      $args = array();
+      $args['conditions']['CoIdentifierAssignment.identifier_type'] = $attributeName;
+      $args['conditions']['CoIdentifierAssignment.co_id'] = $coId;
+      $args['contain'] = false;
+      
+      return (boolean)$this->find('count', $args);
+    }
+    // else nothing to do
+    
+    return false;
+  }
 }
-

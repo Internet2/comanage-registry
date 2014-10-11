@@ -39,7 +39,9 @@ class CoEnrollmentAttributesController extends StandardController {
     )
   );
   
-  public $uses = array('CoEnrollmentAttribute', 'CmpEnrollmentConfiguration');
+  public $uses = array('CoEnrollmentAttribute',
+                       'CmpEnrollmentConfiguration',
+                       'CoPersonRole');
 
   /**
    * Add an Enrollment Attribute.
@@ -152,7 +154,7 @@ class CoEnrollmentAttributesController extends StandardController {
         
         // Assemble the list of available affiliations
         
-        $this->set('vv_affiliations', $cm_texts[ $cm_lang ]['en.affil']);
+        $this->set('vv_affiliations', $this->CoPersonRole->types($coid, 'affiliation'));
         
         // Assemble the list of available Sponsors
         

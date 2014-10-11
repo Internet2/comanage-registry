@@ -143,14 +143,16 @@ class CoPersonRole extends AppModel {
     ),
     'affiliation' => array(
       'content' => array(
-        'rule' => array('inList', array(AffiliationEnum::Faculty,
-                                        AffiliationEnum::Student,
-                                        AffiliationEnum::Staff,
-                                        AffiliationEnum::Alum,
-                                        AffiliationEnum::Member,
-                                        AffiliationEnum::Affiliate,
-                                        AffiliationEnum::Employee,
-                                        AffiliationEnum::LibraryWalkIn)),
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'CoPersonRole.affiliation',
+                              'default' => array(AffiliationEnum::Faculty,
+                                                 AffiliationEnum::Student,
+                                                 AffiliationEnum::Staff,
+                                                 AffiliationEnum::Alum,
+                                                 AffiliationEnum::Member,
+                                                 AffiliationEnum::Affiliate,
+                                                 AffiliationEnum::Employee,
+                                                 AffiliationEnum::LibraryWalkIn))),
         'required' => true,
         'allowEmpty' => false
       )
@@ -160,7 +162,8 @@ class CoPersonRole extends AppModel {
   // Enum type hints
   
   public $cm_enum_txt = array(
-    'affiliation' => 'en.affil',
+// Don't use this anymore due to extended types
+//    'affiliation' => 'en.co_person_role.affiliation',
     'status' => 'en.status'
   );
   

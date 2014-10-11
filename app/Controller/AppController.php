@@ -192,20 +192,6 @@ class AppController extends Controller {
         if(!empty($this->cur_co)) {
           $this->set("cur_co", $this->cur_co);
           
-          // XXX This is a hack for CO-368 and should not be relied upon.
-          if(isset($this->Identifier)) {
-            $this->Identifier->coId = $coid;
-          }
-          if(isset($this->CoIdentifierAssignment)) {
-            $this->CoIdentifierAssignment->coId = $coid;
-          }
-          if(isset($this->CoPetition->EnrolleeCoPerson->Identifier)) {
-            $this->CoPetition->EnrolleeCoPerson->Identifier->coId = $coid;
-          }
-          if(isset($this->CoInvite->CoPetition->EnrolleeCoPerson->Identifier)) {
-            $this->CoInvite->CoPetition->EnrolleeCoPerson->Identifier->coId = $coid;
-          }
-          
           // Load dynamic texts. We do this here because lang.php doesn't have access to models yet.
           
           global $cm_texts;
@@ -607,8 +593,27 @@ class AppController extends Controller {
             }
             
             if(isset($this->$model) && isset($this->$model->cm_enum_txt[$attr])) {
-              $oldval = _txt($this->$model->cm_enum_txt[$attr], null, $oldval) . " (" . $oldval . ")";
-              $newval = _txt($this->$model->cm_enum_txt[$attr], null, $newval) . " (" . $newval . ")";
+              // The model defines a key into lang.php texts to use for localization.
+              
+              if($oldval) {
+                $oldval = _txt($this->$model->cm_enum_txt[$attr], null, $oldval) . " (" . $oldval . ")";
+              }
+              if($newval) {
+                $newval = _txt($this->$model->cm_enum_txt[$attr], null, $newval) . " (" . $newval . ")";
+              }
+            } else {
+              // This is possibly a model with an Extended Type. Try looking up the mapping.
+              
+              $mTypes = $this->$model->types($this->cur_co['Co']['id'], $attr);
+              
+              if(!empty($mTypes)) {
+                if($oldval) {
+                  $oldval = $mTypes[$oldval] . " (" . $oldval . ")";
+                }
+                if($newval) {
+                  $newval = $mTypes[$newval] . " (" . $newval . ")";
+                }
+              }
             }
             
             // Find the localization of the field
@@ -895,12 +900,6 @@ class AppController extends Controller {
             $this->restResultHeader(403, "CO Does Not Exist");
             return(false);
           }
-          
-          if(($this->name == 'Identifiers') && isset($this->cur_co)) {
-            // XXX This is a hack for CO-368 and should not be relied upon.
-            $this->loadModel('Identifier');
-            $this->Identifier->coId = $coid;
-          }
         }
          
         // Check the expected elements exist in the model (schema).
@@ -995,7 +994,7 @@ class AppController extends Controller {
     }
     else
       $this->restResultHeader(400, "Bad Request");
-          
+    
     return(false);
   }
   
@@ -1523,6 +1522,8 @@ class AppController extends Controller {
       $coid = -1;
       
       // Only certain actions are permitted to explicitly provide a CO ID
+      // XXX Note that CoExtendedTypesController overrides this function to support
+      // addDefaults. It might be better just to allow controllers to specify a list.
       if($this->action == 'index'
          || $this->action == 'find'
          || $this->action == 'search'

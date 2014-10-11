@@ -114,14 +114,14 @@
           
           if($e) {
             print $this->Form->select('type',
-                                      $identifier_types,
+                                      $vv_available_types,
                                       $attrs);
             
             if($this->Form->isFieldError('type')) {
               print $this->Form->error('type');
             }
           } else {
-            print $identifiers[0]['Identifier']['type'];
+            print $vv_available_types[ $identifiers[0]['Identifier']['type'] ];
           }
         ?>
       </td>

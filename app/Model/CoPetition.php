@@ -180,6 +180,18 @@ class CoPetition extends AppModel {
             if($xreq) {
               $xfield->getRule('content')->message = _txt('er.field.req');
             }
+            
+            if($model == 'EnrolleeCoPersonRole' && $efAttr['field'] == 'affiliation') {
+              // Affiliation is an extended type, so we need to update the validation
+              // rule to pass the COID.  Set the actual validation rule to be match the
+              // enrollment configuration.
+              
+              // Should we do this for all attributes, as is the case in validateRelated()? (CO-907)
+              
+              if(!empty($efAttr['validate']['content']['rule'])) {
+                $xfield->getRule('content')->rule = $efAttr['validate']['content']['rule'];
+              }
+            }
           }
         }
       }
@@ -1902,6 +1914,7 @@ class CoPetition extends AppModel {
             
             foreach($efAttrs as $efAttr) {
               if($efAttr['id'] == $instance) {
+                // Should this be consolidated with adjustValidationRules()? (CO-907)
                 
                 // Make sure the validation rule matches the required status of this attribute
                 $xfield = $this->$primaryModel->$model->validator()->getField($efAttr['field']);
@@ -1914,6 +1927,13 @@ class CoPetition extends AppModel {
                   
                   if($xreq) {
                     $xfield->getRule('content')->message = _txt('er.field.req');
+                  }
+                  
+                  // Set the actual validation rule to be match the enrollment configuration.
+                  // This is especially necessary for extended types.
+                  
+                  if(!empty($efAttr['validate']['content']['rule'])) {
+                    $xfield->getRule('content')->rule = $efAttr['validate']['content']['rule'];
                   }
                 }
                 // else not a relevant field (eg: co_enrollment_attribute_id)
@@ -1980,16 +2000,16 @@ class CoPetition extends AppModel {
           // Extended attributes generally won't have validate by Cake set since their models are
           // dynamically bound, so grabbing validation rules from $efAttr is a win.
           
-          $vrule = $efAttr['validate'];
+          $vrule = $efAttr['validate']['content'];
           $vreq = (isset($efAttr['required']) && $efAttr['required']);
           
           $vrule['required'] = $vreq;
           $vrule['allowEmpty'] = !$vreq;
           $vrule['message'] = _txt('er.field.req');
           
-          $this->$primaryModel->$m[1]->validator()->add($efAttr['field'],
-                                                        'content',
-                                                        $vrule);
+          $this->$primaryModel->$model->validator()->add($efAttr['field'],
+                                                         'content',
+                                                         $vrule);
           
           // Make sure validation only sees this model's data
           $data = array();

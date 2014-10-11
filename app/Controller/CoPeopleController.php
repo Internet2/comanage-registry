@@ -93,7 +93,7 @@ class CoPeopleController extends StandardController {
 
   public function beforeRender() {
     if(!$this->restful){
-      // generate list of sponsors
+      // Generate list of sponsors
       $this->set('sponsors', $this->CoPerson->sponsorList($this->cur_co['Co']['id']));
       
       // Determine if there are any Enrollment Flows for this CO and if so pass
@@ -123,6 +123,12 @@ class CoPeopleController extends StandardController {
       
       // Show NSF Demographics?
       $this->set('vv_enable_nsf_demo', $this->Co->CoSetting->nsfDemgraphicsEnabled($this->cur_co['Co']['id']));
+      
+      // Mappings for extended types
+      $this->set('vv_cop_emailaddress_types', $this->CoPerson->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_cop_identifier_types', $this->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_cop_name_types', $this->CoPerson->Name->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_copr_affiliation_types', $this->CoPerson->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
     }
     
     parent::beforeRender();

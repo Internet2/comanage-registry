@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Extended Type Model
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -35,6 +35,8 @@ class CoExtendedType extends AppModel {
   // Default display field for cake generated views
   public $displayField = "display_name";
   
+  public $actsAs = array('Containable');
+  
   // Validation rules for table elements
   public $validate = array(
     'co_id' => array(
@@ -43,7 +45,13 @@ class CoExtendedType extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'attribute' => array(
-      'rule' => array('inList', array('Identifier')),
+      // Also need to add to supportedAttrs(), below
+      'rule' => array('inList', array('Address.type',
+                                      'CoPersonRole.affiliation',
+                                      'EmailAddress.type',
+                                      'Identifier.type',
+                                      'Name.type',
+                                      'TelephoneNumber.type')),
       'required' => true,
       'message' => 'A supported attribute type must be provided'
     ),
@@ -57,10 +65,20 @@ class CoExtendedType extends AppModel {
       'required' => true,
       'message' => 'A name must be provided'
     ),
+    'edupersonaffiliation' => array(
+      'rule' => array('inList', array(AffiliationEnum::Affiliate,
+                                      AffiliationEnum::Alum,
+                                      AffiliationEnum::Employee,
+                                      AffiliationEnum::Faculty,
+                                      AffiliationEnum::LibraryWalkIn,
+                                      AffiliationEnum::Member,
+                                      AffiliationEnum::Staff,
+                                      AffiliationEnum::Student)),
+      'required' => false
+    ),
     'status' => array(
-      'rule' => array('inList', array(StatusEnum::Active,
-                                      StatusEnum::Deleted,
-                                      StatusEnum::Suspended)),
+      'rule' => array('inList', array(SuspendableStatusEnum::Active,
+                                      SuspendableStatusEnum::Suspended)),
       'required' => true,
       'message' => 'A valid status must be selected'
     )
@@ -77,7 +95,7 @@ class CoExtendedType extends AppModel {
    *
    * @since  COmanage Registry v0.6
    * @param  Integer CO ID
-   * @param  String Attribute
+   * @param  String Attribute, of the form Model.attribute
    * @param  String Format ('all' or 'list', as for Cake find)
    * @return Array List of defined extended types, keyed on extended type ID
    */
@@ -86,7 +104,7 @@ class CoExtendedType extends AppModel {
     $args = array();
     $args['conditions']['CoExtendedType.co_id'] = $coId;
     $args['conditions']['CoExtendedType.attribute'] = $attribute;
-    $args['conditions']['CoExtendedType.status'] = StatusEnum::Active;
+    $args['conditions']['CoExtendedType.status'] = SuspendableStatusEnum::Active;
     $args['order'][] = 'CoExtendedType.display_name';
     
     if($format == 'list') {
@@ -101,57 +119,116 @@ class CoExtendedType extends AppModel {
    *
    * @since  COmanage Registry v0.6
    * @param  Integer CO ID
-   * @param  String Attribute
+   * @param  String Attribute, of the form Model.attribute
    * @return Boolean Success
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
    */
   
   public function addDefault($coId, $attribute) {
-    // We need the appropriate model for $attribute to manipulate the default types
-    $model = ClassRegistry::init($attribute);
+    // Make sure $attribute is valid
+    $supported = $this->supportedAttrs();
     
-    $modelDefault = $model->defaultTypes();
+    if(!isset($supported[$attribute])) {
+      throw new InvalidArgumentException(_txt('er.unknown', array($attribute)));
+    }
+    
+    // Split $attribute
+    $attr = explode('.', $attribute, 2);
+    
+    // We need the appropriate model for $attribute to manipulate the default types
+    $model = ClassRegistry::init($attr[0]);
+    
+    $modelDefault = $model->defaultTypes($attr[1]);
     
     if(!empty($modelDefault)) {
+      // Pull the current set of extended types for the model
+      $active = $this->active($coId, $attribute, 'list');
+      
       $defaultTypes = array();
       
       foreach(array_keys($modelDefault) as $name) {
-        // build an array and SaveAll
+        // Walk through the default attribute types and insert any that don't
+        // already exist into the extended types table.
         
-        $defaultTypes[] = array(
-          'co_id' => $coId,
-          'attribute' => $attribute,
-          'name' => $name,
-          'display_name' => $modelDefault[$name],
-          'status' => StatusEnum::Active
-        );
+        if(!isset($active[$name])) {
+          $defaultTypes[] = array(
+            'co_id' => $coId,
+            'attribute' => $attribute,
+            'name' => $name,
+            'display_name' => $modelDefault[$name],
+            'status' => SuspendableStatusEnum::Active
+          );
+        }
       }
       
-      return $this->saveMany($defaultTypes);
+      if(!empty($defaultTypes)) {
+        if(!$this->saveMany($defaultTypes)) {
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+      }
+    } else {
+      throw new InvalidArgumentException(_txt('er.unknown', array($attr[1])));
     }
-    
-    return false;
   }
   
   /**
-   * Determine if there are any defined, active extended types for a specific attribute.
+   * Add all default values for extended types for the specified CO.
    *
-   * @since  COmanage Registry v0.6
+   * @since  COmanage Registry v0.9.2
    * @param  Integer CO ID
-   * @param  String Attribute
-   * @param  Boolean Whether to restrict query to active extended types only
-   * @return Boolean Whether or not there are any defined extended types
+   * @return Boolean True on success
+   * @throws RuntimeException
    */
   
-  public function anyDefined($coId, $attribute, $active=true) {
-    $args = array();
-    $args['conditions']['CoExtendedType.co_id'] = $coId;
-    $args['conditions']['CoExtendedType.attribute'] = $attribute;
+  public function addDefaults($coId) {
+    $attrs = $this->supportedAttrs();
     
-    if($active) {
-      $args['conditions']['CoExtendedType.status'] = StatusEnum::Active;
+    foreach(array_keys($attrs) as $t) {
+      try {
+        $this->addDefault($coId, $t);
+      }
+      catch(Exception $e) {
+        throw new RuntimeException($e->getMessage());
+      }
     }
     
-    return (boolean)$this->find('count', $args);
+    return true;
+  }
+  
+  /**
+   * Obtain a map of affiliations to eduPersonAffiliations.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer $coId CO ID
+   * @return Array Mapping from affiliation to eduPersonAffiliation
+   */
+  
+  public function affiliationMap($coId) {
+    $args = array();
+    $args['conditions']['CoExtendedType.co_id'] = $coId;
+    $args['conditions']['CoExtendedType.attribute'] = 'CoPersonRole.affiliation';
+    $args['conditions']['CoExtendedType.status'] = SuspendableStatusEnum::Active;
+    $args['fields'] = array('CoExtendedType.name', 'CoExtendedType.edupersonaffiliation');
+    
+    $ret = $this->find('list', $args);
+    
+    if(!empty($ret)) {
+      global $cm_lang, $cm_texts;
+      
+      // Some mappings may be null. For those, if they are core edupersonaffiliations
+      // set them to be themselves.
+      
+      foreach(array_keys($ret) as $a) {
+        if($ret[$a] == null
+           // Check to see if this is a core affiliation by looking in the language map
+           && isset($cm_texts[ $cm_lang ]['en.co_person_role.affiliation'][$a])) {
+          $ret[$a] = $a;
+        }
+      }
+    }
+    
+    return $ret;
   }
   
   /**
@@ -163,7 +240,14 @@ class CoExtendedType extends AppModel {
   
   public function supportedAttrs() {
     $ret = array();
-    $ret['Identifier'] = _txt('ct.identifiers.1');
+    
+    // Also need to add to $validate, above
+    $ret['Address.type'] = _txt('ct.addresses.1') . " (" . _txt('ct.co_person_roles.1') . ")";
+    $ret['CoPersonRole.affiliation'] = _txt('fd.affiliation') . " (" . _txt('ct.co_person_roles.1') . ")";
+    $ret['EmailAddress.type'] = _txt('ct.email_addresses.1') . " (" . _txt('ct.co_people.1') . ")";
+    $ret['Identifier.type'] = _txt('ct.identifiers.1') . " (" . _txt('ct.co_people.1') . ")";
+    $ret['Name.type'] = _txt('ct.names.1') . " (" . _txt('ct.co_people.1') . ")";
+    $ret['TelephoneNumber.type'] = _txt('ct.telephone_numbers.1') . " (" . _txt('ct.co_person_roles.1') . ")";
     
     return $ret;
   }

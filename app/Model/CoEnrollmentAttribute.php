@@ -124,18 +124,24 @@ class CoEnrollmentAttribute extends AppModel {
     
     // (2) Multi valued CO Person attributes (code=p)
     
-    foreach(array_keys($cm_texts[ $cm_lang ]['en.name']) as $k)
-      $ret['p:name:'.$k] = _txt('fd.name') . " (" . $cm_texts[ $cm_lang ]['en.name'][$k] . ", " . _txt('ct.co_people.1') . ")";
+    // Several types can be extended, and so require a bit of work to assemble
+    $Name = ClassRegistry::init('Name');
+    $nameTypes = $Name->types($coid, 'type');
     
-    // Identifier types can be extended, and so require a bit of work to assemble
+    foreach(array_keys($nameTypes) as $k)
+      $ret['p:name:'.$k] = _txt('fd.name') . " (" . $nameTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
+    
     $Identifier = ClassRegistry::init('Identifier');
-    $identifierTypes = $Identifier->types($coid);
+    $identifierTypes = $Identifier->types($coid, 'type');
     
     foreach(array_keys($identifierTypes) as $k)
       $ret['p:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $identifierTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
     
-    foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.mail']) as $k)
-      $ret['p:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $cm_texts[ $cm_lang ]['en.contact.mail'][$k] . ", " . _txt('ct.co_people.1') . ")";
+    $EmailAddress = ClassRegistry::init('EmailAddress');
+    $emailAddressTypes = $EmailAddress->types($coid, 'type');
+    
+    foreach(array_keys($emailAddressTypes) as $k)
+      $ret['p:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $emailAddressTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
     
     // (2a) Group Memberships are Multi valued CO Person attributes, but have all sorts
     // of special logic around them so they get their own code (code=g)
@@ -144,11 +150,17 @@ class CoEnrollmentAttribute extends AppModel {
     
     // (3) Multi valued CO Person Role attributes (code=m)
     
-    foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.phone']) as $k)
-      $ret['m:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $cm_texts[ $cm_lang ]['en.contact.phone'][$k] . ", " . _txt('ct.co_person_roles.1') . ")";
+    $TelephoneNumber = ClassRegistry::init('TelephoneNumber');
+    $telephoneNumberTypes = $TelephoneNumber->types($coid, 'type');
     
-    foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.address']) as $k)
-      $ret['m:address:'.$k] = _txt('fd.address') . " (" . $cm_texts[ $cm_lang ]['en.contact.address'][$k] . ", " . _txt('ct.co_person_roles.1') . ")";
+    foreach(array_keys($telephoneNumberTypes) as $k)
+      $ret['m:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $telephoneNumberTypes[$k] . ", " . _txt('ct.co_person_roles.1') . ")";
+    
+    $Address = ClassRegistry::init('Address');
+    $addressTypes = $Address->types($coid, 'type');
+    
+    foreach(array_keys($addressTypes) as $k)
+      $ret['m:address:'.$k] = _txt('fd.address') . " (" . $addressTypes[$k] . ", " . _txt('ct.co_person_roles.1') . ")";
     
     // (4) CO Person Role Extended attributes (code=x)
     
@@ -168,57 +180,28 @@ class CoEnrollmentAttribute extends AppModel {
       $ret['o:ou'] = _txt('fd.ou') . " (" . _txt('ct.org_identities.1') . ")";
       
       // (6) Multi valued Org Identity attributes, if enabled (code=i)
+      // Note that since org identities don't support extended types, we use default values here.
       
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.name']) as $k)
-        $ret['i:name:'.$k] = _txt('fd.name') . " (" . $cm_texts[ $cm_lang ]['en.name'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+      foreach(array_keys($cm_texts[ $cm_lang ]['en.name.type']) as $k)
+        $ret['i:name:'.$k] = _txt('fd.name') . " (" . $cm_texts[ $cm_lang ]['en.name.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
       
-      // Handle extended types, using the same types as above
-      foreach(array_keys($identifierTypes) as $k)
-        $ret['i:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $identifierTypes[$k] . ", " . _txt('ct.org_identities.1') . ")";
+      foreach(array_keys($cm_texts[ $cm_lang ]['en.identifier.type']) as $k)
+        $ret['i:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $cm_texts[ $cm_lang ]['en.identifier.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
       
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.address']) as $k)
-        $ret['i:address:'.$k] = _txt('fd.address') . " (" . $cm_texts[ $cm_lang ]['en.contact.address'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+      foreach(array_keys($cm_texts[ $cm_lang ]['en.address.type']) as $k)
+        $ret['i:address:'.$k] = _txt('fd.address') . " (" . $cm_texts[ $cm_lang ]['en.address.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
       
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.mail']) as $k)
-        $ret['i:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $cm_texts[ $cm_lang ]['en.contact.mail'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+      foreach(array_keys($cm_texts[ $cm_lang ]['en.email_address.type']) as $k)
+        $ret['i:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $cm_texts[ $cm_lang ]['en.email_address.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
         
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.contact.phone']) as $k)
-        $ret['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $cm_texts[ $cm_lang ]['en.contact.phone'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+      foreach(array_keys($cm_texts[ $cm_lang ]['en.telephone_number.type']) as $k)
+        $ret['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $cm_texts[ $cm_lang ]['en.telephone_number.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
     }
     
     return($ret);
   }
   
   /**
-   * Obtain the CO ID for a record.
-   *
-   * @since  COmanage Registry v0.9
-   * @param  integer Record to retrieve for
-   * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
-   * @throws InvalidArgumentException
-   * @throws RunTimeException
-   */
-  
-  public function findCoForRecord($id) {
-    // Override the parent version since we need to retrieve via the co enrollment flow
-    
-    // First get the enrollment flow
-    $coef = $this->field('co_enrollment_flow_id', array('CoEnrollmentAttribute.id' => $id));
-    
-    if(!$coef) {
-      throw new InvalidArgumentException(_txt('er.notfound', array('ct.co_enrollment_attributes.1', $id)));
-    }
-    
-    $coId = $this->CoEnrollmentFlow->field('co_id', array("CoEnrollmentFlow.id" => $coef));
-    
-    if($coId) {
-      return $coId;
-    } else {
-      throw new InvalidArgumentException(_txt('er.notfound', array('ct.co_enrollment_flows.1', $coef)));
-    }
-  }
-    
-   /**
    * Obtain the configured attributes for a particular Enrollment Flow.
    *
    * @since  COmanage Registry 0.5
@@ -382,7 +365,13 @@ class CoEnrollmentAttribute extends AppModel {
             $attr['select'] = $attrModel->validEnumsForSelect($attrName);
           }
         } elseif($attrCode == 'r') {
-          if($attrName == 'cou_id') {
+          if($attrName == 'affiliation') {
+            // Affiliation need a select based on available affiliations
+            
+            $attr['select'] = $attrModel->types($efAttr['CoEnrollmentFlow']['co_id'], 'affiliation');
+            $attr['validate']['content']['rule'][0] = 'inList';
+            $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
+          } elseif($attrName == 'cou_id') {
             // We have to set up a select based on the available COUs
             
             $args = array();
@@ -422,7 +411,7 @@ class CoEnrollmentAttribute extends AppModel {
         } else {
           // Extended attributes
           
-          $attr['validate'] = $attrModel->validationRules($efAttr['CoEnrollmentFlow']['co_id'], $attrName);
+          $attr['validate']['content'] = $attrModel->validationRules($efAttr['CoEnrollmentFlow']['co_id'], $attrName);
         }
         
         // Single valued attributes don't have types, so we can ignore $attrType
@@ -555,7 +544,7 @@ class CoEnrollmentAttribute extends AppModel {
                   break;
                 case 'primary_name':
                   // Official names are considered primary names, at least for now
-                  if($attr['attribute'] == 'i:name:O' || $attr['attribute'] == 'p:name:O') {
+                  if($attr['attribute'] == 'i:name:official' || $attr['attribute'] == 'p:name:official') {
                     $attr['default'] = 1;
                   } else {
                     $attr['default'] = 0;
@@ -596,6 +585,12 @@ class CoEnrollmentAttribute extends AppModel {
             
             // Attach the validation rules so the form knows how to render the field.
             $attr['validate'] = $attrModel->validate[$k];
+            
+            if(!empty($attr['validate']['content']['rule'][0])
+               && $attr['validate']['content']['rule'][0] == 'validateExtendedType') {
+              // Insert the current CO ID
+              $attr['validate']['content']['rule'][1]['coid'] = $efAttr['CoEnrollmentFlow']['co_id'];
+            }
             
             if($k != 'type'
                && isset($attr['validate']['content']['rule'][0])
@@ -680,6 +675,35 @@ class CoEnrollmentAttribute extends AppModel {
   }
   
   /**
+   * Obtain the CO ID for a record.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  integer Record to retrieve for
+   * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
+   * @throws InvalidArgumentException
+   * @throws RunTimeException
+   */
+  
+  public function findCoForRecord($id) {
+    // Override the parent version since we need to retrieve via the co enrollment flow
+    
+    // First get the enrollment flow
+    $coef = $this->field('co_enrollment_flow_id', array('CoEnrollmentAttribute.id' => $id));
+    
+    if(!$coef) {
+      throw new InvalidArgumentException(_txt('er.notfound', array('ct.co_enrollment_attributes.1', $id)));
+    }
+    
+    $coId = $this->CoEnrollmentFlow->field('co_id', array("CoEnrollmentFlow.id" => $coef));
+    
+    if($coId) {
+      return $coId;
+    } else {
+      throw new InvalidArgumentException(_txt('er.notfound', array('ct.co_enrollment_flows.1', $coef)));
+    }
+  }
+  
+  /**
    * Map environment variables into enrollment attribute default values.
    *
    * @since  COmanage Registry v0.8.2
@@ -745,5 +769,70 @@ class CoEnrollmentAttribute extends AppModel {
     }
     
     return $enrollmentAttributes;
+  }
+  
+  /**
+   * Check if a given extended type is in use by any Enrollment Attribute.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String Attribute, of the form Model.field
+   * @param  String Name of attribute (any default or extended type may be specified)
+   * @param  Integer CO ID
+   * @return Boolean True if the extended type is in use, false otherwise
+   */
+  
+  public function typeInUse($attribute, $attributeName, $coId) {
+    // Note we are effectively overriding AppModel::typeInUse().
+    
+    // Inflect the model names
+    $attr = explode('.', $attribute, 2);
+    
+    $mname = Inflector::underscore($attr[0]);
+    
+    if($attr[0] == 'CoPersonRole') {
+      // We might have a default value in use.
+      
+      $rattr = "r:" . $attr[1];
+      
+      $args = array();
+      $args['conditions']['CoEnrollmentAttributeDefault.value'] = $attributeName;
+      $args['conditions']['CoEnrollmentAttribute.attribute'] = $rattr;
+      $args['conditions']['CoEnrollmentFlow.co_id'] = $coId;
+      $args['joins'][0]['table'] = 'co_enrollment_attribute_defaults';
+      $args['joins'][0]['alias'] = 'CoEnrollmentAttributeDefault';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoEnrollmentAttributeDefault.co_enrollment_attribute_id=CoEnrollmentAttribute.id';
+      $args['joins'][1]['table'] = 'co_enrollment_flows';
+      $args['joins'][1]['alias'] = 'CoEnrollmentFlow';
+      $args['joins'][1]['type'] = 'INNER';
+      $args['joins'][1]['conditions'][0] = 'CoEnrollmentFlow.id=CoEnrollmentAttribute.co_enrollment_flow_id';
+      $args['contain'] = false;
+      
+      return (boolean)$this->find('count', $args);
+    } elseif($attr[1] == 'type') {
+      // For MVPA attribute, we need to see if the type is specified as part of the
+      // attribute name.
+      
+      // We're only concerned about code 'p' and 'm' (CO Person and CO Person Role
+      // multi valued). Rather than try to guess or hardcode which we're dealing with,
+      // we'll simply check for both.
+      
+      $mattr = "m:" . $mname . ":" . $attributeName;
+      $pattr = "p:" . $mname . ":" . $attributeName;
+      
+      $args = array();
+      $args['conditions']['CoEnrollmentAttribute.attribute'] = array($mattr, $pattr);
+      $args['conditions']['CoEnrollmentFlow.co_id'] = $coId;
+      $args['joins'][0]['table'] = 'co_enrollment_flows';
+      $args['joins'][0]['alias'] = 'CoEnrollmentFlow';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoEnrollmentFlow.id=CoEnrollmentAttribute.co_enrollment_flow_id';
+      $args['contain'] = false;
+      
+      return (boolean)$this->find('count', $args);
+    }
+    // else nothing to do
+    
+    return false;
   }
 }

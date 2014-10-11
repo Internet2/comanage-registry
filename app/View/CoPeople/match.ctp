@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Match View
  *
- * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -36,7 +36,9 @@
       if(isset($m['CoPersonRole'][0])) {
         print " ("
               . (!empty($m['CoPersonRole'][0]['title']) ? $m['CoPersonRole'][0]['title'] . ", " : "")
-              . (!empty($m['CoPersonRole'][0]['affiliation']) ? _txt('en.affil', null, $m['CoPersonRole'][0]['affiliation']) : "")
+              . (!empty($m['CoPersonRole'][0]['affiliation'])
+                 ? $vv_copr_affiliation_types[ $m['CoPersonRole'][0]['affiliation'] ]
+                 : "")
               . ")";
       }
       print "</li>\n";

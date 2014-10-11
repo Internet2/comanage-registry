@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Provisioning Target Index View
  *
- * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -57,6 +57,10 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
+          $plugin = Sanitize::html($c['CoProvisioningTarget']['plugin']);
+          $pl = Inflector::underscore($plugin);
+          $plmodel = "Co" . $plugin . "Target";
+          
           print $this->Html->link(
             $c['CoProvisioningTarget']['description'],
             array(
@@ -70,13 +74,13 @@
           );
         ?>
       </td>
-      <td><?php print Sanitize::html($c['CoProvisioningTarget']['plugin']); ?></td>
+      <td><?php print $plugin; ?></td>
       <td>
         <?php print _txt('en.status.prov', null, $c['CoProvisioningTarget']['status']); ?>
       </td>
       <td>
         <?php
-          if($permissions['edit'])
+          if($permissions['edit']) {
             print $this->Html->link(
               _txt('op.edit'),
               array(
@@ -87,6 +91,18 @@
               ),
               array('class' => 'editbutton')
             ) . "\n";
+            
+            print $this->Html->link(
+              _txt('op.config'),
+              array(
+                'plugin' => $pl,
+                'controller' => 'co_' . $pl . '_targets',
+                'action' => 'edit',
+                $c[$plmodel]['id']
+              ),
+              array('class' => 'configurebutton')
+            ) . "\n";
+          }
             
           if($permissions['delete'])
             print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\''

@@ -378,8 +378,7 @@
                     if(!empty($pr['cou_id'])) {
                       print " (" . $permissions['cous'][$pr['cou_id']];
                       if(!empty($pr['affiliation'])) {
-                        global $cm_lang, $cm_texts;
-                        print ", <em>" . $cm_texts[ $cm_lang ]['en.affil'][ $pr['affiliation']] . "</em>";
+                        print ", <em>" . $vv_copr_affiliation_types[ $pr['affiliation'] ] . "</em>";
                       }
                       print ")";
                     }

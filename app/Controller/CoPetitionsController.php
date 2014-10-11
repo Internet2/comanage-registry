@@ -211,6 +211,13 @@ class CoPetitionsController extends StandardController {
     }
     
     parent::beforeFilter();
+    
+    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
+    
+    $vrule = $this->CoPetition->EnrolleeCoPerson->Identifier->validate['type']['content']['rule'];
+    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+    
+    $this->CoPetition->EnrolleeCoPerson->Identifier->validator()->getField('type')->getRule('content')->rule = $vrule;
   }
   
   /**

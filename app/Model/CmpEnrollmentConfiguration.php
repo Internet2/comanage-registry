@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CMP Enrollment Configuration Model
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -100,125 +100,6 @@ class CmpEnrollmentConfiguration extends AppModel {
                        array('conditions' =>
                              array('CmpEnrollmentConfiguration.name' => 'CMP Enrollment Configuration',
                                    'CmpEnrollmentConfiguration.status' => StatusEnum::Active))));
-  }
-  
-  /**
-   * Obtain the standard order for rendering lists of attributes.
-   *
-   * @since  COmanage Registry v0.3
-   * @param  Model Calling model, used to determine associations
-   * @return Array Array of arrays, each of which defines 'attr', 'type', and 'label'
-   */
-  
-// XXX toss this
-  public function getStandardAttributeOrder($model=null) {
-    global $cm_lang, $cm_texts;
-    
-    // This is a function rather than a var so _txt evaluates.
-    // The attributes in this list need to be kept in sync with the controller (select()).
-    
-    if(isset($model))
-    {
-      // Determine association types so appropriate form elements can be rendered
-      $address_assoc = (isset($model->hasOne['Address'])
-                        ? 'hasone'
-                        : (isset($model->hasMany['Address']) ? 'hasmany' : null));
-      $email_assoc = (isset($model->hasOne['EmailAddress'])
-                      ? 'hasone'
-                      : (isset($model->hasMany['EmailAddress']) ? 'hasmany' : null));
-      $id_assoc = (isset($model->hasOne['Identifier'])
-                   ? 'hasone'
-                   : (isset($model->hasMany['Identifier']) ? 'hasmany' : null));
-      $name_assoc = (isset($model->hasOne['Name'])
-                     ? 'hasone'
-                     : (isset($model->hasMany['Name']) ? 'hasmany' : null));
-      $phone_assoc = (isset($model->hasOne['TelephoneNumber'])
-                      ? 'hasone'
-                      : (isset($model->hasMany['TelephoneNumber']) ? 'hasmany' : null));
-    }
-    else
-    {
-      $address_assoc = null;
-      $email_assoc = null;
-      $id_assoc = null;
-      $name_assoc = null;
-      $phone_assoc = null;
-    }
-    
-    return(array(
-      array('attr' => 'names:honorific',
-            'type' => NameEnum::Official,
-            'label' => _txt('fd.name.honorific'),
-            'desc' => _txt('fd.name.h.desc'),
-            'assoc' => $name_assoc),
-      array('attr' => 'names:given',
-            'type' => NameEnum::Official,
-            'label' => _txt('fd.name.given'),
-            'assoc' => $name_assoc),
-      array('attr' => 'names:middle',
-            'type' => NameEnum::Official,
-            'label' => _txt('fd.name.middle'),
-            'assoc' => $name_assoc),
-      array('attr' => 'names:family',
-            'type' => NameEnum::Official,
-            'label' => _txt('fd.name.family'),
-            'assoc' => $name_assoc),
-      array('attr' => 'names:suffix',
-            'type' => NameEnum::Official,
-            'label' => _txt('fd.name.suffix'),
-            'desc' => _txt('fd.name.s.desc'),
-            'assoc' => $name_assoc),
-      array('attr' => 'affiliation',
-            'type' => null,
-            'label' => _txt('fd.affiliation'),
-            'select' => array('options' => $cm_texts[ $cm_lang ]['en.affil'],
-                              'default' => 'member')),
-      array('attr' => 'title',
-            'type' => null,
-            'label' => _txt('fd.title')),
-      array('attr' => 'o',
-            'type' => null,
-            'label' => _txt('fd.o')),
-      array('attr' => 'ou',
-            'type' => null,
-            'label' => _txt('fd.ou')),
-      array('attr' => 'identifiers:identifier',
-            'type' => IdentifierEnum::ePPN,
-            'label' => _txt('en.identifier', null, IdentifierEnum::ePPN),
-            'assoc' => $id_assoc),
-      array('attr' => 'email_addresses:mail',
-            'type' => ContactEnum::Office,
-            'label' => _txt('fd.email_address.mail'),
-            'assoc' => $email_assoc),
-      array('attr' => 'telephone_numbers:number',
-            'type' => ContactEnum::Office,
-            'label' => _txt('fd.telephone_number.number'),
-            'assoc' => $phone_assoc),
-      array('attr' => 'addresses:line1',
-            'type' => ContactEnum::Office,
-            'label' => _txt('fd.address.line1'),
-            'assoc' => $address_assoc),
-      array('attr' => 'addresses:line2',
-            'type' => ContactEnum::Office,
-            'label' => _txt('fd.address.line2'),
-            'assoc' => $address_assoc),
-      array('attr' => 'addresses:locality',
-            'type' => ContactEnum::Office,
-            'label' => _txt('fd.address.locality'),
-            'assoc' => $address_assoc),
-      array('attr' => 'addresses:state',
-            'type' => ContactEnum::Office,
-            'label' => _txt('fd.address.state'),
-            'assoc' => $address_assoc),
-      array('attr' => 'addresses:postal_code',
-            'type' => ContactEnum::Office,
-            'label' => _txt('fd.address.postal_code'),
-            'assoc' => $address_assoc),
-      array('attr' => 'addresses:country',
-            'type' => ContactEnum::Office,
-            'label' => _txt('fd.address.country'),
-            'assoc' => $address_assoc)
-    ));
   }
   
   /**

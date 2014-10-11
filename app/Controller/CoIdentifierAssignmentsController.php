@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Identifier Assignments Controller
  *
- * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -55,7 +55,14 @@ class CoIdentifierAssignmentsController extends StandardController {
     // Identifier supports Extended Types. Figure out what types are defined
     // in order for the views to render properly.
     
-    $this->set('identifier_types', $this->Co->CoPerson->Identifier->types($this->cur_co['Co']['id']));
+    $this->set('identifier_types', $this->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+    
+    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
+    
+    $vrule = $this->CoIdentifierAssignment->validate['identifier_type']['content']['rule'];
+    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+    
+    $this->CoIdentifierAssignment->validator()->getField('identifier_type')->getRule('content')->rule = $vrule;
   }
   
   /**

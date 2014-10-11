@@ -75,6 +75,13 @@ class MVPAController extends StandardController {
       
       $this->requires_co = false;
     }
+    
+    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
+    
+    $vrule = $model->validate['type']['content']['rule'];
+    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+    
+    $model->validator()->getField('type')->getRule('content')->rule = $vrule;
   }
   
   /**
@@ -91,31 +98,28 @@ class MVPAController extends StandardController {
     $model = $this->$req;
     
     if(!$this->restful){
-      // Provide a hint as to available types for this model -- currently not supported
-      // for Identifier since it already supports extended types
+      // Provide a hint as to available types for this model
       
-      if($req != 'Identifier') {
-        global $cm_texts, $cm_lang;
-        $availableTypes = array();
+      $availableTypes = $model->types($this->cur_co['Co']['id'], 'type');
+      
+      if(!empty($this->viewVars['permissions']['selfsvc'])) {
+        // For models supporting self service permissions, adjust the available types
+        // in accordance with the configuration
         
-        if(!empty($this->viewVars['permissions']['selfsvc'])) {
-          foreach(array_keys($cm_texts[ $cm_lang ][ $model->cm_enum_lang['type'] ]) as $k) {
-            // We use edit for the permission even if we're adding or viewing because
-            // add has different semantics for calculatePermission (whether or not the person
-            // can add a new item).
-            if($this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
-                                                                       $req,
-                                                                       'edit',
-                                                                       $k)) {
-              $availableTypes[$k] = $cm_texts[ $cm_lang ][ $model->cm_enum_lang['type'] ][$k];
-            }
+        foreach(array_keys($availableTypes) as $k) {
+          // We use edit for the permission even if we're adding or viewing because
+          // add has different semantics for calculatePermission (whether or not the person
+          // can add a new item).
+          if(!$this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
+                                                                     $req,
+                                                                     'edit',
+                                                                     $k)) {
+            unset($availableTypes[$k]);
           }
-        } else {
-          $availableTypes = $cm_texts[ $cm_lang ][ $model->cm_enum_lang['type'] ];
         }
-        
-        $this->set('vv_available_types', $availableTypes);
       }
+      
+      $this->set('vv_available_types', $availableTypes);
     }
     
     parent::beforeRender();

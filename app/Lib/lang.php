@@ -234,18 +234,15 @@ original notification at
     PetitionActionEnum::TCImpliedAgreement  => 'Terms and Conditions Implied Agreement'
   ),
 
+  // Extended type, key must be en.model.attribute
+  'en.address.type' =>  array(ContactEnum::Home => 'Home',
+                              ContactEnum::Office => 'Office',
+                              ContactEnum::Postal => 'Postal',
+                              ContactEnum::Forwarding => 'Forwarding'),
+  
   'en.admin' =>       array(AdministratorEnum::NoAdmin => 'None',
                             AdministratorEnum::CoAdmin => 'CO Admin',
                             AdministratorEnum::CoOrCouAdmin => 'CO or COU Admin'),
-  
-  'en.affil' =>       array(AffiliationEnum::Faculty       => 'Faculty',
-                            AffiliationEnum::Student       => 'Student',
-                            AffiliationEnum::Staff         => 'Staff',
-                            AffiliationEnum::Alum          => 'Alum',
-                            AffiliationEnum::Member        => 'Member',
-                            AffiliationEnum::Affiliate     => 'Affiliate',
-                            AffiliationEnum::Employee      => 'Employee',
-                            AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
   
   'en.chars.permitted' => array(
     PermittedCharacterEnum::AlphaNumeric      => 'AlphaNumeric Only',
@@ -276,24 +273,39 @@ original notification at
                             ContactEnum::Postal => 'Postal',
                             ContactEnum::Forwarding => 'Forwarding'),
   
-  // Sub-type contacts since some aren't globally applicable
-  'en.contact.address' =>  array(ContactEnum::Home => 'Home',
-                                 ContactEnum::Office => 'Office',
-                                 ContactEnum::Postal => 'Postal',
-                                 ContactEnum::Forwarding => 'Forwarding'),
+  // Extended type, key must be en.model.attribute. This means we end up having affiliations
+  // defined twice, once for CO Person Role and once for Org Identity. (Note the latter does
+  // not currently support Extended Types, but it doesn't seem right for org identity to
+  // reference a CO Person Role definition.
+  // Note there is a similar enumeration in enum.php::AffiliationEnum.
   
-  'en.contact.mail' => array(
+  'en.co_person_role.affiliation' => array(AffiliationEnum::Faculty       => 'Faculty',
+                                           AffiliationEnum::Student       => 'Student',
+                                           AffiliationEnum::Staff         => 'Staff',
+                                           AffiliationEnum::Alum          => 'Alum',
+                                           AffiliationEnum::Member        => 'Member',
+                                           AffiliationEnum::Affiliate     => 'Affiliate',
+                                           AffiliationEnum::Employee      => 'Employee',
+                                           AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
+  
+  // Sort of silly to have the same list twice...
+  'en.org_identity.affiliation' => array(AffiliationEnum::Faculty       => 'Faculty',
+                                         AffiliationEnum::Student       => 'Student',
+                                         AffiliationEnum::Staff         => 'Staff',
+                                         AffiliationEnum::Alum          => 'Alum',
+                                         AffiliationEnum::Member        => 'Member',
+                                         AffiliationEnum::Affiliate     => 'Affiliate',
+                                         AffiliationEnum::Employee      => 'Employee',
+                                         AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
+  
+  // Extended type, key must be en.model.attribute
+  'en.email_address.type' => array(
     EmailAddressEnum::Delivery => 'Delivery',
     EmailAddressEnum::Forwarding => 'Forwarding',
     EmailAddressEnum::Official => 'Official',
     EmailAddressEnum::Personal => 'Personal'
   ),
   
-  'en.contact.phone' => array(ContactEnum::Fax => 'Fax',
-                              ContactEnum::Home => 'Home',
-                              ContactEnum::Mobile => 'Mobile',
-                              ContactEnum::Office => 'Office'),
-
   'en.enrollment.authz' => array(
     EnrollmentAuthzEnum::CoAdmin        => 'CO Admin',
     EnrollmentAuthzEnum::CoGroupMember  => 'CO Group Member',
@@ -318,11 +330,12 @@ original notification at
   'en.ia.algorithm' => array(IdentifierAssignmentEnum::Random => 'Random',
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
 
-  'en.identifier' =>  array(IdentifierEnum::ePPN => 'ePPN',
-                            IdentifierEnum::ePTID => 'ePTID',
-                            IdentifierEnum::Mail => 'Mail',
-                            IdentifierEnum::OpenID => 'OpenID',
-                            IdentifierEnum::UID => 'UID'),
+  // Extended type, key must be en.model.attribute
+  'en.identifier.type' =>  array(IdentifierEnum::ePPN => 'ePPN',
+                                 IdentifierEnum::ePTID => 'ePTID',
+                                 IdentifierEnum::Mail => 'Mail',
+                                 IdentifierEnum::OpenID => 'OpenID',
+                                 IdentifierEnum::UID => 'UID'),
   
   // As a moderately arbitrary decision, the languages listed here those with at least
   // 100m speakers per Ethnologue (by way of wikipedia)
@@ -372,11 +385,12 @@ original notification at
     'ur'      => 'Urdu (اُردُو)'
   ),
 
-  'en.name' =>        array(NameEnum::Alternate => 'Alternate',
-                            NameEnum::Author => 'Author',
-                            NameEnum::FKA => 'FKA',
-                            NameEnum::Official => 'Official',
-                            NameEnum::Preferred => 'Preferred'),
+  // Extended type, key must be en.model.attribute
+  'en.name.type' =>        array(NameEnum::Alternate => 'Alternate',
+                                 NameEnum::Author => 'Author',
+                                 NameEnum::FKA => 'FKA',
+                                 NameEnum::Official => 'Official',
+                                 NameEnum::Preferred => 'Preferred'),
   
   // Navigation links
   'en.nav.location' =>     array(LinkLocationEnum::topBar => 'Top Bar'),
@@ -488,6 +502,12 @@ original notification at
     // TAndCLoginModeEnum::DisableAllServices   => 'Disable All Services' // not currently implemented
   ),
 
+  // Extended type, key must be en.model.attribute
+  'en.telephone_number.type' => array(ContactEnum::Fax => 'Fax',
+                                      ContactEnum::Home => 'Home',
+                                      ContactEnum::Mobile => 'Mobile',
+                                      ContactEnum::Office => 'Office'),
+
   // Errors
   'er.auth' =>        'Not authenticated',
   'er.auth.co' =>     'You are not a member of any COs. Please contact an administrator for assistance.',
@@ -537,7 +557,10 @@ original notification at
   'er.efcf.init' =>   'Failed to set up initial CMP Enrollment Configuration',
   'er.et.default' =>  'Failed to add default types',
   'er.et.exists' =>   'An extended type named "%1$s" already exists',
-  'er.et.inuse' =>    'The extended type "%1$s" is in use by at least one attribute within this CO and cannot be removed.',
+  'er.et.inuse' =>    'The extended type "%1$s" is in use by at least one CO Person record within this CO and cannot be removed.',
+  'er.et.inuse.ef' => 'The extended type "%1$s" is in use by at least one Enrollment Flow (as an attribute or default value) within this CO and cannot be removed.',
+  'er.et.inuse.ia' => 'The extended type "%1$s" is in use by at least one Identifier Assignment within this CO and cannot be removed.',
+  'er.et.inuse.sp' => 'The extended type "%1$s" is in use by at least one Self Service Permission within this CO and cannot be removed.',
   'er.field.req' =>   'This field is required',
   'er.fields' =>      'Please recheck the highlighted fields',
   'er.file.none' =>   'No file specified',
@@ -561,6 +584,7 @@ original notification at
   'er.inv.nf' =>      'Invitation Not Found',
   'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
+  'er.nm.official.et' => 'The Name type "official" cannot be deleted or renamed',
   'er.nm.primary' =>  '"%1$s" is the primary name and cannot be deleted',
   'er.nt.ack' =>      'Notification is not pending acknowledgment and cannot be acknowledged',
   'er.nt.cxl' =>      'Notification is not pending and cannot be canceled',
@@ -568,6 +592,7 @@ original notification at
   'er.nt.res' =>      'Notification is not pending resolution and cannot be resolved',
   'er.nt.send' =>     'Notification to %1$s failed (%2$s)',
   'er.notfound' =>    '%1$s "%2$s" Not Found',
+  'er.notimpl' =>     'Not Implemented',
   'er.notprov' =>     'Not Provided',
   'er.notprov.id' =>  '%1$s ID Not Provided',
   'er.permission' =>  'Permission Denied',
@@ -611,6 +636,8 @@ original notification at
   'fd.address.fields.req' => 'An address must consist of at least these fields:',
   'fd.admin' =>       'Administrator',
   'fd.affiliation' => 'Affiliation',
+  'fd.affiliation.ep' => 'eduPersonAffiliation',
+  'fd.affiliation.ep.map.desc' => 'Map the extended affiliation to this eduPersonAffiliation, see <a href="https://spaces.internet2.edu/display/COmanage/Extending+the+Registry+Data+Model#ExtendingtheRegistryDataModel-%7B%7BeduPersonAffiliation%7D%7DandExtendedAffiliations">eduPersonAffiliation and Extended Affiliations</a>',
   'fd.all' =>         'All',
   'fd.an.desc' =>     'Alphanumeric characters only',
   'fd.approver' =>    'Approver',
@@ -839,6 +866,7 @@ original notification at
   'fd.ssp.type.desc' => '"Default" applies this permission to all types not otherwise specified',
   'fd.status' =>      'Status',
   'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petiton',
+  'fd.status.et.desc' => 'An Extended Type that is in use cannot be made inactive',
   'fd.subject' =>     'Subject',
   'fd.tc.agree.desc' => 'You must agree to the following Terms and Conditions before continuing.<br />You must review the T&C before you can click <i>I Agree</i>, and you must agree before you can submit.',
   'fd.tc.agree.impl' => 'By clicking <i>Submit</i>, you are agreeing to the following Terms and Conditions.<br />Please review the T&C before continuing.',
@@ -981,6 +1009,7 @@ original notification at
   'op.remove' =>      'Remove',
   'op.reorder' =>     'Reorder',
   'op.reset' =>       'Reset Form',
+  'op.restore.types' => 'Add/Restore Default Types',
   'op.save' =>        'Save',
   'op.search' =>      'Search',
   'op.see.notifications' =>  'View full notifications list...',
@@ -1060,6 +1089,7 @@ original notification at
   'rs.tc.agree' =>    'Terms and Conditions "%1$s" agreed to',
   'rs.tc.agree.behalf' => 'Terms and Conditions "%1$s" agreed to on behalf of',
   'rs.tc.agree.ok' => 'Agreement to Terms and Conditions recorded',
+  'rs.types.defaults' => 'Default types added',
   'rs.saved' =>       'Saved',
   'rs.updated' =>     '"%1$s" Updated',
   'rs.updated-a2' =>  '%1$s "%2$s" Updated',

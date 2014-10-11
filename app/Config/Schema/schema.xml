@@ -90,7 +90,7 @@
       <key />
       <autoincrement />
     </field>
-    <field name="affiliation" type="C" size="2" />
+    <field name="affiliation" type="C" size="32" />
     <field name="title" type="C" size="128" />
     <field name="o" type="C" size="128" />
     <field name="ou" type="C" size="128" />
@@ -166,7 +166,7 @@
     <field name="cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
-    <field name="affiliation" type="C" size="2" />
+    <field name="affiliation" type="C" size="32" />
     <field name="title" type="C" size="128" />
     <field name="o" type="C" size="128" />
     <field name="ou" type="C" size="128" />
@@ -197,7 +197,7 @@
     <field name="middle" type="C" size="128" />
     <field name="family" type="C" size="128" />
     <field name="suffix" type="C" size="32" />
-    <field name="type" type="C" size="2" />
+    <field name="type" type="C" size="32" />
     <field name="language" type="C" size="16" />
     <field name="co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
@@ -248,6 +248,7 @@
     <field name="attribute" type="C" size="32" />
     <field name="name" type="C" size="32" />
     <field name="display_name" type="C" size="64" />
+    <field name="edupersonaffiliation" type="C" size="32" />
     <field name="status" type="C" size="2" />
 
     <index name="co_extended_types_i1">
@@ -338,7 +339,7 @@
     <field name="state" type="C" size="128" />
     <field name="postal_code" type="C" size="16" />
     <field name="country" type="C" size="128" />
-    <field name="type" type="C" size="2" />
+    <field name="type" type="C" size="32" />
     <field name="language" type="C" size="16" />
     <field name="co_person_role_id" type="I">
       <constraint>REFERENCES cm_co_person_roles(id)</constraint>
@@ -363,7 +364,7 @@
       <autoincrement />
     </field>
     <field name="mail" type="C" size="256" />
-    <field name="type" type="C" size="2" />
+    <field name="type" type="C" size="32" />
     <field name="verified" type="L" />
     <field name="co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
@@ -391,7 +392,7 @@
       <autoincrement />
     </field>
     <field name="number" type="C" size="64" />
-    <field name="type" type="C" size="2" />
+    <field name="type" type="C" size="32" />
     <field name="co_person_role_id" type="I">
       <constraint>REFERENCES cm_co_person_roles(id)</constraint>
     </field>

@@ -166,11 +166,37 @@ class CoPersonRolesController extends StandardController {
                                                               'dependent' => true))),
                                      false);
     }
-
-    // generate list of sponsors
-    $this->set('sponsors',$this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
+    
+    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
+    
+    $vrule = $this->CoPersonRole->validate['affiliation']['content']['rule'];
+    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+    
+    $this->CoPersonRole->validator()->getField('affiliation')->getRule('content')->rule = $vrule;
   }
 
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   * - precondition: Request Handler component has set $this->request
+   * - postcondition: Set $sponsors
+   *
+   * @since  COmanage Registry v0.9.2
+   */
+
+  public function beforeRender() {
+    parent::beforeRender();
+    
+    if(!$this->restful){
+      // Mappings for extended types
+      $this->set('vv_copr_address_types', $this->CoPersonRole->Address->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_copr_affiliation_types', $this->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
+      $this->set('vv_copr_telephonenumber_types', $this->CoPersonRole->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
+      
+      // generate list of sponsors
+      $this->set('sponsors', $this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
+    }
+  }
+  
   /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.

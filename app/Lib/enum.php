@@ -99,24 +99,36 @@ class AdministratorEnum
 
 class AffiliationEnum
 {
-  const Faculty       = 'F';
-  const Student       = 'SU';
-  const Staff         = 'SA';
-  const Alum          = 'AL';
-  const Member        = 'M';
-  const Affiliate     = 'AF';
-  const Employee      = 'E';
-  const LibraryWalkIn = 'L';
+  const Faculty       = 'faculty';
+  const Student       = 'student';
+  const Staff         = 'staff';
+  const Alum          = 'alum';
+  const Member        = 'member';
+  const Affiliate     = 'affiliate';
+  const Employee      = 'employee';
+  const LibraryWalkIn = 'librarywalkin';
+  
+  // Mapping to the controlled vocabulary. Suitable for use (eg) writing to LDAP.
+  public static $eduPersonAffiliation = array(
+    AffiliationEnum::Faculty       => 'Faculty',
+    AffiliationEnum::Student       => 'Student',
+    AffiliationEnum::Staff         => 'Staff',
+    AffiliationEnum::Alum          => 'Alum',
+    AffiliationEnum::Member        => 'Member',
+    AffiliationEnum::Affiliate     => 'Affiliate',
+    AffiliationEnum::Employee      => 'Employee',
+    AffiliationEnum::LibraryWalkIn => 'Library Walk-In'
+  );
 }
 
 class ContactEnum
 {
-  const Fax         = 'F';
-  const Home        = 'H';
-  const Mobile      = 'M';
-  const Office      = 'O';
-  const Postal      = 'P';
-  const Forwarding  = 'R';
+  const Fax         = 'fax';
+  const Home        = 'home';
+  const Mobile      = 'mobile';
+  const Office      = 'office';
+  const Postal      = 'postal';
+  const Forwarding  = 'forwarding';
 /*
   public $from_api = array(
     "Fax"         => Fax,
@@ -138,10 +150,10 @@ class ContactEnum
 }
 
 class EmailAddressEnum {
-  const Delivery      = 'D';
-  const Forwarding    = 'F';
-  const Official      = 'O';
-  const Personal      = 'P';
+  const Delivery      = 'delivery';
+  const Forwarding    = 'forwarding';
+  const Official      = 'official';
+  const Personal      = 'personal';
 }
 
 class EnrollmentAuthzEnum {
@@ -224,11 +236,11 @@ class LinkLocationEnum
 
 class NameEnum
 {
-  const Alternate = 'L';
-  const Author    = 'A';
-  const FKA       = 'F';
-  const Official  = 'O';
-  const Preferred = 'P';
+  const Alternate = 'alternate';
+  const Author    = 'author';
+  const FKA       = 'fka';
+  const Official  = 'official';
+  const Preferred = 'preferred';
   
 /*    public $from_api = array(
     'Author'    => Author,
@@ -441,43 +453,43 @@ global $ssh_ti;  // Used for ldap and github provisioner
 global $status_t, $status_ti;
 
 $affil_t = array(
-  'F' => 'Faculty',
-  'SU' => 'Student',
-  'SA' => 'Staff',
-  'AL' => 'Alum',
-  'M' => 'Member',
-  'AF' => 'Affiliate',
-  'E' => 'Employee',
-  'L' => 'Library Walk-In'    
+  'faculty' => 'Faculty',
+  'student' => 'Student',
+  'staff' => 'Staff',
+  'alum' => 'Alum',
+  'member' => 'Member',
+  'affiliate' => 'Affiliate',
+  'employee' => 'Employee',
+  'librarywalkin' => 'Library Walk-In'    
 );
 
 $affil_ti = array(
-  'Faculty' => 'F',
-  'Student' => 'SU',
-  'Staff' => 'SA',
-  'Alum' => 'AL',
-  'Member' => 'M',
-  'Affiliate' => 'AF',
-  'Employee' => 'E',
-  'Library Walk-In' => 'L'    
+  'Faculty' => 'faculty',
+  'Student' => 'student',
+  'Staff' => 'staff',
+  'Alum' => 'alum',
+  'Member' => 'member',
+  'Affiliate' => 'affiliate',
+  'Employee' => 'employee',
+  'Library Walk-In' => 'librarywalkin'    
 );
 
 $contact_t = array(
-  'F' => 'Fax',
-  'H' => 'Home',
-  'M' => 'Mobile',
-  'O' => 'Office',
-  'P' => 'Postal',
-  'R' => 'Forwarding'
+  'fax' => 'Fax',
+  'home' => 'Home',
+  'mobile' => 'Mobile',
+  'office' => 'Office',
+  'postal' => 'Postal',
+  'forwarding' => 'Forwarding'
 );
 
 $contact_ti = array(
-  'Fax' => 'F',
-  'Home' => 'H',
-  'Mobile' => 'M',
-  'Office' => 'O',
-  'Postal' => 'P',
-  'Forwarding' => 'R'
+  'Fax' => 'fax',
+  'Home' => 'home',
+  'Mobile' => 'mobile',
+  'Office' => 'office',
+  'Postal' => 'postal',
+  'Forwarding' => 'forwarding'
 );
 
 /*
@@ -511,19 +523,19 @@ $identifier_ti = array(
 );
 
 $name_t = array(
-  'L' => 'Alternate',
-  'A' => 'Author',
-  'F' => 'FKA',
-  'O' => 'Official',
-  'P' => 'Preferred'
+  'alternate' => 'Alternate',
+  'author' => 'Author',
+  'fka' => 'FKA',
+  'official' => 'Official',
+  'preferred' => 'Preferred'
 );
 
 $name_ti = array(
-  'Alternate' => 'L',
-  'Author' => 'A',
-  'FKA' => 'F',
-  'Official' => 'O',
-  'Preferred' => 'P'
+  'Alternate' => 'alternate',
+  'Author' => 'author',
+  'FKA' => 'fka',
+  'Official' => 'official',
+  'Preferred' => 'preferred'
 );
 
 $ssh_ti = array(

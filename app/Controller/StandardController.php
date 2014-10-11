@@ -472,7 +472,9 @@ class StandardController extends AppController {
       
       $m = explode('.', $model->displayField, 2);
       
-      if(isset($this->request->data[ $m[0] ][ $m[1] ])) {
+      if(!empty($c[ $m[0] ][ $m[1] ])) {
+        return $c[ $m[0] ][ $m[1] ];
+      } elseif(!empty($this->request->data[ $m[0] ][ $m[1] ])) {
         return $this->request->data[ $m[0] ][ $m[1] ];
       }
     } else {

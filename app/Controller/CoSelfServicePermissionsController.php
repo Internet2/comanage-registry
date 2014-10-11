@@ -49,7 +49,7 @@ class CoSelfServicePermissionsController extends StandardController {
   
   function beforeRender() {
     if(!$this->restful) {
-      $attrs = $this->CoSelfServicePermission->supportedAttrs();
+      $attrs = $this->CoSelfServicePermission->supportedAttrs($this->cur_co['Co']['id']);
       
       $this->set('models', $attrs['models']);
       $this->set('types', $attrs['types']);

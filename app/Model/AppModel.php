@@ -60,28 +60,26 @@ class AppModel extends Model {
   }
   
   /**
-   * For models that support Extended Types, obtain the default types.
+   * For models that support Extended Types, obtain the default types for the specified attribute.
    *
    * @since  COmanage Registry v0.6
+   * @param  String Model attribute to obtain defaults for
    * @return Array Default types as key/value pair of name and localized display_name
    */
   
-  public function defaultTypes() {
-    // We currently assume there is only one type and it is called "type". This may
-    // not always be true.
-    
+  public function defaultTypes($attribute) {
     $ret = null;
     
-    if(isset($this->validate['type']['content']['rule'])
-       && is_array($this->validate['type']['content']['rule'])
-       && $this->validate['type']['content']['rule'][0] == 'validateExtendedType'
-       && is_array($this->validate['type']['content']['rule'][1])
-       && isset($this->validate['type']['content']['rule'][1]['default'])) {
+    if(isset($this->validate[$attribute]['content']['rule'])
+       && is_array($this->validate[$attribute]['content']['rule'])
+       && $this->validate[$attribute]['content']['rule'][0] == 'validateExtendedType'
+       && is_array($this->validate[$attribute]['content']['rule'][1])
+       && isset($this->validate[$attribute]['content']['rule'][1]['default'])) {
       // Figure out which language key to use. Note 'en' is the prefix for 'enum'
       // and NOT an abbreviation for 'english'.
-      $langKey = 'en.' . Inflector::underscore($this->name);
+      $langKey = 'en.' . Inflector::underscore($this->name) . '.' . $attribute;
       
-      foreach($this->validate['type']['content']['rule'][1]['default'] as $name) {
+      foreach($this->validate[$attribute]['content']['rule'][1]['default'] as $name) {
         $ret[$name] = _txt($langKey, null, $name);
       }
     }
@@ -277,31 +275,58 @@ class AppModel extends Model {
   }
   
   /**
-   * For models that support Extended Types, obtain the valid types for the specified CO.
+   * Check if a given extended type is in use by any members of a CO.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String Attribute, of the form Model.field
+   * @param  String Type of attribute (any default or extended type may be specified)
+   * @param  Integer CO ID
+   * @return Boolean True if the extended type is in use, false otherwise
+   */
+  
+  public function typeInUse($attribute, $attributeType, $coId) {
+    $args = array();
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['conditions'][$attribute] = $attributeType;
+    $args['contain'] = false;
+    
+    // Is this model attached to CO Person or CO Person Role?
+    if(!empty($this->validate['co_person_id'])) {
+      $args['joins'][0]['table'] = 'co_people';
+      $args['joins'][0]['alias'] = 'CoPerson';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id=' . $this->alias . '.co_person_id';
+    } elseif(!empty($this->validate['co_person_role_id'])) {
+      $args['joins'][0]['table'] = 'co_person_roles';
+      $args['joins'][0]['alias'] = 'CoPersonRole';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPersonRole.id=' . $this->alias . '.co_person_role_id';
+      $args['joins'][1]['table'] = 'co_people';
+      $args['joins'][1]['alias'] = 'CoPerson';
+      $args['joins'][1]['type'] = 'INNER';
+      $args['joins'][1]['conditions'][0] = 'CoPersonRole.co_person_id=CoPerson.id';
+    } else {
+      throw new RuntimeException(_txt('er.notimpl'));
+    }
+    
+    return (boolean)$this->find('count', $args);
+  }
+  
+  /**
+   * For models that support Extended Types, obtain the valid types for the specified CO and attribute.
    *
    * @since  COmanage Registry v0.6
    * @param  Integer CO ID
+   * @param  String Attribute to retrieve
    * @return Array Defined types (including defaults if no extended types) in key/value form suitable for select buttons.
    */
   
-  function types($coId) {
+  public function types($coId, $attribute) {
     $ret = array();
     
     $CoExtendedType = ClassRegistry::init('CoExtendedType');
     
-    $extTypes = $CoExtendedType->active($coId, $this->name, 'all');
-    
-    if(!empty($extTypes)) {
-      foreach($extTypes as $t) {
-        $ret[ $t['CoExtendedType']['name'] ] = $t['CoExtendedType']['display_name'];
-      }
-    } else {
-      // Use the default set
-      
-      $ret = $this->defaultTypes();
-    }
-    
-    return $ret;
+    return $CoExtendedType->active($coId, $this->name . "." . $attribute, 'list');
   }
   
   /**
@@ -309,26 +334,25 @@ class AppModel extends Model {
    *
    * @since  COmanage Registry v0.6
    * @param  array Array of fields to validate
-   * @param  array Array with two keys: 'attribute' holding the attribute model name, and 'default' holding an Array of default values (for use if no extended types are defined)
+   * @param  array Array with up to three keys: 'attribute' holding the attribute model name, and 'default' holding an Array of default values (for use if no extended types are defined), and 'coid' holding the CO ID (optional)
    * @return boolean True if all field strings parses to a valid timestamp, false otherwise
+   * @todo   'attribute' should really be called 'model'
    */
   
   public function validateExtendedType($a, $d) {
     // First obtain active extended types, if any.
     
     $extTypes = array();
+    $coId = null;
     
-    // We need access to the CO ID to know what types are valid, but we don't have it since
-    // $cur_co is attached to the controller and not the model (and we don't directly call
-    // validation -- that's done in the core of Cake). As an interim hack, beforeFilter
-    // or checkRestPost will set the CO ID for us. However, the better approach (possible with
-    // Cake 2.2) is to generate a dynamic validation rule is the controller, using the current
-    // CO as an argument. See CO-368.
+    if(!empty($d['coid'])) {
+      $coId = $d['coid'];
+    }
     
-    if(isset($this->coId)) {
+    if($coId) {
       $CoExtendedType = ClassRegistry::init('CoExtendedType');
       
-      $extTypes = $CoExtendedType->active($this->coId, $d['attribute']);
+      $extTypes = $CoExtendedType->active($coId, $d['attribute']);
     }
     // else some models can be used with Org Identities (ie: MVPA controllers). When used
     // with org identities, we currently don't support extended types.

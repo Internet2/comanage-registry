@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Index View
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -63,7 +63,7 @@
       <td><?php echo Sanitize::html($p['CoPersonRole']['o']); ?></td>
       <td><?php if(isset($p['CoPersonRole']['Cou']['name'])) echo Sanitize::html($p['CoPersonRole']['Cou']['name']); ?></td>
       <td><?php echo Sanitize::html($p['CoPersonRole']['title']); ?></td>
-      <td><?php echo $cm_texts[ $cm_lang ]['en.affil'][ $p['CoPersonRole']['affiliation']]; ?></td>
+      <td><?php print $vv_copr_affiliation_types[ $p['CoPersonRole']['affiliation']]; ?></td>
       <td><?php if($p['CoPersonRole']['valid_from'] > 0) echo $this->Time->format('Y M d', $p['CoPersonRole']['valid_from']); ?></td>
       <td><?php if($p['CoPersonRole']['valid_through'] > 0) echo $this->Time->format('Y M d', $p['CoPersonRole']['valid_through']); ?></td>
       <td>
