@@ -186,7 +186,7 @@
               print $this->Form->error('Name.type');
             }
           } else {
-            print _txt('en.name', null, $names[0]['Name']['type']);
+            print $vv_available_types[ $names[0]['Name']['type'] ];
           }
         ?>
       </td>

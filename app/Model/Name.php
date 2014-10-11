@@ -30,7 +30,7 @@ class Name extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Provisioner');
+  public $actsAs = array('Containable', 'Provisioner');
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -90,11 +90,13 @@ class Name extends AppModel {
     ),
     'type' => array(
       'content' => array(
-        'rule' => array('inList', array(NameEnum::Alternate,
-                                        NameEnum::Author,
-                                        NameEnum::FKA,
-                                        NameEnum::Official,
-                                        NameEnum::Preferred)),
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'Name.type',
+                              'default' => array(NameEnum::Alternate,
+                                                 NameEnum::Author,
+                                                 NameEnum::FKA,
+                                                 NameEnum::Official,
+                                                 NameEnum::Preferred))),
         'required' => true,
         'allowEmpty' => false
       )
@@ -130,10 +132,6 @@ class Name extends AppModel {
   );
   
   // Enum type hints
-  
-  public $cm_enum_lang = array(
-    'type' => 'en.name'
-  );
   
   public $cm_enum_types = array(
     'type' => 'name_t'

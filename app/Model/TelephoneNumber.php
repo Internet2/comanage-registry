@@ -59,10 +59,12 @@ class TelephoneNumber extends AppModel {
     ),
     'type' => array(
       'content' => array(
-        'rule' => array('inList', array(ContactEnum::Fax,
-                                        ContactEnum::Home,
-                                        ContactEnum::Mobile,
-                                        ContactEnum::Office)),
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'TelephoneNumber.type',
+                              'default' => array(ContactEnum::Fax,
+                                                 ContactEnum::Home,
+                                                 ContactEnum::Mobile,
+                                                 ContactEnum::Office))),
         'required' => false,
         'allowEmpty' => true
       )
@@ -84,10 +86,6 @@ class TelephoneNumber extends AppModel {
   );
   
   // Enum type hints
-  
-  public $cm_enum_lang = array(
-    'type' => 'en.contact.phone'
-  );
   
   public $cm_enum_types = array(
     'type' => 'contact_t'

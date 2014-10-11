@@ -62,10 +62,12 @@ class EmailAddress extends AppModel {
     ),
     'type' => array(
       'content' => array(
-        'rule' => array('inList', array(EmailAddressEnum::Delivery,
-                                        EmailAddressEnum::Forwarding,
-                                        EmailAddressEnum::Official,
-                                        EmailAddressEnum::Personal)),
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'EmailAddress.type',
+                              'default' => array(EmailAddressEnum::Delivery,
+                                                 EmailAddressEnum::Forwarding,
+                                                 EmailAddressEnum::Official,
+                                                 EmailAddressEnum::Personal))),
         'required' => false,
         'allowEmpty' => false
       )
@@ -92,10 +94,6 @@ class EmailAddress extends AppModel {
   );
   
   // Enum type hints
-  
-  public $cm_enum_lang = array(
-    'type' => 'en.contact.mail'
-  );
   
   public $cm_enum_types = array(
     'type' => 'contact_t'

@@ -47,7 +47,7 @@ class TelephoneNumbersController extends MVPAController {
 
   function beforeFilter() {
     $this->redirectTab = 'phone';
-
+    
     parent::beforeFilter();
   }
 

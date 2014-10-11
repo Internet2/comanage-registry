@@ -57,15 +57,17 @@ class NamesController extends MVPAController {
   function beforeRender() {
     parent::beforeRender();
     
-    // Set required fields according to whether or not this is attached to a CO Person (Role)
-    
-    $pids = $this->parsePersonID();
-    
-    if($pids['copersonid']) {
-      $this->set('required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields($this->cur_co['Co']['id']));
-    } else {
-      // Always use default settings for org identities
-      $this->set('required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields());
+    if(!$this->restful) {
+      // Set required fields according to whether or not this is attached to a CO Person (Role)
+      
+      $pids = $this->parsePersonID();
+      
+      if($pids['copersonid']) {
+        $this->set('required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields($this->cur_co['Co']['id']));
+      } else {
+        // Always use default settings for org identities
+        $this->set('required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields());
+      }
     }
   }
   
