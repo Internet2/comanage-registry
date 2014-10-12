@@ -201,6 +201,7 @@ class Identifier extends AppModel {
     $args['joins'][0]['alias'] = 'CoPerson';
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'CoPerson.id=Identifier.co_person_id';
+    $args['contain'] = false;
     
     $r = $this->findForUpdate($args['conditions'],
                               array('identifier'),

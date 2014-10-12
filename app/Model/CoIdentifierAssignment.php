@@ -150,8 +150,7 @@ class CoIdentifierAssignment extends AppModel {
     $assignEmail = false;
     
     if($coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'] == 'mail'
-       && isset($coIdentifierAssignment['CoIdentifierAssignment']['email_type'])
-       && $coIdentifierAssignment['CoIdentifierAssignment']['email_type'] != '') {
+       && !empty($coIdentifierAssignment['CoIdentifierAssignment']['email_type'])) {
       $assignEmail = true;
     }
     
@@ -232,9 +231,15 @@ class CoIdentifierAssignment extends AppModel {
         // We have a new candidate (ie: one that wasn't generated on a previous loop),
         // so let's see if it is already in use.
         
-        if($this->Co->CoPerson->Identifier->checkAvailability($candidate,
-                                                              $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
-                                                              $coIdentifierAssignment['CoIdentifierAssignment']['co_id'])) {
+        if(($assignEmail
+            && $this->Co->CoPerson->EmailAddress->checkAvailability($candidate,
+                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['email_type'],
+                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['co_id']))
+           ||
+           (!$assignEmail
+            && $this->Co->CoPerson->Identifier->checkAvailability($candidate,
+                                                                  $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
+                                                                  $coIdentifierAssignment['CoIdentifierAssignment']['co_id']))) {
           // This one's good... insert it into the table and break the loop
           
           if($assignEmail) {

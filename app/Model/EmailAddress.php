@@ -159,6 +159,42 @@ class EmailAddress extends AppModel {
   }
   
   /**
+   * Check if an email address is available for assignment (via CoIdentifierAssignment).
+   * An email address is available if it is not defined (regardless of status) within the same CO.
+   *
+   * IMPORTANT: This function should be called within a transaction to ensure
+   * actions taken based on availability are atomic.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String $address Candidate email address
+   * @param  String $addressType Type of candidate email address
+   * @param  Integer CO ID
+   * @return Boolean True if email address is not in use, false otherwise
+   */
+  
+  public function checkAvailability($address, $addressType, $coId) {
+    // In order to allow ensure that another process doesn't perform the same
+    // availability check while we're running, we need to lock the appropriate
+    // tables/rows at read time. We do this with findForUpdate instead of a normal find.
+    
+    $args = array();
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['conditions']['EmailAddress.mail'] = $address;
+    $args['conditions']['EmailAddress.type'] = $addressType;
+    $args['joins'][0]['table'] = 'co_people';
+    $args['joins'][0]['alias'] = 'CoPerson';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPerson.id=EmailAddress.co_person_id';
+    $args['contain'] = false;
+    
+    $r = $this->findForUpdate($args['conditions'],
+                              array('mail'),
+                              $args['joins']);
+    
+    return empty($r);
+  }
+  
+  /**
    * Mark an address as verified.
    *
    * @since  COmanage Registry v0.7
