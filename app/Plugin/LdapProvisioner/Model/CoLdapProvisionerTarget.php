@@ -631,10 +631,18 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $person = true;
         break;
       case ProvisioningActionEnum::CoPersonUpdated:
-        // An update may cause an existing person to be written to LDAP for the first time
-        // or for an unexpectedly removed entry to be replaced
-        $assigndn = true;  
-        $modify = true;
+        if($provisioningData['CoPerson']['status'] != StatusEnum::Active) {
+          // Convert this to a delete operation. Basically we (may) have a record in LDAP,
+          // but the person is no longer active. Don't delete the DN though, since
+          // the underlying person was not deleted.
+          
+          $delete = true;
+        } else {
+          // An update may cause an existing person to be written to LDAP for the first time
+          // or for an unexpectedly removed entry to be replaced
+          $assigndn = true;  
+          $modify = true;
+        }
         $person = true;
         break;
       case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
@@ -688,7 +696,20 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                                   $assigndn);
     }
     catch(RuntimeException $e) {
+      // This mostly never matches because $dns['newdnerr'] will usually be set
       throw new RuntimeException($e->getMessage());
+    }
+    
+    if($person
+       && $assigndn
+       && !$dns['newdn']
+       && (!isset($provisioningData['CoPerson']['status'])
+           || $provisioningData['CoPerson']['status'] != StatusEnum::Active)) {
+      // If a Person is not active and we were unable to create a new DN (or recalculate
+      // what it should be), fail silently. This will typically happen when a new Petition
+      // is created and the Person is not yet Active (and therefore has no identifiers assigned).
+      
+      return true;
     }
     
     // We might have to handle a rename if the DN changed

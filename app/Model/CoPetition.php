@@ -1348,6 +1348,46 @@ class CoPetition extends AppModel {
         }
       }
       
+      // Maybe assign identifiers, but only for new approvals
+      
+      // We do this before setting the CO Person status to Active because we want the
+      // identifiers to exist prior to provisioning (and specifically, LDAP DN construction),
+      // which happens when the CO Person status goes to Active.
+      
+      if(!$fail && $newPetitionStatus == StatusEnum::Approved) {
+        $coPersonID = $this->field('enrollee_co_person_id');
+        
+        if($coID && $coPersonID) {
+          $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID, $actorCoPersonID);
+          
+          if(!empty($res)) {
+            // See if any identifiers were assigned, and if so create a history record
+            $assigned = array();
+            
+            foreach(array_keys($res) as $idType) {
+              if($res[$idType] == 1) {
+                $assigned[] = $idType;
+              } elseif($res[$idType] != 2) {
+                // It'd probably be helpful if we caught this error somewhere...
+                $fail = true;
+              }
+            }
+            
+            if(!empty($assigned)) {
+              try {
+                $this->CoPetitionHistoryRecord->record($id,
+                                                       $actorCoPersonID,
+                                                       PetitionActionEnum::IdentifiersAssigned,
+                                                       _txt('rs.ia.ok') . " (" . implode(',', $assigned) . ")");
+              }
+              catch (Exception $e) {
+                $fail = true;
+              }
+            }
+          }
+        }
+      }
+      
       // Update CO Person Role state
       
       if(!$fail && isset($newCoPersonStatus)) {
@@ -1415,42 +1455,6 @@ class CoPetition extends AppModel {
           // else not a fail
         } else {
           $fail = true;
-        }
-      }
-      
-      // Maybe assign identifiers, but only for new approvals
-      
-      if(!$fail && $newPetitionStatus == StatusEnum::Approved) {
-        $coPersonID = $this->field('enrollee_co_person_id');
-        
-        if($coID && $coPersonID) {
-          $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID, $actorCoPersonID);
-          
-          if(!empty($res)) {
-            // See if any identifiers were assigned, and if so create a history record
-            $assigned = array();
-            
-            foreach(array_keys($res) as $idType) {
-              if($res[$idType] == 1) {
-                $assigned[] = $idType;
-              } elseif($res[$idType] != 2) {
-                // It'd probably be helpful if we caught this error somewhere...
-                $fail = true;
-              }
-            }
-            
-            if(!empty($assigned)) {
-              try {
-                $this->CoPetitionHistoryRecord->record($id,
-                                                       $actorCoPersonID,
-                                                       PetitionActionEnum::IdentifiersAssigned,
-                                                       _txt('rs.ia.ok') . " (" . implode(',', $assigned) . ")");
-              }
-              catch (Exception $e) {
-                $fail = true;
-              }
-            }
-          }
         }
       }
       
