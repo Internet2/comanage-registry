@@ -213,7 +213,7 @@ class MVPAController extends StandardController {
         break;
     }
     
-    $cstr .= ": " . $this->changesToString($newdata, $olddata, array($req));
+    $cstr .= ": " . $model->changesToString($newdata, $olddata, $this->cur_co['Co']['id']);
     
     switch($action) {
       case 'add':

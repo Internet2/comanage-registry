@@ -235,7 +235,12 @@ class ProvisionerBehavior extends ModelBehavior {
       } elseif(!empty($model->data[ $model->name ]['co_person_role_id'])) {
         $pmodel = $model->CoPersonRole->CoPerson;
         $coPersonId[] = $model->CoPersonRole->field('co_person_id',
-                                                  array('id' => $model->data[ $model->name ]['co_person_role_id']));
+                                                    array('id' => $model->data[ $model->name ]['co_person_role_id']));
+      } elseif($model->name == 'CoPersonRole' && !empty($model->data['CoPersonRole']['id'])) {
+        // eg: for saveField called via CoExpirationPolicy::executePolicies()
+        $pmodel = $model->CoPerson;
+        $coPersonId[] = $model->field('co_person_id',
+                                      array('id' => $model->data['CoPersonRole']['id']));
       } elseif($model->name == 'Identifier'
                && !empty($model->data['Identifier']['org_identity_id'])
                && empty($model->data['Identifier']['co_person_id'])) {

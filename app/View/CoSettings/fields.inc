@@ -42,6 +42,19 @@
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
+        <strong class="fieldTitle"><?php print _txt('fd.xp.disable'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.xp.disable.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('disable_expiration')
+                     : (isset($co_settings[0]['CoSetting']['disable_expiration'])
+                        && $co_settings[0]['CoSetting']['disable_expiration']
+                        ? _txt('fd.yes') : _txt('fd.no')));
+        ?>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
         <strong class="fieldTitle"><?php print _txt('fd.de.enable'); ?></strong>
       </td>
       <td>

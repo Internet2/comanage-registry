@@ -69,7 +69,7 @@
     'controller' => 'co_people',
     'action' => 'canvas',
     $co_people[0]['CoPerson']['id']);
-  $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
+  $this->Html->addCrumb(generateCn($co_person_roles[0]['CoPerson']['PrimaryName']), $args);
 
   if($this->action == "add") {
     $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_person_roles.1'));

@@ -357,7 +357,14 @@
                     if(isset($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ])) {
                       switch($ruleType) {
                       case 'inList':
-                        print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
+                        // It's possible this is no longer a valid selection, especially for
+                        // extended types.
+                        if(!empty($ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]])) {
+                          print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
+                        } else {
+                          // No longer a valid enum, just echo it
+                          print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                        }
                         break;
                       case 'validateTimestamp':
                         print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]);

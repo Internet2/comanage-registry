@@ -37,6 +37,7 @@ class CoExtendedTypesController extends StandardController {
                        'Name',
                        'TelephoneNumber',
                        'CoEnrollmentAttribute',
+                       'CoExpirationPolicy',
                        'CoIdentifierAssignment',
                        'CoSelfServicePermission');
   
@@ -402,19 +403,30 @@ class CoExtendedTypesController extends StandardController {
       throw new OverflowException(_txt('er.et.inuse.ef', array($typeName)));
     }
     
+    // We don't, however, check CoPetitionAttributes because those are historical
+    // and not direct/active references. As such, they can continue to exist as
+    // strings.
+    
     // Make sure the attribute isn't in use by a Self Service Permission
     
     if($this->CoSelfServicePermission->typeInUse($attribute,
                                                  $typeName,
                                                  $this->cur_co['Co']['id'])) {
-      throw new OverflowException(_txt('er.et.inuse.sp', array($typeName)));
+      throw new OverflowException(_txt('er.et.inuse-a', array($typeName, _txt('ct.co_self_service_permissions.1'))));
     }
     
     // Or by any Identifier Assignments (if attribute == Identifier.type)
     if($this->CoIdentifierAssignment->typeInUse($attribute,
                                                 $typeName,
                                                 $this->cur_co['Co']['id'])) {
-      throw new OverflowException(_txt('er.et.inuse.ia', array($typeName)));
+      throw new OverflowException(_txt('er.et.inuse-a', array($typeName, _txt('ct.co_identifier_assignments.1'))));
+    }
+    
+    // Or by any Expiration Policy (if attribute == affiliation)
+    if($this->CoExpirationPolicy->typeInUse($attribute,
+                                            $typeName,
+                                            $this->cur_co['Co']['id'])) {
+      throw new OverflowException(_txt('er.et.inuse-a', array($typeName, _txt('ct.co_expiration_policies.1'))));
     }
     
     return false;

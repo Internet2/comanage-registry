@@ -63,10 +63,12 @@ $cm_texts['en_US'] = array(
   'ct.api_users.pl' =>          'API Users',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
-  'ct.co_enrollment_attributes.1'  => 'CO Enrollment Attribute',
-  'ct.co_enrollment_attributes.pl' => 'CO Enrollment Attributes',
-  'ct.co_enrollment_flows.1'  => 'CO Enrollment Flow',
-  'ct.co_enrollment_flows.pl' => 'CO Enrollment Flows',
+  'ct.co_enrollment_attributes.1'  => 'Enrollment Attribute',
+  'ct.co_enrollment_attributes.pl' => 'Enrollment Attributes',
+  'ct.co_enrollment_flows.1'  => 'Enrollment Flow',
+  'ct.co_enrollment_flows.pl' => 'Enrollment Flows',
+  'ct.co_expiration_policies.1'  => 'Expiration Policy',
+  'ct.co_expiration_policies.pl' => 'Expiration Policies',
   'ct.co_extended_attributes.1'  => 'Extended Attribute',
   'ct.co_extended_attributes.pl' => 'Extended Attributes',
   'ct.co_extended_types.1'  => 'Extended Type',
@@ -139,6 +141,8 @@ $cm_texts['en_US'] = array(
   // Email Messages
   'em.approval.subject.ef'   => 'Petition to join (@CO_NAME) has been approved',
   'em.approval.body.ef'      => 'Your petition to join (@CO_NAME) as been approved. You may now log in to the platform.',
+  'em.expiration.subject'    => 'Placeholder expiration subject',
+  'em.expiration.body'       => 'Placeholder expiration body',
   'em.invite.subject'        => 'Invitation to join %1$s',
   'em.invite.subject.ef'     => 'Invitation to join (@CO_NAME)',
   'em.invite.subject.ver'    => 'Please confirm your email address (@CO_NAME)',
@@ -182,9 +186,11 @@ original notification at
     ActionEnum::CoPersonManuallyProvisioned => 'CO Person Provisioned (Manual)',
     ActionEnum::CoPersonMatchedPetition     => 'CO Person Matched (Petition)',
     ActionEnum::CoPersonProvisioned         => 'CO Person Provisioned',
+    ActionEnum::CoPersonStatusRecalculated  => 'CO Person Status Recalculated',
     ActionEnum::CoPersonRoleAddedManual     => 'CO Person Role Created (Manual)',
     ActionEnum::CoPersonRoleAddedPetition   => 'CO Person Role Created (Petition)',
     ActionEnum::CoPersonRoleDeletedManual   => 'CO Person Role Deleted (Manual)',
+    ActionEnum::CoPersonRoleEditedExpiration => 'CO Person Role Edited (Expiration)',
     ActionEnum::CoPersonRoleEditedManual    => 'CO Person Role Edited',
     ActionEnum::CoPersonRoleEditedPetition  => 'CO Person Role Edited (Petition)',
     ActionEnum::CoPersonRoleRelinked        => 'CO Person Role Relinked',
@@ -195,6 +201,7 @@ original notification at
     ActionEnum::EmailAddressVerified        => 'Email Address Verified',
     ActionEnum::EmailAddressVerifyCanceled  => 'Email Address Verification Canceled',
     ActionEnum::EmailAddressVerifyReqSent   => 'Email Address Verification Sent',
+    ActionEnum::ExpirationPolicyMatched     => 'Expiration Policy Matched',
     ActionEnum::HistoryRecordActorExpunged  => 'History Record Actor Expunged',
     ActionEnum::IdentifierAutoAssigned      => 'Identifier Auto Assigned',
     ActionEnum::InvitationConfirmed         => 'Invitation Confirmed',
@@ -454,6 +461,8 @@ original notification at
                             StatusEnum::Deleted             => 'Deleted',
                             StatusEnum::Denied              => 'Denied',
                             StatusEnum::Duplicate           => 'Duplicate',
+                            StatusEnum::Expired             => 'Expired',
+                            StatusEnum::GracePeriod         => 'Grace Period',
                             StatusEnum::Invited             => 'Invited',
                             StatusEnum::Pending             => 'Pending',
                             StatusEnum::PendingApproval     => 'Pending Approval',
@@ -558,9 +567,8 @@ original notification at
   'er.et.default' =>  'Failed to add default types',
   'er.et.exists' =>   'An extended type named "%1$s" already exists',
   'er.et.inuse' =>    'The extended type "%1$s" is in use by at least one CO Person record within this CO and cannot be removed.',
+  'er.et.inuse-a' =>  'The extended type "%1$s" is in use by at least one %2$s within this CO and cannot be removed.',
   'er.et.inuse.ef' => 'The extended type "%1$s" is in use by at least one Enrollment Flow (as an attribute or default value) within this CO and cannot be removed.',
-  'er.et.inuse.ia' => 'The extended type "%1$s" is in use by at least one Identifier Assignment within this CO and cannot be removed.',
-  'er.et.inuse.sp' => 'The extended type "%1$s" is in use by at least one Self Service Permission within this CO and cannot be removed.',
   'er.field.req' =>   'This field is required',
   'er.fields' =>      'Please recheck the highlighted fields',
   'er.file.none' =>   'No file specified',
@@ -651,6 +659,7 @@ original notification at
   'fd.attrs.pet' =>   'Petition Attributes',
   'fd.closed' =>      'Closed',
   'fd.comment' =>     'Comment',
+  'fd.conditions' =>  'Conditions',
   'fd.cou' =>         'COU',
   'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',  
   'fd.co_people.status' => 'CO Person Status',
@@ -828,6 +837,8 @@ original notification at
   'fd.name.primary_name' => 'Primary',
   'fd.name.fields.req' => 'A name must consist of at least these fields:',
   'fd.no' =>          'No',
+  'fd.not.email.body' => 'Notification Email Body',
+  'fd.not.email.subject' => 'Notification Email Subject',
   'fd.not.for' =>     'Notifications for %1$s (%2$s, %3$s)',
   'fd.not.last' =>    'Last Notification',
   'fd.null' =>        'Null',
@@ -898,6 +909,36 @@ original notification at
   'fd.valid_from.desc' => '(leave blank for immediate validity)',
   'fd.valid_through' => 'Valid Through',
   'fd.valid_through.desc' => '(leave blank for indefinite validity)',
+  'fd.xp.actions' =>  'All of the following <b>actions</b> will be taken when the specified conditions match:',
+  'fd.xp.conditions' => 'All of the following <b>conditions</b> must be met for this Expiration Policy to take effect:',
+  'fd.xp.affil.act.desc' => 'CO Person Roles matching this Expiration Policy will be given this affiliation',
+  'fd.xp.affil.cond.desc' => 'This Expiration Policy will only apply to CO Person Roles with this affiliation',
+  'fd.xp.after_expiry.cond' => 'Days After Expiration (Grace Period)',
+  'fd.xp.after_expiry.cond.desc' => 'This Expiration Policy will apply beginning the specified number of days after the expiration time of a CO Person Role (If set, Days Before Expiration may not be set)',
+  'fd.xp.before_expiry.cond' => 'Days Before Expiration (Notification Period)',
+  'fd.xp.before_expiry.cond.desc' => 'This Expiration Policy will apply beginning the specified number of days prior to the expiration time of a CO Person Role (If set, Days After Expiration may not be set)',
+  'fd.xp.clear_expiry.act' => 'Clear Expiration',
+  'fd.xp.clear_expiry.act.desc' => 'The expiration date for the affected CO Person Role will be cleared when this Expiration Policy is applied',
+  'fd.xp.cou.act.desc' => 'CO Person Roles matching this Expiration Policy will be moved to this COU',
+  'fd.xp.cou.cond.desc' => 'This Expiration Policy will only apply to CO Person Roles in this COU',
+  'fd.xp.disable' => 'Disable Expiration',
+  'fd.xp.disable.desc' => 'Disable automatic (scheduled) expirations<br />This setting does not impact manual expirations',
+  'fd.xp.notify_coadmin.act' => 'Notify CO Administrator(s)',
+  'fd.xp.notify_coadmin.act.desc' => 'The CO Administrator(s) will be notified when this Expiration Policy is applied',
+  'fd.xp.notify_cogroup.act' => 'Notify CO Group',
+  'fd.xp.notify_cogroup.act.desc' => 'Members of the specified CO Group will be notified when this Expiration Policy is applied',
+  'fd.xp.notify_couadmin.act' => 'Notify COU Administrator(s)',
+  'fd.xp.notify_couadmin.act.desc' => 'The COU Administrator(s) for the affected CO Person Role will be notified when this Expiration Policy is applied',
+  'fd.xp.notify_coperson.act' => 'Notify CO Person',
+  'fd.xp.notify_coperson.act.desc' => 'The CO Person whose Role is affected will be notified when this Expiration Policy is applied',
+  'fd.xp.nbody' =>    'Notification Email Body',
+  'fd.xp.nbody.desc' => 'Body for email message sent for notification (max 4000 characters)',
+  'fd.xp.nsubject' => 'Notification Email Subject',
+  'fd.xp.nsubject.desc' => 'Subject for email message sent for notification',
+  'fd.xp.sponsor.cond' => 'Invalid Sponsor',
+  'fd.xp.sponsor.cond.desc' => 'This Expiration Policy will apply when the Sponsor for a CO Person Role is no longer valid (active)',
+  'fd.xp.status.act.desc' => 'CO Person Roles matching this Expiration Policy will be given this status',
+  'fd.xp.status.cond.desc' => 'This Expiration Policy will only apply to CO Person Roles with this status',
   'fd.yes' =>         'Yes',
 
   // Informational messages
@@ -1034,6 +1075,7 @@ original notification at
   'rs.added-a' =>     '"%1$s" Added',
   'rs.added-a2' =>    '%1$s "%2$s" Added',
   'rs.added-a3' =>    '%1$s Added',
+  'rs.cop.recalc' =>  'CO Person status recalculated: %1$s',
   'rs.deleted-a2' =>  '%1$s "%2$s" Deleted',
   'rs.deleted-a3' =>  '%1$s Deleted',
   'rs.edited-a2' =>   '%1$s "%2$s" Edited',
@@ -1095,6 +1137,8 @@ original notification at
   'rs.updated-a2' =>  '%1$s "%2$s" Updated',
   'rs.updated-a3' =>  '%1$s Updated',
   'rs.uploaded-a2' => '%1$s "%2$s" Uploaded',
+  'rs.xp.action' =>   'Expiration Policy "%1$s" (%2$s): %3$s',
+  'rs.xp.match' =>    'Expiration Policy "%1$s" (%2$s) conditions matched',
   
   // Setup
   
@@ -1112,6 +1156,12 @@ original notification at
   'se.security.seed' =>   'Creating security seed file',
   'se.done' =>            'Setup complete',
   'se.users.view' =>      'Creating users view',
+  
+  // Shell
+  
+  'sh.cron.done' =>       'Cron shell finished',
+  'sh.cron.xp' =>         'Running expirations for CO %1$s (%2$s)',
+  'sh.cron.xp.disabled' => 'Expirations are disabled for this CO',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them
@@ -1170,7 +1220,7 @@ function _bootstrap_plugin_txt()
 {
   global $cm_lang, $cm_texts;
   
-  $plugins = AppController::availablePlugins();
+  $plugins = App::objects('plugin');
   
   foreach($plugins as $plugin) {
     $langfile = APP. '/Plugin/' . $plugin . '/Lib/lang.php';

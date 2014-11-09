@@ -236,7 +236,7 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
             </li>
             <?php endforeach; ?>
             <li class="see-all">
-              <a href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id; ?>"><?php print _txt('op.see.notifications')?></a>
+              <a href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id; ?>/sort:created/direction:desc"><?php print _txt('op.see.notifications')?></a>
             </li>
           </ul>
         </li>

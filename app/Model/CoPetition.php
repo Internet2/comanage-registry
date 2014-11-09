@@ -1415,44 +1415,18 @@ class CoPetition extends AppModel {
         }
       }
       
-      // Maybe update CO Person state, but only if it's currently Pending Approval,
-      // Pending Confirmation, or Approved
+      // Recalculate the overall CO Person status
       
       if(!$fail && isset($newCoPersonStatus)) {
         $coPersonID = $this->field('enrollee_co_person_id');
         
         if($coPersonID) {
-          $this->EnrolleeCoPerson->id = $coPersonID;
-          
-          $curCoPersonStatus = $this->EnrolleeCoPerson->field('status');
-          
-          if(isset($curCoPersonStatus)
-             && ($curCoPersonStatus == StatusEnum::Approved
-                 || $curCoPersonStatus == StatusEnum::PendingApproval
-                 || $curCoPersonStatus == StatusEnum::PendingConfirmation)) {
-            $this->EnrolleeCoPerson->saveField('status', $newCoPersonStatus);
-            
-            // Create a history record
-            try {
-              $newdata = array();
-              $olddata = array();
-              $newdata['CoPerson']['status'] = $newCoPersonStatus;
-              $olddata['CoPerson']['status'] = $curCoPersonStatus;
-              
-              $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
-                                                             null,
-                                                             null,
-                                                             $actorCoPersonID,
-                                                             ActionEnum::CoPersonEditedPetition,
-                                                             _txt('en.action', null, ActionEnum::CoPersonEditedPetition) . ": "
-                                                             . _txt('en.status', null, $curCoPersonStatus) . " > "
-                                                             . _txt('en.status', null, $newCoPersonStatus));
-            }
-            catch(Exception $e) {
-              $fail = true;
-            }
+          try {
+            $this->EnrolleeCoPerson->recalculateStatus($coPersonID);
           }
-          // else not a fail
+          catch(Exception $e) {
+            $fail = true;
+          }
         } else {
           $fail = true;
         }
@@ -1602,16 +1576,11 @@ class CoPetition extends AppModel {
         } else {
           // We need to look up the appropriate admin group(s). Start with the CO Admins.
           
-          $args = array();
-          $args['conditions']['CoGroup.name']  = 'admin';
-          $args['conditions']['CoGroup.co_id'] = $coID;
-          $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
-          $args['contain'] = false;
-          
-          $coAdminGroup = $this->Co->CoGroup->find('first', $args);
-          
-          if(!empty($coAdminGroup['CoGroup']['id'])) {
-            $cogroupids[] = $coAdminGroup['CoGroup']['id'];
+          try {
+            $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($coID);
+          }
+          catch(Exception $e) {
+            $fail = true;
           }
           
           // To see if we should notify COU Admins, we need to see if this petition was
@@ -1625,16 +1594,11 @@ class CoPetition extends AppModel {
             $couName = $this->Cou->field('name', array('Cou.id' => $couID));
             
             if(!empty($couName)) {
-              $args = array();
-              $args['conditions']['CoGroup.name']  = 'admin:' . $couName;
-              $args['conditions']['CoGroup.co_id'] = $coID;
-              $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
-              $args['contain'] = false;
-              
-              $couAdminGroup = $this->Co->CoGroup->find('first', $args);
-              
-              if(!empty($couAdminGroup['CoGroup']['id'])) {
-                $cogroupids[] = $couAdminGroup['CoGroup']['id'];
+              try {
+                $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($coID, $couName);
+              }
+              catch(Exception $e) {
+                $fail = true;
               }
             }
           }

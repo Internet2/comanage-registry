@@ -159,6 +159,18 @@ if($menuContent['cos']) {
                     print "</li>";
                   }
                   
+                  if(isset($permissions['menu']['cous']) && $permissions['menu']['cous']) {
+                    print "<li>";
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'cous';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
+                      print $this->Html->link(_txt('ct.cous.pl'), $args);
+                    print "</li>";
+                  }
+                  
                   if(isset($permissions['menu']['coef']) && $permissions['menu']['coef']) {
                     print "<li>";
                       $args = array();
@@ -171,18 +183,18 @@ if($menuContent['cos']) {
                     print "</li>";
                   }
                   
-                  if(isset($permissions['menu']['cous']) && $permissions['menu']['cous']) {
+                  if(isset($permissions['menu']['coxp']) && $permissions['menu']['coxp']) {
                     print "<li>";
                       $args = array();
                       $args['plugin'] = null;
-                      $args['controller'] = 'cous';
+                      $args['controller'] = 'co_expiration_policies';
                       $args['action'] = 'index';
                       $args['co'] = $menuCoId;
                       
-                      print $this->Html->link(_txt('ct.cous.pl'), $args);
+                      print $this->Html->link(_txt('ct.co_expiration_policies.pl'), $args);
                     print "</li>";
                   }
-
+                  
                   if(isset($permissions['menu']['extattrs']) && $permissions['menu']['extattrs']) {
                     print "<li>";
                       $args = array();
@@ -219,6 +231,30 @@ if($menuContent['cos']) {
                     print "</li>";
                   }
                   
+                  if(isset($permissions['menu']['colocalizations']) && $permissions['menu']['colocalizations']) {
+                    print "<li>";
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_localizations';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
+                      print $this->Html->link(_txt('ct.co_localizations.pl'), $args);
+                    print "</li>";
+                  }
+                  
+                  if(isset($permissions['menu']['conavigationlinks']) && $permissions['menu']['conavigationlinks']) {
+                    print "<li>";
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_navigation_links';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
+                      print $this->Html->link(_txt('ct.co_navigation_links.pl'), $args);
+                    print "</li>";
+                  }
+                  
                   if(isset($permissions['menu']['coprovtargets']) && $permissions['menu']['coprovtargets']) {
                     print "<li>";
                       $args = array();
@@ -252,30 +288,6 @@ if($menuContent['cos']) {
                       $args['co'] = $menuCoId;
                       
                       print $this->Html->link(_txt('ct.co_terms_and_conditions.pl'), $args);
-                    print "</li>";
-                  }
-                  
-                  if(isset($permissions['menu']['conavigationlinks']) && $permissions['menu']['conavigationlinks']) {
-                    print "<li>";
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'co_navigation_links';
-                      $args['action'] = 'index';
-                      $args['co'] = $menuCoId;
-                      
-                      print $this->Html->link(_txt('ct.co_navigation_links.pl'), $args);
-                    print "</li>";
-                  }
-                  
-                  if(isset($permissions['menu']['colocalizations']) && $permissions['menu']['colocalizations']) {
-                    print "<li>";
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'co_localizations';
-                      $args['action'] = 'index';
-                      $args['co'] = $menuCoId;
-                      
-                      print $this->Html->link(_txt('ct.co_localizations.pl'), $args);
                     print "</li>";
                   }
                   

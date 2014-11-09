@@ -146,6 +146,16 @@ class CoNotification extends AppModel {
                                       NotificationStatusEnum::Resolved)),
       'required' => true
     ),
+    'email_subject' => array(
+      'rule' => 'notEmpty',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'email_body' => array(
+      'rule' => 'notEmpty',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'notification_time' => array(
       'rule' => 'notEmpty'
     ),
@@ -571,7 +581,11 @@ class CoNotification extends AppModel {
                                $recipient['RecipientCoPerson']['id'],
                                $action,
                                $comment,
-                               $source);
+                               $source,
+                               $mustResolve,
+                               $fromAddress,
+                               $subjectTemplate,
+                               $bodyTemplate);
           
           // We get an array back but it should only have one entry
           $ids[] = $r[0];
@@ -646,13 +660,14 @@ class CoNotification extends AppModel {
       foreach($recipients as $recipient) {
         $toaddr = null;
         
-        if(!empty($recipient['RecipientCoPerson']['EmailAddress'][0]['mail'])) {
+        if(!empty($recipient['EmailAddress'][0]['mail'])) {
           // Send email, if we have an email address
           // Which email address do we use? for now, the first one (same as in processResolution())
           // (ultimately we probably want the first address of type delivery)
-          $toaddr = $recipient['RecipientCoPerson']['EmailAddress'][0]['mail'];
+          $toaddr = $recipient['EmailAddress'][0]['mail'];
           
           try {
+            // Send email will update the record with the subject and body it constructs
             $this->sendEmail($toaddr,
                              ($subjectTemplate ? $subjectTemplate : _txt('em.notification.subject')),
                              ($bodyTemplate ? $bodyTemplate : _txt('em.notification.body')),
@@ -660,7 +675,8 @@ class CoNotification extends AppModel {
                              $sourceurl,
                              $comment,
                              null,
-                             $fromAddress);
+                             $fromAddress,
+                             $notificationId);
           }
           catch(Exception $e) {
             throw new RuntimeException($e->getMessage());
@@ -798,6 +814,7 @@ class CoNotification extends AppModel {
    * @param  String  $sourceUrl         Source URL, for template substitution
    * @param  String  $actorName         Human readable name of Actor, for template substitution
    * @param  String  $fromAddress       Email Address to send the invite from (if null, use default)
+   * @param  Integer $notificationId    If set, attach a copy of the subject and email to the specified CO Notification
    * @throws RuntimeException
    */
   
@@ -808,7 +825,8 @@ class CoNotification extends AppModel {
                                $comment,
                                $sourceUrl,
                                $actorName=null,
-                               $fromAddress=null) {
+                               $fromAddress=null,
+                               $notificationId=null) {
     // Create the message subject and body based on the templates.
     
     $msgBody = "";
@@ -843,6 +861,15 @@ class CoNotification extends AppModel {
             ->to($recipient)
             ->subject($msgSubject)
             ->send($msgBody);
+      
+      if($notificationId) {
+        // Truncate subject and body to fit in the available database width
+        
+        $this->id = $notificationId;
+        $this->saveField('email_subject', substr($msgSubject, 0, 255));
+        // At least for postgres, this is stored as text, which doesn't have a fixed limit
+        $this->saveField('email_body', $msgBody);
+      }
     }
     catch(Exception $e) {
       // Should we really abort all notifications if a send fails? Probably not...

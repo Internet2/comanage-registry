@@ -45,6 +45,10 @@ class CoGroup extends AppModel {
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'notification_co_group_id'
     ),
+    "CoExpirationPolicyNotificationGroup" => array(
+      'className' => 'CoExpirationPolicy',
+      'foreignKey' => 'act_notify_co_group_id'
+    ),
     "CoNotificationRecipientGroup" => array(
       'className' => 'CoNotification',
       'foreignKey' => 'recipient_co_group_id'
@@ -100,6 +104,36 @@ class CoGroup extends AppModel {
   public $cm_enum_types = array(
     'status' => 'status_t'
   );
+  
+  /**
+   * Obtain the ID of the CO or COU admin group.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer $coId    CO ID
+   * @param  String  $couName COU Name, within $coId
+   * @return Integer CO Group ID
+   * @throws InvalidArgumentException
+   */
+  
+  public function adminCoGroupId($coId, $couName=null) {
+    $args = array();
+    if($couName) {
+      $args['conditions']['CoGroup.name'] = 'admin:' . $couName;
+    } else {
+      $args['conditions']['CoGroup.name'] = 'admin';
+    }
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $coAdminGroup = $this->Co->CoGroup->find('first', $args);
+    
+    if(!empty($coAdminGroup['CoGroup']['id'])) {
+      return $coAdminGroup['CoGroup']['id'];
+    }
+    
+    throw new InvalidArgumentException(_txt('er.gr.nf', array($args['conditions']['CoGroup.name'])));
+  }
 
   /**
    * Obtain all groups for a CO person.
@@ -110,7 +144,7 @@ class CoGroup extends AppModel {
    * @param  Integer Offset to start retrieving results from (or null)
    * @param  String Field to sort by (or null)
    * @return Array Group information, as returned by find
-   * @todo   XXX Rewrite to a custom find type
+   * @todo   Rewrite to a custom find type
    */
   
   function findForCoPerson($coPersonId, $limit=null, $offset=null, $order=null) {

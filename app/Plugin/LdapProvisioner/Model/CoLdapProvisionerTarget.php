@@ -631,7 +631,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $person = true;
         break;
       case ProvisioningActionEnum::CoPersonUpdated:
-        if($provisioningData['CoPerson']['status'] != StatusEnum::Active) {
+        if($provisioningData['CoPerson']['status'] != StatusEnum::Active
+           && $provisioningData['CoPerson']['status'] != StatusEnum::GracePeriod) {
           // Convert this to a delete operation. Basically we (may) have a record in LDAP,
           // but the person is no longer active. Don't delete the DN though, since
           // the underlying person was not deleted.

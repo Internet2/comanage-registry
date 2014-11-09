@@ -2,7 +2,7 @@
 /**
  * COmanage Registry COU Model
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -51,6 +51,14 @@ class Cou extends AppModel {
     "CoEnrollmentFlowAuthzCou" => array(
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'authz_cou_id'
+    ),
+    "CoExpirationPolicyActCou" => array(
+      'className' => 'CoExpirationPolicy',
+      'foreignKey' => 'act_cou_id'
+    ),
+    "CoExpirationPolicyCondCou" => array(
+      'className' => 'CoExpirationPolicy',
+      'foreignKey' => 'cond_cou_id'
     )
   );
 

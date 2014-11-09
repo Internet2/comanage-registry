@@ -486,6 +486,47 @@
     </index>
   </table>
   
+  <table name="co_expiration_policies">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="cond_cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="cond_affiliation" type="C" size="32" />
+    <field name="cond_before_expiry" type="I" />
+    <field name="cond_after_expiry" type="I" />
+    <field name="cond_status" type="C" size="2" />
+    <field name="cond_sponsor_invalid" type="L" />
+    <field name="act_affiliation" type="C" size="32" />
+    <field name="act_clear_expiry" type="L" /> 
+    <field name="act_cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="act_notify_co_admin" type="L" />
+    <field name="act_notify_cou_admin" type="L" />
+    <field name="act_notify_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="act_notify_co_person" type="L" />
+    <field name="act_notification_subject" type="C" size="256" />
+    <field name="act_notification_body" type="X" size="4000" />
+    <field name="act_status" type="C" size="2" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_settings_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
   <table name="co_notifications">
     <field name="id" type="I">
       <key />
@@ -517,6 +558,8 @@
     <field name="source_id" type="I" />
     <field name="source_arg0" type="C" size="80" />
     <field name="source_val0" type="C" size="80" />
+    <field name="email_subject" type="C" size="256" />
+    <field name="email_body" type="X" size="4000" />
     <field name="status" type="C" size="2" />
     <field name="notification_time" type="T" />
     <field name="resolution_time" type="T" />
@@ -1037,7 +1080,7 @@
     <field name="description" type="C" size="256" />
     <field name="url" type="C" size="256" />
     <field name="cou_id" type="I">
-      <constraint>REFERENCES cm_co_groups(id)</constraint>
+      <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
@@ -1155,6 +1198,7 @@
       <unique />
     </field>
     <field name="enable_nsf_demo" type="L" />
+    <field name="disable_expiration" type="L" />
     <field name="invitation_validity" type="I" />
     <field name="required_fields_addr" type="C" size="160" />
     <field name="required_fields_name" type="C" size="160" />

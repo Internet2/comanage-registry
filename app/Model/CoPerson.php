@@ -150,6 +150,8 @@ class CoPerson extends AppModel {
                                         StatusEnum::Deleted,
                                         StatusEnum::Denied,
                                         StatusEnum::Duplicate,
+                                        StatusEnum::Expired,
+                                        StatusEnum::GracePeriod,
                                         StatusEnum::Invited,
                                         StatusEnum::Pending,
                                         StatusEnum::PendingApproval,
@@ -162,6 +164,10 @@ class CoPerson extends AppModel {
   );
   
   // Enum type hints
+  
+  public $cm_enum_txt = array(
+    'status' => 'en.status'
+  );
   
   public $cm_enum_types = array(
     'status' => 'status_t'
@@ -572,6 +578,107 @@ class CoPerson extends AppModel {
     }
     
     return $targets;
+  }
+  
+  /**
+   * Recalculate the status of a CO Person based on the attached CO Person Roles.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer $id CO Person ID
+   * @return Boolean true on success
+   * @throws RuntimeException
+   */
+  
+  public function recalculateStatus($id) {
+    $newStatus = null;
+    
+    // We rank status by "preference". More "preferred" statuses rank higher.
+    // To faciliate comparison, we'll convert this to an integer value and store
+    // it in a hash. Most preferred numbers are larger so we can say things like
+    // Active > Expired. Possibly this should go somewhere else, if useful.
+    
+    $statusRanks = array(
+      // Active statuses are most preferred
+      StatusEnum::Active                => 14,
+      StatusEnum::GracePeriod           => 13,
+      
+      // Next come invitation statuses
+      StatusEnum::Approved              => 12,
+      StatusEnum::PendingApproval       => 11,
+      StatusEnum::Confirmed             => 10,
+      StatusEnum::PendingConfirmation   => 9,
+      StatusEnum::Invited               => 8,
+      StatusEnum::Pending               => 7,  // It's not clear this is used for anything
+      
+      // Then expired statuses
+      StatusEnum::Suspended             => 6,
+      StatusEnum::Expired               => 5,
+      
+      // Denied and Declined are below expired since other roles are more likely to have been used
+      StatusEnum::Denied                => 4,
+      StatusEnum::Declined              => 3,
+      
+      // Finally, we generally don't want Deleted or Duplicate unless all roles are deleted or duplicates
+      StatusEnum::Deleted               => 2,
+      StatusEnum::Duplicate             => 1
+    );
+    
+    // Start by pulling the roles for this person
+    
+    $args = array();
+    $args['conditions']['CoPersonRole.co_person_id'] = $id;
+    $args['contain'] = false;
+    
+    $roles = $this->CoPersonRole->find('all', $args);
+    
+    foreach($roles as $role) {
+      if(!$newStatus) {
+        // This is the first role, just set the new status to it
+        
+        $newStatus = $role['CoPersonRole']['status'];
+      } else {
+        // Check if this role's status is more preferable than the current status
+        
+        if($statusRanks[ $role['CoPersonRole']['status'] ] > $statusRanks[$newStatus]) {
+          $newStatus = $role['CoPersonRole']['status'];
+        }
+      }
+    }
+    
+    if($newStatus) {
+      $this->id = $id;
+      
+      // Pull the current value
+      $curStatus = $this->field('status');
+      
+      if($newStatus != $curStatus) {
+        $coId = $this->field('co_id');
+        
+        // Update the CO Person status
+        $this->saveField('status', $newStatus);
+        
+        // Record history
+        try {
+          $ctxt = $this->changesToString(array('CoPerson' => array('status' => $newStatus)),
+                                         array('CoPerson' => array('status' => $curStatus)),
+                                         $coId);
+          
+          $this->HistoryRecord->record($role['CoPersonRole']['co_person_id'],
+                                       null,
+                                       null,
+                                       null,
+                                       ActionEnum::CoPersonStatusRecalculated,
+                                       _txt('rs.cop.recalc', array($ctxt)));
+        }
+        catch(Exception $e) {
+          throw new RuntimeException($e->getMessage());
+        }
+      }
+      // else nothing to do, status is unchanged
+    }
+    // else no roles, leave status unchanged
+    
+    return true;
   }
   
   /**

@@ -471,7 +471,7 @@ class CoPeopleController extends StandardController {
                                                $this->Session->read('Auth.User.co_person_id'),
                                                ActionEnum::CoPersonEditedManual,
                                                _txt('en.action', null, ActionEnum::CoPersonEditedManual) . ": " .
-                                               $this->changesToString($newdata, $olddata, array('CoPerson')));
+                                               $this->CoPerson->changesToString($newdata, $olddata, $this->cur_co['Co']['id']));
         break;
     }
     

@@ -234,7 +234,7 @@ class OrgIdentitiesController extends StandardController {
                  $this->Paginator->paginate('OrgIdentity',
                                       array("OrgIdentity.co_id" => $this->cur_co['Co']['id'])));
     } else {
-      $this->set('org_identities', $this->Paginator-> paginate('OrgIdentity'));
+      $this->set('org_identities', $this->Paginator->paginate('OrgIdentity'));
     }
     
     // Don't user server side pagination
@@ -260,8 +260,20 @@ class OrgIdentitiesController extends StandardController {
       return(generateCn($this->data['PrimaryName']));
     elseif(isset($c['PrimaryName']))
       return(generateCn($c['PrimaryName']));
-    else
-      return("(?)");
+    elseif(!empty($this->request->data['OrgIdentity']['id'])) {
+      // Pull the PrimaryName
+      $args = array();
+      $args['conditions']['OrgIdentity.id'] = $this->request->data['OrgIdentity']['id'];
+      $args['contain'][] = 'PrimaryName';
+      
+      $p = $this->OrgIdentity->find('first', $args);
+      
+      if($p) {
+        return generateCn($p['PrimaryName']);
+      }
+    }
+    
+    return("(?)");
   }
 
   /**
@@ -297,7 +309,11 @@ class OrgIdentitiesController extends StandardController {
                                                   $this->Session->read('Auth.User.co_person_id'),
                                                   ActionEnum::OrgIdEditedManual,
                                                   _txt('en.action', null, ActionEnum::OrgIdEditedManual) . ": " .
-                                                  $this->changesToString($newdata, $olddata, array('OrgIdentity', 'PrimaryName')));
+                                                  $this->OrgIdentity->changesToString($newdata,
+                                                                                      $olddata,
+                                                                                      (!empty($this->cur_co['Co']['id'])
+                                                                                       ? $this->cur_co['Co']['id']
+                                                                                       : null)));
         break;
     }
     

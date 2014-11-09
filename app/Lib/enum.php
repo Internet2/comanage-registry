@@ -35,9 +35,11 @@ class ActionEnum
   const CoPersonManuallyProvisioned     = 'PCPM';
   const CoPersonMatchedPetition         = 'MCPP';
   const CoPersonProvisioned             = 'PCPA';
+  const CoPersonStatusRecalculated      = 'RCPS';
   const CoPersonRoleAddedManual         = 'ACRM';
   const CoPersonRoleAddedPetition       = 'ACRP';
   const CoPersonRoleDeletedManual       = 'DCRM';
+  const CoPersonRoleEditedExpiration    = 'ECRX';
   const CoPersonRoleEditedManual        = 'ECRM';
   const CoPersonRoleEditedPetition      = 'ECRP';
   const CoPersonRoleRelinked            = 'LCRM';
@@ -51,6 +53,7 @@ class ActionEnum
   const EmailAddressVerified            = 'EMLV';
   const EmailAddressVerifyCanceled      = 'EMLC';
   const EmailAddressVerifyReqSent       = 'EMLS';
+  const ExpirationPolicyMatched         = 'EXPM';
   const HistoryRecordActorExpunged      = 'HRAE';
   const IdentifierAutoAssigned          = 'AIDA';
   const InvitationConfirmed             = 'INVC';
@@ -392,6 +395,8 @@ class StatusEnum
   const Deleted             = 'D';
   const Denied              = 'N';
   const Duplicate           = 'D2';
+  const Expired             = 'XP';
+  const GracePeriod         = 'GP';
   const Invited             = 'I';
   const Pending             = 'P';
   const PendingApproval     = 'PA';
