@@ -149,6 +149,21 @@ class CmpEnrollmentConfigurationsController extends StandardController {
   }
   
   /**
+   * Perform a redirect back to the controller's default view.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.9.1
+   */
+  
+  function performRedirect() {
+    // Back to the edit view we go...
+    
+    $this->redirect(array('action' => 'edit',
+                          $this->viewVars['cmp_enrollment_configurations'][0]['CmpEnrollmentConfiguration']['id']));
+    
+  }
+  
+  /**
    * Select a CMP Enrollment Configuration to operate over.
    * - postcondition: If no CMP Enrollment Configuration exists, one is created
    * - postcondition: Default CMP Enrollment Attributes are created or updated
