@@ -25,7 +25,8 @@
 class UsersController extends AppController {
   public $name = 'Users';
   
-  public $uses = array("CoGroup",
+  public $uses = array("CmpEnrollmentConfiguration",
+                       "CoGroup",
                        "CoGroupMember",
                        "CoSetting",
                        "CoTermsAndConditions",
@@ -92,30 +93,78 @@ class UsersController extends AppController {
           // This is an Org Identity. Figure out which Org Identities this username
           // (identifier) is associated with. First, pull the identifiers.
           
-          $args['joins'][0]['table'] = 'identifiers';
-          $args['joins'][0]['alias'] = 'Identifier';
-          $args['joins'][0]['type'] = 'INNER';
-          $args['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
-          $args['conditions']['Identifier.identifier'] = $u;
-          $args['conditions']['Identifier.login'] = true;
+          // We use $oargs here instead of $args because we may reuse this below
+          $oargs = array();
+          $oargs['joins'][0]['table'] = 'identifiers';
+          $oargs['joins'][0]['alias'] = 'Identifier';
+          $oargs['joins'][0]['type'] = 'INNER';
+          $oargs['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+          $oargs['conditions']['Identifier.identifier'] = $u;
+          $oargs['conditions']['Identifier.login'] = true;
           // Join on identifiers that aren't deleted (including if they have no status)
-          $args['conditions']['OR'][] = 'Identifier.status IS NULL';
-          $args['conditions']['OR'][]['Identifier.status <>'] = StatusEnum::Deleted;
+          $oargs['conditions']['OR'][] = 'Identifier.status IS NULL';
+          $oargs['conditions']['OR'][]['Identifier.status <>'] = StatusEnum::Deleted;
           // Through the magic of containable behaviors, we can get all the associated
           // data we need in one clever find
-          $args['contain'][] = 'PrimaryName';
-          $args['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
-          $args['contain']['CoOrgIdentityLink']['CoPerson'][1] = 'CoPersonRole';
-          $args['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
+          $oargs['contain'][] = 'PrimaryName';
+          $oargs['contain'][] = 'Identifier';
+          $oargs['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
+          $oargs['contain']['CoOrgIdentityLink']['CoPerson'][1] = 'CoPersonRole';
+          $oargs['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
           
-          $orgIdentities = $this->OrgIdentity->find('all', $args);
+          $orgIdentities = $this->OrgIdentity->find('all', $oargs);
           
           // Grab the org IDs and CO information
           $orgs = array();
           $cos = array();
           
-          foreach($orgIdentities as $o)
-          {
+          // Determine if we are collecting authoritative attributes from $ENV
+          // (the only support mechanism at the moment). If so, this will be an array
+          // of those value. If not, false.
+          $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
+          
+          if(!empty($envValues)) {
+            // Walk through the Org Identities and update any configured/collected attributes.
+            // Track if we made any changes.
+            
+            $orgIdentityChanged = false;
+            
+            foreach($orgIdentities as $o) {
+              if(!empty($o['Identifier'])) {
+                // Does this org identity's identifier match the authenticated identifier?
+                
+                foreach($o['Identifier'] as $i) {
+                  if(isset($i['login']) && $i['login']
+                     && !empty($i['status']) && $i['status'] == StatusEnum::Active
+                     && !empty($i['identifier'])
+                     && $i['identifier'] == $u) {
+                    // We have a match, possibly update associated attributes
+                    
+                    $newOrgIdentity = $this->OrgIdentity->updateFromEnv($o['OrgIdentity']['id'], $envValues);
+                    
+                    if(!empty($newOrgIdentity)) {
+                      // Update our session store with the new values
+                      
+                      $orgIdentityChanged = true;
+                    }
+                    
+                    // No need to walk through any other identifiers attached to this org identity
+                    break;
+                  }
+                }
+              }
+            }
+            
+            if($orgIdentityChanged) {
+              // Simply reread the org identities... this is easier than trying to
+              // collate the new identity into the old one. (We don't track all potentially
+              // updated attributes in the session.)
+              
+              $orgIdentities = $this->OrgIdentity->find('all', $oargs);
+            }
+          }
+          
+          foreach($orgIdentities as $o) {
             $orgs[] = array(
               'org_id' => $o['OrgIdentity']['id'],
               'co_id' => $o['OrgIdentity']['co_id']

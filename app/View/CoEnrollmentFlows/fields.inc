@@ -70,6 +70,20 @@
     }
   }
   
+  if($permissions['select']) {
+    // Shortcut to start enrollment flow
+    
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-arrow-e',
+      'title'   => _txt('op.begin'),
+      'url'     => array(
+        'controller' => 'co_petitions',
+        'action' => 'add',
+        'coef' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
+      )
+    );
+  }
+  
   $this->set('sidebarButtons', $sidebarButtons);
   
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";

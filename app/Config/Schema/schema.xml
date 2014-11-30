@@ -620,7 +620,7 @@
     <field name="attribute" type="C" size="80">
       <notnull />
     </field>
-    <field name="type" type="C" size="16" />
+    <field name="type" type="C" size="32" />
     <field name="required" type="I" />
     <field name="env_name" type="C" size="80" />
     <field name="ldap_name" type="C" size="80" />

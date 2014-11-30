@@ -51,15 +51,23 @@
   $this->Html->addCrumb(_txt('me.population'), $args);
   if($this->action == "canvas") {
     $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']));
+  } elseif($this->action == "invite") {
+    $args = array(
+      'controller' => 'org_identities',
+      'action' => 'edit',
+      $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id']
+    );
+    
+    $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']), $args);
+    $this->Html->addCrumb(_txt('op.inv'));
   } else {
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',
-      $co_people[0]['CoPerson']['id']);
+      $co_people[0]['CoPerson']['id']
+    );
+    
     $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']), $args);
-    if($this->action == "invite") {
-      $this->Html->addCrumb(_txt('op.invite'));
-    }
   }
   
   // Add buttons to sidebar

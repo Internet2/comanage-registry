@@ -60,6 +60,201 @@ class AppModel extends Model {
   }
   
   /**
+   * Compare one model's worth of data and generate a string describing what changed, suitable for
+   * including in a history record.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String  $model   Model being examined
+   * @param  Array   $newdata New data, in Cake single instance format
+   * @param  Array   $olddata Old data, in Cake single instance format
+   * @param  Integer $coId    CO ID, if known
+   * @param  Array   $attrs   Array of model attributes to examine
+   * @return Array Array of string describing changes
+   */
+  
+  protected function changesForModel($model, $newdata, $olddata, $coId, $attrs) {
+    global $cm_texts, $cm_lang;
+    
+    $changes = array();
+    
+    foreach($attrs as $attr) {
+      // Skip some "housekeeping" keys. Don't blanket skip all *_id attributes
+      // since some foreign keys should be tracked (eg: cou_id, sponsor_co_person_id).
+      if($attr == 'id'
+         // We can generally skip CO ID since attributes can't move across COs.
+         || $attr == 'co_id'
+         // We can generally skip co_person_id and org_identity_id since changing those
+         // requires a relink operation that will generate its own history
+         || $attr == 'co_person_id'
+         || $attr == 'org_identity_id'
+         // Skip record metadata
+         || $attr == 'created'
+         || $attr == 'modified') {
+        continue;
+      }
+      
+      // Skip further nested arrays
+      if((isset($newdata[$attr]) && is_array($newdata[$attr]))
+          || (isset($olddata[$attr]) && is_array($olddata[$attr]))) {
+        continue;
+      }
+      
+      if(preg_match('/.*_id$/', $attr)) {
+        // Foreign keys need to be handled specially. Start by figuring out the model.
+        
+        if(preg_match('/.*_co_person_id$/', $attr)) {
+          // This is a foreign key to a CO Person (eg: sponsor_co_person)
+          
+          // Chop off _co_person_id
+          $afield = substr($attr, 0, strlen($attr)-13);
+          $amodel = "CoPerson";
+        } else {
+          // Chop off _id
+          $afield = substr($attr, 0, strlen($attr)-3);
+          $amodel = Inflector::camelize(rtrim($attr, "_id"));
+        }
+        
+        // Instantiated foreign key model
+        $fkmodel = ClassRegistry::init($amodel);
+        
+        $ftxt = $afield;
+        
+        // XXX this isn't really an ideal way to see if a language key exists (here or below)
+        if(!empty($cm_texts[ $cm_lang ]['fd.' . $afield])) {
+          $ftxt = $cm_texts[ $cm_lang ]['fd.' . $afield];
+        }
+        
+        // Get the old and new values
+        
+        $oldval = (isset($olddata[$attr]) && $olddata[$attr] != "") ? $olddata[$attr] : null;
+        $newval = (isset($newdata[$attr]) && $newdata[$attr] != "") ? $newdata[$attr] : null;
+        
+        // Make sure they're actually different (we may get some foreign keys here that aren't)
+        
+        if($oldval == $newval) {
+          continue;
+        }
+        
+        if($amodel == "CoPerson" || $amodel == "OrgIdentity") {
+          // Display field is Primary Name. Pull the old and new CO People/Org Identity in
+          // one query, though we won't know which one we'll get back first.
+          
+          $args = array();
+          $args['conditions'][$amodel.'.id'] = array($oldval, $newval);
+          $args['contain'][] = 'PrimaryName';
+          
+          $ppl = $fkmodel->find('all', $args);
+          
+          if(!empty($ppl)) {
+            // Walk through the result set to figure out which one is old and which is new
+            
+            foreach($ppl as $c) {
+              if(!empty($c[$amodel]['id']) && !empty($c['PrimaryName'])) {
+                if($c[$amodel]['id'] == $oldval) {
+                  $oldval = generateCn($c['PrimaryName']) . " (" . $oldval . ")";
+                } elseif($c[$amodel]['id'] == $newval) {
+                  $newval = generateCn($c['PrimaryName']) . " (" . $newval . ")";
+                }
+              }
+            }
+          }
+        } else {
+          // Lookup a human readable string (usually name or something) and prepend it to the ID
+          
+          $oldval = $fkmodel->field($fkmodel->displayField, array('id' => $oldval)) . " (" . $oldval . ")";
+          $newval = $fkmodel->field($fkmodel->displayField, array('id' => $newval)) . " (" . $newval . ")";
+        }
+      } else {
+        // Simple field in the model
+        
+        $oldval = (isset($olddata[$attr]) && $olddata[$attr] != "") ? $olddata[$attr] : null;
+        $newval = (isset($newdata[$attr]) && $newdata[$attr] != "") ? $newdata[$attr] : null;
+        
+        // See if we're working with a type, and if so use the localized string instead
+        // (if we can find it)
+        
+        $fmodel = null;
+        
+        // Use name (not alias) here so (eg) EnrolleeCoPerson works correctly
+        if($model == $this->name) {
+          // We are the model we want
+          $fmodel = $this;
+        } elseif($model == $this->$model->name) {
+          // For now we assume there is a direct association possible
+          $fmodel = $this->$model;
+        }
+        
+        if($fmodel) {
+          if(isset($fmodel->cm_enum_txt[$attr])) {
+            // The model defines a key into lang.php texts to use for localization.
+            
+            if($oldval) {
+              $oldval = _txt($fmodel->cm_enum_txt[$attr], null, $oldval) . " (" . $oldval . ")";
+            }
+            if($newval) {
+              $newval = _txt($fmodel->cm_enum_txt[$attr], null, $newval) . " (" . $newval . ")";
+            }
+          } else {
+            // This is possibly a model with an Extended Type. Try looking up the mapping.
+            // It would be best if we could pull the CO ID from the data we're passed, but
+            // in general MVPAs don't point directly to CO ID. We could look it up, but instead
+            // we'll just expect it to be passed in.
+            
+            if($coId) {
+              $mTypes = $fmodel->types($coId, $attr);
+              
+              if(!empty($mTypes)) {
+                if($oldval) {
+                  $oldval = $mTypes[$oldval] . " (" . $oldval . ")";
+                }
+                if($newval) {
+                  $newval = $mTypes[$newval] . " (" . $newval . ")";
+                }
+              }
+            }
+          }
+        }
+        
+        // Find the localization of the field
+        
+        $ftxt = "(?)";
+        
+        if(($model == 'Name' || $model == 'PrimaryName') && $attr != 'type') {
+          // Treat name specially
+          $ftxt = _txt('fd.name.'.$attr);
+        } else {
+          // Inflect the model name and see if fd.model.attr exists
+          
+          $imodel = Inflector::underscore($model);
+          
+          // XXX this isn't really an ideal way to see if a language key exists (here or above)
+          if(!empty($cm_texts[ $cm_lang ]['fd.' . $imodel . '.' . $attr])) {
+            $ftxt = _txt('fd.' . $imodel . '.' . $attr);
+          } else {
+            // Otherwise see if the attribute by itself exists
+            $ftxt = _txt('fd.' . $attr);
+          }
+        }
+      }
+      
+      // Finally, render the change string based on the attributes found above.
+      // Notate going to or from NULL only if $newdata or $olddata (as appropriate)
+      // was populated, so as to avoid noise when a related object is added or
+      // deleted.
+      
+      if(isset($newval) && !isset($oldval)) {
+        $changes[] = $ftxt . ": " . (isset($olddata) ? _txt('fd.null') . " > " : "") . $newval;
+      } elseif(!isset($newval) && isset($oldval)) {
+        $changes[] = $ftxt . ": " . $oldval . (isset($newdata) ? " > " . _txt('fd.null') : "");
+      } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
+        $changes[] = $ftxt . ": " . $oldval . " > " . $newval;
+      }
+    }
+    
+    return $changes;
+  }
+  
+  /**
    * Compare two arrays and generate a string describing what changed, suitable for
    * including in a history record.
    *
@@ -73,8 +268,6 @@ class AppModel extends Model {
    */
     
   public function changesToString($newdata, $olddata, $coId = null, $additionalModels = array(), $extendedAttrs = array()) {
-    global $cm_texts, $cm_lang;
-    
     // We assume $newdata and $olddate are intended to have the same structure, however
     // we require $models to be specified since different controllers may pull different
     // levels of containable or recursion data, and so we don't know how many associated
@@ -121,182 +314,77 @@ class AppModel extends Model {
           }
         }
       } else {
-        // Generate the union of keys among old and new
+        // Walk through old and new data to correlate records, and while we're at it
+        // assemble the set of attributes to process
         
+        $indexedModels = array();
         $attrs = array();
         
-        if(!empty($newdata[$model]) && !empty($olddata[$model])) {
-          $attrs = array_unique(array_merge(array_keys($newdata[$model]), array_keys($olddata[$model])));
-        } elseif(!empty($newdata[$model])) {
-          $attrs = array_keys($newdata[$model]);
-        } elseif(!empty($olddata[$model])) {
-          $attrs = array_keys($olddata[$model]);
+        if(isset($newdata[$model][0]) || isset($olddata[$model][0])) {
+          // We've got at least one instance of this model to look at (and for now, that's probably
+          // all we'll get) (eg: $data['TelephoneNumber'][0])
+          
+          foreach($olddata[$model] as $o) {
+            if(!empty($o['id'])) {
+              $indexedModels[ $o['id'] ]['old'] = $o;
+              
+              // Identify the attributes associated with this model
+              $attrs = array_unique(array_merge($attrs, array_keys($o)));
+            }
+            // else no old data (new record added)
+          }
+          
+          foreach($newdata[$model] as $n) {
+            if(!empty($n['id'])) {
+              $indexedModels[ $n['id'] ]['new'] = $n;
+              
+              // Identify the attributes associated with this model
+              $attrs = array_unique(array_merge($attrs, array_keys($n)));
+            } elseif(!empty($n)) {
+              // New record, no ID so use special notation
+              
+              $indexedModels['new']['new'] = $n;
+              
+              // Identify the attributes associated with this model
+              $attrs = array_unique(array_merge($attrs, array_keys($n)));
+            }
+            // else no new data (old record deleted)
+          }
+        } else {
+          // Single instance model (eg:$data['CoPerson'])
+          
+          if(!empty($olddata[$model]['id'])) {
+            $indexedModels[ $olddata[$model]['id'] ]['old'] = $olddata[$model];
+            
+            // Identify the attributes associated with this model
+            $attrs = array_unique(array_merge($attrs, array_keys($olddata[$model])));
+          }
+          // else no old data (new record added)
+          
+          if(!empty($newdata[$model]['id'])) {
+            $indexedModels[ $newdata[$model]['id'] ]['new'] = $newdata[$model];
+            
+            // Identify the attributes associated with this model
+            $attrs = array_unique(array_merge($attrs, array_keys($newdata[$model])));
+          } elseif(!empty($newdata[$model])) {
+            // New record, no ID so use special notation
+            
+            $indexedModels['new']['new'] = $newdata[$model];
+            
+            // Identify the attributes associated with this model
+            $attrs = array_unique(array_merge($attrs, array_keys($newdata[$model])));
+          }
+          // else no new data (old record deleted)
         }
         
-        foreach($attrs as $attr) {
-          // Skip some "housekeeping" keys. Don't blanket skip all *_id attributes
-          // since some foreign keys should be tracked (eg: cou_id, sponsor_co_person_id).
-          // We can generally skip CO ID since attributes can't move across COs.
-          if($attr == 'id' || $attr == 'co_id' || $attr == 'created' || $attr == 'modified') {
-            continue;
-          }
-          
-          // Skip nested arrays -- for now, we only deal with top level data
-          if((isset($newdata[$model][$attr]) && is_array($newdata[$model][$attr]))
-              || (isset($olddata[$model][$attr]) && is_array($olddata[$model][$attr]))) {
-            continue;
-          }
-          
-          if(preg_match('/.*_id$/', $attr)) {
-            // Foreign keys need to be handled specially. Start by figuring out the model.
-            
-            if(preg_match('/.*_co_person_id$/', $attr)) {
-              // This is a foreign key to a CO Person (eg: sponsor_co_person)
-              
-              // Chop off _co_person_id
-              $afield = substr($attr, 0, strlen($attr)-13);
-              $amodel = "CoPerson";
-            } else {
-              // Chop off _id
-              $afield = substr($attr, 0, strlen($attr)-3);
-              $amodel = Inflector::camelize(rtrim($attr, "_id"));
-            }
-            
-            // Instantiated foreign key model
-            $fkmodel = ClassRegistry::init($amodel);
-            
-            $ftxt = $afield;
-            
-            // XXX this isn't really an ideal way to see if a language key exists
-            if(!empty($cm_texts[ $cm_lang ]['fd.' . $afield])) {
-              $ftxt = $cm_texts[ $cm_lang ]['fd.' . $afield];
-            }
-            
-            // Get the old and new values
-            
-            $oldval = (isset($olddata[$model][$attr]) && $olddata[$model][$attr] != "") ? $olddata[$model][$attr] : null;
-            $newval = (isset($newdata[$model][$attr]) && $newdata[$model][$attr] != "") ? $newdata[$model][$attr] : null;
-            
-            // Make sure they're actually different (we may get some foreign keys here that aren't)
-            
-            if($oldval == $newval) {
-              continue;
-            }
-            
-            if($amodel == "CoPerson" || $amodel == "OrgIdentity") {
-              // Display field is Primary Name. Pull the old and new CO People/Org Identity in
-              // one query, though we won't know which one we'll get back first.
-              
-              $args = array();
-              $args['conditions'][$amodel.'.id'] = array($oldval, $newval);
-              $args['contain'][] = 'PrimaryName';
-              
-              $ppl = $fkmodel->find('all', $args);
-              
-              if(!empty($ppl)) {
-                // Walk through the result set to figure out which one is old and which is new
-                
-                foreach($ppl as $c) {
-                  if(!empty($c[$amodel]['id']) && !empty($c['PrimaryName'])) {
-                    if($c[$amodel]['id'] == $oldval) {
-                      $oldval = generateCn($c['PrimaryName']) . " (" . $oldval . ")";
-                    } elseif($c[$amodel]['id'] == $newval) {
-                      $newval = generateCn($c['PrimaryName']) . " (" . $newval . ")";
-                    }
-                  }
-                }
-              }
-            } else {
-              // Lookup a human readable string (usually name or something) and prepend it to the ID
-              
-              $oldval = $fkmodel->field($fkmodel->displayField, array('id' => $oldval)) . " (" . $oldval . ")";
-              $newval = $fkmodel->field($fkmodel->displayField, array('id' => $newval)) . " (" . $newval . ")";
-            }
-          } else {
-            // Simple field in the model
-            
-            $oldval = (isset($olddata[$model][$attr]) && $olddata[$model][$attr] != "") ? $olddata[$model][$attr] : null;
-            $newval = (isset($newdata[$model][$attr]) && $newdata[$model][$attr] != "") ? $newdata[$model][$attr] : null;
-            
-            // See if we're working with a type, and if so use the localized string instead
-            // (if we can find it)
-            
-            $fmodel = null;
-            
-            // Use name (not alias) here so (eg) EnrolleeCoPerson works correctly
-            if($model == $this->name) {
-              // We are the model we want
-              $fmodel = $this;
-            } elseif($model == $this->$model->name) {
-              // For now we assume there is a direct association possible
-              $fmodel = $this->$model;
-            }
-            
-            if($fmodel) {
-              if(isset($fmodel->cm_enum_txt[$attr])) {
-                // The model defines a key into lang.php texts to use for localization.
-                
-                if($oldval) {
-                  $oldval = _txt($fmodel->cm_enum_txt[$attr], null, $oldval) . " (" . $oldval . ")";
-                }
-                if($newval) {
-                  $newval = _txt($fmodel->cm_enum_txt[$attr], null, $newval) . " (" . $newval . ")";
-                }
-              } else {
-                // This is possibly a model with an Extended Type. Try looking up the mapping.
-                // It would be best if we could pull the CO ID from the data we're passed, but
-                // in general MVPAs don't point directly to CO ID. We could look it up, but instead
-                // we'll just expect it to be passed in.
-                
-                if($coId) {
-                  $mTypes = $fmodel->types($coId, $attr);
-                  
-                  if(!empty($mTypes)) {
-                    if($oldval) {
-                      $oldval = $mTypes[$oldval] . " (" . $oldval . ")";
-                    }
-                    if($newval) {
-                      $newval = $mTypes[$newval] . " (" . $newval . ")";
-                    }
-                  }
-                }
-              }
-            }
-            
-            // Find the localization of the field
-            
-            $ftxt = "(?)";
-            
-            if(($model == 'Name' || $model == 'PrimaryName') && $attr != 'type') {
-              // Treat name specially
-              $ftxt = _txt('fd.name.'.$attr);
-            } else {
-              // Inflect the model name and see if fd.model.attr exists
-              
-              $imodel = Inflector::underscore($model);
-              
-              // XXX this isn't really an ideal way to see if a language key exists
-              if(!empty($cm_texts[ $cm_lang ]['fd.' . $imodel . '.' . $attr])) {
-                $ftxt = _txt('fd.' . $imodel . '.' . $attr);
-              } else {
-                // Otherwise see if the attribute by itself exists
-                $ftxt = _txt('fd.' . $attr);
-              }
-            }
-          }
-          
-          // Finally, render the change string based on the attributes found above.
-          // Notate going to or from NULL only if $newdata or $olddata (as appropriate)
-          // was populated, so as to avoid noise when a related object is added or
-          // deleted.
-          
-          if(isset($newval) && !isset($oldval)) {
-            $changes[] = $ftxt . ": " . (isset($olddata) ? _txt('fd.null') . " > " : "") . $newval;
-          } elseif(!isset($newval) && isset($oldval)) {
-            $changes[] = $ftxt . ": " . $oldval . (isset($newdata) ? " > " . _txt('fd.null') : "");
-          } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
-            $changes[] = $ftxt . ": " . $oldval . " > " . $newval;
-          }
+        foreach(array_keys($indexedModels) as $mid) {
+          // Note $mid is typically an ID, but can also be the literal 'new' (see above)
+          $changes = array_merge($changes,
+                                 $this->changesForModel($model,
+                                                        (isset($indexedModels[$mid]['new']) ? $indexedModels[$mid]['new'] : array()),
+                                                        (isset($indexedModels[$mid]['old']) ? $indexedModels[$mid]['old'] : array()),
+                                                        $coId,
+                                                        $attrs));
         }
       }
     }

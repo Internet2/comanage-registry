@@ -755,9 +755,19 @@ class CoEnrollmentAttribute extends AppModel {
     
     foreach($envValues as $e) {
       if(!empty($e['env_name']) && isset($eaMap[ $e['attribute'] ])) {
-        // We don't currently do anything with $e['type']...
-        
         $i = $eaMap[ $e['attribute'] ];
+        
+        if(!empty($e['type'])) {
+          // Check the type. The enrollment attribute is of the form i:name:official.
+          
+          $xeattr = explode(':', $enrollmentAttributes[$i]['attribute'], 3);
+          
+          if(empty($xeattr[2]) || ($e['type'] != $xeattr[2])) {
+            // This is not the right type of attribute, move on
+            continue;
+          }
+        }
+        // If no type specified, match any instance of this attribute, regardless of type
         
         $enrollmentAttributes[$i]['default'] = getenv($e['env_name']);
         

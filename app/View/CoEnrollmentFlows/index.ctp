@@ -100,13 +100,25 @@
       </td>
       <td>
         <?php
-          if($permissions['edit'])
+          if($permissions['select']) {
+            print $this->Html->link(_txt('op.begin'),
+                                    array(
+                                      'controller' => 'co_petitions',
+                                      'action' => 'add',
+                                      'coef' => $c['CoEnrollmentFlow']['id']
+                                    ),
+                                    array('class' => 'forwardbutton')) . "\n";
+          }
+          
+          if($permissions['edit']) {
             print $this->Html->link(_txt('op.edit'),
                                     array('controller' => 'co_enrollment_flows', 'action' => 'edit', $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co']),
                                     array('class' => 'editbutton')) . "\n";
+          }
             
-          if($permissions['delete'])
+          if($permissions['delete']) {
             print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoEnrollmentFlow']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_enrollment_flows', 'action' => 'delete', $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
+          }
         ?>
         <?php ; ?>
       </td>

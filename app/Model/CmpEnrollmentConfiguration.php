@@ -86,7 +86,8 @@ class CmpEnrollmentConfiguration extends AppModel {
     }
     
     return false;
-  }  
+  }
+  
   /**
    * Find the default (ie: active) CMP Enrollment Configuration for this platform.
    * - precondition: Initial setup (performed by select()) has been completed.

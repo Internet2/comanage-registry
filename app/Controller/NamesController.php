@@ -333,29 +333,13 @@ class NamesController extends MVPAController {
    * @throws InvalidArgumentException
    */
   
-  function primary($id) {
+  public function primary($id) {
     $ret = false;
     
+    // We create a transaction here rather than in Name->beforeSave because the model
+    // can't guarantee a rollbock on any error.
     $dbc = $this->Name->getDataSource();
     $dbc->begin($this);
-    
-    if(!empty($this->request->params['named']['orgidentityid'])) {
-      $orgid = Sanitize::paranoid($this->request->params['named']['orgidentityid']);
-      
-      // Unset any previous primary name
-      
-      $this->Name->updateAll(array('Name.primary_name' => false),
-                             array('Name.org_identity_id' => $orgid));
-    } elseif(!empty($this->request->params['named']['copersonid'])) {
-      $copid = Sanitize::paranoid($this->request->params['named']['copersonid']);
-      
-      // Unset any previous primary name
-      
-      $this->Name->updateAll(array('Name.primary_name' => false),
-                             array('Name.co_person_id' => $copid));
-    } else {
-      throw new InvalidArgumentException(_txt('er.person.none'));
-    }
     
     // Set the new primary name
     

@@ -229,6 +229,11 @@
           print $this->Form->hidden($xprefix . '.attribute',
                                     array('value' => $attr));
           
+          if(!empty($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['type'])) {
+            print $this->Form->hidden($xprefix . '.type',
+                                      array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['type'])));
+          }
+          
           if(isset($currentAttributes[$attr]['id'])) {
             print $this->Form->hidden($xprefix . '.id',
                                       array('value' => $currentAttributes[$attr]['id']));
@@ -262,71 +267,32 @@
                 $attrs = array();
                 $attrs['default'] = $vv_availableAttributes[$attr]['env_name'];
                 $attrs['size']    = '40';
-                if(isset($currentAttributes[$attr]['env_name'])) {
+                
+                if(!empty($currentAttributes[$attr]['env_name'])
+                   // Make sure the type matches, for attributes with a type
+                   && (empty($vv_availableAttributes[$attr]['type'])
+                       || ($vv_availableAttributes[$attr]['type'] == $currentAttributes[$attr]['type']))) {
                   $attrs['value'] = $currentAttributes[$attr]['env_name'];
+                } else {
+                  $attrs['value'] = "";
                 }
                 
                 print ($e
                        ? $this->Form->input($xprefix . '.env_name', $attrs)
                        : Sanitize::html($vv_availableAttributes[$attr]['env_name'])); ?>
+          </td>
           <!--
           <td><?php /*print ($e
                            ? $this->Form->input($xprefix . '.ldap_name',
                                                 array('default' => $vv_availableAttributes[$attr]['ldap_name'],
                                                       'size'    => '40'))
-                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?>
+                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?></td>
           <td><?php /*print ($e
                            ? $this->Form->input($xprefix . '.saml_name',
                                                 array('default' => $vv_availableAttributes[$attr]['saml_name'],
                                                       'size'    => '40'))
-                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?>
+                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?></td>
           -->
-        </tr>
-        <?php endforeach; ?>
-        
-        
-        <?php foreach (array() as $f): ?>
-        <tr class="line<?php print ($l % 2); $l++; ?>">
-          <?php
-            $a = find_ef_attribute($this->request->data['CmpEnrollmentAttribute'], $f['attr'], $f['type']);
-            
-            if($a)
-            {
-              print $this->Form->hidden('CmpEnrollmentAttribute.'.$a['_index'].'.id');
-              print $this->Form->hidden('CmpEnrollmentAttribute.'.$a['_index'].'.attribute');
-              print $this->Form->hidden('CmpEnrollmentAttribute.'.$a['_index'].'.type');
-            }
-          ?>
-          <td><?php print $f['label']; ?></td>
-          <td>
-            <?php
-              global $cm_lang, $cm_texts;
-              $attrs['value'] = (isset($a['required']) ? $a['required'] : RequiredEnum::Optional);
-              $attrs['empty'] = false;
-              
-              if($e) {
-                print $this->Form->select('CmpEnrollmentAttribute.'.$a['_index'].'.required',
-                                          $cm_texts[ $cm_lang ]['en.required'],
-                                          $attrs);
-                
-                if($this->Form->isFieldError('CmpEnrollmentAttribute.'.$a['_index'].'.required')) {
-                  print $this->Form->error('CmpEnrollmentAttribute.'.$a['_index'].'.required');
-                }
-              } else {
-                print _txt('en.required', null, $a['required']);
-              }
-            ?>
-          </td>
-          <td>
-            <?php /*print ($e
-                         ? $this->Form->input('CmpEnrollmentAttribute.'.$a['_index'].'.ldap_name')
-                         : Sanitize::html($a['ldap_name']));*/ ?>
-          </td>
-          <td>
-            <?php /*print ($e
-                         ? $this->Form->input('CmpEnrollmentAttribute.'.$a['_index'].'.saml_name')
-                         : Sanitize::html($a['saml_name']));*/ ?>
-          </td>
         </tr>
         <?php endforeach; ?>
       </tbody>

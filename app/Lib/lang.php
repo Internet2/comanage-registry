@@ -215,6 +215,7 @@ original notification at
     ActionEnum::NotificationResolved        => 'Notification Resolved',
     ActionEnum::OrgIdAddedManual            => 'Org Identity Created (Manual)',
     ActionEnum::OrgIdAddedPetition          => 'Org Identity Created (Petition)',
+    ActionEnum::OrgIdEditedLoginEnv         => 'Org Identity Edited (Login, Env)',
     ActionEnum::OrgIdEditedManual           => 'Org Identity Edited (Manual)',
     ActionEnum::OrgIdEditedPetition         => 'Org Identity Edited (Petition)',
     ActionEnum::ProvisionerAction           => 'Provisioner Action',
