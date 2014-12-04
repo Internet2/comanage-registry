@@ -156,6 +156,16 @@ class CoNotification extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'resolution_subject' => array(
+      'rule' => 'notEmpty',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'resolution_body' => array(
+      'rule' => 'notEmpty',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'notification_time' => array(
       'rule' => 'notEmpty'
     ),
@@ -450,14 +460,16 @@ class CoNotification extends AppModel {
             // use whatever login register() implements (first delivery address, etc)
             
             try {
-              $this->sendEmail($gm['CoPerson']['EmailAddress'][0]['mail'],
+              $this->sendEmail($id,
+                               $gm['CoPerson']['EmailAddress'][0]['mail'],
                                _txt('em.resolution.subject'),
                                _txt('em.resolution.body'),
                                $coName,
                                $not['CoNotification']['comment'],
                                $sourceurl,
                                generateCn($actor['PrimaryName']),
-                               $fromAddress);
+                               $fromAddress,
+                               true);
             }
             catch(Exception $e) {
               throw new RuntimeException($e->getMessage());
@@ -668,15 +680,16 @@ class CoNotification extends AppModel {
           
           try {
             // Send email will update the record with the subject and body it constructs
-            $this->sendEmail($toaddr,
+            $this->sendEmail($notificationId,
+                             $toaddr,
                              ($subjectTemplate ? $subjectTemplate : _txt('em.notification.subject')),
                              ($bodyTemplate ? $bodyTemplate : _txt('em.notification.body')),
                              $coName,
-                             $sourceurl,
                              $comment,
+                             $sourceurl,
                              null,
                              $fromAddress,
-                             $notificationId);
+                             false);
           }
           catch(Exception $e) {
             throw new RuntimeException($e->getMessage());
@@ -806,6 +819,7 @@ class CoNotification extends AppModel {
    * Send email for a notification or notification resolution
    *
    * @since  COmanage Registry v0.9
+   * @param  Integer $notificationId    CO Notification related to this email
    * @param  Array   $recipient         Address to send notification to
    * @param  String  $subjectTemplate   Subject template for notification email
    * @param  String  $bodyTemplate      Body template for notification email
@@ -814,11 +828,12 @@ class CoNotification extends AppModel {
    * @param  String  $sourceUrl         Source URL, for template substitution
    * @param  String  $actorName         Human readable name of Actor, for template substitution
    * @param  String  $fromAddress       Email Address to send the invite from (if null, use default)
-   * @param  Integer $notificationId    If set, attach a copy of the subject and email to the specified CO Notification
+   * @param  Boolean $resolution        If true, store a copy of the subject and email as the resolution message for the specified CO Notification (otherwise store as notification)
    * @throws RuntimeException
    */
   
-  protected function sendEmail($recipient,
+  protected function sendEmail($notificationId,
+                               $recipient,
                                $subjectTemplate,
                                $bodyTemplate,
                                $coName,
@@ -826,17 +841,24 @@ class CoNotification extends AppModel {
                                $sourceUrl,
                                $actorName=null,
                                $fromAddress=null,
-                               $notificationId=null) {
+                               $resolution=false) {
     // Create the message subject and body based on the templates.
     
     $msgBody = "";
     $msgSubject = "";
     
+    $nurl = array(
+      'controller'  => 'co_notifications',
+      'action'      => 'view',
+      $notificationId
+    );
+
     $substitutions = array(
-      'ACTOR_NAME' => ($actorName ? $actorName : ""),
-      'CO_NAME'    => $coName,
-      'COMMENT'    => $comment,
-      'SOURCE_URL' => $sourceUrl
+      'ACTOR_NAME'        => ($actorName ? $actorName : ""),
+      'CO_NAME'           => $coName,
+      'COMMENT'           => $comment,
+      'NOTIFICATION_URL'  => Router::url($nurl, true) ,
+      'SOURCE_URL'        => $sourceUrl
     );
     
     // Construct subject and body
@@ -862,10 +884,19 @@ class CoNotification extends AppModel {
             ->subject($msgSubject)
             ->send($msgBody);
       
-      if($notificationId) {
+      // Store a copy of this message in the appropriate place
+      
+      $this->id = $notificationId;
+      
+      if($resolution) {
         // Truncate subject and body to fit in the available database width
         
-        $this->id = $notificationId;
+        $this->saveField('resolution_subject', substr($msgSubject, 0, 255));
+        // At least for postgres, this is stored as text, which doesn't have a fixed limit
+        $this->saveField('resolution_body', $msgBody);
+      } else {
+        // Truncate subject and body to fit in the available database width
+        
         $this->saveField('email_subject', substr($msgSubject, 0, 255));
         // At least for postgres, this is stored as text, which doesn't have a fixed limit
         $this->saveField('email_body', $msgBody);

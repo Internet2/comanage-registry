@@ -162,7 +162,11 @@ For questions regarding this process, please contact your administrator.',
   'em.notification.subject'  => 'New Notification for (@CO_NAME)',
   'em.notification.body'     => '(@COMMENT)
 
-(@SOURCE_URL)',
+(@SOURCE_URL)
+
+For more information, see the notification at
+
+(@NOTIFICATION_URL)',
   'em.resolution.subject'    => 'Notification for (@CO_NAME) Resolved',
   'em.resolution.body'       => 'The action required for the notification
   
@@ -171,7 +175,7 @@ For questions regarding this process, please contact your administrator.',
 has been resolved by (@ACTOR_NAME). For more information, see the
 original notification at
 
-(@SOURCE_URL)',
+(@NOTIFICATION_URL)',
 
   // Enumerations, corresponding to enum.php
   // Default history comments
@@ -840,6 +844,8 @@ original notification at
   'fd.no' =>          'No',
   'fd.not.email.body' => 'Notification Email Body',
   'fd.not.email.subject' => 'Notification Email Subject',
+  'fd.not.res.body' => 'Resolution Email Body',
+  'fd.not.res.subject' => 'Resolution Email Subject',
   'fd.not.for' =>     'Notifications for %1$s (%2$s, %3$s)',
   'fd.not.last' =>    'Last Notification',
   'fd.null' =>        'Null',

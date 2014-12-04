@@ -560,6 +560,8 @@
     <field name="source_val0" type="C" size="80" />
     <field name="email_subject" type="C" size="256" />
     <field name="email_body" type="X" size="4000" />
+    <field name="resolution_subject" type="C" size="256" />
+    <field name="resolution_body" type="X" size="4000" />
     <field name="status" type="C" size="2" />
     <field name="notification_time" type="T" />
     <field name="resolution_time" type="T" />

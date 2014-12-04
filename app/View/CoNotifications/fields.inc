@@ -214,5 +214,23 @@
         </pre>
       </td>
     </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <b><?php print _txt('fd.not.res.subject'); ?></b>
+      </td>
+      <td>
+        <?php print Sanitize::html($co_notifications[0]['CoNotification']['resolution_subject']); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <b><?php print _txt('fd.not.res.body'); ?></b>
+      </td>
+      <td>
+        <pre>
+          <?php print Sanitize::html($co_notifications[0]['CoNotification']['resolution_body']); ?>
+        </pre>
+      </td>
+    </tr>
   </tbody>
 </table>
