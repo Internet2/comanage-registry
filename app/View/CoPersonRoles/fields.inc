@@ -257,7 +257,7 @@ $(function() {
             </td>
             <td>
               <?php
-                if(isset($sponsors) && isset($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) {
+                if(isset($sponsors)) {
                   print (($e && !$es) ? $this->Form->select('sponsor_co_person_id', $sponsors) : Sanitize::html($sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ]));
                 }
               ?>

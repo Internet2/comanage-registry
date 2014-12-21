@@ -848,6 +848,7 @@ original notification at
   'fd.not.res.subject' => 'Resolution Email Subject',
   'fd.not.for' =>     'Notifications for %1$s (%2$s, %3$s)',
   'fd.not.last' =>    'Last Notification',
+  'fd.nr.enable' =>   'Enable Normalizations',
   'fd.null' =>        'Null',
   'fd.o' =>           'Organization',
   'fd.open' =>        'Open',

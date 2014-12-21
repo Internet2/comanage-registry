@@ -30,7 +30,7 @@ class EmailAddress extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable', 'Provisioner');
+  public $actsAs = array('Containable', 'Normalization', 'Provisioner');
   
   // Association rules from this model to other models
   public $belongsTo = array(

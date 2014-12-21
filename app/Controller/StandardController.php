@@ -81,6 +81,9 @@ class StandardController extends AppController {
       return;
     
     if($model->saveAll($data)) {
+      // Reread the data so we account for any normalizations
+      $data = $model->read();
+      
       if(!$this->recordHistory('add', $data)
          || !$this->checkWriteFollowups($data)) {
         if(!$this->restful) {
@@ -404,6 +407,9 @@ class StandardController extends AppController {
 
     if($model->saveAll($data))
     {
+      // Reread the data so we account for any normalizations
+      $data = $model->read();
+      
       // Update the view var in case the controller requires the updated values
       // for performRedirect or some other post-processing.
       

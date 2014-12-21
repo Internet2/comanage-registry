@@ -234,6 +234,11 @@
       <col>name</col>
       <unique />
     </index>
+
+    <index name="co_extended_types_i2">
+      <col>co_id</col>
+      <col>type</col>
+    </index>
   </table>
   
   <table name="co_extended_types">
@@ -1201,6 +1206,7 @@
     </field>
     <field name="enable_nsf_demo" type="L" />
     <field name="disable_expiration" type="L" />
+    <field name="enable_normalization" type="L" />
     <field name="invitation_validity" type="I" />
     <field name="required_fields_addr" type="C" size="160" />
     <field name="required_fields_name" type="C" size="160" />

@@ -165,6 +165,13 @@ class CoPersonRolesController extends StandardController {
                                            array($cl => array('className' => $cl,
                                                               'dependent' => true))),
                                      false);
+      
+      // Set up the inverse binding
+      $this->CoPersonRole->$cl->bindModel(array('belongsTo' => array('CoPersonRole')),
+                                          false);
+      
+      // Dynamic models won't have behaviors attached, so add them here
+      $this->CoPersonRole->$cl->Behaviors->attach('Normalization');
     }
     
     // Dynamically adjust validation rules to include the current CO ID for dynamic types.
@@ -225,6 +232,52 @@ class CoPersonRolesController extends StandardController {
       }
     }
 
+    return true;
+  }
+  
+  /**
+   * Perform any followups following a write operation.  Note that if this
+   * method fails, it must return a warning or REST response, but that the
+   * overall transaction is still considered a success (add/edit is not
+   * rolled back).
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Array Request data
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkWriteFollowups($reqdata, $curdata = null) {
+    // This is basically a hack to normalize extended attributes, because Cake 2.x
+    // won't see changes to associated data made by behaviors. (This is fixed in
+    // Cake 3.) We can't do this in the model because of the order in which
+    // saveAssociated() processes the associated models. (We're still in the save
+    // for CoPersonRole when CoPersonRole::afterSave is called, so by the time
+    // the save is called on the ExtendedAttributes, saveAssociated is done with
+    // CoPersonRole)
+    // https://github.com/cakephp/cakephp/issues/1765
+    
+    if(!empty($reqdata)) {
+      foreach(array_keys($reqdata) as $m) {
+        if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)
+           && !empty($reqdata[$m]['id'])) {
+          // Extended attribute found; id should always be set since even on
+          // create the initial save already happened.
+          
+          // Create a temporary copy of the data to save
+          $d = array(
+            $m => $reqdata[$m]
+          );
+          
+          $this->CoPersonRole->$m->save($d);
+          
+          // We don't worry about history here because generally Extended Attributes
+          // are not saved on their own. History will be generated on the original call.
+        }
+      }
+    }
+    
     return true;
   }
   

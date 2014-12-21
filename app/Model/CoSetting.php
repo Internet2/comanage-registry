@@ -50,6 +50,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'enable_normalization' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'enable_nsf_demo' => array(
       'rule' => 'boolean',
       'required' => false,
@@ -227,6 +232,27 @@ class CoSetting extends AppModel {
       // If not present throw error to distinguish from null/0/false/etc
       throw new UnderflowException($coId);
     }
+  }
+  
+  /**
+   * Determine if Normalizations are enabled for the specified CO.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  integer $coId CO ID
+   * @return boolean True if enabled, false otherwise
+   */
+  
+  public function normalizationsEnabled($coId) {
+    $ret = true;
+    
+    try {
+      $ret = $this->lookupValue($coId, 'enable_normalization');
+    }
+    catch(UnderflowException $e) {
+      // Use default value
+    }
+    
+    return (boolean)$ret;
   }
   
   /**

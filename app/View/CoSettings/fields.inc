@@ -55,6 +55,18 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
+        <strong class="fieldTitle"><?php print _txt('fd.nr.enable'); ?></strong>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('enable_normalization')
+                     : (isset($co_settings[0]['CoSetting']['enable_normalization'])
+                        && $co_settings[0]['CoSetting']['enable_normalization']
+                        ? _txt('fd.yes') : _txt('fd.no')));
+        ?>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
         <strong class="fieldTitle"><?php print _txt('fd.de.enable'); ?></strong>
       </td>
       <td>
