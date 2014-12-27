@@ -43,7 +43,6 @@ class DefaultNormalizer extends AppModel {
   public function normalize($data) {
     $ret = $data;
     
-// XXX new ticket: why doesn't sponsor list appear when adding/editing CO Person Role?
     $normalizations = array(
       'Address' => array(
         'mixCase' => array('line1', 'line2', 'locality', 'state', 'country'),

@@ -1,8 +1,8 @@
 <!--
 /**
- * COmanage Registry CO Person Provision View
+ * COmanage Registry CO Person/CO Group Provision View
  *
- * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -23,28 +23,35 @@
  */
 -->
 <?php
-  $params = array('title' => _txt('fd.prov.status.for', array(generateCn($co_person['PrimaryName']))));
+  if(!empty($co_person)) {
+    $params = array('title' => _txt('fd.prov.status.for', array(generateCn($co_person['PrimaryName']))));
+  } elseif(!empty($co_group)) {
+    $params = array('title' => _txt('fd.prov.status.for', array($co_group['CoGroup']['name'])));
+  }
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
   $args = array();
   $args['plugin'] = null;
-  $args['controller'] = 'co_people';
+  $args['controller'] = $this->request->params['controller'];
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
-  $this->Html->addCrumb(_txt('me.population'), $args);
-  $args = array(
-    'controller' => 'co_people',
-    'action' => 'canvas',
-    $co_person['CoPerson']['id']);
-  $this->Html->addCrumb(generateCn($co_person['PrimaryName']), $args);
+  if(!empty($co_person)) {
+    $this->Html->addCrumb(_txt('me.population'), $args);
+    $args = array(
+      'controller' => 'co_people',
+      'action' => 'canvas',
+      $co_person['CoPerson']['id']);
+    $this->Html->addCrumb(generateCn($co_person['PrimaryName']), $args);
+  } elseif(!empty($co_group)) {
+    $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+  }
   $this->Html->addCrumb(_txt('op.prov.view'));
 ?>
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->
   
   function js_confirm_provision(targetUrl) {
-    // Update the OK button target
     $("#provision-dialog").dialog("option",
                                   "buttons",
                                   [ { text: "<?php print _txt('op.cancel'); ?>", click: function() { $(this).dialog("close"); } },
@@ -56,18 +63,14 @@
     
     // Open the dialog to confirm provisioning
     $("#provision-dialog").dialog("open");
-    
-    $( ".selector" ).dialog( "option", "buttons", [ { text: "Ok", click: function() { $( this ).dialog( "close" ); } } ] );
   }
   
   function js_request_provisioning(targetUrl) {
     // Open the progress bar dialog
-    // XXX should we trap beforeClose() and cancel in progress operation?
     $("#progressbar-dialog").dialog("open");
     
     // Initiate the provisioning request
-// XXX remove co_person/provision (including documentation)
-    var jqxhr = $.post(targetUrl, '{ "RequestType":"CoPersonProvisioning","Version":"1.0","Synchronous":true }');
+    var jqxhr = $.post(targetUrl, '{ "RequestType":"<?php print (!empty($co_person) ? "CoPersonProvisioning" : "CoGroupProvisioning"); ?>","Version":"1.0","Synchronous":true }');
     
     jqxhr.done(function(data, textStatus, jqXHR) {
                  $("#progressbar-dialog").dialog("close");
@@ -75,9 +78,7 @@
                });
     
     jqxhr.fail(function(jqXHR, textStatus, errorThrown) {
-                // Note we're getting 200 here but it's actually a success (perhaps because no body returned)
-                // XXX JIRA: return content or 204 No Content instead
-                // XXX should grab error message from json body if possible
+                // Note we're getting 200 here but it's actually a success (perhaps because no body returned; CO-984)
                 
                 $("#progressbar-dialog").dialog("close");
                 
@@ -186,13 +187,22 @@
       </td>
       <td>
         <?php
+          $url = array(
+            'controller' => 'co_provisioning_targets',
+            'action'     => 'provision',
+            $c['CoProvisioningTarget']['id']
+          );
+          
+          if(!empty($co_person)) {
+            $url['copersonid'] = $co_person['CoPerson']['id'] . ".json";
+          } elseif(!empty($co_group)) {
+            $url['cogroupid'] = $co_group['CoGroup']['id'] . ".json";
+          }
+          
           print '<a class="provisionbutton"
                     title="' . _txt('op.prov') . '"
                     onclick="javascript:js_confirm_provision(\'' .
-                      $this->Html->url(array('controller' => 'co_provisioning_targets',
-                                                             'action' => 'provision',
-                                                             $c['CoProvisioningTarget']['id'],
-                                                             'copersonid' => $co_person['CoPerson']['id'] . ".json"))
+                      $this->Html->url($url)
                     . '\');">' . _txt('op.prov') . "</a>\n";
         ?>
       </td>
