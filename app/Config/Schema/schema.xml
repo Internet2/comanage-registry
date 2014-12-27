@@ -235,7 +235,7 @@
       <unique />
     </index>
 
-    <index name="co_extended_types_i2">
+    <index name="co_extended_attributes_i2">
       <col>co_id</col>
       <col>type</col>
     </index>
@@ -296,6 +296,34 @@
       <col>identifier</col>
       <col>type</col>
       <col>org_identity_id</col>
+    </index>
+  </table>
+
+  <table name="email_addresses">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="mail" type="C" size="256" />
+    <field name="type" type="C" size="32" />
+    <field name="verified" type="L" />
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="email_addresses_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="email_addresses_i2">
+      <col>org_identity_id</col>
+    </index>
+    <index name="email_addresses_i3">
+      <col>mars</col>
     </index>
   </table>
   
@@ -361,34 +389,6 @@
     <index name="addresses_i2">
       <col>org_identity_id</col>
     </index>    
-  </table>
-
-  <table name="email_addresses">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="mail" type="C" size="256" />
-    <field name="type" type="C" size="32" />
-    <field name="verified" type="L" />
-    <field name="co_person_id" type="I">
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="org_identity_id" type="I">
-      <constraint>REFERENCES cm_org_identities(id)</constraint>
-    </field>
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    
-    <index name="email_addresses_i1">
-      <col>co_person_id</col>
-    </index>
-    <index name="email_addresses_i2">
-      <col>org_identity_id</col>
-    </index>
-    <index name="email_addresses_i3">
-      <col>mars</col>
-    </index>
   </table>
 
   <table name="telephone_numbers">
@@ -527,7 +527,7 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <index name="co_settings_i1">
+    <index name="co_expiration_policies_i1">
       <col>co_id</col>
     </index>
   </table>
@@ -1026,7 +1026,7 @@
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
     <field name="co_provisioning_target_id" type="I">
-      <constraint>REFERENCES co_provisioning_targets(id)</constraint>
+      <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
     </field>
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
