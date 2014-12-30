@@ -19,37 +19,6 @@
  * permissions and limitations under the License.
  *
  */    
- 
-if(isset($menuContent['plugins'])) {
-  $plugins = $menuContent['plugins'];
-} else {
-  $plugins = array();
-}
-
-/**
- * Render menu links for plugin-defined menu items.
- * - postcondition: HTML emitted
- *
- * @param HtmlHelper Helper to use to render links
- * @param Array Array of plugins as created by AppController
- * @param String Which menu items to render
- */
-
-function render_plugin_menus($htmlHelper, $plugins, $menu) {
-  if(!empty($plugins)) {
-    foreach(array_keys($plugins) as $plugin) {
-      if(isset($plugins[$plugin][$menu])) {
-        foreach(array_keys($plugins[$plugin][$menu]) as $label) {
-          $args = $plugins[$plugin][$menu][$label];
-          
-          $args['plugin'] = Inflector::underscore($plugin);
-          
-          print "<li>" . $htmlHelper->link($label, $args) . "</li>\n";
-        }
-      }
-    }
-  }
-}
 ?>
 
 <script>
@@ -126,8 +95,8 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
               ?>
             </li>
             <?php
-              if(!empty($plugins)) {
-                render_plugin_menus($this->Html, $plugins, 'cmp');
+              if(!empty($menuContent['plugins'])) {
+                render_plugin_menus($this->Html, $menuContent['plugins'], 'cmp');
               }
             ?>
           </ul>
@@ -172,16 +141,16 @@ function render_plugin_menus($htmlHelper, $plugins, $menu) {
               
               // Plugin submenus
               // This rendering is a bit different from how render_plugin_menus() does it...
-              foreach(array_keys($plugins) as $plugin) {
-                if(isset($plugins[$plugin]['coperson'])) {
-                  foreach(array_keys($plugins[$plugin]['coperson']) as $label) {
+              foreach(array_keys($menuContent['plugins']) as $plugin) {
+                if(isset($menuContent['plugins'][$plugin]['coperson'])) {
+                  foreach(array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
                     print '<li> 
                              <a href="#">'.$label.'</a>
                              <span class="sf-sub-indicator"> »</span>
                              <ul>';
                     
                     foreach($menuContent['cos'] as $co) {
-                      $args = $plugins[$plugin]['coperson'][$label];
+                      $args = $menuContent['plugins'][$plugin]['coperson'][$label];
                       
                       $args[] = $co['co_person_id'];
                       $args['plugin'] = $plugin;

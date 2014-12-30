@@ -118,8 +118,8 @@ if($menuContent['cos']) {
                   print "</li>";
                 }
                 
-                if(!empty($plugins)) {
-                  render_plugin_menus($this->Html, $plugins, 'copeople', $menuCoId);
+                if(!empty($menuContent['plugins'])) {
+                  render_plugin_menus($this->Html, $menuContent['plugins'], 'copeople', $menuCoId);
                 }
                 
                 print "</ul>";
@@ -137,8 +137,8 @@ if($menuContent['cos']) {
                 print "</li>";
               }
               
-              if(!empty($plugins)) {
-                render_plugin_menus($this->Html, $plugins, 'cos', $menuCoId);
+              if(!empty($menuContent['plugins'])) {
+                render_plugin_menus($this->Html, $menuContent['plugins'], 'cos', $menuCoId);
               }
               
               if($permissions['menu']['coconfig']) {
@@ -291,8 +291,8 @@ if($menuContent['cos']) {
                     print "</li>";
                   }
                   
-                  if(!empty($plugins)) {
-                    render_plugin_menus($this->Html, $plugins, 'coconfig', $menuCoId);
+                  if(!empty($menuContent['plugins'])) {
+                    render_plugin_menus($this->Html, $menuContent['plugins'], 'coconfig', $menuCoId);
                   }
                   
                   print "</ul>";
