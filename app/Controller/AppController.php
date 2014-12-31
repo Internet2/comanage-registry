@@ -1275,8 +1275,8 @@ class AppController extends Controller {
     $plugins = $this->loadAvailablePlugins('all', 'simple');
     
     foreach($plugins as $plugin) {
-      if(isset($this->$plugin->cmPluginMenus)) {
-        $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus;
+      if(method_exists($this->$plugin, 'cmPluginMenus')) {
+        $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus();
       }
     }
     

@@ -26,9 +26,6 @@ class LdapProvisioner extends AppModel {
   // Required by COmanage Plugins
   public $cmPluginType = "provisioner";
 
-  // Expose Menu Items
-  public $cmPluginMenus = array();
-  
   // Document foreign keys
   /* As of CO-950, we no longer use dependency delete. We delete the DN manually
    * when the CO Person or CO Group is finally deleted.
@@ -36,4 +33,14 @@ class LdapProvisioner extends AppModel {
     "CoGroup"  => array("CoLdapProvisionerDn"),
     "CoPerson" => array("CoLdapProvisionerDn")
   );*/
+  
+  /**
+   * Expose menu items.
+   * 
+   * @ since COmanage Registry v0.9.2
+   * @ return Array with menu location type as key and array of labels, controllers, actions as values.
+   */
+  public function cmPluginMenus() {
+  	return array();
+  }
 }
