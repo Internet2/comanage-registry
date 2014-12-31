@@ -242,11 +242,20 @@ class CoIdentifierAssignment extends AppModel {
                                                                   $coIdentifierAssignment['CoIdentifierAssignment']['co_id']))) {
           // This one's good... insert it into the table and break the loop
           
+          // We need to update the appropriate validation rule with the current CO ID
+          // so that extended types can validate correctly. In order to do that, we need
+          // the CO ID. We'll pick it out of the CO Identifier Assignment data.
+          
+          $coId = $coIdentifierAssignment['CoIdentifierAssignment']['co_id'];
+          
           if($assignEmail) {
             $emailAddressData = array();
             $emailAddressData['EmailAddress']['mail'] = $candidate;
             $emailAddressData['EmailAddress']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['email_type'];
             $emailAddressData['EmailAddress']['co_person_id'] = $coPerson['CoPerson']['id'];
+            
+            // We need to update the Email Address validation rule
+            $this->Co->CoPerson->EmailAddress->validate['type']['content']['rule'][1]['coid'] = $coId;
             
             // We need to call create to reset the model state since we're (possibly) doing multiple distinct
             // saves against the same model.
@@ -262,6 +271,9 @@ class CoIdentifierAssignment extends AppModel {
             $identifierData['Identifier']['login'] = $coIdentifierAssignment['CoIdentifierAssignment']['login'];
             $identifierData['Identifier']['co_person_id'] = $coPerson['CoPerson']['id'];
             $identifierData['Identifier']['status'] = StatusEnum::Active;
+            
+            // We need to update the Identifier validation rule
+            $this->Co->CoPerson->Identifier->validate['type']['content']['rule'][1]['coid'] = $coId;
             
             // We need to call create to reset the model state since we're (possibly) doing multiple distinct
             // saves against the same model.

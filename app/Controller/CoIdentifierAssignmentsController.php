@@ -66,6 +66,30 @@ class CoIdentifierAssignmentsController extends StandardController {
   }
   
   /**
+   * Obtain all CO Identifier Assignments
+   *
+   * @since  COmanage Registry v0.9.2
+   */
+
+  public function index() {
+    parent::index();
+    
+    if(!$this->restful) {
+      // Pull the list of CO Person IDs to faciliate "Autogenerate Identifiers for All".
+      // We currently pull active records only, for alignment with Petition behavior.
+      
+      $args = array();
+      $args['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoPerson.status'] = StatusEnum::Active;
+      $args['fields'] = array('CoPerson.id', 'CoPerson.status');
+      $args['order'] = array('CoPerson.id' => 'asc');
+      $args['contain'] = false;
+      
+      $this->set('vv_co_people', $this->CoIdentifierAssignment->Co->CoPerson->find('list', $args));
+    }
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -84,6 +108,9 @@ class CoIdentifierAssignmentsController extends StandardController {
     
     // Add a new CO Identifier Assignment?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Assign identifiers to all CO People?
+    $p['assignall'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Delete an existing CO Identifier Assignment?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);

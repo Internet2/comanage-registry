@@ -49,8 +49,7 @@ class IdentifiersController extends MVPAController {
     if($this->restful) {
       // We manually run a few of the steps in StandardController
       
-      // XXX How does this work? checkRestPost doesn't take an argument...
-      if(!$this->checkRestPost($this->request->data)) {
+      if(!$this->checkRestPost()) {
         return;
       }
       
@@ -94,7 +93,7 @@ class IdentifiersController extends MVPAController {
         
         if($this->restful) {
           if($errs != "") {
-            $this->restResultHeader(500, "Other Error");
+            $this->restResultHeader(500, $errs);
           } else {
             $this->restResultHeader(200, "OK");
           }

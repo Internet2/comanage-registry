@@ -568,17 +568,19 @@ class AppController extends Controller {
    * - postcondition: On error, HTTP status returned (REST)
    *
    * @since  COmanage Registry v0.4
-   * @param  Array Request data (as per $this->request->data)
    * @return boolean true on success, false otherwise
    */
   
   function checkRestPost() {
+    $req = $this->modelClass;
+    $model = $this->$req;
+    $modelcc = Inflector::pluralize($req);
+    
+    $reqdata = null;
+    
     if(!empty($this->request->data)) {
       // Currently, we expect all request documents to match the model name (ie: StudlySingular).
       
-      $req = $this->modelClass;
-      $model = $this->$req;
-      $modelcc = Inflector::pluralize($req);
       
       // The inbound formats are currently lists with one entry. (Multiple entries
       // per request are not currently supported.) The format varies slightly between
@@ -590,165 +592,183 @@ class AppController extends Controller {
       } elseif(isset($this->request->data[$modelcc][0])) {
         // JSON
         $reqdata = $this->request->data[$modelcc][0];
-      } else {
-        unset($reqdata);
+      }
+    } else {
+      // In some instances, PHP doesn't set $_POST and so Cake doesn't see the request body.
+      // Here's a workaround, based on CakeRequest::_readInput().
+      // This is required by (eg) identifiers/assign.json
+      
+      switch($this->request->params['ext']) {
+        case 'json':
+          $fh = fopen('php://input', 'r');
+          $json = json_decode(stream_get_contents($fh), true);
+          fclose($fh);
+          $reqdata = $json[$modelcc][0];
+          // This is a pretty nasty hack so that convertRestPost and potentially
+          // other stuff works. XXX We should really refactor the whole thing.
+          $this->request->data = $json;
+          break;
+        case 'xml':
+          // Not implemented
+          // Need to do something like Xml::toArray(Xml::build());
+          break;
+        default:
+          break;
+      }
+    }
+    
+    if(isset($reqdata)) {
+      // Check version number against the model. Note we have to check both 'Version'
+      // (JSON) and '@Version' (XML).
+      
+      if((!isset($reqdata['Version']) && !isset($reqdata['@Version']))
+         ||
+         (isset($reqdata['Version']) && $reqdata['Version'] != $this->$req->version)
+         ||
+         (isset($reqdata['@Version']) && $reqdata['@Version'] != $this->$req->version)) {
+        $this->restResultHeader(400, "Invalid Fields");
+        $this->set('invalid_fields', array('Version' => 'Unknown version'));
+        
+        return(false);
       }
       
-      if(isset($reqdata)) {
-        // Check version number against the model. Note we have to check both 'Version'
-        // (JSON) and '@Version' (XML).
+      // Try to find a CO, even if not required (some models may use it even if not required).
+      // Note beforeFilter() may already have found a CO.
+      
+      if(!isset($this->cur_co)) {
+        $coid = -1;
         
-        if((!isset($reqdata['Version']) && !isset($reqdata['@Version']))
-           ||
-           (isset($reqdata['Version']) && $reqdata['Version'] != $this->$req->version)
-           ||
-           (isset($reqdata['@Version']) && $reqdata['@Version'] != $this->$req->version)) {
-          $this->restResultHeader(400, "Invalid Fields");
-          $this->set('invalid_fields', array('Version' => 'Unknown version'));
+        if(isset($reqdata['CoId']))
+          $coid = $reqdata['CoId'];
+        
+        if($coid == -1) {
+          // The CO might be implied by another attribute
           
-          return(false);
+          if(isset($reqdata['Person']['Type']) && $reqdata['Person']['Type'] == 'CO') {
+            $this->loadModel('CoPerson');
+            $cop = $this->CoPerson->findById($reqdata['Person']['Id']);
+            
+            // We've already pulled the CO data, so just set it rather than
+            // re-retrieving it below
+            if(isset($cop['Co'])) {
+              $this->cur_co['Co'] = $cop['Co'];
+              $coid = $this->cur_co['Co']['id'];
+            }
+          }
         }
         
-        // Try to find a CO, even if not required (some models may use it even if not required).
-        // Note beforeFilter() may already have found a CO.
-        
-        if(!isset($this->cur_co)) {
-          $coid = -1;
+        if(!isset($this->cur_co) && $coid != -1) {
+          // Retrieve CO Object.
           
-          if(isset($reqdata['CoId']))
-            $coid = $reqdata['CoId'];
-          
-          if($coid == -1) {
-            // The CO might be implied by another attribute
+          if(!isset($this->Co)) {
+            // There might be a CO object under another object (eg: CoOrgIdentityLink),
+            // but it's easier if we just explicitly load the model
             
-            if(isset($reqdata['Person']['Type']) && $reqdata['Person']['Type'] == 'CO') {
-              $this->loadModel('CoPerson');
-              $cop = $this->CoPerson->findById($reqdata['Person']['Id']);
-              
-              // We've already pulled the CO data, so just set it rather than
-              // re-retrieving it below
-              if(isset($cop['Co'])) {
-                $this->cur_co['Co'] = $cop['Co'];
-                $coid = $this->cur_co['Co']['id'];
-              }
-            }
+            $this->loadModel('Co');
           }
           
-          if(!isset($this->cur_co) && $coid != -1) {
-            // Retrieve CO Object.
-            
-            if(!isset($this->Co)) {
-              // There might be a CO object under another object (eg: CoOrgIdentityLink),
-              // but it's easier if we just explicitly load the model
-              
-              $this->loadModel('Co');
-            }
-            
-            $this->cur_co = $this->Co->findById($coid);
-            
-            if(empty($this->cur_co)) {
-              $this->restResultHeader(403, "CO Does Not Exist");
-              return(false);
-            }
-          }
+          $this->cur_co = $this->Co->findById($coid);
           
-          if($this->requires_co && !isset($this->cur_co)) {
-            // If a CO is required and we didn't find one, bail
-            
+          if(empty($this->cur_co)) {
             $this->restResultHeader(403, "CO Does Not Exist");
             return(false);
           }
         }
-         
-        // Check the expected elements exist in the model (schema).
-        // We only check top level at the moment (no recursion).
         
-        $bad = array();
-        
-        if($req == 'CoPersonRole') {
-          // We need to check Extended Attributes. This probably belongs in either
-          // CoPersonRolesController or CoExtendedAttributesController, but for now
-          // it's a one-off and we'll leave it here.
+        if($this->requires_co && !isset($this->cur_co)) {
+          // If a CO is required and we didn't find one, bail
           
-          $this->loadModel('CoExtendedAttribute');
-          $extAttrs = $this->CoExtendedAttribute->findAllByCoId($this->cur_co['Co']['id']);
+          $this->restResultHeader(403, "CO Does Not Exist");
+          return(false);
         }
-        
-        foreach(array_keys($reqdata) as $k) {
-          // Skip version because we already checked it
-          if($k == 'Version' || $k == '@Version')
-            continue;
-          
-          // 'Person' is a special case that we interpret to mean either
-          // 'COPersonRole' or 'OrgIdentity', and to reference an id.
-          
-          if($k == 'Person'
-             && (isset($this->$req->validate['org_identity_id'])
-                 || isset($this->$req->validate['co_person_role_id']))) {
-            continue;
-          }
-          
-          // Some models accept multiple models worth of data in one post.
-          // Specifically, OrgIdentity and CoPerson allow Names. A general
-          // solution could check (eg) $model->HasOne, however for now we
-          // just make a special exception for name.
-          
-          if($k == 'PrimaryName'
-             && ($this->modelClass == 'OrgIdentity'
-                 || $this->modelClass == 'CoPerson')) {
-            continue;
-          }
-          
-          if(isset($extAttrs)) {
-            // Check to see if this is an extended attribute
-            
-            foreach($extAttrs as $ea) {
-              if(isset($ea['CoExtendedAttribute']['name'])
-                 && $ea['CoExtendedAttribute']['name'] == $k) {
-                // Skip to the next $k
-                continue 2;
-              }
-            }
-          }
-          
-          // Finally see if this attribute is defined in the model
-          
-          if(!isset($this->$req->validate[Inflector::underscore($k)])) {
-            $bad[$k] = "Unknown Field";
-          }
-        }
-        
-        // Validate enums
-        
-        if(!empty($model->cm_enum_types)) {
-          foreach(array_keys($model->cm_enum_types) as $e) {
-            // cm_enum_types is, eg, "status", but we need "Status" since we
-            // haven't yet converted the array to database format
-            $ce = Inflector::camelize($e);
-            
-            // Get a pointer to the enum, foo_ti
-            // $$ and ${$} is PHP variable variable syntox
-            $v = $model->cm_enum_types[$e] . "i";
-            global $$v;
-            
-            if(isset($reqdata[$ce]) && !isset(${$v}[ $reqdata[$ce] ])) {
-              $bad[$ce] = "Invalid value";
-            }
-          }
-        }
-        
-        // We don't currently check for extended attributes because at the
-        // moment we don't flag them as required vs optional. Basically, we
-        // assume they're all optional.
-        
-        if(empty($bad))
-          return(true);
-        
-        $this->restResultHeader(400, "Invalid Fields");
-        $this->set('invalid_fields', $bad);
       }
-      else
-        $this->restResultHeader(400, "Bad Request");
+       
+      // Check the expected elements exist in the model (schema).
+      // We only check top level at the moment (no recursion).
+      
+      $bad = array();
+      
+      if($req == 'CoPersonRole') {
+        // We need to check Extended Attributes. This probably belongs in either
+        // CoPersonRolesController or CoExtendedAttributesController, but for now
+        // it's a one-off and we'll leave it here.
+        
+        $this->loadModel('CoExtendedAttribute');
+        $extAttrs = $this->CoExtendedAttribute->findAllByCoId($this->cur_co['Co']['id']);
+      }
+      
+      foreach(array_keys($reqdata) as $k) {
+        // Skip version because we already checked it
+        if($k == 'Version' || $k == '@Version')
+          continue;
+        
+        // 'Person' is a special case that we interpret to mean either
+        // 'COPersonRole' or 'OrgIdentity', and to reference an id.
+        
+        if($k == 'Person'
+           && (isset($this->$req->validate['org_identity_id'])
+               || isset($this->$req->validate['co_person_role_id']))) {
+          continue;
+        }
+        
+        // Some models accept multiple models worth of data in one post.
+        // Specifically, OrgIdentity and CoPerson allow Names. A general
+        // solution could check (eg) $model->HasOne, however for now we
+        // just make a special exception for name.
+        
+        if($k == 'PrimaryName'
+           && ($this->modelClass == 'OrgIdentity'
+               || $this->modelClass == 'CoPerson')) {
+          continue;
+        }
+        
+        if(isset($extAttrs)) {
+          // Check to see if this is an extended attribute
+          
+          foreach($extAttrs as $ea) {
+            if(isset($ea['CoExtendedAttribute']['name'])
+               && $ea['CoExtendedAttribute']['name'] == $k) {
+              // Skip to the next $k
+              continue 2;
+            }
+          }
+        }
+        
+        // Finally see if this attribute is defined in the model
+        
+        if(!isset($this->$req->validate[Inflector::underscore($k)])) {
+          $bad[$k] = "Unknown Field";
+        }
+      }
+      
+      // Validate enums
+      
+      if(!empty($model->cm_enum_types)) {
+        foreach(array_keys($model->cm_enum_types) as $e) {
+          // cm_enum_types is, eg, "status", but we need "Status" since we
+          // haven't yet converted the array to database format
+          $ce = Inflector::camelize($e);
+          
+          // Get a pointer to the enum, foo_ti
+          // $$ and ${$} is PHP variable variable syntox
+          $v = $model->cm_enum_types[$e] . "i";
+          global $$v;
+          
+          if(isset($reqdata[$ce]) && !isset(${$v}[ $reqdata[$ce] ])) {
+            $bad[$ce] = "Invalid value";
+          }
+        }
+      }
+      
+      // We don't currently check for extended attributes because at the
+      // moment we don't flag them as required vs optional. Basically, we
+      // assume they're all optional.
+      
+      if(empty($bad))
+        return(true);
+      
+      $this->restResultHeader(400, "Invalid Fields");
+      $this->set('invalid_fields', $bad);
     }
     else
       $this->restResultHeader(400, "Bad Request");

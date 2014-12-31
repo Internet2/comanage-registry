@@ -143,25 +143,27 @@ class CoProvisioningTargetsController extends StandardController {
   public function index() {
     parent::index();
     
-    // Pull the list of CO Person IDs and CO Group IDs to faciliate "Reprovision All".
-    // We include all people and groups, even those not active, so we can unprovision
-    // as needed.
-    
-    $args = array();
-    $args['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
-    $args['fields'] = array('CoPerson.id', 'CoPerson.status');
-    $args['order'] = array('CoPerson.id' => 'asc');
-    $args['contain'] = false;
-    
-    $this->set('vv_co_people', $this->CoProvisioningTarget->Co->CoPerson->find('list', $args));
-    
-    $args = array();
-    $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
-    $args['fields'] = array('CoGroup.id', 'CoGroup.status');
-    $args['order'] = array('CoGroup.id' => 'asc');
-    $args['contain'] = false;
-    
-    $this->set('vv_co_groups', $this->CoProvisioningTarget->Co->CoGroup->find('list', $args));
+    if(!$this->restful) {
+      // Pull the list of CO Person IDs and CO Group IDs to faciliate "Reprovision All".
+      // We include all people and groups, even those not active, so we can unprovision
+      // as needed.
+      
+      $args = array();
+      $args['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('CoPerson.id', 'CoPerson.status');
+      $args['order'] = array('CoPerson.id' => 'asc');
+      $args['contain'] = false;
+      
+      $this->set('vv_co_people', $this->CoProvisioningTarget->Co->CoPerson->find('list', $args));
+      
+      $args = array();
+      $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('CoGroup.id', 'CoGroup.status');
+      $args['order'] = array('CoGroup.id' => 'asc');
+      $args['contain'] = false;
+      
+      $this->set('vv_co_groups', $this->CoProvisioningTarget->Co->CoGroup->find('list', $args));
+    }
   }
   
   /**
