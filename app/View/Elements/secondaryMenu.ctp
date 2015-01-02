@@ -156,7 +156,7 @@
                       $args['plugin'] = $plugin;
                       $args['co'] = $co['co_id'];
                       
-                      print "<li>" . $this->Html->link(_txt('me.for', array($co['co_name'])), $args) . "</li>\n";
+                      print "<li>" . $this->Html->link(_txt('me.identity.for', array($co['co_name'])), $args) . "</li>\n";
                     }
                     
                     print "</ul></li>";
