@@ -25,12 +25,19 @@
 class DefaultNormalizer extends AppModel {
   // Required by COmanage Plugins
   public $cmPluginType = "normalizer";
-
-  // Expose Menu Items
-  public $cmPluginMenus = array();
   
   // Document foreign keys
   public $cmPluginHasMany = array();
+  
+  /**
+   * Expose menu items.
+   * 
+   * @ since COmanage Registry v0.9.2
+   * @ return Array with menu location type as key and array of labels, controllers, actions as values.
+   */
+  public function cmPluginMenus() {
+  	return array();
+  }
   
   /**
    * Perform normalizations on the specified data
