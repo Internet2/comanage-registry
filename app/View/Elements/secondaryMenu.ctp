@@ -154,7 +154,6 @@
                       
                       $args[] = $co['co_person_id'];
                       $args['plugin'] = Inflector::underscore($plugin);
-                      $args['co'] = $co['co_id'];
                       
                       print "<li>" . $this->Html->link(_txt('me.identity.for', array($co['co_name'])), $args) . "</li>\n";
                     }
