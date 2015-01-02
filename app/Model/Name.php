@@ -211,8 +211,8 @@ class Name extends AppModel {
         } elseif($coPersonId) {
           // Unset any previous primary name
           
-          $this->Name->updateAll(array('Name.primary_name' => false),
-                                 array('Name.co_person_id' => $coPersonId));
+          $this->updateAll(array('Name.primary_name' => false),
+                           array('Name.co_person_id' => $coPersonId));
         }
       }
     }
