@@ -908,6 +908,24 @@ class CoPetition extends AppModel {
       }
     }
     
+    if(!empty($requestData['CoPetitionAttribute'])) {
+      // These are "special" attributes that only get recorded in the petition,
+      // they're not copied to the person record.
+      
+      foreach($requestData['CoPetitionAttribute'] as $key => $value) {
+        if($key == 'textfield' && isset($attrIDs['e:'.$key])) {
+          // Simply copy this value to an attribute value
+          
+          $petitionAttrs['CoPetitionAttribute'][] = array(
+            'co_petition_id' => $coPetitionID,
+            'co_enrollment_attribute_id' => $attrIDs['e:'.$key],
+            'attribute' => $key,
+            'value' => $value
+          );
+        }
+      }
+    }
+    
     // Finally, try to save. Note that saveMany doesn't expect the Model name as an array
     // component, unlike all the other saves.
     

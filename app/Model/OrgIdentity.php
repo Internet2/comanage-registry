@@ -422,10 +422,10 @@ class OrgIdentity extends AppModel {
       // Now pull the current data associated with this OrgIdentity
       $args = array();
       $args['conditions']['OrgIdentity.id'] = $id;
-      $args['contain']['Address']['conditions']['Address.type ='] = 'office';
-      $args['contain']['EmailAddress']['conditions']['EmailAddress.type ='] = 'official';
-      $args['contain']['Name']['conditions']['Name.type ='] = 'official';
-      $args['contain']['TelephoneNumber']['conditions']['TelephoneNumber.type ='] = 'office';
+      $args['contain']['Address']['conditions']['Address.type ='] = ContactEnum::Office;
+      $args['contain']['EmailAddress']['conditions']['EmailAddress.type ='] = EmailAddressEnum::Official;
+      $args['contain']['Name']['conditions']['Name.type ='] = NameEnum::Official;
+      $args['contain']['TelephoneNumber']['conditions']['TelephoneNumber.type ='] = ContactEnum::Office;
       
       $curOrgIdentity = $this->find('first', $args);
       

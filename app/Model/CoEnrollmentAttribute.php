@@ -198,6 +198,9 @@ class CoEnrollmentAttribute extends AppModel {
         $ret['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $cm_texts[ $cm_lang ]['en.telephone_number.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
     }
     
+    // (7) Enrollment Flow specific attributes -- these don't get copied out of the petition (code=e)
+    $ret['e:textfield'] = _txt('fd.pt.textfield');
+    
     return($ret);
   }
   
@@ -664,6 +667,23 @@ class CoEnrollmentAttribute extends AppModel {
         $attr['default'] = $attr['id'];
         $attr['model'] = "EnrolleeCoPerson.CoGroupMember." . $efAttr['CoEnrollmentAttribute']['id'];
         $attr['field'] = "co_enrollment_attribute_id";
+        
+        $attrs[] = $attr;
+      } elseif($attrCode == 'e') {
+        // Attributes for the enrollment flow only -- these do not get copied
+        // outside of the petition
+        
+        $attr = array();
+        
+        $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
+        $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
+        $attr['label'] = $efAttr['CoEnrollmentAttribute']['label'];
+        $attr['hidden'] = false;
+        $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
+        $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
+        // Create a pseudo model and field
+        $attr['model'] = "CoPetitionAttribute";
+        $attr['field'] = $attrName;
         
         $attrs[] = $attr;
       } else {

@@ -865,6 +865,7 @@ original notification at
   'fd.plugin.ptwarn' => 'Once a Provisioning Target has been created, the Plugin cannot be changed',
   'fd.prov.status' => 'Provisioning Status',
   'fd.prov.status.for' => 'Provisioning Status for %1$s',
+  'fd.pt.textfield' => 'Text Field (Petition Use Only)',
   'fd.pt.required' => '&dagger; denotes required fields if you populate this section',
   'fd.recipient' =>   'Recipient',
   'fd.req' =>         '* denotes required field',
