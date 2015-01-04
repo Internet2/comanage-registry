@@ -68,6 +68,19 @@
         )
       );
     }
+    
+    // Duplicate button
+    if($permissions['duplicate']) {
+      $sidebarButtons[] = array(
+        'icon'    => 'copy',
+        'title'   => _txt('op.dupe-a', array(_txt('ct.co_enrollment_flows.1'))),
+        'url'     => array(
+          'controller' => 'co_enrollment_flows',
+          'action' => 'duplicate',
+          $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
+        )
+      );
+    }
   }
   
   if($permissions['select']) {
@@ -173,7 +186,7 @@
           
           if($e) {
             print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status'],
+                                      $cm_texts[ $cm_lang ]['en.status.ef'],
                                       $attrs);
             
             if($this->Form->isFieldError('status')) {

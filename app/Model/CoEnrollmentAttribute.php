@@ -78,10 +78,14 @@ class CoEnrollmentAttribute extends AppModel {
       'allowEmpty' => true
     ),
     'copy_to_coperson' => array(
-      'rule' => 'boolean'
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
     ),
     'ignore_authoritative' => array(
-      'rule' => 'boolean'
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
     ),
     'language' => array(
       'rule'       => array('validateLanguage'),

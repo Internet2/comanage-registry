@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Model
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -118,7 +118,9 @@ class CoEnrollmentFlow extends AppModel {
       'allowEmpty' => true
     ),
     'verify_email' => array(
-      'rule' => array('boolean')
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'invitation_validity' => array(
       'rule' => 'numeric',
@@ -126,7 +128,9 @@ class CoEnrollmentFlow extends AppModel {
       'allowEmpty' => true
     ),
     'require_authn' => array(
-      'rule' => array('boolean')
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'notification_co_group_id' => array(
       'rule' => 'numeric',
@@ -205,11 +209,14 @@ class CoEnrollmentFlow extends AppModel {
       'allowEmpty' => true
     ),
     'ignore_authoritative' => array(
-      'rule' => array('boolean')
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'status' => array(
-      'rule' => array('inList', array(StatusEnum::Active,
-                                      StatusEnum::Suspended))
+      'rule' => array('inList', array(EnrollmentFlowStatusEnum::Active,
+                                      EnrollmentFlowStatusEnum::Suspended,
+                                      EnrollmentFlowStatusEnum::Template))
     )
   );
   
@@ -306,5 +313,66 @@ class CoEnrollmentFlow extends AppModel {
     }
     
     return $this->authorize($ef, $coPersonId, $Role);
+  }
+  
+  /**
+   * Duplicate an existing Enrollment Flow.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer $id CO Enrollment Flow ID
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+  
+  public function duplicate($id) {
+    // First pull all the stuff we'll need to copy.
+    
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.id'] = $id;
+    $args['contain']['CoEnrollmentAttribute'][] = 'CoEnrollmentAttributeDefault';
+    
+    $ef = $this->find('first', $args);
+    
+    if(empty($ef)) {
+      throw new InvalidArgumentException(_txt('%1$s "%2$s" Not Found', array(_txt('ct.co_enrollment_attributes.1'), $id)));
+    }
+    
+    // We need to rename the flow
+    
+    $ef['CoEnrollmentFlow']['name'] = _txt('fd.copy-a', array($ef['CoEnrollmentFlow']['name']));
+    
+    // And remove all the keys (Cake will re-key on save)
+    
+    unset($ef['CoEnrollmentFlow']['id']);
+    unset($ef['CoEnrollmentFlow']['created']);
+    unset($ef['CoEnrollmentFlow']['modified']);
+    
+    for($i = 0;$i < count($ef['CoEnrollmentAttribute']);$i++) {
+      unset($ef['CoEnrollmentAttribute'][$i]['id']);
+      unset($ef['CoEnrollmentAttribute'][$i]['co_enrollment_flow_id']);
+      unset($ef['CoEnrollmentAttribute'][$i]['created']);
+      unset($ef['CoEnrollmentAttribute'][$i]['modified']);
+      
+      for($j = 0;$j < count($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault']);$j++) {
+        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['id']);
+        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['co_enrollment_attribute_id']);
+        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['created']);
+        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['modified']);
+      }
+    }
+    
+    // We explicitly disable validation here for a couple of reasons. First, we're
+    // copying a record in the database, so the values should already be valid.
+    // Second, this isn't always the case, because sometimes the data model gets
+    // updated, introducing new fields. When this happens, the existing records
+    // may have (eg) a null instead of a false (which validation would expect).
+    // There's no real reason to fail to save in such a scenario.
+    
+    if(!$this->saveAssociated($ef, array('deep' => true, 'validate' => false))) {
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+    
+    return true;
   }
 }

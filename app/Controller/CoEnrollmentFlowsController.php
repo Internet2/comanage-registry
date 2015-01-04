@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Flows Controller
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -108,6 +108,26 @@ class CoEnrollmentFlowsController extends StandardController {
   }
   
   /**
+   * Duplicate an existing Enrollment Flow.
+   * - postcondition: Redirect issued
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer $id CO Enrollment Flow ID
+   */
+  
+  public function duplicate($id) {
+    try {
+      $this->CoEnrollmentFlow->duplicate($id);
+      $this->Session->setFlash(_txt('rs.copy-a1', array(_txt('ct.enrollment_flows.1'))), '', array(), 'success');
+    }
+    catch(Exception $e) {
+      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+    }
+    
+    $this->performRedirect();
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -129,6 +149,9 @@ class CoEnrollmentFlowsController extends StandardController {
     
     // Delete an existing CO Enrollment Flow?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Duplicate an existing CO Enrollment Flow?
+    $p['duplicate'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Edit an existing CO Enrollment Flow?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);

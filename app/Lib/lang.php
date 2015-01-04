@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Language File
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -474,6 +474,12 @@ original notification at
                             StatusEnum::PendingConfirmation => 'Pending Confirmation',
                             StatusEnum::Suspended           => 'Suspended'),
   
+  'en.status.ef' => array(
+    EnrollmentFlowStatusEnum::Active              => 'Active',
+    EnrollmentFlowStatusEnum::Suspended           => 'Suspended',
+    EnrollmentFlowStatusEnum::Template            => 'Template'
+  ),
+  
   'en.status.not' => array(
     NotificationStatusEnum::Acknowledged          => 'Acknowledged',
     NotificationStatusEnum::Canceled              => 'Canceled',
@@ -666,6 +672,7 @@ original notification at
   'fd.closed' =>      'Closed',
   'fd.comment' =>     'Comment',
   'fd.conditions' =>  'Conditions',
+  'fd.copy-a' =>      'Copy of %1$s',
   'fd.cou' =>         'COU',
   'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',  
   'fd.co_people.status' => 'CO Person Status',
@@ -990,6 +997,7 @@ original notification at
   'op.delete.consfdemographics' => 'this NSF demographic entry',
   'op.delete.ok' =>   'Are you sure you wish to remove "%1$s"? This action cannot be undone.',
   'op.deny' =>        'Deny',
+  'op.dupe-a' =>      'Duplicate This %1$s',
   'op.edit' =>        'Edit',
   'op.edit.ea' =>     'Edit Enrollment Attributes',
   'op.edit-a' =>      'Edit %1$s',
@@ -1092,6 +1100,7 @@ original notification at
   'rs.added-a2' =>    '%1$s "%2$s" Added',
   'rs.added-a3' =>    '%1$s Added',
   'rs.cop.recalc' =>  'CO Person status recalculated: %1$s',
+  'rs.copy-a1' =>     '%1$s Copied',
   'rs.deleted-a2' =>  '%1$s "%2$s" Deleted',
   'rs.deleted-a3' =>  '%1$s Deleted',
   'rs.edited-a2' =>   '%1$s "%2$s" Edited',
