@@ -198,7 +198,9 @@
           $descriptions = array();
           
           foreach($coe_attributes as $ea) {
-            $descriptions[] = $ea['description'];
+            if(!empty($ea['description'])) {
+              $descriptions[] = $ea['description'];
+            }
           }
           $descTypeCount = count(array_count_values($descriptions));
           

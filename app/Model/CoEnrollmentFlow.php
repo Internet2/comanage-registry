@@ -160,26 +160,26 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'verification_subject' => array(
       'rule' => 'notEmpty',
-      'required' => true,
-      'allowEmpty' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'verification_body' => array(
       'rule' => 'notEmpty',
-      'required' => true,
-      'allowEmpty' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'notify_on_approval' => array(
       'rule' => array('boolean')
     ),
     'approval_subject' => array(
       'rule' => 'notEmpty',
-      'required' => true,
-      'allowEmpty' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'approval_body' => array(
       'rule' => 'notEmpty',
-      'required' => true,
-      'allowEmpty' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'introduction_text' => array(
       'rule' => 'notEmpty',
@@ -219,6 +219,58 @@ class CoEnrollmentFlow extends AppModel {
                                       EnrollmentFlowStatusEnum::Template))
     )
   );
+  
+  /**
+   * Add all default values for extended types for the specified CO.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer CO ID
+   * @return Boolean True on success
+   * @throws RuntimeException
+   */
+  
+  public function addDefaults($coId) {
+    // We define each default template in an array, but we won't used saveAll or saveMany
+    // here since we don't want to re-add a template if it is already defined.
+    // We'll use the name of the template as the determining factor.
+    
+    // Determine some characteristics of this CO for purposes of assembling templates
+    
+    // Are org identities collectable from enrollment flows?
+    $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
+    $orgIdentities = $CmpEnrollmentConfiguration->orgIdentitiesFromCOEF();
+    
+    // Are COUs defined?
+    $couList = $this->Co->Cou->allCous($coId);
+    $cous = !empty($couList);
+    
+    $templates = array();
+    $templates[] = $this->templateConscriptionApproval($coId, $orgIdentities, $cous);
+    $templates[] = $this->templateInvitation($coId, $orgIdentities, $cous);
+    $templates[] = $this->templateSelfSignupApproval($coId, $orgIdentities, $cous);
+    
+    if($orgIdentities) {
+      // Account linking only makes sense if org identity attributes are collectable
+      $templates[] = $this->templateAccountLinking($coId, $orgIdentities, $cous);
+    }
+    
+    foreach($templates as $t) {
+      // See if there is already a flow with this name. If so, don't insert it.
+      
+      $args = array();
+      $args['conditions']['CoEnrollmentFlow.co_id'] = $coId;
+      $args['conditions']['CoEnrollmentFlow.name'] = $t['CoEnrollmentFlow']['name'];
+      $args['contain'] = false;
+      
+      if(!$this->find('count', $args)) {
+        if(!$this->saveAssociated($t)) {
+          throw new RuntimeException('er.db.save');
+        }
+      }
+    }
+    
+    return true;
+  }
   
   /**
    * Determine if a CO Person is authorized to run an Enrollment Flow.
@@ -374,5 +426,389 @@ class CoEnrollmentFlow extends AppModel {
     }
     
     return true;
+  }
+  
+  /**
+   * Generate a template for an Account Linking based enrollment flow.
+   *
+   * @param  Integer $coId          CO ID for template
+   * @param  Boolean $orgIdentities True if org identity attributes may be collected (CMP setting)
+   * @param  Boolean $cous          True if COUs are defined for this CO
+   * @return Array Template in the usual Cake format
+   */
+  
+  protected function templateAccountLinking($coId, $orgIdentities, $cous) {
+    $ret = array();
+    
+    // Start with the enrollment flow configuration
+    
+    $ret['CoEnrollmentFlow'] = array(
+      'name'                => _txt('fd.ef.tmpl.lnk'),
+      'co_id'               => $coId,
+      'approval_required'   => false,
+      'status'              => EnrollmentFlowStatusEnum::Template,
+      'match_policy'        => EnrollmentMatchPolicyEnum::Self,
+      'authz_level'         => EnrollmentAuthzEnum::CoPerson,
+      'require_authn'       => true,
+      'verify_email'        => true,
+      'notify_on_approval'  => false,
+      't_and_c_mode'        => TAndCEnrollmentModeEnum::Ignore
+    );
+    
+    // Define required attributes for this flow -- required here means the
+    // flow will fail without these
+    
+    $ret['CoEnrollmentAttribute'] = array();
+    $ordr = 1;
+    
+    if($orgIdentities) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'i:name:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.name'),
+        'ordr'                  => $ordr++
+      );
+      
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'i:email_address:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.email_address.mail'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    return $ret;
+  }
+  
+  /**
+   * Generate a template for a Conscription based enrollment flow.
+   *
+   * @param  Integer $coId          CO ID for template
+   * @param  Boolean $orgIdentities True if org identity attributes may be collected (CMP setting)
+   * @param  Boolean $cous          True if COUs are defined for this CO
+   * @return Array Template in the usual Cake format
+   */
+  
+  protected function templateConscriptionApproval($coId, $orgIdentities, $cous) {
+    $ret = array();
+    
+    // Start with the enrollment flow configuration
+    
+    $ret['CoEnrollmentFlow'] = array(
+      'name'                => _txt('fd.ef.tmpl.csp'),
+      'co_id'               => $coId,
+      'approval_required'   => true,
+      'status'              => EnrollmentFlowStatusEnum::Template,
+      'match_policy'        => EnrollmentMatchPolicyEnum::Advisory,
+      'authz_level'         => EnrollmentAuthzEnum::CoOrCouAdmin,
+      'verify_email'        => false,
+      'notify_on_approval'  => false,
+      't_and_c_mode'        => TAndCEnrollmentModeEnum::Ignore
+    );
+    
+    // Define required attributes for this flow -- required here means the
+    // flow will fail without these
+    
+    $ret['CoEnrollmentAttribute'] = array();
+    $ordr = 1;
+    
+    // COU, if COUs are enabled
+    
+    if($cous) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'r:cou_id',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.cou'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    // If org identity attributes are enabled, define a name field and require
+    // an email address
+    
+    if($orgIdentities) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'i:name:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.name'),
+        'ordr'                  => $ordr++
+      );
+      
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'i:email_address:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.email_address.mail'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    // Collect a separate CO Person name
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'p:name:official',
+      'required'              => RequiredEnum::Required,
+      'label'                 => _txt('fd.name') . ' (' . _txt('en.name.type', null, NameEnum::Preferred). ')',
+      'ordr'                  => $ordr++
+    );
+    
+    // CO Person Role affiliation
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:affiliation',
+      'required'              => RequiredEnum::Required,
+      'label'                 => _txt('fd.affiliation'),
+      'ordr'                  => $ordr++
+    );
+    
+    // Define additional attributes for this flow -- while we flag these as
+    // optional, a deployer will likely want to flip them to required
+    
+    if($orgIdentities) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'o:o',
+        'required'              => RequiredEnum::Optional,
+        'label'                 => _txt('fd.o'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:title',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.title'),
+      'ordr'                  => $ordr++
+    );
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:sponsor_co_person_id',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.sponsor'),
+      'ordr'                  => $ordr++
+    );
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:valid_from',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.valid_from'),
+      'ordr'                  => $ordr++
+    );
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:valid_through',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.valid_through'),
+      'ordr'                  => $ordr++
+    );
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'm:telephone_number:mobile',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.telephone_number.number') . ' (' . _txt('en.telephone_number.type', null, ContactEnum::Mobile) . ')',
+      'ordr'                  => $ordr++
+    );
+    
+    return $ret;
+  }
+  
+  /**
+   * Generate a template for an Invitation based enrollment flow.
+   *
+   * @param  Integer $coId          CO ID for template
+   * @param  Boolean $orgIdentities True if org identity attributes may be collected (CMP setting)
+   * @param  Boolean $cous          True if COUs are defined for this CO
+   * @return Array Template in the usual Cake format
+   */
+  
+  protected function templateInvitation($coId, $orgIdentities, $cous) {
+    $ret = array();
+    
+    // Start with the enrollment flow configuration
+    
+    $ret['CoEnrollmentFlow'] = array(
+      'name'                => _txt('fd.ef.tmpl.inv'),
+      'co_id'               => $coId,
+      'approval_required'   => false,
+      'status'              => EnrollmentFlowStatusEnum::Template,
+      'match_policy'        => EnrollmentMatchPolicyEnum::None,
+      'authz_level'         => EnrollmentAuthzEnum::CoOrCouAdmin,
+      'verify_email'        => true,
+      'notify_on_approval'  => true,
+      't_and_c_mode'        => TAndCEnrollmentModeEnum::Ignore
+    );
+    
+    // Define required attributes for this flow -- required here means the
+    // flow will fail without these
+    
+    $ret['CoEnrollmentAttribute'] = array();
+    $ordr = 1;
+    
+    // COU, if COUs are enabled
+    
+    if($cous) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'r:cou_id',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.cou'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    // If org identity attributes are enabled, define a name field and copy it
+    // to the CO Person, otherwise define a CO Person Name
+    
+    if($orgIdentities) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'i:name:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.name'),
+        'ordr'                  => $ordr++,
+        'copy_to_coperson'      => true
+      );
+    } else {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'p:name:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.name'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    // If org identity attributes are enabled, require an email address
+    
+    if($orgIdentities) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'i:email_address:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.email_address.mail'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    // CO Person Role affiliation
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:affiliation',
+      'required'              => RequiredEnum::Required,
+      'label'                 => _txt('fd.affiliation'),
+      'ordr'                  => $ordr++
+    );
+    
+    // Define additional attributes for this flow -- while we flag these as
+    // optional, a deployer will likely want to flip them to required
+    
+    if($orgIdentities) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'o:o',
+        'required'              => RequiredEnum::Optional,
+        'label'                 => _txt('fd.o'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:title',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.title'),
+      'ordr'                  => $ordr++
+    );
+    
+    return $ret;
+  }
+  
+  /**
+   * Generate a template for a Self Signup Approval enrollment flow.
+   *
+   * @param  Integer $coId          CO ID for template
+   * @param  Boolean $orgIdentities True if org identity attributes may be collected (CMP setting)
+   * @param  Boolean $cous          True if COUs are defined for this CO
+   * @return Array Template in the usual Cake format
+   */
+  
+  protected function templateSelfSignupApproval($coId, $orgIdentities, $cous) {
+    $ret = array();
+    
+    // Start with the enrollment flow configuration
+    
+    $ret['CoEnrollmentFlow'] = array(
+      'name'                => _txt('fd.ef.tmpl.ssu'),
+      'co_id'               => $coId,
+      'approval_required'   => true,
+      'status'              => EnrollmentFlowStatusEnum::Template,
+      'match_policy'        => EnrollmentMatchPolicyEnum::None,
+      'authz_level'         => EnrollmentAuthzEnum::None,
+      'verify_email'        => true,
+      'notify_on_approval'  => true,
+      't_and_c_mode'        => TAndCEnrollmentModeEnum::ImpliedConsent
+    );
+    
+    // Define required attributes for this flow -- required here means the
+    // flow will fail without these
+    
+    $ret['CoEnrollmentAttribute'] = array();
+    $ordr = 1;
+    
+    // COU, if COUs are enabled
+    
+    if($cous) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'r:cou_id',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.cou'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    // If org identity attributes are enabled, define a name field and copy it
+    // to the CO Person, otherwise define a CO Person Name
+    
+    if($orgIdentities) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'i:name:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.name'),
+        'ordr'                  => $ordr++,
+        'copy_to_coperson'      => true
+      );
+    } else {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'p:name:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.name'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    // If org identity attributes are enabled, require an email address
+    
+    if($orgIdentities) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'i:email_address:official',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.email_address.mail'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    // CO Person Role affiliation
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:affiliation',
+      'required'              => RequiredEnum::Required,
+      'label'                 => _txt('fd.affiliation'),
+      'ordr'                  => $ordr++
+    );
+    
+    // Define additional attributes for this flow -- while we flag these as
+    // optional, a deployer will likely want to flip them to required
+    
+    if($orgIdentities) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'o:o',
+        'required'              => RequiredEnum::Optional,
+        'label'                 => _txt('fd.o'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    return $ret;
   }
 }

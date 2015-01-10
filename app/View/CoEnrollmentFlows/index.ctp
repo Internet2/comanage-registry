@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Flow Index View
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -38,7 +38,17 @@
       'url'     => array(
         'controller' => 'co_enrollment_flows', 
         'action' => 'add', 
-        'co' => $this->request->params['named']['co']
+        'co' => $cur_co['Co']['id']
+      )
+    );
+    
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-plus',
+      'title'   => _txt('op.restore.ef'),
+      'url'     => array(
+        'controller' => 'co_enrollment_flows', 
+        'action' => 'addDefaults', 
+        'co' => $cur_co['Co']['id']
       )
     );
   }
@@ -67,19 +77,18 @@
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co']));
         ?>
       </td>
-      <td><?php print _txt('en.status', null, $c['CoEnrollmentFlow']['status']); ?></td>
+      <td><?php print _txt('en.status.ef', null, $c['CoEnrollmentFlow']['status']); ?></td>
       <td>
         <?php
           print _txt('en.enrollment.authz', null, $c['CoEnrollmentFlow']['authz_level']);
           
           if($c['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CoGroupMember) {
             print " ("
-                  . $this->Html->link($c['CoEnrollmentFlow']['authz_co_group_id'],
+                  . $this->Html->link($c['CoEnrollmentFlowAuthzCoGroup']['name'],
                                       array(
                                        'controller' => 'co_groups',
                                        'action' => 'view',
-                                       $c['CoEnrollmentFlow']['authz_co_group_id'],
-                                       'co' => $c['CoEnrollmentFlow']['co_id']
+                                       $c['CoEnrollmentFlow']['authz_co_group_id']
                                       ))
                   . ")";
           }
@@ -87,12 +96,11 @@
           if($c['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CouAdmin
              || $c['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CouPerson) {
             print " ("
-                  . $this->Html->link($c['CoEnrollmentFlow']['authz_cou_id'],
+                  . $this->Html->link($c['CoEnrollmentFlowAuthzCou']['name'],
                                       array(
                                        'controller' => 'cous',
                                        'action' => 'view',
-                                       $c['CoEnrollmentFlow']['authz_cou_id'],
-                                       'co' => $c['CoEnrollmentFlow']['co_id']
+                                       $c['CoEnrollmentFlow']['authz_cou_id']
                                       ))
                   . ")";
           }
@@ -100,7 +108,8 @@
       </td>
       <td>
         <?php
-          if($permissions['select']) {
+          if($permissions['select']
+             && $c['CoEnrollmentFlow']['status'] == EnrollmentFlowStatusEnum::Active) {
             print $this->Html->link(_txt('op.begin'),
                                     array(
                                       'controller' => 'co_petitions',
@@ -112,12 +121,18 @@
           
           if($permissions['edit']) {
             print $this->Html->link(_txt('op.edit'),
-                                    array('controller' => 'co_enrollment_flows', 'action' => 'edit', $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co']),
+                                    array('controller' => 'co_enrollment_flows', 'action' => 'edit', $c['CoEnrollmentFlow']['id']),
                                     array('class' => 'editbutton')) . "\n";
           }
-            
+          
+          if($permissions['duplicate']) {
+            print $this->Html->link(_txt('op.dupe'),
+                                    array('controller' => 'co_enrollment_flows', 'action' => 'duplicate', $c['CoEnrollmentFlow']['id']),
+                                    array('class' => 'copybutton')) . "\n";
+          }
+          
           if($permissions['delete']) {
-            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoEnrollmentFlow']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_enrollment_flows', 'action' => 'delete', $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoEnrollmentFlow']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_enrollment_flows', 'action' => 'delete', $c['CoEnrollmentFlow']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
           }
         ?>
         <?php ; ?>

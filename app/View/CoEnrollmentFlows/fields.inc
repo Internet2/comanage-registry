@@ -70,10 +70,10 @@
     }
     
     // Duplicate button
-    if($permissions['duplicate']) {
+    if($this->action != "add" && $permissions['duplicate']) {
       $sidebarButtons[] = array(
         'icon'    => 'copy',
-        'title'   => _txt('op.dupe-a', array(_txt('ct.co_enrollment_flows.1'))),
+        'title'   => _txt('op.dupe'),
         'url'     => array(
           'controller' => 'co_enrollment_flows',
           'action' => 'duplicate',
@@ -83,7 +83,7 @@
     }
   }
   
-  if($permissions['select']) {
+  if($this->action != "add" && $permissions['select']) {
     // Shortcut to start enrollment flow
     
     $sidebarButtons[] = array(
