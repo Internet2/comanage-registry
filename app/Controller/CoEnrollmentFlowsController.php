@@ -200,29 +200,6 @@ class CoEnrollmentFlowsController extends StandardController {
   }
   
   /**
-   * Determine the conditions for pagination of the index view, when rendered via the UI.
-   *
-   * @since  COmanage Registry v0.1
-   * @return Array An array suitable for use in $this->paginate
-   */
-  
-  function paginationConditions() {
-    // Get a pointer to our model
-    $req = $this->modelClass;
-    
-    if(isset($this->cur_co))
-    {
-      // Only retrieve members of the current CO
-      
-      return(array(
-        $req.'.co_id' => $this->cur_co['Co']['id']
-      ));
-    }
-
-    return(array());
-  }
-  
-  /**
    * For Models that accept a CO ID, find the provided CO ID.
    * - precondition: A coid must be provided in $this->request (params or data)
    *

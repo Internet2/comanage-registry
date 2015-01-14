@@ -703,10 +703,17 @@ class StandardController extends AppController {
       else
       {
         // Configure pagination
-        $this->paginate['conditions'] = $this->paginationConditions();
+        
+        $local = $this->paginationConditions();
+        
+        $this->paginate['conditions'] = $local['conditions'];
+        
+        if(!empty($local['joins'])) {
+          $this->paginate['joins'] = $local['joins'];
+        }
         
         if(isset($this->view_contains)) {
-          $this->paginate['contain'] =  $this->view_contains;
+          $this->paginate['contain'] = $this->view_contains;
         }
         
         $this->Paginator->settings = $this->paginate;
@@ -756,22 +763,31 @@ class StandardController extends AppController {
    * @return Array An array suitable for use in $this->paginate
    */
   
-  function paginationConditions() {
+  public function paginationConditions() {
     // Get a pointer to our model
     $req = $this->modelClass;
     
-    if(isset($this->cur_co))
-    {
+    $ret = array();
+    
+    if(!empty($this->cur_co)) {
       // Only retrieve members of the current CO
-      
-      return(array(
-        $req.'.co_id' => $this->cur_co['Co']['id']
-      ));
+      $ret['conditions'][$req.'.co_id'] = $this->cur_co['Co']['id'];
     }
 
-    return(array());
+    return $ret;
   }
-
+  
+  /**
+   * Determine the join conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @return Array An array suitable for use in $this->paginate
+   */
+  
+  public function paginationJoins() {
+    return null;
+  }
+  
   /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated

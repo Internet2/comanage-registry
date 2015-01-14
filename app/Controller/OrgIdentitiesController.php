@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Controller
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -453,46 +453,60 @@ class OrgIdentitiesController extends StandardController {
     // Use server side pagination
     
     if($this->requires_co) {
-      $pagcond['OrgIdentity.co_id'] = $this->cur_co['Co']['id'];
+      $pagcond['conditions']['OrgIdentity.co_id'] = $this->cur_co['Co']['id'];
     }
 
     // Filter by given name
     if(!empty($this->params['named']['Search.givenName'])) {
-      $searchterm = $this->params['named']['Search.givenName'];
-      $pagcond['PrimaryName.given LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.givenName']);
+      $pagcond['conditions']['LOWER(PrimaryName.given) LIKE'] = "%$searchterm%";
     }
 
     // Filter by Family name
     if(!empty($this->params['named']['Search.familyName'])) {
-      $searchterm = $this->params['named']['Search.familyName'];
-      $pagcond['PrimaryName.family LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.familyName']);
+      $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "%$searchterm%";
     }
 
     // Filter by Organization
     if(!empty($this->params['named']['Search.organization'])) {
-      $searchterm = $this->params['named']['Search.organization'];
-      $pagcond['OrgIdentity.o LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.organization']);
+      $pagcond['conditions']['LOWER(OrgIdentity.o) LIKE'] = "%$searchterm%";
     }
 
-    // Filter by given department
+    // Filter by Department
     if(!empty($this->params['named']['Search.department'])) {
-      $searchterm = $this->params['named']['Search.department'];
-      $pagcond['OrgIdentity.ou LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.department']);
+      $pagcond['conditions']['LOWER(OrgIdentity.ou) LIKE'] = "%$searchterm%";
     }
 
     // Filter by title
     if(!empty($this->params['named']['Search.title'])) {
-      $searchterm = $this->params['named']['Search.title'];
-      $pagcond['OrgIdentity.title LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.title']);
+      $pagcond['conditions']['LOWER(OrgIdentity.title) LIKE'] = "%$searchterm%";
     }
 
     // Filter by affiliation
     if(!empty($this->params['named']['Search.affiliation'])) {
-      $searchterm = $this->params['named']['Search.affiliation'];
-      $pagcond['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.affiliation']);
+      $pagcond['conditions']['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
     }
     
-    return($pagcond);
+    // Filter by identifier
+    if(!empty($this->params['named']['Search.identifier'])) {
+      $searchterm = strtolower($this->params['named']['Search.identifier']);
+      $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
+      $pagcond['joins'][] = array(
+        'table' => 'identifiers',
+        'alias' => 'Identifier',
+        'type' => 'INNER',
+        'conditions' => array(
+          'Identifier.org_identity_id=OrgIdentity.id' 
+        )
+      );
+    }
+    
+    return $pagcond;
   }
 
 

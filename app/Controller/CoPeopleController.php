@@ -43,9 +43,7 @@ class CoPeopleController extends StandardController {
   // This controller needs a CO to be set
   public $requires_co = true;
 
-  // For CO Person group renderings, we need all CoGroup data, so we need more recursion
-  public $view_recursion = 2;
-  // We also need Name on delete
+  // We need Name on delete
   public $delete_recursion = 2;
   
   // Use edit_contains to select the associaeed models we need for canvas.
@@ -60,6 +58,16 @@ class CoPeopleController extends StandardController {
     'Name',
     'PrimaryName',
     'SshKey'
+  );
+  
+  // We need various related models for index and search
+  public $view_contains = array(
+    'Co',
+    'CoPersonRole' => array('CoPetition', 'Cou'),
+    'EmailAddress',
+    'Identifier',
+    'Name',
+    'PrimaryName'
   );
   
   /**
@@ -805,34 +813,55 @@ class CoPeopleController extends StandardController {
     // Use server side pagination
     
     if($this->requires_co) {
-      $pagcond['Co.id'] = $this->cur_co['Co']['id'];
+      $pagcond['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
     }
 
-    // Filter by given name
+    // Filter by Given name
     if(!empty($this->params['named']['Search.givenName'])) {
       $searchterm = strtolower($this->params['named']['Search.givenName']);
-      $pagcond['LOWER(PrimaryName.given) LIKE'] = "%$searchterm%";
+      // We set up LOWER() indices on these columns (CO-1006)
+      $pagcond['conditions']['LOWER(PrimaryName.given) LIKE'] = "%$searchterm%";
     }
 
     // Filter by Family name
     if(!empty($this->params['named']['Search.familyName'])) {
       $searchterm = strtolower($this->params['named']['Search.familyName']);
-      $pagcond['LOWER(PrimaryName.family) LIKE'] = "%$searchterm%";
+      $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "%$searchterm%";
     }
 
     // Filter by start of Family name (starts with searchterm)
     if(!empty($this->params['named']['Search.familyNameStart'])) {
       $searchterm = strtolower($this->params['named']['Search.familyNameStart']);
-      $pagcond['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
+      $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
     }
-
+    
+    // Filter by identifier
+    if(!empty($this->params['named']['Search.identifier'])) {
+      $searchterm = strtolower($this->params['named']['Search.identifier']);
+      $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
+      $pagcond['joins'][] = array(
+        'table' => 'identifiers',
+        'alias' => 'Identifier',
+        'type' => 'INNER',
+        'conditions' => array(
+          'Identifier.co_person_id=CoPerson.id' 
+        )
+      );
+      
+      // We also want to search on identifiers attached to org identities.
+      // This requires a fairly complicated join that doesn't quite work right
+      // and that Cake doesn't really support in our current model configuration.
+      // This probably needs to be implemented as part of CO-819, or perhaps
+      // using a custom paginator.
+    }
+    
     // Filter by status
     if(!empty($this->params['named']['Search.status'])) {
       $searchterm = $this->params['named']['Search.status'];
-      $pagcond['CoPerson.status'] = $searchterm;
+      $pagcond['conditions']['CoPerson.status'] = $searchterm;
     }
  
-    return($pagcond);
+    return $pagcond;
   }
 
   /**

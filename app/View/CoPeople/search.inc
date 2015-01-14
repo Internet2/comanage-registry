@@ -45,6 +45,7 @@ global $cm_lang, $cm_texts;
     <table>
       <tr>
         <td>
+          <?php // XXX these names aren't I18nified. Cake is inflecting "givenName" to "Given Name" (CO-1007) ?>
           <?php print $this->Form->input('Search.givenName'); ?>
         </td>
       </tr>
@@ -56,7 +57,17 @@ global $cm_lang, $cm_texts;
       <tr>
         <td>
           <?php
-            // Build array of options based on model validation
+            $args = array();
+            $args['label'] = _txt('fd.identifier.identifier');
+            
+            print $this->Form->input('Search.identifier', $args);
+          ?>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <?php
+            // This needs to pull StatusEnum values based on the model (CO-1007)
             $statusOptions = array(StatusEnum::Active,
                                   StatusEnum::Approved,
                                   StatusEnum::Declined,
@@ -67,21 +78,23 @@ global $cm_lang, $cm_texts;
                                   StatusEnum::PendingApproval,
                                   StatusEnum::PendingConfirmation,
                                   StatusEnum::Suspended);
-
-          foreach ($statusOptions as $s) {
-            $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
-          }
+  
+            foreach ($statusOptions as $s) {
+              $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
+            }
+            
             $formParams = array('options' => $searchOptions,
                                 'type'    => 'select',
                                 'empty'   => ' ',
-                                'label'   => 'Status');
+                                'label'   => 'Status'); // XXX not I18n
+            
             print $this->Form->input('Search.status', $formParams);
           ?>
         </td>
       </tr>
       <tr>
         <td>
-          <?php print $this->Form->submit('Search'); ?>
+          <?php print $this->Form->submit('Search'); // XXX Not I18n ?>
         </td>
       </tr>
     </table>
