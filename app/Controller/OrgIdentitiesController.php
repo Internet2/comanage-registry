@@ -218,16 +218,33 @@ class OrgIdentitiesController extends StandardController {
    */
   
   function find() {
-    // Set page title
-    $this->set('title_for_layout', _txt('op.find.inv'));
-
-    // XXX we currently don't validate $coid since we just pass it back to the
-    // co_person controller, which will validate it
-    $this->set('cur_co', $this->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($this->request->params['named']['co']));
-
+    if(!empty($this->request->params['named']['copersonid'])) {
+      // Find the CO Person name
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
+      $args['contain'][] = 'PrimaryName';
+      
+      $cop = $this->OrgIdentity->CoOrgIdentityLink->CoPerson->find('first', $args);
+      
+      if(!empty($cop['PrimaryName'])) {
+        $this->set('title_for_layout', _txt('op.find.link', array(generateCn($cop['PrimaryName']))));
+      } else {
+        $this->Session->setFlash(_txt('er.notfound',
+                                      array(_txt('ct.co_people.1'), Sanitize::html($this->request->params['named']['copersonid']))),
+                                 '', array(), 'error');
+        $this->performRedirect();
+      }
+    } else {
+      $this->set('title_for_layout', _txt('op.find.inv', array($this->cur_co['Co']['name'])));
+    }
+    
+    $this->set('cur_co', $this->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($this->cur_co['Co']['id']));
+    
     // Use server side pagination
     
     $this->Paginator->settings = $this->paginate;
+    $this->Paginator->settings['contain'] = $this->view_contains;
+    
     if(!isset($this->viewVars['pool_org_identities'])
        || !$this->viewVars['pool_org_identities']) {
       $this->set('org_identities',
@@ -236,9 +253,6 @@ class OrgIdentitiesController extends StandardController {
     } else {
       $this->set('org_identities', $this->Paginator->paginate('OrgIdentity'));
     }
-    
-    // Don't user server side pagination
-    //$this->set('org_identities', $this->CoPersonRole->OrgIdentity->find('all'));
   }
   
   /**

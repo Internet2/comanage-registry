@@ -967,6 +967,7 @@ original notification at
   // Informational messages
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
+  'in.orgid.co'       => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
   
   // Menu
@@ -1025,6 +1026,7 @@ original notification at
   'op.filter.status' => 'Filter Petitions By Status',
   'op.filter.status.by' => 'Filter By Status',
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
+  'op.find.link' =>   'Find an Organizational Identity to Link to %1$s',
   'op.gr.memadd' =>   'Manage %1$s Group Memberships',
   'op.grm.edit' =>    'Edit Members of %1$s Group %2$s',
   'op.grm.manage' =>  'Manage My Group Memberships',

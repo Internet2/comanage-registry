@@ -1117,6 +1117,22 @@
           </ul>
         </li>
         <li id="fields-orgid" class="fieldGroup">
+          <?php
+            if($e) {
+              print '<div class="coAddEditButtons">';
+              $linktarget = array(
+                'controller' => 'org_identities',
+                'action'     => 'find',
+                'copersonid' => $co_people[0]['CoPerson']['id']
+              );
+              $linkparams = array('class' => 'addbutton');
+              
+              print $this->Html->link(_txt('op.link'),
+                                      $linktarget,
+                                      $linkparams);
+              print '</div>';
+            }
+          ?>
           <a href="#tabs-orgid" class="fieldGroupName">
             <span class="ui-icon ui-icon-circlesmall-minus"></span>
             <?php print _txt('ct.org_identities.pl'); ?>
