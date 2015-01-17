@@ -600,23 +600,23 @@ class CoPetitionsController extends StandardController {
     // Use server side pagination
     
     if($this->requires_co) {
-      $pagcond['CoPetition.co_id'] = $this->cur_co['Co']['id'];
+      $pagcond['conditions']['CoPetition.co_id'] = $this->cur_co['Co']['id'];
     }
     
     // Filter by status
     if(!empty($this->params['named']['search.status'])) {
       $searchterm = $this->params['named']['search.status'];
-      $pagcond['CoPetition.status'] = $searchterm;
+      $pagcond['conditions']['CoPetition.status'] = $searchterm;
     }
     
     // Filter by CO Person ID
     if(!empty($this->params['named']['search.copersonid'])) {
-      $pagcond['CoPetition.enrollee_co_person_id'] = $this->params['named']['search.copersonid'];
+      $pagcond['conditions']['CoPetition.enrollee_co_person_id'] = $this->params['named']['search.copersonid'];
     }
     
     // Filter by Org Identity ID
     if(!empty($this->params['named']['search.orgidentityid'])) {
-      $pagcond['CoPetition.enrollee_org_identity_id'] = $this->params['named']['search.orgidentityid'];
+      $pagcond['conditions']['CoPetition.enrollee_org_identity_id'] = $this->params['named']['search.orgidentityid'];
     }
     
     // Potentially filter by enrollment flow ID. Our assumption is that if we make it
@@ -642,11 +642,11 @@ class CoPetitionsController extends StandardController {
       $efs = $this->Role->approverFor($coPersonId);
       
       if(!empty($efs)) {
-        $pagcond['CoPetition.co_enrollment_flow_id'] = $efs;
+        $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $efs;
       } else {
         // We shouldn't normally get here, as isAuthorized should filter anyone without
         // an approval role, but just in case we'll insert an invalid ID that won't ever match
-        $pagcond['CoPetition.co_enrollment_flow_id'] = -1;
+        $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = -1;
       }
     }
     

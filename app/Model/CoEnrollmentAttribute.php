@@ -610,6 +610,16 @@ class CoEnrollmentAttribute extends AppModel {
           }
         }
       } elseif($attrCode == 'g') {
+        // This is a bit obscure. In order for FormHelper to determine that
+        // CoGroupMember->member is boolean, it needs access to the CoGroupMember
+        // class. Since FormHelper runs under CoPetition, and there is no direct
+        // relationship between CoPetition and CoGroupMember, we need to
+        // initialize the class manually so FormHelper can see it later (see
+        // FormHelper::_getModel). We don't need to do this for (eg) Identifier
+        // because Identifier is loaded as part of the login (beforeFilter) process.
+        
+        ClassRegistry::init('CoGroupMember');
+        
         // Group Membership requires a bit of specialness. Basically, we'll manually
         // contruct the $attrs entry.
         
@@ -618,7 +628,8 @@ class CoEnrollmentAttribute extends AppModel {
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
         $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
         $attr['mvpa_required'] = false; // does not apply
-        $attr['label'] = $efAttr['CoEnrollmentAttribute']['label'];
+        $attr['group'] = $efAttr['CoEnrollmentAttribute']['label'];
+        $attr['label'] = _txt('ct.co_groups.1');
         $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
         $attr['model'] = "EnrolleeCoPerson.CoGroupMember." . $efAttr['CoEnrollmentAttribute']['id'];
         $attr['field'] = "co_group_id";
@@ -642,22 +653,44 @@ class CoEnrollmentAttribute extends AppModel {
         
         $attrs[] = $attr;
         
+        // We allow a petitioner to opt-in (ie: tick the box) for membership when
+        // the following are all true:
+        //  (1) A default group is specified
+        //  (2) Modifiable is false
+        //  (3) Hidden is false
+        //  (4) Attribute is optional, not required
+        // Figure this out before we reset $attr.
+        
+        $optin = (!empty($attr['default'])
+                  && !$attr['modifiable']
+                  && !$attr['hidden']
+                  && $attr['required'] == RequiredEnum::Optional);
+        
         // Inject hidden attributes to specify membership
         
         $attr = array();
         $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
-        $attr['hidden'] = true;
+        $attr['group'] = $efAttr['CoEnrollmentAttribute']['label'];
+        $attr['label'] = _txt('fd.group.mem');
+        $attr['hidden'] = !$optin;
+        $attr['modifiable'] = $optin;
+        $attr['required'] = false;
+        $attr['mvpa_required'] = false;
         $attr['default'] = true;
         $attr['model'] = "EnrolleeCoPerson.CoGroupMember." . $efAttr['CoEnrollmentAttribute']['id'];
         $attr['field'] = "member";
         
         $attrs[] = $attr;
         
-        // and ownership
+        // ... and ownership
         
         $attr['default'] = 0;
         $attr['field'] = "owner";
+        // Explicitly set in case $optin is true
+        $attr['hidden'] = true;
+        $attr['modifiable'] = false;
+        $attr['required'] = true;
         
         $attrs[] = $attr;
         

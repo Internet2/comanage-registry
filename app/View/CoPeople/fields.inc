@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Fields
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -782,8 +782,8 @@
                     <?php
                     if(isset($co_people[0]['CoGroupMember'])) {
                       if($e && !$es) { // XXX !$es is probably the wrong permission here
-                        if(isset($co_people[0]['CoGroupMember'])) {
-                          foreach($co_people[0]['CoGroupMember'] as $g) {
+                        foreach($co_people[0]['CoGroupMember'] as $g) {
+                          if($g['member'] || $g['owner']) {
                             print '<div>';
                             print '<div>';
                             print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
