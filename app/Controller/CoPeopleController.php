@@ -109,6 +109,7 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
       $args['contain'] = false;
       
       $this->set('co_enrollment_flows', $this->Co->CoEnrollmentFlow->find('all', $args));
