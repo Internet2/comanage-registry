@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Setup Shell
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -35,8 +35,6 @@
       $gn = $this->in(_txt('se.cf.admin.given'));
       $sn = $this->in(_txt('se.cf.admin.sn'));
       $user = $this->in(_txt('se.cf.admin.user'));
-      $salt = $this->in(_txt('se.cf.admin.salt'));
-      $seed = $this->in(_txt('se.cf.admin.seed'));
 
       // Since we'll be doing some direct DB manipulation, find the table prefix
       $prefix = "";
@@ -234,34 +232,38 @@ GROUP BY
 
       $this->CoGroupMember->save($grm);
       $grm_id = $this->CoGroupMember->id;
-
-      // Create the security salt file using a random string
-      // if one was not entered.
-
-      $this->out("- " . _txt('se.security.salt'));
-
-      if (!$salt) {
+      
+      // Generate security salt and seed files if they don't already exist
+      
+      $securitySaltFilename = APP . "/Config/security.salt";
+      
+      if(file_exists($securitySaltFilename)) {
+        $this->out("- " . _txt('se.security.salt.exists'));
+      } else {
+        // Create the security salt file using a random string
+        $this->out("- " . _txt('se.security.salt'));
+        
         $salt = str_repeat("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 10);
         $salt = str_shuffle($salt);
         $salt = substr($salt, 0, 40);
+        
+        file_put_contents($securitySaltFilename, $salt);
       }
-
-      $securitySaltFilename = APP . "/Config/security.salt";
-      file_put_contents($securitySaltFilename, $salt);
-
-      // Create the security seed file using a random string
-      // if one was not entered.
-
-      $this->out("- " . _txt('se.security.seed'));
-
-      if (!$seed) {
+      
+      $securitySeedFilename = APP . "/Config/security.seed";
+      
+      if(file_exists($securitySeedFilename)) {
+        $this->out("- " . _txt('se.security.seed.exists'));
+      } else {
+        // Create the security seed file using a random string
+        $this->out("- " . _txt('se.security.seed'));
+        
         $seed = str_repeat("0123456789", 100);
         $seed = str_shuffle($seed);
         $seed = substr($seed, 0, 29);
+        
+        file_put_contents($securitySeedFilename, $seed);
       }
-
-      $securitySeedFilename = APP . "/Config/security.seed";
-      file_put_contents($securitySeedFilename, $seed);
 
       // Clear the models in the cache since the cm_users view
       // was just created and will not otherwise appear in the cache.
