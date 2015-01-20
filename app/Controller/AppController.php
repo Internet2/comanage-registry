@@ -1164,6 +1164,9 @@ class AppController extends Controller {
     // Select from available enrollment flows?
     $p['menu']['createpetition'] = $roles['user'];
     
+    // Invite (default enrollment) new CO people?
+    $p['menu']['invite'] = $roles['admin'] || $roles['subadmin'];
+    
     // Review / approve petitions?
     // XXX this isn't exactly the right check, but then neither are most of the others (CO-731)
     $p['menu']['petitions'] = $roles['admin']
@@ -1282,6 +1285,18 @@ class AppController extends Controller {
     }
     
     $this->set('menuContent', $menu);
+    
+    // An a temporary workaround for CO-720, determine which COs have enrollment flows
+    // defined. Once CO-828 is done, this could be replaced by examining $this->cur_co
+    // (or similar) instead, since we won't have a big multi-CO menu.
+    
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    $args['fields'][] = 'DISTINCT CoEnrollmentFlow.co_id';
+    $args['order'][] = 'CoEnrollmentFlow.co_id ASC';
+    $args['contain'] = false;
+    
+    $this->set('vv_enrollment_flow_cos', $this->Co->CoEnrollmentFlow->find('all', $args));
   }
   
   /**

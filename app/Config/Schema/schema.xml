@@ -703,6 +703,11 @@
       <col>co_id</col>
       <col>name</col>
     </index>
+    
+    <!-- Used by AppController::menuContent() -->
+    <index name="co_enrollment_flows_i3">
+      <col>status</col>
+    </index>
   </table>
   
   <table name="co_enrollment_attributes">

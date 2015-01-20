@@ -26,6 +26,9 @@ if($menuContent['cos']) {
 } else {
   $cos = array();
 }
+
+// Convert the list of COs with enrollment flows defined into a more useful format
+$efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 ?>
 
 <ul class="sf-menu">
@@ -90,8 +93,10 @@ if($menuContent['cos']) {
                   print "</li>";
                 }
 
-                if(isset($permissions['menu']['createpetition']) && $permissions['menu']['createpetition']) {
-                  print "<li>";
+                if(in_array($menuCoId, $efcos)) {
+                  // Enrollment Flows enabled
+                  if(isset($permissions['menu']['createpetition']) && $permissions['menu']['createpetition']) {
+                    print "<li>";
                     $args = array();
                     $args['plugin'] = null;
                     $args['controller'] = 'co_enrollment_flows';
@@ -99,7 +104,21 @@ if($menuContent['cos']) {
                     $args['co'] = $menuCoId;
                     
                     print $this->Html->link(_txt('op.enroll'), $args);
-                  print "</li>";
+                    print "</li>";
+                  }
+                } else {
+                  // Default enrollment
+                  if(isset($permissions['menu']['invite']) && $permissions['menu']['invite']) {
+                    print "<li>";
+                    $args = array();
+                    $args['plugin'] = null;
+                    $args['controller'] = 'org_identities';
+                    $args['action'] = 'find';
+                    $args['co'] = $menuCoId;
+                    
+                    print $this->Html->link(_txt('op.inv'), $args);
+                    print "</li>";
+                  }
                 }
 
                 if(isset($permissions['menu']['petitions']) && $permissions['menu']['petitions']) {
