@@ -102,23 +102,13 @@ class CoExtendedType extends AppModel {
    */
   
   public function active($coId, $attribute, $format='list') {
-    $args = array();
-    $args['conditions']['CoExtendedType.co_id'] = $coId;
-    $args['conditions']['CoExtendedType.attribute'] = $attribute;
-    $args['conditions']['CoExtendedType.status'] = SuspendableStatusEnum::Active;
-    $args['order'][] = 'CoExtendedType.display_name';
-    
-    if($format == 'list') {
-      $args['fields'] = array('CoExtendedType.name', 'CoExtendedType.display_name');
-    }
-    
-    return $this->find($format, $args);
+    return $this->definedTypes($coId, $attribute, $format, true);
   }
   
   /**
-   * Determine if all default types are explicitly defined as extended types for a specific attribute.
+   * Add the default types for an attribute.
    *
-   * @since  COmanage Registry v0.6
+   * @since  COmanage Registry v0.9.2
    * @param  Integer CO ID
    * @param  String Attribute, of the form Model.attribute
    * @return Boolean Success
@@ -143,8 +133,8 @@ class CoExtendedType extends AppModel {
     $modelDefault = $model->defaultTypes($attr[1]);
     
     if(!empty($modelDefault)) {
-      // Pull the current set of extended types for the model
-      $active = $this->active($coId, $attribute, 'list');
+      // Pull the set of extended types for the model
+      $active = $this->definedTypes($coId, $attribute, 'list');
       
       $defaultTypes = array();
       
@@ -171,6 +161,8 @@ class CoExtendedType extends AppModel {
     } else {
       throw new InvalidArgumentException(_txt('er.unknown', array($attr[1])));
     }
+    
+    return true;
   }
   
   /**
@@ -230,6 +222,33 @@ class CoExtendedType extends AppModel {
     }
     
     return $ret;
+  }
+  
+  /**
+   * Determine if there are any defined extended types for a specific attribute.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer CO ID
+   * @param  String Attribute, of the form Model.attribute
+   * @param  String Format ('all' or 'list', as for Cake find)
+   * @param  Boolean True if only active types should be returned
+   * @return Array List of defined extended types, keyed on extended type ID
+   */
+  
+  public function definedTypes($coId, $attribute, $format='list', $active=false) {
+    $args = array();
+    $args['conditions']['CoExtendedType.co_id'] = $coId;
+    $args['conditions']['CoExtendedType.attribute'] = $attribute;
+    if($active) {
+      $args['conditions']['CoExtendedType.status'] = SuspendableStatusEnum::Active;
+    }
+    $args['order'][] = 'CoExtendedType.display_name';
+    
+    if($format == 'list') {
+      $args['fields'] = array('CoExtendedType.name', 'CoExtendedType.display_name');
+    }
+    
+    return $this->find($format, $args);
   }
   
   /**
