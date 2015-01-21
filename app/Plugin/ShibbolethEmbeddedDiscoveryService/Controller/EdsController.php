@@ -49,6 +49,23 @@ class EdsController extends AppController {
 		
 		parent::beforeFilter();
 	}
+    
+  /**
+   * Authorization for this Controller, called by Auth component
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: $permissions set with calculated permissions
+   *
+   * @since  COmanage Registry v1.0
+   * @return Array Permissions
+   */
+  
+  function isAuthorized() {
+    $p = array();
+    $p['view'] = true;
+    
+    $this->set('permissions', $p);
+    return($p[$this->action]);
+  }
 	
   /**
    * Prepare to display the EDS.
