@@ -1296,7 +1296,8 @@ class AppController extends Controller {
     $args['order'][] = 'CoEnrollmentFlow.co_id ASC';
     $args['contain'] = false;
     
-    $this->set('vv_enrollment_flow_cos', $this->Co->CoEnrollmentFlow->find('all', $args));
+    $this->loadModel('CoEnrollmentFlow');
+    $this->set('vv_enrollment_flow_cos', $this->CoEnrollmentFlow->find('all', $args));
   }
   
   /**
