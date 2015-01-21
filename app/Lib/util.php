@@ -163,7 +163,7 @@ function getPreferredLanguage() {
  * Note this function is for configured templates (ie: those loaded from the
  * database) and not for Cake templates (ie: those loaded from View/Emails).
  *
- * The subtitutions array should include key/value pairs for each value
+ * The substitutions array should include key/value pairs for each value
  * to replace. For example array('CO_NAME' => 'MyCO') will replace @CO_NAME
  * with "MyCO".
  *
