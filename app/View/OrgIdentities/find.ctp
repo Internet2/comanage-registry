@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Org Identity Find View
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -23,14 +23,30 @@
  */
 ?>
 <?php
-  $params = array('title' => _txt('op.find.inv', array(Sanitize::html($cur_co['Co']['name']))));
+  $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
+  
+  // What operation are we finding for?
+  if(!empty($this->request->params['named']['copersonid'])) {
+    // If a CO Person ID was provided, we're trying to link an Org Identity to
+    // and existing CO Person
+    $op = "link";
+  } else {
+    // Otherwise we are doing default enrollment
+    $op = "invite";
+  }
 ?>
 
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<?php if($op == 'invite'): ?>
   <p>
     <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
     <strong><?php print _txt('in.orgid.email'); ?></strong>
+  </p>
+<?php endif; // invite ?>
+  <p>
+    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <strong><?php print _txt('in.orgid.co'); ?></strong>
   </p>
 </div>
 <br />
@@ -38,12 +54,12 @@
 <table id="org_identities" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
-      <th><?php echo $this->Paginator->sort('o', _txt('fd.o')); ?></th>
-      <th><?php echo $this->Paginator->sort('title', _txt('fd.title')); ?></th>
-      <th><?php echo $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-      <th><?php echo _txt('fd.email_address.mail'); ?></th>
-      <th><?php echo _txt('op.inv'); ?></th>
+      <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
+      <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
+      <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
+      <th><?php print $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
+      <th><?php print _txt('fd.email_address.mail'); ?></th>
+      <th><?php print _txt('op.inv'); ?></th>
     </tr>
   </thead>
   
@@ -56,21 +72,42 @@
                                               'action'                 => 'view',
                                               $p['OrgIdentity']['id'],
                                               'co'                     => ($pool_org_identities ? false : $cur_co['Co']['id']))); ?></td>
-      <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
-      <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
-      <td><?php   // Globals
-             global $cm_lang, $cm_texts;
-             if(isset($p['OrgIdentity']['affiliation'])) {
-               echo $cm_texts[ $cm_lang ]['en.affil'][ $p['OrgIdentity']['affiliation'] ];
-             }
-          ?></td>
+      <td><?php print Sanitize::html($p['OrgIdentity']['o']); ?></td>
+      <td><?php print Sanitize::html($p['OrgIdentity']['title']); ?></td>
+      <td><?php if(!empty($p['OrgIdentity']['affiliation'])) { print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); } ?></td>
       <td><?php foreach($p['EmailAddress'] as $ea) echo Sanitize::html($ea['mail']) . "<br />"; ?></td>
-      <td><?php echo $this->Html->link(_txt('op.inv'),
-                                 array('controller' => 'co_people',
-                                       'action' => 'invite',
-                                       'orgidentityid' => $p['OrgIdentity']['id'],
-                                       'co' => $cur_co['Co']['id']),
-                                 array('class' => 'invitebutton')); ?></td>
+      <td><?php
+        // Don't offer an invite link for org identities that are already in the CO
+        
+        $linked = false;
+        
+        foreach($p['CoOrgIdentityLink'] as $lnk) {
+          if(!empty($lnk['CoPerson']['co_id'])
+             && $lnk['CoPerson']['co_id'] == $cur_co['Co']['id']) {
+            $linked = true;
+            break;
+          }
+        }
+        
+        if(!$linked) {
+          if($op == 'link') {
+            // CO Person specified, so link instead of invite
+            print $this->Html->link(_txt('op.link'),
+                                       array('controller' => 'co_people',
+                                             'action' => 'link',
+                                             Sanitize::html($this->request->params['named']['copersonid']),
+                                             'orgidentityid' => $p['OrgIdentity']['id']),
+                                       array('class' => 'linkbutton'));
+          } else {
+            print $this->Html->link(_txt('op.inv'),
+                                       array('controller' => 'co_people',
+                                             'action' => 'invite',
+                                             'orgidentityid' => $p['OrgIdentity']['id'],
+                                             'co' => $cur_co['Co']['id']),
+                                       array('class' => 'invitebutton'));
+          }
+        }
+      ?></td>
     </tr>
     <?php $i++; ?>
     <?php endforeach; ?>
@@ -79,7 +116,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="8">
-        <?php echo $this->Paginator->numbers(); ?>
+        <?php print $this->Paginator->numbers(); ?>
       </th>
     </tr>
   </tfoot>

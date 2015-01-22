@@ -30,7 +30,7 @@ class Name extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Provisioner');
+  public $actsAs = array('Containable', 'Normalization', 'Provisioner');
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -90,11 +90,13 @@ class Name extends AppModel {
     ),
     'type' => array(
       'content' => array(
-        'rule' => array('inList', array(NameEnum::Alternate,
-                                        NameEnum::Author,
-                                        NameEnum::FKA,
-                                        NameEnum::Official,
-                                        NameEnum::Preferred)),
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'Name.type',
+                              'default' => array(NameEnum::Alternate,
+                                                 NameEnum::Author,
+                                                 NameEnum::FKA,
+                                                 NameEnum::Official,
+                                                 NameEnum::Preferred))),
         'required' => true,
         'allowEmpty' => false
       )
@@ -131,13 +133,92 @@ class Name extends AppModel {
   
   // Enum type hints
   
-  public $cm_enum_lang = array(
-    'type' => 'en.name'
-  );
-  
   public $cm_enum_types = array(
     'type' => 'name_t'
   );
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v0.9.2
+   */
+  
+  public function beforeSave($options = array()) {    
+    // Make sure exactly one Primary Name is set
+    
+    // We don't do transaction management here because we can't guarantee a rollback
+    // on error. (afterSave is not called if the save itself fails.) So it's up to
+    // the controller (or other calling code) to begin/commit/rollback.
+    
+    if(isset($this->data['Name']['primary_name'])) {
+      // Is there an existing primary name? If not make sure this Name is primary.
+      // In order to answer this, we need either an Org Identity ID or a CO Person ID.
+      // However, if we were called via saveField these might not be in $this->data.
+      // But we can't just call read() because that will clobber the data we're supposed
+      // to save.
+      
+      $orgIdentityId = null;
+      $coPersonId = null;
+      
+      // First check to see if an identity was provided in the data
+      
+      if(!empty($this->data['Name']['org_identity_id'])) {
+        $orgIdentityId = $this->data['Name']['org_identity_id'];
+      } elseif(!empty($this->data['Name']['co_person_id'])) {
+        $coPersonId = $this->data['Name']['co_person_id'];
+      } else {
+        // No identity, so pull the record and see if we can find one. But we'll do
+        // this by field so as not to disrupt $this->data
+        
+        $orgIdentityId = $this->field('org_identity_id');
+        
+        if(!$orgIdentityId) {
+          // Try for a CO Person ID
+          
+          $coPersonId = $this->field('co_person_id');
+          
+          if(!$coPersonId) {
+            throw new InvalidArgumentException(_txt('er.person.none'));
+          }
+        }
+      }
+      
+      // At this point, we must have either an Org ID or a CO Person ID
+      
+      if(!$this->data['Name']['primary_name']) {
+        $args = array();
+        $args['conditions']['Name.primary_name'] = true;
+        if($orgIdentityId) {
+          $args['conditions']['Name.org_identity_id'] = $orgIdentityId;
+        } elseif($coPersonId) {
+          $args['conditions']['Name.co_person_id'] = $coPersonId;
+        }
+        
+        if($this->find('count', $args) == 0) {
+          // No other names, this one must be primary
+          $this->data['Name']['primary_name'] = true;
+        }
+      }
+      
+      // Unset any existing primary name -- but only if this Name has primary name as true.
+      
+      if($this->data['Name']['primary_name']) {
+        if($orgIdentityId) {
+          // Unset any previous primary name
+          
+          $this->updateAll(array('Name.primary_name' => false),
+                           array('Name.org_identity_id' => $orgIdentityId));
+        } elseif($coPersonId) {
+          // Unset any previous primary name
+          
+          $this->updateAll(array('Name.primary_name' => false),
+                           array('Name.co_person_id' => $coPersonId));
+        }
+      }
+    }
+    
+    return true;
+  }
   
   /**
    * Actions to take before a validate operation is executed.

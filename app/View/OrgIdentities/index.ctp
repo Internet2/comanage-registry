@@ -87,7 +87,7 @@ global $cm_lang, $cm_texts;
       <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['ou']); ?></td>
       <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
-      <td><?php if(isset($p['OrgIdentity']['affiliation'])) print _txt('en.affil', null, $p['OrgIdentity']['affiliation']); ?></td>
+      <td><?php if(isset($p['OrgIdentity']['affiliation'])) print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); ?></td>
       
       <td>
         <?php

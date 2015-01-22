@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Language File
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -63,10 +63,12 @@ $cm_texts['en_US'] = array(
   'ct.api_users.pl' =>          'API Users',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
-  'ct.co_enrollment_attributes.1'  => 'CO Enrollment Attribute',
-  'ct.co_enrollment_attributes.pl' => 'CO Enrollment Attributes',
-  'ct.co_enrollment_flows.1'  => 'CO Enrollment Flow',
-  'ct.co_enrollment_flows.pl' => 'CO Enrollment Flows',
+  'ct.co_enrollment_attributes.1'  => 'Enrollment Attribute',
+  'ct.co_enrollment_attributes.pl' => 'Enrollment Attributes',
+  'ct.co_enrollment_flows.1'  => 'Enrollment Flow',
+  'ct.co_enrollment_flows.pl' => 'Enrollment Flows',
+  'ct.co_expiration_policies.1'  => 'Expiration Policy',
+  'ct.co_expiration_policies.pl' => 'Expiration Policies',
   'ct.co_extended_attributes.1'  => 'Extended Attribute',
   'ct.co_extended_attributes.pl' => 'Extended Attributes',
   'ct.co_extended_types.1'  => 'Extended Type',
@@ -139,6 +141,8 @@ $cm_texts['en_US'] = array(
   // Email Messages
   'em.approval.subject.ef'   => 'Petition to join (@CO_NAME) has been approved',
   'em.approval.body.ef'      => 'Your petition to join (@CO_NAME) as been approved. You may now log in to the platform.',
+  'em.expiration.subject'    => 'Placeholder expiration subject',
+  'em.expiration.body'       => 'Placeholder expiration body',
   'em.invite.subject'        => 'Invitation to join %1$s',
   'em.invite.subject.ef'     => 'Invitation to join (@CO_NAME)',
   'em.invite.subject.ver'    => 'Please confirm your email address (@CO_NAME)',
@@ -158,7 +162,11 @@ For questions regarding this process, please contact your administrator.',
   'em.notification.subject'  => 'New Notification for (@CO_NAME)',
   'em.notification.body'     => '(@COMMENT)
 
-(@SOURCE_URL)',
+(@SOURCE_URL)
+
+For more information, see the notification at
+
+(@NOTIFICATION_URL)',
   'em.resolution.subject'    => 'Notification for (@CO_NAME) Resolved',
   'em.resolution.body'       => 'The action required for the notification
   
@@ -167,7 +175,7 @@ For questions regarding this process, please contact your administrator.',
 has been resolved by (@ACTOR_NAME). For more information, see the
 original notification at
 
-(@SOURCE_URL)',
+(@NOTIFICATION_URL)',
 
   // Enumerations, corresponding to enum.php
   // Default history comments
@@ -182,9 +190,11 @@ original notification at
     ActionEnum::CoPersonManuallyProvisioned => 'CO Person Provisioned (Manual)',
     ActionEnum::CoPersonMatchedPetition     => 'CO Person Matched (Petition)',
     ActionEnum::CoPersonProvisioned         => 'CO Person Provisioned',
+    ActionEnum::CoPersonStatusRecalculated  => 'CO Person Status Recalculated',
     ActionEnum::CoPersonRoleAddedManual     => 'CO Person Role Created (Manual)',
     ActionEnum::CoPersonRoleAddedPetition   => 'CO Person Role Created (Petition)',
     ActionEnum::CoPersonRoleDeletedManual   => 'CO Person Role Deleted (Manual)',
+    ActionEnum::CoPersonRoleEditedExpiration => 'CO Person Role Edited (Expiration)',
     ActionEnum::CoPersonRoleEditedManual    => 'CO Person Role Edited',
     ActionEnum::CoPersonRoleEditedPetition  => 'CO Person Role Edited (Petition)',
     ActionEnum::CoPersonRoleRelinked        => 'CO Person Role Relinked',
@@ -195,6 +205,7 @@ original notification at
     ActionEnum::EmailAddressVerified        => 'Email Address Verified',
     ActionEnum::EmailAddressVerifyCanceled  => 'Email Address Verification Canceled',
     ActionEnum::EmailAddressVerifyReqSent   => 'Email Address Verification Sent',
+    ActionEnum::ExpirationPolicyMatched     => 'Expiration Policy Matched',
     ActionEnum::HistoryRecordActorExpunged  => 'History Record Actor Expunged',
     ActionEnum::IdentifierAutoAssigned      => 'Identifier Auto Assigned',
     ActionEnum::InvitationConfirmed         => 'Invitation Confirmed',
@@ -208,6 +219,7 @@ original notification at
     ActionEnum::NotificationResolved        => 'Notification Resolved',
     ActionEnum::OrgIdAddedManual            => 'Org Identity Created (Manual)',
     ActionEnum::OrgIdAddedPetition          => 'Org Identity Created (Petition)',
+    ActionEnum::OrgIdEditedLoginEnv         => 'Org Identity Edited (Login, Env)',
     ActionEnum::OrgIdEditedManual           => 'Org Identity Edited (Manual)',
     ActionEnum::OrgIdEditedPetition         => 'Org Identity Edited (Petition)',
     ActionEnum::ProvisionerAction           => 'Provisioner Action',
@@ -234,18 +246,15 @@ original notification at
     PetitionActionEnum::TCImpliedAgreement  => 'Terms and Conditions Implied Agreement'
   ),
 
+  // Extended type, key must be en.model.attribute
+  'en.address.type' =>  array(ContactEnum::Home => 'Home',
+                              ContactEnum::Office => 'Office',
+                              ContactEnum::Postal => 'Postal',
+                              ContactEnum::Forwarding => 'Forwarding'),
+  
   'en.admin' =>       array(AdministratorEnum::NoAdmin => 'None',
                             AdministratorEnum::CoAdmin => 'CO Admin',
                             AdministratorEnum::CoOrCouAdmin => 'CO or COU Admin'),
-  
-  'en.affil' =>       array(AffiliationEnum::Faculty       => 'Faculty',
-                            AffiliationEnum::Student       => 'Student',
-                            AffiliationEnum::Staff         => 'Staff',
-                            AffiliationEnum::Alum          => 'Alum',
-                            AffiliationEnum::Member        => 'Member',
-                            AffiliationEnum::Affiliate     => 'Affiliate',
-                            AffiliationEnum::Employee      => 'Employee',
-                            AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
   
   'en.chars.permitted' => array(
     PermittedCharacterEnum::AlphaNumeric      => 'AlphaNumeric Only',
@@ -276,24 +285,39 @@ original notification at
                             ContactEnum::Postal => 'Postal',
                             ContactEnum::Forwarding => 'Forwarding'),
   
-  // Sub-type contacts since some aren't globally applicable
-  'en.contact.address' =>  array(ContactEnum::Home => 'Home',
-                                 ContactEnum::Office => 'Office',
-                                 ContactEnum::Postal => 'Postal',
-                                 ContactEnum::Forwarding => 'Forwarding'),
+  // Extended type, key must be en.model.attribute. This means we end up having affiliations
+  // defined twice, once for CO Person Role and once for Org Identity. (Note the latter does
+  // not currently support Extended Types, but it doesn't seem right for org identity to
+  // reference a CO Person Role definition.
+  // Note there is a similar enumeration in enum.php::AffiliationEnum.
   
-  'en.contact.mail' => array(
+  'en.co_person_role.affiliation' => array(AffiliationEnum::Faculty       => 'Faculty',
+                                           AffiliationEnum::Student       => 'Student',
+                                           AffiliationEnum::Staff         => 'Staff',
+                                           AffiliationEnum::Alum          => 'Alum',
+                                           AffiliationEnum::Member        => 'Member',
+                                           AffiliationEnum::Affiliate     => 'Affiliate',
+                                           AffiliationEnum::Employee      => 'Employee',
+                                           AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
+  
+  // Sort of silly to have the same list twice...
+  'en.org_identity.affiliation' => array(AffiliationEnum::Faculty       => 'Faculty',
+                                         AffiliationEnum::Student       => 'Student',
+                                         AffiliationEnum::Staff         => 'Staff',
+                                         AffiliationEnum::Alum          => 'Alum',
+                                         AffiliationEnum::Member        => 'Member',
+                                         AffiliationEnum::Affiliate     => 'Affiliate',
+                                         AffiliationEnum::Employee      => 'Employee',
+                                         AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
+  
+  // Extended type, key must be en.model.attribute
+  'en.email_address.type' => array(
     EmailAddressEnum::Delivery => 'Delivery',
     EmailAddressEnum::Forwarding => 'Forwarding',
     EmailAddressEnum::Official => 'Official',
     EmailAddressEnum::Personal => 'Personal'
   ),
   
-  'en.contact.phone' => array(ContactEnum::Fax => 'Fax',
-                              ContactEnum::Home => 'Home',
-                              ContactEnum::Mobile => 'Mobile',
-                              ContactEnum::Office => 'Office'),
-
   'en.enrollment.authz' => array(
     EnrollmentAuthzEnum::CoAdmin        => 'CO Admin',
     EnrollmentAuthzEnum::CoGroupMember  => 'CO Group Member',
@@ -318,11 +342,12 @@ original notification at
   'en.ia.algorithm' => array(IdentifierAssignmentEnum::Random => 'Random',
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
 
-  'en.identifier' =>  array(IdentifierEnum::ePPN => 'ePPN',
-                            IdentifierEnum::ePTID => 'ePTID',
-                            IdentifierEnum::Mail => 'Mail',
-                            IdentifierEnum::OpenID => 'OpenID',
-                            IdentifierEnum::UID => 'UID'),
+  // Extended type, key must be en.model.attribute
+  'en.identifier.type' =>  array(IdentifierEnum::ePPN => 'ePPN',
+                                 IdentifierEnum::ePTID => 'ePTID',
+                                 IdentifierEnum::Mail => 'Mail',
+                                 IdentifierEnum::OpenID => 'OpenID',
+                                 IdentifierEnum::UID => 'UID'),
   
   // As a moderately arbitrary decision, the languages listed here those with at least
   // 100m speakers per Ethnologue (by way of wikipedia)
@@ -372,11 +397,12 @@ original notification at
     'ur'      => 'Urdu (اُردُو)'
   ),
 
-  'en.name' =>        array(NameEnum::Alternate => 'Alternate',
-                            NameEnum::Author => 'Author',
-                            NameEnum::FKA => 'FKA',
-                            NameEnum::Official => 'Official',
-                            NameEnum::Preferred => 'Preferred'),
+  // Extended type, key must be en.model.attribute
+  'en.name.type' =>        array(NameEnum::Alternate => 'Alternate',
+                                 NameEnum::Author => 'Author',
+                                 NameEnum::FKA => 'FKA',
+                                 NameEnum::Official => 'Official',
+                                 NameEnum::Preferred => 'Preferred'),
   
   // Navigation links
   'en.nav.location' =>     array(LinkLocationEnum::topBar => 'Top Bar'),
@@ -440,11 +466,19 @@ original notification at
                             StatusEnum::Deleted             => 'Deleted',
                             StatusEnum::Denied              => 'Denied',
                             StatusEnum::Duplicate           => 'Duplicate',
+                            StatusEnum::Expired             => 'Expired',
+                            StatusEnum::GracePeriod         => 'Grace Period',
                             StatusEnum::Invited             => 'Invited',
                             StatusEnum::Pending             => 'Pending',
                             StatusEnum::PendingApproval     => 'Pending Approval',
                             StatusEnum::PendingConfirmation => 'Pending Confirmation',
                             StatusEnum::Suspended           => 'Suspended'),
+  
+  'en.status.ef' => array(
+    EnrollmentFlowStatusEnum::Active              => 'Active',
+    EnrollmentFlowStatusEnum::Suspended           => 'Suspended',
+    EnrollmentFlowStatusEnum::Template            => 'Template'
+  ),
   
   'en.status.not' => array(
     NotificationStatusEnum::Acknowledged          => 'Acknowledged',
@@ -487,6 +521,12 @@ original notification at
     TAndCLoginModeEnum::RegistryLogin        => 'Require At Registry Login'
     // TAndCLoginModeEnum::DisableAllServices   => 'Disable All Services' // not currently implemented
   ),
+
+  // Extended type, key must be en.model.attribute
+  'en.telephone_number.type' => array(ContactEnum::Fax => 'Fax',
+                                      ContactEnum::Home => 'Home',
+                                      ContactEnum::Mobile => 'Mobile',
+                                      ContactEnum::Office => 'Office'),
 
   // Errors
   'er.auth' =>        'Not authenticated',
@@ -532,12 +572,15 @@ original notification at
   'er.ea.index' =>    'Failed to update index for attribute',
   'er.ea.table' =>    'Failed to create CO Extended Attribute table',
   'er.ea.table.d' =>  'Failed to drop CO Extended Attribute table',
+  'er.ef.active' =>   'The requested Enrollment Flow is not active',
   'er.ef.authz.cou' => 'A COU must be specified for authorization type "%1$s"',
   'er.ef.authz.gr' => 'A group must be specified for authorization type "%1$s"',
   'er.efcf.init' =>   'Failed to set up initial CMP Enrollment Configuration',
   'er.et.default' =>  'Failed to add default types',
   'er.et.exists' =>   'An extended type named "%1$s" already exists',
-  'er.et.inuse' =>    'The extended type "%1$s" is in use by at least one attribute within this CO and cannot be removed.',
+  'er.et.inuse' =>    'The extended type "%1$s" is in use by at least one CO Person record within this CO and cannot be removed.',
+  'er.et.inuse-a' =>  'The extended type "%1$s" is in use by at least one %2$s within this CO and cannot be removed.',
+  'er.et.inuse.ef' => 'The extended type "%1$s" is in use by at least one Enrollment Flow (as an attribute or default value) within this CO and cannot be removed.',
   'er.field.req' =>   'This field is required',
   'er.fields' =>      'Please recheck the highlighted fields',
   'er.file.none' =>   'No file specified',
@@ -550,6 +593,7 @@ original notification at
   'er.grm.already' => 'CO Person %1$s is already a member of group %2$s',
   'er.grm.nf' =>      'Group Member %1$s Not Found',
   'er.grm.none' =>    'No group memberships to add',
+  'er.ia' =>          'Identifier assignment failed: ',
   'er.ia.already' =>  'Identifier already assigned',
   'er.ia.exists' =>   'The identifier "%1$s" is already in use',
   'er.ia.failed' =>   'Failed to find a unique identifier to assign',
@@ -561,6 +605,7 @@ original notification at
   'er.inv.nf' =>      'Invitation Not Found',
   'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
+  'er.nm.official.et' => 'The Name type "official" cannot be deleted or renamed',
   'er.nm.primary' =>  '"%1$s" is the primary name and cannot be deleted',
   'er.nt.ack' =>      'Notification is not pending acknowledgment and cannot be acknowledged',
   'er.nt.cxl' =>      'Notification is not pending and cannot be canceled',
@@ -568,6 +613,7 @@ original notification at
   'er.nt.res' =>      'Notification is not pending resolution and cannot be resolved',
   'er.nt.send' =>     'Notification to %1$s failed (%2$s)',
   'er.notfound' =>    '%1$s "%2$s" Not Found',
+  'er.notimpl' =>     'Not Implemented',
   'er.notprov' =>     'Not Provided',
   'er.notprov.id' =>  '%1$s ID Not Provided',
   'er.permission' =>  'Permission Denied',
@@ -611,6 +657,8 @@ original notification at
   'fd.address.fields.req' => 'An address must consist of at least these fields:',
   'fd.admin' =>       'Administrator',
   'fd.affiliation' => 'Affiliation',
+  'fd.affiliation.ep' => 'eduPersonAffiliation',
+  'fd.affiliation.ep.map.desc' => 'Map the extended affiliation to this eduPersonAffiliation, see <a href="https://spaces.internet2.edu/display/COmanage/Extending+the+Registry+Data+Model#ExtendingtheRegistryDataModel-%7B%7BeduPersonAffiliation%7D%7DandExtendedAffiliations">eduPersonAffiliation and Extended Affiliations</a>',
   'fd.all' =>         'All',
   'fd.an.desc' =>     'Alphanumeric characters only',
   'fd.approver' =>    'Approver',
@@ -624,6 +672,8 @@ original notification at
   'fd.attrs.pet' =>   'Petition Attributes',
   'fd.closed' =>      'Closed',
   'fd.comment' =>     'Comment',
+  'fd.conditions' =>  'Conditions',
+  'fd.copy-a' =>      'Copy of %1$s',
   'fd.cou' =>         'COU',
   'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',  
   'fd.co_people.status' => 'CO Person Status',
@@ -725,6 +775,11 @@ original notification at
   'fd.ef.vsub' =>     'Subject For Verification Email',
   'fd.ef.vsub.desc' => 'Subject line for email message sent as part of verification step.',
   // (End enrollment configuration fields)
+  // Enrollment Flow Template Names
+  'fd.ef.tmpl.csp' => 'Conscription With Approval (Template)',
+  'fd.ef.tmpl.inv' => 'Invitation (Template)',
+  'fd.ef.tmpl.lnk' => 'Account Linking (Template)',
+  'fd.ef.tmpl.ssu' => 'Self Signup With Approval (Template)',
   // This must be named fd.model.validation-field
   'fd.email_address.mail' => 'Email',
   'fd.email_address.verified' => 'Verified',
@@ -801,8 +856,13 @@ original notification at
   'fd.name.primary_name' => 'Primary',
   'fd.name.fields.req' => 'A name must consist of at least these fields:',
   'fd.no' =>          'No',
+  'fd.not.email.body' => 'Notification Email Body',
+  'fd.not.email.subject' => 'Notification Email Subject',
+  'fd.not.res.body' => 'Resolution Email Body',
+  'fd.not.res.subject' => 'Resolution Email Subject',
   'fd.not.for' =>     'Notifications for %1$s (%2$s, %3$s)',
   'fd.not.last' =>    'Last Notification',
+  'fd.nr.enable' =>   'Enable Normalizations',
   'fd.null' =>        'Null',
   'fd.o' =>           'Organization',
   'fd.open' =>        'Open',
@@ -818,6 +878,7 @@ original notification at
   'fd.plugin.ptwarn' => 'Once a Provisioning Target has been created, the Plugin cannot be changed',
   'fd.prov.status' => 'Provisioning Status',
   'fd.prov.status.for' => 'Provisioning Status for %1$s',
+  'fd.pt.textfield' => 'Text Field (Petition Use Only)',
   'fd.pt.required' => '&dagger; denotes required fields if you populate this section',
   'fd.recipient' =>   'Recipient',
   'fd.req' =>         '* denotes required field',
@@ -839,6 +900,7 @@ original notification at
   'fd.ssp.type.desc' => '"Default" applies this permission to all types not otherwise specified',
   'fd.status' =>      'Status',
   'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petiton',
+  'fd.status.et.desc' => 'An Extended Type that is in use cannot be made inactive',
   'fd.subject' =>     'Subject',
   'fd.tc.agree.desc' => 'You must agree to the following Terms and Conditions before continuing.<br />You must review the T&C before you can click <i>I Agree</i>, and you must agree before you can submit.',
   'fd.tc.agree.impl' => 'By clicking <i>Submit</i>, you are agreeing to the following Terms and Conditions.<br />Please review the T&C before continuing.',
@@ -870,11 +932,42 @@ original notification at
   'fd.valid_from.desc' => '(leave blank for immediate validity)',
   'fd.valid_through' => 'Valid Through',
   'fd.valid_through.desc' => '(leave blank for indefinite validity)',
+  'fd.xp.actions' =>  'All of the following <b>actions</b> will be taken when the specified conditions match:',
+  'fd.xp.conditions' => 'All of the following <b>conditions</b> must be met for this Expiration Policy to take effect:',
+  'fd.xp.affil.act.desc' => 'CO Person Roles matching this Expiration Policy will be given this affiliation',
+  'fd.xp.affil.cond.desc' => 'This Expiration Policy will only apply to CO Person Roles with this affiliation',
+  'fd.xp.after_expiry.cond' => 'Days After Expiration (Grace Period)',
+  'fd.xp.after_expiry.cond.desc' => 'This Expiration Policy will apply beginning the specified number of days after the expiration time of a CO Person Role (If set, Days Before Expiration may not be set)',
+  'fd.xp.before_expiry.cond' => 'Days Before Expiration (Notification Period)',
+  'fd.xp.before_expiry.cond.desc' => 'This Expiration Policy will apply beginning the specified number of days prior to the expiration time of a CO Person Role (If set, Days After Expiration may not be set)',
+  'fd.xp.clear_expiry.act' => 'Clear Expiration',
+  'fd.xp.clear_expiry.act.desc' => 'The expiration date for the affected CO Person Role will be cleared when this Expiration Policy is applied',
+  'fd.xp.cou.act.desc' => 'CO Person Roles matching this Expiration Policy will be moved to this COU',
+  'fd.xp.cou.cond.desc' => 'This Expiration Policy will only apply to CO Person Roles in this COU',
+  'fd.xp.disable' => 'Disable Expiration',
+  'fd.xp.disable.desc' => 'Disable automatic (scheduled) expirations<br />This setting does not impact manual expirations',
+  'fd.xp.notify_coadmin.act' => 'Notify CO Administrator(s)',
+  'fd.xp.notify_coadmin.act.desc' => 'The CO Administrator(s) will be notified when this Expiration Policy is applied',
+  'fd.xp.notify_cogroup.act' => 'Notify CO Group',
+  'fd.xp.notify_cogroup.act.desc' => 'Members of the specified CO Group will be notified when this Expiration Policy is applied',
+  'fd.xp.notify_couadmin.act' => 'Notify COU Administrator(s)',
+  'fd.xp.notify_couadmin.act.desc' => 'The COU Administrator(s) for the affected CO Person Role will be notified when this Expiration Policy is applied',
+  'fd.xp.notify_coperson.act' => 'Notify CO Person',
+  'fd.xp.notify_coperson.act.desc' => 'The CO Person whose Role is affected will be notified when this Expiration Policy is applied',
+  'fd.xp.nbody' =>    'Notification Email Body',
+  'fd.xp.nbody.desc' => 'Body for email message sent for notification (max 4000 characters)',
+  'fd.xp.nsubject' => 'Notification Email Subject',
+  'fd.xp.nsubject.desc' => 'Subject for email message sent for notification',
+  'fd.xp.sponsor.cond' => 'Invalid Sponsor',
+  'fd.xp.sponsor.cond.desc' => 'This Expiration Policy will apply when the Sponsor for a CO Person Role is no longer valid (active)',
+  'fd.xp.status.act.desc' => 'CO Person Roles matching this Expiration Policy will be given this status',
+  'fd.xp.status.cond.desc' => 'This Expiration Policy will only apply to CO Person Roles with this status',
   'fd.yes' =>         'Yes',
 
   // Informational messages
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
+  'in.orgid.co'       => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
   
   // Menu
@@ -902,6 +995,7 @@ original notification at
   'op.compare' =>     'Compare',
   'op.config' =>      'Configure',
   'op.confirm' =>     'Confirm',
+  'op.cont' =>        'Continue',
   'op.confirm.box' => 'Check the box to confirm',
   'op.db.ok' =>       'Database schema update successful',
   'op.db.schema' =>   'Loading schema from file %1$s...',
@@ -910,6 +1004,7 @@ original notification at
   'op.delete.consfdemographics' => 'this NSF demographic entry',
   'op.delete.ok' =>   'Are you sure you wish to remove "%1$s"? This action cannot be undone.',
   'op.deny' =>        'Deny',
+  'op.dupe' =>        'Duplicate',
   'op.edit' =>        'Edit',
   'op.edit.ea' =>     'Edit Enrollment Attributes',
   'op.edit-a' =>      'Edit %1$s',
@@ -931,6 +1026,7 @@ original notification at
   'op.filter.status' => 'Filter Petitions By Status',
   'op.filter.status.by' => 'Filter By Status',
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
+  'op.find.link' =>   'Find an Organizational Identity to Link to %1$s',
   'op.gr.memadd' =>   'Manage %1$s Group Memberships',
   'op.grm.edit' =>    'Edit Members of %1$s Group %2$s',
   'op.grm.manage' =>  'Manage My Group Memberships',
@@ -938,7 +1034,10 @@ original notification at
   'op.home.login' =>  'Welcome to %1$s. Please login.',
   'op.home.select' => 'Welcome to %1$s. Please select an action from the menus, above.',
   'op.id.auto' =>     'Autogenerate Identifiers',
+  'op.id.auto.all' => 'Autogenerate Identifiers For All',
+  'op.id.auto.all.confirm' => 'Are you sure you wish to autogenerate identifiers for all active CO People?',
   'op.id.auto.confirm' => 'Are you sure you wish to autogenerate identifiers?',
+  'op.id.auto.wait' => 'Generating identifiers, please wait...',
   'op.inv' =>         'Invite',
   'op.inv-a' =>       'Invite %1$s',
   'op.inv-t' =>       'Invite %1$s to %2$s',
@@ -966,6 +1065,8 @@ original notification at
   'op.primary' =>     'Make Primary',
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',
   'op.prov' =>        'Provision',
+  'op.prov.all' =>    'Reprovision All',
+  'op.prov.all.confirm' => 'Are you sure you wish to (re)provision all records? This will affect %1$s CO People and %2$s CO Groups.',
   'op.prov.confirm' => 'Are you sure you wish to (re)provision this record?',
   'op.prov.view' =>   'Provisioned Services',
   'op.prov.wait' =>   'Requesting provisioning, please wait...',
@@ -981,6 +1082,8 @@ original notification at
   'op.remove' =>      'Remove',
   'op.reorder' =>     'Reorder',
   'op.reset' =>       'Reset Form',
+  'op.restore.ef' =>  'Add/Restore Default Templates',
+  'op.restore.types' => 'Add/Restore Default Types',
   'op.save' =>        'Save',
   'op.search' =>      'Search',
   'op.see.notifications' =>  'View full notifications list...',
@@ -1005,10 +1108,13 @@ original notification at
   'rs.added-a' =>     '"%1$s" Added',
   'rs.added-a2' =>    '%1$s "%2$s" Added',
   'rs.added-a3' =>    '%1$s Added',
+  'rs.cop.recalc' =>  'CO Person status recalculated: %1$s',
+  'rs.copy-a1' =>     '%1$s Copied',
   'rs.deleted-a2' =>  '%1$s "%2$s" Deleted',
   'rs.deleted-a3' =>  '%1$s Deleted',
   'rs.edited-a2' =>   '%1$s "%2$s" Edited',
   'rs.edited-a3' =>   '%1$s Edited',
+  'rs.ef.defaults' => 'Default enrollment flow templates added',
   'rs.ev.cxl' =>      'Verification of Email Address canceled',
   'rs.ev.cxl-a' =>    'Verification of Email Address %1$s canceled',
   'rs.ev.sent' =>     'Email verification request sent to %1$s',
@@ -1060,11 +1166,14 @@ original notification at
   'rs.tc.agree' =>    'Terms and Conditions "%1$s" agreed to',
   'rs.tc.agree.behalf' => 'Terms and Conditions "%1$s" agreed to on behalf of',
   'rs.tc.agree.ok' => 'Agreement to Terms and Conditions recorded',
+  'rs.types.defaults' => 'Default types added',
   'rs.saved' =>       'Saved',
   'rs.updated' =>     '"%1$s" Updated',
   'rs.updated-a2' =>  '%1$s "%2$s" Updated',
   'rs.updated-a3' =>  '%1$s Updated',
   'rs.uploaded-a2' => '%1$s "%2$s" Uploaded',
+  'rs.xp.action' =>   'Expiration Policy "%1$s" (%2$s): %3$s',
+  'rs.xp.match' =>    'Expiration Policy "%1$s" (%2$s) conditions matched',
   
   // Setup
   
@@ -1072,16 +1181,22 @@ original notification at
   'se.cf.admin.given' =>  'Enter administrator\'s given name',
   'se.cf.admin.sn' =>     'Enter administrator\'s family name',
   'se.cf.admin.user' =>   'Enter administrator\'s login username',
-  'se.cf.admin.salt' =>   'Enter >= 40 character security salt or blank for random',
-  'se.cf.admin.seed' =>   'Enter >= 29 digit security seed or blank for random',
   'se.db.co' =>           'Creating COmanage CO',
   'se.db.cop' =>          'Adding Org Identity to CO',
   'se.db.group' =>        'Creating COmanage admin group',
   'se.db.op' =>           'Adding initial Org Identity',
   'se.security.salt' =>   'Creating security salt file',
+  'se.security.salt.exists' => 'Security salt file already exists',
   'se.security.seed' =>   'Creating security seed file',
+  'se.security.seed.exists' => 'Security seed file already exists',
   'se.done' =>            'Setup complete',
   'se.users.view' =>      'Creating users view',
+  
+  // Shell
+  
+  'sh.cron.done' =>       'Cron shell finished',
+  'sh.cron.xp' =>         'Running expirations for CO %1$s (%2$s)',
+  'sh.cron.xp.disabled' => 'Expirations are disabled for this CO',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them
@@ -1140,7 +1255,7 @@ function _bootstrap_plugin_txt()
 {
   global $cm_lang, $cm_texts;
   
-  $plugins = AppController::availablePlugins();
+  $plugins = App::objects('plugin');
   
   foreach($plugins as $plugin) {
     $langfile = APP. '/Plugin/' . $plugin . '/Lib/lang.php';

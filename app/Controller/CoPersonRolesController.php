@@ -165,12 +165,45 @@ class CoPersonRolesController extends StandardController {
                                            array($cl => array('className' => $cl,
                                                               'dependent' => true))),
                                      false);
+      
+      // Set up the inverse binding
+      $this->CoPersonRole->$cl->bindModel(array('belongsTo' => array('CoPersonRole')),
+                                          false);
+      
+      // Dynamic models won't have behaviors attached, so add them here
+      $this->CoPersonRole->$cl->Behaviors->attach('Normalization');
     }
-
-    // generate list of sponsors
-    $this->set('sponsors',$this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
+    
+    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
+    
+    $vrule = $this->CoPersonRole->validate['affiliation']['content']['rule'];
+    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+    
+    $this->CoPersonRole->validator()->getField('affiliation')->getRule('content')->rule = $vrule;
   }
 
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   * - precondition: Request Handler component has set $this->request
+   * - postcondition: Set $sponsors
+   *
+   * @since  COmanage Registry v0.9.2
+   */
+
+  public function beforeRender() {
+    parent::beforeRender();
+    
+    if(!$this->restful){
+      // Mappings for extended types
+      $this->set('vv_copr_address_types', $this->CoPersonRole->Address->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_copr_affiliation_types', $this->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
+      $this->set('vv_copr_telephonenumber_types', $this->CoPersonRole->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
+      
+      // generate list of sponsors
+      $this->set('sponsors', $this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
+    }
+  }
+  
   /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.
@@ -199,6 +232,52 @@ class CoPersonRolesController extends StandardController {
       }
     }
 
+    return true;
+  }
+  
+  /**
+   * Perform any followups following a write operation.  Note that if this
+   * method fails, it must return a warning or REST response, but that the
+   * overall transaction is still considered a success (add/edit is not
+   * rolled back).
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Array Request data
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkWriteFollowups($reqdata, $curdata = null) {
+    // This is basically a hack to normalize extended attributes, because Cake 2.x
+    // won't see changes to associated data made by behaviors. (This is fixed in
+    // Cake 3.) We can't do this in the model because of the order in which
+    // saveAssociated() processes the associated models. (We're still in the save
+    // for CoPersonRole when CoPersonRole::afterSave is called, so by the time
+    // the save is called on the ExtendedAttributes, saveAssociated is done with
+    // CoPersonRole)
+    // https://github.com/cakephp/cakephp/issues/1765
+    
+    if(!empty($reqdata)) {
+      foreach(array_keys($reqdata) as $m) {
+        if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)
+           && !empty($reqdata[$m]['id'])) {
+          // Extended attribute found; id should always be set since even on
+          // create the initial save already happened.
+          
+          // Create a temporary copy of the data to save
+          $d = array(
+            $m => $reqdata[$m]
+          );
+          
+          $this->CoPersonRole->$m->save($d);
+          
+          // We don't worry about history here because generally Extended Attributes
+          // are not saved on their own. History will be generated on the original call.
+        }
+      }
+    }
+    
     return true;
   }
   
@@ -259,7 +338,11 @@ class CoPersonRolesController extends StandardController {
                                                    ActionEnum::CoPersonRoleEditedManual,
                                                    _txt('en.action', null, ActionEnum::CoPersonRoleEditedManual)
                                                    . " (" . $this->CoPersonRole->id . "):"
-                                                   . $this->changesToString($newdata, $olddata, array('CoPersonRole', 'ExtendedAttribute')));
+                                                   . $this->CoPersonRole->changesToString($newdata,
+                                                                                          $olddata,
+                                                                                          $this->cur_co['Co']['id'],
+                                                                                          array('ExtendedAttribute'),
+                                                                                          $this->cur_co['CoExtendedAttribute']));
         break;
     }
     

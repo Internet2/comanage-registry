@@ -26,6 +26,9 @@ if($menuContent['cos']) {
 } else {
   $cos = array();
 }
+
+// Convert the list of COs with enrollment flows defined into a more useful format
+$efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 ?>
 
 <ul class="sf-menu">
@@ -90,8 +93,10 @@ if($menuContent['cos']) {
                   print "</li>";
                 }
 
-                if(isset($permissions['menu']['createpetition']) && $permissions['menu']['createpetition']) {
-                  print "<li>";
+                if(in_array($menuCoId, $efcos)) {
+                  // Enrollment Flows enabled
+                  if(isset($permissions['menu']['createpetition']) && $permissions['menu']['createpetition']) {
+                    print "<li>";
                     $args = array();
                     $args['plugin'] = null;
                     $args['controller'] = 'co_enrollment_flows';
@@ -99,7 +104,21 @@ if($menuContent['cos']) {
                     $args['co'] = $menuCoId;
                     
                     print $this->Html->link(_txt('op.enroll'), $args);
-                  print "</li>";
+                    print "</li>";
+                  }
+                } else {
+                  // Default enrollment
+                  if(isset($permissions['menu']['invite']) && $permissions['menu']['invite']) {
+                    print "<li>";
+                    $args = array();
+                    $args['plugin'] = null;
+                    $args['controller'] = 'org_identities';
+                    $args['action'] = 'find';
+                    $args['co'] = $menuCoId;
+                    
+                    print $this->Html->link(_txt('op.inv'), $args);
+                    print "</li>";
+                  }
                 }
 
                 if(isset($permissions['menu']['petitions']) && $permissions['menu']['petitions']) {
@@ -118,8 +137,8 @@ if($menuContent['cos']) {
                   print "</li>";
                 }
                 
-                if(!empty($plugins)) {
-                  render_plugin_menus($this->Html, $plugins, 'copeople', $menuCoId);
+                if(!empty($menuContent['plugins'])) {
+                  render_plugin_menus($this->Html, $menuContent['plugins'], 'copeople', $menuCoId);
                 }
                 
                 print "</ul>";
@@ -137,8 +156,8 @@ if($menuContent['cos']) {
                 print "</li>";
               }
               
-              if(!empty($plugins)) {
-                render_plugin_menus($this->Html, $plugins, 'cos', $menuCoId);
+              if(!empty($menuContent['plugins'])) {
+                render_plugin_menus($this->Html, $menuContent['plugins'], 'cos', $menuCoId);
               }
               
               if($permissions['menu']['coconfig']) {
@@ -159,6 +178,18 @@ if($menuContent['cos']) {
                     print "</li>";
                   }
                   
+                  if(isset($permissions['menu']['cous']) && $permissions['menu']['cous']) {
+                    print "<li>";
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'cous';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
+                      print $this->Html->link(_txt('ct.cous.pl'), $args);
+                    print "</li>";
+                  }
+                  
                   if(isset($permissions['menu']['coef']) && $permissions['menu']['coef']) {
                     print "<li>";
                       $args = array();
@@ -171,18 +202,18 @@ if($menuContent['cos']) {
                     print "</li>";
                   }
                   
-                  if(isset($permissions['menu']['cous']) && $permissions['menu']['cous']) {
+                  if(isset($permissions['menu']['coxp']) && $permissions['menu']['coxp']) {
                     print "<li>";
                       $args = array();
                       $args['plugin'] = null;
-                      $args['controller'] = 'cous';
+                      $args['controller'] = 'co_expiration_policies';
                       $args['action'] = 'index';
                       $args['co'] = $menuCoId;
                       
-                      print $this->Html->link(_txt('ct.cous.pl'), $args);
+                      print $this->Html->link(_txt('ct.co_expiration_policies.pl'), $args);
                     print "</li>";
                   }
-
+                  
                   if(isset($permissions['menu']['extattrs']) && $permissions['menu']['extattrs']) {
                     print "<li>";
                       $args = array();
@@ -216,6 +247,30 @@ if($menuContent['cos']) {
                       $args['co'] = $menuCoId;
                       
                       print $this->Html->link(_txt('ct.co_identifier_assignments.pl'), $args);
+                    print "</li>";
+                  }
+                  
+                  if(isset($permissions['menu']['colocalizations']) && $permissions['menu']['colocalizations']) {
+                    print "<li>";
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_localizations';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
+                      print $this->Html->link(_txt('ct.co_localizations.pl'), $args);
+                    print "</li>";
+                  }
+                  
+                  if(isset($permissions['menu']['conavigationlinks']) && $permissions['menu']['conavigationlinks']) {
+                    print "<li>";
+                      $args = array();
+                      $args['plugin'] = null;
+                      $args['controller'] = 'co_navigation_links';
+                      $args['action'] = 'index';
+                      $args['co'] = $menuCoId;
+                      
+                      print $this->Html->link(_txt('ct.co_navigation_links.pl'), $args);
                     print "</li>";
                   }
                   
@@ -255,32 +310,8 @@ if($menuContent['cos']) {
                     print "</li>";
                   }
                   
-                  if(isset($permissions['menu']['conavigationlinks']) && $permissions['menu']['conavigationlinks']) {
-                    print "<li>";
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'co_navigation_links';
-                      $args['action'] = 'index';
-                      $args['co'] = $menuCoId;
-                      
-                      print $this->Html->link(_txt('ct.co_navigation_links.pl'), $args);
-                    print "</li>";
-                  }
-                  
-                  if(isset($permissions['menu']['colocalizations']) && $permissions['menu']['colocalizations']) {
-                    print "<li>";
-                      $args = array();
-                      $args['plugin'] = null;
-                      $args['controller'] = 'co_localizations';
-                      $args['action'] = 'index';
-                      $args['co'] = $menuCoId;
-                      
-                      print $this->Html->link(_txt('ct.co_localizations.pl'), $args);
-                    print "</li>";
-                  }
-                  
-                  if(!empty($plugins)) {
-                    render_plugin_menus($this->Html, $plugins, 'coconfig', $menuCoId);
+                  if(!empty($menuContent['plugins'])) {
+                    render_plugin_menus($this->Html, $menuContent['plugins'], 'coconfig', $menuCoId);
                   }
                   
                   print "</ul>";

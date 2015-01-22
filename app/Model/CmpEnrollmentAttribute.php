@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CMP Enrollment Attribute Model
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -82,7 +82,7 @@ class CmpEnrollmentAttribute extends AppModel {
       'names:honorific' => array(
         'type'      => NameEnum::Official,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.name.honorific'),
+        'label'     => _txt('fd.name.honorific') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")",
         'desc'      => _txt('fd.name.h.desc'),
         'env_name'  => '',
         'ldap_name' => '',
@@ -91,7 +91,7 @@ class CmpEnrollmentAttribute extends AppModel {
       'names:given' => array(
         'type'      => NameEnum::Official,
         'required'  => RequiredEnum::Required,
-        'label'     => _txt('fd.name.given'),
+        'label'     => _txt('fd.name.given') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")",
         'env_name'  => 'CMP_EF_GIVENNAME',
         'ldap_name' => 'givenName',
         'saml_name' => 'givenName'
@@ -99,7 +99,7 @@ class CmpEnrollmentAttribute extends AppModel {
       'names:middle' => array(
         'type'      => NameEnum::Official,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.name.middle'),
+        'label'     => _txt('fd.name.middle') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")",
         'env_name'  => '',
         'ldap_name' => '',
         'saml_name' => ''
@@ -107,7 +107,7 @@ class CmpEnrollmentAttribute extends AppModel {
       'names:family' => array(
         'type'      => NameEnum::Official,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.name.family'),
+        'label'     => _txt('fd.name.family') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")",
         'env_name'  => 'CMP_EF_SN',
         'ldap_name' => 'sn',
         'saml_name' => 'sn'
@@ -115,7 +115,7 @@ class CmpEnrollmentAttribute extends AppModel {
       'names:suffix' => array(
         'type'      => NameEnum::Official,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.name.suffix'),
+        'label'     => _txt('fd.name.suffix') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")",
         'desc'      => _txt('fd.name.s.desc'),
         'env_name'  => '',
         'ldap_name' => '',
@@ -149,18 +149,10 @@ class CmpEnrollmentAttribute extends AppModel {
         'ldap_name' => 'ou',
         'saml_name' => 'ou'
       ),
-      'identifiers:identifier' => array(
-        'type'      => IdentifierEnum::ePPN,
-        'required'  => RequiredEnum::Required,
-        'label'     => _txt('en.identifier', null, IdentifierEnum::ePPN),
-        'env_name'  => 'CMP_EF_EPPN',
-        'ldap_name' => 'eduPersonPrincipalName',
-        'saml_name' => 'eduPersonPrincipalName'
-      ),
       'email_addresses:mail' => array(
-        'type'      => ContactEnum::Office,
+        'type'      => EmailAddressEnum::Official,
         'required'  => RequiredEnum::Required,
-        'label'     => _txt('fd.email_address.mail'),
+        'label'     => _txt('fd.email_address.mail') . " (" . _txt('en.email_address.type', null, EmailAddressEnum::Official) . ")",
         'env_name'  => 'CMP_EF_MAIL',
         'ldap_name' => 'mail',
         'saml_name' => 'mail'
@@ -168,7 +160,7 @@ class CmpEnrollmentAttribute extends AppModel {
       'telephone_numbers:number' => array(
         'type'      => ContactEnum::Office,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.telephone_number.number'),
+        'label'     => _txt('fd.telephone_number.number') . " (" . _txt('en.telephone_number.type', null, ContactEnum::Office) . ")",
         'env_name'  => 'CMP_EF_TELEPHONENUMBER',
         'ldap_name' => 'telephoneNumber',
         'saml_name' => 'telephoneNumber'
@@ -176,7 +168,7 @@ class CmpEnrollmentAttribute extends AppModel {
       'addresses:line1' => array(
         'type'      => ContactEnum::Office,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.address.line1'),
+        'label'     => _txt('fd.address.line1') . " (" . _txt('en.address.type', null, ContactEnum::Office) . ")",
         'env_name'  => 'CMP_EF_STREET',
         'ldap_name' => 'street',
         'saml_name' => 'street'
@@ -184,7 +176,7 @@ class CmpEnrollmentAttribute extends AppModel {
       'addresses:locality' => array(
         'type'      => ContactEnum::Office,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.address.locality'),
+        'label'     => _txt('fd.address.locality') . " (" . _txt('en.address.type', null, ContactEnum::Office) . ")",
         'env_name'  => 'CMP_EF_L',
         'ldap_name' => 'l',
         'saml_name' => 'l'
@@ -192,7 +184,7 @@ class CmpEnrollmentAttribute extends AppModel {
       'addresses:state' => array(
         'type'      => ContactEnum::Office,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.address.state'),
+        'label'     => _txt('fd.address.state') . " (" . _txt('en.address.type', null, ContactEnum::Office) . ")",
         'env_name'  => 'CMP_EF_ST',
         'ldap_name' => 'st',
         'saml_name' => 'st'
@@ -200,14 +192,14 @@ class CmpEnrollmentAttribute extends AppModel {
       'addresses:postal_code' => array(
         'type'      => ContactEnum::Office,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.address.postal_code'),
+        'label'     => _txt('fd.address.postal_code') . " (" . _txt('en.address.type', null, ContactEnum::Office) . ")",
         'env_name'  => 'CMP_EF_POSTALCODE',
         'ldap_name' => 'postalCode',
         'saml_name' => 'postalCode'
       ),
       'addresses:country' => array(
         'type'      => ContactEnum::Office,
-        'label'     => _txt('fd.address.country'),
+        'label'     => _txt('fd.address.country') . " (" . _txt('en.address.type', null, ContactEnum::Office) . ")",
         'env_name'  => 'CMP_EF_C',
         'required'  => RequiredEnum::Optional,
         'ldap_name' => 'c',

@@ -70,7 +70,7 @@ class ExtractTask extends AppShell {
 	protected $_tokens = array();
 
 /**
- * Extracted strings indexed by category and domain.
+ * Extracted strings indexed by category, domain, msgid and context.
  *
  * @var array
  */
@@ -249,22 +249,26 @@ class ExtractTask extends AppShell {
  * @return void
  */
 	protected function _addTranslation($category, $domain, $msgid, $details = array()) {
-		if (empty($this->_translations[$category][$domain][$msgid])) {
-			$this->_translations[$category][$domain][$msgid] = array(
-				'msgid_plural' => false
+		$context = '';
+		if (isset($details['msgctxt'])) {
+			$context = $details['msgctxt'];
+		}
+
+		if (empty($this->_translations[$category][$domain][$msgid][$context])) {
+			$this->_translations[$category][$domain][$msgid][$context] = array(
+				'msgid_plural' => false,
 			);
 		}
 
 		if (isset($details['msgid_plural'])) {
-			$this->_translations[$category][$domain][$msgid]['msgid_plural'] = $details['msgid_plural'];
+			$this->_translations[$category][$domain][$msgid][$context]['msgid_plural'] = $details['msgid_plural'];
 		}
-
 		if (isset($details['file'])) {
 			$line = 0;
 			if (isset($details['line'])) {
 				$line = $details['line'];
 			}
-			$this->_translations[$category][$domain][$msgid]['references'][$details['file']][] = $line;
+			$this->_translations[$category][$domain][$msgid][$context]['references'][$details['file']][] = $line;
 		}
 	}
 
@@ -355,14 +359,14 @@ class ExtractTask extends AppShell {
 	protected function _extractTokens() {
 		foreach ($this->_files as $file) {
 			$this->_file = $file;
-			$this->out(__d('cake_console', 'Processing %s...', $file));
+			$this->out(__d('cake_console', 'Processing %s...', $file), 1, Shell::VERBOSE);
 
 			$code = file_get_contents($file);
 			$allTokens = token_get_all($code);
 
 			$this->_tokens = array();
 			foreach ($allTokens as $token) {
-				if (!is_array($token) || ($token[0] != T_WHITESPACE && $token[0] != T_INLINE_HTML)) {
+				if (!is_array($token) || ($token[0] !== T_WHITESPACE && $token[0] !== T_INLINE_HTML)) {
 					$this->_tokens[] = $token;
 				}
 			}
@@ -374,6 +378,15 @@ class ExtractTask extends AppShell {
 			$this->_parse('__dc', array('domain', 'singular', 'category'));
 			$this->_parse('__dn', array('domain', 'singular', 'plural'));
 			$this->_parse('__dcn', array('domain', 'singular', 'plural', 'count', 'category'));
+
+			$this->_parse('__x', array('context', 'singular'));
+			$this->_parse('__xn', array('context', 'singular', 'plural'));
+			$this->_parse('__dx', array('domain', 'context', 'singular'));
+			$this->_parse('__dxc', array('domain', 'context', 'singular', 'category'));
+			$this->_parse('__dxn', array('domain', 'context', 'singular', 'plural'));
+			$this->_parse('__dxcn', array('domain', 'context', 'singular', 'plural', 'count', 'category'));
+			$this->_parse('__xc', array('context', 'singular', 'category'));
+
 		}
 	}
 
@@ -417,7 +430,7 @@ class ExtractTask extends AppShell {
 				if ($mapCount === count($strings)) {
 					extract(array_combine($map, $strings));
 					$category = isset($category) ? $category : 6;
-					$category = intval($category);
+					$category = (int)$category;
 					$categoryName = $categories[$category];
 					$domain = isset($domain) ? $domain : 'default';
 					$details = array(
@@ -426,6 +439,9 @@ class ExtractTask extends AppShell {
 					);
 					if (isset($plural)) {
 						$details['msgid_plural'] = $plural;
+					}
+					if (isset($context)) {
+						$details['msgctxt'] = $context;
 					}
 					$this->_addTranslation($categoryName, $domain, $singular, $details);
 				} else {
@@ -549,30 +565,36 @@ class ExtractTask extends AppShell {
 		$paths[] = realpath(APP) . DS;
 		foreach ($this->_translations as $category => $domains) {
 			foreach ($domains as $domain => $translations) {
-				foreach ($translations as $msgid => $details) {
-					$plural = $details['msgid_plural'];
-					$files = $details['references'];
-					$occurrences = array();
-					foreach ($files as $file => $lines) {
-						$lines = array_unique($lines);
-						$occurrences[] = $file . ':' . implode(';', $lines);
-					}
-					$occurrences = implode("\n#: ", $occurrences);
-					$header = '#: ' . str_replace(DS, '/', str_replace($paths, '', $occurrences)) . "\n";
+				foreach ($translations as $msgid => $contexts) {
+					foreach ($contexts as $context => $details) {
+						$plural = $details['msgid_plural'];
+						$files = $details['references'];
+						$occurrences = array();
+						foreach ($files as $file => $lines) {
+							$lines = array_unique($lines);
+							$occurrences[] = $file . ':' . implode(';', $lines);
+						}
+						$occurrences = implode("\n#: ", $occurrences);
+						$header = '#: ' . str_replace(DS, '/', str_replace($paths, '', $occurrences)) . "\n";
 
-					if ($plural === false) {
-						$sentence = "msgid \"{$msgid}\"\n";
-						$sentence .= "msgstr \"\"\n\n";
-					} else {
-						$sentence = "msgid \"{$msgid}\"\n";
-						$sentence .= "msgid_plural \"{$plural}\"\n";
-						$sentence .= "msgstr[0] \"\"\n";
-						$sentence .= "msgstr[1] \"\"\n\n";
-					}
+						$sentence = '';
+						if ($context) {
+							$sentence .= "msgctxt \"{$context}\"\n";
+						}
+						if ($plural === false) {
+							$sentence .= "msgid \"{$msgid}\"\n";
+							$sentence .= "msgstr \"\"\n\n";
+						} else {
+							$sentence .= "msgid \"{$msgid}\"\n";
+							$sentence .= "msgid_plural \"{$plural}\"\n";
+							$sentence .= "msgstr[0] \"\"\n";
+							$sentence .= "msgstr[1] \"\"\n\n";
+						}
 
-					$this->_store($category, $domain, $header, $sentence);
-					if (($category !== 'LC_MESSAGES' || $domain !== 'default') && $this->_merge) {
-						$this->_store('LC_MESSAGES', 'default', $header, $sentence);
+						$this->_store($category, $domain, $header, $sentence);
+						if (($category !== 'LC_MESSAGES' || $domain !== 'default') && $this->_merge) {
+							$this->_store('LC_MESSAGES', 'default', $header, $sentence);
+						}
 					}
 				}
 			}

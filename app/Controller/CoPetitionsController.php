@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Controller
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -59,7 +59,9 @@ class CoPetitionsController extends StandardController {
         'PrimaryName'
       )
     ),
-    'CoInvite'
+    'CoEnrollmentFlow',
+    'CoInvite',
+    'Cou'
   );
   
   /**
@@ -77,6 +79,15 @@ class CoPetitionsController extends StandardController {
   function add() {
     if(!$this->restful) {
       $enrollmentFlowID = $this->enrollmentFlowID();
+      
+      // Make sure this enrollment flow is active
+      $status = $this->CoPetition->CoEnrollmentFlow->field('status',
+                                                           array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+      
+      if($status != EnrollmentFlowStatusEnum::Active) {
+        $this->Session->setFlash(_txt('er.ef.active'), '', array(), 'error');
+        $this->performRedirect();
+      }
       
       // Set the title to be the name of the enrollment flow
       
@@ -211,6 +222,13 @@ class CoPetitionsController extends StandardController {
     }
     
     parent::beforeFilter();
+    
+    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
+    
+    $vrule = $this->CoPetition->EnrolleeCoPerson->Identifier->validate['type']['content']['rule'];
+    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+    
+    $this->CoPetition->EnrolleeCoPerson->Identifier->validator()->getField('type')->getRule('content')->rule = $vrule;
   }
   
   /**
@@ -540,6 +558,7 @@ class CoPetitionsController extends StandardController {
                     || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     
     // View all existing CO Petitions?
+    // Before adjusting this, see paginationConditions(), below
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $this->Role->isApprover($roles['copersonid']));
     
     // Search all existing CO Petitions?
@@ -581,29 +600,31 @@ class CoPetitionsController extends StandardController {
     // Use server side pagination
     
     if($this->requires_co) {
-      $pagcond['CoPetition.co_id'] = $this->cur_co['Co']['id'];
+      $pagcond['conditions']['CoPetition.co_id'] = $this->cur_co['Co']['id'];
     }
     
     // Filter by status
     if(!empty($this->params['named']['search.status'])) {
       $searchterm = $this->params['named']['search.status'];
-      $pagcond['CoPetition.status'] = $searchterm;
+      $pagcond['conditions']['CoPetition.status'] = $searchterm;
     }
     
     // Filter by CO Person ID
     if(!empty($this->params['named']['search.copersonid'])) {
-      $pagcond['CoPetition.enrollee_co_person_id'] = $this->params['named']['search.copersonid'];
+      $pagcond['conditions']['CoPetition.enrollee_co_person_id'] = $this->params['named']['search.copersonid'];
     }
     
     // Filter by Org Identity ID
     if(!empty($this->params['named']['search.orgidentityid'])) {
-      $pagcond['CoPetition.enrollee_org_identity_id'] = $this->params['named']['search.orgidentityid'];
+      $pagcond['conditions']['CoPetition.enrollee_org_identity_id'] = $this->params['named']['search.orgidentityid'];
     }
     
     // Potentially filter by enrollment flow ID. Our assumption is that if we make it
     // here the person has authorization to see at least some Petitions. Either they
     // are a CO or COU admin (in which case the following list will be empty) or they
     // are an approver by group (in which case the following list will not be empty).
+    // We explicitly consider CMP admins to have the same permissions even if they
+    // are not in the CO.
     
     // This isn't exactly right, though... what we really want for COU admins is
     // to know which petitions the admin can approve. However, a COU admin may have
@@ -612,13 +633,20 @@ class CoPetitionsController extends StandardController {
     // future enhancement.
     
     $coPersonId = $this->Session->read('Auth.User.co_person_id');
+    $username = $this->Session->read('Auth.User.username');
     
-    if(!$this->Role->isCoOrCouAdmin($coPersonId, $this->cur_co['Co']['id'])) {
+    if(!$this->Role->isCoOrCouAdmin($coPersonId, $this->cur_co['Co']['id'])
+       // We need an explicit check for CMP admin, who should have superuser privs
+       && !$this->Role->identifierIsCmpAdmin($username)) {
       // approverFor will return groups even for a CO/COU admin, so don't check it for admins
       $efs = $this->Role->approverFor($coPersonId);
       
       if(!empty($efs)) {
-        $pagcond['CoPetition.co_enrollment_flow_id'] = $efs;
+        $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $efs;
+      } else {
+        // We shouldn't normally get here, as isAuthorized should filter anyone without
+        // an approval role, but just in case we'll insert an invalid ID that won't ever match
+        $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = -1;
       }
     }
     

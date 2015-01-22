@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO LDAP Provisioner Target Model
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
@@ -212,12 +212,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 break;
               // Attributes from CO Person Role
               case 'eduPersonAffiliation':
+              case 'employeeType':
               case 'o':
               case 'ou':
               case 'title':
                 // Map the attribute to the column
                 $cols = array(
                   'eduPersonAffiliation' => 'affiliation',
+                  'employeeType' => 'affiliation',
                   'o' => 'o',
                   'ou' => 'ou',
                   'title' => 'title'
@@ -229,8 +231,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 foreach($provisioningData['CoPersonRole'] as $r) {
                   if(!empty($r[ $cols[$attr] ])) {
                     if($attr == 'eduPersonAffiliation') {
-                      // Map back to the controlled vocabulary
-                      $attributes[$attr][] = _txt('en.affil', null, $r[ $cols[$attr] ]);
+                      $affilmap = $this->CoProvisioningTarget->Co->CoExtendedType->affiliationMap($provisioningData['Co']['id']);
+                      
+                      if(!empty($affilmap[ $r[ $cols[$attr] ]])) {
+                        // Look up the language rendering of this
+                        $attributes[$attr][] = AffiliationEnum::$eduPersonAffiliation[ $affilmap[ $r[ $cols[$attr] ]] ];
+                      }
                     } else {
                       $attributes[$attr][] = $r[ $cols[$attr] ];
                     }
@@ -620,15 +626,23 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         break;
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
         $assigndn = true;
-        $delete = true;
-        $add = true;
+        $modify = true;
         $person = true;
         break;
       case ProvisioningActionEnum::CoPersonUpdated:
-        // An update may cause an existing person to be written to LDAP for the first time
-        // or for an unexpectedly removed entry to be replaced
-        $assigndn = true;  
-        $modify = true;
+        if($provisioningData['CoPerson']['status'] != StatusEnum::Active
+           && $provisioningData['CoPerson']['status'] != StatusEnum::GracePeriod) {
+          // Convert this to a delete operation. Basically we (may) have a record in LDAP,
+          // but the person is no longer active. Don't delete the DN though, since
+          // the underlying person was not deleted.
+          
+          $delete = true;
+        } else {
+          // An update may cause an existing person to be written to LDAP for the first time
+          // or for an unexpectedly removed entry to be replaced
+          $assigndn = true;  
+          $modify = true;
+        }
         $person = true;
         break;
       case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
@@ -682,7 +696,20 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                                   $assigndn);
     }
     catch(RuntimeException $e) {
+      // This mostly never matches because $dns['newdnerr'] will usually be set
       throw new RuntimeException($e->getMessage());
+    }
+    
+    if($person
+       && $assigndn
+       && !$dns['newdn']
+       && (!isset($provisioningData['CoPerson']['status'])
+           || $provisioningData['CoPerson']['status'] != StatusEnum::Active)) {
+      // If a Person is not active and we were unable to create a new DN (or recalculate
+      // what it should be), fail silently. This will typically happen when a new Petition
+      // is created and the Person is not yet Active (and therefore has no identifiers assigned).
+      
+      return true;
     }
     
     // We might have to handle a rename if the DN changed
@@ -993,14 +1020,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             'required'    => true,
             'multiple'    => false
 //            'multiple'    => true,
-//            'typekey'     => 'en.name',
+//            'typekey'     => 'en.name.type',
 //            'defaulttype' => NameEnum::Official
           ),
           'cn' => array(
             'required'    => true,
             'multiple'    => false
 //            'multiple'    => true,
-//            'typekey'     => 'en.name',
+//            'typekey'     => 'en.name.type',
 //            'defaulttype' => NameEnum::Official
           )
         )
@@ -1021,13 +1048,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'telephoneNumber' => array(
             'required'    => false,
             'multiple'    => true,
-            'typekey'     => 'en.contact.phone',
+            'extendedtype' => 'telephone_number_types',
             'defaulttype' => ContactEnum::Office
           ),
           'facsimileTelephoneNumber' => array(
             'required'    => false,
             'multiple'    => true,
-            'typekey'     => 'en.contact.phone',
+            'extendedtype' => 'telephone_number_types',
             'defaulttype' => ContactEnum::Fax
           ),
           'street' => array(
@@ -1051,7 +1078,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'address'     => array (
             'label'       => _txt('fd.address'),
             'multiple'    => true,
-            'typekey'     => 'en.contact.address',
+            'extendedtype' => 'address_types',
             'defaulttype' => ContactEnum::Office
           )
         ),
@@ -1066,14 +1093,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             'required'    => false,
             'multiple'    => false
 //            'multiple'    => true,
-//            'typekey'     => 'en.name',
+//            'typekey'     => 'en.name.type',
 //            'defaulttype' => NameEnum::Official
           ),
           // And since there is only one name, there's no point in supporting displayName
           /* 'displayName' => array(
             'required'    => false,
             'multiple'    => false,
-            'typekey'     => 'en.name',
+            'typekey'     => 'en.name.type',
             'defaulttype' => NameEnum::Preferred
           ),*/
           'o' => array(
@@ -1083,21 +1110,24 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'mail' => array(
             'required'    => false,
             'multiple'    => true,
-            'typekey'     => 'en.contact.mail',
+            'extendedtype' => 'email_address_types',
             'defaulttype' => EmailAddressEnum::Official
           ),
           'mobile' => array(
             'required'    => false,
             'multiple'    => true,
-            'typekey'     => 'en.contact.phone',
+            'extendedtype' => 'telephone_number_types',
             'defaulttype' => ContactEnum::Mobile
           ),
           'employeeNumber' => array(
             'required'    => false,
             'multiple'    => false,
             'extendedtype' => 'identifier_types',
-            'typekey'     => 'en.identifier',
             'defaulttype' => IdentifierEnum::ePPN
+          ),
+          'employeeType' => array(
+            'required'    => false,
+            'multiple'    => true
           ),
           'uid' => array(
             'required'    => false,

@@ -42,14 +42,13 @@ class CoSelfServicePermissionsController extends StandardController {
   /**
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request->params
-   * - postcondition: $cous may be set.
    *
    * @since  COmanage Registry v0.9
    */
   
   function beforeRender() {
     if(!$this->restful) {
-      $attrs = $this->CoSelfServicePermission->supportedAttrs();
+      $attrs = $this->CoSelfServicePermission->supportedAttrs($this->cur_co['Co']['id']);
       
       $this->set('models', $attrs['models']);
       $this->set('types', $attrs['types']);

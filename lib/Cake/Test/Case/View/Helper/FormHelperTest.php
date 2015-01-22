@@ -1338,6 +1338,18 @@ class FormHelperTest extends CakeTestCase {
 		$this->Form->radio('Test.test', $options);
 		$expected = array('Test.test');
 		$this->assertEquals($expected, $this->Form->fields);
+
+		$this->Form->radio('Test.all', $options, array(
+			'disabled' => array('option1', 'option2')
+		));
+		$expected = array('Test.test', 'Test.all' => '');
+		$this->assertEquals($expected, $this->Form->fields);
+
+		$this->Form->radio('Test.some', $options, array(
+			'disabled' => array('option1')
+		));
+		$expected = array('Test.test', 'Test.all' => '', 'Test.some');
+		$this->assertEquals($expected, $this->Form->fields);
 	}
 
 /**
@@ -1372,9 +1384,11 @@ class FormHelperTest extends CakeTestCase {
 
 		$this->Form->checkbox('Model.checkbox', array('disabled' => true));
 		$this->Form->text('Model.text', array('disabled' => true));
-		$this->Form->password('Model.text', array('disabled' => true));
+		$this->Form->text('Model.text2', array('disabled' => 'disabled'));
+		$this->Form->password('Model.password', array('disabled' => true));
 		$this->Form->textarea('Model.textarea', array('disabled' => true));
 		$this->Form->select('Model.select', array(1, 2), array('disabled' => true));
+		$this->Form->select('Model.select', array(1, 2), array('disabled' => array(1, 2)));
 		$this->Form->radio('Model.radio', array(1, 2), array('disabled' => array(1, 2)));
 		$this->Form->year('Model.year', null, null, array('disabled' => true));
 		$this->Form->month('Model.month', array('disabled' => true));
@@ -2046,7 +2060,7 @@ class FormHelperTest extends CakeTestCase {
 			'Email',
 			'/label',
 			array('input' => array(
-				'type' => 'text', 'name' => 'data[Contact][email]',
+				'maxlength' => 255, 'type' => 'text', 'name' => 'data[Contact][email]',
 				'id' => 'ContactEmail'
 			)),
 			'/div'
@@ -2060,7 +2074,7 @@ class FormHelperTest extends CakeTestCase {
 			'Email',
 			'/label',
 			array('input' => array(
-				'type' => 'text', 'name' => 'data[Contact][5][email]',
+				'maxlength' => 255, 'type' => 'text', 'name' => 'data[Contact][5][email]',
 				'id' => 'Contact5Email'
 			)),
 			'/div'
@@ -2695,7 +2709,7 @@ class FormHelperTest extends CakeTestCase {
 			array('label' => array('for' => "ContactMultiple")),
 			'Multiple',
 			'/label',
-			array('input' => array('type' => 'hidden', 'name' => "data[Contact][multiple]", 'value' => '', 'id' => "ContactMultiple")),
+			array('input' => array('type' => 'hidden', 'name' => "data[Contact][multiple]", 'value' => '', 'id' => "ContactMultiple", 'disabled' => 'disabled')),
 			array('div' => array('class' => 'checkbox')),
 			array('input' => array('type' => 'checkbox', 'name' => "data[Contact][multiple][]", 'value' => 1, 'disabled' => 'disabled', 'id' => "ContactMultiple1")),
 			array('label' => array('for' => "ContactMultiple1")),
@@ -5004,7 +5018,7 @@ class FormHelperTest extends CakeTestCase {
 			'Multiple',
 			'/label',
 			'input' => array(
-				'type' => 'hidden', 'name' => 'data[Contact][multiple]', 'value' => '', 'id' => 'ContactMultiple_'
+				'type' => 'hidden', 'name' => 'data[Contact][multiple]', 'value' => '', 'id' => 'ContactMultiple_', 'disabled' => 'disabled'
 			),
 			'select' => array(
 				'name' => 'data[Contact][multiple][]', 'disabled' => 'disabled', 'multiple' => 'multiple', 'id' => 'ContactMultiple'
@@ -7465,6 +7479,37 @@ class FormHelperTest extends CakeTestCase {
 	}
 
 /**
+ * Test textareas maxlength reading from schema.
+ *
+ * @return void
+ */
+	public function testTextAreaMaxLength() {
+		$result = $this->Form->input('UserForm.other', array('type' => 'textarea'));
+		$expected = array(
+			'div' => array('class' => 'input textarea'),
+				'label' => array('for' => 'UserFormOther'),
+					'Other',
+				'/label',
+				'textarea' => array('name' => 'data[UserForm][other]', 'cols' => '30', 'rows' => '6', 'id' => 'UserFormOther'),
+				'/textarea',
+			'/div'
+		);
+		$this->assertTags($result, $expected);
+
+		$result = $this->Form->input('UserForm.stuff', array('type' => 'textarea'));
+		$expected = array(
+			'div' => array('class' => 'input textarea'),
+				'label' => array('for' => 'UserFormStuff'),
+					'Stuff',
+				'/label',
+				'textarea' => array('name' => 'data[UserForm][stuff]', 'maxlength' => 10, 'cols' => '30', 'rows' => '6', 'id' => 'UserFormStuff'),
+				'/textarea',
+			'/div'
+		);
+		$this->assertTags($result, $expected);
+	}
+
+/**
  * testTextAreaWithStupidCharacters method
  *
  * test text area with non-ascii characters
@@ -9586,6 +9631,7 @@ class FormHelperTest extends CakeTestCase {
 				'textarea' => array(
 					'id' => 'ValidateProfile1ValidateItem2Name',
 					'name' => 'data[ValidateProfile][1][ValidateItem][2][name]',
+					'maxlength' => 255,
 					'cols' => 30,
 					'rows' => 6
 				),
@@ -9702,7 +9748,7 @@ class FormHelperTest extends CakeTestCase {
 		$expected = array(
 			'div' => array('class' => 'input text'),
 			'input' => array(
-				'type' => 'text', 'name' => 'data[Contact][email]',
+				'maxlength' => 255, 'type' => 'text', 'name' => 'data[Contact][email]',
 				'id' => 'ContactEmail'
 			),
 			'/div'
@@ -9716,7 +9762,7 @@ class FormHelperTest extends CakeTestCase {
 		$expected = array(
 			'div' => array('class' => 'input text'),
 			array('input' => array(
-				'type' => 'text', 'name' => 'data[Contact][email]',
+				'maxlength' => 255, 'type' => 'text', 'name' => 'data[Contact][email]',
 				'id' => 'ContactEmail'
 			)),
 			'label' => array('for' => 'ContactEmail'),
@@ -9736,7 +9782,7 @@ class FormHelperTest extends CakeTestCase {
 		$expected = array(
 			'div' => array('class' => 'input text'),
 			array('input' => array(
-				'type' => 'text', 'name' => 'data[Contact][email]',
+				'maxlength' => 255, 'type' => 'text', 'name' => 'data[Contact][email]',
 				'id' => 'ContactEmail'
 			)),
 			array('div' => array()),

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Role Model
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -30,7 +30,7 @@ class CoPersonRole extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable', 'Provisioner');
+  public $actsAs = array('Containable', 'Normalization', 'Provisioner');
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -127,6 +127,8 @@ class CoPersonRole extends AppModel {
                                         StatusEnum::Deleted,
                                         StatusEnum::Denied,
                                         StatusEnum::Duplicate,
+                                        StatusEnum::Expired,
+                                        StatusEnum::GracePeriod,
                                         StatusEnum::Invited,
                                         StatusEnum::Pending,
                                         StatusEnum::PendingApproval,
@@ -143,14 +145,16 @@ class CoPersonRole extends AppModel {
     ),
     'affiliation' => array(
       'content' => array(
-        'rule' => array('inList', array(AffiliationEnum::Faculty,
-                                        AffiliationEnum::Student,
-                                        AffiliationEnum::Staff,
-                                        AffiliationEnum::Alum,
-                                        AffiliationEnum::Member,
-                                        AffiliationEnum::Affiliate,
-                                        AffiliationEnum::Employee,
-                                        AffiliationEnum::LibraryWalkIn)),
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'CoPersonRole.affiliation',
+                              'default' => array(AffiliationEnum::Faculty,
+                                                 AffiliationEnum::Student,
+                                                 AffiliationEnum::Staff,
+                                                 AffiliationEnum::Alum,
+                                                 AffiliationEnum::Member,
+                                                 AffiliationEnum::Affiliate,
+                                                 AffiliationEnum::Employee,
+                                                 AffiliationEnum::LibraryWalkIn))),
         'required' => true,
         'allowEmpty' => false
       )
@@ -160,7 +164,8 @@ class CoPersonRole extends AppModel {
   // Enum type hints
   
   public $cm_enum_txt = array(
-    'affiliation' => 'en.affil',
+// Don't use this anymore due to extended types
+//    'affiliation' => 'en.co_person_role.affiliation',
     'status' => 'en.status'
   );
   

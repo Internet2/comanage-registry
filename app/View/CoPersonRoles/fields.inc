@@ -69,7 +69,7 @@
     'controller' => 'co_people',
     'action' => 'canvas',
     $co_people[0]['CoPerson']['id']);
-  $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
+  $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']), $args);
 
   if($this->action == "add") {
     $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_person_roles.1'));
@@ -162,19 +162,19 @@ $(function() {
                 $attrs = array();
                 $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
                                    ? $co_person_roles[0]['CoPersonRole']['affiliation']
-                                   : "M");
+                                   : AffiliationEnum::Member);
                 $attrs['empty'] = false;
                 
                 if($e && !$es) {
                   print $this->Form->select('affiliation',
-                                            $cm_texts[ $cm_lang ]['en.affil'],
+                                            $vv_copr_affiliation_types,
                                             $attrs);
                   
                   if($this->Form->isFieldError('affiliation')) {
                     print $this->Form->error('affiliation');
                   }
                 } else {
-                  print $cm_texts[ $cm_lang ]['en.affil'][ $co_person_roles[0]['CoPersonRole']['affiliation']];
+                  print $vv_copr_affiliation_types[ $co_person_roles[0]['CoPersonRole']['affiliation'] ];
                 }
               ?>
             </td>
@@ -257,7 +257,7 @@ $(function() {
             </td>
             <td>
               <?php
-                if(isset($sponsors) && isset($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) {
+                if(isset($sponsors)) {
                   print (($e && !$es) ? $this->Form->select('sponsor_co_person_id', $sponsors) : Sanitize::html($sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ]));
                 }
               ?>
@@ -353,7 +353,7 @@ $(function() {
                                           array('controller' => 'telephone_numbers',
                                                 'action' => 'edit',
                                                 $t['id']))
-                        . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
+                        . " (" . $vv_copr_telephonenumber_types[ $t['type'] ] . ")<br />\n";
                 print '</div>';
                 print '<div>';
                   print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['number'])) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
@@ -365,7 +365,7 @@ $(function() {
                 print '</div>';
               print '</div>';
             } elseif($perm == PermissionEnum::ReadOnly) {
-              print Sanitize::html($t['number']) . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
+              print '<div><div>' . Sanitize::html($t['number']) . " (" . $vv_copr_telephonenumber_types[ $t['type'] ] . ")</div><div></div></div>\n";
             }
           }
         }
@@ -393,7 +393,7 @@ $(function() {
                                           array('controller' => 'addresses',
                                                 'action' => 'edit',
                                                 $addr['id']))
-                        . " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
+                        . " (" . $vv_copr_address_types[ $addr['type'] ]. ")<br />\n";
                 print '</div>';
                 print '<div>';
                   print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['line1'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
@@ -405,7 +405,7 @@ $(function() {
                 print '</div>';
               print '</div>';
             } elseif($perm == PermissionEnum::ReadOnly) {
-              print Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
+              print '<div><div>' . Sanitize::html($addr['line1']) . " (" . $vv_copr_address_types[ $addr['type'] ] . ")</div><div></div></div>\n";
             }
           }
         }

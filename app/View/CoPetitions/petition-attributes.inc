@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Petition Fields (used to display both petitions and petition-based invitations)
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
@@ -198,7 +198,9 @@
           $descriptions = array();
           
           foreach($coe_attributes as $ea) {
-            $descriptions[] = $ea['description'];
+            if(!empty($ea['description'])) {
+              $descriptions[] = $ea['description'];
+            }
           }
           $descTypeCount = count(array_count_values($descriptions));
           
@@ -332,7 +334,7 @@
                          // For now, match only on CO Person Official Name.
                          // (We can only have one name field match because of how the
                          // javascript keyup triggered code works.)
-                         && strcmp($ea['attribute'], 'p:name:O')==0
+                         && strcmp($ea['attribute'], 'p:name:official')==0
                          && ($ea['field'] == 'given'
                              || $ea['field'] == 'family')) {
                         # XXX Temp hack to enable real-time query. This should
@@ -357,7 +359,14 @@
                     if(isset($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ])) {
                       switch($ruleType) {
                       case 'inList':
-                        print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
+                        // It's possible this is no longer a valid selection, especially for
+                        // extended types.
+                        if(!empty($ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]])) {
+                          print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
+                        } else {
+                          // No longer a valid enum, just echo it
+                          print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                        }
                         break;
                       case 'validateTimestamp':
                         print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]);

@@ -55,7 +55,7 @@
                        $db->config['database'])) {
         // Plugins can have their own schema files, so we need to account for that
         
-        $schemaSources = array_merge(array("."), AppController::availablePlugins());
+        $schemaSources = array_merge(array("."), App::objects('plugin'));
         
         foreach($schemaSources as $schemaSource) {
           $schemaFile = APP . '/Config/Schema/schema.xml';

@@ -1,8 +1,8 @@
 <?php
 /**
- * COmanage Registry CO Notificaations Controller
+ * COmanage Registry CO Notifications Controller
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.4
@@ -274,13 +274,13 @@ class CoNotificationsController extends StandardController {
         $this->cur_request_filter_txt = _txt('fd.all');
       } else {
         $this->cur_request_filter_txt = _txt('en.status.not', null, $status);
-        $ret['CoNotification.status'] = $status;
+        $ret['conditions']['CoNotification.status'] = $status;
       }
     } else {
       // Default is to show notifications in pending status
       $this->cur_request_filter_txt = _txt('fd.unresolved');
-      $ret['CoNotification.status'] = array(NotificationStatusEnum::PendingAcknowledgment,
-                                            NotificationStatusEnum::PendingResolution);
+      $ret['conditions']['CoNotification.status'] = array(NotificationStatusEnum::PendingAcknowledgment,
+                                                          NotificationStatusEnum::PendingResolution);
     }
     
     // Keep this order in sync with isAuthorized (index check), above
@@ -290,7 +290,7 @@ class CoNotificationsController extends StandardController {
       $this->cur_request_type_txt = _txt('fd.actor');
       $this->cur_request_type_key = 'actorcopersonid';
       
-      $ret['CoNotification.actor_co_person_id'] = $this->request->params['named']['actorcopersonid'];
+      $ret['conditions']['CoNotification.actor_co_person_id'] = $this->request->params['named']['actorcopersonid'];
     } elseif(isset($this->request->params['named']['recipientcopersonid'])) {
       $this->cur_co_person_id = $this->request->params['named']['recipientcopersonid'];
       $this->cur_request_type_txt = _txt('fd.recipient');
@@ -312,29 +312,29 @@ class CoNotificationsController extends StandardController {
       $groups = $this->CoNotification->RecipientCoGroup->find('list', $args);
       
       if(!empty($groups)) {
-        $ret['OR']['CoNotification.recipient_co_group_id'] = $groups;
-        $ret['OR']['CoNotification.recipient_co_person_id'] = $this->request->params['named']['recipientcopersonid'];
+        $ret['conditions']['OR']['CoNotification.recipient_co_group_id'] = $groups;
+        $ret['conditions']['OR']['CoNotification.recipient_co_person_id'] = $this->request->params['named']['recipientcopersonid'];
       } else {
-        $ret['CoNotification.recipient_co_person_id'] = $this->request->params['named']['recipientcopersonid'];
+        $ret['conditions']['CoNotification.recipient_co_person_id'] = $this->request->params['named']['recipientcopersonid'];
       }
     } elseif(isset($this->request->params['named']['resolvercopersonid'])) {
       $this->cur_co_person_id = $this->request->params['named']['resolvercopersonid'];
       $this->cur_request_type_txt = _txt('fd.resolver');
       $this->cur_request_type_key = 'resolvercopersonid';
       
-      $ret['CoNotification.resolver_co_person_id'] = $this->request->params['named']['resolvercopersonid'];
+      $ret['conditions']['CoNotification.resolver_co_person_id'] = $this->request->params['named']['resolvercopersonid'];
     } elseif(isset($this->request->params['named']['subjectcopersonid'])) {
       $this->cur_co_person_id = $this->request->params['named']['subjectcopersonid'];
       $this->cur_request_type_txt = _txt('fd.subject');
       $this->cur_request_type_key = 'subjectcopersonid';
       
-      $ret['CoNotification.subject_co_person_id'] = $this->request->params['named']['subjectcopersonid'];
+      $ret['conditions']['CoNotification.subject_co_person_id'] = $this->request->params['named']['subjectcopersonid'];
     } elseif(isset($this->request->params['named']['subjectcogroupid'])) {
       $this->cur_co_group_id = $this->request->params['named']['subjectcogroupid'];
       $this->cur_request_type_txt = _txt('fd.subject');
       $this->cur_request_type_key = 'subjectcogroupid';
       
-      $ret['CoNotification.subject_co_group_id'] = $this->request->params['named']['subjectcogroupid'];
+      $ret['conditions']['CoNotification.subject_co_group_id'] = $this->request->params['named']['subjectcogroupid'];
     } else {
       throw new InvalidArgumentException(_txt('er.notprov'));
     }

@@ -346,7 +346,7 @@ class String {
 	}
 
 /**
- * Unicode aware version of wordwrap.
+ * Unicode and newline aware version of wordwrap.
  *
  * @param string $text The text to format.
  * @param int $width The width to wrap to. Defaults to 72.
@@ -355,6 +355,23 @@ class String {
  * @return string Formatted text.
  */
 	public static function wordWrap($text, $width = 72, $break = "\n", $cut = false) {
+		$paragraphs = explode($break, $text);
+		foreach ($paragraphs as &$paragraph) {
+			$paragraph = String::_wordWrap($paragraph, $width, $break, $cut);
+		}
+		return implode($break, $paragraphs);
+	}
+
+/**
+ * Unicode aware version of wordwrap as helper method.
+ *
+ * @param string $text The text to format.
+ * @param int $width The width to wrap to. Defaults to 72.
+ * @param string $break The line is broken using the optional break parameter. Defaults to '\n'.
+ * @param bool $cut If the cut is set to true, the string is always wrapped at the specified width.
+ * @return string Formatted text.
+ */
+	protected static function _wordWrap($text, $width = 72, $break = "\n", $cut = false) {
 		if ($cut) {
 			$parts = array();
 			while (mb_strlen($text) > 0) {
@@ -671,15 +688,18 @@ class String {
 	}
 
 /**
- * Creates a comma separated list where the last two items are joined with 'and', forming natural English
+ * Creates a comma separated list where the last two items are joined with 'and', forming natural language.
  *
- * @param array $list The list to be joined
- * @param string $and The word used to join the last and second last items together with. Defaults to 'and'
- * @param string $separator The separator used to join all the other items together. Defaults to ', '
+ * @param array $list The list to be joined.
+ * @param string $and The word used to join the last and second last items together with. Defaults to 'and'.
+ * @param string $separator The separator used to join all the other items together. Defaults to ', '.
  * @return string The glued together string.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::toList
  */
-	public static function toList($list, $and = 'and', $separator = ', ') {
+	public static function toList($list, $and = null, $separator = ', ') {
+		if ($and === null) {
+			$and = __d('cake', 'and');
+		}
 		if (count($list) > 1) {
 			return implode($separator, array_slice($list, null, -1)) . ' ' . $and . ' ' . array_pop($list);
 		}

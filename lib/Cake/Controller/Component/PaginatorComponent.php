@@ -29,17 +29,17 @@ App::uses('Hash', 'Utility');
  * the default pagination behavior in general or for a specific model. General settings are used when there
  * are no specific model configuration, or the model you are paginating does not have specific settings.
  *
- * {{{
+ * ```
  *	$this->Paginator->settings = array(
  *		'limit' => 20,
  *		'maxLimit' => 100
  *	);
- * }}}
+ * ```
  *
  * The above settings will be used to paginate any model. You can configure model specific settings by
  * keying the settings with the model name.
  *
- * {{{
+ * ```
  *	$this->Paginator->settings = array(
  *		'Post' => array(
  *			'limit' => 20,
@@ -47,7 +47,7 @@ App::uses('Hash', 'Utility');
  *		),
  *		'Comment' => array( ... )
  *	);
- * }}}
+ * ```
  *
  * This would allow you to have different pagination settings for `Comment` and `Post` models.
  *
@@ -55,13 +55,13 @@ App::uses('Hash', 'Utility');
  *
  * You can paginate with any find type defined on your model using the `findType` option.
  *
- * {{{
+ * ```
  * $this->Paginator->settings = array(
  *		'Post' => array(
  *			'findType' => 'popular'
  *		)
  * );
- * }}}
+ * ```
  *
  * Would paginate using the `find('popular')` method.
  *
@@ -179,7 +179,7 @@ class PaginatorComponent extends Component {
 			$extra['type'] = $type;
 		}
 
-		if (intval($page) < 1) {
+		if ((int)$page < 1) {
 			$page = 1;
 		}
 		$page = $options['page'] = (int)$page;
@@ -211,7 +211,7 @@ class PaginatorComponent extends Component {
 			}
 			$count = $object->find('count', array_merge($parameters, $extra));
 		}
-		$pageCount = intval(ceil($count / $limit));
+		$pageCount = (int)ceil($count / $limit);
 		$requestedPage = $page;
 		$page = max(min($page, $pageCount), 1);
 
@@ -240,8 +240,7 @@ class PaginatorComponent extends Component {
 			throw new NotFoundException();
 		}
 
-		if (
-			!in_array('Paginator', $this->Controller->helpers) &&
+		if (!in_array('Paginator', $this->Controller->helpers) &&
 			!array_key_exists('Paginator', $this->Controller->helpers)
 		) {
 			$this->Controller->helpers[] = 'Paginator';

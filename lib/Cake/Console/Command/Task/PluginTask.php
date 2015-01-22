@@ -108,18 +108,25 @@ class PluginTask extends AppShell {
 			$Folder = new Folder($this->path . $plugin);
 			$directories = array(
 				'Config' . DS . 'Schema',
-				'Model' . DS . 'Behavior',
-				'Model' . DS . 'Datasource',
 				'Console' . DS . 'Command' . DS . 'Task',
+				'Console' . DS . 'Templates',
 				'Controller' . DS . 'Component',
 				'Lib',
-				'View' . DS . 'Helper',
+				'Locale' . DS . 'eng' . DS . 'LC_MESSAGES',
+				'Model' . DS . 'Behavior',
+				'Model' . DS . 'Datasource',
 				'Test' . DS . 'Case' . DS . 'Controller' . DS . 'Component',
-				'Test' . DS . 'Case' . DS . 'View' . DS . 'Helper',
+				'Test' . DS . 'Case' . DS . 'Lib',
 				'Test' . DS . 'Case' . DS . 'Model' . DS . 'Behavior',
+				'Test' . DS . 'Case' . DS . 'Model' . DS . 'Datasource',
+				'Test' . DS . 'Case' . DS . 'View' . DS . 'Helper',
 				'Test' . DS . 'Fixture',
-				'Vendor',
-				'webroot'
+				'View' . DS . 'Elements',
+				'View' . DS . 'Helper',
+				'View' . DS . 'Layout',
+				'webroot' . DS . 'css',
+				'webroot' . DS . 'js',
+				'webroot' . DS . 'img',
 			);
 
 			foreach ($directories as $directory) {
@@ -203,7 +210,7 @@ class PluginTask extends AppShell {
 			}
 			$prompt = __d('cake_console', 'Choose a plugin path from the paths above.');
 			$choice = $this->in($prompt, null, 1);
-			if (intval($choice) > 0 && intval($choice) <= $max) {
+			if ((int)$choice > 0 && (int)$choice <= $max) {
 				$valid = true;
 			}
 		}

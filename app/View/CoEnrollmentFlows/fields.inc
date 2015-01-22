@@ -68,6 +68,33 @@
         )
       );
     }
+    
+    // Duplicate button
+    if($this->action != "add" && $permissions['duplicate']) {
+      $sidebarButtons[] = array(
+        'icon'    => 'copy',
+        'title'   => _txt('op.dupe'),
+        'url'     => array(
+          'controller' => 'co_enrollment_flows',
+          'action' => 'duplicate',
+          $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
+        )
+      );
+    }
+  }
+  
+  if($this->action != "add" && $permissions['select']) {
+    // Shortcut to start enrollment flow
+    
+    $sidebarButtons[] = array(
+      'icon'    => 'circle-arrow-e',
+      'title'   => _txt('op.begin'),
+      'url'     => array(
+        'controller' => 'co_petitions',
+        'action' => 'add',
+        'coef' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
+      )
+    );
   }
   
   $this->set('sidebarButtons', $sidebarButtons);
@@ -159,7 +186,7 @@
           
           if($e) {
             print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status'],
+                                      $cm_texts[ $cm_lang ]['en.status.ef'],
                                       $attrs);
             
             if($this->Form->isFieldError('status')) {

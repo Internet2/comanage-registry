@@ -180,6 +180,18 @@ class CoPetition extends AppModel {
             if($xreq) {
               $xfield->getRule('content')->message = _txt('er.field.req');
             }
+            
+            if($model == 'EnrolleeCoPersonRole' && $efAttr['field'] == 'affiliation') {
+              // Affiliation is an extended type, so we need to update the validation
+              // rule to pass the COID.  Set the actual validation rule to be match the
+              // enrollment configuration.
+              
+              // Should we do this for all attributes, as is the case in validateRelated()? (CO-907)
+              
+              if(!empty($efAttr['validate']['content']['rule'])) {
+                $xfield->getRule('content')->rule = $efAttr['validate']['content']['rule'];
+              }
+            }
           }
         }
       }
@@ -896,6 +908,24 @@ class CoPetition extends AppModel {
       }
     }
     
+    if(!empty($requestData['CoPetitionAttribute'])) {
+      // These are "special" attributes that only get recorded in the petition,
+      // they're not copied to the person record.
+      
+      foreach($requestData['CoPetitionAttribute'] as $key => $value) {
+        if($key == 'textfield' && isset($attrIDs['e:'.$key])) {
+          // Simply copy this value to an attribute value
+          
+          $petitionAttrs['CoPetitionAttribute'][] = array(
+            'co_petition_id' => $coPetitionID,
+            'co_enrollment_attribute_id' => $attrIDs['e:'.$key],
+            'attribute' => $key,
+            'value' => $value
+          );
+        }
+      }
+    }
+    
     // Finally, try to save. Note that saveMany doesn't expect the Model name as an array
     // component, unlike all the other saves.
     
@@ -1336,77 +1366,11 @@ class CoPetition extends AppModel {
         }
       }
       
-      // Update CO Person Role state
-      
-      if(!$fail && isset($newCoPersonStatus)) {
-        if($coPersonRoleID) {
-          $this->EnrolleeCoPersonRole->id = $coPersonRoleID;
-          $curCoPersonRoleStatus = $this->EnrolleeCoPersonRole->field('status');
-          $this->EnrolleeCoPersonRole->saveField('status', $newCoPersonStatus);
-          
-          // Create a history record
-          try {
-            $this->EnrolleeCoPersonRole->HistoryRecord->record($this->field('enrollee_co_person_id'),
-                                                               $coPersonRoleID,
-                                                               null,
-                                                               $actorCoPersonID,
-                                                               ActionEnum::CoPersonRoleEditedPetition,
-                                                               _txt('en.action', null, ActionEnum::CoPersonRoleEditedPetition) . ": "
-                                                               . _txt('en.status', null, $curCoPersonRoleStatus) . " > "
-                                                               . _txt('en.status', null, $newCoPersonStatus));
-          }
-          catch(Exception $e) {
-            $fail = true;
-          }
-        } else {
-          $fail = true;
-        }
-      }
-      
-      // Maybe update CO Person state, but only if it's currently Pending Approval,
-      // Pending Confirmation, or Approved
-      
-      if(!$fail && isset($newCoPersonStatus)) {
-        $coPersonID = $this->field('enrollee_co_person_id');
-        
-        if($coPersonID) {
-          $this->EnrolleeCoPerson->id = $coPersonID;
-          
-          $curCoPersonStatus = $this->EnrolleeCoPerson->field('status');
-          
-          if(isset($curCoPersonStatus)
-             && ($curCoPersonStatus == StatusEnum::Approved
-                 || $curCoPersonStatus == StatusEnum::PendingApproval
-                 || $curCoPersonStatus == StatusEnum::PendingConfirmation)) {
-            $this->EnrolleeCoPerson->saveField('status', $newCoPersonStatus);
-            
-            // Create a history record
-            try {
-              $newdata = array();
-              $olddata = array();
-              $newdata['CoPerson']['status'] = $newCoPersonStatus;
-              $olddata['CoPerson']['status'] = $curCoPersonStatus;
-              
-              $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
-                                                             null,
-                                                             null,
-                                                             $actorCoPersonID,
-                                                             ActionEnum::CoPersonEditedPetition,
-                                                             _txt('en.action', null, ActionEnum::CoPersonEditedPetition) . ": "
-                                                             . _txt('en.status', null, $curCoPersonStatus) . " > "
-                                                             . _txt('en.status', null, $newCoPersonStatus));
-            }
-            catch(Exception $e) {
-              $fail = true;
-            }
-          }
-          // else not a fail
-        } else {
-          $fail = true;
-        }
-      }
-      
       // Maybe assign identifiers, but only for new approvals
+      
+      // We do this before setting the CO Person status to Active because we want the
+      // identifiers to exist prior to provisioning (and specifically, LDAP DN construction),
+      // which happens when the CO Person status goes to Active.
       
       if(!$fail && $newPetitionStatus == StatusEnum::Approved) {
         $coPersonID = $this->field('enrollee_co_person_id');
@@ -1439,6 +1403,50 @@ class CoPetition extends AppModel {
               }
             }
           }
+        }
+      }
+      
+      // Update CO Person Role state
+      
+      if(!$fail && isset($newCoPersonStatus)) {
+        if($coPersonRoleID) {
+          $this->EnrolleeCoPersonRole->id = $coPersonRoleID;
+          $curCoPersonRoleStatus = $this->EnrolleeCoPersonRole->field('status');
+          $this->EnrolleeCoPersonRole->saveField('status', $newCoPersonStatus);
+          
+          // Create a history record
+          try {
+            $this->EnrolleeCoPersonRole->HistoryRecord->record($this->field('enrollee_co_person_id'),
+                                                               $coPersonRoleID,
+                                                               null,
+                                                               $actorCoPersonID,
+                                                               ActionEnum::CoPersonRoleEditedPetition,
+                                                               _txt('en.action', null, ActionEnum::CoPersonRoleEditedPetition) . ": "
+                                                               . _txt('en.status', null, $curCoPersonRoleStatus) . " > "
+                                                               . _txt('en.status', null, $newCoPersonStatus));
+          }
+          catch(Exception $e) {
+            $fail = true;
+          }
+        } else {
+          $fail = true;
+        }
+      }
+      
+      // Recalculate the overall CO Person status
+      
+      if(!$fail && isset($newCoPersonStatus)) {
+        $coPersonID = $this->field('enrollee_co_person_id');
+        
+        if($coPersonID) {
+          try {
+            $this->EnrolleeCoPerson->recalculateStatus($coPersonID);
+          }
+          catch(Exception $e) {
+            $fail = true;
+          }
+        } else {
+          $fail = true;
         }
       }
       
@@ -1586,16 +1594,11 @@ class CoPetition extends AppModel {
         } else {
           // We need to look up the appropriate admin group(s). Start with the CO Admins.
           
-          $args = array();
-          $args['conditions']['CoGroup.name']  = 'admin';
-          $args['conditions']['CoGroup.co_id'] = $coID;
-          $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
-          $args['contain'] = false;
-          
-          $coAdminGroup = $this->Co->CoGroup->find('first', $args);
-          
-          if(!empty($coAdminGroup['CoGroup']['id'])) {
-            $cogroupids[] = $coAdminGroup['CoGroup']['id'];
+          try {
+            $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($coID);
+          }
+          catch(Exception $e) {
+            $fail = true;
           }
           
           // To see if we should notify COU Admins, we need to see if this petition was
@@ -1609,16 +1612,11 @@ class CoPetition extends AppModel {
             $couName = $this->Cou->field('name', array('Cou.id' => $couID));
             
             if(!empty($couName)) {
-              $args = array();
-              $args['conditions']['CoGroup.name']  = 'admin:' . $couName;
-              $args['conditions']['CoGroup.co_id'] = $coID;
-              $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
-              $args['contain'] = false;
-              
-              $couAdminGroup = $this->Co->CoGroup->find('first', $args);
-              
-              if(!empty($couAdminGroup['CoGroup']['id'])) {
-                $cogroupids[] = $couAdminGroup['CoGroup']['id'];
+              try {
+                $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($coID, $couName);
+              }
+              catch(Exception $e) {
+                $fail = true;
               }
             }
           }
@@ -1902,6 +1900,7 @@ class CoPetition extends AppModel {
             
             foreach($efAttrs as $efAttr) {
               if($efAttr['id'] == $instance) {
+                // Should this be consolidated with adjustValidationRules()? (CO-907)
                 
                 // Make sure the validation rule matches the required status of this attribute
                 $xfield = $this->$primaryModel->$model->validator()->getField($efAttr['field']);
@@ -1914,6 +1913,13 @@ class CoPetition extends AppModel {
                   
                   if($xreq) {
                     $xfield->getRule('content')->message = _txt('er.field.req');
+                  }
+                  
+                  // Set the actual validation rule to be match the enrollment configuration.
+                  // This is especially necessary for extended types.
+                  
+                  if(!empty($efAttr['validate']['content']['rule'])) {
+                    $xfield->getRule('content')->rule = $efAttr['validate']['content']['rule'];
                   }
                 }
                 // else not a relevant field (eg: co_enrollment_attribute_id)
@@ -1980,16 +1986,16 @@ class CoPetition extends AppModel {
           // Extended attributes generally won't have validate by Cake set since their models are
           // dynamically bound, so grabbing validation rules from $efAttr is a win.
           
-          $vrule = $efAttr['validate'];
+          $vrule = $efAttr['validate']['content'];
           $vreq = (isset($efAttr['required']) && $efAttr['required']);
           
           $vrule['required'] = $vreq;
           $vrule['allowEmpty'] = !$vreq;
           $vrule['message'] = _txt('er.field.req');
           
-          $this->$primaryModel->$m[1]->validator()->add($efAttr['field'],
-                                                        'content',
-                                                        $vrule);
+          $this->$primaryModel->$model->validator()->add($efAttr['field'],
+                                                         'content',
+                                                         $vrule);
           
           // Make sure validation only sees this model's data
           $data = array();

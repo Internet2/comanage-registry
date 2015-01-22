@@ -44,7 +44,7 @@ class Inflector {
 			'/sis$/i' => 'ses',
 			'/([ti])um$/i' => '\1a',
 			'/(p)erson$/i' => '\1eople',
-			'/(m)an$/i' => '\1en',
+			'/(?<!u)(m)an$/i' => '\1en',
 			'/(c)hild$/i' => '\1hildren',
 			'/(buffal|tomat)o$/i' => '\1\2oes',
 			'/(alumn|bacill|cact|foc|fung|nucle|radi|stimul|syllab|termin|vir)us$/i' => '\1i',
@@ -78,6 +78,7 @@ class Inflector {
 			'cookie' => 'cookies',
 			'corpus' => 'corpuses',
 			'cow' => 'cows',
+			'criterion' => 'criteria',
 			'ganglion' => 'ganglions',
 			'genie' => 'genies',
 			'genus' => 'genera',
@@ -304,7 +305,7 @@ class Inflector {
  *
  * ### Usage:
  *
- * {{{
+ * ```
  * Inflector::rules('plural', array('/^(inflect)or$/i' => '\1ables'));
  * Inflector::rules('plural', array(
  *     'rules' => array('/^(inflect)ors$/i' => '\1ables'),
@@ -312,7 +313,7 @@ class Inflector {
  *     'irregular' => array('red' => 'redlings')
  * ));
  * Inflector::rules('transliteration', array('/å/' => 'aa'));
- * }}}
+ * ```
  *
  * @param string $type The type of inflection, either 'plural', 'singular' or 'transliteration'
  * @param array $rules Array of rules to be added.

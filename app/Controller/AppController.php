@@ -2,7 +2,7 @@
 /**
  * Application level Controller
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
@@ -66,22 +66,6 @@ class AppController extends Controller {
   // Tab to flip to for pages with tabs
   public $redirectTab = null;
 
-  /**
-   * Determine which plugins of a given type are available. This is a static function suitable for use
-   * before AppController is instantiated.
-   *
-   * @param  String Plugin type, or 'all' for all available plugins
-   * @since  COmanage Registry v0.8
-   * @return Array Available plugins
-   */
-  
-  public static function availablePlugins() {
-    // This function must be statically called by lang.php::_bootstrap_plugin_txt(), which under some
-    // circumstances is called before AppController has been instantiated.
-    
-    return App::objects('plugin');
-  }
-  
   /**
    * Determine which plugins of a given type are available, and load them if not already loaded.
    * - postcondition: Primary Plugin Models are loaded (if requested)
@@ -191,20 +175,6 @@ class AppController extends Controller {
         
         if(!empty($this->cur_co)) {
           $this->set("cur_co", $this->cur_co);
-          
-          // XXX This is a hack for CO-368 and should not be relied upon.
-          if(isset($this->Identifier)) {
-            $this->Identifier->coId = $coid;
-          }
-          if(isset($this->CoIdentifierAssignment)) {
-            $this->CoIdentifierAssignment->coId = $coid;
-          }
-          if(isset($this->CoPetition->EnrolleeCoPerson->Identifier)) {
-            $this->CoPetition->EnrolleeCoPerson->Identifier->coId = $coid;
-          }
-          if(isset($this->CoInvite->CoPetition->EnrolleeCoPerson->Identifier)) {
-            $this->CoInvite->CoPetition->EnrolleeCoPerson->Identifier->coId = $coid;
-          }
           
           // Load dynamic texts. We do this here because lang.php doesn't have access to models yet.
           
@@ -347,9 +317,10 @@ class AppController extends Controller {
     $model = $this->$req;
     $modelpl = Inflector::tableize($req);
     
-    // XXX This list should really be set on a per-CO basis (eg: link only applies to CoPeople)
+    // XXX This list should really be set on a per-Controller basis (eg: link only applies to CoPeople)
     if($this->action == 'add'
        || $this->action == 'assign'
+       || $this->action == 'find'  // for OrgIdentitiesController
        || $this->action == 'index'
        || $this->action == 'link'
        || $this->action == 'select'
@@ -443,213 +414,6 @@ class AppController extends Controller {
     }
     
     return null;
-  }
-  
-  /**
-   * Compare two arrays and generate a string describing what changed, suitable for
-   * including in a history record.
-   *
-   * @since  COmanage Registry v0.7
-   * @param  Array New data, in typical Cake format
-   * @param  Array Old data, in typical Cake format
-   * @param  Array Models to examine within new and old data
-   * @return String String describing changes
-   */
-    
-  public function changesToString($newdata, $olddata, $models) {
-    global $cm_texts, $cm_lang;
-    
-    // We assume $newdata and $olddate are intended to have the same structure, however
-    // we require $models to be specified since different controllers may pull different
-    // levels of containable or recursion data, and so we don't know how many associated
-    // models will appear in $newdata and/or $olddata.
-    
-    $changes = array();
-    
-    foreach($models as $model) {
-      if($model == 'ExtendedAttribute') {
-        // Handle extended attributes differently, as usual
-        
-        if(isset($this->cur_co['CoExtendedAttribute'])) {
-          // First, calculate the real model name
-          $eaModel = "Co" . $this->cur_co['Co']['id'] . "PersonExtendedAttribute";
-          
-          foreach($this->cur_co['CoExtendedAttribute'] as $extAttr) {
-            $oldval = null;
-            $newval = null;
-            
-            // Grab the name of this attribute and lowercase it to match the data model
-            $eaName = strtolower($extAttr['name']);
-            $eaDisplayName = $extAttr['display_name'];
-            
-            // Try to find the attribute in the data
-            
-            if(isset($newdata[$eaModel][$eaName]) && ($newdata[$eaModel][$eaName] != "")) {
-              $newval = $newdata[$eaModel][$eaName];
-            }
-            
-            if(isset($olddata[$eaModel][$eaName]) && ($olddata[$eaModel][$eaName] != "")) {
-              $oldval = $olddata[$eaModel][$eaName];
-            }
-            
-            if(isset($newval) && !isset($oldval)) {
-              $changes[] = $eaDisplayName . ": " . _txt('fd.null') . " > " . $newval;
-            } elseif(!isset($newval) && isset($oldval)) {
-              $changes[] = $eaDisplayName . ": " . $oldval . " > " . _txt('fd.null');
-            } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
-              $changes[] = $eaDisplayName . ": " . $oldval . " > " . $newval;
-            }
-          }
-        }
-      } else {
-        // Generate the union of keys among old and new
-        
-        $attrs = array();
-        
-        if(!empty($newdata[$model]) && !empty($olddata[$model])) {
-          $attrs = array_unique(array_merge(array_keys($newdata[$model]), array_keys($olddata[$model])));
-        } elseif(!empty($newdata[$model])) {
-          $attrs = array_keys($newdata[$model]);
-        } elseif(!empty($olddata[$model])) {
-          $attrs = array_keys($olddata[$model]);
-        }
-        
-        foreach($attrs as $attr) {
-          // Skip some "housekeeping" keys. Don't blanket skip all *_id attributes
-          // since some foreign keys should be tracked (eg: cou_id, sponsor_co_person_id).
-          if($attr == 'id' || $attr == 'created' || $attr == 'modified') {
-            continue;
-          }
-          
-          // Skip nested arrays -- for now, we only deal with top level data
-          if((isset($newdata[$model][$attr]) && is_array($newdata[$model][$attr]))
-              || (isset($olddata[$model][$attr]) && is_array($olddata[$model][$attr]))) {
-            continue;
-          }
-          
-          if(preg_match('/.*_id$/', $attr)) {
-            // Foreign keys need to be handled specially. Start by figuring out the model.
-            
-            if(preg_match('/.*_co_person_id$/', $attr)) {
-              // This is a foreign key to a CO Person (eg: sponsor_co_person)
-              
-              // Chop off _co_person_id
-              $afield = substr($attr, 0, strlen($attr)-13);
-              $amodel = "CoPerson";
-            } else {
-              // Chop off _id
-              $afield = substr($attr, 0, strlen($attr)-3);
-              $amodel = Inflector::camelize(rtrim($attr, "_id"));
-            }
-            
-            if(!isset($this->$amodel)) {
-              $this->loadModel($amodel);
-            }
-            
-            $ftxt = $afield;
-            
-            // XXX this isn't really an ideal way to see if a language key exists
-            if(!empty($cm_texts[ $cm_lang ]['fd.' . $afield])) {
-              $ftxt = $cm_texts[ $cm_lang ]['fd.' . $afield];
-            }
-            
-            // Get the old and new values
-            
-            $oldval = (isset($olddata[$model][$attr]) && $olddata[$model][$attr] != "") ? $olddata[$model][$attr] : null;
-            $newval = (isset($newdata[$model][$attr]) && $newdata[$model][$attr] != "") ? $newdata[$model][$attr] : null;
-            
-            // Make sure they're actually different (we may get some foreign keys here that aren't)
-            
-            if($oldval == $newval) {
-              continue;
-            }
-            
-            if($amodel == "CoPerson" || $amodel == "OrgIdentity") {
-              // Display field is Primary Name. Pull the old and new CO People/Org Identity in
-              // one query, though we won't know which one we'll get back first.
-              
-              $args = array();
-              $args['conditions'][$amodel.'.id'] = array($oldval, $newval);
-              $args['contain'][] = 'PrimaryName';
-              
-              $ppl = $this->$amodel->find('all', $args);
-              
-              if(!empty($ppl)) {
-                // Walk through the result set to figure out which one is old and which is new
-                
-                foreach($ppl as $c) {
-                  if(!empty($c[$amodel]['id']) && !empty($c['PrimaryName'])) {
-                    if($c[$amodel]['id'] == $oldval) {
-                      $oldval = generateCn($c['PrimaryName']) . " (" . $oldval . ")";
-                    } elseif($c[$amodel]['id'] == $newval) {
-                      $newval = generateCn($c['PrimaryName']) . " (" . $newval . ")";
-                    }
-                  }
-                }
-              }
-            } else {
-              // Lookup a human readable string (usually name or something) and prepend it to the ID
-              
-              $oldval = $this->$amodel->field($this->$amodel->displayField, array('id' => $oldval)) . " (" . $oldval . ")";
-              $newval = $this->$amodel->field($this->$amodel->displayField, array('id' => $newval)) . " (" . $newval . ")";
-            }
-          } else {
-            // Simple field in the model
-            
-            $oldval = (isset($olddata[$model][$attr]) && $olddata[$model][$attr] != "") ? $olddata[$model][$attr] : null;
-            $newval = (isset($newdata[$model][$attr]) && $newdata[$model][$attr] != "") ? $newdata[$model][$attr] : null;
-            
-            // See if we're working with a type, and if so use the localized string instead
-            // (if we can find it)
-            
-            if(!isset($this->$model)) {
-              $this->loadModel($model);
-            }
-            
-            if(isset($this->$model) && isset($this->$model->cm_enum_txt[$attr])) {
-              $oldval = _txt($this->$model->cm_enum_txt[$attr], null, $oldval) . " (" . $oldval . ")";
-              $newval = _txt($this->$model->cm_enum_txt[$attr], null, $newval) . " (" . $newval . ")";
-            }
-            
-            // Find the localization of the field
-            
-            $ftxt = "(?)";
-            
-            if(($model == 'Name' || $model == 'PrimaryName') && $attr != 'type') {
-              // Treat name specially
-              $ftxt = _txt('fd.name.'.$attr);
-            } else {
-              // Inflect the model name and see if fd.model.attr exists
-              
-              $imodel = Inflector::underscore($model);
-              
-              // XXX this isn't really an ideal way to see if a language key exists
-              if(!empty($cm_texts[ $cm_lang ]['fd.' . $imodel . '.' . $attr])) {
-                $ftxt = _txt('fd.' . $imodel . '.' . $attr);
-              } else {
-                // Otherwise see if the attribute by itself exists
-                $ftxt = _txt('fd.' . $attr);
-              }
-            }
-          }
-          
-          // Finally, render the change string based on the attributes found above.
-          // Notate going to or from NULL only if $newdata or $olddata (as appropriate)
-          // was populated, so as to avoid noise when a related object is added or
-          // deleted.
-          
-          if(isset($newval) && !isset($oldval)) {
-            $changes[] = $ftxt . ": " . (isset($olddata) ? _txt('fd.null') . " > " : "") . $newval;
-          } elseif(!isset($newval) && isset($oldval)) {
-            $changes[] = $ftxt . ": " . $oldval . (isset($newdata) ? " > " . _txt('fd.null') : "");
-          } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
-            $changes[] = $ftxt . ": " . $oldval . " > " . $newval;
-          }
-        }
-      }
-    }
-    
-    return implode(';', $changes);
   }
 
   /**
@@ -805,17 +569,19 @@ class AppController extends Controller {
    * - postcondition: On error, HTTP status returned (REST)
    *
    * @since  COmanage Registry v0.4
-   * @param  Array Request data (as per $this->request->data)
    * @return boolean true on success, false otherwise
    */
   
   function checkRestPost() {
+    $req = $this->modelClass;
+    $model = $this->$req;
+    $modelcc = Inflector::pluralize($req);
+    
+    $reqdata = null;
+    
     if(!empty($this->request->data)) {
       // Currently, we expect all request documents to match the model name (ie: StudlySingular).
       
-      $req = $this->modelClass;
-      $model = $this->$req;
-      $modelcc = Inflector::pluralize($req);
       
       // The inbound formats are currently lists with one entry. (Multiple entries
       // per request are not currently supported.) The format varies slightly between
@@ -827,175 +593,187 @@ class AppController extends Controller {
       } elseif(isset($this->request->data[$modelcc][0])) {
         // JSON
         $reqdata = $this->request->data[$modelcc][0];
-      } else {
-        unset($reqdata);
+      }
+    } else {
+      // In some instances, PHP doesn't set $_POST and so Cake doesn't see the request body.
+      // Here's a workaround, based on CakeRequest::_readInput().
+      // This is required by (eg) identifiers/assign.json
+      
+      switch($this->request->params['ext']) {
+        case 'json':
+          $fh = fopen('php://input', 'r');
+          $json = json_decode(stream_get_contents($fh), true);
+          fclose($fh);
+          $reqdata = $json[$modelcc][0];
+          // This is a pretty nasty hack so that convertRestPost and potentially
+          // other stuff works. XXX We should really refactor the whole thing.
+          $this->request->data = $json;
+          break;
+        case 'xml':
+          // Not implemented
+          // Need to do something like Xml::toArray(Xml::build());
+          break;
+        default:
+          break;
+      }
+    }
+    
+    if(isset($reqdata)) {
+      // Check version number against the model. Note we have to check both 'Version'
+      // (JSON) and '@Version' (XML).
+      
+      if((!isset($reqdata['Version']) && !isset($reqdata['@Version']))
+         ||
+         (isset($reqdata['Version']) && $reqdata['Version'] != $this->$req->version)
+         ||
+         (isset($reqdata['@Version']) && $reqdata['@Version'] != $this->$req->version)) {
+        $this->restResultHeader(400, "Invalid Fields");
+        $this->set('invalid_fields', array('Version' => 'Unknown version'));
+        
+        return(false);
       }
       
-      if(isset($reqdata)) {
-        // Check version number against the model. Note we have to check both 'Version'
-        // (JSON) and '@Version' (XML).
+      // Try to find a CO, even if not required (some models may use it even if not required).
+      // Note beforeFilter() may already have found a CO.
+      
+      if(!isset($this->cur_co)) {
+        $coid = -1;
         
-        if((!isset($reqdata['Version']) && !isset($reqdata['@Version']))
-           ||
-           (isset($reqdata['Version']) && $reqdata['Version'] != $this->$req->version)
-           ||
-           (isset($reqdata['@Version']) && $reqdata['@Version'] != $this->$req->version)) {
-          $this->restResultHeader(400, "Invalid Fields");
-          $this->set('invalid_fields', array('Version' => 'Unknown version'));
+        if(isset($reqdata['CoId']))
+          $coid = $reqdata['CoId'];
+        
+        if($coid == -1) {
+          // The CO might be implied by another attribute
           
-          return(false);
+          if(isset($reqdata['Person']['Type']) && $reqdata['Person']['Type'] == 'CO') {
+            $this->loadModel('CoPerson');
+            $cop = $this->CoPerson->findById($reqdata['Person']['Id']);
+            
+            // We've already pulled the CO data, so just set it rather than
+            // re-retrieving it below
+            if(isset($cop['Co'])) {
+              $this->cur_co['Co'] = $cop['Co'];
+              $coid = $this->cur_co['Co']['id'];
+            }
+          }
         }
         
-        // Try to find a CO, even if not required (some models may use it even if not required).
-        // Note beforeFilter() may already have found a CO.
-        
-        if(!isset($this->cur_co)) {
-          $coid = -1;
+        if(!isset($this->cur_co) && $coid != -1) {
+          // Retrieve CO Object.
           
-          if(isset($reqdata['CoId']))
-            $coid = $reqdata['CoId'];
-          
-          if($coid == -1) {
-            // The CO might be implied by another attribute
+          if(!isset($this->Co)) {
+            // There might be a CO object under another object (eg: CoOrgIdentityLink),
+            // but it's easier if we just explicitly load the model
             
-            if(isset($reqdata['Person']['Type']) && $reqdata['Person']['Type'] == 'CO') {
-              $this->loadModel('CoPerson');
-              $cop = $this->CoPerson->findById($reqdata['Person']['Id']);
-              
-              // We've already pulled the CO data, so just set it rather than
-              // re-retrieving it below
-              if(isset($cop['Co'])) {
-                $this->cur_co['Co'] = $cop['Co'];
-                $coid = $this->cur_co['Co']['id'];
-              }
-            }
+            $this->loadModel('Co');
           }
           
-          if(!isset($this->cur_co) && $coid != -1) {
-            // Retrieve CO Object.
-            
-            if(!isset($this->Co)) {
-              // There might be a CO object under another object (eg: CoOrgIdentityLink),
-              // but it's easier if we just explicitly load the model
-              
-              $this->loadModel('Co');
-            }
-            
-            $this->cur_co = $this->Co->findById($coid);
-            
-            if(empty($this->cur_co)) {
-              $this->restResultHeader(403, "CO Does Not Exist");
-              return(false);
-            }
-          }
+          $this->cur_co = $this->Co->findById($coid);
           
-          if($this->requires_co && !isset($this->cur_co)) {
-            // If a CO is required and we didn't find one, bail
-            
+          if(empty($this->cur_co)) {
             $this->restResultHeader(403, "CO Does Not Exist");
             return(false);
           }
-          
-          if(($this->name == 'Identifiers') && isset($this->cur_co)) {
-            // XXX This is a hack for CO-368 and should not be relied upon.
-            $this->loadModel('Identifier');
-            $this->Identifier->coId = $coid;
-          }
-        }
-         
-        // Check the expected elements exist in the model (schema).
-        // We only check top level at the moment (no recursion).
-        
-        $bad = array();
-        
-        if($req == 'CoPersonRole') {
-          // We need to check Extended Attributes. This probably belongs in either
-          // CoPersonRolesController or CoExtendedAttributesController, but for now
-          // it's a one-off and we'll leave it here.
-          
-          $this->loadModel('CoExtendedAttribute');
-          $extAttrs = $this->CoExtendedAttribute->findAllByCoId($this->cur_co['Co']['id']);
         }
         
-        foreach(array_keys($reqdata) as $k) {
-          // Skip version because we already checked it
-          if($k == 'Version' || $k == '@Version')
-            continue;
+        if($this->requires_co && !isset($this->cur_co)) {
+          // If a CO is required and we didn't find one, bail
           
-          // 'Person' is a special case that we interpret to mean either
-          // 'COPersonRole' or 'OrgIdentity', and to reference an id.
-          
-          if($k == 'Person'
-             && (isset($this->$req->validate['org_identity_id'])
-                 || isset($this->$req->validate['co_person_role_id']))) {
-            continue;
-          }
-          
-          // Some models accept multiple models worth of data in one post.
-          // Specifically, OrgIdentity and CoPerson allow Names. A general
-          // solution could check (eg) $model->HasOne, however for now we
-          // just make a special exception for name.
-          
-          if($k == 'PrimaryName'
-             && ($this->modelClass == 'OrgIdentity'
-                 || $this->modelClass == 'CoPerson')) {
-            continue;
-          }
-          
-          if(isset($extAttrs)) {
-            // Check to see if this is an extended attribute
-            
-            foreach($extAttrs as $ea) {
-              if(isset($ea['CoExtendedAttribute']['name'])
-                 && $ea['CoExtendedAttribute']['name'] == $k) {
-                // Skip to the next $k
-                continue 2;
-              }
-            }
-          }
-          
-          // Finally see if this attribute is defined in the model
-          
-          if(!isset($this->$req->validate[Inflector::underscore($k)])) {
-            $bad[$k] = "Unknown Field";
-          }
+          $this->restResultHeader(403, "CO Does Not Exist");
+          return(false);
         }
-        
-        // Validate enums
-        
-        if(!empty($model->cm_enum_types)) {
-          foreach(array_keys($model->cm_enum_types) as $e) {
-            // cm_enum_types is, eg, "status", but we need "Status" since we
-            // haven't yet converted the array to database format
-            $ce = Inflector::camelize($e);
-            
-            // Get a pointer to the enum, foo_ti
-            // $$ and ${$} is PHP variable variable syntox
-            $v = $model->cm_enum_types[$e] . "i";
-            global $$v;
-            
-            if(isset($reqdata[$ce]) && !isset(${$v}[ $reqdata[$ce] ])) {
-              $bad[$ce] = "Invalid value";
-            }
-          }
-        }
-        
-        // We don't currently check for extended attributes because at the
-        // moment we don't flag them as required vs optional. Basically, we
-        // assume they're all optional.
-        
-        if(empty($bad))
-          return(true);
-        
-        $this->restResultHeader(400, "Invalid Fields");
-        $this->set('invalid_fields', $bad);
       }
-      else
-        $this->restResultHeader(400, "Bad Request");
+       
+      // Check the expected elements exist in the model (schema).
+      // We only check top level at the moment (no recursion).
+      
+      $bad = array();
+      
+      if($req == 'CoPersonRole') {
+        // We need to check Extended Attributes. This probably belongs in either
+        // CoPersonRolesController or CoExtendedAttributesController, but for now
+        // it's a one-off and we'll leave it here.
+        
+        $this->loadModel('CoExtendedAttribute');
+        $extAttrs = $this->CoExtendedAttribute->findAllByCoId($this->cur_co['Co']['id']);
+      }
+      
+      foreach(array_keys($reqdata) as $k) {
+        // Skip version because we already checked it
+        if($k == 'Version' || $k == '@Version')
+          continue;
+        
+        // 'Person' is a special case that we interpret to mean either
+        // 'COPersonRole' or 'OrgIdentity', and to reference an id.
+        
+        if($k == 'Person'
+           && (isset($this->$req->validate['org_identity_id'])
+               || isset($this->$req->validate['co_person_role_id']))) {
+          continue;
+        }
+        
+        // Some models accept multiple models worth of data in one post.
+        // Specifically, OrgIdentity and CoPerson allow Names. A general
+        // solution could check (eg) $model->HasOne, however for now we
+        // just make a special exception for name.
+        
+        if($k == 'PrimaryName'
+           && ($this->modelClass == 'OrgIdentity'
+               || $this->modelClass == 'CoPerson')) {
+          continue;
+        }
+        
+        if(isset($extAttrs)) {
+          // Check to see if this is an extended attribute
+          
+          foreach($extAttrs as $ea) {
+            if(isset($ea['CoExtendedAttribute']['name'])
+               && $ea['CoExtendedAttribute']['name'] == $k) {
+              // Skip to the next $k
+              continue 2;
+            }
+          }
+        }
+        
+        // Finally see if this attribute is defined in the model
+        
+        if(!isset($this->$req->validate[Inflector::underscore($k)])) {
+          $bad[$k] = "Unknown Field";
+        }
+      }
+      
+      // Validate enums
+      
+      if(!empty($model->cm_enum_types)) {
+        foreach(array_keys($model->cm_enum_types) as $e) {
+          // cm_enum_types is, eg, "status", but we need "Status" since we
+          // haven't yet converted the array to database format
+          $ce = Inflector::camelize($e);
+          
+          // Get a pointer to the enum, foo_ti
+          // $$ and ${$} is PHP variable variable syntox
+          $v = $model->cm_enum_types[$e] . "i";
+          global $$v;
+          
+          if(isset($reqdata[$ce]) && !isset(${$v}[ $reqdata[$ce] ])) {
+            $bad[$ce] = "Invalid value";
+          }
+        }
+      }
+      
+      // We don't currently check for extended attributes because at the
+      // moment we don't flag them as required vs optional. Basically, we
+      // assume they're all optional.
+      
+      if(empty($bad))
+        return(true);
+      
+      $this->restResultHeader(400, "Invalid Fields");
+      $this->set('invalid_fields', $bad);
     }
     else
       $this->restResultHeader(400, "Bad Request");
-          
+    
     return(false);
   }
   
@@ -1386,6 +1164,9 @@ class AppController extends Controller {
     // Select from available enrollment flows?
     $p['menu']['createpetition'] = $roles['user'];
     
+    // Invite (default enrollment) new CO people?
+    $p['menu']['invite'] = $roles['admin'] || $roles['subadmin'];
+    
     // Review / approve petitions?
     // XXX this isn't exactly the right check, but then neither are most of the others (CO-731)
     $p['menu']['petitions'] = $roles['admin']
@@ -1425,7 +1206,10 @@ class AppController extends Controller {
     
     // Manage CO terms and conditions?
     $p['menu']['cotandc'] = $roles['admin'];
-  
+    
+    // Manage CO expiration policies?
+    $p['menu']['coxp'] = $roles['admin'];
+      
     // Admin COmanage?
     $p['menu']['admin'] = $roles['cmadmin'];
     
@@ -1495,12 +1279,25 @@ class AppController extends Controller {
     $plugins = $this->loadAvailablePlugins('all', 'simple');
     
     foreach($plugins as $plugin) {
-      if(isset($this->$plugin->cmPluginMenus)) {
-        $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus;
+      if(method_exists($this->$plugin, 'cmPluginMenus')) {
+        $menu['plugins'][$plugin] = $this->$plugin->cmPluginMenus();
       }
     }
     
     $this->set('menuContent', $menu);
+    
+    // An a temporary workaround for CO-720, determine which COs have enrollment flows
+    // defined. Once CO-828 is done, this could be replaced by examining $this->cur_co
+    // (or similar) instead, since we won't have a big multi-CO menu.
+    
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    $args['fields'][] = 'DISTINCT CoEnrollmentFlow.co_id';
+    $args['order'][] = 'CoEnrollmentFlow.co_id ASC';
+    $args['contain'] = false;
+    
+    $this->loadModel('CoEnrollmentFlow');
+    $this->set('vv_enrollment_flow_cos', $this->CoEnrollmentFlow->find('all', $args));
   }
   
   /**
@@ -1523,6 +1320,9 @@ class AppController extends Controller {
       $coid = -1;
       
       // Only certain actions are permitted to explicitly provide a CO ID
+      // XXX Note that CoExtendedTypesController and CoDashboardsController override
+      // this function to support addDefaults. It might be better just to allow controllers
+      // to specify a list.
       if($this->action == 'index'
          || $this->action == 'find'
          || $this->action == 'search'

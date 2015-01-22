@@ -767,7 +767,7 @@ class ModelValidationTest extends BaseModelTest {
 					'last' => false
 				),
 				'between' => array(
-					'rule' => array('between', 5, 15),
+					'rule' => array('lengthBetween', 5, 15),
 					'message' => array('You may enter up to %s chars (minimum is %s chars)', 14, 6)
 				)
 			)
@@ -1844,7 +1844,7 @@ class ModelValidationTest extends BaseModelTest {
 
 		$set = array(
 			'numeric' => array('rule' => 'numeric', 'allowEmpty' => false),
-			'range' => array('rule' => array('between', 1, 5), 'allowEmpty' => false),
+			'between' => array('rule' => array('lengthBetween', 1, 5), 'allowEmpty' => false),
 		);
 		$Validator['other'] = $set;
 		$rules = $Validator['other'];
@@ -1853,7 +1853,7 @@ class ModelValidationTest extends BaseModelTest {
 		$validators = $rules->getRules();
 		$this->assertCount(2, $validators);
 		$this->assertEquals('numeric', $validators['numeric']->rule);
-		$this->assertEquals(array('between', 1, 5), $validators['range']->rule);
+		$this->assertEquals(array('lengthBetween', 1, 5), $validators['between']->rule);
 
 		$Validator['new'] = new CakeValidationSet('new', $set, array());
 		$rules = $Validator['new'];
@@ -1862,7 +1862,7 @@ class ModelValidationTest extends BaseModelTest {
 		$validators = $rules->getRules();
 		$this->assertCount(2, $validators);
 		$this->assertEquals('numeric', $validators['numeric']->rule);
-		$this->assertEquals(array('between', 1, 5), $validators['range']->rule);
+		$this->assertEquals(array('lengthBetween', 1, 5), $validators['between']->rule);
 	}
 
 /**
@@ -1917,7 +1917,7 @@ class ModelValidationTest extends BaseModelTest {
 
 		$set = array(
 			'numeric' => array('rule' => 'numeric', 'allowEmpty' => false),
-			'range' => array('rule' => array('between', 1, 5), 'allowEmpty' => false),
+			'range' => array('rule' => array('lengthBetween', 1, 5), 'allowEmpty' => false),
 		);
 		$Validator['other'] = $set;
 		$this->assertCount(4, $Validator);
@@ -1938,14 +1938,14 @@ class ModelValidationTest extends BaseModelTest {
 		$Validator = $TestModel->validator();
 
 		$Validator->add('other', 'numeric', array('rule' => 'numeric', 'allowEmpty' => false));
-		$Validator->add('other', 'range', array('rule' => array('between', 1, 5), 'allowEmpty' => false));
+		$Validator->add('other', 'between', array('rule' => array('lengthBetween', 1, 5), 'allowEmpty' => false));
 		$rules = $Validator['other'];
 		$this->assertEquals('other', $rules->field);
 
 		$validators = $rules->getRules();
 		$this->assertCount(2, $validators);
 		$this->assertEquals('numeric', $validators['numeric']->rule);
-		$this->assertEquals(array('between', 1, 5), $validators['range']->rule);
+		$this->assertEquals(array('lengthBetween', 1, 5), $validators['between']->rule);
 	}
 
 /**
@@ -1962,13 +1962,13 @@ class ModelValidationTest extends BaseModelTest {
 		$this->assertFalse(isset($Validator['title']));
 
 		$Validator->add('other', 'numeric', array('rule' => 'numeric', 'allowEmpty' => false));
-		$Validator->add('other', 'range', array('rule' => array('between', 1, 5), 'allowEmpty' => false));
+		$Validator->add('other', 'between', array('rule' => array('lengthBetween', 1, 5), 'allowEmpty' => false));
 		$this->assertTrue(isset($Validator['other']));
 
 		$Validator->remove('other', 'numeric');
 		$this->assertTrue(isset($Validator['other']));
 		$this->assertFalse(isset($Validator['other']['numeric']));
-		$this->assertTrue(isset($Validator['other']['range']));
+		$this->assertTrue(isset($Validator['other']['between']));
 	}
 
 /**
@@ -2126,7 +2126,7 @@ class ModelValidationTest extends BaseModelTest {
 
 		$set = array(
 			'numeric' => array('rule' => 'numeric', 'allowEmpty' => false),
-			'range' => array('rule' => array('between', 1, 5), 'allowEmpty' => false),
+			'between' => array('rule' => array('lengthBetween', 1, 5), 'allowEmpty' => false),
 		);
 
 		$Validator->add('other', $set);
@@ -2136,11 +2136,11 @@ class ModelValidationTest extends BaseModelTest {
 		$validators = $rules->getRules();
 		$this->assertCount(2, $validators);
 		$this->assertEquals('numeric', $validators['numeric']->rule);
-		$this->assertEquals(array('between', 1, 5), $validators['range']->rule);
+		$this->assertEquals(array('lengthBetween', 1, 5), $validators['between']->rule);
 
 		$set = new CakeValidationSet('other', array(
 			'a' => array('rule' => 'numeric', 'allowEmpty' => false),
-			'b' => array('rule' => array('between', 1, 5), 'allowEmpty' => false),
+			'b' => array('rule' => array('lengthBetween', 1, 5), 'allowEmpty' => false),
 		));
 
 		$Validator->add('other', $set);
@@ -2403,6 +2403,77 @@ class ModelValidationTest extends BaseModelTest {
 			),
 		);
 		$this->assertEquals($expected, $result);
+	}
+
+/**
+ * Test the isUnique method when used as a validator for multiple fields.
+ *
+ * @return void
+ */
+	public function testIsUniqueValidator() {
+		$this->loadFixtures('Article');
+		$Article = ClassRegistry::init('Article');
+		$Article->validate = array(
+			'user_id' => array(
+				'duplicate' => array(
+					'rule' => array('isUnique', array('user_id', 'title'), false)
+				)
+			)
+		);
+		$data = array(
+			'user_id' => 1,
+			'title' => 'First Article',
+		);
+		$Article->create($data);
+		$this->assertFalse($Article->validates(), 'Contains a dupe');
+
+		$data = array(
+			'user_id' => 1,
+			'title' => 'Unique Article',
+		);
+		$Article->create($data);
+		$this->assertTrue($Article->validates(), 'Should pass');
+
+		$Article->validate = array(
+			'user_id' => array(
+				'duplicate' => array(
+					'rule' => array('isUnique', array('user_id', 'title'))
+				)
+			)
+		);
+		$data = array(
+			'user_id' => 1,
+			'title' => 'Unique Article',
+		);
+		$Article->create($data);
+		$this->assertFalse($Article->validates(), 'Should fail, conditions are combined with or');
+	}
+
+/**
+ * Test backward compatibility of the isUnique method when used as a validator for a single field.
+ *
+ * @return void
+ */
+	public function testBackwardCompatIsUniqueValidator() {
+		$this->loadFixtures('Article');
+		$Article = ClassRegistry::init('Article');
+		$Article->validate = array(
+			'title' => array(
+				'duplicate' => array(
+					'rule' => 'isUnique',
+					'message' => 'Title must be unique',
+				),
+				'minLength' => array(
+					'rule' => array('minLength', 1),
+					'message' => 'Title cannot be empty',
+				),
+			)
+		);
+		$data = array(
+			'title' => 'First Article',
+		);
+		$data = $Article->create($data);
+		$this->assertFalse($Article->validates(), 'Contains a dupe');
 	}
 
 }

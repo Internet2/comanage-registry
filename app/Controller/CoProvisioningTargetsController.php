@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Provisioning Target Controller
  *
- * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -135,6 +135,38 @@ class CoProvisioningTargetsController extends StandardController {
   }
   
   /**
+   * Obtain all CO Provisioning Targets
+   *
+   * @since  COmanage Registry v0.9.2
+   */
+
+  public function index() {
+    parent::index();
+    
+    if(!$this->restful) {
+      // Pull the list of CO Person IDs and CO Group IDs to faciliate "Reprovision All".
+      // We include all people and groups, even those not active, so we can unprovision
+      // as needed.
+      
+      $args = array();
+      $args['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('CoPerson.id', 'CoPerson.status');
+      $args['order'] = array('CoPerson.id' => 'asc');
+      $args['contain'] = false;
+      
+      $this->set('vv_co_people', $this->CoProvisioningTarget->Co->CoPerson->find('list', $args));
+      
+      $args = array();
+      $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('CoGroup.id', 'CoGroup.status');
+      $args['order'] = array('CoGroup.id' => 'asc');
+      $args['contain'] = false;
+      
+      $this->set('vv_co_groups', $this->CoProvisioningTarget->Co->CoGroup->find('list', $args));
+    }
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -149,9 +181,8 @@ class CoProvisioningTargetsController extends StandardController {
     // Is this a record we can manage?
     $managed = false;
     
-    if(isset($roles['copersonid'])
-       && $roles['copersonid']
-       && isset($this->request->params['named']['copersonid'])
+    if(!empty($roles['copersonid'])
+       && !empty($this->request->params['named']['copersonid'])
        && $this->action == 'provision') {
       $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
                                                         $this->request->params['named']['copersonid']);
@@ -177,6 +208,9 @@ class CoProvisioningTargetsController extends StandardController {
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']
                        || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
+    // (Re)provision all CO People?
+    $p['provisionall'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View an existing CO Provisioning Target?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);

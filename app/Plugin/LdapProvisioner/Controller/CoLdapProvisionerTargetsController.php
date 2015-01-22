@@ -37,6 +37,24 @@ class CoLdapProvisionerTargetsController extends SPTController {
   );
   
   /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v0.9.2
+   */
+  
+  function beforeRender() {
+    parent::beforeRender();
+    
+    $this->set('supportedAttributes', $this->CoLdapProvisionerTarget->supportedAttributes());
+    
+    // Populate variable with available extended types
+    $this->set('address_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->CoPersonRole->Address->types($this->cur_co['Co']['id'], 'type'));
+    $this->set('email_address_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
+    $this->set('identifier_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+    $this->set('telephone_number_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->CoPersonRole->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
+  }
+  
+  /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.
    *
@@ -62,28 +80,6 @@ class CoLdapProvisionerTargetsController extends SPTController {
     }
     
     return true;
-  }
-  
-  /**
-   * Update a Standard Object.
-   * - precondition: Model specific attributes in $this->request->data (optional)
-   * - precondition: <id> must exist
-   * - postcondition: On GET, $<object>s set (HTML)
-   * - postcondition: On POST success, object updated
-   * - postcondition: On POST, session flash message updated (HTML) or HTTP status returned (REST)
-   * - postcondition: On POST error, $invalid_fields set (REST)
-   *
-   * @since  COmanage Registry v0.8
-   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
-   */
-  
-  function edit($id) {
-    $this->set('supportedAttributes', $this->CoLdapProvisionerTarget->supportedAttributes());
-    
-    // As an interim hack, populate a variable with the available Identifier types (CO-370)
-    $this->set('identifier_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Identifier->types($this->cur_co['Co']['id']));
-    
-    parent::edit($id);
   }
   
   /**

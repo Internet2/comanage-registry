@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Controller
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -218,27 +218,41 @@ class OrgIdentitiesController extends StandardController {
    */
   
   function find() {
-    // Set page title
-    $this->set('title_for_layout', _txt('op.find.inv'));
-
-    // XXX we currently don't validate $coid since we just pass it back to the
-    // co_person controller, which will validate it
-    $this->set('cur_co', $this->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($this->request->params['named']['co']));
-
+    if(!empty($this->request->params['named']['copersonid'])) {
+      // Find the CO Person name
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
+      $args['contain'][] = 'PrimaryName';
+      
+      $cop = $this->OrgIdentity->CoOrgIdentityLink->CoPerson->find('first', $args);
+      
+      if(!empty($cop['PrimaryName'])) {
+        $this->set('title_for_layout', _txt('op.find.link', array(generateCn($cop['PrimaryName']))));
+      } else {
+        $this->Session->setFlash(_txt('er.notfound',
+                                      array(_txt('ct.co_people.1'), Sanitize::html($this->request->params['named']['copersonid']))),
+                                 '', array(), 'error');
+        $this->performRedirect();
+      }
+    } else {
+      $this->set('title_for_layout', _txt('op.find.inv', array($this->cur_co['Co']['name'])));
+    }
+    
+    $this->set('cur_co', $this->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($this->cur_co['Co']['id']));
+    
     // Use server side pagination
     
     $this->Paginator->settings = $this->paginate;
+    $this->Paginator->settings['contain'] = $this->view_contains;
+    
     if(!isset($this->viewVars['pool_org_identities'])
        || !$this->viewVars['pool_org_identities']) {
       $this->set('org_identities',
                  $this->Paginator->paginate('OrgIdentity',
                                       array("OrgIdentity.co_id" => $this->cur_co['Co']['id'])));
     } else {
-      $this->set('org_identities', $this->Paginator-> paginate('OrgIdentity'));
+      $this->set('org_identities', $this->Paginator->paginate('OrgIdentity'));
     }
-    
-    // Don't user server side pagination
-    //$this->set('org_identities', $this->CoPersonRole->OrgIdentity->find('all'));
   }
   
   /**
@@ -260,8 +274,20 @@ class OrgIdentitiesController extends StandardController {
       return(generateCn($this->data['PrimaryName']));
     elseif(isset($c['PrimaryName']))
       return(generateCn($c['PrimaryName']));
-    else
-      return("(?)");
+    elseif(!empty($this->request->data['OrgIdentity']['id'])) {
+      // Pull the PrimaryName
+      $args = array();
+      $args['conditions']['OrgIdentity.id'] = $this->request->data['OrgIdentity']['id'];
+      $args['contain'][] = 'PrimaryName';
+      
+      $p = $this->OrgIdentity->find('first', $args);
+      
+      if($p) {
+        return generateCn($p['PrimaryName']);
+      }
+    }
+    
+    return("(?)");
   }
 
   /**
@@ -297,7 +323,11 @@ class OrgIdentitiesController extends StandardController {
                                                   $this->Session->read('Auth.User.co_person_id'),
                                                   ActionEnum::OrgIdEditedManual,
                                                   _txt('en.action', null, ActionEnum::OrgIdEditedManual) . ": " .
-                                                  $this->changesToString($newdata, $olddata, array('OrgIdentity', 'PrimaryName')));
+                                                  $this->OrgIdentity->changesToString($newdata,
+                                                                                      $olddata,
+                                                                                      (!empty($this->cur_co['Co']['id'])
+                                                                                       ? $this->cur_co['Co']['id']
+                                                                                       : null)));
         break;
     }
     
@@ -437,46 +467,60 @@ class OrgIdentitiesController extends StandardController {
     // Use server side pagination
     
     if($this->requires_co) {
-      $pagcond['OrgIdentity.co_id'] = $this->cur_co['Co']['id'];
+      $pagcond['conditions']['OrgIdentity.co_id'] = $this->cur_co['Co']['id'];
     }
 
     // Filter by given name
     if(!empty($this->params['named']['Search.givenName'])) {
-      $searchterm = $this->params['named']['Search.givenName'];
-      $pagcond['PrimaryName.given LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.givenName']);
+      $pagcond['conditions']['LOWER(PrimaryName.given) LIKE'] = "%$searchterm%";
     }
 
     // Filter by Family name
     if(!empty($this->params['named']['Search.familyName'])) {
-      $searchterm = $this->params['named']['Search.familyName'];
-      $pagcond['PrimaryName.family LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.familyName']);
+      $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "%$searchterm%";
     }
 
     // Filter by Organization
     if(!empty($this->params['named']['Search.organization'])) {
-      $searchterm = $this->params['named']['Search.organization'];
-      $pagcond['OrgIdentity.o LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.organization']);
+      $pagcond['conditions']['LOWER(OrgIdentity.o) LIKE'] = "%$searchterm%";
     }
 
-    // Filter by given department
+    // Filter by Department
     if(!empty($this->params['named']['Search.department'])) {
-      $searchterm = $this->params['named']['Search.department'];
-      $pagcond['OrgIdentity.ou LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.department']);
+      $pagcond['conditions']['LOWER(OrgIdentity.ou) LIKE'] = "%$searchterm%";
     }
 
     // Filter by title
     if(!empty($this->params['named']['Search.title'])) {
-      $searchterm = $this->params['named']['Search.title'];
-      $pagcond['OrgIdentity.title LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.title']);
+      $pagcond['conditions']['LOWER(OrgIdentity.title) LIKE'] = "%$searchterm%";
     }
 
     // Filter by affiliation
     if(!empty($this->params['named']['Search.affiliation'])) {
-      $searchterm = $this->params['named']['Search.affiliation'];
-      $pagcond['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
+      $searchterm = strtolower($this->params['named']['Search.affiliation']);
+      $pagcond['conditions']['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
     }
     
-    return($pagcond);
+    // Filter by identifier
+    if(!empty($this->params['named']['Search.identifier'])) {
+      $searchterm = strtolower($this->params['named']['Search.identifier']);
+      $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
+      $pagcond['joins'][] = array(
+        'table' => 'identifiers',
+        'alias' => 'Identifier',
+        'type' => 'INNER',
+        'conditions' => array(
+          'Identifier.org_identity_id=OrgIdentity.id' 
+        )
+      );
+    }
+    
+    return $pagcond;
   }
 
 

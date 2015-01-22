@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Search
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -55,6 +55,16 @@ global $cm_lang, $cm_texts;
       </tr>
       <tr>
         <td>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.identifier.identifier');
+            
+            print $this->Form->input('Search.identifier', $args);
+          ?>
+        </td>
+      </tr>
+      <tr>
+        <td>
           <?php print $this->Form->input('Search.organization'); ?>
         </td>
       </tr>
@@ -71,7 +81,7 @@ global $cm_lang, $cm_texts;
       <tr>
         <td>
           <?php
-            $searchOptions = $cm_texts[ $cm_lang ]['en.affil'];
+            $searchOptions = $cm_texts[ $cm_lang ]['en.org_identity.affiliation'];
             $formParams = array('options' => $searchOptions,
                                 'type'    => 'select',
                                 'empty'   => '',

@@ -60,28 +60,359 @@ class AppModel extends Model {
   }
   
   /**
-   * For models that support Extended Types, obtain the default types.
+   * Compare one model's worth of data and generate a string describing what changed, suitable for
+   * including in a history record.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String  $model   Model being examined
+   * @param  Array   $newdata New data, in Cake single instance format
+   * @param  Array   $olddata Old data, in Cake single instance format
+   * @param  Integer $coId    CO ID, if known
+   * @param  Array   $attrs   Array of model attributes to examine
+   * @return Array Array of string describing changes
+   */
+  
+  protected function changesForModel($model, $newdata, $olddata, $coId, $attrs) {
+    global $cm_texts, $cm_lang;
+    
+    $changes = array();
+    
+    foreach($attrs as $attr) {
+      // Skip some "housekeeping" keys. Don't blanket skip all *_id attributes
+      // since some foreign keys should be tracked (eg: cou_id, sponsor_co_person_id).
+      if($attr == 'id'
+         // We can generally skip CO ID since attributes can't move across COs.
+         || $attr == 'co_id'
+         // We can generally skip co_person_id and org_identity_id since changing those
+         // requires a relink operation that will generate its own history
+         || $attr == 'co_person_id'
+         || $attr == 'org_identity_id'
+         // Skip record metadata
+         || $attr == 'created'
+         || $attr == 'modified') {
+        continue;
+      }
+      
+      // Skip further nested arrays
+      if((isset($newdata[$attr]) && is_array($newdata[$attr]))
+          || (isset($olddata[$attr]) && is_array($olddata[$attr]))) {
+        continue;
+      }
+      
+      if(preg_match('/.*_id$/', $attr)) {
+        // Foreign keys need to be handled specially. Start by figuring out the model.
+        
+        if(preg_match('/.*_co_person_id$/', $attr)) {
+          // This is a foreign key to a CO Person (eg: sponsor_co_person)
+          
+          // Chop off _co_person_id
+          $afield = substr($attr, 0, strlen($attr)-13);
+          $amodel = "CoPerson";
+        } else {
+          // Chop off _id
+          $afield = substr($attr, 0, strlen($attr)-3);
+          $amodel = Inflector::camelize(rtrim($attr, "_id"));
+        }
+        
+        // Instantiated foreign key model
+        $fkmodel = ClassRegistry::init($amodel);
+        
+        $ftxt = $afield;
+        
+        // XXX this isn't really an ideal way to see if a language key exists (here or below)
+        if(!empty($cm_texts[ $cm_lang ]['fd.' . $afield])) {
+          $ftxt = $cm_texts[ $cm_lang ]['fd.' . $afield];
+        }
+        
+        // Get the old and new values
+        
+        $oldval = (isset($olddata[$attr]) && $olddata[$attr] != "") ? $olddata[$attr] : null;
+        $newval = (isset($newdata[$attr]) && $newdata[$attr] != "") ? $newdata[$attr] : null;
+        
+        // Make sure they're actually different (we may get some foreign keys here that aren't)
+        
+        if($oldval == $newval) {
+          continue;
+        }
+        
+        if($amodel == "CoPerson" || $amodel == "OrgIdentity") {
+          // Display field is Primary Name. Pull the old and new CO People/Org Identity in
+          // one query, though we won't know which one we'll get back first.
+          
+          $args = array();
+          $args['conditions'][$amodel.'.id'] = array($oldval, $newval);
+          $args['contain'][] = 'PrimaryName';
+          
+          $ppl = $fkmodel->find('all', $args);
+          
+          if(!empty($ppl)) {
+            // Walk through the result set to figure out which one is old and which is new
+            
+            foreach($ppl as $c) {
+              if(!empty($c[$amodel]['id']) && !empty($c['PrimaryName'])) {
+                if($c[$amodel]['id'] == $oldval) {
+                  $oldval = generateCn($c['PrimaryName']) . " (" . $oldval . ")";
+                } elseif($c[$amodel]['id'] == $newval) {
+                  $newval = generateCn($c['PrimaryName']) . " (" . $newval . ")";
+                }
+              }
+            }
+          }
+        } else {
+          // Lookup a human readable string (usually name or something) and prepend it to the ID
+          
+          $oldval = $fkmodel->field($fkmodel->displayField, array('id' => $oldval)) . " (" . $oldval . ")";
+          $newval = $fkmodel->field($fkmodel->displayField, array('id' => $newval)) . " (" . $newval . ")";
+        }
+      } else {
+        // Simple field in the model
+        
+        $oldval = (isset($olddata[$attr]) && $olddata[$attr] != "") ? $olddata[$attr] : null;
+        $newval = (isset($newdata[$attr]) && $newdata[$attr] != "") ? $newdata[$attr] : null;
+        
+        // See if we're working with a type, and if so use the localized string instead
+        // (if we can find it)
+        
+        $fmodel = null;
+        
+        // Use name (not alias) here so (eg) EnrolleeCoPerson works correctly
+        if($model == $this->name) {
+          // We are the model we want
+          $fmodel = $this;
+        } elseif($model == $this->$model->name) {
+          // For now we assume there is a direct association possible
+          $fmodel = $this->$model;
+        }
+        
+        if($fmodel) {
+          if(isset($fmodel->cm_enum_txt[$attr])) {
+            // The model defines a key into lang.php texts to use for localization.
+            
+            if($oldval) {
+              $oldval = _txt($fmodel->cm_enum_txt[$attr], null, $oldval) . " (" . $oldval . ")";
+            }
+            if($newval) {
+              $newval = _txt($fmodel->cm_enum_txt[$attr], null, $newval) . " (" . $newval . ")";
+            }
+          } else {
+            // This is possibly a model with an Extended Type. Try looking up the mapping.
+            // It would be best if we could pull the CO ID from the data we're passed, but
+            // in general MVPAs don't point directly to CO ID. We could look it up, but instead
+            // we'll just expect it to be passed in.
+            
+            if($coId) {
+              $mTypes = $fmodel->types($coId, $attr);
+              
+              if(!empty($mTypes)) {
+                if($oldval) {
+                  $oldval = $mTypes[$oldval] . " (" . $oldval . ")";
+                }
+                if($newval) {
+                  $newval = $mTypes[$newval] . " (" . $newval . ")";
+                }
+              }
+            }
+          }
+        }
+        
+        // Find the localization of the field
+        
+        $ftxt = "(?)";
+        
+        if(($model == 'Name' || $model == 'PrimaryName') && $attr != 'type') {
+          // Treat name specially
+          $ftxt = _txt('fd.name.'.$attr);
+        } else {
+          // Inflect the model name and see if fd.model.attr exists
+          
+          $imodel = Inflector::underscore($model);
+          
+          // XXX this isn't really an ideal way to see if a language key exists (here or above)
+          if(!empty($cm_texts[ $cm_lang ]['fd.' . $imodel . '.' . $attr])) {
+            $ftxt = _txt('fd.' . $imodel . '.' . $attr);
+          } else {
+            // Otherwise see if the attribute by itself exists
+            $ftxt = _txt('fd.' . $attr);
+          }
+        }
+      }
+      
+      // Finally, render the change string based on the attributes found above.
+      // Notate going to or from NULL only if $newdata or $olddata (as appropriate)
+      // was populated, so as to avoid noise when a related object is added or
+      // deleted.
+      
+      if(isset($newval) && !isset($oldval)) {
+        $changes[] = $ftxt . ": " . (isset($olddata) ? _txt('fd.null') . " > " : "") . $newval;
+      } elseif(!isset($newval) && isset($oldval)) {
+        $changes[] = $ftxt . ": " . $oldval . (isset($newdata) ? " > " . _txt('fd.null') : "");
+      } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
+        $changes[] = $ftxt . ": " . $oldval . " > " . $newval;
+      }
+    }
+    
+    return $changes;
+  }
+  
+  /**
+   * Compare two arrays and generate a string describing what changed, suitable for
+   * including in a history record.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Array New data, in typical Cake format
+   * @param  Array Old data, in typical Cake format
+   * @param  Integer CO ID, if known
+   * @param  Array Additional Models to examine within new and old data
+   * @param  Array Array of Extended Attributes, if known
+   * @return String String describing changes
+   */
+    
+  public function changesToString($newdata, $olddata, $coId = null, $additionalModels = array(), $extendedAttrs = array()) {
+    // We assume $newdata and $olddate are intended to have the same structure, however
+    // we require $models to be specified since different controllers may pull different
+    // levels of containable or recursion data, and so we don't know how many associated
+    // models will appear in $newdata and/or $olddata.
+    
+    $changes = array();
+    
+    $models = array($this->name);
+    $models = array_merge($models, $additionalModels);
+    
+    foreach($models as $model) {
+      if($model == 'ExtendedAttribute') {
+        // Handle extended attributes differently, as usual
+        
+        if(isset($extendedAttrs)) {
+          // First, calculate the real model name
+          $eaModel = "Co" . $coId . "PersonExtendedAttribute";
+          
+          foreach($extendedAttrs as $extAttr) {
+            $oldval = null;
+            $newval = null;
+            
+            // Grab the name of this attribute and lowercase it to match the data model
+            $eaName = strtolower($extAttr['name']);
+            $eaDisplayName = $extAttr['display_name'];
+            
+            // Try to find the attribute in the data
+            
+            if(isset($newdata[$eaModel][$eaName]) && ($newdata[$eaModel][$eaName] != "")) {
+              $newval = $newdata[$eaModel][$eaName];
+            }
+            
+            if(isset($olddata[$eaModel][$eaName]) && ($olddata[$eaModel][$eaName] != "")) {
+              $oldval = $olddata[$eaModel][$eaName];
+            }
+            
+            if(isset($newval) && !isset($oldval)) {
+              $changes[] = $eaDisplayName . ": " . _txt('fd.null') . " > " . $newval;
+            } elseif(!isset($newval) && isset($oldval)) {
+              $changes[] = $eaDisplayName . ": " . $oldval . " > " . _txt('fd.null');
+            } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
+              $changes[] = $eaDisplayName . ": " . $oldval . " > " . $newval;
+            }
+          }
+        }
+      } else {
+        // Walk through old and new data to correlate records, and while we're at it
+        // assemble the set of attributes to process
+        
+        $indexedModels = array();
+        $attrs = array();
+        
+        if(isset($newdata[$model][0]) || isset($olddata[$model][0])) {
+          // We've got at least one instance of this model to look at (and for now, that's probably
+          // all we'll get) (eg: $data['TelephoneNumber'][0])
+          
+          foreach($olddata[$model] as $o) {
+            if(!empty($o['id'])) {
+              $indexedModels[ $o['id'] ]['old'] = $o;
+              
+              // Identify the attributes associated with this model
+              $attrs = array_unique(array_merge($attrs, array_keys($o)));
+            }
+            // else no old data (new record added)
+          }
+          
+          foreach($newdata[$model] as $n) {
+            if(!empty($n['id'])) {
+              $indexedModels[ $n['id'] ]['new'] = $n;
+              
+              // Identify the attributes associated with this model
+              $attrs = array_unique(array_merge($attrs, array_keys($n)));
+            } elseif(!empty($n)) {
+              // New record, no ID so use special notation
+              
+              $indexedModels['new']['new'] = $n;
+              
+              // Identify the attributes associated with this model
+              $attrs = array_unique(array_merge($attrs, array_keys($n)));
+            }
+            // else no new data (old record deleted)
+          }
+        } else {
+          // Single instance model (eg:$data['CoPerson'])
+          
+          if(!empty($olddata[$model]['id'])) {
+            $indexedModels[ $olddata[$model]['id'] ]['old'] = $olddata[$model];
+            
+            // Identify the attributes associated with this model
+            $attrs = array_unique(array_merge($attrs, array_keys($olddata[$model])));
+          }
+          // else no old data (new record added)
+          
+          if(!empty($newdata[$model]['id'])) {
+            $indexedModels[ $newdata[$model]['id'] ]['new'] = $newdata[$model];
+            
+            // Identify the attributes associated with this model
+            $attrs = array_unique(array_merge($attrs, array_keys($newdata[$model])));
+          } elseif(!empty($newdata[$model])) {
+            // New record, no ID so use special notation
+            
+            $indexedModels['new']['new'] = $newdata[$model];
+            
+            // Identify the attributes associated with this model
+            $attrs = array_unique(array_merge($attrs, array_keys($newdata[$model])));
+          }
+          // else no new data (old record deleted)
+        }
+        
+        foreach(array_keys($indexedModels) as $mid) {
+          // Note $mid is typically an ID, but can also be the literal 'new' (see above)
+          $changes = array_merge($changes,
+                                 $this->changesForModel($model,
+                                                        (isset($indexedModels[$mid]['new']) ? $indexedModels[$mid]['new'] : array()),
+                                                        (isset($indexedModels[$mid]['old']) ? $indexedModels[$mid]['old'] : array()),
+                                                        $coId,
+                                                        $attrs));
+        }
+      }
+    }
+    
+    return implode(';', $changes);
+  }
+  
+  /**
+   * For models that support Extended Types, obtain the default types for the specified attribute.
    *
    * @since  COmanage Registry v0.6
+   * @param  String Model attribute to obtain defaults for
    * @return Array Default types as key/value pair of name and localized display_name
    */
   
-  public function defaultTypes() {
-    // We currently assume there is only one type and it is called "type". This may
-    // not always be true.
-    
+  public function defaultTypes($attribute) {
     $ret = null;
     
-    if(isset($this->validate['type']['content']['rule'])
-       && is_array($this->validate['type']['content']['rule'])
-       && $this->validate['type']['content']['rule'][0] == 'validateExtendedType'
-       && is_array($this->validate['type']['content']['rule'][1])
-       && isset($this->validate['type']['content']['rule'][1]['default'])) {
+    if(isset($this->validate[$attribute]['content']['rule'])
+       && is_array($this->validate[$attribute]['content']['rule'])
+       && $this->validate[$attribute]['content']['rule'][0] == 'validateExtendedType'
+       && is_array($this->validate[$attribute]['content']['rule'][1])
+       && isset($this->validate[$attribute]['content']['rule'][1]['default'])) {
       // Figure out which language key to use. Note 'en' is the prefix for 'enum'
       // and NOT an abbreviation for 'english'.
-      $langKey = 'en.' . Inflector::underscore($this->name);
+      $langKey = 'en.' . Inflector::underscore($this->name) . '.' . $attribute;
       
-      foreach($this->validate['type']['content']['rule'][1]['default'] as $name) {
+      foreach($this->validate[$attribute]['content']['rule'][1]['default'] as $name) {
         $ret[$name] = _txt($langKey, null, $name);
       }
     }
@@ -277,31 +608,58 @@ class AppModel extends Model {
   }
   
   /**
-   * For models that support Extended Types, obtain the valid types for the specified CO.
+   * Check if a given extended type is in use by any members of a CO.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String Attribute, of the form Model.field
+   * @param  String Type of attribute (any default or extended type may be specified)
+   * @param  Integer CO ID
+   * @return Boolean True if the extended type is in use, false otherwise
+   */
+  
+  public function typeInUse($attribute, $attributeType, $coId) {
+    $args = array();
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['conditions'][$attribute] = $attributeType;
+    $args['contain'] = false;
+    
+    // Is this model attached to CO Person or CO Person Role?
+    if(!empty($this->validate['co_person_id'])) {
+      $args['joins'][0]['table'] = 'co_people';
+      $args['joins'][0]['alias'] = 'CoPerson';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id=' . $this->alias . '.co_person_id';
+    } elseif(!empty($this->validate['co_person_role_id'])) {
+      $args['joins'][0]['table'] = 'co_person_roles';
+      $args['joins'][0]['alias'] = 'CoPersonRole';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPersonRole.id=' . $this->alias . '.co_person_role_id';
+      $args['joins'][1]['table'] = 'co_people';
+      $args['joins'][1]['alias'] = 'CoPerson';
+      $args['joins'][1]['type'] = 'INNER';
+      $args['joins'][1]['conditions'][0] = 'CoPersonRole.co_person_id=CoPerson.id';
+    } else {
+      throw new RuntimeException(_txt('er.notimpl'));
+    }
+    
+    return (boolean)$this->find('count', $args);
+  }
+  
+  /**
+   * For models that support Extended Types, obtain the valid types for the specified CO and attribute.
    *
    * @since  COmanage Registry v0.6
    * @param  Integer CO ID
+   * @param  String Attribute to retrieve
    * @return Array Defined types (including defaults if no extended types) in key/value form suitable for select buttons.
    */
   
-  function types($coId) {
+  public function types($coId, $attribute) {
     $ret = array();
     
     $CoExtendedType = ClassRegistry::init('CoExtendedType');
     
-    $extTypes = $CoExtendedType->active($coId, $this->name, 'all');
-    
-    if(!empty($extTypes)) {
-      foreach($extTypes as $t) {
-        $ret[ $t['CoExtendedType']['name'] ] = $t['CoExtendedType']['display_name'];
-      }
-    } else {
-      // Use the default set
-      
-      $ret = $this->defaultTypes();
-    }
-    
-    return $ret;
+    return $CoExtendedType->active($coId, $this->name . "." . $attribute, 'list');
   }
   
   /**
@@ -309,26 +667,25 @@ class AppModel extends Model {
    *
    * @since  COmanage Registry v0.6
    * @param  array Array of fields to validate
-   * @param  array Array with two keys: 'attribute' holding the attribute model name, and 'default' holding an Array of default values (for use if no extended types are defined)
+   * @param  array Array with up to three keys: 'attribute' holding the attribute model name, and 'default' holding an Array of default values (for use if no extended types are defined), and 'coid' holding the CO ID (optional)
    * @return boolean True if all field strings parses to a valid timestamp, false otherwise
+   * @todo   'attribute' should really be called 'model'
    */
   
   public function validateExtendedType($a, $d) {
     // First obtain active extended types, if any.
     
     $extTypes = array();
+    $coId = null;
     
-    // We need access to the CO ID to know what types are valid, but we don't have it since
-    // $cur_co is attached to the controller and not the model (and we don't directly call
-    // validation -- that's done in the core of Cake). As an interim hack, beforeFilter
-    // or checkRestPost will set the CO ID for us. However, the better approach (possible with
-    // Cake 2.2) is to generate a dynamic validation rule is the controller, using the current
-    // CO as an argument. See CO-368.
+    if(!empty($d['coid'])) {
+      $coId = $d['coid'];
+    }
     
-    if(isset($this->coId)) {
+    if($coId) {
       $CoExtendedType = ClassRegistry::init('CoExtendedType');
       
-      $extTypes = $CoExtendedType->active($this->coId, $d['attribute']);
+      $extTypes = $CoExtendedType->active($coId, $d['attribute']);
     }
     // else some models can be used with Org Identities (ie: MVPA controllers). When used
     // with org identities, we currently don't support extended types.

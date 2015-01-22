@@ -48,15 +48,17 @@ class CoIdentifierAssignment extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'identifier_type' => array(
-      'rule' => array('validateExtendedType',
-                      array('attribute' => 'Identifier',
-                            'default' => array(IdentifierEnum::ePPN,
-                                               IdentifierEnum::ePTID,
-                                               IdentifierEnum::Mail,
-                                               IdentifierEnum::OpenID,
-                                               IdentifierEnum::UID))),
-      'required' => false,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'Identifier.type',
+                              'default' => array(IdentifierEnum::ePPN,
+                                                 IdentifierEnum::ePTID,
+                                                 IdentifierEnum::Mail,
+                                                 IdentifierEnum::OpenID,
+                                                 IdentifierEnum::UID))),
+        'required' => false,
+        'allowEmpty' => false
+      )
     ),
     'email_type' => array(
       'rule' => array(
@@ -148,8 +150,7 @@ class CoIdentifierAssignment extends AppModel {
     $assignEmail = false;
     
     if($coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'] == 'mail'
-       && isset($coIdentifierAssignment['CoIdentifierAssignment']['email_type'])
-       && $coIdentifierAssignment['CoIdentifierAssignment']['email_type'] != '') {
+       && !empty($coIdentifierAssignment['CoIdentifierAssignment']['email_type'])) {
       $assignEmail = true;
     }
     
@@ -230,16 +231,31 @@ class CoIdentifierAssignment extends AppModel {
         // We have a new candidate (ie: one that wasn't generated on a previous loop),
         // so let's see if it is already in use.
         
-        if($this->Co->CoPerson->Identifier->checkAvailability($candidate,
-                                                              $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
-                                                              $coIdentifierAssignment['CoIdentifierAssignment']['co_id'])) {
+        if(($assignEmail
+            && $this->Co->CoPerson->EmailAddress->checkAvailability($candidate,
+                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['email_type'],
+                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['co_id']))
+           ||
+           (!$assignEmail
+            && $this->Co->CoPerson->Identifier->checkAvailability($candidate,
+                                                                  $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
+                                                                  $coIdentifierAssignment['CoIdentifierAssignment']['co_id']))) {
           // This one's good... insert it into the table and break the loop
+          
+          // We need to update the appropriate validation rule with the current CO ID
+          // so that extended types can validate correctly. In order to do that, we need
+          // the CO ID. We'll pick it out of the CO Identifier Assignment data.
+          
+          $coId = $coIdentifierAssignment['CoIdentifierAssignment']['co_id'];
           
           if($assignEmail) {
             $emailAddressData = array();
             $emailAddressData['EmailAddress']['mail'] = $candidate;
             $emailAddressData['EmailAddress']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['email_type'];
             $emailAddressData['EmailAddress']['co_person_id'] = $coPerson['CoPerson']['id'];
+            
+            // We need to update the Email Address validation rule
+            $this->Co->CoPerson->EmailAddress->validate['type']['content']['rule'][1]['coid'] = $coId;
             
             // We need to call create to reset the model state since we're (possibly) doing multiple distinct
             // saves against the same model.
@@ -255,6 +271,9 @@ class CoIdentifierAssignment extends AppModel {
             $identifierData['Identifier']['login'] = $coIdentifierAssignment['CoIdentifierAssignment']['login'];
             $identifierData['Identifier']['co_person_id'] = $coPerson['CoPerson']['id'];
             $identifierData['Identifier']['status'] = StatusEnum::Active;
+            
+            // We need to update the Identifier validation rule
+            $this->Co->CoPerson->Identifier->validate['type']['content']['rule'][1]['coid'] = $coId;
             
             // We need to call create to reset the model state since we're (possibly) doing multiple distinct
             // saves against the same model.
@@ -509,5 +528,36 @@ class CoIdentifierAssignment extends AppModel {
     
     return $base;
   }
+  
+  /**
+   * Check if a given extended type is in use by any CO Identifier Assignment.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String Attribute, of the form Model.field
+   * @param  String Name of attribute (any default or extended type may be specified)
+   * @param  Integer CO ID
+   * @return Boolean True if the extended type is in use, false otherwise
+   */
+  
+  public function typeInUse($attribute, $attributeName, $coId) {
+    // Note we are effectively overriding AppModel::typeInUse().
+    
+    // Inflect the model names
+    $attr = explode('.', $attribute, 2);
+    
+    if($attr[0] == 'Identifier' && $attr[1] == 'type') {
+      // For MVPA attribute, we need to see if the type is specified as part of the
+      // attribute name.
+      
+      $args = array();
+      $args['conditions']['CoIdentifierAssignment.identifier_type'] = $attributeName;
+      $args['conditions']['CoIdentifierAssignment.co_id'] = $coId;
+      $args['contain'] = false;
+      
+      return (boolean)$this->find('count', $args);
+    }
+    // else nothing to do
+    
+    return false;
+  }
 }
-

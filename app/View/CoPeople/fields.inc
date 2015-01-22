@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Fields
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -51,15 +51,23 @@
   $this->Html->addCrumb(_txt('me.population'), $args);
   if($this->action == "canvas") {
     $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']));
+  } elseif($this->action == "invite") {
+    $args = array(
+      'controller' => 'org_identities',
+      'action' => 'edit',
+      $co_people[0]['CoOrgIdentityLink'][0]['org_identity_id']
+    );
+    
+    $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']), $args);
+    $this->Html->addCrumb(_txt('op.inv'));
   } else {
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',
-      $co_people[0]['CoPerson']['id']);
+      $co_people[0]['CoPerson']['id']
+    );
+    
     $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']), $args);
-    if($this->action == "invite") {
-      $this->Html->addCrumb(_txt('op.invite'));
-    }
   }
   
   // Add buttons to sidebar
@@ -216,7 +224,6 @@
   }
 
   $(function() {
-
     // Explorer menu toggles
     $(".fieldGroupName").click(function(event) {
       event.preventDefault();
@@ -289,7 +296,6 @@
 
         <ul class="fields">
           <li>
-
             <div id="tabs-name" class="additionalinfo">
             <table>
             <?php if($this->action == 'invite'): ?>
@@ -362,7 +368,8 @@
                   <?php print _txt('fd.type'); ?>
                 </th>
                 <td>
-                  <?php print _txt('en.name', null, NameEnum::Official); ?>
+                  <?php // CO-955 nametype official needs to exist, but probably should be configurable ?>
+                  <?php print _txt('en.name.type', null, NameEnum::Official); ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -421,7 +428,7 @@
                     print generateCn($n)
                       . " ("
                       . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                      . _txt('en.name', null, $n['type'])
+                      . $vv_cop_name_types[ $n['type'] ]
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";
                     ?>
@@ -438,7 +445,7 @@
                     print generateCn($n)
                       . " ("
                       . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                      . _txt('en.name', null, $n['type'])
+                      . $vv_cop_name_types[ $n['type'] ]
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";
                     ?>
@@ -467,7 +474,7 @@
 
                     print "&nbsp;("
                       . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                      . _txt('en.name', null, $n['type'])
+                      . $vv_cop_name_types[ $n['type'] ]
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";
                     ?>
@@ -556,7 +563,7 @@
                         print '<div>';
                         print '<div>';
                         print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
-                        print " &#160;(" . $id['type'] . ")";
+                        print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
                         print '</div>';
                         print '<div>';
                         // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
@@ -678,7 +685,7 @@
                         print '<div>';
                         print '<div>';
                         print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
-                        print " &nbsp;(" . _txt('en.contact.mail', null, $ea['type']) . ", "
+                        print " &nbsp;(" . $vv_cop_emailaddress_types[ $ea['type'] ] . ", "
                           . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
                         print '</div>';
                         print '<div>';
@@ -694,7 +701,7 @@
                         print '">';
                         $l++;
                         print '<td>';
-                        print Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")\n";
+                        print Sanitize::html($ea['mail']) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
                         print '</td>';
                         print '</tr>';
                       }
@@ -724,7 +731,7 @@
                         print '">';
                         $l++;
                         print '<td>';
-                        print Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")\n";
+                        print Sanitize::html($ea['mail']) . " (" . _txt('en.email_address.type', null, $ea['type']) . ")\n";
                         print '</td>';
                         print '</tr>';
 
@@ -775,8 +782,8 @@
                     <?php
                     if(isset($co_people[0]['CoGroupMember'])) {
                       if($e && !$es) { // XXX !$es is probably the wrong permission here
-                        if(isset($co_people[0]['CoGroupMember'])) {
-                          foreach($co_people[0]['CoGroupMember'] as $g) {
+                        foreach($co_people[0]['CoGroupMember'] as $g) {
+                          if($g['member'] || $g['owner']) {
                             print '<div>';
                             print '<div>';
                             print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
@@ -953,7 +960,7 @@
                               <td>
                                 <?php
                                 if(isset($org_identities[0]['OrgIdentity']['affiliation']))
-                                  print $cm_texts[ $cm_lang ]['en.affil'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
+                                  print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
                                 ?>
                               </td>
                             </tr>
@@ -970,7 +977,7 @@
                                 <td><?php if(isset($r['Cou']['name'])) print Sanitize::html($r['Cou']['name']); ?></td>
                               <?php endif; // compare ?>
                               <td><?php if(isset($r['title'])) print Sanitize::html($r['title']); ?></td>
-                              <td><?php if(isset($r['affiliation'])) print $cm_texts[ $cm_lang ]['en.affil'][ $r['affiliation'] ]; ?></td>
+                              <td><?php if(isset($r['affiliation'])) print $vv_copr_affiliation_types[ $r['affiliation'] ]; ?></td>
                               <td><?php if(isset($r['valid_from']) && $r['valid_from'] > 0) print $this->Time->format('Y M d', $r['valid_from']); ?></td>
                               <td><?php if(isset($r['valid_through']) && $r['valid_through'] > 0) print $this->Time->format('Y M d', $r['valid_through']); ?></td>
                               <?php if($this->action != "compare"): ?>
@@ -1110,6 +1117,22 @@
           </ul>
         </li>
         <li id="fields-orgid" class="fieldGroup">
+          <?php
+            if($e) {
+              print '<div class="coAddEditButtons">';
+              $linktarget = array(
+                'controller' => 'org_identities',
+                'action'     => 'find',
+                'copersonid' => $co_people[0]['CoPerson']['id']
+              );
+              $linkparams = array('class' => 'addbutton');
+              
+              print $this->Html->link(_txt('op.link'),
+                                      $linktarget,
+                                      $linkparams);
+              print '</div>';
+            }
+          ?>
           <a href="#tabs-orgid" class="fieldGroupName">
             <span class="ui-icon ui-icon-circlesmall-minus"></span>
             <?php print _txt('ct.org_identities.pl'); ?>
@@ -1145,7 +1168,7 @@
                             <td>
                               <?php
                               if(isset($link['OrgIdentity']['affiliation']))
-                                print $cm_texts[ $cm_lang ]['en.affil'][ $link['OrgIdentity']['affiliation'] ];
+                                print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $link['OrgIdentity']['affiliation'] ];
                               ?>
                             </td>
                             <td>

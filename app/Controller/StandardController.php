@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Standard Controller
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -81,6 +81,9 @@ class StandardController extends AppController {
       return;
     
     if($model->saveAll($data)) {
+      // Reread the data so we account for any normalizations
+      $data = $model->read();
+      
       if(!$this->recordHistory('add', $data)
          || !$this->checkWriteFollowups($data)) {
         if(!$this->restful) {
@@ -404,6 +407,9 @@ class StandardController extends AppController {
 
     if($model->saveAll($data))
     {
+      // Reread the data so we account for any normalizations
+      $data = $model->read();
+      
       // Update the view var in case the controller requires the updated values
       // for performRedirect or some other post-processing.
       
@@ -472,7 +478,9 @@ class StandardController extends AppController {
       
       $m = explode('.', $model->displayField, 2);
       
-      if(isset($this->request->data[ $m[0] ][ $m[1] ])) {
+      if(!empty($c[ $m[0] ][ $m[1] ])) {
+        return $c[ $m[0] ][ $m[1] ];
+      } elseif(!empty($this->request->data[ $m[0] ][ $m[1] ])) {
         return $this->request->data[ $m[0] ][ $m[1] ];
       }
     } else {
@@ -515,13 +523,15 @@ class StandardController extends AppController {
 
     if(isset($this->view_recursion))
       $model->recursive = $this->view_recursion;
+    // XXX we explicitly support view_contains when processing paginationConditions,
+    // even though we don't (currently) support it elsewhere in this function
       
     // XXX The various sub-filters here (eg: findByCoPersonId) should be merged into
     // the new paginationConditions method.
 
     if($this->restful)
     {
-      // Don't user server side pagination
+      // Don't use server side pagination
 
       if($this->requires_person)
       {
@@ -693,7 +703,19 @@ class StandardController extends AppController {
       else
       {
         // Configure pagination
-        $this->paginate['conditions'] = $this->paginationConditions();
+        
+        $local = $this->paginationConditions();
+        
+        $this->paginate['conditions'] = $local['conditions'];
+        
+        if(!empty($local['joins'])) {
+          $this->paginate['joins'] = $local['joins'];
+        }
+        
+        if(isset($this->view_contains)) {
+          $this->paginate['contain'] = $this->view_contains;
+        }
+        
         $this->Paginator->settings = $this->paginate;
         
         $this->set($modelpl, $this->Paginator->paginate($req));
@@ -741,22 +763,31 @@ class StandardController extends AppController {
    * @return Array An array suitable for use in $this->paginate
    */
   
-  function paginationConditions() {
+  public function paginationConditions() {
     // Get a pointer to our model
     $req = $this->modelClass;
     
-    if(isset($this->cur_co))
-    {
+    $ret = array();
+    
+    if(!empty($this->cur_co)) {
       // Only retrieve members of the current CO
-      
-      return(array(
-        $req.'.co_id' => $this->cur_co['Co']['id']
-      ));
+      $ret['conditions'][$req.'.co_id'] = $this->cur_co['Co']['id'];
     }
 
-    return(array());
+    return $ret;
   }
-
+  
+  /**
+   * Determine the join conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @return Array An array suitable for use in $this->paginate
+   */
+  
+  public function paginationJoins() {
+    return null;
+  }
+  
   /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated

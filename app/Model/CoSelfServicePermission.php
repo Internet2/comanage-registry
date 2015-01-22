@@ -170,7 +170,7 @@ class CoSelfServicePermission extends AppModel {
     
     // Populate missing default values for supported models
     
-    $attrs = $this->supportedAttrs();
+    $attrs = $this->supportedAttrs($coId);
     
     foreach(array_keys($attrs['models']) as $m) {
       if(!$model || $m == $model) {
@@ -188,12 +188,13 @@ class CoSelfServicePermission extends AppModel {
    * Assemble a list of supported models, suitable for use in generating a select.
    *
    * @since  COmanage Registry 0.9
+   * @param  Integer $coId CO ID
    * @return Array Two hashes: 'models' with model name as key and localized text as value
    *                           'types' with model name as key and another array as value,
    *                            holding type name as key and localized text as value
    */
   
-  public function supportedAttrs() {
+  public function supportedAttrs($coId) {
     $ret = array();
     
     $ret['models'] = array(
@@ -209,11 +210,51 @@ class CoSelfServicePermission extends AppModel {
     foreach(array_keys($ret['models']) as $m) {
       $model = ClassRegistry::init($m);
       
-      foreach($model->validate['type']['content']['rule'][1] as $t) {
-        $ret['types'][$m][$t] = _txt($model->cm_enum_lang['type'], null, $t);
-      }
+      $ret['types'][$m] = $model->types($coId, 'type');
     }
     
     return $ret;
+  }
+  
+  /**
+   * Check if a given extended type is in use by any Self Service Permission.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  String Attribute, of the form Model.field
+   * @param  String Name of attribute (any default or extended type may be specified)
+   * @param  Integer CO ID
+   * @return Boolean True if the extended type is in use, false otherwise
+   */
+  
+  public function typeInUse($attribute, $attributeName, $coId) {
+    // Note we are effectively overriding AppModel::typeInUse().
+    
+    // Inflect the model names
+    $attr = explode('.', $attribute, 2);
+    
+    $mname = Inflector::underscore($attr[0]);
+    
+    if($attr[1] == 'type') {
+      // For MVPA attribute, we need to see if the type is specified as part of the
+      // attribute name.
+      
+      // We're only concerned about code 'p' and 'm' (CO Person and CO Person Role
+      // multi valued). Rather than try to guess or hardcode which we're dealing with,
+      // we'll simply check for both.
+      
+      $mattr = "m:" . $mname . ":" . $attributeName;
+      $pattr = "p:" . $mname . ":" . $attributeName;
+      
+      $args = array();
+      $args['conditions']['CoSelfServicePermission.model'] = $attr[0];
+      $args['conditions']['CoSelfServicePermission.type'] = $attributeName;
+      $args['conditions']['CoSelfServicePermission.co_id'] = $coId;
+      $args['contain'] = false;
+      
+      return (boolean)$this->find('count', $args);
+    }
+    // else nothing to do
+    
+    return false;
   }
 }

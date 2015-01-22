@@ -232,7 +232,7 @@ $(function() {
               <?php print _txt('fd.type'); ?>
             </td>
             <td>
-              <?php print _txt('en.name', null, NameEnum::Official); ?>
+              <?php print _txt('en.name.type', null, NameEnum::Official); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -280,7 +280,7 @@ $(function() {
                 
                 print " ("
                       . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                      . _txt('en.name', null, $n['type'])
+                      . _txt('en.name.type', null, $n['type'])
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";
               ?>
@@ -346,7 +346,7 @@ $(function() {
 
                 if($e) {
                   print $this->Form->select('affiliation',
-                                            $cm_texts[ $cm_lang ]['en.affil'],
+                                            $cm_texts[ $cm_lang ]['en.org_identity.affiliation'],
                                             $attrs);
 
                   if($this->Form->isFieldError('status')) {
@@ -354,7 +354,7 @@ $(function() {
                   }
                 } else {
                   if(isset($org_identities[0]['OrgIdentity']['affiliation'])) {
-                    print $cm_texts[ $cm_lang ]['en.affil'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
+                    print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
                   }
                 }
               ?>
@@ -482,7 +482,7 @@ $(function() {
                                                                'action' => 'edit',
                                                                $ea['id'],
                                                                'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
-                    print "&nbsp;(" . _txt('en.contact.mail', null, $ea['type']) . ", "
+                    print "&nbsp;(" . _txt('en.email_address.type', null, $ea['type']) . ", "
                       . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")";
                   print '</div>';
                   print '<div>';
@@ -517,7 +517,7 @@ $(function() {
               foreach($org_identities[0]['EmailAddress'] as $ea)
               {
                 print '<div>';
-                  print Sanitize::html($ea['mail']) . " (" . _txt('en.contact', null, $ea['type']) . ")<br />\n";
+                  print Sanitize::html($ea['mail']) . " (" . _txt('en.email_address.type', null, $ea['type']) . ")<br />\n";
                 print '</div>';
               }
 
@@ -540,7 +540,7 @@ $(function() {
                                                       'action' => 'edit',
                                                       $t['id'],
                                                       'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
-                    print "&nbsp;(" . _txt('en.contact', null, $t['type']) . ")<br />\n";
+                    print "&nbsp;(" . _txt('en.telephone_number.type', null, $t['type']) . ")<br />\n";
                   print '</div>';
                   print '<div>';
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
@@ -575,7 +575,7 @@ $(function() {
               foreach($org_identities[0]['TelephoneNumber'] as $t)
               {
                 print '<div>';
-                  print Sanitize::html($t['number']) . " (" . _txt('en.contact', null, $t['type']) . ")<br />\n";
+                  print Sanitize::html($t['number']) . " (" . _txt('en.telephone_number.type', null, $t['type']) . ")<br />\n";
                 print '</div>';
               }
           }
@@ -597,7 +597,7 @@ $(function() {
                                                                   'action'     => 'edit',
                                                                   $addr['id'],
                                                                   'co'         => ($pool_org_identities ? false : $cur_co['Co']['id'])));
-                    print "&nbsp;(" . _txt('en.contact', null, $addr['type']) . ")<br />\n";
+                    print "&nbsp;(" . _txt('en.address.type', null, $addr['type']) . ")<br />\n";
                   print '</div>';
                   print '<div>';
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
@@ -633,7 +633,7 @@ $(function() {
               foreach($org_identities[0]['Address'] as $addr)
               {
                 print '<div>';
-                  print Sanitize::html($addr['line1']) . " (" . _txt('en.contact', null, $addr['type']) . ")\n";
+                  print Sanitize::html($addr['line1']) . " (" . _txt('en.address.type', null, $addr['type']) . ")\n";
                 print '</div>';
               }
             }

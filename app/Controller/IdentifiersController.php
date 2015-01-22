@@ -49,7 +49,7 @@ class IdentifiersController extends MVPAController {
     if($this->restful) {
       // We manually run a few of the steps in StandardController
       
-      if(!$this->checkRestPost($this->request->data)) {
+      if(!$this->checkRestPost()) {
         return;
       }
       
@@ -93,7 +93,7 @@ class IdentifiersController extends MVPAController {
         
         if($this->restful) {
           if($errs != "") {
-            $this->restResultHeader(500, "Other Error");
+            $this->restResultHeader(500, $errs);
           } else {
             $this->restResultHeader(200, "OK");
           }
@@ -147,14 +147,8 @@ class IdentifiersController extends MVPAController {
   function beforeFilter() {
     parent::beforeFilter();
     
-    // Identifier supports Extended Types. Figure out what types are defined
-    // in order for the views to render properly.
-    
-    $this->set('identifier_types', $this->Identifier->types($this->cur_co['Co']['id']));
-
     // Sets tab to open for redirects
     $this->redirectTab = 'id';
-    
   }
   
   /**

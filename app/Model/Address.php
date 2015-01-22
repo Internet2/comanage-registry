@@ -30,7 +30,7 @@ class Address extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable', 'Provisioner');
+  public $actsAs = array('Containable', 'Normalization', 'Provisioner');
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -94,9 +94,11 @@ class Address extends AppModel {
     ),
     'type' => array(
       'content' => array(
-        'rule' => array('inList', array(ContactEnum::Home,
-                                        ContactEnum::Office,
-                                        ContactEnum::Postal)),
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'Address.type',
+                              'default' => array(ContactEnum::Home,
+                                                 ContactEnum::Office,
+                                                 ContactEnum::Postal))),
         'required' => false,
         'allowEmpty' => true
       )
@@ -125,10 +127,6 @@ class Address extends AppModel {
   );
   
   // Enum type hints
-  
-  public $cm_enum_lang = array(
-    'type' => 'en.contact.address'
-  );
   
   public $cm_enum_types = array(
     'type' => 'contact_t'

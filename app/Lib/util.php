@@ -163,7 +163,7 @@ function getPreferredLanguage() {
  * Note this function is for configured templates (ie: those loaded from the
  * database) and not for Cake templates (ie: those loaded from View/Emails).
  *
- * The subtitutions array should include key/value pairs for each value
+ * The substitutions array should include key/value pairs for each value
  * to replace. For example array('CO_NAME' => 'MyCO') will replace @CO_NAME
  * with "MyCO".
  *
@@ -183,6 +183,42 @@ function processTemplate($template, $subtitutions) {
   }
   
   return str_replace($searchKeys, $replaceVals, $template);  
+}
+
+/**
+ * Render menu links for plugin-defined menu items.
+ * - postcondition: HTML emitted
+ *
+ * @param HtmlHelper Helper to use to render links
+ * @param Array Array of plugins as created by AppController
+ * @param String Which menu items to render
+ * @param Integer Co Id
+ */
+
+function render_plugin_menus() {
+  // When called from dropMenu element there may be 4 arguments and
+  // when called from secondaryMenu element there may be 3 arguments.
+  $htmlHelper = func_get_arg(0);
+  $plugins = func_get_arg(1);
+  $menu = func_get_arg(2);
+  $coid = null;
+  if(func_num_args() == 4 and $menu == 'coconfig'){
+  	$coid = func_get_arg(3);
+  }
+  if(!empty($plugins)) {
+    foreach(array_keys($plugins) as $plugin) {
+      if(isset($plugins[$plugin][$menu])) {
+        foreach(array_keys($plugins[$plugin][$menu]) as $label) {
+          $args = $plugins[$plugin][$menu][$label];
+          $args['plugin'] = Inflector::underscore($plugin);
+          if(!empty($coid)){
+          	$args['co'] = $coid;
+          }
+          print "<li>" . $htmlHelper->link($label, $args) . "</li>\n";
+        }
+      }
+    }
+  }
 }
 
 /**

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Flows Controller
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -40,6 +40,31 @@ class CoEnrollmentFlowsController extends StandardController {
   public $requires_co = true;
   
   public $uses = array('CoEnrollmentFlow', 'CmpEnrollmentConfiguration');
+  
+  public $view_contains = array(
+    'CoEnrollmentFlowAuthzCoGroup',
+    'CoEnrollmentFlowAuthzCou'
+  );
+  
+  /**
+   * Insert the default Enrollment Flow templates for the current CO.
+   *
+   * @since  COmanage Registry v0.9.2
+   */
+  
+  public function addDefaults() {
+    try {
+      $this->CoEnrollmentFlow->addDefaults($this->cur_co['Co']['id']);
+      
+      $this->Session->setFlash(_txt('rs.ef.defaults'), '', array(), 'success');
+    }
+    catch(Exception $e) {
+      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+    }
+    
+    // redirect back to index page
+    $this->performRedirect();
+  }
   
   /**
    * Callback after controller methods are invoked but before views are rendered.
@@ -108,6 +133,26 @@ class CoEnrollmentFlowsController extends StandardController {
   }
   
   /**
+   * Duplicate an existing Enrollment Flow.
+   * - postcondition: Redirect issued
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer $id CO Enrollment Flow ID
+   */
+  
+  public function duplicate($id) {
+    try {
+      $this->CoEnrollmentFlow->duplicate($id);
+      $this->Session->setFlash(_txt('rs.copy-a1', array(_txt('ct.enrollment_flows.1'))), '', array(), 'success');
+    }
+    catch(Exception $e) {
+      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+    }
+    
+    $this->performRedirect();
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -127,8 +172,14 @@ class CoEnrollmentFlowsController extends StandardController {
     // Add a new CO Enrollment Flow?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Add/restore default CO Enrollment Flows?
+    $p['addDefaults'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
     // Delete an existing CO Enrollment Flow?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Duplicate an existing CO Enrollment Flow?
+    $p['duplicate'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Edit an existing CO Enrollment Flow?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
@@ -143,9 +194,27 @@ class CoEnrollmentFlowsController extends StandardController {
     
     // View an existing CO Enrollment Flow?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
-
+    
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v0.9.2
+   * @return Integer The CO ID if found, or -1 if not
+   */
+  
+  public function parseCOID() {
+    if($this->action == 'addDefaults') {
+      if(isset($this->request->params['named']['co'])) {
+        return $this->request->params['named']['co'];
+      }
+    }
+    
+    return parent::parseCOID();
   }
   
   /**
@@ -182,6 +251,8 @@ class CoEnrollmentFlowsController extends StandardController {
     
     $args = array();
     $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    $args['order']['CoEnrollmentFlow.name'] = 'asc';
     $args['contain'][] = false;
     
     $flows = $this->CoEnrollmentFlow->find('all', $args);
