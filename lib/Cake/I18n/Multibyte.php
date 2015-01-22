@@ -831,7 +831,7 @@ class Multibyte {
 		if (!isset(self::$_codeRange[$char])) {
 			$range = self::_codepoint($char);
 			if ($range === false) {
-				return null;
+				return array();
 			}
 			if (!Configure::configured('_cake_core_')) {
 				App::uses('PhpReader', 'Configure');
@@ -843,7 +843,7 @@ class Multibyte {
 		}
 
 		if (!self::$_codeRange[$char]) {
-			return null;
+			return array();
 		}
 		self::$_table = self::$_codeRange[$char];
 		$count = count(self::$_caseFold[self::$_table]);

@@ -46,6 +46,7 @@ class Postgres extends DboSource {
 		'schema' => 'public',
 		'port' => 5432,
 		'encoding' => '',
+		'sslmode' => 'allow',
 		'flags' => array()
 	);
 
@@ -118,7 +119,7 @@ class Postgres extends DboSource {
 
 		try {
 			$this->_connection = new PDO(
-				"pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']}",
+				"pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']};sslmode={$config['sslmode']}",
 				$config['login'],
 				$config['password'],
 				$flags
@@ -219,10 +220,10 @@ class Postgres extends DboSource {
 					} elseif ($c->type === 'uuid') {
 						$length = 36;
 					} else {
-						$length = intval($c->oct_length);
+						$length = (int)$c->oct_length;
 					}
 				} elseif (!empty($c->char_length)) {
-					$length = intval($c->char_length);
+					$length = (int)$c->char_length;
 				} else {
 					$length = $this->length($c->type);
 				}
@@ -249,6 +250,7 @@ class Postgres extends DboSource {
 				}
 				if (
 					$fields[$c->name]['default'] === 'NULL' ||
+					$c->default === null ||
 					preg_match('/nextval\([\'"]?([\w.]+)/', $c->default, $seq)
 				) {
 					$fields[$c->name]['default'] = null;
@@ -352,8 +354,8 @@ class Postgres extends DboSource {
 		if ($this->execute('DELETE FROM ' . $this->fullTableName($table))) {
 			if (isset($this->_sequenceMap[$table]) && $reset != true) {
 				foreach ($this->_sequenceMap[$table] as $sequence) {
-					list($schema, $sequence) = explode('.', $sequence);
-					$this->_execute("ALTER SEQUENCE \"{$schema}\".\"{$sequence}\" RESTART WITH 1");
+					$quoted = $this->name($sequence);
+					$this->_execute("ALTER SEQUENCE {$quoted} RESTART WITH 1");
 				}
 			}
 			return true;
@@ -726,7 +728,7 @@ class Postgres extends DboSource {
 			return 36;
 		}
 		if ($limit) {
-			return intval($limit);
+			return (int)$limit;
 		}
 		return null;
 	}

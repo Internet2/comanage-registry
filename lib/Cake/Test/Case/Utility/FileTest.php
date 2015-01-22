@@ -81,8 +81,7 @@ class FileTest extends CakeTestCase {
 			'filesize' => filesize($file),
 			'mime' => 'text/plain'
 		);
-		if (
-			!function_exists('finfo_open') &&
+		if (!function_exists('finfo_open') &&
 			(!function_exists('mime_content_type') ||
 			function_exists('mime_content_type') &&
 			mime_content_type($this->File->pwd()) === false)
@@ -597,5 +596,17 @@ class FileTest extends CakeTestCase {
 		$this->assertContains($expected, $contents);
 
 		$TmpFile->delete();
+	}
+
+/**
+ * Tests that no path is being set for passed file paths that
+ * do not exist.
+ *
+ * @return void
+ */
+	public function testNoPartialPathBeingSetForNonExistentPath() {
+		$tmpFile = new File('/non/existent/file');
+		$this->assertNull($tmpFile->pwd());
+		$this->assertNull($tmpFile->path);
 	}
 }

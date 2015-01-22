@@ -102,7 +102,8 @@ class Mysql extends DboSource {
 	public $tableParameters = array(
 		'charset' => array('value' => 'DEFAULT CHARSET', 'quote' => false, 'join' => '=', 'column' => 'charset'),
 		'collate' => array('value' => 'COLLATE', 'quote' => false, 'join' => '=', 'column' => 'Collation'),
-		'engine' => array('value' => 'ENGINE', 'quote' => false, 'join' => '=', 'column' => 'Engine')
+		'engine' => array('value' => 'ENGINE', 'quote' => false, 'join' => '=', 'column' => 'Engine'),
+		'comment' => array('value' => 'COMMENT', 'quote' => true, 'join' => '=', 'column' => 'Comment'),
 	);
 
 /**
@@ -352,7 +353,7 @@ class Mysql extends DboSource {
 				$fields[$column->Field]['unsigned'] = $this->_unsigned($column->Type);
 			}
 			if ($fields[$column->Field]['type'] === 'timestamp' && strtoupper($column->Default) === 'CURRENT_TIMESTAMP') {
-				$fields[$column->Field]['default'] = '';
+				$fields[$column->Field]['default'] = null;
 			}
 			if (!empty($column->Key) && isset($this->index[$column->Key])) {
 				$fields[$column->Field]['key'] = $this->index[$column->Key];
@@ -493,7 +494,7 @@ class Mysql extends DboSource {
 					if ($idx->Index_type === 'FULLTEXT') {
 						$index[$idx->Key_name]['type'] = strtolower($idx->Index_type);
 					} else {
-						$index[$idx->Key_name]['unique'] = intval($idx->Non_unique == 0);
+						$index[$idx->Key_name]['unique'] = (int)($idx->Non_unique == 0);
 					}
 				} else {
 					if (!empty($index[$idx->Key_name]['column']) && !is_array($index[$idx->Key_name]['column'])) {
@@ -563,7 +564,11 @@ class Mysql extends DboSource {
 								if (!isset($col['name'])) {
 									$col['name'] = $field;
 								}
-								$colList[] = 'CHANGE ' . $this->name($field) . ' ' . $this->buildColumn($col);
+								$alter = 'CHANGE ' . $this->name($field) . ' ' . $this->buildColumn($col);
+								if (isset($col['after'])) {
+									$alter .= ' AFTER ' . $this->name($col['after']);
+								}
+								$colList[] = $alter;
 							}
 							break;
 					}
@@ -784,7 +789,21 @@ class Mysql extends DboSource {
 		if (strpos($col, 'enum') !== false) {
 			return "enum($vals)";
 		}
+		if (strpos($col, 'set') !== false) {
+			return "set($vals)";
+		}
 		return 'text';
+	}
+
+/**
+ * {@inheritDoc}
+ */
+	public function value($data, $column = null) {
+		$value = parent::value($data, $column);
+		if (is_numeric($value) && substr($column, 0, 3) === 'set') {
+			return $this->_connection->quote($value);
+		}
+		return $value;
 	}
 
 /**

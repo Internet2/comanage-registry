@@ -42,7 +42,7 @@ class Security {
 /**
  * Get allowed minutes of inactivity based on security level.
  *
- * @deprecated Exists for backwards compatibility only, not used by the core
+ * @deprecated 3.0.0 Exists for backwards compatibility only, not used by the core
  * @return int Allowed inactivity in minutes
  */
 	public static function inactiveMins() {
@@ -91,9 +91,9 @@ class Security {
  *
  * Creating a blowfish/bcrypt hash:
  *
- * {{{
+ * ```
  * 	$hash = Security::hash($password, 'blowfish');
- * }}}
+ * ```
  *
  * @param string $string String to hash
  * @param string $type Method to use (sha1/sha256/md5/blowfish)
@@ -179,7 +179,7 @@ class Security {
  * @param string $text Encrypted string to decrypt, normal string to encrypt
  * @param string $key Key to use
  * @return string Encrypted/Decrypted string
- * @deprecated Will be removed in 3.0.
+ * @deprecated 3.0.0 Will be removed in 3.0.
  */
 	public static function cipher($text, $key) {
 		if (empty($key)) {

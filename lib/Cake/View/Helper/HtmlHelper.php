@@ -112,11 +112,11 @@ class HtmlHelper extends AppHelper {
 	protected $_crumbs = array();
 
 /**
- * Names of script files that have been included once
+ * Names of script & css files that have been included once
  *
  * @var array
  */
-	protected $_includedScripts = array();
+	protected $_includedAssets = array();
 
 /**
  * Options for the currently opened script block buffer if any.
@@ -198,7 +198,7 @@ class HtmlHelper extends AppHelper {
  *  - xhtml11: XHTML1.1.
  *
  * @param string $type Doctype to use.
- * @return string Doctype string
+ * @return string|null Doctype string
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::docType
  */
 	public function docType($type = 'html5') {
@@ -326,7 +326,8 @@ class HtmlHelper extends AppHelper {
  * @param string $title The content to be wrapped by <a> tags.
  * @param string|array $url Cake-relative URL or array of URL parameters, or external URL (starts with http://)
  * @param array $options Array of options and HTML attributes.
- * @param string $confirmMessage JavaScript confirmation message.
+ * @param string $confirmMessage JavaScript confirmation message. This
+ *   argument is deprecated as of 2.6. Use `confirm` key in $options instead.
  * @return string An `<a />` element.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::link
  */
@@ -397,6 +398,9 @@ class HtmlHelper extends AppHelper {
  *
  * - `inline` If set to false, the generated tag will be appended to the 'css' block,
  *   and included in the `$scripts_for_layout` layout variable. Defaults to true.
+ * - `once` Whether or not the css file should be checked for uniqueness. If true css
+ *   files  will only be included once, use false to allow the same
+ *   css to be included more than once per request.
  * - `block` Set the name of the block link/style tag will be appended to.
  *   This overrides the `inline` option.
  * - `plugin` False value will prevent parsing path as a plugin
@@ -423,7 +427,12 @@ class HtmlHelper extends AppHelper {
 			unset($rel);
 		}
 
-		$options += array('block' => null, 'inline' => true, 'rel' => 'stylesheet');
+		$options += array(
+			'block' => null,
+			'inline' => true,
+			'once' => false,
+			'rel' => 'stylesheet'
+		);
 		if (!$options['inline'] && empty($options['block'])) {
 			$options['block'] = __FUNCTION__;
 		}
@@ -439,6 +448,12 @@ class HtmlHelper extends AppHelper {
 			}
 			return;
 		}
+
+		if ($options['once'] && isset($this->_includedAssets[__METHOD__][$path])) {
+			return '';
+		}
+		unset($options['once']);
+		$this->_includedAssets[__METHOD__][$path] = true;
 
 		if (strpos($path, '//') !== false) {
 			$url = $path;
@@ -537,10 +552,10 @@ class HtmlHelper extends AppHelper {
 			}
 			return null;
 		}
-		if ($options['once'] && isset($this->_includedScripts[$url])) {
+		if ($options['once'] && isset($this->_includedAssets[__METHOD__][$url])) {
 			return null;
 		}
-		$this->_includedScripts[$url] = true;
+		$this->_includedAssets[__METHOD__][$url] = true;
 
 		if (strpos($url, '//') === false) {
 			$url = $this->assetUrl($url, $options + array('pathPrefix' => Configure::read('App.jsBaseUrl'), 'ext' => '.js'));
@@ -613,7 +628,6 @@ class HtmlHelper extends AppHelper {
 		$options += array('safe' => true, 'inline' => true);
 		$this->_scriptBlockOptions = $options;
 		ob_start();
-		return null;
 	}
 
 /**
@@ -636,12 +650,12 @@ class HtmlHelper extends AppHelper {
  *
  * ### Usage:
  *
- * {{{
+ * ```
  * echo $this->Html->style(array('margin' => '10px', 'padding' => '10px'), true);
  *
  * // creates
  * 'margin:10px;padding:10px;'
- * }}}
+ * ```
  *
  * @param array $data Style data array, keys will be used as property names, values as property values.
  * @param bool $oneline Whether or not the style block should be displayed on one line.
@@ -675,7 +689,7 @@ class HtmlHelper extends AppHelper {
  * @param string $separator Text to separate crumbs.
  * @param string|array|bool $startText This will be the first crumb, if false it defaults to first crumb in array. Can
  *   also be an array, see above for details.
- * @return string Composed bread crumbs
+ * @return string|null Composed bread crumbs
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#creating-breadcrumb-trails-with-htmlhelper
  */
 	public function getCrumbs($separator = '&raquo;', $startText = false) {
@@ -709,7 +723,7 @@ class HtmlHelper extends AppHelper {
  * @param array $options Array of html attributes to apply to the generated list elements.
  * @param string|array|bool $startText This will be the first crumb, if false it defaults to first crumb in array. Can
  *   also be an array, see `HtmlHelper::getCrumbs` for details.
- * @return string breadcrumbs html list
+ * @return string|null breadcrumbs html list
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#creating-breadcrumb-trails-with-htmlhelper
  */
 	public function getCrumbList($options = array(), $startText = false) {
@@ -1020,21 +1034,21 @@ class HtmlHelper extends AppHelper {
  *
  * Using multiple video files:
  *
- * {{{
+ * ```
  * echo $this->Html->media(
  * 		array('video.mp4', array('src' => 'video.ogv', 'type' => "video/ogg; codecs='theora, vorbis'")),
  * 		array('tag' => 'video', 'autoplay')
  * );
- * }}}
+ * ```
  *
  * Outputs:
  *
- * {{{
+ * ```
  * <video autoplay="autoplay">
  * 		<source src="/files/video.mp4" type="video/mp4"/>
  * 		<source src="/files/video.ogv" type="video/ogv; codecs='theora, vorbis'"/>
  * </video>
- * }}}
+ * ```
  *
  * ### Options
  *
@@ -1172,11 +1186,11 @@ class HtmlHelper extends AppHelper {
  *
  * tags.php could look like:
  *
- * {{{
+ * ```
  * $tags = array(
  *		'meta' => '<meta %s>'
  * );
- * }}}
+ * ```
  *
  * If you wish to store tag definitions in another format you can give an array
  * containing the file name, and reader class name:

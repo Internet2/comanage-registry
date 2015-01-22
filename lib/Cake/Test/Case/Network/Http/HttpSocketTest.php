@@ -138,8 +138,8 @@ class TestHttpSocket extends HttpSocket {
  * @param string $versionToken The version token to use, defaults to HTTP/1.1
  * @return string Request line
  */
-	public function buildRequestLine($request = array(), $versionToken = 'HTTP/1.1') {
-		return parent::_buildRequestLine($request, $versionToken);
+	public function buildRequestLine($request = array()) {
+		return parent::_buildRequestLine($request);
 	}
 
 /**
@@ -217,7 +217,6 @@ class HttpSocketTest extends CakeTestCase {
 		$this->Socket->expects($this->never())->method('connect');
 		$this->Socket->__construct(array('host' => 'foo-bar'));
 		$baseConfig['host'] = 'foo-bar';
-		$baseConfig['protocol'] = getprotobyname($baseConfig['protocol']);
 		$this->assertEquals($this->Socket->config, $baseConfig);
 
 		$this->Socket->reset();
@@ -226,7 +225,6 @@ class HttpSocketTest extends CakeTestCase {
 		$baseConfig['host'] = $baseConfig['request']['uri']['host'] = 'www.cakephp.org';
 		$baseConfig['port'] = $baseConfig['request']['uri']['port'] = 23;
 		$baseConfig['request']['uri']['scheme'] = 'http';
-		$baseConfig['protocol'] = getprotobyname($baseConfig['protocol']);
 		$this->assertEquals($this->Socket->config, $baseConfig);
 
 		$this->Socket->reset();
@@ -495,6 +493,9 @@ class HttpSocketTest extends CakeTestCase {
 					)
 				)
 			),
+			'reset10' => array(
+				'config.protocol' => 'ssl'
+			),
 			array(
 				'request' => array(
 					'method' => 'POST',
@@ -523,8 +524,12 @@ class HttpSocketTest extends CakeTestCase {
 					)
 				)
 			),
+			'reset11' => array(
+				'config.protocol' => 'ssl'
+			),
 			array(
 				'request' => array(
+					'version' => '1.0',
 					'method' => 'POST',
 					'uri' => 'https://www.cakephp.org/posts/add',
 					'body' => array('name' => 'HttpSocket-is-released', 'date' => 'today'),
@@ -532,6 +537,8 @@ class HttpSocketTest extends CakeTestCase {
 				),
 				'expectation' => array(
 					'request' => array(
+						'version' => '1.0',
+						'line' => "POST /posts/add HTTP/1.0\r\n",
 						'header' => "Host: www.cakephp.org\r\nConnection: close\r\nUser-Agent: CakePHP\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 38\r\nCookie: foo=bar\r\n",
 						'cookies' => array(
 							'foo' => array('value' => 'bar'),
@@ -786,7 +793,7 @@ class HttpSocketTest extends CakeTestCase {
 			'uri' => 'http://localhost/oneuri',
 			'redirect' => 1
 		);
-		$serverResponse1 = "HTTP/1.x 302 Found\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\nLocation: http://i.cmpnet.com%2Ftechonline%2Fpdf%2Fa.pdf=\r\n\r\n";
+		$serverResponse1 = "HTTP/1.x 302 Found\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\nLocation: http://i.cmpnet.com%2Ftechonline%2Fpdf%2Fa+b.pdf=\r\n\r\n";
 		$serverResponse2 = "HTTP/1.x 200 OK\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>You have been redirected</h1>";
 
 		$this->Socket->expects($this->at(1))
@@ -797,7 +804,7 @@ class HttpSocketTest extends CakeTestCase {
 			->method('write')
 			->with($this->logicalAnd(
 				$this->stringContains('Host: i.cmpnet.com'),
-				$this->stringContains('GET /techonline/pdf/a.pdf')
+				$this->stringContains('GET /techonline/pdf/a+b.pdf')
 			));
 
 		$this->Socket->expects($this->at(4))
@@ -1046,6 +1053,54 @@ class HttpSocketTest extends CakeTestCase {
 	}
 
 /**
+ * Test the head method
+ *
+ * @return void
+ */
+	public function testHead() {
+		$this->RequestSocket->reset();
+		$this->RequestSocket->expects($this->at(0))
+			->method('request')
+			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/'));
+
+		$this->RequestSocket->expects($this->at(1))
+			->method('request')
+			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/?foo=bar'));
+
+		$this->RequestSocket->expects($this->at(2))
+			->method('request')
+			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/?foo=bar'));
+
+		$this->RequestSocket->expects($this->at(3))
+			->method('request')
+			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/?foo=23&foobar=42'));
+
+		$this->RequestSocket->expects($this->at(4))
+			->method('request')
+			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/', 'version' => '1.0'));
+
+		$this->RequestSocket->expects($this->at(5))
+			->method('request')
+			->with(array('method' => 'HEAD', 'uri' => 'https://secure.example.com/test.php?one=two'));
+
+		$this->RequestSocket->expects($this->at(6))
+			->method('request')
+			->with(array('method' => 'HEAD', 'uri' => 'https://example.com/oauth/access?clientid=123&redirect_uri=http%3A%2F%2Fexample.com&code=456'));
+
+		$this->RequestSocket->head('http://www.google.com/');
+		$this->RequestSocket->head('http://www.google.com/', array('foo' => 'bar'));
+		$this->RequestSocket->head('http://www.google.com/', 'foo=bar');
+		$this->RequestSocket->head('http://www.google.com/?foo=bar', array('foobar' => '42', 'foo' => '23'));
+		$this->RequestSocket->head('http://www.google.com/', null, array('version' => '1.0'));
+		$this->RequestSocket->head('https://secure.example.com/test.php', array('one' => 'two'));
+		$this->RequestSocket->head('https://example.com/oauth/access', array(
+			'clientid' => '123',
+			'redirect_uri' => 'http://example.com',
+			'code' => 456
+		));
+	}
+
+/**
  * Test authentication
  *
  * @return void
@@ -1245,9 +1300,6 @@ class HttpSocketTest extends CakeTestCase {
 		$r = $this->Socket->buildRequestLine($request);
 		$this->assertEquals("GET /search?q=socket HTTP/1.1\r\n", $r);
 
-		$r = $this->Socket->buildRequestLine($request, 'CAKE-HTTP/0.1');
-		$this->assertEquals("GET /search?q=socket CAKE-HTTP/0.1\r\n", $r);
-
 		$request = array('method' => 'OPTIONS', 'uri' => '*');
 		$r = $this->Socket->buildRequestLine($request);
 		$this->assertEquals("OPTIONS * HTTP/1.1\r\n", $r);
@@ -1259,6 +1311,17 @@ class HttpSocketTest extends CakeTestCase {
 
 		$r = $this->Socket->buildRequestLine("GET * HTTP/1.1\r\n");
 		$this->assertEquals("GET * HTTP/1.1\r\n", $r);
+
+		$request = array(
+			'version' => '1.0',
+			'method' => 'GET',
+			'uri' => array(
+				'path' => '/search',
+				'query' => array('q' => 'socket')
+			)
+		);
+		$r = $this->Socket->buildRequestLine($request);
+		$this->assertEquals("GET /search?q=socket HTTP/1.0\r\n", $r);
 	}
 
 /**
