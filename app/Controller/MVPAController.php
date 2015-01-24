@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Multi-Value Person Attribute (MVPA) Controller
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -100,26 +100,37 @@ class MVPAController extends StandardController {
     if(!$this->restful){
       // Provide a hint as to available types for this model
       
-      $availableTypes = $model->types($this->cur_co['Co']['id'], 'type');
+      $pid = $this->parsePersonID();
       
-      if(!empty($this->viewVars['permissions']['selfsvc'])) {
-        // For models supporting self service permissions, adjust the available types
-        // in accordance with the configuration
+      if(!empty($pid['orgidentityid'])) {
+        // Org identities use the default model types, and self service does not apply
         
-        foreach(array_keys($availableTypes) as $k) {
-          // We use edit for the permission even if we're adding or viewing because
-          // add has different semantics for calculatePermission (whether or not the person
-          // can add a new item).
-          if(!$this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
-                                                                     $req,
-                                                                     'edit',
-                                                                     $k)) {
-            unset($availableTypes[$k]);
+        $this->set('vv_available_types', $model->defaultTypes('type'));
+      } else {
+        // When attached to a CO Person or Role, figure out the available extended
+        // types and then filter for self service permissions
+        
+        $availableTypes = $model->types($this->cur_co['Co']['id'], 'type');
+        
+        if(!empty($this->viewVars['permissions']['selfsvc'])) {
+          // For models supporting self service permissions, adjust the available types
+          // in accordance with the configuration
+          
+          foreach(array_keys($availableTypes) as $k) {
+            // We use edit for the permission even if we're adding or viewing because
+            // add has different semantics for calculatePermission (whether or not the person
+            // can add a new item).
+            if(!$this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
+                                                                       $req,
+                                                                       'edit',
+                                                                       $k)) {
+              unset($availableTypes[$k]);
+            }
           }
         }
+        
+        $this->set('vv_available_types', $availableTypes);
       }
-      
-      $this->set('vv_available_types', $availableTypes);
     }
     
     parent::beforeRender();

@@ -301,13 +301,16 @@ class AppController extends Controller {
     // As a default, we'll see if we can determine the CO in a generic manner.
     // Where this doesn't work, individual Controllers can override this function.
     
+    // Determine if Org Identities are pooled
+    $this->loadModel('CmpEnrollmentConfiguration');
+    $orgPooled = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
+    
     if(!$this->requires_co
        && (!$this->requires_person
            ||
            // MVPA controllers operating on org identities where pool_org_identities
            // is false will not specify/require a CO
-           (isset($this->viewVars['pool_org_identities'])
-            && $this->viewVars['pool_org_identities']))) {
+           $orgPooled)) {
       // Controllers that don't require a CO generally can't imply one.
       return null;
     }
@@ -581,7 +584,6 @@ class AppController extends Controller {
     
     if(!empty($this->request->data)) {
       // Currently, we expect all request documents to match the model name (ie: StudlySingular).
-      
       
       // The inbound formats are currently lists with one entry. (Multiple entries
       // per request are not currently supported.) The format varies slightly between

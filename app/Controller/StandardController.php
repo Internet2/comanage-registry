@@ -706,7 +706,9 @@ class StandardController extends AppController {
         
         $local = $this->paginationConditions();
         
-        $this->paginate['conditions'] = $local['conditions'];
+        if(!empty($local['conditions'])) {
+          $this->paginate['conditions'] = $local['conditions'];
+        }
         
         if(!empty($local['joins'])) {
           $this->paginate['joins'] = $local['joins'];
