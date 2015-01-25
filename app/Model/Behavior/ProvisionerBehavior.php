@@ -25,10 +25,6 @@
 // Behaviors don't have access to sessions by default
 App::uses('CakeSession', 'Model/Datasource');
 
-// Direct calls using models necessary since may use Grouper data source.
-App::uses('CoGroupMember', 'Model');
-App::uses('CoGroup', 'Model');
-
 class ProvisionerBehavior extends ModelBehavior {
   /**
    * Handle provisioning following delete of Model.
@@ -706,9 +702,8 @@ class ProvisionerBehavior extends ModelBehavior {
     // Only pull related models relevant for provisioning
     $args['contain'] = array(
       'Co',
-      // Group information handled directly below to support Grouper use case.
-      //'CoGroupMember',
-      //'CoGroupMember.CoGroup',
+      'CoGroupMember',
+      'CoGroupMember.CoGroup',
       'CoOrgIdentityLink',
       // We normally don't pull org identity data, but we'll make an exception
       // for Identifier to be able to expose eppn
@@ -725,28 +720,6 @@ class ProvisionerBehavior extends ModelBehavior {
     
     $coPersonData = $coPersonModel->find('first', $args);
     
-    // Directly query for all group memberships instead of using
-    // relations in order to support Grouper use cases.
-    $coGroupMemberModel = new CoGroupMember();
-    
-    $args = array();
-    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
-
-    $memberships = $coGroupMemberModel->find('all', $args);
-
-    $coPersonData['CoGroupMember'] = array();
-    foreach ($memberships as &$m) {
-      $groupId = $m['CoGroupMember']['co_group_id'];
-      $coGroupModel = new CoGroup();
-
-      $args = array();
-      $args['conditions']['CoGroup.id'] = $groupId;
-
-      $group = $coGroupModel->find('first', $args);
-      $m['CoGroupMember']['CoGroup'] = $group['CoGroup'];
-      $coPersonData['CoGroupMember'][] = $m['CoGroupMember'];
-    }
-
     if(empty($coPersonData)) {
       throw new InvalidArgumentException(_txt('er.cop.unk'));
     }
