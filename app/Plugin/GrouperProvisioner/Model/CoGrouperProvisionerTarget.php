@@ -78,68 +78,6 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
   );
 
   /**
-   * Create the database view to be used as a Grouper subject source.
-   *
-   * @since  COmanage Registry v0.8.3
-   * @return None
-   * @throws RuntimeException
-   */
-  
-  private function createDatabaseView() {
-
-      $db = ConnectionManager::getDataSource('default');
-      $prefix = "";
-      if(isset($db->config['prefix']))
-        $prefix = $db->config['prefix'];
-      $grouperView = $prefix . "grouper_subjects";
-         
-      // Determine which database is being used.
-      $db_driver = split("/", $db->config['datasource'], 2);
-
-      // The view syntax is different for each database product.
-      if ($db_driver[1] == 'Mysql') {
-        $exists = $this->query("SHOW TABLES LIKE '$grouperView'");
-        if (!$exists) {
-          try {
-            $this->query("CREATE VIEW $grouperView AS
-SELECT
-    cm_co_people.id AS 'id',
-    CONCAT(GROUP_CONCAT(DISTINCT cm_names.given),' ',GROUP_CONCAT(DISTINCT cm_names.family)) AS 'name',
-    CONCAT(GROUP_CONCAT(DISTINCT cm_names.family),',',GROUP_CONCAT(DISTINCT cm_names.given)) AS 'lfname',
-    CONCAT(GROUP_CONCAT(DISTINCT cm_names.given),' ',GROUP_CONCAT(DISTINCT cm_names.family),' (',GROUP_CONCAT(DISTINCT cm_cos.description),')') AS 'description',
-    SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),',',1) AS 'loginid1',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),','),',',2),',',-1) AS 'loginid2',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),','),',',3),',',-1) AS 'loginid3',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),','),',',4),',',-1) AS 'loginid4',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),','),',',5),',',-1) AS 'loginid5',
-    SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),',',1) AS 'email1',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),','),',',2),',',-1) AS 'email2',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),','),',',3),',',-1) AS 'email3',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),','),',',4),',',-1) AS 'email4',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),','),',',5),',',-1) AS 'email5'
-FROM
-    cm_co_people
-    LEFT JOIN cm_names ON cm_co_people.id = cm_names.co_person_id
-    LEFT JOIN cm_identifiers ON cm_co_people.id = cm_identifiers.co_person_id
-    LEFT JOIN cm_email_addresses ON cm_co_people.id = cm_email_addresses.co_person_id
-    LEFT JOIN cm_cos ON cm_co_people.co_id = cm_cos.id
-GROUP BY 
-    cm_co_people.id
-");
-          } catch (RuntimeException $e) {
-            throw new RuntimeException($e->getMessage());
-          }
-
- }
-
-      } else {
-          // Only support MySQL for now so throw exception.
-          throw new RuntimeException('Grouper support requires MySQL at this time');
-      }
-  }
-  
-
-  /**
    * Determine the provisioning status of this target.
    *
    * @since  COmanage Registry v0.8.3
@@ -190,7 +128,6 @@ GROUP BY
    */
 
   public function provision($coProvisioningTargetData, $op, $provisioningData) {
-
     $serverUrl = $coProvisioningTargetData['CoGrouperProvisionerTarget']['serverurl'];
     $contextPath = $coProvisioningTargetData['CoGrouperProvisionerTarget']['contextpath'];
     $login = $coProvisioningTargetData['CoGrouperProvisionerTarget']['login'];
@@ -310,10 +247,18 @@ GROUP BY
           throw new RuntimeException($e->getMessage());
         }
 
+        // If a group is empty the provisioning data passed in may not
+        // contain CoGroupMember.
+        if(array_key_exists('CoGroupMember', $provisioningData)) {
+        	$membershipsPassedIn = $provisioningData['CoGroupMember'];
+        } else {
+        	$membershipsPassedIn = array();
+        }
+        
         // Create an array of CO Person IDs for the memberships passed
         // in as the provisioning data.
         $provisioningDataCoPersonIds = array();
-        foreach ($provisioningData['CoGroupMember'] as $coGroupMember) {
+        foreach ($membershipsPassedIn as $coGroupMember) {
           if ($coGroupMember['member']) {
             $provisioningDataCoPersonIds[] = $coGroupMember['co_person_id'];
           }

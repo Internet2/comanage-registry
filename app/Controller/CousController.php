@@ -186,8 +186,8 @@ class CousController extends StandardController {
    */
  
   function checkWriteFollowups($reqdata, $curdata = null) {
-    // Create an admin Group for the new COU. As of now, we don't try to populate
-    // it with the current user, since it may not be desirable for the current
+    // Create admin and members Groups for the new COU. As of now, we don't try to populate
+    // them with the current user, since it may not be desirable for the current
     // user to be a member of the new CO.
     
     // Only do this via HTTP.
@@ -204,9 +204,28 @@ class CousController extends StandardController {
           'status' => 'A'
         );
         
-        if(!$this->Cou->Co->CoGroup->save($a))
-        {
+        $admin_create = $this->Cou->Co->CoGroup->save($a);
+        
+        $this->Cou->Co->CoGroup->clear();
+        
+        $a['CoGroup'] = array(
+          'co_id' => $reqdata['Cou']['co_id'],
+          'name' => 'members:' . $reqdata['Cou']['name'],
+          'description' => _txt('fd.group.desc.mem', array($reqdata['Cou']['name'])),
+          'open' => false,
+          'status' => 'A'
+        );
+        
+        $members_create = $this->Cou->Co->CoGroup->save($a);
+        
+        if(!$admin_create and !$members_create) {
+          $this->Session->setFlash(_txt('er.cou.gr.adminmembers'), '', array(), 'info');
+          return(false);
+        } elseif (!$admin_create) {
           $this->Session->setFlash(_txt('er.cou.gr.admin'), '', array(), 'info');
+          return(false);
+        } elseif (!$members_create) {
+          $this->Session->setFlash(_txt('er.cou.gr.members'), '', array(), 'info');
           return(false);
         }
       }

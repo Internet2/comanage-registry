@@ -122,8 +122,8 @@ class CosController extends StandardController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null) {
-    // Create an admin Group for the new CO. As of now, we don't try to populate
-    // it with the current user, since it may not be desirable for the current
+    // Create an admin and member Group for the new CO. As of now, we don't try to populate
+    // them with the current user, since it may not be desirable for the current
     // user (say, the CMP admin) to be a member of the new CO. See also CO-84.
     
     // Only do this via HTTP.
@@ -140,9 +140,28 @@ class CosController extends StandardController {
           'status' => 'A'
         );
         
-        if(!$this->Co->CoGroup->save($a))
-        {
+        $admin_create = $this->Co->CoGroup->save($a);
+        
+        $this->Co->CoGroup->clear();
+        
+        $a['CoGroup'] = array(
+          'co_id' => $this->Co->id,
+          'name' => 'members',
+          'description' => _txt('fd.group.desc.mem', array($reqdata['Co']['name'])),
+          'open' => false,
+          'status' => 'A'
+        );
+        
+        $members_create = $this->Co->CoGroup->save($a);
+        
+        if(!$admin_create and !$members_create) {
+          $this->Session->setFlash(_txt('er.co.gr.adminmembers'), '', array(), 'info');
+          return(false);
+        } elseif (!$admin_create) {
           $this->Session->setFlash(_txt('er.co.gr.admin'), '', array(), 'info');
+          return(false);
+        } elseif(!$members_create) {
+          $this->Session->setFlash(_txt('er.co.gr.members'), '', array(), 'info');
           return(false);
         }
       }

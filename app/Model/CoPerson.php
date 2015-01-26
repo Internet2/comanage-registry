@@ -174,6 +174,44 @@ class CoPerson extends AppModel {
   );
   
   /**
+   * Execute logic after a CO Person save operation.
+   * For now manage membership of CO Person in members group.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @param  boolean true if a new record was created (rather than update)
+   * @param  array, the same passed into Model::save()
+   * @return none
+   */
+  
+  public function afterSave($created, $options) {
+  	// Manage CO person membership in the CO members group.
+      
+    // Since the Provisioner Behavior will only provision group memberships
+    // for CO People with an Active status we do not need to manage 
+    // membership in the members group based on status here.  So we only
+    // add a CO Person to the members group upon creation and then leave
+    // it there. 
+  	if($created) {
+        $coid = $this->data[$this->alias]['co_id'];
+        
+        // Find the members group for this CO.    
+        $args = array();
+        $args['conditions']['CoGroup.name'] = 'members';
+        $args['conditions']['CoGroup.co_id'] = $this->data[$this->alias]['co_id'];
+        $args['contain'] = false;
+        $membersgroup = $this->CoGroupMember->CoGroup->find('first', $args);
+            
+        // Create the membership in the members group.
+        $data = array();
+        $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
+        $data['CoGroupMember']['co_person_id'] = $this->data[$this->alias]['id'];
+        $data['CoGroupMember']['member'] = true;
+            
+        $this->CoGroupMember->save($data);
+  	}
+  }
+  
+  /**
    * Completely purge a CO Person. This will cascade deletes past where normal
    * relations would permit, and update history and notifications where the CO Person
    * has a role beyond subject.
