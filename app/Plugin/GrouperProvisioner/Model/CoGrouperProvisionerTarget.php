@@ -327,9 +327,6 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
   
   public function verifyGrouperServer($serverUrl, $contextPath, $login, $password, $stemName) {
 
-    // create if necessary the Grouper subject database view
-    $this->createDatabaseView();
-
     // test server access and authentication
     try {
       $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
