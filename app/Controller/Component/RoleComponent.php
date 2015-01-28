@@ -819,30 +819,30 @@ class RoleComponent extends Component {
         
         if($this->isCoAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
           $ret = true;
-        }
-        
-        if(!empty($coEF['CoEnrollmentFlow']['authz_cou_id'])) {
-          // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
-          
-          $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
         } else {
-          // No authz_cou_id
-          
-          $couId = null;
-          
-          if($coPetitionId) {
-            $couId = $CoEnrollmentFlow->CoPetition->field('cou_id',
-                                                          array('CoPetition.id' => $coPetitionId));
-          }
-          
-          if($couId) {
-            // (3) A COU is attached to the petition and $coPersonId is a COU admin
+          if(!empty($coEF['CoEnrollmentFlow']['authz_cou_id'])) {
+            // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
             
-            $ret = $this->isCouAdmin($coPersonId, $couId);
+            $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
           } else {
-            // (4) No authz_cou_id is specified and $coPersonId is a COU admin
+            // No authz_cou_id
             
-            $ret = $this->isCouAdmin($coPersonId);
+            $couId = null;
+            
+            if($coPetitionId) {
+              $couId = $CoEnrollmentFlow->CoPetition->field('cou_id',
+                                                            array('CoPetition.id' => $coPetitionId));
+            }
+            
+            if($couId) {
+              // (3) A COU is attached to the petition and $coPersonId is a COU admin
+              
+              $ret = $this->isCouAdmin($coPersonId, $couId);
+            } else {
+              // (4) No authz_cou_id is specified and $coPersonId is a COU admin
+              
+              $ret = $this->isCouAdmin($coPersonId);
+            }
           }
         }
       }
