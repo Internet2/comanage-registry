@@ -173,4 +173,85 @@ class CoPersonRole extends AppModel {
     'affiliation' => 'affil_t',
     'status' => 'status_t'
   );
-}
+  
+  /**
+   * Execute logic after a CO Person Role save operation.
+   * For now manage membership of CO Person in COU members group.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @param  boolean true if a new record was created (rather than update)
+   * @param  array, the same passed into Model::save()
+   * @return none
+   */
+  
+  public function afterSave($created, $options) {
+  	// Manage CO person membership in the COU members group.
+      
+    // Since the Provisioner Behavior will only provision group memberships
+    // for CO People with an Active status we do not need to manage 
+    // membership in the members group based on status here.  So we only
+    // add a CO Person to the COU members group whenever we detect
+    // the CO Person Record has a COU.
+    $couid = $this->data[$this->alias]['cou_id'];
+    if (empty($couid)) {
+    	return;
+    }
+    
+    // The saved data may have been contained and not have what we need
+    // so find the model (CoPersonRole) data again and include COU and
+    // group memberships to be used later.
+    $args = array();
+    $args['conditions'][$this->alias . '.id'] = $this->data[$this->alias]['id'];
+    $args['contain'][] = 'Cou';
+    $args['contain']['CoPerson']['CoGroupMember'] = 'CoGroup';
+    $copersonrole = $this->find('first', $args);
+    
+    // Find the members group for the COU.    
+    $args = array();
+    $args['conditions']['CoGroup.name'] = 'members:' . $copersonrole['Cou']['name'];
+    $args['conditions']['CoGroup.co_id'] = $copersonrole['CoPerson']['co_id'];
+    $args['contain'] = false;
+    $membersgroup = $this->CoPerson->CoGroupMember->CoGroup->find('first', $args);
+      
+	  // Find all COU names for the CO so that we can manage memberships in
+	  // the associated members groups, since we might have to delete a memberhip
+	  // if the COU is changing for this role.
+	  $args = array();
+    $args['conditions']['Cou.co_id'] = $copersonrole['CoPerson']['co_id'];
+    $args['contain'] = false;
+    $cous = $this->CoPerson->Co->Cou->find('all', $args);
+            
+    // Loop over any existing memberships to determine if already 
+    // a member of the COU members group, and any existing membership
+    // for another COU that may have to be deleted if the role is changing
+    // COUs.
+    $alreadyMember = false;
+    foreach($copersonrole['CoPerson']['CoGroupMember'] as $membership) {
+    	if($membership['co_group_id'] == $membersgroup['CoGroup']['id']) {
+    		$alreadyMember = true;
+    	} else {
+      	foreach($cous as $cou){
+      		$couName = $cou['Cou']['name'];
+          // If a member in some other COU members group then delete that membership.
+      		if(($membership['CoGroup']['name'] == 'members:' . $couName) and 
+      				($couName !=  $copersonrole['Cou']['name'])) {
+            $this->CoPerson->CoGroupMember->delete($membership['id']);
+      		}
+      	}
+    	}
+    }
+    
+    if ($alreadyMember) {
+    	return;
+    }
+	  
+    // Create the membership in the members group.
+    $this->CoPerson->CoGroupMember->clear();
+    $data = array();
+    $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
+    $data['CoGroupMember']['co_person_id'] = $copersonrole[$this->alias]['co_person_id'];
+    $data['CoGroupMember']['member'] = true;
+            
+    $this->CoPerson->CoGroupMember->save($data);
+  }
+} 

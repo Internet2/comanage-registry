@@ -51,50 +51,6 @@ UNION SELECT i.identifier as username, '*' as password, null as api_user_id
 FROM cm_identifiers i
 WHERE i.login=true;
 ");
-
-      // Determine if we should create a view for Grouper to
-      // use as a JDBC source in the Grouper sources.xml configuration
-      // and create the view if necessary.
-      $createGrouperSourceView = Configure::read('Grouper.useCOmanageSubjectSource');
-      if ($createGrouperSourceView) {
-         
-        // Determine which database is being used.
-        $db =& ConnectionManager::getDataSource('default');
-        $db_driver = split("/", $db->config['datasource'], 2);
-
-        // The view syntax is different for each database product.
-        if ($db_driver[1] == 'Mysql') {
-          $this->Identifier->query("CREATE VIEW " . $prefix . "grouper_subjects AS
-SELECT
-    cm_co_people.id AS 'id',
-    CONCAT(GROUP_CONCAT(DISTINCT cm_names.given),' ',GROUP_CONCAT(DISTINCT cm_names.family)) AS 'name',
-    CONCAT(GROUP_CONCAT(DISTINCT cm_names.family),',',GROUP_CONCAT(DISTINCT cm_names.given)) AS 'lfname',
-    CONCAT(GROUP_CONCAT(DISTINCT cm_names.given),' ',GROUP_CONCAT(DISTINCT cm_names.family),' (',GROUP_CONCAT(DISTINCT cm_cos.description),')') AS 'description',
-    SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),',',1) AS 'loginid1',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),','),',',2),',',-1) AS 'loginid2',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),','),',',3),',',-1) AS 'loginid3',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),','),',',4),',',-1) AS 'loginid4',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_identifiers.identifier),','),',',5),',',-1) AS 'loginid5',
-    SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),',',1) AS 'email1',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),','),',',2),',',-1) AS 'email2',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),','),',',3),',',-1) AS 'email3',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),','),',',4),',',-1) AS 'email4',
-    SUBSTRING_INDEX(SUBSTRING_INDEX(CONCAT(GROUP_CONCAT(DISTINCT cm_email_addresses.mail),','),',',5),',',-1) AS 'email5'
-FROM
-    cm_co_people
-    LEFT JOIN cm_names ON cm_co_people.id = cm_names.co_person_id
-    LEFT JOIN cm_identifiers ON cm_co_people.id = cm_identifiers.co_person_id
-    LEFT JOIN cm_email_addresses ON cm_co_people.id = cm_email_addresses.co_person_id
-    LEFT JOIN cm_cos ON cm_co_people.co_id = cm_cos.id
-GROUP BY 
-    cm_co_people.id
-");
-
-        } else {
-          // Only support MySQL for now so throw exception.
-          throw new RuntimeException('Grouper support requires MySQL at this time');
-        }
-      }
       
       // We need the following:
       // - The COmanage CO
