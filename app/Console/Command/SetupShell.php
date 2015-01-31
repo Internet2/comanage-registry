@@ -58,7 +58,8 @@ WHERE i.login=true;
       // - The administrator as member of the COmanage CO
       // - A login identifier for the administrator
       // - A group called 'admin' in the COmanage CO
-      // - The administrator as a member of that group
+      // - A group called 'members' in the COmanage CO
+      // - The administrator as a member of the admin and members groups
 
       // Start with the COmanage CO
       
@@ -74,6 +75,41 @@ WHERE i.login=true;
       
       $this->Co->save($co);
       $co_id = $this->Co->id;
+      
+      // Create the COmanage admin group
+      
+      $this->out("- " . _txt('se.db.admingroup'));
+      
+      $gr = array(
+        'CoGroup' => array(
+          'co_id'       => $co_id,
+          'name'        => 'admin',
+          'description' => _txt('co.cm.gradmin'),
+          'open'        => false,
+          'status'      => StatusEnum::Active
+        )
+      );
+
+      $this->CoGroup->save($gr);
+      $grAdminId = $this->CoGroup->id;
+      
+      // Create the COmanage members group
+      
+      $this->out("- " . _txt('se.db.membersgroup'));
+      
+      $this->CoGroup->clear();
+      $gr = array(
+        'CoGroup' => array(
+          'co_id'       => $co_id,
+          'name'        => 'members',
+          'description' => _txt('co.cm.grmembers'),
+          'open'        => false,
+          'status'      => StatusEnum::Active
+        )
+      );
+
+      $this->CoGroup->save($gr);
+      $grMembersId = $this->CoGroup->id;
 
       // Create the OrgIdentity. By default, Org Identities are not pooled, so
       // we attach this org_identity to the new CO.
@@ -158,28 +194,12 @@ WHERE i.login=true;
       $this->CoOrgIdentityLink->save($coil);
       $coil_id = $this->CoOrgIdentityLink->id;
         
-      // Create the COmanage admin group
-      
-      $this->out("- " . _txt('se.db.group'));
-      
-      $gr = array(
-        'CoGroup' => array(
-          'co_id'       => $co_id,
-          'name'        => 'admin',
-          'description' => _txt('co.cm.gradmin'),
-          'open'        => false,
-          'status'      => StatusEnum::Active
-        )
-      );
-
-      $this->CoGroup->save($gr);
-      $gr_id = $this->CoGroup->id;
       
       // Add the CO Person Role to the admin group
       
       $grm = array(
         'CoGroupMember' => array(
-          'co_group_id'   => $gr_id,
+          'co_group_id'   => $grAdminId,
           'co_person_id'  => $cop_id,
           'member'        => true,
           'owner'         => true
@@ -187,7 +207,21 @@ WHERE i.login=true;
       );
 
       $this->CoGroupMember->save($grm);
-      $grm_id = $this->CoGroupMember->id;
+      
+      // Add the CO Person Role to the members group
+      
+      $this->CoGroupMember->clear();
+      
+      $grm = array(
+        'CoGroupMember' => array(
+          'co_group_id'   => $grMembersId,
+          'co_person_id'  => $cop_id,
+          'member'        => true,
+          'owner'         => true
+        )
+      );
+
+      $this->CoGroupMember->save($grm);
       
       // Generate security salt and seed files if they don't already exist
       

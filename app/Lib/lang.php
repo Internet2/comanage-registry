@@ -51,6 +51,7 @@ $cm_texts['en_US'] = array(
   
   // COs Controllers
   'co.cm.gradmin' =>  'COmanage Platform Administrators',
+  'co.cm.grmembers' =>  'COmanage CO Members',
   'co.cm.desc' =>     'COmanage Registry Internal CO',
   'co.init' =>        'No COs found, initial CO created',
   'co.nomember' =>    'You are not a member of any COs',
@@ -1188,7 +1189,8 @@ original notification at
   'se.cf.admin.user' =>   'Enter administrator\'s login username',
   'se.db.co' =>           'Creating COmanage CO',
   'se.db.cop' =>          'Adding Org Identity to CO',
-  'se.db.group' =>        'Creating COmanage admin group',
+  'se.db.admingroup' =>        'Creating COmanage admin group',
+  'se.db.membersgroup' =>        'Creating COmanage members group',
   'se.db.op' =>           'Adding initial Org Identity',
   'se.security.salt' =>   'Creating security salt file',
   'se.security.salt.exists' => 'Security salt file already exists',
