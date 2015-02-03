@@ -750,12 +750,26 @@ class StandardController extends AppController {
     $req = $this->modelClass;
     $model = $this->$req;
 
-    foreach ($this->data[$req.'Id'] as $key => $value) {
-      $model->id = $value;
-      $model->saveField("ordr",$key + 1);
+    if($this->restful) {
+      // Reformat the serialized order into Cake format for saving
+      $data = array();
+      
+      foreach($this->data[$req.'Id'] as $key => $value) {
+        $data[] = array(
+          'id'   => $value,
+          'ordr' => $key+1
+        );
+      }
+      
+      if($model->saveMany($data, array('fieldList' => array('ordr')))) {
+        $this->restResultHeader(200, "OK");
+      } else {
+        $this->restResultHeader(500, "Database Save Failed");
+      }
+      
+      // Make sure the response goes out
+      $this->response->send();
     }
-
-    exit();
   }
 
   /**
