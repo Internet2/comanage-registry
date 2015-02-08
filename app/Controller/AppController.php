@@ -310,7 +310,8 @@ class AppController extends Controller {
            ||
            // MVPA controllers operating on org identities where pool_org_identities
            // is false will not specify/require a CO
-           $orgPooled)) {
+           $orgPooled
+            && !empty($p['orgidentityid']))) {
       // Controllers that don't require a CO generally can't imply one.
       return null;
     }
