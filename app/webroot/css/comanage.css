@@ -111,7 +111,8 @@ a.linkbutton:last-child {
   padding-right: 0px;
 }
 #firstPrompt {
-  margin-bottom: 12em;
+  font-size: 1.5em;
+  margin: 2em 0 12em;
 }
 
 /* Messages */

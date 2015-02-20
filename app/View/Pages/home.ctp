@@ -73,7 +73,7 @@
 </div>
 <?php else: // $err ?>
 <div id="firstPrompt">
-  <h2><?php
+  <?php
     // Render some text according to the user's current state
     if(!empty($userInfo['cos'])) {
       // Valid user
@@ -82,6 +82,6 @@
       // Please login
       print _txt('op.home.login', array(_txt('coordinate')));
     }
-  ?></h2>
+  ?>
 </div>
 <?php endif; // $err ?>
