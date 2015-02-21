@@ -166,8 +166,7 @@ class CoGroupsController extends StandardController {
     // Mostly, we want the standard behavior.  However, we need to retrieve the
     // set of members when rendering the edit form.
     
-    if(!$this->request->is('restful') && $this->request->is('get'))
-    {
+    if(!$this->request->is('restful') && $this->request->is('get')) {
       // Retrieve the set of all group members for group with ID $id.
       // Specify containable behavior to get necessary relations.
       $conditions = array();
@@ -182,6 +181,32 @@ class CoGroupsController extends StandardController {
 
       $allGroupMembers = $this->CoGroup->CoGroupMember->find('all', $args);
       $this->set('co_group_members', $allGroupMembers);
+      
+    	// Signal if this is a members group so that the edit and delete
+    	// buttons on memberships can not be included.
+    
+      $conditions = array();
+      $conditions['CoGroup.id'] = $id;
+      $contain = array();
+      $contain['Co'][] = 'Cou';
+      
+      $args = array();
+      $args['conditions'] = $conditions;
+      $args['contain'] = $contain;
+      $coGroup = $this->CoGroup->find('first', $args);
+      
+      $isMembersGroup = false;
+      if($coGroup['CoGroup']['name'] == 'members') {
+      	$isMembersGroup = true;
+      } else {
+          foreach($coGroup['Co']['Cou'] as $cou) {
+          	if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
+          		$isMembersGroup = true;
+          	}
+      		}            
+      }
+      
+      $this->set('isMembersGroup', $isMembersGroup);
     }
     
     // Invoke the StandardController edit

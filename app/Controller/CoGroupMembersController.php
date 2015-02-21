@@ -501,9 +501,28 @@ class CoGroupMembersController extends StandardController {
     
     $args = array();
     $args['conditions']['CoGroup.id'] = $this->request->params['named']['cogroup'];
-    $args['contain'] = false;
+    $args['contain']['Co'] = 'Cou';
     
-    $this->set('co_group', $this->CoGroupMember->CoGroup->find('first', $args));
+    $coGroup = $this->CoGroupMember->CoGroup->find('first', $args);
+    
+    $this->set('co_group', $coGroup);
+    
+    // Also signal if this is a members group and so checkboxes and save button
+    // should be disabled.
+    
+    // Check for CO members group and if not then check for COU members group.
+    $isMembersGroup = false;
+    if($coGroup['CoGroup']['name'] == 'members') {
+    	$isMembersGroup = true;
+    } else {
+        foreach($coGroup['Co']['Cou'] as $cou) {
+        	if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
+        		$isMembersGroup = true;
+        	}
+    		}            
+    }
+    
+    $this->set('isMembersGroup', $isMembersGroup);
   }
   
   /**

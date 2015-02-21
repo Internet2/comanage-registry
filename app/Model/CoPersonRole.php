@@ -189,6 +189,7 @@ class CoPersonRole extends AppModel {
     // membership in the members group based on status here.  So we only
     // add a CO Person to the COU members group whenever we detect
     // the CO Person Record has a COU.
+    
     if(empty($this->data[$this->alias]['cou_id'])) {
       return;
     }

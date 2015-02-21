@@ -136,6 +136,51 @@ class Cou extends AppModel {
     
     return(array());
   }
+  
+  /**
+   * Actions before deleting a Cou. Currently delete admin and members groups.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  boolean Whether this is a cascading delete
+   * @return true for the actual delete to happen
+   * @see Model::beforeDelete()
+   */
+  
+  public function beforeDelete($cascade) {
+      // Call AppModel parent beforeDelete first so that any
+      // plugins that need to be consulted are so consulted
+      // first.
+      parent::beforeDelete($cascade);
+      
+      // Delete the associated admin and members groups.
+      // The checkDeleteDependencies method on the CousController will
+      // only call delete if there are no roles in the COU and the
+      // COU is really being deleted so we do not have to worry about
+      // that here.
+      $conditions = array();
+      $conditions['Cou.id'] = $this->id;
+      
+      $args = array();
+      $args['conditions'] = $conditions;
+      $args['contain']['Co'] = 'CoGroup';
+      
+      $cou = $this->find('first', $args);
+      $couName = $cou['Cou']['name'];
+      
+      foreach($cou['Co']['CoGroup'] as $group) {
+          $groupName = $group['name'];
+          if($groupName == ('admin:' . $couName)) {
+          	// Delete the admin group.
+            $this->Co->CoGroup->delete($group['id']);
+          } elseif($groupName == 'members:' . $couName) {
+          	// Delete the members group.
+            $this->Co->CoGroup->delete($group['id']);
+          }
+      }
+      
+      // Return true so that the delete actually happens.
+  		return true;
+  }
 
   /**
    * Generates dropdown option list for html for a COU.
