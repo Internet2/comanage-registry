@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Controller
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -77,12 +77,13 @@ class CoGroupsController extends StandardController {
         if($reqdata['CoGroup']['name'] == 'admin'
            || strncmp($reqdata['CoGroup']['name'], 'admin:', 6) == 0)
         {
-          if($this->restful)
-            $this->restResultHeader(403, "Name Reserved");
-          else
+          if($this->request->is('restful')) {
+            $this->Api->restResultHeader(403, "Name Reserved");
+          } else {
             $this->Session->setFlash(_txt('er.gr.res'), '', array(), 'error');          
-  
-          return(false);
+          }
+          
+          return false;
         }
       }
       
@@ -92,18 +93,18 @@ class CoGroupsController extends StandardController {
                                              array('CoGroup.name' => $reqdata['CoGroup']['name'],
                                                    'CoGroup.co_id' => $this->cur_co['Co']['id'])));
       
-      if(!empty($x))
-      {
-        if($this->restful)
-          $this->restResultHeader(403, "Name In Use");
-        else
+      if(!empty($x)) {
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "Name In Use");
+        } else {
           $this->Session->setFlash(_txt('er.gr.exists', array($reqdata['CoGroup']['name'])), '', array(), 'error');          
-
-        return(false);
+        }
+        
+        return false;
       }
     }
 
-    return(true);
+    return true;
   }
   
   /**
@@ -123,7 +124,7 @@ class CoGroupsController extends StandardController {
   function checkWriteFollowups($reqdata, $curdata = null) {
     // Add the co person as owner/member of the new group, but only via HTTP
     
-    if(!$this->restful && $this->action == 'add')
+    if(!$this->request->is('restful') && $this->action == 'add')
     {
       $cos = $this->Session->read('Auth.User.cos');
 
@@ -140,12 +141,12 @@ class CoGroupsController extends StandardController {
         if(!$this->CoGroup->CoGroupMember->save($a))
         {
           $this->Session->setFlash(_txt('er.gr.init'), '', array(), 'info');
-          return(false);
+          return false;
         }
       }
     }
     
-    return(true);
+    return true;
   }
 
   /**
@@ -165,7 +166,7 @@ class CoGroupsController extends StandardController {
     // Mostly, we want the standard behavior.  However, we need to retrieve the
     // set of members when rendering the edit form.
     
-    if(!$this->restful && $this->request->is('get'))
+    if(!$this->request->is('restful') && $this->request->is('get'))
     {
       // Retrieve the set of all group members for group with ID $id.
       // Specify containable behavior to get necessary relations.
@@ -197,7 +198,7 @@ class CoGroupsController extends StandardController {
    */
   
   function index() {
-    if($this->restful && !empty($this->params['url']['copersonid'])) {
+    if($this->request->is('restful') && !empty($this->params['url']['copersonid'])) {
       // We need to retrieve via a join, which StandardController::index() doesn't
       // currently support.
       
@@ -205,19 +206,14 @@ class CoGroupsController extends StandardController {
         $groups = $this->CoGroup->findForCoPerson($this->params['url']['copersonid']);
         
         if(!empty($groups)) {
-          $this->set('co_groups', $groups);
-          
-          // We also need to pass member/ownership in these groups.
-          
-          $this->set('co_group_members',
-                     $this->CoGroup->CoGroupMember->findCoPersonGroupRoles($this->params['url']['copersonid']));
+          $this->set('co_groups', $this->Api->convertRestResponse($groups));
         } else {
-          $this->restResultHeader(204, "CO Person Has No Groups");
+          $this->Api->restResultHeader(204, "CO Person Has No Groups");
           return;
         }
       }
       catch(InvalidArgumentException $e) {
-        $this->restResultHeader(404, "CO Person Unknown");
+        $this->Api->restResultHeader(404, "CO Person Unknown");
         return;
       }
     } else {
@@ -365,7 +361,7 @@ class CoGroupsController extends StandardController {
    */
   
   function provision($id) {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Pull some data for the view to be able to render
       $this->set('co_provisioning_status', $this->CoGroup->provisioningStatus($id));
       
@@ -428,8 +424,7 @@ class CoGroupsController extends StandardController {
    */
   
   function view($id) {
-    if(!$this->restful)
-    {
+    if(!$this->request->is('restful')) {
       $this->CoGroup->CoGroupMember->recursive = 2;
       $x = $this->CoGroup->CoGroupMember->find('all', array('conditions' =>
                                                             array('CoGroupMember.co_group_id' => $id)));
@@ -440,5 +435,4 @@ class CoGroupsController extends StandardController {
     // Invoke the StandardController view
     parent::view($id);
   }
-
 }

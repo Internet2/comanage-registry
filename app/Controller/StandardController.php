@@ -46,14 +46,57 @@ class StandardController extends AppController {
     $modelid = $this->modelKey . "_id";
     $modelpl = Inflector::tableize($req);
     
-    if($this->restful) {
+    $checkpid = -1;
+    $data = array();
+    
+    if($this->request->is('restful')) {
       // Validate
       
-      if(!$this->checkRestPost())
+      try {
+        $this->Api->checkRestPost();
+        $data[$req] = $this->Api->getData();
+        
+        if($this->request->is('restful') && !empty($data[$req]['extended_attributes'])) {
+          // We need to specially handle extended attributes here. This really
+          // belongs in CoPersonRole::beforeSave(), but in Cake 2 callbacks can't
+          // modify associated data. We can't do this in ApiComponent because it
+          // only returns one model's worth of data. We can't do this in
+          // CoPersonRolesController because there isn't a suitable callback.
+          // We do similar logic in edit(), below.
+          
+          $eaModel = 'Co' . $this->cur_co['Co']['id'] . 'PersonExtendedAttribute';
+          
+          $data[$eaModel] = $data[$req]['extended_attributes'];
+          unset($data[$req]['extended_attributes']);
+        }
+      }
+      catch(InvalidArgumentException $e) {
+        // See if we have invalid fields
+        $invalidFields = $this->Api->getInvalidFields();
+        
+        if($invalidFields) {
+          // Pass them to the view
+          $this->set('invalid_fields', $invalidFields);
+        }
+        
+        $this->Api->restResultHeader($e->getCode(), $e->getMessage());
         return;
+      }
       
-      // Reformat the request
-      $data = $this->convertRestPost();
+      if($this->requires_person) {
+        switch($this->checkPersonID("calculate", $data)) {
+          case -1:
+            $this->Api->restResultHeader(403, "Person Does Not Exist");
+            return;
+            break;
+          case 0:
+            $this->Api->restResultHeader(403, "No Person Specified");
+            return;
+            break;
+          default:
+            break;
+        }
+      }
     } else {
       if(!isset($this->viewVars['title_for_layout'])) {
         // Set page title, if not already set
@@ -63,17 +106,18 @@ class StandardController extends AppController {
       if($this->request->is('get')) {
         // Nothing to do yet... return to let the form render
         
-        if($this->requires_person)
+        if($this->requires_person) {
           $this->checkPersonID("default", $this->request->data);
+        }
         
         return;
       }
       
       $data = $this->request->data;
+      
+      if($this->requires_person && $this->checkPersonID() < 1)
+        return;
     }
-
-    if($this->requires_person && $this->checkPersonID("default", $data) < 1)
-      return;
 
     // Perform model specific checks
 
@@ -86,31 +130,30 @@ class StandardController extends AppController {
       
       if(!$this->recordHistory('add', $data)
          || !$this->checkWriteFollowups($data)) {
-        if(!$this->restful) {
+        if(!$this->request->is('restful')) {
           $this->performRedirect();
         }
         
         return;
       }
       
-      if($this->restful) {
-        $this->restResultHeader(201, "Added");
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(201, "Added");
         $this->set($modelid, $model->id);
       } else {
         // Redirect to index view
-
         $this->Session->setFlash(_txt('rs.added-a', array(Sanitize::html($this->generateDisplayKey()))), '', array(), 'success');
         $this->performRedirect();
       }
     } else {
-      if($this->restful) {
+      if($this->request->is('restful')) {
         $fs = $model->invalidFields();
         
         if(!empty($fs)) {
-          $this->restResultHeader(400, "Invalid Fields");
+          $this->Api->restResultHeader(400, "Invalid Fields");
           $this->set('invalid_fields', $fs);
         } else {
-          $this->restResultHeader(500, "Other Error");
+          $this->Api->restResultHeader(500, "Other Error");
         }
       } else {
         $this->Session->setFlash(_txt('er.fields'), '', array(), 'error');
@@ -130,7 +173,7 @@ class StandardController extends AppController {
    */
   
   function checkDeleteDependencies($curdata) {
-    return(true);
+    return true;
   }
   
   /**
@@ -187,15 +230,14 @@ class StandardController extends AppController {
 
     if(isset($this->delete_recursion))
       $model->recursive = $this->delete_recursion;
-      
+    
     // Cache the name before deleting, and also check that $id exists
     
     $model->id = $id;
     
-    if(!isset($id) || $id < 1)
-    {
-      if($this->restful)
-        $this->restResultHeader(400, "Invalid Fields");
+    if(!isset($id) || $id < 1) {
+      if($this->request->is('restful'))
+        $this->Api->restResultHeader(400, "Invalid Fields");
       else
         $this->Session->setFlash(_txt('er.notprov.id', array($req)), '', array(), 'error');
       
@@ -206,10 +248,9 @@ class StandardController extends AppController {
     // set via bindModel().
     $op = $model->read();
     
-    if(empty($op))
-    {
-      if($this->restful)
-        $this->restResultHeader(404, $req . " Unknown");
+    if(empty($op)) {
+      if($this->request->is('restful'))
+        $this->Api->restResultHeader(404, $req . " Unknown");
       else
         $this->Session->setFlash(_txt('er.notfound', array($req, $id)), '', array(), 'error');
       
@@ -220,42 +261,35 @@ class StandardController extends AppController {
 
     // Perform model specific checks
 
-    if(!$this->checkDeleteDependencies($op))
-    {
-      if(!$this->restful)
+    if(!$this->checkDeleteDependencies($op)) {
+      if(!$this->request->is('restful'))
         $this->performRedirect();
+      
       return;
     }
 
     // Remove the object.
 
-    if($model->delete($id))
-    {
+    if($model->delete($id)) {
       if($this->recordHistory('delete', null, $op)) {
-        if($this->restful)
-          $this->restResultHeader(200, "Deleted");
+        if($this->request->is('restful'))
+          $this->Api->restResultHeader(200, "Deleted");
         else
           $this->Session->setFlash(_txt('er.deleted-a', array(Sanitize::html($name))), '', array(), 'success');
       }
-    }
-    else
-    {              
-      if($this->restful)
-        $this->restResultHeader(500, "Other Error");
+    } else {
+      if($this->request->is('restful'))
+        $this->Api->restResultHeader(500, "Other Error");
       else
         $this->Session->setFlash(_txt('er.delete'), '', array(), 'error');
     }
     
-    if(!$this->restful)
-    {
+    if(!$this->request->is('restful')) {
       // Delete doesn't have a view, so we need to redirect back to index regardless of success
       
-      if($this->requires_person)
-      {
+      if($this->requires_person) {
         $this->checkPersonID("force", $op);
-      }
-      else
-      {
+      } else {
         $this->performRedirect();
       }
     }
@@ -300,20 +334,18 @@ class StandardController extends AppController {
       $curdata = $model->read();
     }
     
-    if(empty($curdata))
-    {
-      if($this->restful)
-        $this->restResultHeader(404, $req . " Unknown");
-      else
-      {
+    if(empty($curdata)) {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(404, $req . " Unknown");
+      } else {
         $this->Session->setFlash(_txt('er.notfound', array(_txt('ct.' . $modelpl . '.1'), $id)), '', array(), 'error');
         $this->performRedirect();
       }
-        
+      
       return;
     }
 
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       if(!isset($this->viewVars['title_for_layout'])) {
         // Set page title if not already set -- note we do similar logic in view()
         
@@ -341,18 +373,63 @@ class StandardController extends AppController {
       }
     }
     
-    if($this->restful)
-    {
+    if($this->request->is('restful')) {
       // Validate
       
-      if(!$this->checkRestPost())
+      try {
+        $this->Api->checkRestPost();
+        $data[$req] = $this->Api->getData();
+        
+        if($this->request->is('restful') && !empty($data[$req]['extended_attributes'])) {
+          // We need to specially handle extended attributes here. This really
+          // belongs in CoPersonRole::beforeSave(), but in Cake 2 callbacks can't
+          // modify associated data. We can't do this in ApiComponent because it
+          // only returns one model's worth of data. We can't do this in
+          // CoPersonRolesController because there isn't a suitable callback.
+          // We do similar logic in add(), above.
+          
+          $eaModel = 'Co' . $this->cur_co['Co']['id'] . 'PersonExtendedAttribute';
+          
+          $data[$eaModel] = $data[$req]['extended_attributes'];
+          unset($data[$req]['extended_attributes']);
+          
+          // Is there already a row ID for this person role? (edit, not add)
+          $eaId = $model->$eaModel->field('id', array($eaModel . '.co_person_role_id' => $id));
+          
+          if($eaId) {
+            $data[$eaModel]['id'] = $eaId;
+          }
+        }
+      }
+      catch(InvalidArgumentException $e) {
+        // See if we have invalid fields
+        $invalidFields = $this->Api->getInvalidFields();
+        
+        if($invalidFields) {
+          // Pass them to the view
+          $this->set('vv_id', $id);
+          $this->set('invalid_fields', $invalidFields);
+        }
+        
+        $this->Api->restResultHeader($e->getCode(), $e->getMessage());
         return;
+      }
       
-      // Reformat the request
-      $data = $this->convertRestPost($curdata);
-    }
-    else
-    {
+      if($this->requires_person) {
+        switch($this->checkPersonID("calculate", $data)) {
+          case -1:
+            $this->Api->restResultHeader(403, "Person Does Not Exist");
+            return;
+            break;
+          case 0:
+            $this->Api->restResultHeader(403, "No Person Specified");
+            return;
+            break;
+          default:
+            break;
+        }
+      }
+    } else {
       if($this->request->is('get'))
       {
         // Nothing to do yet... return current data and let the form render
@@ -379,19 +456,18 @@ class StandardController extends AppController {
         
         $this->request->data[$req]['id'] = $id;
       }
+      
+      if($this->requires_person) {
+        // We need exactly one of CO Person or Org Person, and it must exist.
+        // (It's a bit pointless of a check since the HTML form doesn't allow the person ID to
+        // be updated.)
+              
+        if($this->checkPersonID('default', $curdata) < 1)
+          return;
+      }
     }
-
-    if($this->requires_person)
-    {
-      // We need exactly one of CO Person or Org Person, and it must exist.
-      // (It's a bit pointless of a check since the HTML form doesn't allow the person ID to
-      // be updated.)
-            
-      if($this->checkPersonID('default', $curdata) < 1)
-        return;
-    }
-
-    // Make sure ID is set      
+    
+    // Make sure ID is set
     $data[$req]['id'] = $id;
     
     // Set the view var since views require it on error... we need this
@@ -417,40 +493,34 @@ class StandardController extends AppController {
       
       if(!$this->recordHistory('edit', $data, $curdata)
          || !$this->checkWriteFollowups($data, $curdata)) {
-        if(!$this->restful)
+        if(!$this->request->is('restful')) {
           $this->performRedirect();
+        }
         
         return;
       }
 
-      if($this->restful)
-        $this->restResultHeader(200, "OK");
-      else
-      {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(200, "OK");
+      } else {
         // Redirect to index view
         
         $this->Session->setFlash(_txt('rs.updated', array(Sanitize::html($this->generateDisplayKey()))), '', array(), 'success');
         $this->performRedirect();
       }
-    }
-    else
-    {
-      if($this->restful)
-      {
+    } else {
+      if($this->request->is('restful')) {
         $fs = $model->invalidFields();
         
-        if(!empty($fs))
-        {
-          $this->restResultHeader(400, "Invalid Fields");
+        if(!empty($fs)) {
+          $this->Api->restResultHeader(400, "Invalid Fields");
           $this->set('invalid_fields', $fs);
+        } else {
+          $this->Api->restResultHeader(500, "Other Error");
         }
-        else
-        {
-          $this->restResultHeader(500, "Other Error");
-        }
-      }
-      else
+      } else {
         $this->Session->setFlash(_txt('er.fields'), '', array(), 'error');
+      }
     }
   }
   
@@ -529,144 +599,143 @@ class StandardController extends AppController {
     // XXX The various sub-filters here (eg: findByCoPersonId) should be merged into
     // the new paginationConditions method.
 
-    if($this->restful)
-    {
-      // Don't use server side pagination
-
-      if($this->requires_person)
-      {
-        if(!empty($this->params['url']['copersonid']))
-        {
+    if($this->request->is('restful')) {
+      if($this->requires_person) {
+        if(!empty($this->params['url']['copersonid'])) {
           $t = $model->findAllByCoPersonId($this->params['url']['copersonid']);
           
-          if(empty($t))
-          {
+          if(empty($t)) {
             // We need to determine if copersonid is unknown or just
             // has no objects attached to it
             
             $o = $model->CoPerson->findById($this->params['url']['copersonid']);
             
-            if(empty($o))
-              $this->restResultHeader(404, "CO Person Unknown");
-            else
-              $this->restResultHeader(204, "CO Person Has No " . $req);
+            if(empty($o)) {
+              $this->Api->restResultHeader(404, "CO Person Unknown");
+            } else {
+              $this->Api->restResultHeader(204, "CO Person Has No " . $req);
+            }
             
             return;
           }
-
-          $this->set($modelpl, $this->convertResponse($t));
-        }
-        elseif(!empty($this->params['url']['copersonroleid']))
-        {
+          
+          $this->set($modelpl, $this->Api->convertRestResponse($t));
+        } elseif(!empty($this->params['url']['copersonroleid'])) {
           $t = $model->findAllByCoPersonRoleId($this->params['url']['copersonroleid']);
           
-          if(empty($t))
-          {
+          if(empty($t)) {
             // We need to determine if copersonroleid is unknown or just
             // has no objects attached to it
             
             $o = $model->CoPersonRole->findById($this->params['url']['copersonroleid']);
             
-            if(empty($o))
-              $this->restResultHeader(404, "CO Person Role Unknown");
-            else
-              $this->restResultHeader(204, "CO Person Role Has No " . $req);
+            if(empty($o)) {
+              $this->Api->restResultHeader(404, "CO Person Role Unknown");
+            } else {
+              $this->Api->restResultHeader(204, "CO Person Role Has No " . $req);
+            }
             
             return;
           }
-
-          $this->set($modelpl, $this->convertResponse($t));
-        }
-        elseif(!empty($this->params['url']['orgidentityid']))
-        {
+          
+          $this->set($modelpl, $this->Api->convertRestResponse($t));
+        } elseif(!empty($this->params['url']['orgidentityid'])) {
           $t = $model->findAllByOrgIdentityId($this->params['url']['orgidentityid']);
-
-          if(empty($t))
-          {
+          
+          if(empty($t)) {
             // We need to determine if orgidentityid is unknown or just
             // has no objects attached to it
             
             $o = $model->OrgIdentity->findById($this->params['url']['orgidentityid']);
             
-            if(empty($o))
-              $this->restResultHeader(404, "Org Identity Unknown");
-            else
-              $this->restResultHeader(204, "Org Identity Has No " . $req);
+            if(empty($o)) {
+              $this->Api->restResultHeader(404, "Org Identity Unknown");
+            } else {
+              $this->Api->restResultHeader(204, "Org Identity Has No " . $req);
+            }
             
             return;
           }
           
-          $this->set($modelpl, $this->convertResponse($t));
-        }
-        else
-        {
+          $this->set($modelpl, $this->Api->convertRestResponse($t));
+        } else {
           // Although requires_person is true, the REST APIs generally permit
           // retrieval of all items of a given type
           
-          $this->set($modelpl, $this->convertResponse($model->find('all')));
+          $params = null;
+          
+          if($this->requires_co && !empty($this->params['url']['coid'])) {
+            // Only retrieve members of the requested CO.
+            // For now, not specifying a CO is OK, we just retrieve all.
+            // XXX need to do an authz check on this
+            
+            if(isset($model->CoPerson)) {
+              if(!$model->CoPerson->Co->findById($this->params['url']['coid'])) {
+                $this->Api->restResultHeader(404, "CO Unknown");
+                return;
+              }
+              
+              $params['conditions'] = array('CoPerson.co_id' => $this->params['url']['coid']);
+            } else {
+              if(!$model->Co->findById($this->params['url']['coid'])) {
+                $this->Api->restResultHeader(404, "CO Unknown");
+                return;
+              }
+              
+              $params['conditions'] = array($req.'.co_id' => $this->params['url']['coid']);
+            }
+          }
+          
+          $this->set($modelpl, $this->Api->convertRestResponse($model->find('all', $params)));
         }
-      }
-      else
-      {
+      } else {
         $params = null;
-
-        if($this->requires_co && !empty($this->params['url']['coid']))
-        {
+        
+        if($this->requires_co && !empty($this->params['url']['coid'])) {
           // Only retrieve members of the requested CO.
           // For now, not specifying a CO is OK, we just retrieve all.
           // XXX need to do an authz check on this
 
-          if(isset($model->CoPerson))
-          {
-            if(!$model->CoPerson->Co->findById($this->params['url']['coid']))
-            {
-              $this->restResultHeader(404, "CO Unknown");
+          if(isset($model->CoPerson)) {
+            if(!$model->CoPerson->Co->findById($this->params['url']['coid'])) {
+              $this->Api->restResultHeader(404, "CO Unknown");
               return;
             }
             
             $params['conditions'] = array('CoPerson.co_id' => $this->params['url']['coid']);
-          }
-          else
-          {
-            if(!$model->Co->findById($this->params['url']['coid']))
-            {
-              $this->restResultHeader(404, "CO Unknown");
+          } else {
+            if(!$model->Co->findById($this->params['url']['coid'])) {
+              $this->Api->restResultHeader(404, "CO Unknown");
               return;
             }
-  
+            
             $params['conditions'] = array($req.'.co_id' => $this->params['url']['coid']);
           }
-        }
-        elseif($this->allows_cou && !empty($this->params['url']['couid']))
-        {
+        } elseif($this->allows_cou && !empty($this->params['url']['couid'])) {
           // Only retrieve members of the requested COU.
           // For now, not specifying a COU is OK, we just retrieve all.
           // XXX need to do an authz check on this
 
-          if(isset($this->CoPersonRole))
-          {
+          if(isset($this->CoPersonRole)) {
             // Currently, only CoPersonRole will get here, so we don't also check for
             // (eg) $model->CoPersonRole, and we don't need to do a join like above
             
-            if(!$model->Cou->findById($this->params['url']['couid']))
-            {
-              $this->restResultHeader(404, "COU Unknown");
+            if(!$model->Cou->findById($this->params['url']['couid'])) {
+              $this->Api->restResultHeader(404, "COU Unknown");
               return;
             }
-  
+            
             $params['conditions'] = array($req.'.cou_id' => $this->params['url']['couid']);
-          }
-          else
-          {
-            $this->restResultHeader(500, "Other Error (Model Not Found)");
+          } else {
+            $this->Api->restResultHeader(500, "Other Error (Model Not Found)");
             return;
           }
         }
-
-        $this->set($modelpl, $this->convertResponse($model->find('all', $params)));
+        
+        $this->set($modelpl, $this->Api->convertRestResponse($model->find('all', $params)));
       }
       
-      $this->restResultHeader(200, "OK");
+      $this->Api->restResultHeader(200, "OK");
     }
     else
     {
@@ -750,7 +819,7 @@ class StandardController extends AppController {
     $req = $this->modelClass;
     $model = $this->$req;
 
-    if($this->restful) {
+    if($this->request->is('restful')) {
       // Reformat the serialized order into Cake format for saving
       $data = array();
       
@@ -762,9 +831,9 @@ class StandardController extends AppController {
       }
       
       if($model->saveMany($data, array('fieldList' => array('ordr')))) {
-        $this->restResultHeader(200, "OK");
+        $this->Api->restResultHeader(200, "OK");
       } else {
-        $this->restResultHeader(500, "Database Save Failed");
+        $this->Api->restResultHeader(500, "Database Save Failed");
       }
       
       // Make sure the response goes out
@@ -848,8 +917,8 @@ class StandardController extends AppController {
       $this->generateHistory($action, $newdata, $olddata);
     }
     catch(Exception $e) {
-      if($this->restful) {
-        $this->restResultHeader(500, "Other Error: " . $e->getMessage());
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(500, "Other Error: " . $e->getMessage());
       } else {
         $this->Session->setFlash($e->getMessage(), '', array(), 'info');
       }
@@ -952,16 +1021,16 @@ class StandardController extends AppController {
     }
     
     if(empty($obj)) {
-      if($this->restful) {
-        $this->restResultHeader(404, $req . " Unknown");
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(404, $req . " Unknown");
       } else {
         $this->Session->setFlash(_txt('er.notfound', array(_txt('ct.' . $modelpl . '.1'), $id)), '', array(), 'error');
         $this->performRedirect();
       }
     } else {
-      if($this->restful) {
-        $this->set($modelpl, $this->convertResponse(array(0 => $obj)));
-        $this->restResultHeader(200, "OK");
+      if($this->request->is('restful')) {
+        $this->set($modelpl, $this->Api->convertRestResponse(array(0 => $obj)));
+        $this->Api->restResultHeader(200, "OK");
       } else {
         if(!isset($this->viewVars['title_for_layout'])) {
           // Set page title if not already set -- note we do similar logic in edit()

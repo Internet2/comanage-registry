@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Member Model
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -130,6 +130,43 @@ class CoGroupMember extends AppModel {
     return $ret;
   }
   
+  /**
+   * Obtain all group members for a CO Group.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer CO Group ID
+   * @param  Integer Maximium number of results to retrieve (or null)
+   * @param  Integer Offset to start retrieving results from (or null)
+   * @param  String Field to sort by (or null)
+   * @return Array Group information, as returned by find
+   * @todo   Rewrite to a custom find type
+   */
+  
+  public function findForCoGroup($coGroupId, $limit=null, $offset=null, $order=null) {
+    $args = array();
+    $args['joins'][0]['table'] = 'co_groups';
+    $args['joins'][0]['alias'] = 'CoGroup';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
+    $args['conditions']['CoGroup.status'] = StatusEnum::Active;
+    $args['conditions']['CoGroup.id'] = $coGroupId;
+    $args['contain'] = false;
+    
+    if($limit) {
+      $args['limit'] = $limit;
+    }
+    
+    if($offset) {
+      $args['offset'] = $offset;
+    }
+    
+    if($order) {
+      $args['order'] = $order;
+    }
+    
+    return $this->find('all', $args);
+  }
+
   /**
    * Map a set of CO Group Members to their Identifiers. Based on a similar function in CoLdapProvisionerDn.php.
    *

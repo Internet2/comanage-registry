@@ -38,6 +38,7 @@ App::uses('Sanitize', 'Utility');
 class AppController extends Controller {
   // All controllers use these components
   public $components = array('Auth',
+                             'Api',
                              'RequestHandler', // For REST
                              'Role',
                              'Security',
@@ -56,9 +57,6 @@ class AppController extends Controller {
   
   // The current CO we are working with (if any)
   public $cur_co = null;
-  
-  // Determine if controller is currently handling a RESTful request
-  public $restful = false;
   
   // Determine if controller requires a Person ID to be provided
   public $requires_person = false;
@@ -130,20 +128,71 @@ class AppController extends Controller {
     $this->Auth->unauthorizedRedirect = "/";
     $this->Auth->authError = _txt('er.permission');
     
-    // First, determine if we're handling a RESTful request.
-    // If so, we'll do a few things differently.
-    
-    if(isset($this->request->params['ext'])
-       && ($this->request->params['ext'] == 'xml'
-           || $this->request->params['ext'] == 'json')) {
-      // We assume XML and JSON requests are RESTful.  This also assumes the
-      // default routing behavior described here:
-      //  http://book.cakephp.org/view/1239/The-Simple-Setup
+    if($this->request->is('restful')) {
+      // Set up basic auth and attempt to login the API user, unless we're already
+      // logged in (ie: via a cookie provided via an AJAX initiated REST call)
       
-      $this->restful = true;  
-    }
-    
-    if(!$this->restful) {
+      if(!$this->Session->check('Auth.User.username')) {
+        $this->Auth->authenticate = array('Basic');
+        
+//      debug(AuthComponent::password($_SERVER['PHP_AUTH_PW']));
+        
+        // XXX It's unclear why, as of Cake 2.3, we need to manually initialize AuthComponent
+        $this->Auth->initialize($this);
+        
+        if(!$this->Auth->login()) {
+          $this->Api->restResultHeader(401, "Unauthorized");
+          // We force an exit here to prevent any views from rendering, but also
+          // to prevent Cake from dumping the default layout
+          $this->response->send();
+          exit;
+        }
+      }
+      
+      // In order to properly check authz for REST users (not yet fully supported, CO-91)
+      // we need to know the CO ID before we can check for authorizations. We'll need to
+      // parse the REST body for most use cases to find it.
+      
+      $this->Api->parseRestRequestDocument();
+      
+      // We should now be able to find the CO ID, though there won't always be one.
+      // (eg: Org Identities pooled, org related record being processed.)
+      
+      try {
+        $coid = $this->parseCOID($this->Api->getData());
+        
+        if($coid != -1) {
+          $this->loadModel('Co');
+          $this->cur_co = $this->Co->findById($coid);
+        }
+      }
+      catch(RuntimeException $e) {
+        // This is probably $id not found... strictly speaking we should somehow
+        // check authorization before returning id not found, but we can't really
+        // authorize a request for an invalid id.
+        
+        $this->Api->restResultHeader(404, "Not Found");
+        $this->response->send();
+        exit;
+      }
+      
+      // For now, since API users are considered CMP admins (CO-91), calling isAuthorized()
+      // is mostly unnecessary. However, there are a couple of calls made by a
+      // currently logged in user (reprovisioning, reordering enrollment attributes,
+      // etc) where we do need to do this check.
+      
+      if(!$this->Auth->isAuthorized()) {
+        $this->Api->restResultHeader(401, "Unauthorized");
+        $this->response->send();
+        exit;
+      }
+      
+      // Disable validation of POST data, which may be an XML document
+      // (the security component doesn't know how to validate XML documents)
+// XXX should re-test this and maybe cut a JIRA
+      $this->Security->validatePost = false;
+      $this->Security->csrfCheck = false;
+    } else { // restful
       // Before we do anything else, check to see if a CO was provided.
       // (It might impact our authz decisions.) Note that some models (eg: MVPAs)
       // might specify a CO, but might not. As of v0.6, we no longer redirect to
@@ -239,34 +288,6 @@ class AppController extends Controller {
         }
       }
     }
-    
-    if($this->restful) {
-      // Set up basic auth and attempt to login the API user, unless we're already
-      // logged in (ie: via a cookie provided via an AJAX initiated REST call)
-      
-      if(!$this->Session->check('Auth.User.username')) {
-        $this->Auth->authenticate = array('Basic');
-        
-//      debug(AuthComponent::password($_SERVER['PHP_AUTH_PW']));
-        
-        // XXX It's unclear why, as of Cake 2.3, we need to manually initialize AuthComponent
-        $this->Auth->initialize($this);
-        
-        if(!$this->Auth->login()) {
-          $this->restResultHeader(401, "Unauthorized");
-          // We force an exit here to prevent any views from rendering, but also
-          // to prevent Cake from dumping the default layout
-          $this->response->send();
-          exit;
-        }
-      }
-      
-      // Disable validation of POST data, which may be an XML document
-      // (the security component doesn't know how to validate XML documents)
-// XXX should re-test this and maybe cut a JIRA
-      $this->Security->validatePost = false;
-      $this->Security->csrfCheck = false;
-    }
   }
 
   /**
@@ -280,7 +301,7 @@ class AppController extends Controller {
   function beforeRender() {
     // Determine what is shown for menus
     // Called before each render in case permissions change
-    if($this->restful != true
+    if(!$this->request->is('restful')
        && $this->Session->check('Auth.User.org_identities')) {
       $this->menuAuth();
       $this->menuContent();
@@ -293,25 +314,33 @@ class AppController extends Controller {
    * Determine the CO ID based on some attribute of the request.
    *
    * @since  COmanage Registry v0.8.4
+   * @param  Array $data Array of data for parsing Person ID
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
   
-  protected function calculateImpliedCoId() {
+  protected function calculateImpliedCoId($data = null) {
     // As a default, we'll see if we can determine the CO in a generic manner.
     // Where this doesn't work, individual Controllers can override this function.
+    
+    if($this->modelClass == 'CakeError') {
+      return;
+    }
     
     // Determine if Org Identities are pooled
     $this->loadModel('CmpEnrollmentConfiguration');
     $orgPooled = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
+    
+    // See if what we're adding/selecting/viewing is attached to a person
+    $p = $this->parsePersonID($data);
     
     if(!$this->requires_co
        && (!$this->requires_person
            ||
            // MVPA controllers operating on org identities where pool_org_identities
            // is false will not specify/require a CO
-           $orgPooled
-            && !empty($p['orgidentityid']))) {
+           ($orgPooled
+            && !empty($p['orgidentityid'])))) {
       // Controllers that don't require a CO generally can't imply one.
       return null;
     }
@@ -329,9 +358,6 @@ class AppController extends Controller {
        || $this->action == 'link'
        || $this->action == 'select'
        || $this->action == 'review') {
-      // See if what we're adding/selecting/viewing is attached to a person
-      $p = $this->parsePersonID();
-      
       if(!empty($p['copersonid'])
          && (isset($model->CoPerson) || isset($model->Co))) {
         $CoPerson = (isset($model->CoPerson) ? $model->CoPerson : $model->Co->CoPerson);
@@ -430,7 +456,7 @@ class AppController extends Controller {
    * - postcondition: $redirect will be set (HTML)
    *
    * @since  COmanage Registry v0.1
-   * @param  String "force" to force a redirect, "set" to set $redirect, or "default" to perform normal logic
+   * @param  String "force" to force a redirect, "set" to set $redirect, "calculate" to not ever redirect, or "default" to perform normal logic
    * @param  Array Retrieved data (with an identifier set in $data[$model])
    * @return Integer 1 OK, 0 No person specified, or -1 Specified person does not exist
    */
@@ -525,494 +551,27 @@ class AppController extends Controller {
       $redirect['controller'] = Inflector::tableize($model->name);
       $redirect['action'] = 'index';
     }
-          
-    if($redirectMode == "force")
+    
+    if($redirectMode == "force") {
       $this->redirect($redirect);
-    elseif($redirectMode == "set")
+    } elseif($redirectMode == "set") {
       $this->set('redirect', $redirect);
-    else
-    {
-      if($this->restful)
-      {
-        switch($rc)
-        {
-          case -1:
-            $this->restResultHeader(403, "Person Does Not Exist");
-            break;
-          case 0:
-            $this->restResultHeader(403, "No Person Specified");
-            break;
-        }
-      }
-      else
-      {
-        switch($rc)
-        {
-          case -1:
-            $this->Session->setFlash(_txt('er.person.noex'), '', array(), 'error');            
-            $this->redirect($redirect);
-            break;
-          case 0:
-            $this->Session->setFlash(_txt('er.person.none'), '', array(), 'error');            
-            $this->redirect($redirect);
-            break;
-        }
+    } elseif($redirectMode != "calculate") {
+      switch($rc) {
+        case -1:
+          $this->Session->setFlash(_txt('er.person.noex'), '', array(), 'error');            
+          $this->redirect($redirect);
+          break;
+        case 0:
+          $this->Session->setFlash(_txt('er.person.none'), '', array(), 'error');            
+          $this->redirect($redirect);
+          break;
       }
       
       $this->set('redirect', $redirect);
     }
     
-    return($rc);
-  }
-  
-  /**
-   * Verify that a document POSTed via the REST API exists, and matches the
-   * invoking controller.
-   * - precondition: $this->request->data holds request data
-   * - postcondition: If the correct request type was made but undefined fields were provided, those fields will be set in $invalid_fields
-   * - postcondition: On error, HTTP status returned (REST)
-   *
-   * @since  COmanage Registry v0.4
-   * @return boolean true on success, false otherwise
-   */
-  
-  function checkRestPost() {
-    $req = $this->modelClass;
-    $model = $this->$req;
-    $modelcc = Inflector::pluralize($req);
-    
-    $reqdata = null;
-    
-    if(!empty($this->request->data)) {
-      // Currently, we expect all request documents to match the model name (ie: StudlySingular).
-      
-      // The inbound formats are currently lists with one entry. (Multiple entries
-      // per request are not currently supported.) The format varies slightly between
-      // JSON and XML.
-      
-      if(isset($this->request->data[$modelcc][$req])) {
-        // XML
-        $reqdata = $this->request->data[$modelcc][$req];
-      } elseif(isset($this->request->data[$modelcc][0])) {
-        // JSON
-        $reqdata = $this->request->data[$modelcc][0];
-      }
-    } else {
-      // In some instances, PHP doesn't set $_POST and so Cake doesn't see the request body.
-      // Here's a workaround, based on CakeRequest::_readInput().
-      // This is required by (eg) identifiers/assign.json
-      
-      switch($this->request->params['ext']) {
-        case 'json':
-          $fh = fopen('php://input', 'r');
-          $json = json_decode(stream_get_contents($fh), true);
-          fclose($fh);
-          $reqdata = $json[$modelcc][0];
-          // This is a pretty nasty hack so that convertRestPost and potentially
-          // other stuff works. XXX We should really refactor the whole thing.
-          $this->request->data = $json;
-          break;
-        case 'xml':
-          // Not implemented
-          // Need to do something like Xml::toArray(Xml::build());
-          break;
-        default:
-          break;
-      }
-    }
-    
-    if(isset($reqdata)) {
-      // Check version number against the model. Note we have to check both 'Version'
-      // (JSON) and '@Version' (XML).
-      
-      if((!isset($reqdata['Version']) && !isset($reqdata['@Version']))
-         ||
-         (isset($reqdata['Version']) && $reqdata['Version'] != $this->$req->version)
-         ||
-         (isset($reqdata['@Version']) && $reqdata['@Version'] != $this->$req->version)) {
-        $this->restResultHeader(400, "Invalid Fields");
-        $this->set('invalid_fields', array('Version' => 'Unknown version'));
-        
-        return(false);
-      }
-      
-      // Try to find a CO, even if not required (some models may use it even if not required).
-      // Note beforeFilter() may already have found a CO.
-      
-      if(!isset($this->cur_co)) {
-        $coid = -1;
-        
-        if(isset($reqdata['CoId']))
-          $coid = $reqdata['CoId'];
-        
-        if($coid == -1) {
-          // The CO might be implied by another attribute
-          
-          if(isset($reqdata['Person']['Type']) && $reqdata['Person']['Type'] == 'CO') {
-            $this->loadModel('CoPerson');
-            $cop = $this->CoPerson->findById($reqdata['Person']['Id']);
-            
-            // We've already pulled the CO data, so just set it rather than
-            // re-retrieving it below
-            if(isset($cop['Co'])) {
-              $this->cur_co['Co'] = $cop['Co'];
-              $coid = $this->cur_co['Co']['id'];
-            }
-          }
-        }
-        
-        if(!isset($this->cur_co) && $coid != -1) {
-          // Retrieve CO Object.
-          
-          if(!isset($this->Co)) {
-            // There might be a CO object under another object (eg: CoOrgIdentityLink),
-            // but it's easier if we just explicitly load the model
-            
-            $this->loadModel('Co');
-          }
-          
-          $this->cur_co = $this->Co->findById($coid);
-          
-          if(empty($this->cur_co)) {
-            $this->restResultHeader(403, "CO Does Not Exist");
-            return(false);
-          }
-        }
-        
-        if($this->requires_co && !isset($this->cur_co)) {
-          // If a CO is required and we didn't find one, bail
-          
-          $this->restResultHeader(403, "CO Does Not Exist");
-          return(false);
-        }
-      }
-       
-      // Check the expected elements exist in the model (schema).
-      // We only check top level at the moment (no recursion).
-      
-      $bad = array();
-      
-      if($req == 'CoPersonRole') {
-        // We need to check Extended Attributes. This probably belongs in either
-        // CoPersonRolesController or CoExtendedAttributesController, but for now
-        // it's a one-off and we'll leave it here.
-        
-        $this->loadModel('CoExtendedAttribute');
-        $extAttrs = $this->CoExtendedAttribute->findAllByCoId($this->cur_co['Co']['id']);
-      }
-      
-      foreach(array_keys($reqdata) as $k) {
-        // Skip version because we already checked it
-        if($k == 'Version' || $k == '@Version')
-          continue;
-        
-        // 'Person' is a special case that we interpret to mean either
-        // 'COPersonRole' or 'OrgIdentity', and to reference an id.
-        
-        if($k == 'Person'
-           && (isset($this->$req->validate['org_identity_id'])
-               || isset($this->$req->validate['co_person_role_id']))) {
-          continue;
-        }
-        
-        // Some models accept multiple models worth of data in one post.
-        // Specifically, OrgIdentity and CoPerson allow Names. A general
-        // solution could check (eg) $model->HasOne, however for now we
-        // just make a special exception for name.
-        
-        if($k == 'PrimaryName'
-           && ($this->modelClass == 'OrgIdentity'
-               || $this->modelClass == 'CoPerson')) {
-          continue;
-        }
-        
-        if(isset($extAttrs)) {
-          // Check to see if this is an extended attribute
-          
-          foreach($extAttrs as $ea) {
-            if(isset($ea['CoExtendedAttribute']['name'])
-               && $ea['CoExtendedAttribute']['name'] == $k) {
-              // Skip to the next $k
-              continue 2;
-            }
-          }
-        }
-        
-        // Finally see if this attribute is defined in the model
-        
-        if(!isset($this->$req->validate[Inflector::underscore($k)])) {
-          $bad[$k] = "Unknown Field";
-        }
-      }
-      
-      // Validate enums
-      
-      if(!empty($model->cm_enum_types)) {
-        foreach(array_keys($model->cm_enum_types) as $e) {
-          // cm_enum_types is, eg, "status", but we need "Status" since we
-          // haven't yet converted the array to database format
-          $ce = Inflector::camelize($e);
-          
-          // Get a pointer to the enum, foo_ti
-          // $$ and ${$} is PHP variable variable syntox
-          $v = $model->cm_enum_types[$e] . "i";
-          global $$v;
-          
-          if(isset($reqdata[$ce]) && !isset(${$v}[ $reqdata[$ce] ])) {
-            $bad[$ce] = "Invalid value";
-          }
-        }
-      }
-      
-      // We don't currently check for extended attributes because at the
-      // moment we don't flag them as required vs optional. Basically, we
-      // assume they're all optional.
-      
-      if(empty($bad))
-        return(true);
-      
-      $this->restResultHeader(400, "Invalid Fields");
-      $this->set('invalid_fields', $bad);
-    }
-    else
-      $this->restResultHeader(400, "Bad Request");
-    
-    return(false);
-  }
-  
-  /**
-   * Convert a result to be suitable for REST views.
-   *
-   * @since  COmanage Registry v0.1
-   * @param  Array Result set, of the format returned by (eg) $this->find()
-   * @return Array Converted array
-   */
-  
-  function convertResponse($res) {
-    // We create a new array rather than edit $res in place because the foreach
-    // gives us a copy, not a pointer
-    $ret = array();
-
-    // Get a pointer to our model
-    $req = $this->modelClass;
-    $model = $this->$req;
-    
-    foreach($res as $r)
-    {        
-      foreach(array_keys($r) as $m)
-      {
-        // For now, we only convert the model and Name (if set), since these
-        // are the only pieces that the views need to render (and not all the
-        // other related data the model defines).
-
-        if($m == $req)
-        {
-          // Convert any enums to long form
-          
-          if(!empty($model->cm_enum_types))
-          {
-            foreach(array_keys($model->cm_enum_types) as $k)
-            {
-              // Get a pointer to the enum, foo_t
-              // $$ and ${$} is PHP variable variable syntox
-              $v = $model->cm_enum_types[$k];
-              global $$v;
-              
-              if(isset(${$v}[ $r[$m][$k] ]))
-              {
-                $rr[$m][$k] = ${$v}[ $r[$m][$k] ];
-              }
-              // else invalid value, but we'll skip that for now
-            }
-          }
-
-          // Convert any booleans
-          
-          foreach(array_keys($model->validate) as $k)
-          {
-            if(isset($model->validate[$k]['content']['rule']) && $model->validate[$k]['content']['rule'][0] == 'boolean')
-            {
-              if($r[$m][$k])
-                $rr[$m][$k] = (bool)true;
-              else
-                $rr[$m][$k] = (bool)false;
-            }
-          }
-        }
-        elseif($req != 'Name' && $m == 'Name' && isset($r['Name']['type']))
-        {
-          // We treat name specially
-          
-          // Convert type to long form
-          global $name_t;
-          
-          $rr['Name']['type'] = $name_t[ $r['Name']['type'] ];
-        }
-        
-        // Copy all other keys
-        
-        foreach(array_keys($r[$m]) as $k)
-        {
-          if(!isset($rr[$m][$k]))
-            $rr[$m][$k] = $r[$m][$k];
-        }
-        
-        if(isset($rr[$m])
-           && !preg_match('/Co[0-9]+PersonExtendedAttribute/', $m))
-        {
-          // Convert keys to CamelCase (XML spec) from under_score (DB spec).
-          // Currently, extended attributes are NOT inflected to keep them consistent
-          // with their database definitions and to not confuse people unfamiliar
-          // with Cake.
-          $rr[$m] = $this->responseToCamelCase($rr[$m]);
-        }
-      }
-
-      $ret[] = $rr;
-    }
-          
-    return($ret);
-  }
-  
-  /**
-   * Convert a request from a REST transaction.
-   * - precondition: $this->request->data holds request data
-   *
-   * @since  COmanage Registry v0.4
-   * @param  For an edit operation, the corresponding existing data
-   * @return Array Result set, of the format of $this->request->data
-   */
-  
-  function convertRestPost($curdata = null) {
-    // Get a pointer to our model
-    $req = $this->modelClass;
-    $model = $this->$req;
-    $modelcc = Inflector::pluralize($req);
-    
-    // Cake creates an array of the form Models[Model][attr] from the POSTed data
-    // for XML or Models[0][attr] for JSON (because that's how the JSON and XML
-    // formats map). However, we want an array to match how form data is submitted
-    // (HTML), so we pass that sub-array to requestToUnderScore to create a new array.
-    
-    // Unset the version, it was already checked in checkRestPost and will only
-    // confuse save()
-    
-    if(isset($this->request->data[$modelcc][$req])) {
-      // XML
-      $ret[$req] = $this->requestToUnderScore($this->request->data[$modelcc][$req]);
-      unset($ret[$req]['@version']);
-    } elseif(isset($this->request->data[$modelcc][0])) {
-      // JSON
-      $ret[$req] = $this->requestToUnderScore($this->request->data[$modelcc][0]);
-      unset($ret[$req]['version']);
-    }
-    
-    // Convert any enums from long form
-    
-    if(!empty($model->cm_enum_types)) {
-      foreach(array_keys($model->cm_enum_types) as $k) {
-        // Get a pointer to the enum, foo_ti
-        // $$ and ${$} is PHP variable variable syntox
-        $v = $model->cm_enum_types[$k] . "i";
-        global $$v;
-        
-        if(isset($ret[$req][$k]) && isset(${$v}[ $ret[$req][$k] ])) {
-          $ret[$req][$k] = ${$v}[ $ret[$req][$k] ];
-        }
-      }
-    }
-    
-    // Convert any booleans
-    
-    foreach(array_keys($model->validate) as $k) {
-      if(isset($model->validate[$k]['content']['rule'])
-         && $model->validate[$k]['content']['rule'][0] == 'boolean') {
-        if($ret[$req][$k] == 'True')
-          $ret[$req][$k] = true;
-        else
-          $ret[$req][$k] = false;
-      }
-    }
-    
-    // Special handling if the doc represents a Person and has a Name attribute
-    
-    if(($req == 'CoPerson' || $req == 'OrgIdentity')
-       && isset($ret[$req]['name'])) {
-      global $name_ti;
-      
-      // Promote name up a level so saveAll sees it as a separate object
-      
-      $ret['Name'] = $ret[$req]['name'];
-      unset($ret[$req]['name']);
-      
-      if(isset($ret['Name']['type'])) {
-        // Convert name type
-        $ret['Name']['type'] = $name_ti[ $ret['Name']['type'] ];
-      }
-      
-      if(isset($curdata['Name']['id'])) {
-        // For edit operations, Name ID needs to be passed so we replace rather than add.
-        // However, the current API spec doesn't pass the Name ID (since the name is
-        // embedded in the Person), so we need to copy it over here.
-        
-        $ret['Name']['id'] = $curdata['Name']['id'];
-      }
-    }
-    
-    // Special handling for Extended Attributes
-    
-    if($req == 'CoPersonRole') {
-      // Figure out the name of the dynamic model associated with this CO
-      
-      $eaModel = 'Co' . $this->cur_co['Co']['id'] . 'PersonExtendedAttribute';
-      
-      // We need to move extended attributes from $ret[$req][foo] to
-      // $ret[Co#PersonExtendedAttribute][foo].
-      
-      // CoExtendedAttribute model should have been loaded by checkRestPost.
-      // Retrieve the defined attributes so we know what to look for.
-      $extAttrs = $this->CoExtendedAttribute->findAllByCoId($this->cur_co['Co']['id']);
-      
-      if(!empty($extAttrs)) {
-        foreach($extAttrs as $ea) {
-          if(isset($ea['CoExtendedAttribute']['name'])
-             && isset($ret[$req][ $ea['CoExtendedAttribute']['name'] ])) {
-            // Promote the value to the dynamic model and unset the original
-            $ret[$eaModel][ $ea['CoExtendedAttribute']['name'] ] =
-              $ret[$req][ $ea['CoExtendedAttribute']['name'] ];
-            
-            unset($ret[$req][ $ea['CoExtendedAttribute']['name'] ]);
-          }
-        }
-      }
-      
-      // Additionally, if this is an edit operation, we need to copy the ID for the
-      // current row.
-      
-      if(isset($curdata[$eaModel]['id'])) {
-        $ret[$eaModel]['id'] = $curdata[$eaModel]['id'];
-      }
-    }
-    
-    // Flatten the Person ID for models that use it
-    
-    //XXX rewrite this
-    if($this->requires_person) {
-      if(!empty($ret[$req]['person'])
-         && isset($ret[$req]['person']['type'])
-         && isset($ret[$req]['person']['id'])) {
-        if($ret[$req]['person']['type'] == 'CO')
-          $ret[$req]['co_person_id'] = $ret[$req]['person']['id'];
-        elseif($ret[$req]['person']['type'] == 'CoRole')
-          $ret[$req]['co_person_role_id'] = $ret[$req]['person']['id'];
-        elseif($ret[$req]['person']['type'] == 'Org')
-          $ret[$req]['org_identity_id'] = $ret[$req]['person']['id'];
-          
-        unset($ret[$req]['person']);
-      }        
-    }
-    
-    return($ret);
+    return $rc;
   }
   
   /**
@@ -1308,16 +867,23 @@ class AppController extends Controller {
    * - precondition: A coid must be provided in $this->request (params or data)
    *
    * @since  COmanage Registry v0.6
+   * @param  Array $data Array of data for calculating implied CO ID
    * @return Integer The CO ID if found, or -1 if not
    */
   
-  function parseCOID() {
+  function parseCOID($data = null) {
     // Get a pointer to our model
     $req = $this->modelClass;
     $model = $this->$req;
+    $coid = null;
     
-    // First try to look up the CO ID based on the request. 
-    $coid = $this->calculateImpliedCoId();
+    try {
+      // First try to look up the CO ID based on the request. 
+      $coid = $this->calculateImpliedCoId($data);
+    }
+    catch(Exception $e) {
+      // Most likely no CO found, so just keep going
+    }
     
     if(!$coid) {
       $coid = -1;
@@ -1372,7 +938,13 @@ class AppController extends Controller {
     $coprid  = null;
     $orgiid = null;
     
-    if(!empty($data[$req]['co_person_id']))
+    if(!empty($data['co_person_id']))
+      $copid = $data['co_person_id'];
+    elseif(!empty($data['co_person_role_id']))
+      $coprid = $data['co_person_role_id'];
+    elseif(!empty($data['org_identity_id']))
+      $orgiid = $data['org_identity_id'];
+    elseif(!empty($data[$req]['co_person_id']))
       $copid = $data[$req]['co_person_id'];
     elseif(!empty($data[$req]['co_person_role_id']))
       $coprid = $data[$req]['co_person_role_id'];
@@ -1418,13 +990,17 @@ class AppController extends Controller {
           break;
       }
     }
-    elseif(isset($this->request->params['pass'][0])
+    elseif(!empty($this->request->params['pass'][0])
        && ($this->action == 'delete'
            || $this->action == 'edit'
            || $this->action == 'view'))
     {
       // If we still haven't found anything but we're a delete/edit/view
       // operation, a person ID could be implied by the model.
+      
+      $args = array();
+      $args['conditions'][$req.'.id'] = $this->request->params['pass'][0];
+      $args['contain'] = false;
       
       $rec = $model->findById($this->request->params['pass'][0]);
       
@@ -1439,68 +1015,6 @@ class AppController extends Controller {
     return(array("copersonid" => $copid,
                  "copersonroleid" => $coprid,
                  "orgidentityid" => $orgiid));
-  }
-  
-  /**
-   * Convert a Response array to CamelCase format (used by XML spec) to under_score format (used by database).
-   *
-   * @since  COmanage Registry v0.1
-   * @param  Array Request data
-   * @return Array Request data
-   */
-  
-  function requestToUnderScore($a) {
-    $r = array();
-    
-    foreach(array_keys($a) as $k) {
-      if(is_array($a[$k]))
-        $r[Inflector::underscore($k)] = $this->requestToUnderScore($a[$k]);
-      else
-        $r[Inflector::underscore($k)] = $a[$k];
-    }
-    
-    return($r);
-  }
-  
-  /**
-   * Convert a Response array to CamelCase format (used by XML spec) from under_score format (used by database).
-   *
-   * @since  COmanage Registry v0.1
-   * @param  Array Response data
-   * @return Array Response data
-   */
-  
-  function responseToCamelCase($a) {
-    $r = array();
-    
-    foreach(array_keys($a) as $k) {
-      if(is_array($a[$k]))
-        $r[Inflector::camelize($k)] = $this->responseToCamelCase($a[$k]);
-      else
-        $r[Inflector::camelize($k)] = $a[$k];
-    }
-
-    return($r);
-  }
-
-  /**
-   * Prepare a REST result HTTP header.
-   * - precondition: HTTP headers must not yet have been sent
-   * - postcondition: CakeResponse configured with header
-   *
-   * @since  COmanage Registry v0.1
-   * @param  integer HTTP result code
-   * @param  string HTTP result comment
-   */
-  
-  function restResultHeader($status, $txt) {
-    if(isset($txt)) {
-      // We need to update the text associated with $status
-      
-      $this->response->httpCodes(array($status => $txt));
-    }
-    
-    $this->response->statusCode($status);
   }
   
   /**

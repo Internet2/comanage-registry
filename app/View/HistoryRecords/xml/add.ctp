@@ -1,1 +1,1 @@
-../../Standard/json/add.ctp
+../../Standard/xml/add.ctp

@@ -1,1 +1,1 @@
-../../Standard/json/view.ctp
+../../Standard/xml/view.ctp

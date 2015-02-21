@@ -212,7 +212,7 @@ class CoInvitesController extends AppController {
         
     if(count($fs) > 0)
     {
-      $this->restResultHeader(400, "Invalid Fields");
+      $this->Api->restResultHeader(400, "Invalid Fields");
       $this->set('invalid_fields', $fs);
     }
     else
@@ -300,7 +300,7 @@ class CoInvitesController extends AppController {
     // Grab the invite info in case we need it later (we're about to delete it)
     $invite = $this->CoInvite->findByInvitation($inviteid);
     
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Set page title
       $this->set('title_for_layout', _txt('op.inv.reply'));
     }
@@ -309,11 +309,11 @@ class CoInvitesController extends AppController {
       $this->CoInvite->processReply($inviteid, $confirm, $loginIdentifier);
     }
     catch(InvalidArgumentException $e) {
-      if($this->restful) {
+      if($this->request->is('restful')) {
         if($e->getMessage() == _txt('er.inv.nf')) {
-          $this->restResultHeader(404, "CoInvite Unknown");
+          $this->Api->restResultHeader(404, "CoInvite Unknown");
         } else {
-          $this->restResultHeader(400, "CoPerson Unknown");
+          $this->Api->restResultHeader(400, "CoPerson Unknown");
         }
       } else {
         $this->Session->setFlash($e->getMessage(), '', array(), 'error');
@@ -322,8 +322,8 @@ class CoInvitesController extends AppController {
       }
     }
     catch(OutOfBoundsException $e) {
-      if($this->restful) {
-        $this->restResultHeader(403, "Expired");
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Expired");
       } else {
         $this->Session->setFlash($e->getMessage(), '', array(), 'error');
         $this->redirect("/");
@@ -336,8 +336,8 @@ class CoInvitesController extends AppController {
         $this->redirect(array('action' => 'authconfirm', $inviteid));
         return;
       } else {
-        if($this->restful) {
-          $this->restResultHeader(500, "Other Error");
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(500, "Other Error");
         } else {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');
           $this->redirect("/");
@@ -346,8 +346,8 @@ class CoInvitesController extends AppController {
       }
     }
     
-    if($this->restful) {
-      $this->restResultHeader(200, "Deleted");
+    if($this->request->is('restful')) {
+      $this->Api->restResultHeader(200, "Deleted");
     } else {
       // See if this invite was attached to a CO petition, and if so whether a redirect
       // URL was specified.
@@ -415,7 +415,7 @@ class CoInvitesController extends AppController {
       $this->set('invite', $invite);
       $this->set('invitee', $invitee);
       
-      if(!$this->restful) {
+      if(!$this->request->is('restful')) {
         // Set page title
         if(!empty($invite['CoInvite']['email_address_id'])) {
           $this->set('title_for_layout', _txt('fd.ev.verify', array($invite['EmailAddress']['mail'])));
@@ -479,52 +479,40 @@ class CoInvitesController extends AppController {
    */
   
   function send() {
-    if($this->restful)
-    {
-      $data = $this->convertRestPost();
+    if($this->request->is('restful')) {
+      $this->Api->parseRestRequestDocument();
       
-      if(!$data)
-        // || !$this->checkPost())  // Our request format doesn't match our schema, so skip checkPost
-        return;
+      $data = $this->Api->getData();
       
-      if(empty($data))
-      {
-        $this->restResultHeader(400, "Bad Request");
+      if(empty($data)) {
+        $this->Api->restResultHeader(400, "Bad Request");
         return;
       }
-      else
-      {
-        // Since we're not doing a traditional save, we need to manually validate
-        // the fields sent
-
-        $fs = array();
-          
-        if(isset($data['CoInvite']['co_id']))
-        {
-          // beforeFilter will check the CO for HTML, but not for REST
-          
-          $this->cur_co = $this->CoInvite->CoPerson->Co->findById($data['CoInvite']['co_id']);
-          
-          if(!$this->cur_co)
-            $fs['CoId'] = _txt('er.co.unk');
-        }
-        else
-          $fs['CoId'] = _txt('er.notprov');
-        if(!isset($data['CoInvite']['co_person_id']))
-          $fs['CoPersonId'] = _txt('er.notprov');
-        
-        if(count($fs) > 0)
-        {
-          $this->restResultHeader(400, "Invalid Fields");
-          $this->set('invalid_fields', $fs);
-          return;
-        }
-        
-        $cpid = $data['CoInvite']['co_person_id'];
+      
+      // Since we're not doing a traditional save, we need to manually validate
+      // the fields sent
+      
+      $fs = array();
+      
+      try {
+        $coId = $this->CoInvite->CoPerson->findCoForRecord($data['co_person_id']);
       }
-    }
-    else
-    {
+      catch(InvalidArgumentException $e) {
+        $fs['CoId'] = _txt('er.co.unk');
+      }
+      
+      if(!isset($data['co_person_id'])) {
+        $fs['CoPersonId'] = _txt('er.notprov');
+      }
+      
+      if(count($fs) > 0) {
+        $this->Api->restResultHeader(400, "Invalid Fields");
+        $this->set('invalid_fields', $fs);
+        return;
+      }
+      
+      $cpid = $data['co_person_id'];
+    } else {
       // Set page title
       $this->set('title_for_layout', _txt('op.inv.send'));
       
@@ -581,10 +569,10 @@ class CoInvitesController extends AppController {
         
         if($this->CoInvite->CoPerson->saveField('status', 'I'))
         {
-          if($this->restful)
+          if($this->request->is('restful'))
           {
             // $this->restResultHeader(201, "Sent");
-            $this->restResultHeader(501, "Not Implemented");
+            $this->Api->restResultHeader(501, "Not Implemented");
             $this->set('co_invite_id', $this->CoInvite->id);
           }
           else
@@ -596,9 +584,9 @@ class CoInvitesController extends AppController {
         }
         else
         {
-          if($this->restful)
+          if($this->request->is('restful'))
           {
-            $this->restResultHeader(400, "Invalid Fields");
+            $this->Api->restResultHeader(400, "Invalid Fields");
             $this->set('invalid_fields', $this->CoInvite->invalidFields());
           }
           else
@@ -607,10 +595,9 @@ class CoInvitesController extends AppController {
       }
       else
       {
-        if($this->restful)
-          $this->restResultHeader(400, "No Email Address");
-        else
-        {
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(400, "No Email Address");
+        } else {
           $this->Session->setFlash(_txt('er.orgp.nomail', array(generateCn($orgp['PrimaryName']), $orgp['OrgIdentity']['id'])), '', array(), 'error');
           $this->redirect(array('controller' => 'co_people', 'action' => 'index', 'co' => $this->cur_co['Co']['id']));
         }
@@ -618,13 +605,12 @@ class CoInvitesController extends AppController {
     }
     else
     {
-      if($this->restful)
-      {
-        $this->restResultHeader(400, "Invalid Fields");
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(400, "Invalid Fields");
         $this->set('invalid_fields', array('CoPersonId' => _txt('er.cop.unk')));
-      }
-      else
+      } else {
         $this->Session->setFlash(_txt('er.cop.nf', array($cpid)), '', array(), 'error');
+      }
     }
 
     $debug = Configure::read('debug');
@@ -676,7 +662,7 @@ class CoInvitesController extends AppController {
         $lnk = $this->CoOrgIdentityLink->find('first', $largs);
         
         if(!empty($lnk)) {
-          if($this->restful) {
+          if($this->request->is('restful')) {
              // XXX implement this (CO-754)
             throw new RuntimeException("Not implemented");
           } else {

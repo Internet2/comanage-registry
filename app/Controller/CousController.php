@@ -2,7 +2,7 @@
 /**
  * COmanage Registry COU Controller
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -52,7 +52,7 @@ class CousController extends StandardController {
     // user is editing or adding a COU.
     //
     // REST calls do not need to compute options for parents.
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Loop check only needed for the edit page, model does not know CO for new COUs
       if($this->action == 'edit') {
         $options = $this->Cou->potentialParents($this->request->data['Cou']['id']);
@@ -63,6 +63,7 @@ class CousController extends StandardController {
       
       $this->set('parent_options', $options);
     }
+    
     parent::beforeRender();
   }
 
@@ -82,27 +83,30 @@ class CousController extends StandardController {
     if(!empty($couppl)) {
       // A COU can't be removed if anyone is still a member of it.
       
-      if($this->restful)
-        $this->restResultHeader(403, "CoPersonRole Exists");
-      else
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "CoPersonRole Exists");
+      } else {
         $this->Session->setFlash(_txt('er.cou.copr', array($curdata['Cou']['name'])), '', array(), 'error');
+      }
       
-      return(false);
+      return false;
     }
+    
     // A COU can't be removed if it has children.
 
     $childCous = $curdata['ChildCou'];
 
     if(!empty($childCous)) {
-      if($this->restful)
-        $this->restResultHeader(403, "Child COU Exists");
-      else
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Child COU Exists");
+      } else {
         $this->Session->setFlash(_txt('er.cou.child', array(Sanitize::html($curdata['Cou']['name']))), '', array(), 'error');
-
-      return(false);
+      }
+      
+      return false;
     }
 
-    return(true);
+    return true;
   }
 
   /**
@@ -125,14 +129,14 @@ class CousController extends StandardController {
       
       $x = $this->Cou->find('all', $args);
       
-      if(!empty($x))
-      {
-        if($this->restful)
-          $this->restResultHeader(403, "Name In Use");
-        else
+      if(!empty($x)) {
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "Name In Use");
+        } else {
           $this->Session->setFlash(_txt('er.cou.exists', array($reqdata['Cou']['name'])), '', array(), 'error');          
-
-        return(false);
+        }
+        
+        return false;
       }
     }
     
@@ -143,32 +147,33 @@ class CousController extends StandardController {
                   ? $reqdata['Cou']['parent_id']
                   : "");
 
-    if(isset($parentCou) && $parentCou != "")
-    {
-      if($this->action != 'add')
-      {
+    if(isset($parentCou) && $parentCou != "") {
+      if($this->action != 'add') {
         // Parent not found in CO
-        if(!($this->Cou->isCoMember($parentCou)))
-        {
-          if($this->restful)
-            $this->restResultHeader(403, "Wrong CO");
-          else
+        if(!($this->Cou->isCoMember($parentCou))) {
+          if($this->request->is('restful')) {
+            $this->Api->restResultHeader(403, "Wrong CO");
+          } else {
             $this->Session->setFlash(_txt('er.cou.sameco', array($reqdata['CoGroupMember']['co_group_id'])), '', array(), 'error');
-          return(false);
+          }
+          
+          return false;
         }
-
+        
         // Check if parent would cause a loop
-        if($this->Cou->isChildCou($reqdata['Cou']['id'], $parentCou))
-        {
-          if($this->restful)
-            $this->restResultHeader(403, "Parent Would Create Cycle");
-          else
+        if($this->Cou->isChildCou($reqdata['Cou']['id'], $parentCou)) {
+          if($this->request->is('restful')) {
+            $this->Api->restResultHeader(403, "Parent Would Create Cycle");
+          } else {
             $this->Session->setFlash(_txt('er.cou.cycle', array($reqdata['CoGroupMember']['co_group_id'])), '', array(), 'error');
-          return(false);
+          }
+          
+          return false;
         }
       }
     }
-    return(true);
+    
+    return true;
   }
 
   /**
@@ -192,10 +197,8 @@ class CousController extends StandardController {
     
     // Only do this via HTTP.
     
-    if(!$this->restful && $this->action == 'add')
-    {
-      if(isset($this->Cou->id))
-      {
+    if(!$this->request->is('restful') && $this->action == 'add') {
+      if(isset($this->Cou->id)) {
         $a['CoGroup'] = array(
           'co_id' => $reqdata['Cou']['co_id'],
           'name' => 'admin:' . $reqdata['Cou']['name'],
@@ -220,18 +223,18 @@ class CousController extends StandardController {
         
         if(!$admin_create and !$members_create) {
           $this->Session->setFlash(_txt('er.cou.gr.adminmembers'), '', array(), 'info');
-          return(false);
+          return false;
         } elseif (!$admin_create) {
           $this->Session->setFlash(_txt('er.cou.gr.admin'), '', array(), 'info');
-          return(false);
+          return false;
         } elseif (!$members_create) {
           $this->Session->setFlash(_txt('er.cou.gr.members'), '', array(), 'info');
-          return(false);
+          return false;
         }
       }
     }
-
-    return(true);
+    
+    return true;
   }
 
   /**

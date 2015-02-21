@@ -183,7 +183,7 @@ class CoEnrollmentAttributesController extends StandardController {
   function beforeRender() {
     parent::beforeRender();
     
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Override page title
       
       // ->id was set in beforeFilter();

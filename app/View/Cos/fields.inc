@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Fields
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -80,14 +80,14 @@
           
           if($e) {
             print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status'],
+                                      $cm_texts[ $cm_lang ]['en.status.susp'],
                                       $attrs);
             
             if($this->Form->isFieldError('status')) {
               print $this->Form->error('status');
             }
           } else {
-            print _txt('en.status', null, $cos[0]['Co']['status']);
+            print _txt('en.status.susp', null, $cos[0]['Co']['status']);
           }
         ?>
       </td>

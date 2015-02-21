@@ -1,8 +1,8 @@
 <?php
 /**
- * COmanage Registry CO People Controller
+ * COmanage Registry CO Person Roles Controller
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -43,9 +43,16 @@ class CoPersonRolesController extends StandardController {
   // This controller allows a COU to be set
   public $allows_cou = true;
 
-  // For CO Person group renderings, we need all CoGroup data, so we need more recursion
-  public $edit_recursion = 2;
-  public $view_recursion = 2;
+  public $edit_contains = array(
+    'Address',
+    'TelephoneNumber'
+  );
+  
+  // We need various related models for index and search
+  public $view_contains = array(
+    'Address',
+    'TelephoneNumber'
+  );
   
   /**
    * Add a CO Person Role Object.
@@ -58,7 +65,7 @@ class CoPersonRolesController extends StandardController {
    */
   
   function add() {
-    if(!$this->restful && $this->request->is('get')) {
+    if(!$this->request->is('restful') && $this->request->is('get')) {
       // Create a stub person role. It's unclear that title should
       // autopopulate, and if it need not it's further unclear that we
       // really need to set this variable.
@@ -72,9 +79,11 @@ class CoPersonRolesController extends StandardController {
     
     parent::add();
     
-    // Append the person's name to the page title
-    $this->set('title_for_layout',
-               $this->viewVars['title_for_layout'] . " (" . generateCn($this->viewVars['co_people'][0]['PrimaryName']) . ")");
+    if(!$this->request->is('restful')) {
+      // Append the person's name to the page title
+      $this->set('title_for_layout',
+                 $this->viewVars['title_for_layout'] . " (" . generateCn($this->viewVars['co_people'][0]['PrimaryName']) . ")");
+    }
   }
 
   /**
@@ -88,8 +97,7 @@ class CoPersonRolesController extends StandardController {
   function beforeFilter() {
     parent::beforeFilter();
     
-    if(!$this->restful)
-    {
+    if(!$this->request->is('restful')) {
       // We need CO Person information for the view as well. We also want Name,
       // so we increase recursion.
       
@@ -120,14 +128,12 @@ class CoPersonRolesController extends StandardController {
     // If there are any extended attributes defined for this CO,
     // dynamically bind the CO table of attributes to the model.
     
-    if($this->restful && !isset($this->cur_co))
-    {
+    if($this->request->is('restful') && !isset($this->cur_co)) {
       // Calls to co_person_roles via the REST controller won't have a CO set (except
       // when retrieving all members of a CO) so we have to figure out the CO
       // from the person requested.
       
-      if(isset($this->request->params['id']))
-      {
+      if(isset($this->request->params['id'])) {
         // Request for an individual
         
         $args['joins'][0]['table'] = 'co_people';
@@ -141,9 +147,7 @@ class CoPersonRolesController extends StandardController {
         $args['conditions']['CoPersonRole.id'] = $this->request->params['id'];
         
         $this->cur_co = $this->CoPersonRole->CoPerson->Co->find('first', $args);
-      }
-      elseif(isset($this->request->params['url']['coid']))
-      {
+      } elseif(isset($this->request->params['url']['coid'])) {
         // Request for all members of a CO
         
         $this->cur_co = $this->CoPersonRole->CoPerson->Co->findById($this->request->params['url']['coid']);
@@ -157,8 +161,7 @@ class CoPersonRolesController extends StandardController {
                                                                       array('conditions' =>
                                                                             array('co_id' => $this->cur_co['Co']['id'])));
     
-    if($c > 0)
-    {
+    if($c > 0) {
       $cl = 'Co' . $this->cur_co['Co']['id'] . 'PersonExtendedAttribute';
       
       $this->CoPersonRole->bindModel(array('hasOne' =>
@@ -172,6 +175,10 @@ class CoPersonRolesController extends StandardController {
       
       // Dynamic models won't have behaviors attached, so add them here
       $this->CoPersonRole->$cl->Behaviors->attach('Normalization');
+      
+      // Make sure extended attributes show up as part of containable queries
+      $this->edit_contains[] = $cl;
+      $this->view_contains[] = $cl;
     }
     
     // Dynamically adjust validation rules to include the current CO ID for dynamic types.
@@ -193,7 +200,7 @@ class CoPersonRolesController extends StandardController {
   public function beforeRender() {
     parent::beforeRender();
     
-    if(!$this->restful){
+    if(!$this->request->is('restful')){
       // Mappings for extended types
       $this->set('vv_copr_address_types', $this->CoPersonRole->Address->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_copr_affiliation_types', $this->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
@@ -216,18 +223,18 @@ class CoPersonRolesController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    if($this->restful && !empty($this->viewVars['permissions']['cous'])) {
+    if($this->request->is('restful') && !empty($this->viewVars['permissions']['cous'])) {
       // Check that the COU ID provided points to an existing COU.
       
       if(empty($reqdata['CoPersonRole']['cou_id'])) {
-        $this->restResultHeader(403, "COU Does Not Exist");
+        $this->Api->restResultHeader(403, "COU Does Not Exist");
         return false;
       }      
       
       $a = $this->CoPersonRole->Cou->findById($reqdata['CoPersonRole']['cou_id']);
 
       if(empty($a)) {
-        $this->restResultHeader(403, "COU Does Not Exist");
+        $this->Api->restResultHeader(403, "COU Does Not Exist");
         return false;
       }
     }
@@ -258,6 +265,9 @@ class CoPersonRolesController extends StandardController {
     // CoPersonRole)
     // https://github.com/cakephp/cakephp/issues/1765
     
+    // We need to do a similar hack for handling Extended Attributes in the
+    // REST API, but that's located in StandardController::add/edit.
+    
     if(!empty($reqdata)) {
       foreach(array_keys($reqdata) as $m) {
         if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)
@@ -280,7 +290,7 @@ class CoPersonRolesController extends StandardController {
     
     return true;
   }
-  
+
   /**
    * Generate a display key to be used in messages such as "Item Added".
    *
@@ -415,8 +425,8 @@ class CoPersonRolesController extends StandardController {
     // If we're an admin, we act as an admin, not self.
     $p['editself'] = $self && !$roles['cmadmin'] && !$roles['coadmin'] && !$roles['couadmin'];
     
-    // View all existing CO Person Roles (or a COU's worth)?
-    $p['index'] = !$roles['cmadmin'] && !$roles['coadmin'] && !$roles['couadmin'];
+    // View all existing CO Person Roles (or a COU's worth)? (for REST API)
+    $p['index'] = ($this->request->is('restful') && ($roles['cmadmin'] || $roles['coadmin']));
     
     if($this->action == 'index' && $p['index']) {
       // For rendering index, we currently assume that anyone who can view the
@@ -496,7 +506,7 @@ class CoPersonRolesController extends StandardController {
    */
 
   public function relink($id) {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // The selection process is handled by CoPeopleController. We execute here.
       // We're only passed the field to update, not a full CO Person Role record,
       // so just execute a field update.

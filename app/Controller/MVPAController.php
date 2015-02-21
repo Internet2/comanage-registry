@@ -66,16 +66,6 @@ class MVPAController extends StandardController {
     
     parent::beforeFilter();
     
-    if($this->restful && $this->requires_co) {
-      // For REST views, the CO isn't required by the data model since it's
-      // implied by the person ID. We can't unload the model (though we could
-      // figure out associations and $models->unbindModel), but we don't really
-      // need to as long as we flag requires_co=false. We do this after beforeFilter()
-      // because $this->restful gets calculated there.
-      
-      $this->requires_co = false;
-    }
-    
     // Dynamically adjust validation rules to include the current CO ID for dynamic types.
     
     $vrule = $model->validate['type']['content']['rule'];
@@ -97,7 +87,7 @@ class MVPAController extends StandardController {
     $req = $this->modelClass;
     $model = $this->$req;
     
-    if(!$this->restful){
+    if(!$this->request->is('restful')){
       // Provide a hint as to available types for this model
       
       $pid = $this->parsePersonID();

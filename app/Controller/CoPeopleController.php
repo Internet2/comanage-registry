@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO People Controller
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -46,7 +46,7 @@ class CoPeopleController extends StandardController {
   // We need Name on delete
   public $delete_recursion = 2;
   
-  // Use edit_contains to select the associaeed models we need for canvas.
+  // Use edit_contains to select the associated models we need for canvas.
   // Should also migrate view_ and delete_ (though delete_ is not yet supported.) (CO-195)
   public $edit_contains = array(
     'CoGroupMember' => array('CoGroup'),
@@ -100,7 +100,7 @@ class CoPeopleController extends StandardController {
    */
 
   public function beforeRender() {
-    if(!$this->restful){
+    if(!$this->request->is('restful')){
       // Generate list of sponsors
       $this->set('sponsors', $this->CoPerson->sponsorList($this->cur_co['Co']['id']));
       
@@ -211,7 +211,7 @@ class CoPeopleController extends StandardController {
   public function canvas($id) {
     // This is pretty similar to the standard view or edit methods.
     
-    if(!$this->restful && $this->request->is('get')) {
+    if(!$this->request->is('restful') && $this->request->is('get')) {
       $this->edit($id);
     }
   }
@@ -246,11 +246,11 @@ class CoPeopleController extends StandardController {
             }
           }
           
-          if($this->restful) {
+          if($this->request->is('restful')) {
             // At the moment, we're unlikely to get here since REST authz is
             // currently all or nothing.
             
-            $this->restResultHeader(499, "CouPerson Exists In Unowned COU");
+            $this->Api->restResultHeader(499, "CouPerson Exists In Unowned COU");
           }
           
           $this->Session->setFlash(_txt('er.coumember',
@@ -270,12 +270,13 @@ class CoPeopleController extends StandardController {
     //     Co#ExtendedAttributes here (but CoPersonRole does)
     
     if(!empty($curdata['CoPersonRole'])) {
-      if($this->restful)
-        $this->restResultHeader(499, "CoPersonRole Exists");
-      else
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(499, "CoPersonRole Exists");
+      } else {
         $this->Session->setFlash(_txt('er.copr.exists',
                                       array(generateCn($curdata['PrimaryName']))),
                                  '', array(), 'error');
+      }
       
       return false;
     }
@@ -298,7 +299,7 @@ class CoPeopleController extends StandardController {
     // (A person can't be added to the same CO twice... that's what Person Roles
     // are for.) Note the REST check is in co_org_identity_links_controller.
     
-    if(!$this->restful
+    if(!$this->request->is('restful')
        && $this->action != 'edit'
        && (!$curdata
            ||
@@ -371,7 +372,7 @@ class CoPeopleController extends StandardController {
    */
   
   public function expunge($id) {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       if($this->request->is('get')) {
         $coperson = $this->CoPerson->findForExpunge($id);
         
@@ -459,7 +460,7 @@ class CoPeopleController extends StandardController {
                                                $this->Session->read('Auth.User.co_person_id'),
                                                ActionEnum::CoPersonAddedManual);
         
-        if(!$this->restful) {
+        if(!$this->request->is('restful')) {
           // Add a record indicating the link took place
           $this->CoPerson->HistoryRecord->record($this->CoPerson->id,
                                                  null,
@@ -497,7 +498,7 @@ class CoPeopleController extends StandardController {
     // We need to check if we're being asked to do a match via the REST API, and
     // if so dispatch it. Otherwise, just invoke the standard behavior.
     
-    if($this->restful
+    if($this->request->is('restful')
        && (isset($this->request->query['given'])
            || isset($this->request->query['family']))) {
       $this->match();
@@ -529,8 +530,7 @@ class CoPeopleController extends StandardController {
     
     if(!empty($orgp))
     {
-      if(!$this->restful)
-      {
+      if(!$this->request->is('restful')) {
         // Set page title
         $this->set('title_for_layout', _txt('op.inv-a', array(generateCn($orgp['PrimaryName']))));
       }
@@ -737,7 +737,7 @@ class CoPeopleController extends StandardController {
    */
 
   public function link($copersonid=null) {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // We basically want the index behavior
       
       $this->index();
@@ -773,7 +773,7 @@ class CoPeopleController extends StandardController {
     $criteria['Name.given'] = "";
     $criteria['Name.family'] = "";
     
-    if($this->restful) {
+    if($this->request->is('restful')) {
       if(isset($this->request->query['given'])) {
         $criteria['Name.given'] = $this->request->query['given'];
       }
@@ -785,8 +785,8 @@ class CoPeopleController extends StandardController {
       // StandardController.)
       
       $this->set('co_people',
-                 $this->convertResponse($this->CoPerson->match($this->request->query['coid'],
-                                                               $criteria)));
+                 $this->Api->convertRestResponse($this->CoPerson->match($this->request->query['coid'],
+                                                                        $criteria)));
     } else {
       if(isset($this->params['named']['given'])) {
         $criteria['Name.given'] = $this->params['named']['given'];
@@ -899,7 +899,7 @@ class CoPeopleController extends StandardController {
    */
   
   public function provision($id) {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Pull some data for the view to be able to render
       $this->set('co_provisioning_status', $this->CoPerson->provisioningStatus($id));
       
@@ -944,7 +944,7 @@ class CoPeopleController extends StandardController {
    */
 
   public function relink($copersonid) {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // We basically want the index behavior
       
       $this->index();

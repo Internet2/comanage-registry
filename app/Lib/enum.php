@@ -87,18 +87,6 @@ class AdministratorEnum
   const NoAdmin       = 'N';
   const CoOrCouAdmin  = 'C';
   const CoAdmin       = 'O';
-/*    
-  public $from_api = array(
-    "NoAdmin"       => NoAdmin,
-    "CoOrCouAdmin"  => CoOrCouAdmin,
-    "CoAdmin"       => CoAdmin
-  );
-
-  public $to_api = array(
-    NoAdmin       => "NoAdmin",
-    CoOrCouAdmin  => "CoOrCouAdmin",
-    CoAdmin       => "CoAdmin"
-  );*/
 }
 
 class AffiliationEnum
@@ -133,24 +121,6 @@ class ContactEnum
   const Office      = 'office';
   const Postal      = 'postal';
   const Forwarding  = 'forwarding';
-/*
-  public $from_api = array(
-    "Fax"         => Fax,
-    "Home"        => Home,
-    "Mobile"      => Mobile,
-    "Office"      => Office,
-    "Postal"      => Postal,
-    "Forwarding"  => Forwarding
-  );
-
-  public $to_api = array(
-    Fax         => "Fax",
-    Home        => "Home",
-    Mobile      => "Mobile",
-    Office      => "Office",
-    Postal      => "Postal",
-    Forwarding  => "Forwarding"
-  );*/
 }
 
 class EmailAddressEnum {
@@ -190,34 +160,6 @@ class ExtendedAttributeEnum {
   const Varchar32 = 'VARCHAR(32)';
 }
 
-class NSFCitizenshipEnum
-{
-  const USCitizen            = 'US';
-  const USPermanentResident  = 'P';
-  const Other                = 'O';
-}
-
-class NSFDisabilityEnum
-{
-  const Hearing     = 'H';
-  const Visual      = 'V';
-  const Mobility    = 'M';
-  const Other       = 'O';
-
-}
-
-class NSFEthnicityEnum
-{
-  const Hispanic    = 'H';
-  const NotHispanic = 'N';
-}
-
-class NSFGenderEnum
-{
-  const Male        = 'M';
-  const Female      = 'F';
-}
-
 class IdentifierAssignmentEnum
 {
   const Random     = 'R';
@@ -252,20 +194,6 @@ class NameEnum
   const FKA       = 'fka';
   const Official  = 'official';
   const Preferred = 'preferred';
-  
-/*    public $from_api = array(
-    'Author'    => Author,
-    'FKA'       => FKA,
-    'Official'  => Official,
-    'Preferred' => Preferred
-  );
-  
-  public $to_api = array(
-    Author    => 'Author',
-    FKA       => 'FKA',
-    Official  => 'Official',
-    Preferred => 'Preferred'
-  );*/
 }
 
 class NotificationStatusEnum
@@ -276,6 +204,34 @@ class NotificationStatusEnum
   const PendingAcknowledgment = 'PA';
   const PendingResolution     = 'PR';
   const Resolved              = 'R';
+}
+
+class NSFCitizenshipEnum
+{
+  const USCitizen            = 'US';
+  const USPermanentResident  = 'P';
+  const Other                = 'O';
+}
+
+class NSFDisabilityEnum
+{
+  const Hearing     = 'H';
+  const Visual      = 'V';
+  const Mobility    = 'M';
+  const Other       = 'O';
+
+}
+
+class NSFEthnicityEnum
+{
+  const Hispanic    = 'H';
+  const NotHispanic = 'N';
+}
+
+class NSFGenderEnum
+{
+  const Male        = 'M';
+  const Female      = 'F';
 }
 
 class NSFRaceEnum
@@ -358,18 +314,6 @@ class RequiredEnum
   const Required      = 1;
   const Optional      = 0;
   const NotPermitted  = -1;
-  /*
-  public $from_api = array(
-    'Required'      => Required,
-    'Optional'      => Optional,
-    'NotPermitted'  => NotPermitted
-  );
-  
-  public $to_api = array(
-    Required      => 'Required',
-    Optional      => 'Optional',
-    NotPermitted  => 'NotPermitted'
-  );*/
 }
 
 // We use the actual field names here to simplify form rendering
@@ -411,30 +355,56 @@ class StatusEnum
   const PendingConfirmation = 'PC';
   const Suspended           = 'S';
   const Declined            = 'X';
-  /*
-  public $from_api = array(
-    "Active"    => Active,
-    "Deleted"   => Deleted,
-    "Invited"   => Invited,
-    "Pending"   => Pending,
-    "Suspended" => Suspended,
-    "Declined"  => Declined
+
+  public static $from_api = array(
+    'Active'              => StatusEnum::Active,
+    'Approved'            => StatusEnum::Approved,
+    'Confirmed'           => StatusEnum::Confirmed,
+    'Deleted'             => StatusEnum::Deleted,
+    'Denied'              => StatusEnum::Denied,
+    'Duplicate'           => StatusEnum::Duplicate,
+    'Expired'             => StatusEnum::Expired,
+    'GracePeriod'         => StatusEnum::GracePeriod,
+    'Invited'             => StatusEnum::Invited,
+    'Pending'             => StatusEnum::Pending,
+    'PendingApproval'     => StatusEnum::PendingApproval,
+    'PendingConfirmation' => StatusEnum::PendingConfirmation,
+    'Suspended'           => StatusEnum::Suspended,
+    'Declined'            => StatusEnum::Declined
   );
   
-  public $to_api = array(
-    Active    => "Active",
-    Deleted   => "Deleted",
-    Invited   => "Invited",
-    Pending   => "Pending",
-    Suspended => "Suspended",
-    Declined  => "Declined"
-  );*/
+  public static $to_api = array(
+    StatusEnum::Active              => 'Active',
+    StatusEnum::Approved            => 'Approved',
+    StatusEnum::Confirmed           => 'Confirmed',
+    StatusEnum::Deleted             => 'Deleted',
+    StatusEnum::Denied              => 'Denied',
+    StatusEnum::Duplicate           => 'Duplicate',
+    StatusEnum::Expired             => 'Expired',
+    StatusEnum::GracePeriod         => 'GracePeriod',
+    StatusEnum::Invited             => 'Invited',
+    StatusEnum::Pending             => 'Pending',
+    StatusEnum::PendingApproval     => 'PendingApproval',
+    StatusEnum::PendingConfirmation => 'PendingConfirmation',
+    StatusEnum::Suspended           => 'Suspended',
+    StatusEnum::Declined            => 'Declined'
+  );
 }
 
 class SuspendableStatusEnum
 {
   const Active              = 'A';
   const Suspended           = 'S';
+
+  public static $from_api = array(
+    'Active'    => SuspendableStatusEnum::Active,
+    'Suspended' => SuspendableStatusEnum::Suspended
+  );
+  
+  public static $to_api = array(
+    SuspendableStatusEnum::Active    => 'Active',
+    SuspendableStatusEnum::Suspended => 'Suspended'
+  );
 }
 
 class TAndCEnrollmentModeEnum
@@ -453,9 +423,8 @@ class TAndCLoginModeEnum
 }
 
 // Old style enums below, deprecated
-// In order to switch away from them, AppController::convertRestPost
-// and checkRestPost must be rewritten, as well as Model/CoEnrollmentAttribute::enrollmentFlowAttributes.
-// Check for other references as well.
+// We're mostly ready to drop these, but there are still a few places that
+// reference them and need to be cleaned up.
 // See also new use of Model::validEnumsForSelect.
 
 global $affil_t, $affil_ti;
@@ -506,19 +475,6 @@ $contact_ti = array(
   'Forwarding' => 'forwarding'
 );
 
-/*
-$extattr_t = array(
-  'INTEGER' => 'INTEGER',
-  'TIMESTAMP' => 'TIMESTAMP',
-  'VARCHAR(32)' => 'VARCHAR(32)'
-);
-
-$extattr_ti = array(
-  'INTEGER' => 'I',
-  'TIMESTAMP' => 'T',
-  'VARCHAR(32)' => 'V3'
-);
-*/
 
 $identifier_t = array(
   'eppn' => 'ePPN',

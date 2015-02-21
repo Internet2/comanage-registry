@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Terms and Conditions Controller
  *
- * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -61,21 +61,21 @@ class CoTermsAndConditionsController extends StandardController {
                                                               $this->Session->read('Auth.User.co_person_id'),
                                                               $this->Session->read('Auth.User.username'));
         
-        if($this->restful) {
+        if($this->request->is('restful')) {
           // XXX CO-698
         } else {
           $this->Session->setFlash(_txt('rs.tc.agree.ok'), '', array(), 'success');        
         }
       }
       catch(Exception $e) {
-        if($this->restful) {
+        if($this->request->is('restful')) {
           // XXX CO-698
         } else {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');
         }
       }
       
-      if(!$this->restful) {
+      if(!$this->request->is('restful')) {
         if($this->CoSetting->getTAndCLoginMode($this->cur_co['Co']['id']) == TAndCLoginModeEnum::RegistryLogin) {
           // Update the session cache set by UsersController
           
@@ -101,7 +101,7 @@ class CoTermsAndConditionsController extends StandardController {
         $this->redirect($args);
       }
     } else {
-      if($this->restful) {
+      if($this->request->is('restful')) {
         // XXX CO-698
       } else {
         $this->Session->setFlash($e->getMessage(), '', array(), 'error');
@@ -119,7 +119,7 @@ class CoTermsAndConditionsController extends StandardController {
    */
   
   function beforeRender() {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       $this->set('cous', $this->Co->Cou->allCous($this->cur_co['Co']['id'], "hash"));
     }
     

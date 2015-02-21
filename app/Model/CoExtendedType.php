@@ -88,7 +88,7 @@ class CoExtendedType extends AppModel {
   // Enum type hints
   
   public $cm_enum_types = array(
-    'status' => 'status_t'
+    'status' => 'SuspendableStatusEnum'
   );
   
   /**
