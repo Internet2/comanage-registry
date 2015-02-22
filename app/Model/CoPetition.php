@@ -1398,7 +1398,7 @@ class CoPetition extends AppModel {
                                                        PetitionActionEnum::IdentifiersAssigned,
                                                        _txt('rs.ia.ok') . " (" . implode(',', $assigned) . ")");
               }
-              catch (Exception $e) {
+              catch(Exception $e) {
                 $fail = true;
               }
             }
