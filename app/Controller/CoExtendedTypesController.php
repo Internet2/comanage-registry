@@ -136,10 +136,11 @@ class CoExtendedTypesController extends StandardController {
       catch(Exception $e) {
         // Type is in use
         
-        if($this->restful)
-          $this->restResultHeader(403, "Type In Use");
-        else
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "Type In Use");
+        } else {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        }
         
         return false;
       }
@@ -158,14 +159,14 @@ class CoExtendedTypesController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    if($this->restful) {
+    if($this->request->is('restful')) {
       // Make sure the specified attribute is valid now, since we use it before we'll
       // get to a save
       
       $this->CoExtendedType->set($reqdata);
       
       if(!$this->CoExtendedType->validates(array('fieldList' => array('attribute')))) {
-        $this->restResultHeader(400, "Invalid Fields");
+        $this->Api->restResultHeader(400, "Invalid Fields");
         $this->set('invalid_fields', $this->CoExtendedType->invalidFields());
         
         return false;
@@ -182,11 +183,12 @@ class CoExtendedTypesController extends StandardController {
       $x = $this->CoExtendedType->find('count', $args);
       
       if($x > 0) {
-        if($this->restful)
-          $this->restResultHeader(403, "Name In Use");
-        else
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "Name In Use");
+        } else {
           $this->Session->setFlash(_txt('er.et.exists', array($reqdata['CoExtendedType']['name'])), '', array(), 'error');
-          
+        }
+        
         return false;
       }
     }
@@ -207,10 +209,11 @@ class CoExtendedTypesController extends StandardController {
       catch(Exception $e) {
         // Type is in use
         
-        if($this->restful)
-          $this->restResultHeader(403, "Type In Use");
-        else
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "Type In Use");
+        } else {
           $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        }
         
         return false;
       }
@@ -221,10 +224,11 @@ class CoExtendedTypesController extends StandardController {
        && $reqdata['CoExtendedType']['name'] != NameEnum::Official) {
       // NameEnum::official cannot be renamed (CO-955)
       
-      if($this->restful)
-        $this->restResultHeader(403, "Type In Use");
-      else
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Type In Use");
+      } else {
         $this->Session->setFlash(_txt('er.nm.official.et'), '', array(), 'error');
+      }
       
       return false;
     }
@@ -239,7 +243,7 @@ class CoExtendedTypesController extends StandardController {
    */
 
   public function index() {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       if(empty($this->request->query['attr'])) {
         // Make sure an attribute is selected. We'll arbitrarily pick identifier,
         // since it was the first Extended Type.

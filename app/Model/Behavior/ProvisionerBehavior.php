@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Provisioner Behavior
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -220,7 +220,7 @@ class ProvisionerBehavior extends ModelBehavior {
          && !empty($model->data['CoPerson']['id'])) {
         $pmodel = $model;
         $coPersonId[] = $model->data['CoPerson']['id'];
-      } elseif($model->name == 'EnrolleeCoPerson'
+      } elseif($model->alias == 'EnrolleeCoPerson'
          && !empty($model->data['EnrolleeCoPerson']['id'])) {
         // Petitions present an EnrolleeCoPerson, not a CoPerson
         $pmodel = $model;
@@ -290,6 +290,14 @@ class ProvisionerBehavior extends ModelBehavior {
         }
         catch(InvalidArgumentException $e) {
           throw new InvalidArgumentException($e->getMessage());
+        }
+        
+        // Re-key $pdata when the person alias is EnrolleeCoPerson to make
+        // everything else work more smoothly
+        
+        if($model->alias == 'EnrolleeCoPerson' && !empty($pdata['EnrolleeCoPerson'])) {
+          $pdata['CoPerson'] = $pdata['EnrolleeCoPerson'];
+          unset($pdata['EnrolleeCoPerson']);
         }
         
         // Make sure CO Person data was retrieved (it won't be for certain operations
@@ -698,7 +706,7 @@ class ProvisionerBehavior extends ModelBehavior {
   
   private function marshallCoPersonData($coPersonModel, $coPersonId) {
     $args = array();
-    $args['conditions']['CoPerson.id'] = $coPersonId;
+    $args['conditions'][$coPersonModel->alias.'.id'] = $coPersonId;
     // Only pull related models relevant for provisioning
     $args['contain'] = array(
       'Co',
@@ -736,7 +744,7 @@ class ProvisionerBehavior extends ModelBehavior {
         // The role record must have a valid status (for now: Active), be within validity window,
         // and be attached to a valid CO Person.
         
-        if($coPersonData['CoPerson']['status'] != StatusEnum::Active
+        if($coPersonData[$coPersonModel->alias]['status'] != StatusEnum::Active
            ||
            $coPersonData['CoPersonRole'][$i]['status'] != StatusEnum::Active
            ||
@@ -768,7 +776,7 @@ class ProvisionerBehavior extends ModelBehavior {
       for($i = (count($coPersonData['CoGroupMember']) - 1);$i >= 0;$i--) {
         // Count backwards so we don't trip over indices when we unset invalid memberships.
         
-        if($coPersonData['CoPerson']['status'] != StatusEnum::Active
+        if($coPersonData[$coPersonModel->alias]['status'] != StatusEnum::Active
            ||
            $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active) {
           unset($coPersonData['CoGroupMember'][$i]);

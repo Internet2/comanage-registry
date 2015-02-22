@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Member Controller
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -58,8 +58,7 @@ class CoGroupMembersController extends StandardController {
    */
   
   function add() {
-    if(!$this->restful)
-    {
+    if(!$this->request->is('restful')) {
       // We can't just saveAll because Cake will create rows in the database for all
       // non-member non-owners, which is silly.  Create a version without those
       // entries (and properly structured).
@@ -120,16 +119,7 @@ class CoGroupMembersController extends StandardController {
    */
   
   function beforeFilter() {
-    // Strictly speaking, this controller doesn't require a CO except to
-    // redirect/render views.  Since the REST API doesn't specify CO ID
-    // we unset requires_co.  $this->restful gets set in beforeFilter, so
-    // call the parent first.  (While requires_co is checked there for
-    // non-REST, it is checked in checkPost for REST.)
-
     parent::beforeFilter();
-
-    if($this->restful)
-      $this->requires_co = false;
 
     // Sets tab to open for redirects back to tabbed pages
     $this->redirectTab = 'email';
@@ -204,17 +194,15 @@ class CoGroupMembersController extends StandardController {
                                              )
                                             );
     
-    if(empty($g))
-    {
-      if($this->restful)
-        $this->restResultHeader(403, "CoGroup Does Not Exist");
-      else
-      {
+    if(empty($g)) {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "CoGroup Does Not Exist");
+      } else {
         $this->Session->setFlash(_txt('er.gr.nf', array($reqdata['CoGroupMember']['co_group_id'])), '', array(), 'error');
         $this->performRedirect();
       }
 
-      return(false);
+      return false;
     }
 
     // Make sure the CO Person exists
@@ -225,17 +213,15 @@ class CoGroupMembersController extends StandardController {
                                               )
                                              );
     
-    if(empty($p))
-    {
-      if($this->restful)
-        $this->restResultHeader(403, "CoPerson Does Not Exist");
-      else
-      {
+    if(empty($p)) {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "CoPerson Does Not Exist");
+      } else {
         $this->Session->setFlash(_txt('er.cop.nf', array($reqdata['CoGroupMember']['co_person_id'])), '', array(), 'error');
         $this->performRedirect();
       }
 
-      return(false);
+      return false;
     }
     
     if($this->action == 'add')
@@ -246,26 +232,23 @@ class CoGroupMembersController extends StandardController {
                                                    array('CoGroupMember.co_group_id' => $reqdata['CoGroupMember']['co_group_id'],
                                                          'CoGroupMember.co_person_id' => $reqdata['CoGroupMember']['co_person_id'])));
       
-      if(!empty($x))
-      {
-        if($this->restful)
-          $this->restResultHeader(403, "CoPerson Already Member");
-        else
-        {
+      if(!empty($x)) {
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "CoPerson Already Member");
+        } else {
           $this->Session->setFlash(_txt('er.grm.already', array($reqdata['CoGroupMember']['co_person_id'],
                                                                 $reqdata['CoGroupMember']['co_group_id'])),
                                    '', array(), 'error');
           $this->performRedirect();
         }
-
-        return(false);
+        
+        return false;
       }
     }
     
     // XXX We don't check that the CO Person is actually in the CO... should we?
-    // And what if they're later removed from the CO?
-
-    return(true);
+    
+    return true;
   }
   
   /**
@@ -319,6 +302,39 @@ class CoGroupMembersController extends StandardController {
     }
     
     return true;
+  }
+
+  /**
+   * Obtain all CO Group Members.
+   * - postcondition: $<object>s set on success (REST or HTML), using pagination (HTML only)
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Session flash message updated (HTML) on suitable error
+   *
+   * @since  COmanage Registry v0.9.3
+   */
+  
+  function index() {
+    if($this->request->is('restful') && !empty($this->params['url']['cogroupid'])) {
+      // We need to retrieve via a join, which StandardController::index() doesn't
+      // currently support.
+      
+      try {
+        $groups = $this->CoGroupMember->findForCoGroup($this->params['url']['cogroupid']);
+        
+        if(!empty($groups)) {
+          $this->set('co_group_members', $this->Api->convertRestResponse($groups));
+        } else {
+          $this->Api->restResultHeader(204, "CO Person Has No Groups");
+          return;
+        }
+      }
+      catch(InvalidArgumentException $e) {
+        $this->Api->restResultHeader(404, "CO Person Unknown");
+        return;
+      }
+    } else {
+      parent::index();
+    }
   }
   
   /**
@@ -377,7 +393,7 @@ class CoGroupMembersController extends StandardController {
     
     // View a list of members of a group?
     // This is for REST
-    $p['index'] = ($this->restful && ($roles['cmadmin'] || $roles['coadmin']));
+    $p['index'] = ($this->request->is('restful') && ($roles['cmadmin'] || $roles['coadmin']));
     
     // Select from a list of potential members to add?
     $p['select'] = ($roles['cmadmin'] || $managed);
@@ -518,7 +534,7 @@ class CoGroupMembersController extends StandardController {
    */
   
   public function update() {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       try {
         $this->CoGroupMember->updateMemberships($this->request->data['CoGroupMember']['co_person_id'],
                                                 $this->request->data['CoGroupMember']['rows'],
@@ -548,7 +564,7 @@ class CoGroupMembersController extends StandardController {
    */
   
   public function updateGroup() {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       try {
         $this->CoGroupMember->updateGroupMemberships($this->request->data['CoGroupMember']['co_group_id'],
                                                      $this->request->data['CoGroupMember']['rows'],

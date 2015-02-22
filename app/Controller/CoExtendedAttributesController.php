@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Extended Attributes Controller
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -76,10 +76,11 @@ class CoExtendedAttributesController extends StandardController {
     }
       
     if(!$r) {
-      if($this->restful)
-        $this->restResultHeader(403, "Name In Use");
-      else
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Name In Use");
+      } else {
         $this->Session->setFlash(_txt('er.ea.exists', array($name)), '', array(), 'error');
+      }
       
       return false;
     }
@@ -118,15 +119,15 @@ class CoExtendedAttributesController extends StandardController {
     $sql = "ALTER TABLE " . $cotable . " DROP COLUMN "
          . Sanitize::escape($curdata['CoExtendedAttribute']['name'], $dbc->configKeyName);
     
-    if($this->CoExtendedAttribute->query($sql) === false)
-    {
-      if($this->restful)
+    if($this->CoExtendedAttribute->query($sql) === false) {
+      if($this->request->is('restful')) {
         $this->restResultHeader(500, "Database Error");
-      else
+      } else {
         $this->Session->setFlash(_txt('er.ea.alter'), '', array(), 'error');
+      }
       
       $dbc->rollback($this);
-      return(false);
+      return false;
     }
     
     // If there are no columns left, drop the dynamic table.
@@ -143,15 +144,15 @@ class CoExtendedAttributesController extends StandardController {
 
       $sql = "DROP TABLE " . $cotable;
       
-      if($this->CoExtendedAttribute->query($sql) === false)
-      {
-        if($this->restful)
+      if($this->CoExtendedAttribute->query($sql) === false) {
+        if($this->request->is('restful')) {
           $this->restResultHeader(500, "Database Error");
-        else
+        } else {
           $this->Session->setFlash(_txt('er.ea.table.d'), '', array(), 'error');
+        }
         
         $dbc->rollback($this);
-        return(false);
+        return false;
       }
     }
     
@@ -194,24 +195,20 @@ class CoExtendedAttributesController extends StandardController {
     
     if(!$this->CoExtendedAttribute->validates())
     {
-      if($this->restful)
-      {
+      if($this->request->is('restful')) {
         $fs = $model->invalidFields();
         
-        if(!empty($fs))
-        {
-          $this->restResultHeader(400, "Invalid Fields");
+        if(!empty($fs)) {
+          $this->Api->restResultHeader(400, "Invalid Fields");
           $this->set('invalid_fields', $fs);
+        } else {
+          $this->Api->restResultHeader(500, "Other Error");
         }
-        else
-        {
-          $this->restResultHeader(500, "Other Error");
-        }
-      }
-      else
+      } else {
         $this->Session->setFlash($this->fieldsErrorToString($this->CoExtendedAttribute->invalidFields()), '', array(), 'error');
+      }
       
-      return(false);
+      return false;
     }
     
     $dbc = $this->CoExtendedAttribute->getDataSource();
@@ -249,15 +246,15 @@ class CoExtendedAttributesController extends StandardController {
                 modified TIMESTAMP
               );";
         
-        if($this->CoExtendedAttribute->query($sql) === false)
-        {
-          if($this->restful)
-            $this->restResultHeader(500, "Database Error");
-          else
+        if($this->CoExtendedAttribute->query($sql) === false) {
+          if($this->request->is('restful')) {
+            $this->Api->restResultHeader(500, "Database Error");
+          } else {
             $this->Session->setFlash(_txt('er.ea.table'), '', array(), 'error');
+          }
           
           $dbc->rollback($this);
-          return(false);
+          return false;
         }
       }
       
@@ -275,15 +272,15 @@ class CoExtendedAttributesController extends StandardController {
            . " " . $reqdata['CoExtendedAttribute']['type'];
            // Type must match an enumerated value (as defined in the model) and so doesn't need sanitization
       
-      if($this->CoExtendedAttribute->query($sql) === false)
-      {
-        if($this->restful)
+      if($this->CoExtendedAttribute->query($sql) === false) {
+        if($this->request->is('restful')) {
           $this->restResultHeader(500, "Database Error");
-        else
+        } else {
           $this->Session->setFlash(_txt('er.ea.alter'), '', array(), 'error');
+        }
         
         $dbc->rollback($this);
-        return(false);
+        return false;
       }
 
       // Set up an index if requested
@@ -294,15 +291,15 @@ class CoExtendedAttributesController extends StandardController {
         $sql = "CREATE INDEX " . $coindex . " ON " . $cotable
              . " (" . Sanitize::escape($reqdata['CoExtendedAttribute']['name'], $dbc->configKeyName) . ")";
         
-        if($this->CoExtendedAttribute->query($sql) === false)
-        {
-          if($this->restful)
+        if($this->CoExtendedAttribute->query($sql) === false) {
+          if($this->request->is('restful')) {
             $this->restResultHeader(500, "Database Error");
-          else
+          } else {
             $this->Session->setFlash(_txt('er.ea.index'), '', array(), 'error');
+          }
           
           $dbc->rollback($this);
-          return(false);
+          return false;
         }
       }
     }
@@ -324,15 +321,15 @@ class CoExtendedAttributesController extends StandardController {
                 RENAME COLUMN " . Sanitize::escape($curdata['CoExtendedAttribute']['name'], $dbc->configKeyName)
              . " TO " . $reqdata['CoExtendedAttribute']['name'];
       
-        if($this->CoExtendedAttribute->query($sql) === false)
-        {
-          if($this->restful)
+        if($this->CoExtendedAttribute->query($sql) === false) {
+          if($this->request->is('restful')) {
             $this->restResultHeader(500, "Database Error");
-          else
+          } else {
             $this->Session->setFlash(_txt('er.ea.alter'), '', array(), 'error');
+          }
           
           $dbc->rollback($this);
-          return(false);
+          return false;
         }
       }
       
@@ -362,15 +359,15 @@ class CoExtendedAttributesController extends StandardController {
         
         if($sql != "")
         {
-          if($this->CoExtendedAttribute->query($sql) === false)
-          {
-            if($this->restful)
+          if($this->CoExtendedAttribute->query($sql) === false) {
+            if($this->request->is('restful')) {
               $this->restResultHeader(500, "Database Error");
-            else
+            } else {
               $this->Session->setFlash(_txt('er.ea.index'), '', array(), 'error');
+            }
             
             $dbc->rollback($this);
-            return(false);
+            return false;
           }
         }
       }

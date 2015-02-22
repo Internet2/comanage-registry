@@ -164,14 +164,11 @@ class CoPersonRole extends AppModel {
   // Enum type hints
   
   public $cm_enum_txt = array(
-// Don't use this anymore due to extended types
-//    'affiliation' => 'en.co_person_role.affiliation',
     'status' => 'en.status'
   );
   
   public $cm_enum_types = array(
-    'affiliation' => 'affil_t',
-    'status' => 'status_t'
+    'status' => 'StatusEnum'
   );
   
   /**
@@ -185,18 +182,19 @@ class CoPersonRole extends AppModel {
    */
   
   public function afterSave($created, $options) {
-  	// Manage CO person membership in the COU members group.
-      
+    // Manage CO person membership in the COU members group.
+    
     // Since the Provisioner Behavior will only provision group memberships
     // for CO People with an Active status we do not need to manage 
     // membership in the members group based on status here.  So we only
     // add a CO Person to the COU members group whenever we detect
     // the CO Person Record has a COU.
-    if(array_key_exists('cou_id', $this->data[$this->alias])) {
-    	$couid = $this->data[$this->alias]['cou_id'];
-    } else {
-    	return;
-    }        
+    
+    if(empty($this->data[$this->alias]['cou_id'])) {
+      return;
+    }
+    
+    $couid = $this->data[$this->alias]['cou_id'];
     
     // The saved data may have been contained and not have what we need
     // so find the model (CoPersonRole) data again and include COU and
@@ -213,39 +211,40 @@ class CoPersonRole extends AppModel {
     $args['conditions']['CoGroup.co_id'] = $copersonrole['CoPerson']['co_id'];
     $args['contain'] = false;
     $membersgroup = $this->CoPerson->CoGroupMember->CoGroup->find('first', $args);
-      
-	  // Find all COU names for the CO so that we can manage memberships in
-	  // the associated members groups, since we might have to delete a memberhip
-	  // if the COU is changing for this role.
-	  $args = array();
+    
+    // Find all COU names for the CO so that we can manage memberships in
+    // the associated members groups, since we might have to delete a memberhip
+    // if the COU is changing for this role.
+    $args = array();
     $args['conditions']['Cou.co_id'] = $copersonrole['CoPerson']['co_id'];
     $args['contain'] = false;
     $cous = $this->CoPerson->Co->Cou->find('all', $args);
-            
+    
     // Loop over any existing memberships to determine if already 
     // a member of the COU members group, and any existing membership
     // for another COU that may have to be deleted if the role is changing
     // COUs.
     $alreadyMember = false;
+    
     foreach($copersonrole['CoPerson']['CoGroupMember'] as $membership) {
-    	if($membership['co_group_id'] == $membersgroup['CoGroup']['id']) {
-    		$alreadyMember = true;
-    	} else {
-      	foreach($cous as $cou){
-      		$couName = $cou['Cou']['name'];
+      if($membership['co_group_id'] == $membersgroup['CoGroup']['id']) {
+        $alreadyMember = true;
+      } else {
+      	foreach($cous as $cou) {
+          $couName = $cou['Cou']['name'];
           // If a member in some other COU members group then delete that membership.
-      		if(($membership['CoGroup']['name'] == 'members:' . $couName) and 
-      				($couName !=  $copersonrole['Cou']['name'])) {
+      	  if(($membership['CoGroup']['name'] == 'members:' . $couName)
+             && ($couName !=  $copersonrole['Cou']['name'])) {
             $this->CoPerson->CoGroupMember->delete($membership['id']);
-      		}
+      	  }
       	}
-    	}
+      }
     }
     
-    if ($alreadyMember) {
-    	return;
+    if($alreadyMember) {
+      return;
     }
-	  
+    
     // Create the membership in the members group.
     $this->CoPerson->CoGroupMember->clear();
     $data = array();
@@ -255,4 +254,4 @@ class CoPersonRole extends AppModel {
             
     $this->CoPerson->CoGroupMember->save($data);
   }
-} 
+}

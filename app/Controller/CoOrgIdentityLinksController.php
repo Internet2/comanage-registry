@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Org Identity Link Controller
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -54,7 +54,7 @@ class CoOrgIdentityLinksController extends StandardController {
     
     if(empty($reqdata['CoOrgIdentityLink']['co_person_id']))
     {
-      $this->restResultHeader(403, "CoPerson Does Not Exist");
+      $this->Api->restResultHeader(403, "CoPerson Does Not Exist");
       return false;
     }
     
@@ -63,13 +63,13 @@ class CoOrgIdentityLinksController extends StandardController {
     
     if(empty($coPerson))
     {
-      $this->restResultHeader(403, "CoPerson Does Not Exist");
+      $this->Api->restResultHeader(403, "CoPerson Does Not Exist");
       return false;
     }
     
     if(empty($reqdata['CoOrgIdentityLink']['org_identity_id']))
     {
-      $this->restResultHeader(403, "OrgIdentity Does Not Exist");
+      $this->Api->restResultHeader(403, "OrgIdentity Does Not Exist");
       return false;
     }
     
@@ -79,11 +79,11 @@ class CoOrgIdentityLinksController extends StandardController {
     
     if(empty($orgIdentity))
     {
-      $this->restResultHeader(403, "OrgIdentity Does Not Exist");
+      $this->Api->restResultHeader(403, "OrgIdentity Does Not Exist");
       return false;
     }
     
-    if($this->restful || $this->action == 'add') {
+    if($this->request->is('restful') || $this->action == 'add') {
       // Check that an org identity being added is not already a member of the CO.
       // (A person can't be added to the same CO twice... that's what Person Roles
       // are for.) Note the UI check is in co_people_controller.
@@ -94,7 +94,7 @@ class CoOrgIdentityLinksController extends StandardController {
       if($this->CoOrgIdentityLink->CoPerson->orgIdIsCoPerson($coPerson['CoPerson']['co_id'],
                                                              $orgIdentity['OrgIdentity']['id']))
       {
-        $this->restResultHeader(403, "OrgIdentity Already Linked");
+        $this->Api->restResultHeader(403, "OrgIdentity Already Linked");
         return false;
       }
     }

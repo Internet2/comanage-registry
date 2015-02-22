@@ -165,7 +165,7 @@ class CoNotificationsController extends StandardController {
   public function index() {
     parent::index();
     
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Attempt to generate a more descriptive page title. If we fail at any point
       // we'll automatically revert back to the default title.
       

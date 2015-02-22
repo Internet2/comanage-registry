@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Order View
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.2
@@ -28,6 +28,28 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_flows';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_enrollment_flows.pl'), $args);
+  
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_flows';
+  $args['action'] = 'edit';
+  $args[] = $vv_coefid;
+  $this->Html->addCrumb($vv_ef_name, $args);
+  
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_attributes';
+  $args['action'] = 'index';
+  $args['coef'] = $vv_coefid;
+  $this->Html->addCrumb(_txt('ct.co_enrollment_attributes.pl'), $args);
+  
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
   
@@ -45,13 +67,49 @@
   }
   
   $this->set('sidebarButtons', $sidebarButtons);
-
-  // Enable and configure drag/drop sorting 
-  $this->Js->get('#sortable');
-  $this->Js->sortable(array(
-    'complete' => '$.post("/registry/co_enrollment_attributes/reorder", $("#sortable").sortable("serialize"))',
-    ));
 ?>
+<script type="text/javascript">
+  $(function() {
+    // Define sortable
+    $("#sortable").sortable({
+      update: function( event, ui ) {
+        // POST to /reorder with the new order serialized
+        var jqxhr = $.post("<?php print $this->Html->url(array('controller' => 'co_enrollment_attributes',
+                                                               'action'     => 'reorder',
+                                                               'ext'        => 'json',
+                                                               'coef'       => $vv_ef_id)); ?>", $("#sortable").sortable("serialize"));
+        
+        jqxhr.done(function(data, textStatus, jqXHR) {
+        });
+        
+        jqxhr.fail(function(jqXHR, textStatus, errorThrown) {
+          // Note we're getting 200 here but it's actually a success (perhaps because no body returned; CO-984)
+          if(jqXHR.status != "200") {
+            $("#result-dialog").html("<p><?php print _txt('er.reorder'); ?>" + errorThrown + " (" +  jqXHR.status + ")</p>");
+            $("#result-dialog").dialog("open");
+          }
+        });
+      }
+    });
+    
+    // Result dialog
+    $("#result-dialog").dialog({
+      autoOpen: false,
+      buttons: {
+        "<?php print _txt('op.ok'); ?>": function() {
+          $(this).dialog("close");
+        },
+      },
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+    });
+  });
+</script>
 
 <table id="enrollment_attributes" class="ui-widget">
   <thead>
@@ -91,7 +149,18 @@
   </tfoot>
 </table>
 
-<?php 
-  // Buffer javascript and run after page elements are in place
-  print $this->Js->writeBuffer();
+<?php
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_attributes';
+  $args['action'] = 'index';
+  $args['coef'] = $vv_coefid;
+  
+  print $this->Html->link(_txt('op.done'),
+                          $args,
+                          array('class'  => 'backbutton'));
 ?>
+
+<div id="result-dialog" title="<?php print _txt('op.reorder'); ?>">
+  <p></p>
+</div>

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Names Controller
  *
- * Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -57,7 +57,7 @@ class NamesController extends MVPAController {
   function beforeRender() {
     parent::beforeRender();
     
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Set required fields according to whether or not this is attached to a CO Person (Role)
       
       $pids = $this->parsePersonID();
@@ -84,8 +84,8 @@ class NamesController extends MVPAController {
     // We can't delete a primary name
     
     if($curdata['Name']['primary_name']) {
-      if($this->restful) {
-        $this->restResultHeader(403, "Primary Name Cannot Be Deleted");
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Primary Name Cannot Be Deleted");
       } else {
         $this->Session->setFlash(_txt('er.nm.primary',
                                       array(generateCn($curdata['Name']))),
@@ -310,7 +310,7 @@ class NamesController extends MVPAController {
     
     // View all existing Names?
     // Currently only supported via REST since there's no use case for viewing all
-    $p['index'] = $this->restful && ($roles['cmadmin'] || $roles['coadmin']);
+    $p['index'] = $this->request->is('restful') && ($roles['cmadmin'] || $roles['coadmin']);
     
     // View an existing Name?
     $p['view'] = ($roles['cmadmin']
@@ -369,7 +369,7 @@ class NamesController extends MVPAController {
       $this->Session->setFlash(_txt('er.db.save'), '', array(), 'error');
     }
     
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Redirect
       
       if(!empty($this->Name->OrgIdentity->data)) {

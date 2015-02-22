@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Index View
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -26,6 +26,22 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_flows';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_enrollment_flows.pl'), $args);
+  
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_flows';
+  $args['action'] = 'edit';
+  $args[] = $vv_coefid;
+  $this->Html->addCrumb($vv_ef_name, $args);
+  
+  $this->Html->addCrumb(_txt('ct.co_enrollment_attributes.pl'));
 
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
@@ -62,7 +78,7 @@
 
 ?>
 
-<table id="cous" class="ui-widget">
+<table id="co_enrollment_attributes" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('label', _txt('fd.ea.label')); ?></th>

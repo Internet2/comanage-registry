@@ -137,20 +137,16 @@ class OrgIdentitiesController extends StandardController {
       // Generate an array of CO Person ID and CO ID/Name or a message
       // for the views to render.
           
-      if($this->restful)
-      {
+      if($this->request->is('restful')) {
         $memberships = array();
           
-        for($i = 0; $i < count($coppl); $i++)
-        {
+        for($i = 0; $i < count($coppl); $i++) {
           $memberships[$coppl[$i]['CoPerson']['Co']['id']] = $coppl[$i]['CoPerson']['Co']['name'];
         }
             
-        $this->restResultHeader(403, "CoPerson Exists");
+        $this->Api->restResultHeader(403, "CoPerson Exists");
         $this->set('memberships', $memberships);
-      }
-      else
-      {
+      } else {
         $cs = "";
         
         for($i = 0; $i < count($coppl); $i++)

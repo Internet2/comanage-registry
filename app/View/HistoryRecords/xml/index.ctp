@@ -1,1 +1,1 @@
-../../Standard/json/index.ctp
+../../Standard/xml/index.ctp

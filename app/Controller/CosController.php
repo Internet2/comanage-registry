@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Controller
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -50,17 +50,17 @@ class CosController extends StandardController {
 
     $name = $this->Co->field('name');
 
-    if($name == "COmanage")
-    {
-      if($this->restful)
-        $this->restResultHeader(403, "Cannot Remove COmanage CO");
-      else
+    if($name == "COmanage") {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Cannot Remove COmanage CO");
+      } else {
         $this->Session->setFlash(_txt('er.co.cm.rm'), '', array(), 'error');
-        
-      return(false);
-    }
+      }
       
-    return(true);
+      return false;
+    }
+    
+    return true;
   }
   
   /**
@@ -74,18 +74,17 @@ class CosController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    if(isset($curdata))
-    {
+    if(isset($curdata)) {
       // Changes to COmanage CO are not permitted
       
-      if($curdata['Co']['name'] == "COmanage")
-      {
-        if($this->restful)
-          $this->restResultHeader(403, "Cannot Edit COmanage CO");
-        else
+      if($curdata['Co']['name'] == "COmanage") {
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "Cannot Edit COmanage CO");
+        } else {
           $this->Session->setFlash(_txt('er.co.cm.edit'), '', array(), 'error');
-          
-        return(false);
+        }
+        
+        return false;
       }
     }
     
@@ -94,18 +93,18 @@ class CosController extends StandardController {
       // Make sure name doesn't exist
       $x = $this->Co->findByName($reqdata['Co']['name']);
       
-      if(!empty($x))
-      {
-        if($this->restful)
-          $this->restResultHeader(403, "Name In Use");
-        else
+      if(!empty($x)) {
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "Name In Use");
+        } else {
           $this->Session->setFlash(_txt('er.co.exists', array($reqdata['Co']['name'])), '', array(), 'error');          
-
-        return(false);
+        }
+        
+        return false;
       }
     }
     
-    return(true);
+    return true;
   }
    
   /**
@@ -128,7 +127,7 @@ class CosController extends StandardController {
     
     // Only do this via HTTP.
     
-    if(!$this->restful && $this->action == 'add')
+    if(!$this->request->is('restful') && $this->action == 'add')
     {
       if(isset($this->Co->id))
       {

@@ -76,7 +76,7 @@ class CoEnrollmentFlowsController extends StandardController {
    */
   
   function beforeRender() {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       $this->set('cous', $this->Co->Cou->allCous($this->cur_co['Co']['id'], "hash"));
       
       $args = array();
