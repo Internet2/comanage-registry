@@ -27,6 +27,27 @@ App::uses('CakeSession', 'Model/Datasource');
 
 class ProvisionerBehavior extends ModelBehavior {
   /**
+   * Specify which statuses provision which type of data
+   */
+  
+  protected $groupStatuses = array(
+    StatusEnum::Active,
+    StatusEnum::GracePeriod
+  );
+  
+  protected $personStatuses = array(
+    StatusEnum::Active,
+    StatusEnum::Expired,
+    StatusEnum::GracePeriod,
+    StatusEnum::Suspended
+  );
+  
+  protected $roleStatuses = array(
+    StatusEnum::Active,
+    StatusEnum::GracePeriod
+  );
+  
+  /**
    * Handle provisioning following delete of Model.
    *
    * @since  COmanage Registry v0.8
@@ -98,15 +119,15 @@ class ProvisionerBehavior extends ModelBehavior {
     $copid = null; // CO Person ID, not to be confused with $coPersonId, used below
     $gmodel = null;
     
-    // If a CO Person status has changed to or from Active, find all the groups
-    // with which that person has an association and rewrite them.
+    // If a CO Person status has changed to or from a status that triggers group provisioning,
+    // find all the groups with which that person has an association and rewrite them.
     
     if($model->name == 'CoPerson') {
       if(isset($model->cacheData[ $model->alias ]['status'])
          && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
-         && ($model->cacheData[ $model->alias ]['status'] == StatusEnum::Active
-             || $model->data[ $model->alias ]['status'] == StatusEnum::Active)) {
-        // We have a CO Person status change to or from Active. Trigger a rewrite
+         && (in_array($model->cacheData[ $model->alias ]['status'], $this->groupStatuses)
+             || in_array($model->data[ $model->alias ]['status'], $this->groupStatuses))) {
+        // We have a CO Person status change to or from a relevant status. Trigger a rewrite
         // of all groups of which the person is a member.
         
         $syncGroups = true;
@@ -175,7 +196,7 @@ class ProvisionerBehavior extends ModelBehavior {
         
         $paction = ProvisioningActionEnum::CoGroupUpdated;
         
-        // It's only an add operation if the model is CoPerson
+        // It's only an add operation if the model is CoGroup
         if($created && $model->name == 'CoGroup') {
           $paction = ProvisioningActionEnum::CoGroupAdded;
         }
@@ -214,28 +235,28 @@ class ProvisionerBehavior extends ModelBehavior {
       // First, find the co_person_id (directly or indirectly) and pull the record.
       // We could have more than one if an Org Identity is updated.
       
-      $coPersonId = array();
+      $coPersonIds = array();
       
       if($model->name == 'CoPerson'
          && !empty($model->data['CoPerson']['id'])) {
         $pmodel = $model;
-        $coPersonId[] = $model->data['CoPerson']['id'];
+        $coPersonIds[] = $model->data['CoPerson']['id'];
       } elseif($model->alias == 'EnrolleeCoPerson'
          && !empty($model->data['EnrolleeCoPerson']['id'])) {
         // Petitions present an EnrolleeCoPerson, not a CoPerson
         $pmodel = $model;
-        $coPersonId[] = $model->data['EnrolleeCoPerson']['id'];
+        $coPersonIds[] = $model->data['EnrolleeCoPerson']['id'];
       } elseif(!empty($model->data[ $model->name ]['co_person_id'])) {
         $pmodel = $model->CoPerson;
-        $coPersonId[] = $model->data[ $model->name ]['co_person_id'];
+        $coPersonIds[] = $model->data[ $model->name ]['co_person_id'];
       } elseif(!empty($model->data[ $model->name ]['co_person_role_id'])) {
         $pmodel = $model->CoPersonRole->CoPerson;
-        $coPersonId[] = $model->CoPersonRole->field('co_person_id',
+        $coPersonIds[] = $model->CoPersonRole->field('co_person_id',
                                                     array('id' => $model->data[ $model->name ]['co_person_role_id']));
       } elseif($model->name == 'CoPersonRole' && !empty($model->data['CoPersonRole']['id'])) {
         // eg: for saveField called via CoExpirationPolicy::executePolicies()
         $pmodel = $model->CoPerson;
-        $coPersonId[] = $model->field('co_person_id',
+        $coPersonIds[] = $model->field('co_person_id',
                                       array('id' => $model->data['CoPersonRole']['id']));
       } elseif($model->name == 'Identifier'
                && !empty($model->data['Identifier']['org_identity_id'])
@@ -252,7 +273,7 @@ class ProvisionerBehavior extends ModelBehavior {
         $cpids = $model->OrgIdentity->CoOrgIdentityLink->find("list", $args);
         
         if(!empty($cpids)) {
-          $coPersonId = array_values($cpids);
+          $coPersonIds = array_values($cpids);
         }
         
         $pmodel = $model->CoPerson;
@@ -267,7 +288,7 @@ class ProvisionerBehavior extends ModelBehavior {
         $gms = $model->CoGroupMember->find('list', $args);
         
         if(!empty($gms)) {
-          $coPersonId = array_values($gms);
+          $coPersonIds = array_values($gms);
           $pmodel = $model->CoGroupMember->CoPerson;
         }
       } else {
@@ -278,7 +299,7 @@ class ProvisionerBehavior extends ModelBehavior {
         return true;
       }
       
-      foreach($coPersonId as $cpid) {
+      foreach($coPersonIds as $cpid) {
         // $cpid could be null during a delete operation. If so, we're probably
         // in the process of removing a related model, so just skip it.
         if(empty($cpid)) {
@@ -309,14 +330,24 @@ class ProvisionerBehavior extends ModelBehavior {
         
         // Determine the provisioning action
         
-        // For now, we don't support CoPersonEnteredGracePeriod, CoPersonExpired,
-        // or CoPersonUnexpired.
-        
         $paction = ProvisioningActionEnum::CoPersonUpdated;
         
-        // It's only an add operation if the model is CoPerson
-        if($created && $model->name == 'CoPerson') {
-          $paction = ProvisioningActionEnum::CoPersonAdded;
+        if($model->name == 'CoPerson') {
+          if($created) {
+            // It's only an add operation if the model is CoPerson
+            $paction = ProvisioningActionEnum::CoPersonAdded;
+          } elseif(!empty($model->cacheData[ $model->alias ]['status'])) {
+            if($model->data[ $model->alias ]['status'] == StatusEnum::GracePeriod
+               && $model->cacheData[ $model->alias ]['status'] != StatusEnum::GracePeriod) {
+              $paction = ProvisioningActionEnum::CoPersonEnteredGracePeriod;
+            } elseif($model->data[ $model->alias ]['status'] == StatusEnum::Expired
+               && $model->cacheData[ $model->alias ]['status'] != StatusEnum::Expired) {
+              $paction = ProvisioningActionEnum::CoPersonExpired;
+            } elseif($model->data[ $model->alias ]['status'] != StatusEnum::Expired
+               && $model->cacheData[ $model->alias ]['status'] == StatusEnum::Expired) {
+              $paction = ProvisioningActionEnum::CoPersonUnexpired;
+            }
+          }
         }
         
         // Invoke all provisioning plugins
@@ -681,7 +712,8 @@ class ProvisionerBehavior extends ModelBehavior {
         // Count backwards so we don't trip over indices when we unset invalid memberships.
         
         if(!isset($coGroupData['CoGroupMember'][$i]['CoPerson']['status'])
-           || $coGroupData['CoGroupMember'][$i]['CoPerson']['status'] != StatusEnum::Active) {
+           || !in_array($coGroupData['CoGroupMember'][$i]['CoPerson']['status'],
+                        $this->groupStatuses)) {
           unset($coGroupData['CoGroupMember'][$i]);
         }
       }
@@ -736,17 +768,17 @@ class ProvisionerBehavior extends ModelBehavior {
     // (even if those are active) and group memberships, but leave the rest of the
     // data in tact.
     
-    // Remove any role records that are not active
+    // Remove any role records that are not valid for provisioning
     
     if(!empty($coPersonData['CoPersonRole'])) {
       for($i = (count($coPersonData['CoPersonRole']) - 1);$i >= 0;$i--) {
         // Count backwards so we don't trip over indices when we unset invalid roles.
-        // The role record must have a valid status (for now: Active), be within validity window,
+        // The role record must have a valid status, be within validity window,
         // and be attached to a valid CO Person.
         
-        if($coPersonData[$coPersonModel->alias]['status'] != StatusEnum::Active
+        if(!in_array($coPersonData[$coPersonModel->alias]['status'], $this->personStatuses)
            ||
-           $coPersonData['CoPersonRole'][$i]['status'] != StatusEnum::Active
+           !in_array($coPersonData['CoPersonRole'][$i]['status'], $this->roleStatuses)
            ||
            (!empty($coPersonData['CoPersonRole'][$i]['valid_from'])
             && strtotime($coPersonData['CoPersonRole'][$i]['valid_from']) >= time())
@@ -776,7 +808,9 @@ class ProvisionerBehavior extends ModelBehavior {
       for($i = (count($coPersonData['CoGroupMember']) - 1);$i >= 0;$i--) {
         // Count backwards so we don't trip over indices when we unset invalid memberships.
         
-        if($coPersonData[$coPersonModel->alias]['status'] != StatusEnum::Active
+        // We need for CO Person to be in a status that provisions *group* memberships here,
+        // not a status for person provisioning
+        if(!in_array($coPersonData[$coPersonModel->alias]['status'], $this->groupStatuses)
            ||
            $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active) {
           unset($coPersonData['CoGroupMember'][$i]);
