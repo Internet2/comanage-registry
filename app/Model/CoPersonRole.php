@@ -266,27 +266,29 @@ class CoPersonRole extends AppModel {
   
   public function beforeSave($options = array()) {
     // If the validity of the role was changed, change the status appropriately
-
+    
     if(!empty($this->data['CoPersonRole']['valid_from'])) {
       if(strtotime($this->data['CoPersonRole']['valid_from']) < time()
          && $this->data['CoPersonRole']['status'] == StatusEnum::Pending) {
-        // Flag role as expired
+        // Flag role as active
         $this->data['CoPersonRole']['status'] = StatusEnum::Active;
       } elseif(strtotime($this->data['CoPersonRole']['valid_from']) > time()
          && $this->data['CoPersonRole']['status'] == StatusEnum::Active) {
-        // Flag role as expired
+        // Flag role as pending
         $this->data['CoPersonRole']['status'] = StatusEnum::Pending;
       }
     }
     
     if(!empty($this->data['CoPersonRole']['valid_through'])) {
       if(strtotime($this->data['CoPersonRole']['valid_through']) < time()
-         && $this->data['CoPersonRole']['status'] == StatusEnum::Active) {
+         && ($this->data['CoPersonRole']['status'] == StatusEnum::Active
+             ||
+             $this->data['CoPersonRole']['status'] == StatusEnum::GracePeriod)) {
         // Flag role as expired
         $this->data['CoPersonRole']['status'] = StatusEnum::Expired;
       } elseif(strtotime($this->data['CoPersonRole']['valid_through']) > time()
          && $this->data['CoPersonRole']['status'] == StatusEnum::Expired) {
-        // Flag role as expired
+        // Flag role as active
         $this->data['CoPersonRole']['status'] = StatusEnum::Active;
       }
     }
