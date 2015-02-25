@@ -91,15 +91,15 @@ class VootController extends StandardController {
       }
       catch(InvalidArgumentException $e) {
         if($e->getMessage() == _txt('er.id.unk')) {
-          $this->restResultHeader(404, "Identifier Unknown");
+          $this->Api->restResultHeader(404, "Identifier Unknown");
         } else {
-          $this->restResultHeader(404, "CO Person Unknown");
+          $this->Api->restResultHeader(404, "CO Person Unknown");
         }
         $this->response->send();
         exit;
       }
     } else {
-      $this->restResultHeader(400, "Bad Request");
+      $this->Api->restResultHeader(400, "Bad Request");
       $this->response->send();
       exit;
     }
@@ -188,9 +188,9 @@ class VootController extends StandardController {
       
       // We also need to pass member/ownership in these groups for the view
       $this->set('co_group_members', $memberships);
-      $this->restResultHeader(200, "OK");
+      $this->Api->restResultHeader(200, "OK");
     } else {
-      $this->restResultHeader(400, "Bad Request");
+      $this->Api->restResultHeader(400, "Bad Request");
     }
   }
   
@@ -248,9 +248,9 @@ class VootController extends StandardController {
       $args['fields'][] = 'CoGroupMember.co_person_id';
       
       $this->set('co_group_owners', array_values($this->CoGroupMember->find('list', $args)));
-      $this->restResultHeader(200, "OK");
+      $this->Api->restResultHeader(200, "OK");
     } else {
-      $this->restResultHeader(400, "Bad Request");
+      $this->Api->restResultHeader(400, "Bad Request");
     }
   }
 }

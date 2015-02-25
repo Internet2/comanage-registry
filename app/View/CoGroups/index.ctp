@@ -58,6 +58,19 @@
                                   'action' => 'add',
                                   'co' => $cur_co['Co']['id']),
                             array('class' => 'addbutton'));
+                            
+    if($permissions['reconcile']) {
+      $url = array();
+      $url['controller'] = 'co_groups';
+      $url['action'] = 'reconcile';
+      $url['ext'] = 'json';
+      $url['?'] = array('coid' => $cur_co['Co']['id']);
+      $jsLink = $this->Html->url($url);
+      $options = array();
+      $options['class'] = 'provisionbutton';
+      $options['onclick'] = "javascript:js_confirm_reconcile('$jsLink');";
+      print $this->Html->tag('a',_txt('op.gr.reconcile.all'), $options); 
+    }
     
     print $this->Html->link(_txt('op.grm.manage'),
                             array('controller' => 'co_groups',
@@ -69,6 +82,7 @@
     <br />
     ';
   }
+  
   
   if($permissions['select'] && $this->action == 'select') {
     // We're using slightly the wrong permission here... edit group instead of add group member
@@ -83,6 +97,194 @@
     print $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $this->request->params['named']['copersonid'])) . "\n";
   }
 ?>
+<script type="text/javascript">
+  // This is based in large part on CoProvisioningTargets/index.ctp
+  
+  // IDs of the members groups to be reconciled individually
+  var ids = [ ];
+  
+  // Have we been interrupted by the user?
+  var canceled = 0;
+  
+  function js_confirm_reconcile(targetUrl) {
+    // Prep confirmation dialog
+    $("#reconcile-dialog").dialog("option",
+                                     "buttons",
+                                     [ { text: "<?php print _txt('op.cancel'); ?>", click: function() { $(this).dialog("close"); } },
+                                       { text: "<?php print _txt('op.gr.reconcile'); ?>", click: function() {
+                                         $(this).dialog("close");
+                                         js_request_reconcile(targetUrl);
+                                       } }
+                                     ] );
+    
+    // Open the dialog to confirm autogenerate
+    $("#reconcile-dialog").dialog("open");
+  }
+  
+  function js_execute_reconcile(index, baseUrl) {
+    if(!canceled && index < ids.length) {
+      var id = ids[index];
+      
+      // Update the progress bar
+      $("#reconcile-progressbar").progressbar("option", "value", index);
+      
+      // Initiate the reconcile request
+      var jqxhr = $.ajax({
+        url: baseUrl + "/" + id + ".json",
+        type: 'PUT'
+        });
+      
+      // On success, fire the next request
+      jqxhr.done(function(data, textStatus, jqXHR) {
+                  js_execute_reconcile(index+1, baseUrl);
+                });
+      
+      jqxhr.fail(function(jqXHR, textStatus, errorThrown) {
+                  if(jqXHR.status != "200") {
+                    $("#progressbar-dialog").dialog("close");
+                    $("#result-dialog").html("<p><?php print _txt('er.gr.reconcile'); ?>" + " " + errorThrown + " (" +  jqXHR.status + ")</p>");
+                    // Configure buttons so user can elect to continue or cancel
+                    $("#result-dialog").dialog("option", "buttons", {
+                      "<?php print _txt('op.cancel'); ?>": function() {
+                        $(this).dialog("close");
+                      },
+                      "<?php print _txt('op.cont'); ?>": function() {
+                        $(this).dialog("close");
+                        $("#progressbar-dialog").dialog("open");
+                        js_execute_reconcile(index+1, baseUrl);
+                      }
+                    });
+                    $("#result-dialog").dialog("open");
+                  } else {
+                    js_execute_reconcile(index+1, baseUrl);
+                  }
+                });
+    } else {
+      // We're done, close progress bar
+      $("#reconcile-progressbar").progressbar("option", "value", index);
+      $("#progressbar-dialog").dialog("close");
+      if(!canceled) {
+        // Make sure result dialog has only one button, and reset the text
+        $("#result-dialog").dialog("option", "buttons", {
+          "<?php print _txt('op.ok'); ?>": function() {
+            $(this).dialog("close");
+          },
+        });
+        $("#result-dialog").html("<p><?php print _txt('rs.gr.reconcile.ok'); ?></p>");
+        $("#result-dialog").dialog("open");
+      }
+      
+      // Reset in case user tries again
+      canceled = 0;
+      $("#reconcile-progressbar").progressbar("option", "value", 0);
+    }
+  }
+  
+  function js_request_reconcile(targetUrl) {
+    // Open the progress bar dialog
+    $("#progressbar-dialog").dialog("open");
+    
+    // Reconcile existence of members groups
+    var jqxhr = $.ajax({
+      url: targetUrl,
+      type: 'PUT'
+      })
+        .done(function(data, textStatus, jqXHR) {
+          var groups = data["CoGroups"];
+          for (var i = 0; i < groups.length; i++) {
+            var group = groups[i];
+            var id = group["Id"];
+            ids.push(id);
+            }
+          // Reset max on progress bar now that ids is updated
+          $("#reconcile-progressbar").progressbar("option", "max", ids.length);
+          
+          // Fire off the first group reconcile
+          var baseUrl = targetUrl.split('?')[0];
+          baseUrl = baseUrl.slice(0,-5);
+          js_execute_reconcile(0, baseUrl);
+          })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+                  $("#progressbar-dialog").dialog("close");
+                  $("#result-dialog").html("<p><?php print _txt('er.gr.reconcile'); ?>" + " " + errorThrown + " (" +  jqXHR.status + ")</p>");
+                  // Configure buttons so user can cancel
+                  $("#result-dialog").dialog("option", "buttons", {
+                    "<?php print _txt('op.cancel'); ?>": function() {
+                      $(this).dialog("close");
+                    }
+                  });
+                  $("#result-dialog").dialog("open");
+                });
+  }
+  
+  $(function() {
+    // Define progressbar, note that ids.length is 0 initially
+    $("#reconcile-progressbar").progressbar({
+      value: 0,
+      max: ids.length
+    });
+    
+    // Progress bar dialog
+    $("#progressbar-dialog").dialog({
+      create: function() {
+        // We want to know when a user cancels the operation in progress, which
+        // we can't use beforeClose for since that will fire when the dialog
+        // closes for any reason. Based on http://stackoverflow.com/questions/7924152
+        $(this).closest('div.ui-dialog')
+               .find('button.ui-dialog-titlebar-close')
+               .click(function(e) {
+                  canceled = 1;
+               });
+      },
+      autoOpen: false,
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+    });
+    
+    // Autogenerate dialog
+    $("#reconcile-dialog").dialog({
+      autoOpen: false,
+      buttons: {
+        "<?php print _txt('op.cancel'); ?>": function() {
+          $(this).dialog("close");
+        },
+        "<?php print _txt('op.gr.reconcile'); ?>": function() {
+          $(this).dialog("close");
+          js_progressbar_dialog();
+        }
+      },
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+    });
+    
+    // Result dialog
+    $("#result-dialog").dialog({
+      autoOpen: false,
+      buttons: {
+        "<?php print _txt('op.ok'); ?>": function() {
+          $(this).dialog("close");
+        },
+      },
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+    });
+  });
+</script>
 
 <table id="co_groups" class="ui-widget">
   <thead>
@@ -118,6 +320,12 @@
           if(!empty($permissions['member'])
              && in_array($c['CoGroup']['id'], $permissions['member']))
             $v = true;
+            
+          // Members groups cannot be edited or deleted.
+          if($c['CoGroup']['name'] == 'members' || strncmp($c['CoGroup']['name'], 'members:', 8) == 0) {
+            $e = false;
+            $d = false;
+          }
         
           if($e || $v)
           {
@@ -147,6 +355,8 @@
               // A CO(U) Admin can edit any membership or ownership.
               // A group owner can edit any membership or ownership for that group.
               // Anyone can add or remove themself from or two an open group.
+              // Membership in members groups is automatically managed and so we toggle
+              // disabled status for members groups.
               
               $gmID = null;
               $isMember = false;
@@ -168,16 +378,17 @@
                                           array('default' => $gmID)) . "\n";
               }
               
+              $isMembersGroup = ($c['CoGroup']['name'] == 'members' || strncmp($c['CoGroup']['name'], 'members:', 8) == 0); 
+              
+              $disabled = !($permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $isMembersGroup;
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
-                                          array('disabled' => !($permissions['selectany']
-                                                                || $c['CoGroup']['open']
-                                                                || $isOwner),
+                                          array('disabled' => $disabled,
                                                 'checked'    => $isMember))
                     . _txt('fd.group.mem') . "\n";
               
+              $disabled = !($permissions['selectany'] || $isOwner) || $isMembersGroup;
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
-                                          array('disabled' => !($permissions['selectany']
-                                                                || $isOwner),
+                                          array('disabled' => $disabled,
                                                 'checked'    => $isOwner))
                     . _txt('fd.group.own') . "\n";
             }
@@ -233,3 +444,16 @@
     </tr>
   </tfoot>
 </table>
+
+<div id="progressbar-dialog" title="<?php print _txt('op.gr.reconcile.all'); ?>">
+  <p><?php print _txt('op.gr.reconcile.wait'); ?></p>
+  <div id="reconcile-progressbar"></div>
+</div>
+
+<div id="reconcile-dialog" title="<?php print _txt('op.gr.reconcile.all'); ?>">
+  <p><?php print _txt('op.gr.reconcile.all.confirm'); ?></p>
+</div>
+
+<div id="result-dialog" title="<?php print _txt('op.gr.reconcile.all'); ?>">
+  <p><?php print _txt('rs.gr.reconcile.ok'); ?></p>
+</div>

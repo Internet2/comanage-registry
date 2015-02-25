@@ -172,8 +172,21 @@ class CoPersonRole extends AppModel {
   );
   
   /**
+   * Execute logic after a CO Person Role delete operation.
+   * For now manage membership of CO Person in COU members groups.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @return none
+   */
+  
+  public function afterDelete() {
+    // Manage CO person membership in the COU members group.
+    $this->reconcileCouMembersGroupMemberships($this->data, $this->alias);
+  }
+  
+  /**
    * Execute logic after a CO Person Role save operation.
-   * For now manage membership of CO Person in COU members group.
+   * For now manage membership of CO Person in COU members groups.
    *
    * @since  COmanage Registry v0.9.3
    * @param  boolean true if a new record was created (rather than update)
@@ -181,81 +194,9 @@ class CoPersonRole extends AppModel {
    * @return none
    */
   
-  public function afterSave($created, $options) {
+  public function afterSave($created, $options = array()) {
     // Manage CO person membership in the COU members group.
-    
-    // Since the Provisioner Behavior will only provision group memberships
-    // for CO People with an Active status we do not need to manage 
-    // membership in the members group based on status here.  So we only
-    // add a CO Person to the COU members group whenever we detect
-    // the CO Person Record has a COU.
-    
-    if(empty($this->data[$this->alias]['cou_id'])) {
-      return;
-    }
-    
-    $couid = $this->data[$this->alias]['cou_id'];
-    
-    // The saved data may have been contained and not have what we need
-    // so find the model (CoPersonRole) data again and include COU and
-    // group memberships to be used later.
-    $args = array();
-    $args['conditions'][$this->alias . '.id'] = $this->data[$this->alias]['id'];
-    $args['contain'][] = 'Cou';
-    $args['contain']['CoPerson']['CoGroupMember'] = 'CoGroup';
-    $copersonrole = $this->find('first', $args);
-    
-    // Find the members group for the COU.    
-    $args = array();
-    $args['conditions']['CoGroup.name'] = 'members:' . $copersonrole['Cou']['name'];
-    $args['conditions']['CoGroup.co_id'] = $copersonrole['CoPerson']['co_id'];
-    $args['contain'] = false;
-    $membersgroup = $this->CoPerson->CoGroupMember->CoGroup->find('first', $args);
-    
-    // Check to make sure the members group exists
-    if(!empty($membersgroup)) {
-      // Find all COU names for the CO so that we can manage memberships in
-      // the associated members groups, since we might have to delete a memberhip
-      // if the COU is changing for this role.
-      $args = array();
-      $args['conditions']['Cou.co_id'] = $copersonrole['CoPerson']['co_id'];
-      $args['contain'] = false;
-      $cous = $this->CoPerson->Co->Cou->find('all', $args);
-      
-      // Loop over any existing memberships to determine if already 
-      // a member of the COU members group, and any existing membership
-      // for another COU that may have to be deleted if the role is changing
-      // COUs.
-      $alreadyMember = false;
-      
-      foreach($copersonrole['CoPerson']['CoGroupMember'] as $membership) {
-        if($membership['co_group_id'] == $membersgroup['CoGroup']['id']) {
-          $alreadyMember = true;
-        } else {
-          foreach($cous as $cou) {
-            $couName = $cou['Cou']['name'];
-            // If a member in some other COU members group then delete that membership.
-            if(($membership['CoGroup']['name'] == 'members:' . $couName)
-               && ($couName !=  $copersonrole['Cou']['name'])) {
-              $this->CoPerson->CoGroupMember->delete($membership['id']);
-            }
-          }
-        }
-      }
-      
-      if($alreadyMember) {
-        return;
-      }
-      
-      // Create the membership in the members group.
-      $this->CoPerson->CoGroupMember->clear();
-      $data = array();
-      $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
-      $data['CoGroupMember']['co_person_id'] = $copersonrole[$this->alias]['co_person_id'];
-      $data['CoGroupMember']['member'] = true;
-              
-      $this->CoPerson->CoGroupMember->save($data);
-    }
+    $this->reconcileCouMembersGroupMemberships($this->data, $this->alias);
   }
   
   /**
@@ -291,6 +232,116 @@ class CoPersonRole extends AppModel {
         // Flag role as active
         $this->data['CoPersonRole']['status'] = StatusEnum::Active;
       }
+    }
+  }
+
+  /**
+   * Reconcile memberships in COU members groups based on the 
+   * CoPersonRole(s) for a CoPerson and the Cou(s) for those
+   * roles.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @param data for the CoPersonRole model that was added or deleted
+   * @param alias for the CoPersonRole model
+   * @return none
+   */
+  
+  public function reconcileCouMembersGroupMemberships($data, $alias = null) {
+    // Since the Provisioner Behavior will only provision group memberships
+    // for CO People with an Active status we do not need to manage 
+    // membership in the members group based on status here.  
+    
+    // Find the CO Person and retrieve at the same time all roles
+    // and all group memberships.
+    if(isset($alias)) {
+    	$modelName = $alias;
+    } else {
+    	$modelName = 'CoPersonRole';
+    }
+    $args = array();
+    if(isset($data[$modelName]['co_person_id'])) {
+	    $args['conditions']['CoPerson.id'] = $data[$modelName]['co_person_id'];
+    } elseif(isset($data[$modelName]['id'])) {
+      // We have to fetch the role record again in order to get the
+      // CO Person ID.
+      $xargs = array();
+      $xargs['conditions'][$modelName . '.id'] = $data[$modelName]['id'];
+      $xargs['contain'] = false;
+			$coRole = $this->find('first', $xargs);   	
+      $args['conditions']['CoPerson.id'] = $coRole[$modelName]['co_person_id'];
+    } else {
+    	// Bail out since we have been invoked with no way to find
+    	// the role being managed.
+    	return;
+    }
+    $args['contain']['CoPersonRole'] = 'Cou';
+    $args['contain']['CoGroupMember'] = 'CoGroup';
+    $coPerson = $this->CoPerson->find('first', $args);
+    $coPersonId = $coPerson['CoPerson']['id'];
+    
+    // Loop over roles and find those with a COU. 
+    $couMembersGroupNames = array();
+    $membershipsToAdd = array();
+    foreach($coPerson['CoPersonRole'] as $role) {
+    	if(isset($role['cou_id'])) {
+        // Use name of the COU to construct name of the COU members group.
+    		$couMembersGroupName = 'members:' . $role['Cou']['name'];
+    		$couMembersGroupNames[] = $couMembersGroupName;
+        // Loop over memberships to see if a member of this members group.
+        $isMember = false;
+        foreach($coPerson['CoGroupMember'] as $membership) {
+        	if($membership['CoGroup']['name'] == $couMembersGroupName && $membership['member']) {
+        		$isMember = true;
+            break;
+        	}	
+        }
+        if(!$isMember) {
+          if(!in_array($couMembersGroupName, $membershipsToAdd)) {
+          	$membershipsToAdd[] = $couMembersGroupName;
+          }
+        }
+    	}
+    }
+    
+    // Add memberships and cut history records.
+    foreach($membershipsToAdd as $groupName) {
+  		$this->CoPerson->CoGroupMember->addByGroupName($coPersonId, $groupName, false);
+    }
+    
+    // Loop over group memberships, pick out those for COU members groups, and
+    // reconcile with the list of COU members group names.
+    foreach($coPerson['CoGroupMember'] as $membership) {
+      $groupName = $membership['CoGroup']['name'];
+    	if(strncmp($groupName, 'members:', 8) == 0 && $membership['member']) {
+    		if(!in_array($groupName, $couMembersGroupNames)) {
+    			// Delete CO person from COU members group and cut a history record.
+          $this->CoPerson->CoGroupMember->delete($membership['id']);
+          // Cut history record.
+          $msgData = array(
+            $groupName,
+         	  $membership['CoGroup']['id']
+	  			);
+          $msg = _txt('rs.grm.deleted', $msgData);
+          try {
+          	$this->CoPerson->HistoryRecord->record(
+          		$coPersonId,
+              null,
+          		null, 
+          		null, 
+          		ActionEnum::CoGroupMemberDeleted, 
+          		$msg
+          		);
+          } catch (Exception $e) {
+            $coPersonId = $copersonrole['CoPerson']['id'];
+            $coPersonRoleId = $copersonrole['CoPersonRole']['id'];
+            $group = $membership['CoGroup']['name'];
+            $msg = "Error creating history record when automatically deleting " .
+            	"CO Person ID $coPersonId with CO Person Role ID $coPersonRoleId " .
+            	"from group $group: " . $e->getMessage();
+            $this->log($msg);
+          }                  
+    		}	
+    	}
     }
   }
 }

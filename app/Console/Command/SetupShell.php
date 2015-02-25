@@ -225,7 +225,7 @@ WHERE i.login=true;
           'co_group_id'   => $grMembersId,
           'co_person_id'  => $cop_id,
           'member'        => true,
-          'owner'         => true
+          'owner'         => false
         )
       );
 

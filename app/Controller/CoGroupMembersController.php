@@ -186,13 +186,12 @@ class CoGroupMembersController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    // Make sure the Group exists
+    // Make sure the Group exists.
     
-    $g = $this->CoGroupMember->CoGroup->find('first', 
-                                             array('conditions' => 
-                                              array('CoGroup.id' => $reqdata['CoGroupMember']['co_group_id'])
-                                             )
-                                            );
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $reqdata['CoGroupMember']['co_group_id'];
+    $args['contain'] = false;
+    $g = $this->CoGroupMember->CoGroup->find('first', $args);
     
     if(empty($g)) {
       if($this->request->is('restful')) {
@@ -201,17 +200,26 @@ class CoGroupMembersController extends StandardController {
         $this->Session->setFlash(_txt('er.gr.nf', array($reqdata['CoGroupMember']['co_group_id'])), '', array(), 'error');
         $this->performRedirect();
       }
-
+      return false;
+    }
+    
+    // Make sure this is not a members group.
+    if($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8) == 0) {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Memberships in members groups cat not be edited");
+      } else {
+        $this->Session->setFlash(_txt('er.gr.members.edit'), '', array(), 'error');
+        $this->performRedirect();
+      }
       return false;
     }
 
-    // Make sure the CO Person exists
+    // Make sure the CO Person exists.
     
-    $p = $this->CoGroupMember->CoPerson->find('first', 
-                                              array('conditions' => 
-                                               array('CoPerson.id' => $reqdata['CoGroupMember']['co_person_id'])
-                                              )
-                                             );
+    $args = array();
+    $args['conditions']['CoPerson.id'] = $reqdata['CoGroupMember']['co_person_id'];
+    $args['contain'] = false;
+    $p = $this->CoGroupMember->CoPerson->find('first', $args);
     
     if(empty($p)) {
       if($this->request->is('restful')) {
@@ -224,13 +232,14 @@ class CoGroupMembersController extends StandardController {
       return false;
     }
     
-    if($this->action == 'add')
-    {
-      // Make sure the CO Person Role isn't already in the Group
+    if($this->action == 'add') {
+      // Make sure the CO Person Role isn't already in the Group.
       
-      $x = $this->CoGroupMember->find('all', array('conditions' =>
-                                                   array('CoGroupMember.co_group_id' => $reqdata['CoGroupMember']['co_group_id'],
-                                                         'CoGroupMember.co_person_id' => $reqdata['CoGroupMember']['co_person_id'])));
+      $args = array();
+      $args['conditions']['CoGroupMember.co_group_id'] = $reqdata['CoGroupMember']['co_group_id'];
+      $args['conditions']['CoGroupMember.co_person_id'] = $reqdata['CoGroupMember']['co_person_id'];
+      $args['contain'] = false;
+      $x = $this->CoGroupMember->find('all', $args);
       
       if(!empty($x)) {
         if($this->request->is('restful')) {

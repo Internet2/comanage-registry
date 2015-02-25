@@ -65,6 +65,59 @@ class CoGroupMember extends AppModel {
   );
 
   /**
+   * Add a membership in a CO Group given by name. This
+   * method directly creates a history record with an
+   * anonymous actor since this is primarily used for
+   * COU members group management.
+   * 
+   * @since COmanage Registry v0.9.3
+   * @param Integer CO Person ID
+   * @param String name of CO Group
+   * @param Boolean owner 
+   */
+  function addByGroupName($coPersonId, $groupName, $owner = false) {
+  	// Find the CO using CO person.
+    $args = array();
+    $args['conditions']['CoPerson.id'] = $coPersonId;
+    $args['contain'] = false;
+  	$coPerson = $this->CoPerson->find('first', $args);
+    $coId = $coPerson['CoPerson']['co_id'];
+
+    // Find the group in CO using name.
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['conditions']['CoGroup.name'] = $groupName;
+    $args['contain'] = false;
+    $group = $this->CoPerson->Co->CoGroup->find('first', $args);
+    
+    // Add the membership.
+    $this->clear();
+    $data = array();
+    $data['CoGroupMember']['co_group_id'] = $group['CoGroup']['id'];
+    $data['CoGroupMember']['co_person_id'] = $coPersonId;
+    $data['CoGroupMember']['member'] = true;
+    $data['CoGroupMember']['owner'] = $owner;
+    $this->save($data);
+    
+    // Cut a history record.
+	    try {
+      $msgData = array(
+      	$group['CoGroup']['name'],
+      	$group['CoGroup']['id'],
+       	_txt('fd.yes'),
+       	_txt('fd.no')
+       );                  
+      $msg = _txt('rs.grm.added', $msgData);
+      $this->CoPerson->HistoryRecord->record($coPersonId, null, null, null, ActionEnum::CoGroupMemberAdded, $msg);
+ 		} catch(Exception $e) {
+	      $msg = "Error creating history record when automatically adding " .
+ 	      	"CO Person ID $coPersonId " .
+       	"to group " . $group['CoGroup']['name'] . ": " . $e->getMessage();
+      $this->log($msg);
+ 		}      
+  }
+  
+  /**
    * Obtain the member roles for a CO Group.
    *
    * @since  COmanage Registry v0.8
@@ -235,6 +288,14 @@ class CoGroupMember extends AppModel {
         $args['contain'] = false;
         
         $grp = $this->CoGroup->find('first', $args);
+        
+        // If this is a members group for CO or COU then 
+        // go onto the next membership.
+        if(isset($grp)) {
+	        if($this->CoGroup->isMembersGroup($grp)) {
+	        	continue;
+	        }
+        }
         
         if(empty($grp)) {
           throw new InvalidArgumentException(_txt('er.gr.nf', array($m['co_group_id'])));

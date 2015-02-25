@@ -266,7 +266,7 @@ class CoProvisioningTargetsController extends StandardController {
       } elseif(!empty($this->request->params['named']['cogroupid'])) {
         $cogroupid = $this->request->params['named']['cogroupid'];
       } else {
-        $this->restResultHeader(500, "Bad Request");
+        $this->Api->restResultHeader(500, "Bad Request");
       }
       
       // Make sure copersonid or cogroupid is in the same CO as $id
@@ -292,7 +292,7 @@ class CoProvisioningTargetsController extends StandardController {
       
       if($this->CoProvisioningTarget->find('count', $args) < 1) {
         // XXX this could also be co provisioning target not found -- do a separate find to check?
-        $this->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
+        $this->Api->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
         return;
       }
       
@@ -310,18 +310,18 @@ class CoProvisioningTargetsController extends StandardController {
       catch(InvalidArgumentException $e) {
         switch($e->getMessage()) {
           case _txt('er.cop.unk'):
-            $this->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
+            $this->Api->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
             break;
           case _txt('er.copt.unk'):
-            $this->restResultHeader(404, "CoProvisioningTarget Not Found");
+            $this->Api->restResultHeader(404, "CoProvisioningTarget Not Found");
             break;
           default:
-            $this->restResultHeader(500, $e->getMessage());
+            $this->Api->restResultHeader(500, $e->getMessage());
             break;
         }
       }
       catch(RuntimeException $e) {
-        $this->restResultHeader(500, $e->getMessage());
+        $this->Api->restResultHeader(500, $e->getMessage());
       }
     }
   }

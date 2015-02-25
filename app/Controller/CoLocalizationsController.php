@@ -102,7 +102,7 @@ class CoLocalizationsController extends StandardController {
     if($this->CoLocalization->find('count', $args)) {
       if($this->request->is('restful')) {
         // XXX
-        //$this->restResultHeader(403, "Identifier In Use");
+        //$this->Api->restResultHeader(403, "Identifier In Use");
       } else {
         $this->Session->setFlash(_txt('er.loc.exists',
                                       array(Sanitize::html($reqdata['CoLocalization']['lkey']),

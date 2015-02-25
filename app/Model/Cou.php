@@ -270,25 +270,22 @@ class Cou extends AppModel {
    *
    * @since  COmanage Registry v0.3
    * @param  integer COU ID to check
+   * @param  integer CO ID
    * @return boolean True if member, false otherwise
    */
   
-  public function isCoMember($couId) {
-    // Query for COU in this CO
-    $conditions = array("Cou.id" => $couId);
-
-    $dataOfCou = $this->find('first', array('conditions'=>$conditions));
-    
-    if(!empty($dataOfCou)) {
-      $coOfCou = $dataOfCou['Co']['id'];
-      $currentCou = $this->data['Cou']['co_id'];
-      
-      if($coOfCou == $currentCou) {
-        return true;
-      }
-    }
-    
-    return false;
+  public function isInCo($couId, $coId) {
+  	$args = array();
+  	$args['conditions']['Cou.id'] = $couId;
+  	$args['contain'] = false;
+  
+  	$couData = $this->find('first', $args);
+  
+  	if(!empty($couData['Cou']['co_id'])
+  			&& $couData['Cou']['co_id'] == $coId) {
+  				return true;
+  			}
+  			return false;
   }
 
   /**

@@ -781,8 +781,9 @@
                     <?php endif; ?>
                     <?php
                     if(isset($co_people[0]['CoGroupMember'])) {
-                      if($e && !$es) { // XXX !$es is probably the wrong permission here
-                        foreach($co_people[0]['CoGroupMember'] as $g) {
+	                    foreach($co_people[0]['CoGroupMember'] as $g) {
+                        $isMembersGroup = ($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8)== 0);
+                      	if($e && !$es && !$isMembersGroup) {
                           if($g['member'] || $g['owner']) {
                             print '<div>';
                             print '<div>';
@@ -794,9 +795,7 @@
                             print '</div>';
                             print '</div>';
                           }
-                        }
-                      } else {
-                        foreach($co_people[0]['CoGroupMember'] as $g) {
+                      	} else {
                           print '<tr class="line';
                           print ($l % 2);
                           print '">';
@@ -808,8 +807,8 @@
                             print Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")<br />\n";
                           print '</td>';
                           print '</tr>';
-                        }
-                      }
+                      	}      
+	                    }
                     }
                     ?>
                   </table>

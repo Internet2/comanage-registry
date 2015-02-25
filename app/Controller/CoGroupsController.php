@@ -67,16 +67,12 @@ class CoGroupsController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    if(!isset($curdata)
-       || ($curdata['CoGroup']['name'] != $reqdata['CoGroup']['name']))
-    {
-      // Disallow names beginning with 'admin' if the current user is not an admin
+    if(!isset($curdata) || ($curdata['CoGroup']['name'] != $reqdata['CoGroup']['name'])) {
+      // Disallow names beginning with 'admin' if the current user is not an admin.
       
-      if(!$this->viewVars['permissions']['admin'])
-      {
+      if(!$this->viewVars['permissions']['admin']) {
         if($reqdata['CoGroup']['name'] == 'admin'
-           || strncmp($reqdata['CoGroup']['name'], 'admin:', 6) == 0)
-        {
+           || strncmp($reqdata['CoGroup']['name'], 'admin:', 6) == 0) {
           if($this->request->is('restful')) {
             $this->Api->restResultHeader(403, "Name Reserved");
           } else {
@@ -87,7 +83,21 @@ class CoGroupsController extends StandardController {
         }
       }
       
-      // Make sure name doesn't exist within this CO
+      // Disallow names beginning with 'members' in order to prevent
+      // a members group being created by hand before a COU is later defined
+      // with the overlapping name.
+      
+      if($reqdata['CoGroup']['name'] == 'members' || strncmp($reqdata['CoGroup']['name'], 'members:', 8) == 0) {
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "Name Reserved");
+        } else {
+          $this->Session->setFlash(_txt('er.gr.members.res'), '', array(), 'error');          
+        }
+  
+        return false;
+      }
+      
+      // Make sure name doesn't exist within this CO.
       
       $x = $this->CoGroup->find('all', array('conditions' =>
                                              array('CoGroup.name' => $reqdata['CoGroup']['name'],
@@ -103,7 +113,19 @@ class CoGroupsController extends StandardController {
         return false;
       }
     }
-
+    
+    // Do not allow edits to members groups.
+    if($reqdata['CoGroup']['name'] == 'members' 
+       || strncmp($reqdata['CoGroup']['name'], 'members:', 8) == 0) {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Members groups may not be edited directly");
+      } else {
+        $this->Session->setFlash(_txt('er.gr.members.edit'), '', array(), 'error');          
+      }
+  
+        return false;
+      }
+    
     return true;
   }
   
@@ -182,8 +204,8 @@ class CoGroupsController extends StandardController {
       $allGroupMembers = $this->CoGroup->CoGroupMember->find('all', $args);
       $this->set('co_group_members', $allGroupMembers);
       
-    	// Signal if this is a members group so that the edit and delete
-    	// buttons on memberships can not be included.
+      // Signal if this is a members group so that the edit and delete
+      // buttons on memberships can not be included.
     
       $conditions = array();
       $conditions['CoGroup.id'] = $id;
@@ -197,13 +219,13 @@ class CoGroupsController extends StandardController {
       
       $isMembersGroup = false;
       if($coGroup['CoGroup']['name'] == 'members') {
-      	$isMembersGroup = true;
+        $isMembersGroup = true;
       } else {
           foreach($coGroup['Co']['Cou'] as $cou) {
-          	if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
-          		$isMembersGroup = true;
-          	}
-      		}            
+            if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
+              $isMembersGroup = true;
+            }
+          }            
       }
       
       $this->set('isMembersGroup', $isMembersGroup);
@@ -313,6 +335,9 @@ class CoGroupsController extends StandardController {
     // View all existing Groups?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     
+    // Reconcile memberships in a members group?
+    $p['reconcile'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
     if($this->action == 'index' && $p['index']
        && ($roles['cmadmin'] || $roles['coadmin'])) {
       // Set all permissions for admins so index view links render.
@@ -396,6 +421,85 @@ class CoGroupsController extends StandardController {
       
       $this->set('co_group', $this->CoGroup->find('first', $args));
     }
+  }
+  
+  /**
+   * Reconcile existence of members group and memberships.
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Redirect issued (HTML)
+   * 
+   * @since COmanage Registry v0.9.3
+   * @param integer CO Group ID of members group or null to reconcile existence of members groups
+   */
+  function reconcile($id = null) {
+    // Only support REST invocation at this time.
+    if(!$this->request->is('restful')) {
+      $this->redirect('/');
+      return;
+    }
+    
+    // If no id then reconcile the existence of the CO members group
+    // and the COU members groups.
+    if(!isset($id)) {
+      $coId = $this->request->query('coid');
+      if(!isset($coId)) {
+        $this->Api->restResultHeader(404, 'CO Unknown');
+        return;
+      }
+      
+      $args = array();
+      $args['conditions']['Co.id'] = $coId;
+      $args['contain'] = false;
+      $co = $this->CoGroup->Co->find('first', $args);
+      if(empty($co)) {
+        $this->Api->restResultHeader(404, 'CO Unknown');
+        return;
+      }
+      
+      $success = $this->CoGroup->reconcileMembersGroupsExistence($coId);  
+      if(!$success) {
+        $this->Api->restResultHeader(500, 'Error reconciling existence of members groups');
+        return;
+      }
+      
+      // Now find and return all members groups for the CO.
+      $args = array();
+      $args['conditions']['CoGroup.co_id'] = $coId;
+      $args['conditions']['OR']['CoGroup.name'] = 'members';
+      $args['conditions']['OR']['CoGroup.name LIKE'] = 'members:%';
+      $args['contain'] = false;
+      $groups = $this->CoGroup->find('all', $args);
+      
+      $this->set('co_groups', $this->Api->convertRestResponse($groups));
+      $this->Api->restResultHeader(200, 'OK');
+      return; 
+    }
+    
+    // Find the group with the input id.
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $id;
+    $args['contain'] = false;
+    $group = $this->CoGroup->find('first', $args);
+    
+    if(empty($group)) {
+      $this->Api->restResultHeader(400, 'Not a valid id');
+      return;
+    }
+    
+    $name = $group['CoGroup']['name'];
+    if($name != 'members' && strncmp($name, 'members:', 8) != 0) {
+      $this->Api->restResultHeader(400, 'Not a members group');
+      return;
+    }
+    
+    $success = $this->CoGroup->reconcileMembersGroup($id);
+    if(!$success) {
+      $this->Api->restResultHeader(500, 'Membership reconciliation failed');
+      return; 
+    }      
+      
+    $this->Api->restResultHeader(200, 'OK');
+    return;
   }
   
   /**

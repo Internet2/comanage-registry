@@ -192,25 +192,45 @@ class CoPerson extends AppModel {
     // add a CO Person to the members group upon creation and then leave
     // it there. 
     if($created) {
-      $coid = $this->data[$this->alias]['co_id'];
-      
-      // Find the members group for this CO.    
-      $args = array();
-      $args['conditions']['CoGroup.name'] = 'members';
-      $args['conditions']['CoGroup.co_id'] = $this->data[$this->alias]['co_id'];
-      $args['contain'] = false;
-      $membersgroup = $this->CoGroupMember->CoGroup->find('first', $args);
-      
-      // Check to make sure the members group exists
-      if(!empty($membersgroup)) {
+        $coPersonId = $this->data[$this->alias]['id'];
+        $coid = $this->data[$this->alias]['co_id'];
+        
+        // Find the members group for this CO.    
+        $args = array();
+        $args['conditions']['CoGroup.name'] = 'members';
+        $args['conditions']['CoGroup.co_id'] = $coid;
+        $args['contain'] = false;
+        $membersgroup = $this->CoGroupMember->CoGroup->find('first', $args);
+        
+        // The members group may not exist if a deployment was upgraded and not
+        // reconciled so in that case just silently return.
+        if(empty($membersgroup)) {
+          return;
+        }
+            
         // Create the membership in the members group.
         $data = array();
         $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
-        $data['CoGroupMember']['co_person_id'] = $this->data[$this->alias]['id'];
+        $data['CoGroupMember']['co_person_id'] = $coPersonId;
         $data['CoGroupMember']['member'] = true;
             
         $this->CoGroupMember->save($data);
-      }
+        
+        // Cut a history record.
+        try {
+          $msgData = array(
+            'members',
+            $membersgroup['CoGroup']['id'],
+            _txt('fd.yes'),
+            _txt('fd.no')
+          );                  
+          $msg = _txt('rs.grm.added', $msgData);
+          $this->HistoryRecord->record($coPersonId, null, null, null, ActionEnum::CoGroupMemberAdded, $msg);
+        } catch(Exception $e) {
+          $msg = "Error creating history record when automatically adding CO Person ID $coPersonId to members group: " . $e->getMessage();
+          $this->log($msg);
+        }      
+      
     }
   }
   

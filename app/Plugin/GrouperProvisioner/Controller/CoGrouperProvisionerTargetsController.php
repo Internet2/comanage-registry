@@ -37,6 +37,30 @@ class CoGrouperProvisionerTargetsController extends SPTController {
   );
   
   /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v0.9.3
+   */
+  
+  function beforeRender() {
+    parent::beforeRender();
+    
+    // Populate variable with available extended types
+    $this->set('identifier_types', $this->CoGrouperProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+    $this->set('email_address_types', $this->CoGrouperProvisionerTarget->CoProvisioningTarget->Co->CoPerson->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
+    
+    // Populate default subject view
+    $prefix = "";
+    $db =& ConnectionManager::getDataSource('default');
+    if(isset($db->config['prefix'])) {
+      $prefix = $db->config['prefix'];
+    }        
+    
+    $viewDefault = $prefix . 'co_grouper_subjects_' . $this->CoGrouperProvisionerTarget->id;
+    $this->set('viewDefault', $viewDefault);
+  }
+  
+  /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.
    *
