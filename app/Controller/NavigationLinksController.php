@@ -35,7 +35,7 @@ class NavigationLinksController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'NavigationLink.type_name' => 'asc'
+      'NavigationLink.ordr' => 'asc'
     )
   );
 

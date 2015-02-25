@@ -32,7 +32,7 @@ class CoNavigationLinksController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'CoNavigationLink.type_name' => 'asc'
+      'CoNavigationLink.ordr' => 'asc'
     )
   );
   
@@ -114,5 +114,22 @@ class CoNavigationLinksController extends StandardController {
 
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @return Integer The CO ID if found, or -1 if not
+   */
+  
+  public function parseCOID() {
+    if($this->action == 'order') {
+      if(isset($this->request->params['named']['co'])) {
+        return $this->request->params['named']['co'];
+      }
+    }
+    
+    return parent::parseCOID();
   }
 }
