@@ -125,7 +125,9 @@
 
           print $this->Html->link($menuCoData['co_name'], $args);
           print '</td><td>';
-          print Sanitize::html($menuCoData['co_person']['Co']['description']);
+          if (!empty($menuCoData['co_person']['Co']['description'])) {
+            print Sanitize::html($menuCoData['co_person']['Co']['description']);
+          } 
           print '</td></tr>';
           $i++;
         }
