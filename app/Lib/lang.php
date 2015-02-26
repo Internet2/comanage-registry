@@ -1040,7 +1040,7 @@ original notification at
   'op.grm.manage' =>  'Manage My Group Memberships',
   'op.history' =>     'View History',
   'op.home.login' =>  'Welcome to %1$s. Please login.',
-  'op.home.select' => 'Welcome to %1$s.',
+  'op.home.select' => 'Welcome to %1$s. Please select a collaboration.',
   'op.home.collabs' => 'Available Collaborations',
   'op.home.no.collabs' => 'No collaborations are currently available.',
   'op.dashboard.select' => 'Welcome to %1$s. Please select an action from the menus, above.',

@@ -127,7 +127,7 @@
           print '</td><td>';
           if (!empty($menuCoData['co_person']['Co']['description'])) {
             print Sanitize::html($menuCoData['co_person']['Co']['description']);
-          } 
+          }
           print '</td></tr>';
           $i++;
         }
