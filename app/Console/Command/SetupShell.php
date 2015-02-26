@@ -25,7 +25,15 @@
   App::import('Model', 'ConnectionManager');
 
   class SetupShell extends AppShell {
-    var $uses = array('Co', 'CoGroup', 'CoGroupMember', 'CoOrgIdentityLink', 'CoPerson', 'CoPersonRole', 'Identifier', 'OrgIdentity');
+    var $uses = array('CmpEnrollmentConfiguration',
+                      'Co',
+                      'CoGroup',
+                      'CoGroupMember',
+                      'CoOrgIdentityLink',
+                      'CoPerson',
+                      'CoPersonRole',
+                      'Identifier',
+                      'OrgIdentity');
     
     function main()
     {
@@ -222,6 +230,11 @@ WHERE i.login=true;
       );
 
       $this->CoGroupMember->save($grm);
+      
+      // Create platform defaults
+      
+      $this->out("- " . _txt('se.cmp.init'));
+      $this->CmpEnrollmentConfiguration->createDefault();
       
       // Generate security salt and seed files if they don't already exist
       

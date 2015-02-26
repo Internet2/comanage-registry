@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CMP Enrollment Configuration Controller
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -180,31 +180,18 @@ class CmpEnrollmentConfigurationsController extends StandardController {
     
     $ef = $this->CmpEnrollmentConfiguration->findDefault();
     
-    if(empty($ef))
-    {
-      // XXX move to Model
+    if(empty($ef)) {
       // Not found, create it
       
-      $ef['CmpEnrollmentConfiguration'] = array(
-        'name' => 'CMP Enrollment Configuration',
-        'attrs_from_ldap' => false,
-        'attrs_from_saml' => false,
-        'status' => StatusEnum::Active
-      );
-      
-      if($this->CmpEnrollmentConfiguration->save($ef))
-      {
-        $fid = $this->CmpEnrollmentConfiguration->id;
+      try {
+        $fid = $this->CmpEnrollmentConfiguration->createDefault();
       }
-      else
-      {
+      catch(Exception $e) {
         $this->Session->setFlash(_txt('er.efcf.init'), '', array(), 'error');
         $this->redirect(array('controller' => 'pages', 'action' => 'menu'));
         return;
       }
-    }
-    else
-    {
+    } else {
       $fid = $ef['CmpEnrollmentConfiguration']['id'];
     }
     
