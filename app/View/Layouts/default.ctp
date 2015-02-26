@@ -31,6 +31,12 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!-- <?php
+      // Include version number, but only if logged in
+      if($this->Session->check('Auth.User')) {
+        print chop(file_get_contents(APP . "Config/VERSION"));
+      }
+    ?> -->
     <title><?php print _txt('coordinate') . ': ' . $title_for_layout?></title>
     <?php echo $this->Html->charset(); ?>
     <?php echo $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>

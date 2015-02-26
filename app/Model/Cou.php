@@ -187,17 +187,17 @@ class Cou extends AppModel {
    *
    * @since  COmanage Registry v0.3
    * @param  integer COU that needs parent options; NULL if new
+   * @param  integer CO ID
    * @return Array Array of [id] => [name]
    */
   
-  public function potentialParents($currentCou) {
-    // Editing an existing COU requires removing it and its children
-    if($currentCou != NULL)
-    {
+  public function potentialParents($currentCou, $coId) {
+    // Editing an existing COU requires removing it and its children from the list of potential parents
+    if($currentCou) {
       // Find this COU and its children
       $childrenArrays = $this->children($currentCou, false, 'id');
       $childrenList = Set::extract($childrenArrays, '{n}.Cou.id');
-
+      
       // Set up filter to ignore children
       $conditions = array(
                     'AND' => array(
@@ -208,16 +208,17 @@ class Cou extends AppModel {
                         )
                       ),
                       array(
-                        array('Cou.co_id' => $this->data['Cou']['co_id'] )
+                        array('Cou.co_id' => $coId)
                       )
                     )
                   );
     }
+    
     // Create options list all other COUS in CO
     $optionArrays = $this->find('all', array('conditions' => $conditions) );
     $optionList = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name');
-
-    return($optionList);
+    
+    return $optionList;
   }
 
   /**

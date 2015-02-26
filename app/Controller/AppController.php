@@ -889,7 +889,7 @@ class AppController extends Controller {
       $coid = -1;
       
       // Only certain actions are permitted to explicitly provide a CO ID
-      // XXX Note that CoExtendedTypesController and CoDashboardsController override
+      // XXX Note that CoExtendedTypesController, CoDashboardsController, and others override
       // this function to support addDefaults. It might be better just to allow controllers
       // to specify a list.
       if($this->action == 'index'

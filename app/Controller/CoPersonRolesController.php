@@ -288,6 +288,16 @@ class CoPersonRolesController extends StandardController {
       }
     }
     
+    // If the role status changed, recalculate the overall person status
+    
+    if(!empty($reqdata['CoPersonRole']['status'])
+       && !empty($curdata['CoPersonRole']['status'])
+       && $reqdata['CoPersonRole']['status'] != $curdata['CoPersonRole']['status']) {
+      // This could arguable go in CoPersonRole::afterSave, but it's a lot easier here
+      // since we already have old and new state
+      $this->CoPersonRole->CoPerson->recalculateStatus($reqdata['CoPersonRole']['co_person_id']);
+    }
+    
     return true;
   }
 

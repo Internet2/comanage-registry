@@ -39,13 +39,21 @@ class CousController extends StandardController {
   // This controller needs a CO to be set
   public $requires_co = true;
 
+  public $edit_contains = array(
+    'ParentCou'
+  );
+  
+  public $view_contains = array(
+    'ParentCou'
+  );
+  
   /**
    * Perform filtering of COU parent options for dropdown.
    * - postcondition: parent_options set
    *
    * @since  COmanage Registry v0.3
    */
-  
+ 
   function beforeRender() {
     // This loop is concerned with computing the options for parents 
     // to display for a dropdown menu or similar for the GUI when the 
@@ -55,7 +63,8 @@ class CousController extends StandardController {
     if(!$this->request->is('restful')) {
       // Loop check only needed for the edit page, model does not know CO for new COUs
       if($this->action == 'edit') {
-        $options = $this->Cou->potentialParents($this->request->data['Cou']['id']);
+        $options = $this->Cou->potentialParents($this->request->data['Cou']['id'],
+                                                $this->request->data['Cou']['co_id']);
       } else {
         $optionArrays = $this->Cou->findAllByCoId($this->cur_co['Co']['id']);
         $options = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name');

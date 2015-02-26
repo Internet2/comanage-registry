@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Role Model
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -212,46 +212,85 @@ class CoPersonRole extends AppModel {
     $args['contain'] = false;
     $membersgroup = $this->CoPerson->CoGroupMember->CoGroup->find('first', $args);
     
-    // Find all COU names for the CO so that we can manage memberships in
-    // the associated members groups, since we might have to delete a memberhip
-    // if the COU is changing for this role.
-    $args = array();
-    $args['conditions']['Cou.co_id'] = $copersonrole['CoPerson']['co_id'];
-    $args['contain'] = false;
-    $cous = $this->CoPerson->Co->Cou->find('all', $args);
+    // Check to make sure the members group exists
+    if(!empty($membersgroup)) {
+      // Find all COU names for the CO so that we can manage memberships in
+      // the associated members groups, since we might have to delete a memberhip
+      // if the COU is changing for this role.
+      $args = array();
+      $args['conditions']['Cou.co_id'] = $copersonrole['CoPerson']['co_id'];
+      $args['contain'] = false;
+      $cous = $this->CoPerson->Co->Cou->find('all', $args);
+      
+      // Loop over any existing memberships to determine if already 
+      // a member of the COU members group, and any existing membership
+      // for another COU that may have to be deleted if the role is changing
+      // COUs.
+      $alreadyMember = false;
+      
+      foreach($copersonrole['CoPerson']['CoGroupMember'] as $membership) {
+        if($membership['co_group_id'] == $membersgroup['CoGroup']['id']) {
+          $alreadyMember = true;
+        } else {
+          foreach($cous as $cou) {
+            $couName = $cou['Cou']['name'];
+            // If a member in some other COU members group then delete that membership.
+            if(($membership['CoGroup']['name'] == 'members:' . $couName)
+               && ($couName !=  $copersonrole['Cou']['name'])) {
+              $this->CoPerson->CoGroupMember->delete($membership['id']);
+            }
+          }
+        }
+      }
+      
+      if($alreadyMember) {
+        return;
+      }
+      
+      // Create the membership in the members group.
+      $this->CoPerson->CoGroupMember->clear();
+      $data = array();
+      $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
+      $data['CoGroupMember']['co_person_id'] = $copersonrole[$this->alias]['co_person_id'];
+      $data['CoGroupMember']['member'] = true;
+              
+      $this->CoPerson->CoGroupMember->save($data);
+    }
+  }
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v0.9.3
+   */
+  
+  public function beforeSave($options = array()) {
+    // If the validity of the role was changed, change the status appropriately
     
-    // Loop over any existing memberships to determine if already 
-    // a member of the COU members group, and any existing membership
-    // for another COU that may have to be deleted if the role is changing
-    // COUs.
-    $alreadyMember = false;
-    
-    foreach($copersonrole['CoPerson']['CoGroupMember'] as $membership) {
-      if($membership['co_group_id'] == $membersgroup['CoGroup']['id']) {
-        $alreadyMember = true;
-      } else {
-      	foreach($cous as $cou) {
-          $couName = $cou['Cou']['name'];
-          // If a member in some other COU members group then delete that membership.
-      	  if(($membership['CoGroup']['name'] == 'members:' . $couName)
-             && ($couName !=  $copersonrole['Cou']['name'])) {
-            $this->CoPerson->CoGroupMember->delete($membership['id']);
-      	  }
-      	}
+    if(!empty($this->data['CoPersonRole']['valid_from'])) {
+      if(strtotime($this->data['CoPersonRole']['valid_from']) < time()
+         && $this->data['CoPersonRole']['status'] == StatusEnum::Pending) {
+        // Flag role as active
+        $this->data['CoPersonRole']['status'] = StatusEnum::Active;
+      } elseif(strtotime($this->data['CoPersonRole']['valid_from']) > time()
+         && $this->data['CoPersonRole']['status'] == StatusEnum::Active) {
+        // Flag role as pending
+        $this->data['CoPersonRole']['status'] = StatusEnum::Pending;
       }
     }
     
-    if($alreadyMember) {
-      return;
+    if(!empty($this->data['CoPersonRole']['valid_through'])) {
+      if(strtotime($this->data['CoPersonRole']['valid_through']) < time()
+         && ($this->data['CoPersonRole']['status'] == StatusEnum::Active
+             ||
+             $this->data['CoPersonRole']['status'] == StatusEnum::GracePeriod)) {
+        // Flag role as expired
+        $this->data['CoPersonRole']['status'] = StatusEnum::Expired;
+      } elseif(strtotime($this->data['CoPersonRole']['valid_through']) > time()
+         && $this->data['CoPersonRole']['status'] == StatusEnum::Expired) {
+        // Flag role as active
+        $this->data['CoPersonRole']['status'] = StatusEnum::Active;
+      }
     }
-    
-    // Create the membership in the members group.
-    $this->CoPerson->CoGroupMember->clear();
-    $data = array();
-    $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
-    $data['CoGroupMember']['co_person_id'] = $copersonrole[$this->alias]['co_person_id'];
-    $data['CoGroupMember']['member'] = true;
-            
-    $this->CoPerson->CoGroupMember->save($data);
   }
 }
