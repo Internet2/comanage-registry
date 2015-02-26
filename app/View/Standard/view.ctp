@@ -44,9 +44,15 @@
   // If user has edit permission, offer an edit button in the sidebar
   $sidebarButtons = $this->get('sidebarButtons');
 
-  if(!empty($permissions['edit']) && $permissions['edit'])
-  {
-    $a = array('controller' => $modelpl, 'action' => 'canvas', $d[0][$req]['id']);
+  if(!empty($permissions['edit']) && $permissions['edit']) {
+
+    // special case co_people
+    $editAction = 'edit';
+    if ($modelpl == 'co_people') {
+      $editAction = 'canvas';
+    }
+
+    $a = array('controller' => $modelpl, 'action' => $editAction, $d[0][$req]['id']);
     
     if(isset($this->params['named']['co']))
       $a['co'] = $this->params['named']['co'];

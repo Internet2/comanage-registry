@@ -40,12 +40,12 @@
     <title><?php print _txt('coordinate') . ': ' . $title_for_layout?></title>
     <?php echo $this->Html->charset(); ?>
     <?php echo $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
 
     <!-- Include the comanage and jquery style sheets -->
     <?php print $this->Html->css('jquery/ui/css/comanage-theme/jquery-ui-1.10.0.comanage'); ?>
     <?php print $this->Html->css('jquery/superfish/css/superfish'); ?>
     <?php print $this->Html->css('comanage'); ?>
-    <?php print $this->Html->css('comanage-menubar'); ?>
     <?php print $this->Html->css('comanage-responsive'); ?>
 
     <!-- Get jquery code -->
@@ -518,13 +518,23 @@
     <div class="header">
       <div id="row1">
         <div class="contentWidth">
-          <?php print $this->element('links'); ?>
           <?php print $this->element('secondaryMenu'); ?>
+          <?php print $this->element('links'); ?>
         </div>
       </div>
 
       <div id="row2" class="ui-widget-header">
         <div class="contentWidth">
+
+          <div class="headerRight">
+            <?php
+            // Clicking on the logo will take us to the front page
+            print $this->Html->link($this->Html->image('comanage-logo.png',
+                array('alt'     => 'COmanage','height' => 50)),
+              '/',
+              array('escape' => false));
+            ?>
+          </div>
           <div class="headerLeft">
             <?php 
               if(!empty($cur_co['Co']['name'])) {
@@ -536,15 +546,6 @@
             <div id="coSelector">
               
             </div>
-          </div>
-          <div class="headerRight">
-            <?php
-              // Clicking on the logo will take us to the front page
-              print $this->Html->link($this->Html->image('comanage-logo.png',
-                                                   array('alt'     => 'COmanage','height' => 50)),
-                                      '/',
-                                      array('escape' => false));
-            ?>
           </div>
         </div>
       </div>

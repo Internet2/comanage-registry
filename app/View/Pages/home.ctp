@@ -72,16 +72,74 @@
   </p>
 </div>
 <?php else: // $err ?>
-<div id="firstPrompt">
-  <h2><?php
+<div id="fpDashboard">
+  <?php
     // Render some text according to the user's current state
     if(!empty($userInfo['cos'])) {
       // Valid user
-      print _txt('op.home.select', array(_txt('coordinate')));
+      print '<h2>' . _txt('op.home.select', array(_txt('coordinate'))) . '</h2>';
+
+      // Load the list of COs
+      if($menuContent['cos']) {
+        $cos = $this->viewVars['menuContent']['cos'];
+      } else {
+        $cos = array();
+      }
+
+      print '<table id="fpCoList" class="ui-widget">';
+      print '<thead>';
+      print '  <tr class="tblTitle">';
+      print '    <th colspan="2">' . _txt('op.home.collabs') . '</th>';
+      print '  </tr>';
+      print '  <tr class="ui-widget-header">';
+      print '    <th>' . _txt('fd.name') . '</th>';
+      print '    <th>' . _txt('fd.desc') . '</th>';
+      print '  </tr>';
+      print '</thead>';
+
+      print '<tbody>';
+
+      //loop over each CO
+      if(count($cos) > 0) {
+        $i = 0;
+        foreach($cos as $menuCoName => $menuCoData) {
+          $collabMenuCoId = $menuCoData['co_id'];
+
+          if((!isset($menuCoData['co_person']['status'])
+              || $menuCoData['co_person']['status'] != StatusEnum::Active)
+            && !$permissions['menu']['admin']) {
+            // Don't render this CO, the person is not an active member (or a CMP admin)
+            continue;
+          }
+
+          print '<tr class="line';
+          print ($i % 2)+1;
+          print '"><td>';
+          // We use $menuCoData here and not $menuCoName because the former will indicate
+          // 'Not a Member' for CMP Admins (where they are not a member of the CO)
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_dashboards';
+          $args['action'] = 'dashboard';
+          $args['co'] = $collabMenuCoId;
+
+          print $this->Html->link($menuCoData['co_name'], $args);
+          print '</td><td>';
+          print Sanitize::html($menuCoData['co_person']['Co']['description']);
+          print '</td></tr>';
+          $i++;
+        }
+      } else {
+        print '<tr class="line1" colspan="2"><td>' . _txt('op.home.no.collabs') .  '</td></tr>';
+      }
+
+      print '</tbody>';
+      print '</table>';
+
     } elseif(!$userInfo) {
       // Please login
-      print _txt('op.home.login', array(_txt('coordinate')));
+      print '<h2 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h2>';
     }
-  ?></h2>
+  ?>
 </div>
 <?php endif; // $err ?>
