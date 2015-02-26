@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Email Address Fields
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -125,7 +125,6 @@
       </td>
       <td>
         <?php
-          global $contact_t;
           $attrs['value'] = (isset($email_addresses) ? $email_addresses[0]['EmailAddress']['type'] : "");
           $attrs['empty'] = false;
           
@@ -138,7 +137,7 @@
               print $this->Form->error('type');
             }
           } else {
-            print Sanitize::html($contact_t[ $email_addresses[0]['EmailAddress']['type'] ]);
+            print Sanitize::html(_txt('en.email_address.type', null, $email_addresses[0]['EmailAddress']['type']));
           }
         ?>
       </td>

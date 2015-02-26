@@ -184,23 +184,25 @@ class CoPerson extends AppModel {
    */
   
   public function afterSave($created, $options) {
-  	// Manage CO person membership in the CO members group.
+    // Manage CO person membership in the CO members group.
       
     // Since the Provisioner Behavior will only provision group memberships
     // for CO People with an Active status we do not need to manage 
     // membership in the members group based on status here.  So we only
     // add a CO Person to the members group upon creation and then leave
     // it there. 
-  	if($created) {
-        $coid = $this->data[$this->alias]['co_id'];
-        
-        // Find the members group for this CO.    
-        $args = array();
-        $args['conditions']['CoGroup.name'] = 'members';
-        $args['conditions']['CoGroup.co_id'] = $this->data[$this->alias]['co_id'];
-        $args['contain'] = false;
-        $membersgroup = $this->CoGroupMember->CoGroup->find('first', $args);
-            
+    if($created) {
+      $coid = $this->data[$this->alias]['co_id'];
+      
+      // Find the members group for this CO.    
+      $args = array();
+      $args['conditions']['CoGroup.name'] = 'members';
+      $args['conditions']['CoGroup.co_id'] = $this->data[$this->alias]['co_id'];
+      $args['contain'] = false;
+      $membersgroup = $this->CoGroupMember->CoGroup->find('first', $args);
+      
+      // Check to make sure the members group exists
+      if(!empty($membersgroup)) {
         // Create the membership in the members group.
         $data = array();
         $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
@@ -208,7 +210,8 @@ class CoPerson extends AppModel {
         $data['CoGroupMember']['member'] = true;
             
         $this->CoGroupMember->save($data);
-  	}
+      }
+    }
   }
   
   /**

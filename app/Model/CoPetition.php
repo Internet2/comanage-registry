@@ -698,6 +698,10 @@ class CoPetition extends AppModel {
       $coPetitionData['CoPetition']['enrollee_co_person_role_id'] = $coPersonRoleID;
     }
     
+    if(!empty($requestData['EnrolleeCoPersonRole']['sponsor_co_person_id'])) {
+      $coPetitionData['CoPetition']['sponsor_co_person_id'] = $requestData['EnrolleeCoPersonRole']['sponsor_co_person_id'];
+    }
+    
     // Figure out the petitioner person ID. As of now, it is the authenticated
     // person completing the form. This could be NULL if a CMP admin who is not
     // a member of the CO initiates the petition.

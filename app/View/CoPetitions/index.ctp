@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Index View
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -138,13 +138,15 @@ global $cm_lang, $cm_texts;
       </td>
       <td>
         <?php
-          if(isset($p['PetitionerCoPerson']['id']) && $p['PetitionerCoPerson']['id'] != '') {
+          if(!empty($p['PetitionerCoPerson']['id'])) {
             print $this->Html->link(generateCn($p['PetitionerCoPerson']['PrimaryName']),
                                     array(
                                       'controller' => 'co_people',
                                       'action' => 'canvas',
                                       $p['PetitionerCoPerson']['id'])
                                     );
+          } else {
+            print _txt('fd.actor.self');
           }
         ?>
       </td>
