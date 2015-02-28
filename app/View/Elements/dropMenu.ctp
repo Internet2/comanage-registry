@@ -122,6 +122,22 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           print $this->Html->link(_txt('op.enroll'), $args);
           print "</li>";
         }
+        
+        if (isset($permissions['menu']['petitions']) && $permissions['menu']['petitions']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_petitions';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+          $args['sort'] = 'created';
+          $args['direction'] = 'desc';
+          $args['search.status'][] = StatusEnum::PendingApproval;
+          $args['search.status'][] = StatusEnum::PendingConfirmation;
+  
+          print $this->Html->link(_txt('ct.co_petitions.pl'), $args);
+          print "</li>";
+        }
       } else {
         // Default enrollment
         if (isset($permissions['menu']['invite']) && $permissions['menu']['invite']) {
@@ -135,22 +151,6 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           print $this->Html->link(_txt('op.inv'), $args);
           print "</li>";
         }
-      }
-
-      if (isset($permissions['menu']['petitions']) && $permissions['menu']['petitions']) {
-        print "<li>";
-        $args = array();
-        $args['plugin'] = null;
-        $args['controller'] = 'co_petitions';
-        $args['action'] = 'index';
-        $args['co'] = $menuCoId;
-        $args['sort'] = 'created';
-        $args['direction'] = 'desc';
-        $args['search.status'][] = StatusEnum::PendingApproval;
-        $args['search.status'][] = StatusEnum::PendingConfirmation;
-
-        print $this->Html->link(_txt('ct.co_petitions.pl'), $args);
-        print "</li>";
       }
 
       if (!empty($menuContent['plugins'])) {
