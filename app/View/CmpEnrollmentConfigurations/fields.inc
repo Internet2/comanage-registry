@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CMP Enrollment Configuration Fields
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -145,6 +145,7 @@
   <div>
     <table id="<?php print $this->action; ?>_cmp_enrollment_configuration" class="ui-widget">
       <tbody>
+<?php if(0): ?>
         <tr class="line1">
           <td>
             <b><?php print _txt('fd.ef.ldap'); ?></b><br />
@@ -167,6 +168,7 @@
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_saml'])); ?>
           </td>
         </tr>
+<?php endif; ?>
         <tr class="line1">
           <td>
             <b><?php print _txt('fd.ef.env'); ?></b><br />
