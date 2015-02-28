@@ -163,13 +163,33 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       // Groups
       if (isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
         print '<li class="dropMenu groupMenu">';
+
+        print '<a class="menuTop">';
+        print '<span>' . _txt('ct.co_groups.pl') . '</span>';
+        print '<span class="sf-sub-indicator"> »</span>';
+        print '</a>';
+        print '<ul>';
+
+        print "<li>";
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_groups';
+        $args['action'] = 'select';
+        $args['copersonid'] = $this->Session->read('Auth.User.co_person_id');
+        $args['co'] = $menuCoId;
+        print $this->Html->link(_txt('op.grm.my.groups'), $args);
+        print "</li>";
+
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_groups';
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
+        print $this->Html->link(_txt('ct.co_all_groups'), $args);
+        print "</li>";
 
-        print $this->Html->link(_txt('ct.co_groups.pl'), $args, array('class' => 'menuTop'));
+        print "</ul>";
         print "</li>";
       }
 
