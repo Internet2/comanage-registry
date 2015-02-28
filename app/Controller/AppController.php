@@ -821,17 +821,18 @@ class AppController extends Controller {
       // Show all active COs for admins
       $this->loadModel('Co');
       $params = array('conditions' => array('Co.status' => 'A'),
-                      'fields'     => array('Co.id', 'Co.name'),
+                      'fields'     => array('Co.id', 'Co.name', 'Co.description'),
                       'recursive'  => false
                      );
       $codata = $this->Co->find('all', $params);
-      
+
       foreach($codata as $data) {
         // Don't clobber the COs we've already loaded
         if(!isset($menu['cos'][ $data['Co']['name'] ])) {
           $menu['cos'][ $data['Co']['name'] ] = array(
             'co_id'   => $data['Co']['id'],
-            'co_name' => $data['Co']['name'] . " (" . _txt('er.co.notmember') . ")"
+            'co_name' => $data['Co']['name'] . " (" . _txt('er.co.notmember') . ")",
+            'co_desc' => $data['Co']['description']
           );
         }
       }

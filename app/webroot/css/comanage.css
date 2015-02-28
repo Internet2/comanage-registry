@@ -110,7 +110,7 @@ a.desc::before {
   top: 30px;
 }
 .sf-menu ul {
-  width: 17em;
+  width: 14em;
 }
 ul.sf-menu li li:hover ul,
 ul.sf-menu li li.sfHover ul {
@@ -334,9 +334,6 @@ ul.sf-menu li.dropMenu li a:hover {
 #row3 li.peopleMenu a.menuTop {
   border-left: 1px solid #ddd;
 }
-#row3 li.groupMenu a.menuTop {
-   cursor: pointer;
- }
 a.menuTop > .sf-sub-indicator {
   position: relative;
   right: -2px;
