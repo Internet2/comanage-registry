@@ -135,11 +135,17 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
     }        
     
     $view = $this->data['CoGrouperProvisionerTarget']['subject_view'];
-      
+    
+    $args = array();
+    $args['conditions']['CoProvisioningTarget.id'] = $this->data['CoGrouperProvisionerTarget']['co_provisioning_target_id'];
+    $args['contain'] = false;
+    $target = $this->CoProvisioningTarget->find('first', $args);
+    $coId = $target['CoProvisioningTarget']['co_id'];
+    
    	$sqlTemplate = "
 CREATE OR REPLACE VIEW $view (id, name, lfname, description, description_lower, loginid, email) AS
 SELECT
-	CONCAT('COMANAGE', CAST(cm_co_people.id AS @CAST_TYPE@)),
+	CONCAT('COMANAGE_', '$coId', '_', CAST(cm_co_people.id AS @CAST_TYPE@)),
   CONCAT(COALESCE(cm_names.given,''), ' ', COALESCE(cm_names.family,'')),
   CONCAT(COALESCE(cm_names.family,''), ' ', COALESCE(cm_names.given,'')),
   CONCAT(COALESCE(cm_names.given,''), ' ', COALESCE(cm_names.family,''), ' (', cm_cos.name, ')'),
@@ -149,7 +155,7 @@ SELECT
 FROM
   cm_co_people
   LEFT JOIN cm_names ON cm_co_people.id = cm_names.co_person_id AND cm_names.primary_name is true
-  LEFT JOIN cm_cos ON cm_co_people.co_id = cm_cos.id
+  JOIN cm_cos ON cm_co_people.co_id = cm_cos.id AND cm_cos.id = $coId
   LEFT JOIN cm_identifiers ON cm_co_people.id = cm_identifiers.co_person_id AND cm_identifiers.type = '@IDENTIFIER_TYPE@'
   LEFT JOIN cm_email_addresses ON cm_co_people.id = cm_email_addresses.co_person_id AND cm_email_addresses.type = '@EMAIL_TYPE@'    			    			    			    			      			      			    			    			    			    			    			    			                  
   ";                  
@@ -430,7 +436,7 @@ FROM
         // Determine if any memberships changed and update as necessary.
 
         // Query Grouper for all current memberships in the group. The subject
-        // IDs returned by Grouper are CO Person IDs prefixed with 'COMANAGE'.
+        // IDs returned by Grouper are CO Person IDs prefixed with 'COMANAGE_coId_'.
         try {
           $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
 
@@ -454,7 +460,8 @@ FROM
         $provisioningDataCoPersonIds = array();
         foreach ($membershipsPassedIn as $coGroupMember) {
           if($coGroupMember['member']) {
-            $provisioningDataCoPersonIds[] = 'COMANAGE' . $coGroupMember['co_person_id'];
+            $coId = $provisioningData['CoGroup']['co_id'];
+            $provisioningDataCoPersonIds[] = 'COMANAGE_' . $coId . '_' . $coGroupMember['co_person_id'];
           }
         }
 
