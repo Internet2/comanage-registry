@@ -76,11 +76,11 @@ class CoGroupMember extends AppModel {
    * @param Boolean owner 
    */
   function addByGroupName($coPersonId, $groupName, $owner = false) {
-  	// Find the CO using CO person.
+    // Find the CO using CO person.
     $args = array();
     $args['conditions']['CoPerson.id'] = $coPersonId;
     $args['contain'] = false;
-  	$coPerson = $this->CoPerson->find('first', $args);
+    $coPerson = $this->CoPerson->find('first', $args);
     $coId = $coPerson['CoPerson']['co_id'];
 
     // Find the group in CO using name.
@@ -89,6 +89,9 @@ class CoGroupMember extends AppModel {
     $args['conditions']['CoGroup.name'] = $groupName;
     $args['contain'] = false;
     $group = $this->CoPerson->Co->CoGroup->find('first', $args);
+    if(empty($group)) {
+      return;
+    }
     
     // Add the membership.
     $this->clear();
@@ -100,21 +103,19 @@ class CoGroupMember extends AppModel {
     $this->save($data);
     
     // Cut a history record.
-	    try {
+    try {
       $msgData = array(
-      	$group['CoGroup']['name'],
-      	$group['CoGroup']['id'],
-       	_txt('fd.yes'),
-       	_txt('fd.no')
+        $group['CoGroup']['name'],
+        $group['CoGroup']['id'],
+        _txt('fd.yes'),
+        _txt('fd.no')
        );                  
       $msg = _txt('rs.grm.added', $msgData);
       $this->CoPerson->HistoryRecord->record($coPersonId, null, null, null, ActionEnum::CoGroupMemberAdded, $msg);
- 		} catch(Exception $e) {
-	      $msg = "Error creating history record when automatically adding " .
- 	      	"CO Person ID $coPersonId " .
-       	"to group " . $group['CoGroup']['name'] . ": " . $e->getMessage();
+    } catch(Exception $e) {
+      $msg = _txt('er.grm.history', array($coPersonId, $group['CoGroup']['name']));
       $this->log($msg);
- 		}      
+    }      
   }
   
   /**
@@ -292,9 +293,9 @@ class CoGroupMember extends AppModel {
         // If this is a members group for CO or COU then 
         // go onto the next membership.
         if(isset($grp)) {
-	        if($this->CoGroup->isMembersGroup($grp)) {
-	        	continue;
-	        }
+          if($this->CoGroup->isMembersGroup($grp)) {
+            continue;
+          }
         }
         
         if(empty($grp)) {

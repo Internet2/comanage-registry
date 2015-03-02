@@ -600,6 +600,8 @@ original notification at
   'er.gr.members.edit' => 'Members groups for COs and COUs may not be edited directly',
   'er.gr.reconcile'    => 'Members group reconciliation failed: ',
   'er.grm.already' => 'CO Person %1$s is already a member of group %2$s',
+  'er.grm.history' =>  'Error creating history record when automatically adding CO Person ID %1$s to group %2$s',
+  'er.grm.history.members' => 'Error creating history record when automatically adding CO Person ID %1$s to members group',
   'er.grm.nf' =>      'Group Member %1$s Not Found',
   'er.grm.none' =>    'No group memberships to add',
   'er.ia' =>          'Identifier assignment failed: ',

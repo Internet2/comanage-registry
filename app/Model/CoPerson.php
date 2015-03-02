@@ -227,7 +227,7 @@ class CoPerson extends AppModel {
           $msg = _txt('rs.grm.added', $msgData);
           $this->HistoryRecord->record($coPersonId, null, null, null, ActionEnum::CoGroupMemberAdded, $msg);
         } catch(Exception $e) {
-          $msg = "Error creating history record when automatically adding CO Person ID $coPersonId to members group: " . $e->getMessage();
+          $msg = _txt('er.grm.history.members', array($coPersonId));
           $this->log($msg);
         }      
       
