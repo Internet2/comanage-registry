@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Identifiers Controller
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -46,23 +46,21 @@ class IdentifiersController extends MVPAController {
    */  
   
   function assign() {
-    if($this->restful) {
-      // We manually run a few of the steps in StandardController
+    if($this->request->is('restful')) {
+      $this->Api->parseRestRequestDocument();
       
-      if(!$this->checkRestPost()) {
-        return;
-      }
+      $reqdata = $this->Api->getData();
       
-      $coid = $this->cur_co['Co']['id'];
-      
-      $personData = $this->parsePersonID($this->request->data);
-      
-      if(isset($personData['copersonid'])) {
-        $copersonid = $personData['copersonid'];
+      if(!empty($reqdata['co_person_id'])) {
+        $copersonid = $reqdata['co_person_id'];
       } else {
-        $this->restResultHeader(403, "No Person Specified");
+        $this->Api->restResultHeader(403, "No Person Specified");
         return;
       }
+      
+      // Determine the CO ID from the CO Person ID
+      
+      $coid = $this->Identifier->CoPerson->field('co_id', array('CoPerson.id' => $copersonid));
     } else {
       // While the controller doesn't require_co, this method does.
       
@@ -91,11 +89,11 @@ class IdentifiersController extends MVPAController {
           }
         }
         
-        if($this->restful) {
+        if($this->request->is('restful')) {
           if($errs != "") {
-            $this->restResultHeader(500, $errs);
+            $this->Api->restResultHeader(500, $errs);
           } else {
-            $this->restResultHeader(200, "OK");
+            $this->Api->restResultHeader(200, "OK");
           }
         } else {
           if($errs != "") {
@@ -113,21 +111,21 @@ class IdentifiersController extends MVPAController {
           }
         }
       } else {
-        if($this->restful) {
-          $this->restResultHeader(200, "OK");
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(200, "OK");
         } else {
           $this->Session->setFlash(_txt('er.ia.none'), '', array(), 'info');
         }
       }
     } else {
-      if($this->restful) {
-        $this->restResultHeader(403, "CO Does Not Exist");
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "CO Does Not Exist");
       } else {
         $this->Session->setFlash(_txt('er.co.unk'), '', array(), 'error');
       }
     }
     
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Redirect to CO Person view
       $rargs['controller'] = 'co_people';
       $rargs['action'] = 'canvas';
@@ -199,6 +197,15 @@ class IdentifiersController extends MVPAController {
     // be next assigned sequentially) this method creates a transaction that
     // checkWriteFollowups commits.
     
+    // No need to do this check if we're processing an update and the identifier
+    // didn't change.
+    
+    if(!empty($reqdata['Identifier']['identifier'])
+       && !empty($curdata['Identifier']['identifier'])
+       && $reqdata['Identifier']['identifier'] == $curdata['Identifier']['identifier']) {
+      return true;
+    }
+    
     if(isset($this->cur_co)) {
       $dbc = $this->Identifier->getDataSource();
       
@@ -209,8 +216,8 @@ class IdentifiersController extends MVPAController {
       if(!$this->Identifier->checkAvailability($reqdata['Identifier']['identifier'],
                                                $reqdata['Identifier']['type'],
                                                $this->cur_co['Co']['id'])) {
-        if($this->restful)
-          $this->restResultHeader(403, "Identifier In Use");
+        if($this->request->is('restful'))
+          $this->Api->restResultHeader(403, "Identifier In Use");
         else
           $this->Session->setFlash(_txt('er.ia.exists', array(Sanitize::html($reqdata['Identifier']['identifier']))), '', array(), 'error');   
         
@@ -322,7 +329,7 @@ class IdentifiersController extends MVPAController {
     
     // View all existing Identifier?
     // Currently only supported via REST since there's no use case for viewing all
-    $p['index'] = $this->restful && ($roles['cmadmin'] || $roles['coadmin']);
+    $p['index'] = $this->request->is('restful') && ($roles['cmadmin'] || $roles['coadmin']);
     
     // View an existing Identifier?
     $p['view'] = ($roles['cmadmin']

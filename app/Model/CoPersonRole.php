@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Role Model
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -164,13 +164,184 @@ class CoPersonRole extends AppModel {
   // Enum type hints
   
   public $cm_enum_txt = array(
-// Don't use this anymore due to extended types
-//    'affiliation' => 'en.co_person_role.affiliation',
     'status' => 'en.status'
   );
   
   public $cm_enum_types = array(
-    'affiliation' => 'affil_t',
-    'status' => 'status_t'
+    'status' => 'StatusEnum'
   );
+  
+  /**
+   * Execute logic after a CO Person Role delete operation.
+   * For now manage membership of CO Person in COU members groups.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @return none
+   */
+  
+  public function afterDelete() {
+    // Manage CO person membership in the COU members group.
+    $this->reconcileCouMembersGroupMemberships($this->data, $this->alias);
+  }
+  
+  /**
+   * Execute logic after a CO Person Role save operation.
+   * For now manage membership of CO Person in COU members groups.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @param  boolean true if a new record was created (rather than update)
+   * @param  array, the same passed into Model::save()
+   * @return none
+   */
+  
+  public function afterSave($created, $options = array()) {
+    // Manage CO person membership in the COU members group.
+    $this->reconcileCouMembersGroupMemberships($this->data, $this->alias);
+  }
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v0.9.3
+   */
+  
+  public function beforeSave($options = array()) {
+    // If the validity of the role was changed, change the status appropriately
+    
+    if(!empty($this->data['CoPersonRole']['valid_from'])) {
+      if(strtotime($this->data['CoPersonRole']['valid_from']) < time()
+         && $this->data['CoPersonRole']['status'] == StatusEnum::Pending) {
+        // Flag role as active
+        $this->data['CoPersonRole']['status'] = StatusEnum::Active;
+      } elseif(strtotime($this->data['CoPersonRole']['valid_from']) > time()
+         && $this->data['CoPersonRole']['status'] == StatusEnum::Active) {
+        // Flag role as pending
+        $this->data['CoPersonRole']['status'] = StatusEnum::Pending;
+      }
+    }
+    
+    if(!empty($this->data['CoPersonRole']['valid_through'])) {
+      if(strtotime($this->data['CoPersonRole']['valid_through']) < time()
+         && ($this->data['CoPersonRole']['status'] == StatusEnum::Active
+             ||
+             $this->data['CoPersonRole']['status'] == StatusEnum::GracePeriod)) {
+        // Flag role as expired
+        $this->data['CoPersonRole']['status'] = StatusEnum::Expired;
+      } elseif(strtotime($this->data['CoPersonRole']['valid_through']) > time()
+         && $this->data['CoPersonRole']['status'] == StatusEnum::Expired) {
+        // Flag role as active
+        $this->data['CoPersonRole']['status'] = StatusEnum::Active;
+      }
+    }
+  }
+
+  /**
+   * Reconcile memberships in COU members groups based on the 
+   * CoPersonRole(s) for a CoPerson and the Cou(s) for those
+   * roles.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @param data for the CoPersonRole model that was added or deleted
+   * @param alias for the CoPersonRole model
+   * @return none
+   */
+  
+  public function reconcileCouMembersGroupMemberships($data, $alias = null) {
+    // Since the Provisioner Behavior will only provision group memberships
+    // for CO People with an Active status we do not need to manage 
+    // membership in the members group based on status here.  
+    
+    // Find the CO Person and retrieve at the same time all roles
+    // and all group memberships.
+    if(isset($alias)) {
+    	$modelName = $alias;
+    } else {
+    	$modelName = 'CoPersonRole';
+    }
+    $args = array();
+    if(isset($data[$modelName]['co_person_id'])) {
+	    $args['conditions']['CoPerson.id'] = $data[$modelName]['co_person_id'];
+    } elseif(isset($data[$modelName]['id'])) {
+      // We have to fetch the role record again in order to get the
+      // CO Person ID.
+      $xargs = array();
+      $xargs['conditions'][$modelName . '.id'] = $data[$modelName]['id'];
+      $xargs['contain'] = false;
+			$coRole = $this->find('first', $xargs);   	
+      $args['conditions']['CoPerson.id'] = $coRole[$modelName]['co_person_id'];
+    } else {
+    	// Bail out since we have been invoked with no way to find
+    	// the role being managed.
+    	return;
+    }
+    $args['contain']['CoPersonRole'] = 'Cou';
+    $args['contain']['CoGroupMember'] = 'CoGroup';
+    $coPerson = $this->CoPerson->find('first', $args);
+    $coPersonId = $coPerson['CoPerson']['id'];
+    
+    // Loop over roles and find those with a COU. 
+    $couMembersGroupNames = array();
+    $membershipsToAdd = array();
+    foreach($coPerson['CoPersonRole'] as $role) {
+    	if(isset($role['cou_id'])) {
+        // Use name of the COU to construct name of the COU members group.
+    		$couMembersGroupName = 'members:' . $role['Cou']['name'];
+    		$couMembersGroupNames[] = $couMembersGroupName;
+        // Loop over memberships to see if a member of this members group.
+        $isMember = false;
+        foreach($coPerson['CoGroupMember'] as $membership) {
+        	if($membership['CoGroup']['name'] == $couMembersGroupName && $membership['member']) {
+        		$isMember = true;
+            break;
+        	}	
+        }
+        if(!$isMember) {
+          if(!in_array($couMembersGroupName, $membershipsToAdd)) {
+          	$membershipsToAdd[] = $couMembersGroupName;
+          }
+        }
+    	}
+    }
+    
+    // Add memberships and cut history records.
+    foreach($membershipsToAdd as $groupName) {
+  		$this->CoPerson->CoGroupMember->addByGroupName($coPersonId, $groupName, false);
+    }
+    
+    // Loop over group memberships, pick out those for COU members groups, and
+    // reconcile with the list of COU members group names.
+    foreach($coPerson['CoGroupMember'] as $membership) {
+      $groupName = $membership['CoGroup']['name'];
+    	if(strncmp($groupName, 'members:', 8) == 0 && $membership['member']) {
+    		if(!in_array($groupName, $couMembersGroupNames)) {
+    			// Delete CO person from COU members group and cut a history record.
+          $this->CoPerson->CoGroupMember->delete($membership['id']);
+          // Cut history record.
+          $msgData = array(
+            $groupName,
+         	  $membership['CoGroup']['id']
+	  			);
+          $msg = _txt('rs.grm.deleted', $msgData);
+          try {
+          	$this->CoPerson->HistoryRecord->record(
+          		$coPersonId,
+              null,
+          		null, 
+          		null, 
+          		ActionEnum::CoGroupMemberDeleted, 
+          		$msg
+          		);
+          } catch (Exception $e) {
+            $coPersonId = $copersonrole['CoPerson']['id'];
+            $coPersonRoleId = $copersonrole['CoPersonRole']['id'];
+            $group = $membership['CoGroup']['name'];
+            $msg = "Error creating history record when automatically deleting " .
+            	"CO Person ID $coPersonId with CO Person Role ID $coPersonRoleId " .
+            	"from group $group: " . $e->getMessage();
+            $this->log($msg);
+          }                  
+    		}	
+    	}
+    }
+  }
 }

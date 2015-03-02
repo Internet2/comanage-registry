@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Provisioning Target Controller
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -143,7 +143,7 @@ class CoProvisioningTargetsController extends StandardController {
   public function index() {
     parent::index();
     
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Pull the list of CO Person IDs and CO Group IDs to faciliate "Reprovision All".
       // We include all people and groups, even those not active, so we can unprovision
       // as needed.
@@ -257,7 +257,7 @@ class CoProvisioningTargetsController extends StandardController {
    */
   
   function provision($id) {
-    if($this->restful) {
+    if($this->request->is('restful')) {
       $copersonid = null;
       $cogroupid = null;
       
@@ -266,7 +266,7 @@ class CoProvisioningTargetsController extends StandardController {
       } elseif(!empty($this->request->params['named']['cogroupid'])) {
         $cogroupid = $this->request->params['named']['cogroupid'];
       } else {
-        $this->restResultHeader(500, "Bad Request");
+        $this->Api->restResultHeader(500, "Bad Request");
       }
       
       // Make sure copersonid or cogroupid is in the same CO as $id
@@ -292,7 +292,7 @@ class CoProvisioningTargetsController extends StandardController {
       
       if($this->CoProvisioningTarget->find('count', $args) < 1) {
         // XXX this could also be co provisioning target not found -- do a separate find to check?
-        $this->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
+        $this->Api->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
         return;
       }
       
@@ -310,18 +310,18 @@ class CoProvisioningTargetsController extends StandardController {
       catch(InvalidArgumentException $e) {
         switch($e->getMessage()) {
           case _txt('er.cop.unk'):
-            $this->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
+            $this->Api->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
             break;
           case _txt('er.copt.unk'):
-            $this->restResultHeader(404, "CoProvisioningTarget Not Found");
+            $this->Api->restResultHeader(404, "CoProvisioningTarget Not Found");
             break;
           default:
-            $this->restResultHeader(500, $e->getMessage());
+            $this->Api->restResultHeader(500, $e->getMessage());
             break;
         }
       }
       catch(RuntimeException $e) {
-        $this->restResultHeader(500, $e->getMessage());
+        $this->Api->restResultHeader(500, $e->getMessage());
       }
     }
   }

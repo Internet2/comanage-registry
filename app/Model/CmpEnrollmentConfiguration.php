@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CMP Enrollment Configuration Model
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -63,6 +63,32 @@ class CmpEnrollmentConfiguration extends AppModel {
       'rule' => array('boolean')
     )
   );
+  
+  /**
+   * Create the default CMP Enrollment Configuration entry.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @return integer ID of new CMP Enrollment Configuration
+   * @throws RuntimeException
+   */
+  
+  public function createDefault() {
+    $ef['CmpEnrollmentConfiguration'] = array(
+      'name'                => 'CMP Enrollment Configuration',
+      'attrs_from_coef'     => true,
+      'attrs_from_env'      => false,
+      'attrs_from_ldap'     => false,
+      'attrs_from_saml'     => false,
+      'pool_org_identities' => false,
+      'status'              => StatusEnum::Active
+    );
+    
+    if($this->save($ef)) {
+      return $this->id;
+    } else {
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+  }
   
   /**
    * Determine if enrollment attribute values may be obtained from the environment,

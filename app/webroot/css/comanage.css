@@ -22,11 +22,15 @@
 body {
   font: 75% "Trebuchet MS", sans-serif;
   width: auto;
-  margin: -12px auto 0 auto;
+  margin: 0 auto;
 }
 .contentWidth {
   margin: auto;
   min-width: 600px;
+}
+html {
+  overflow-y: scroll;
+  overflow: -moz-scrollbars-vertical;
 }
 
 /* General */
@@ -67,15 +71,18 @@ a.desc::before {
 }
 
 /* Header */
+.header {
+  background-color: #333;
+  color: white;
+}
 .headerLeft {
-  float:left;
   margin: 0;
   padding: 0;
   color: #333;
 }
 .headerRight {
   float: right;
-  width: auto;
+  clear: both
 }
 .header span {
   float: left;
@@ -83,6 +90,269 @@ a.desc::before {
 .header .ui-icon {
   position: relative;
   top: -3px;
+}
+.rightmenu {
+  float: right;
+}
+
+/*** Globals settings for dropdown sf-menu ***/
+/* widths and heights need to match in the following selectors
+   for the sf menus to align */
+.sf-menu {
+  cursor: pointer;
+  margin-bottom: 0;
+}
+.sf-sub-indicator {
+  background: url("../img/arrows-333333.png") no-repeat scroll -10px -100px rgba(0, 0, 0, 0);
+}
+.sf-menu li:hover ul,
+.sf-menu li.sfHover ul {
+  top: 30px;
+}
+.sf-menu ul {
+  width: 14em;
+}
+ul.sf-menu li li:hover ul,
+ul.sf-menu li li.sfHover ul {
+  left:	17em;
+}
+ul.sf-menu li li li:hover ul,
+ul.sf-menu li li li.sfHover ul {
+  left:	17em;
+}
+ul.sf-menu li.dropMenu li a:hover {
+  background-color: #e5e5e5 !important;
+}
+
+/*** Name / Platform Dropdown Menus ***/
+.row1-dropdown {
+  margin: 0;
+  padding: 0;
+}
+.row1-dropdown li.dropMenu a.menuTop {
+  background-color: transparent;
+  color: #ccc;
+  border: none;
+  cursor: default;
+}
+.row1-dropdown li.dropMenu a.menuTop:hover {
+  color: #fff;
+}
+.row1-dropdown .sf-menu ul:first-child {
+  display: block !important;
+  visibility: visible !important;
+}
+.row1-dropdown li.dropMenu a {
+  background-color: #eee;
+  color: #333;
+}
+.row1-dropdown .sf-menu li {
+  color: #ccc;
+  background-color: #333;
+}
+.row1-dropdown .sf-menu a {
+  color: #ccc;
+  background-color: #333;
+}
+#comanage-gear {
+  background: #333 url("../img/comanage-gear.png") top left no-repeat;
+  height: 13px;
+  margin: 0 4px 0 0;
+  width: 13px;
+}
+/* platform menu can be thinner */
+#platform .sf-menu ul {
+  width: 11em;
+}
+#platform ul.sf-menu li li:hover ul,
+#platform ul.sf-menu li li.sfHover ul {
+  left:	11em;
+}
+#platform .ui-icon {
+  margin: 1px 1px 0 0;
+  height: 18px;
+  width: 18px;
+  background-image: url("jquery/ui/css/comanage-theme/images/ui-icons_cccccc_256x240.png");
+}
+
+/*** Custom Links in Row1 ***/
+#links {
+  white-space: nowrap;
+}
+#links ul {
+  padding: 0;
+  margin: 0;
+}
+#links li {
+  display: inline-block;
+  list-style: none;
+  margin: 7px 5px 5px 5px;
+  padding-left: 9px;
+  border-left: 1px solid #666;
+}
+#links li:first-child {
+  border-left: none; /* gets rid of first pipe */
+  padding-left: 0;
+}
+#links a,
+#links a:visited {
+  color: #ccc;
+  text-decoration: none;
+}
+#links a:hover {
+  color: white;
+}
+
+/*** Secondary Menu ***/
+#secondaryMenu {
+  margin-right: 5px;
+}
+#secondaryMenu div {
+  float: left;
+  color: #ccc;
+}
+
+/*** Notification ***/
+#notification {
+  height: 18px;
+  padding: 2px 6px;
+  margin: 4px 0 3px 5px;
+  background-color: #C33;
+  /*border-radius: 5px;*/
+  cursor: pointer;
+}
+#notification ul {
+  padding: 0;
+  margin: 0;
+} /*overrides default excess space*/
+
+#notification>ul>li {
+  background-color: #C33;
+  margin: 3px 5px 2px 2px;
+}
+#notification .sf-menu a.menuTop {
+  color: white;
+  border: none;
+  padding: 0 0.25em;
+  cursor: default;
+}
+#notification span,
+#notification a {
+  color: white;
+}
+#notification .ui-icon {
+  width: 13px;
+  height: 13px;
+  background-image: url("jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png");
+}
+#notification ul li ul {
+  margin-left: -207px;
+  margin-top: -10px;
+  min-width: 250px;
+  padding: 0;
+}
+#notification ul li ul li:hover {
+  background: none;
+  color: #333;
+}
+#notification .sectionTitle {
+  margin: 0 5px 0 5px;
+  font-size: 14px;
+}
+#notification .names {
+  margin: 0;
+  line-height: 16px;
+  color: #333;
+}
+#notification .see-all a {
+  font-style: italic;
+  background-color: #e5e5e5 !important;
+}
+#notification .see-all a:hover {
+  background-color: #ddd !important;
+}
+#notification .titleColor,
+#notification ul li ul a {
+  color: #333 !important;
+  background-color: #eee !important;
+}
+#notification ul li ul a:hover {
+  color: #333 !important;
+  background-color: #e5e5e5 !important;
+}
+#notification .seeOther {
+  width: 100%;
+  text-align: center;
+  margin: 10px 0 0 0;
+}
+
+/*** Logout button ***/
+#logout a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  height: 18px;
+  padding: 3px 14px 1px 14px;
+  margin: 4px 5px 5px 5px;
+  background-color: #C33;
+  /*border-radius: 5px;*/
+  cursor: pointer;
+}
+
+/*** header row 2 ***/
+#row2 {
+  clear: both;
+  position: relative;
+  background-color: #8FBCDB;
+  padding: 5px 0;
+}
+
+/*** dropdown menu ***/
+#row3 {
+  height: 30px;
+  background-color: #eee;
+  color: #333;
+  border-bottom: 1px solid #ccc;
+  clear: both;
+}
+#row3 li.dropMenu a.menuTop {
+  height: 1em;
+  border-left: none;
+  border-right: 1px solid #ddd;
+  border-top: none;
+  background-color: transparent;
+  cursor: default;
+}
+#row3 li.collabMenu {
+  float: right;
+  border-left: 1px solid #ddd;
+}
+#row3 li.collabMenu ul {
+  left: auto;
+  right: 0;
+}
+#row3 li.peopleMenu a.menuTop {
+  border-left: 1px solid #ddd;
+}
+a.menuTop > .sf-sub-indicator {
+  position: relative;
+  right: -2px;
+  top: 0;
+}
+#row3 li.dropMenu a {
+  background-color: #eee;
+  color: #333;
+}
+#row3 .sf-menu {
+  float: none;
+}
+#row3 .sf-menu li {
+  color: #333;
+  background-color: transparent;
+}
+#row3 .sf-menu a {
+  color: #ccc;
+  background-color: #333;
 }
 
 /* Breadcrumbs */
@@ -94,24 +364,45 @@ a.desc::before {
 
 /* Content */
 #content {
-  float: left;
+  display: inline-block;
   width: 100%;
 }
 h1 {
-  float: left;
   margin: 0;
+  padding: 0;
   font-size: 3.5em;
   font-weight: normal;
 }
 h2 {
   font-size: 200%;
 }
+#main.footerSpecial {
+  margin-bottom: 150px;
+}
 /* removes extra padding in lists of button links */
 a.linkbutton:last-child {
   padding-right: 0px;
 }
+#fpDashboard {
+  margin: 3em 0 2em 0;
+}
+#fpDashboard h2 {
+  font-weight: normal;
+  font-size: 1.6em;
+}
+#fpDashboard h2.loginMsg {
+  margin-bottom: 10em;
+}
+#fpDashboard h3 {
+  margin: 1.5em 0 0 0;
+  font-weight: normal;
+  font-size: 1em;
+  padding: 0.5em;
+  background-color: #8fbcdb;
+}
 #firstPrompt {
-  margin-bottom: 12em;
+  font-size: 1.5em;
+  margin: 2em 0 10em;
 }
 
 /* Messages */
@@ -653,10 +944,19 @@ label,
 /* Footer */
 .footer {
   clear: both;
-  padding: 0.5em 0 0 0;
+  padding: 1em 0 2em 0;
+  background-color: white;
+}
+.specialFooter {
+  padding: 1em 0 2em 0;
+  background-color: white;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  opacity: 0.8;
 }
 .poweredByComanage {
-  margin: 3em 0 0;
+  margin: 1em 0 0 0;
   padding: 0;
 }
 .poweredText {

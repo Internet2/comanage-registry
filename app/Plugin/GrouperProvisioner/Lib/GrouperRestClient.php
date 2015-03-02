@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Grouper Rest Client
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -24,6 +24,7 @@
 
 App::uses('GrouperRestClientException', 'GrouperProvisioner.Lib');
 App::uses('HttpSocket', 'Network/Http');
+App::uses('CakeLog', 'Log');
 
 /**
  * An instance is used to query Grouper using
@@ -112,7 +113,13 @@ class GrouperRestClient extends HttpSocket {
 
     $success = $result->WsAddMemberResults->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from add member was not success');
+      $msg = 'Result from add member was not success';
+      if(Configure::read('debug')) {
+      	CakeLog::write('error', $msg);
+      	CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+      	CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     return ;
@@ -141,7 +148,13 @@ class GrouperRestClient extends HttpSocket {
 
     $success = $result->WsAddMemberLiteResult->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from add member was not success');
+      $msg = 'Result from add member was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     return ;
@@ -185,7 +198,13 @@ class GrouperRestClient extends HttpSocket {
 
     $success = $result->WsDeleteMemberResults->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from delete member was not success');
+      $msg = 'Result from delete member was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     return ;
@@ -215,7 +234,13 @@ class GrouperRestClient extends HttpSocket {
 
     $success = $result->WsDeleteMemberLiteResult->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from delete member was not success');
+      $msg = 'Result from delete member was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     return ;
@@ -258,7 +283,13 @@ class GrouperRestClient extends HttpSocket {
     $result = $this->grouperRequest($request, 200);
     $success = $result->WsGetMembersResults->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from get members was not success');
+      $msg = 'Result from get members was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     $results = $result->WsGetMembersResults->results;
@@ -298,7 +329,13 @@ class GrouperRestClient extends HttpSocket {
 
     $success = $result->WsGroupDeleteLiteResult->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from group delete was not success');
+      $msg = 'Result from group delete was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     return ;
@@ -338,7 +375,13 @@ class GrouperRestClient extends HttpSocket {
 
     $success = $result->WsFindGroupsResults->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from stem query was not success');
+      $msg = 'Result from stem query was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
 
@@ -384,12 +427,24 @@ class GrouperRestClient extends HttpSocket {
 
     $success = $result->WsGroupSaveLiteResult->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from group save was not success');
+      $msg = 'Result from group save was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     $resultCode = $result->WsGroupSaveLiteResult->resultMetadata->resultCode;
     if ($resultCode != 'SUCCESS_INSERTED') {
-      throw new GrouperRestClientException('Group already existed');
+      $msg = 'Group already existed';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     return $result->WsGroupSaveLiteResult->wsGroup;
@@ -432,12 +487,24 @@ class GrouperRestClient extends HttpSocket {
 
     $success = $result->WsGroupSaveLiteResult->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from group save/update was not success');
+      $msg = 'Result from group save/update was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     $resultCode = $result->WsGroupSaveLiteResult->resultMetadata->resultCode;
     if ($resultCode != 'SUCCESS_UPDATED' and $resultCode!= 'SUCCESS_NO_CHANGES_NEEDED') {
-        throw new GrouperRestClientException('Error updating group');
+        $msg = 'Error updating group';
+	      if(Configure::read('debug')) {
+ 	        CakeLog::write('error', $msg);
+          CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+          CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+        }
+        throw new GrouperRestClientException($msg);
     }
 
     return ;
@@ -486,18 +553,36 @@ class GrouperRestClient extends HttpSocket {
       $response = $this->request($request);
 
     } catch (SocketException $e) {
-      throw new GrouperRestClientException('Error querying Grouper: ' . $e->getMessage(), 1, $e);
+      $msg = 'Error querying Grouper: ' . $e->getMessage();
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS response was ' . print_r($response, true));
+      }
+      throw new GrouperRestClientException($msg, 1, $e);
     }
 
     $code = $response->code;
     if ($code != $expectedCode) {
-      throw new GrouperRestClientException("Grouper returned code $code, expected was $expectedCode");
+      $msg = "Grouper returned code $code, expected was $expectedCode";
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS response was ' . print_r($response, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     try {
       $result = json_decode($response->body);
     } catch (Exception $e) {
-      throw new GrouperRestClientException('Error decoding JSON from Grouper: ' . $e->getMessage(), 2, $e);
+      $msg = 'Error decoding JSON from Grouper: ' . $e->getMessage();
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS response was ' . print_r($response, true));
+      }
+      throw new GrouperRestClientException($msg, 2, $e);
     }
 
     return $result;
@@ -538,12 +623,51 @@ class GrouperRestClient extends HttpSocket {
     $result = $this->grouperRequest($request, 200);
     $success = $result->WsFindStemsResults->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from stem query was not success');
+      $msg = 'Result from stem query was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     $stemExists = ! empty($result->WsFindStemsResults->stemResults);
 
     return $stemExists;
+  }
+  
+  /**
+   * Delete a stem
+   * - precondition: 
+   * - postcondition: 
+   *
+   * @since  COmanage Directory 0.9.3
+   * @stemName  full name of stem
+   * @return void
+   * @throws GrouperRestClientException
+   */
+  public function stemDelete($stemName) {
+    $request = array(
+      'method' => 'DELETE',
+      'uri' => array(
+        'path' => 'stems/' . urlencode($stemName)
+        )
+      );
+
+    $result = $this->grouperRequest($request, 200);
+    $success = $result->WsStemDeleteLiteResult->resultMetadata->success;
+    if ($success != 'T') {
+      $msg = 'Result from stem delete was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
+    }
+
+    return;
   }
 
   /**
@@ -580,9 +704,75 @@ class GrouperRestClient extends HttpSocket {
     $result = $this->grouperRequest($request, 201);
     $success = $result->WsStemSaveLiteResult->resultMetadata->success;
     if ($success != 'T') {
-      throw new GrouperRestClientException('Result from stem save was not success');
+      $msg = 'Result from stem save was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
     }
 
     return $result->WsStemSaveLiteResult->wsStem;
+  }
+  
+  /**
+   * Update an existing stem
+   * - precondition: stem exists in Grouper
+   * - postcondition: stem exists in Grouper with updated name or description
+   *
+   * @since  COmanage Directory 0.9.3
+   * @param  old full name of stem
+   * @param  new full name of stem, may be same as old
+   * @param  description of the stem 
+   * @param display extension for the stem 
+   * @return void
+   * @throws GrouperRestClientException
+   */
+  public function stemUpdate($oldStemName, $newStemName, $description, $displayExtension) {
+    $body = array(
+      'WsRestStemSaveLiteRequest' => array(
+        'saveMode' => 'UPDATE',
+        'actAsSubjectId' => 'GrouperSystem',
+        'description' => $description,
+        'displayExtension' => $displayExtension,
+        'stemName' => $newStemName
+        )
+      );
+
+    $body = json_encode($body);
+
+    $request = array(
+      'uri' => array(
+        'path' => 'stems/' . urlencode($oldStemName)
+        ),
+      'body' => $body
+      );
+
+    $result = $this->grouperRequest($request, 201);
+
+    $success = $result->WsStemSaveLiteResult->resultMetadata->success;
+    if ($success != 'T') {
+      $msg = 'Result from stem save/update was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
+    }
+
+    $resultCode = $result->WsStemSaveLiteResult->resultMetadata->resultCode;
+    if ($resultCode != 'SUCCESS_UPDATED' and $resultCode!= 'SUCCESS_NO_CHANGES_NEEDED') {
+        $msg = 'Error updating stem';
+        if(Configure::read('debug')) {
+ 	        CakeLog::write('error', $msg);
+          CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+          CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+        }
+        throw new GrouperRestClientException($msg);
+    }
+
+    return ;
   }
 }

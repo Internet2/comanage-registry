@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Role Component
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -819,30 +819,30 @@ class RoleComponent extends Component {
         
         if($this->isCoAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
           $ret = true;
-        }
-        
-        if(!empty($coEF['CoEnrollmentFlow']['authz_cou_id'])) {
-          // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
-          
-          $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
         } else {
-          // No authz_cou_id
-          
-          $couId = null;
-          
-          if($coPetitionId) {
-            $couId = $CoEnrollmentFlow->CoPetition->field('cou_id',
-                                                          array('CoPetition.id' => $coPetitionId));
-          }
-          
-          if($couId) {
-            // (3) A COU is attached to the petition and $coPersonId is a COU admin
+          if(!empty($coEF['CoEnrollmentFlow']['authz_cou_id'])) {
+            // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
             
-            $ret = $this->isCouAdmin($coPersonId, $couId);
+            $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
           } else {
-            // (4) No authz_cou_id is specified and $coPersonId is a COU admin
+            // No authz_cou_id
             
-            $ret = $this->isCouAdmin($coPersonId);
+            $couId = null;
+            
+            if($coPetitionId) {
+              $couId = $CoEnrollmentFlow->CoPetition->field('cou_id',
+                                                            array('CoPetition.id' => $coPetitionId));
+            }
+            
+            if($couId) {
+              // (3) A COU is attached to the petition and $coPersonId is a COU admin
+              
+              $ret = $this->isCouAdmin($coPersonId, $couId);
+            } else {
+              // (4) No authz_cou_id is specified and $coPersonId is a COU admin
+              
+              $ret = $this->isCouAdmin($coPersonId);
+            }
           }
         }
       }

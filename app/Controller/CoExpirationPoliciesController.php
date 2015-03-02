@@ -69,7 +69,7 @@ class CoExpirationPoliciesController extends StandardController {
    */
   
   function beforeRender() {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       $this->set('vv_copr_affiliation_types', $this->CoExpirationPolicy->Co->CoPerson->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
       $this->set('vv_cous', $this->CoExpirationPolicy->Co->Cou->allCous($this->cur_co['Co']['id']));
       

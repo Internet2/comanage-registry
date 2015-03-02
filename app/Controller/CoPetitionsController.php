@@ -77,7 +77,7 @@ class CoPetitionsController extends StandardController {
    */
   
   function add() {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       $enrollmentFlowID = $this->enrollmentFlowID();
       
       // Make sure this enrollment flow is active
@@ -196,7 +196,7 @@ class CoPetitionsController extends StandardController {
    */
   
   function beforeFilter() {
-    if(!$this->restful && ($this->action == 'add' || $this->action == 'edit')) {
+    if(!$this->request->is('restful') && ($this->action == 'add' || $this->action == 'edit')) {
       // Make sure we were given a valid enrollment flow
       
       $args['conditions']['CoEnrollmentFlow.id'] = $this->enrollmentFlowID();
@@ -241,7 +241,7 @@ class CoPetitionsController extends StandardController {
    */
   
   function beforeRender() {
-    if(!$this->restful) {
+    if(!$this->request->is('restful')) {
       // Set the enrollment flow ID to make it easier to carry forward through failed submissions
       $this->set('co_enrollment_flow_id', $this->enrollmentFlowID());
       

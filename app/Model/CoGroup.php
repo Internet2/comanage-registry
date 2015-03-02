@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Model
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -102,7 +102,7 @@ class CoGroup extends AppModel {
   // Enum type hints
   
   public $cm_enum_types = array(
-    'status' => 'status_t'
+    'status' => 'SuspendableStatusEnum'
   );
   
   /**
@@ -133,6 +133,39 @@ class CoGroup extends AppModel {
     }
     
     throw new InvalidArgumentException(_txt('er.gr.nf', array($args['conditions']['CoGroup.name'])));
+  }
+  
+  /**
+   * Find name of Cou from a Cou admin or members group.
+   * 
+   * @since COmanage Registry v0.9.3
+   * @param Array CoGroup
+   * @return String name of the Cou
+   */
+  function couNameFromAdminOrMembersGroup($group) {
+  	if($this->isCouAdminGroup($group)) {
+  		return substr($group['CoGroup']['name'], 6);	
+  	} elseif ($this->isCouMembersGroup($group)) {
+  		return substr($group['CoGroup']['name'], 8);	
+  	}
+  }
+  
+  /**
+   * Find a group for a CO by its name.
+   * 
+   * @since COmanage Registry v0.9.3
+   * @param Inteter CO ID
+   * @param String name
+   * @return Array Group information, as returned by find
+   */
+  function findByName($coId, $name) {
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['conditions']['CoGroup.name'] = $name;
+    $args['contain'] = false;
+  	$group = $this->find('first', $args);
+    
+  	return $group;
   }
 
   /**
@@ -172,6 +205,49 @@ class CoGroup extends AppModel {
     }
     
     return $this->find('all', $args);
+  }
+  
+  /**
+   * Determine if the group is an admin group for COU.
+   * 
+   * @since COmanage Registry v0.9.3
+   * @param Array representing CoGroup
+   * @return Boolean true if admin group
+   */
+  public function isCouAdminGroup($group) {
+  	// Right now we simply look at the name of the group.
+    if (strncmp($group['CoGroup']['name'], 'admin:', 6) == 0) {
+    	return true;
+    }
+    return false;
+  }
+  
+  /**
+   * Determine if the group is an admin or members group for COU.
+   * 
+   * @since COmanage Registry v0.9.3
+   * @param Array representing CoGroup
+   * @return Boolean true if admin or members group
+   */
+  public function isCouAdminOrMembersGroup($group) {
+      $admin = $this->isCouAdminGroup($group);
+      $members = $this->isCouMembersGroup($group);
+      return ($admin || $members);
+  }
+  
+  /**
+   * Determine if the group is a members group for COU.
+   * 
+   * @since COmanage Registry v0.9.3
+   * @param Array representing CoGroup
+   * @return Boolean true if members group
+   */
+  public function isCouMembersGroup($group) {
+  	// Right now we simply look at the name of the group.
+    if (strncmp($group['CoGroup']['name'], 'members:', 8) == 0) {
+    	return true;
+    }
+    return false;
   }
   
   /**
@@ -222,5 +298,228 @@ class CoGroup extends AppModel {
     }
     
     return $targets;
+  }
+  
+  /**
+   * Reconcile CO Person memberships in a members group.
+   * 
+   * @since COmanage Registry 0.9.3
+   * @param Integer CoGroup Id
+   * @return true if success or false for failure
+   */
+  
+  public function reconcileMembersGroup($id) {
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $id;
+    $args['contain']['Co'] = 'Cou';
+  	$group = $this->find('first', $args);
+      
+  	if(empty($group)) {
+  		return false;
+  	}
+  	
+  	// Make sure the group is a members group.    
+    $name = $group['CoGroup']['name'];
+    if($name != 'members' && strncmp($name, 'members:', 8) != 0) {
+    	return false;
+    }
+    
+    $coId = $group['CoGroup']['co_id'];
+    
+    // Determine if this is a members group for a COU and if so
+    // the ID for the COU.
+    $couId = null;
+    if($name != 'members') {
+        foreach($group['Co']['Cou'] as $cou) {
+    			if($name == 'members:' . $cou['name']) {
+    				$couId = $cou['id'];
+    			}      
+        }                    
+    }
+  	
+    // Find all CO people for the CO.
+    $args = array();
+    $args['conditions']['CoPerson.co_id'] = $group['CoGroup']['co_id'];
+    $args['contain'][] = 'CoGroupMember';
+    $args['contain'][] = 'CoPersonRole';
+    $coPeople = $this->Co->CoPerson->find('all', $args);
+    
+    // Loop over the CO people and determine if any are not
+    // members of the group that should be members.
+    foreach($coPeople as $coPerson) {
+      $coPersonId = $coPerson['CoPerson']['id'];
+    	if(isset($couId)) {
+				// Check for role in the COU.
+        foreach($coPerson['CoPersonRole'] as $role) {
+        	if($role['cou_id'] == $couId) {
+        		// Since have role in the COU should be in the COU members group.
+        		$isMember = false;
+        		foreach($coPerson['CoGroupMember'] as $membership) {
+        			if($membership['co_group_id'] == $id) {
+        				$isMember = true;
+                break;
+        			}
+        		}	
+            if(!$isMember) {
+              $data = array();
+              $data['CoGroupMember']['co_group_id'] = $id;
+              $data['CoGroupMember']['co_person_id'] = $coPerson['CoPerson']['id'];
+              $data['CoGroupMember']['member'] = true;
+              $this->Co->CoPerson->CoGroupMember->clear();
+							$success = $this->Co->CoPerson->CoGroupMember->save($data);              
+              if(!$success) {
+              	$this->log("Error saving membership for CoPerson.id $coPersonId in CoGroup.id $id");
+              	return false;
+              }
+            }
+        	}	
+        }
+    	} else {
+				// Check for membership in the CO members group.    		
+        $isMember = false;
+        foreach($coPerson['CoGroupMember'] as $membership) {
+        	if($membership['co_group_id'] == $id) {
+        		$isMember = true;
+        		break;
+        	}	
+        }
+        if(!$isMember) {
+	        $data = array();
+          $data['CoGroupMember']['co_group_id'] = $id;
+          $data['CoGroupMember']['co_person_id'] = $coPerson['CoPerson']['id'];
+          $data['CoGroupMember']['member'] = true;
+          $this->Co->CoPerson->CoGroupMember->clear();
+  				$success = $this->Co->CoPerson->CoGroupMember->save($data);              
+          if(!$success) {
+ 	        	$this->log("Error saving membership for CoPerson.id $coPersonId in CoGroup.id $id");
+          	return false;
+          }
+        }
+    	}
+    }
+    
+    // Find all memberships for the group.
+    $args = array();
+    $args['conditions']['CoGroupMember.co_group_id'] = $id;
+    $args['contain']['CoPerson'] = 'CoPersonRole';
+    $memberships = $this->Co->CoPerson->CoGroupMember->find('all', $args);
+    
+    // Loop over the memberships to find any that should not exist for this group.
+    foreach($memberships as $membership) {
+    	if(isset($couId)) {
+      	// This is a COU members group so check for role in the COU.
+        $delete = true;
+        foreach($membership['CoPerson']['CoPersonRole'] as $role) {
+        	if($role['cou_id'] == $couId) {
+        		$delete = false;
+            break;
+        	}
+        }
+        if($delete) {
+          $success = $this->Co->CoPerson->CoGroupMember->delete($membership['CoGroupMember']['id']);
+          if(!$success) {
+          	$this->log("Error deleting CoGroupMember.id " . $membership['CoGroupMember']['id']);
+            return false;
+          }
+        }
+    	} else {
+        // This is a CO members group so check person in the CO.
+    		if($membership['CoPerson']['co_id'] != $coId) {
+          $success = $this->Co->CoPerson->CoGroupMember->delete($membership['CoGroupMember']['id']);
+          if(!$success) {
+          	$this->log("Error deleting CoGroupMember.id " . $membership['CoGroupMember']['id']);
+            return false;
+          }
+    		}
+    	}
+    }
+    
+  	return true;	
+  }
+  
+  /**
+   * Reconcile the existence of the CO and COU members groups
+   * 
+   * @since COmanage Registry 0.9.3
+   * @param Integer CO Id
+   * @return true for success or false for failure
+   */
+  public function reconcileMembersGroupsExistence($coId) {
+    // Find the CO, COUs, and groups.
+  	$args = array();
+  	$args['conditions']['Co.id'] = $coId;
+    $args['contain'][] = 'Cou';
+    $args['contain'][] = 'CoGroup';
+    $co = $this->Co->find('first', $args);
+    
+    // Loop over groups looking for CO members group.
+    $membersGroupExists = false;
+    foreach($co['CoGroup'] as $group) {
+    	if($group['name'] == 'members') {
+    		$membersGroupExists = true;
+    		break;
+    	}	
+    }
+    
+    if(!$membersGroupExists) {
+    	// Create the CO members group.
+      $this->clear();
+    	$data = array();
+      $data['CoGroup']['co_id'] = $coId;
+    	$data['CoGroup']['name'] = 'members';
+    	$data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($co['Co']['name']));
+      $data['CoGroup']['open'] = false;
+      $data['CoGroup']['status'] = StatusEnum::Active;
+      if(!$this->save($data)) {
+      	return false;
+      }
+    }
+    
+    // Loop over the COUs looking for COU members groups.
+    foreach($co['Cou'] as $cou) {
+    	$membersGroupName = 'members:' . $cou['name'];
+    	$membersGroupExists = false;
+	    foreach($co['CoGroup'] as $group) {
+	    	if($group['name'] == $membersGroupName) {
+	    		$membersGroupExists = true;
+	    		break;
+	    	}	
+	    }
+      if(!$membersGroupExists) {
+      	// Create the CO members group.
+        $this->clear();
+      	$data = array();
+        $data['CoGroup']['co_id'] = $coId;
+      	$data['CoGroup']['name'] = $membersGroupName;
+      	$data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($cou['name']));
+        $data['CoGroup']['open'] = false;
+        $data['CoGroup']['status'] = StatusEnum::Active;
+        if(!$this->save($data)) {
+        	$couId = $cou['id'];
+        	return false;
+        }
+      }
+    }
+    
+    // Loop over groups looking for groups that match the
+    // COU members groups structure but that don't have
+	  // matching COU.
+    foreach($co['CoGroup'] as $group) {
+    	if(strncmp($group['name'], 'members:', 8) == 0) {
+      	$couExists = false;
+      	foreach($co['Cou'] as $cou) {
+        	$nameFromCou = 'members:' . $cou['name'];
+        	if($group['name'] == $nameFromCou) {
+        		$couExists = true;
+        		break;
+        	}
+      	}
+        if(!$couExists) {
+        	$this->delete($group['id']);
+        }
+    	}	
+    }
+  	
+  	return true;    
   }
 }

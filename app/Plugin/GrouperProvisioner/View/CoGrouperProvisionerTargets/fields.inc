@@ -37,7 +37,6 @@
   
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
-  
 ?>
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
   <p>
@@ -91,6 +90,60 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('stem', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['stem'])); ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
+        <?php print _txt('pl.grouperprovisioner.loginidentifier'); ?><font class="required">*</font><br />
+        <font class="desc"><?php print _txt('pl.grouperprovisioner.loginidentifier.desc'); ?></font>
+      </td>
+      <td>
+        <?php 
+        	if($e) {
+            $args = array();
+            $args['empty'] = '(choose one)';
+        		print $this->Form->select('login_identifier', $identifier_types, $args);
+        	} else {
+        		print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier']); 
+        	}
+        ?>
+      </td>
+    </tr>
+    <tr class="line1">
+      <td>
+        <?php print _txt('pl.grouperprovisioner.emailidentifier'); ?><font class="required">*</font><br />
+        <font class="desc"><?php print _txt('pl.grouperprovisioner.emailidentifier.desc'); ?></font>
+      </td>
+      <td>
+        <?php 
+        	if($e) {
+            $args = array();
+            $args['empty'] = '(choose one)';
+        		print $this->Form->select('email_identifier', $email_address_types, $args);
+        	} else {
+        		print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier']); 
+        	}
+        ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
+        <?php print _txt('pl.grouperprovisioner.subjectview'); ?><font class="required">*</font><br />
+        <font class="desc"><?php print _txt('pl.grouperprovisioner.subjectview.desc'); ?></font>
+      </td>
+      <td>
+        <?php 
+        if ($e) {
+          $args = array();
+          $args['size'] = 30;
+          if (!isset($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view'])) {
+          	$args['default'] = $viewDefault;	
+          }
+        	print $this->Form->input('subject_view', $args);
+        } else {
+        	print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view']); 
+        }
+        ?>
       </td>
     </tr>
     <tr>

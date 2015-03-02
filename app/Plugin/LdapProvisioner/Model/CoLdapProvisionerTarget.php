@@ -616,9 +616,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         // provisioner behavior invoked, we do not allow dependent=true to delete
         // the DN. Instead, we manually delete it
         $deletedn = true;
-        // Fall through, we want the rest of expired behavior
-      case ProvisioningActionEnum::CoPersonExpired:
-        // Currently, expiration is treated the same as delete, but that is subject to change
         $assigndn = false;
         $delete = true;
         $add = false;
@@ -629,9 +626,15 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $modify = true;
         $person = true;
         break;
+      case ProvisioningActionEnum::CoPersonExpired:
+      case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
+      case ProvisioningActionEnum::CoPersonUnexpired:
       case ProvisioningActionEnum::CoPersonUpdated:
-        if($provisioningData['CoPerson']['status'] != StatusEnum::Active
-           && $provisioningData['CoPerson']['status'] != StatusEnum::GracePeriod) {
+        if(!in_array($provisioningData['CoPerson']['status'],
+                     array(StatusEnum::Active,
+                           StatusEnum::Expired,
+                           StatusEnum::GracePeriod,
+                           StatusEnum::Suspended))) {
           // Convert this to a delete operation. Basically we (may) have a record in LDAP,
           // but the person is no longer active. Don't delete the DN though, since
           // the underlying person was not deleted.
@@ -643,10 +646,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           $assigndn = true;  
           $modify = true;
         }
-        $person = true;
-        break;
-      case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
-        // We don't do anything on grace period
         $person = true;
         break;
       case ProvisioningActionEnum::CoGroupAdded:

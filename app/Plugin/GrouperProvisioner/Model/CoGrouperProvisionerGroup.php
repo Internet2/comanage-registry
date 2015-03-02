@@ -1,4 +1,5 @@
 <?php
+use Github\Exception\RuntimeException;
 /**
  * COmanage Registry CO Grouper Provisioner Group Model
  *
@@ -71,7 +72,9 @@ class CoGrouperProvisionerGroup extends AppModel {
   public function addProvisionerGroup($coProvisioningTargetData, $provisioningData) {
     $newProvisionerGroup = $this->computeProvisionerGroup($coProvisioningTargetData, $provisioningData);
 
+    $this->clear();
     if(!$this->save($newProvisionerGroup)) {
+      $this->log("database save failed");
       throw new RuntimeException(_txt('er.db.save'));
     }
 
@@ -92,12 +95,38 @@ class CoGrouperProvisionerGroup extends AppModel {
   public function computeProvisionerGroup($coProvisioningTargetData, $provisioningData) {
     // Replace colon with underscore in COmanage group name to
     // create Grouper group extension (name without stem).
-    $extension = str_replace(":", "_", $provisioningData['CoGroup']['name']);
+    $groupName = $provisioningData['CoGroup']['name'];
+    $extension = str_replace(":", "_", $groupName);
+    
+    // If this is a COU members or admin group we need to create the necessary
+    // hierarchy of stems that represent the parent child relationships
+    // (if any) of the COUs.
+    if($this->CoGroup->isCouAdminOrMembersGroup($provisioningData)) {
+	    // Find the corresponding COU.
+      $args = array();
+      $args['conditions']['Cou.co_id'] = $provisioningData['CoGroup']['co_id'];
+      $args['conditions']['Cou.name'] = $this->CoGroup->couNameFromAdminOrMembersGroup($provisioningData);
+      $args['contain'] = true;
+	    $cou = $this->CoGroup->Co->Cou->find('first', $args);
+      if(empty($cou)) {
+        $message = 'Error finding Cou for admin or members group ' . $groupName;
+      	throw new RuntimeException($message);
+      }
+      
+      // Find the 'parent path', if any, for this COU.
+      $parents = $this->CoGroup->Co->Cou->getPath($cou['Cou']['id']);
+      $stem = $coProvisioningTargetData['CoGrouperProvisionerTarget']['stem'];
+      foreach($parents as $cou) {
+          $stem = $stem . ':' . $cou['Cou']['name'];
+      }
+    } else {
+    	$stem = $coProvisioningTargetData['CoGrouperProvisionerTarget']['stem'];
+    }
 
     $newProvisionerGroup = array();
     $newProvisionerGroup['CoGrouperProvisionerGroup']['co_grouper_provisioner_target_id'] = $coProvisioningTargetData['CoGrouperProvisionerTarget']['id'];
     $newProvisionerGroup['CoGrouperProvisionerGroup']['co_group_id'] = $provisioningData['CoGroup']['id'];
-    $newProvisionerGroup['CoGrouperProvisionerGroup']['stem'] = $coProvisioningTargetData['CoGrouperProvisionerTarget']['stem'];
+    $newProvisionerGroup['CoGrouperProvisionerGroup']['stem'] = $stem;
     $newProvisionerGroup['CoGrouperProvisionerGroup']['extension'] = $extension;
     $newProvisionerGroup['CoGrouperProvisionerGroup']['description'] = $provisioningData['CoGroup']['description'];
 
@@ -189,6 +218,18 @@ class CoGrouperProvisionerGroup extends AppModel {
     // Grouper group description is just the COmanage group description.
     return $provisionerGroup['CoGrouperProvisionerGroup']['description'];
   }
+  
+  /**
+   * Return the Grouper group stem
+   *
+   * @since  COmanage Registry v0.9.3
+   * @param  Array CoGrouperProvisionerGroup data
+   * @return String
+   */
+
+  public function getStem($provisionerGroup) {
+    return $provisionerGroup['CoGrouperProvisionerGroup']['stem'];
+  }
 
   /**
    * Return the Grouper group display extension
@@ -218,11 +259,11 @@ class CoGrouperProvisionerGroup extends AppModel {
     if (array_key_exists('id', $current['CoGrouperProvisionerGroup'])) {
       $updated['CoGrouperProvisionerGroup']['id'] = $current['CoGrouperProvisionerGroup']['id'];
     }
-
+    
     if(!$this->save($updated)) {
       throw new RuntimeException(_txt('er.db.save'));
     }
-
+    
     $updated['CoGrouperProvisionerGroup']['id'] = $this->id;
   }
 }

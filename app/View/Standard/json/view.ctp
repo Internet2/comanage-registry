@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Standard JSON Index View
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -46,7 +46,7 @@
           switch($k)
           {
           case 'CoPersonId':
-            $a['Person'] = array('Type' => 'Co',
+            $a['Person'] = array('Type' => 'CO',
                                  'Id' => $m[$req][$k]);
             break;
           case 'CoPersonRoleId':
@@ -64,31 +64,14 @@
         }
       }
       
-      if(($req == 'CoPerson' || $req == 'OrgIdentity')
-         && isset($m['Name']))
-      {
-        // We treat Name specially and copy it over
-      
-        foreach(array_keys($m['Name']) as $k)
-        {
-          if(in_array($k, array('Honorific', 'Given', 'Middle', 'Family', 'Suffix', 'Type', 'Language'))
-             && $m['Name'][$k] != null)
-            $a['Name'][$k] = $m['Name'][$k];
-        }      
-      }
-      
-      if($req == 'CoPersonRole')
-      {
+      if($req == 'CoPersonRole') {
         // For CO Person Roles, we need to check for extended attributes.
         
-        foreach(array_keys($m) as $ak)
-        {
-          if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak))
-          {
-            foreach(array_keys($m[$ak]) as $ea)
-              if(!in_array($ea, array('Id', 'CoPersonRoleId', 'Created', 'Modified'))
-                 && $m[$ak][$ea] != null)
-                $a['ExtendedAttributes'][$ea] = $m[$ak][$ea];
+        foreach(array_keys($m) as $ak) {
+          if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak)) {
+            foreach(array_keys($m[$ak]) as $ea) {
+              $a['ExtendedAttributes'][$ea] = $m[$ak][$ea];
+            }
             
             break;
           }

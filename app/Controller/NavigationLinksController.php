@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Navigation Links Controller
  *
- * Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.2
@@ -35,7 +35,7 @@ class NavigationLinksController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'NavigationLink.type_name' => 'asc'
+      'NavigationLink.ordr' => 'asc'
     )
   );
 
@@ -68,11 +68,13 @@ class NavigationLinksController extends StandardController {
   function beforeRender() {
     //globals
     global $cm_lang, $cm_texts;
-
-    // Pass the location options
-    $link_location_options = array(LinkLocationEnum::topBar => $cm_texts[ $cm_lang ]['en.nav.location'][LinkLocationEnum::topBar]);
-    $this->set('vv_link_location_options', $link_location_options);
-
+    
+    if(!$this->request->is('restful')) {
+      // Pass the location options
+      $link_location_options = array(LinkLocationEnum::topBar => $cm_texts[ $cm_lang ]['en.nav.location'][LinkLocationEnum::topBar]);
+      $this->set('vv_link_location_options', $link_location_options);
+    }
+    
     parent::beforeRender();
   }
 

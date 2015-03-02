@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Multi-Value Person Attribute (MVPA) Controller
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -66,16 +66,6 @@ class MVPAController extends StandardController {
     
     parent::beforeFilter();
     
-    if($this->restful && $this->requires_co) {
-      // For REST views, the CO isn't required by the data model since it's
-      // implied by the person ID. We can't unload the model (though we could
-      // figure out associations and $models->unbindModel), but we don't really
-      // need to as long as we flag requires_co=false. We do this after beforeFilter()
-      // because $this->restful gets calculated there.
-      
-      $this->requires_co = false;
-    }
-    
     // Dynamically adjust validation rules to include the current CO ID for dynamic types.
     
     $vrule = $model->validate['type']['content']['rule'];
@@ -97,29 +87,42 @@ class MVPAController extends StandardController {
     $req = $this->modelClass;
     $model = $this->$req;
     
-    if(!$this->restful){
+    if(!$this->request->is('restful')){
       // Provide a hint as to available types for this model
       
-      $availableTypes = $model->types($this->cur_co['Co']['id'], 'type');
+      $pid = $this->parsePersonID();
       
-      if(!empty($this->viewVars['permissions']['selfsvc'])) {
-        // For models supporting self service permissions, adjust the available types
-        // in accordance with the configuration
+      if(!empty($pid['orgidentityid'])) {
+        // Org identities use the default model types, and self service does not apply
         
-        foreach(array_keys($availableTypes) as $k) {
-          // We use edit for the permission even if we're adding or viewing because
-          // add has different semantics for calculatePermission (whether or not the person
-          // can add a new item).
-          if(!$this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
-                                                                     $req,
-                                                                     'edit',
-                                                                     $k)) {
-            unset($availableTypes[$k]);
+        $this->set('vv_available_types', $model->defaultTypes('type'));
+      } else {
+        // When attached to a CO Person or Role, figure out the available extended
+        // types and then filter for self service permissions
+        
+        $availableTypes = $model->types($this->cur_co['Co']['id'], 'type');
+        
+        if(!empty($this->viewVars['permissions']['selfsvc'])
+           && !$this->Role->isCoOrCouAdmin($this->Session->read('Auth.User.co_person_id'),
+                                           $this->cur_co['Co']['id'])) {
+          // For models supporting self service permissions, adjust the available types
+          // in accordance with the configuration (but not if self is an admin)
+          
+          foreach(array_keys($availableTypes) as $k) {
+            // We use edit for the permission even if we're adding or viewing because
+            // add has different semantics for calculatePermission (whether or not the person
+            // can add a new item).
+            if(!$this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
+                                                                       $req,
+                                                                       'edit',
+                                                                       $k)) {
+              unset($availableTypes[$k]);
+            }
           }
         }
+        
+        $this->set('vv_available_types', $availableTypes);
       }
-      
-      $this->set('vv_available_types', $availableTypes);
     }
     
     parent::beforeRender();
@@ -140,7 +143,9 @@ class MVPAController extends StandardController {
     $req = $this->modelClass;
     $model = $this->$req;
     
-    if(!empty($this->viewVars['permissions']['selfsvc'])) {
+    if(!empty($this->viewVars['permissions']['selfsvc'])
+       && !$this->Role->isCoOrCouAdmin($this->Session->read('Auth.User.co_person_id'),
+                                       $this->cur_co['Co']['id'])) {
       // Update validation rules based on self-service permissions
       
       $defaultPerm = $this->viewVars['permissions']['selfsvc'][$req]['*'];

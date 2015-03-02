@@ -2,7 +2,7 @@
 /**
  * COmanage Registry History Record Model
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
@@ -133,7 +133,7 @@ class HistoryRecord extends AppModel {
    * @throws RuntimeException
    */
   
-  function record($coPersonID, $coPersonRoleID, $orgIdentityId, $actorCoPersonID, $action, $comment=null) {
+  public function record($coPersonID, $coPersonRoleID, $orgIdentityId, $actorCoPersonID, $action, $comment=null) {
     $historyData = array();
     $historyData['HistoryRecord']['co_person_id'] = $coPersonID;
     $historyData['HistoryRecord']['co_person_role_id'] = $coPersonRoleID;
@@ -147,6 +147,13 @@ class HistoryRecord extends AppModel {
       // Figure out a default value
       $historyData['HistoryRecord']['comment'] = _txt('en.action', null, $action);
     }
+    
+    // Make sure $comment fits within the available length
+    $limit = $this->validate['comment']['rule'][1];
+    
+    $historyData['HistoryRecord']['comment'] = substr($historyData['HistoryRecord']['comment'],
+                                                      0,
+                                                      $limit);
     
     // Call create since we might have multiple history records written in a transaction
     $this->create($historyData);

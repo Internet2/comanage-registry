@@ -810,7 +810,7 @@ body .ui-tooltip {
 }
 .ui-widget-header {
   /*border: 1px solid #4297d7;*/
-  background: #8dbbdd url(images/ui-bg_gloss-wave_30_8dbbdd_500x100.png) 50% 50% repeat-x;
+  background: #8FBCDB url(images/ui-bg_gloss-wave_30_8dbbdd_500x100.png) top left repeat-x;
   color: #ffffff;
   font-weight: bold;
 }

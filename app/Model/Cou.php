@@ -136,23 +136,68 @@ class Cou extends AppModel {
     
     return(array());
   }
+  
+  /**
+   * Actions before deleting a Cou. Currently delete admin and members groups.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  boolean Whether this is a cascading delete
+   * @return true for the actual delete to happen
+   * @see Model::beforeDelete()
+   */
+  
+  public function beforeDelete($cascade) {
+      // Call AppModel parent beforeDelete first so that any
+      // plugins that need to be consulted are so consulted
+      // first.
+      parent::beforeDelete($cascade);
+      
+      // Delete the associated admin and members groups.
+      // The checkDeleteDependencies method on the CousController will
+      // only call delete if there are no roles in the COU and the
+      // COU is really being deleted so we do not have to worry about
+      // that here.
+      $conditions = array();
+      $conditions['Cou.id'] = $this->id;
+      
+      $args = array();
+      $args['conditions'] = $conditions;
+      $args['contain']['Co'] = 'CoGroup';
+      
+      $cou = $this->find('first', $args);
+      $couName = $cou['Cou']['name'];
+      
+      foreach($cou['Co']['CoGroup'] as $group) {
+          $groupName = $group['name'];
+          if($groupName == ('admin:' . $couName)) {
+          	// Delete the admin group.
+            $this->Co->CoGroup->delete($group['id']);
+          } elseif($groupName == 'members:' . $couName) {
+          	// Delete the members group.
+            $this->Co->CoGroup->delete($group['id']);
+          }
+      }
+      
+      // Return true so that the delete actually happens.
+  		return true;
+  }
 
   /**
    * Generates dropdown option list for html for a COU.
    *
    * @since  COmanage Registry v0.3
    * @param  integer COU that needs parent options; NULL if new
+   * @param  integer CO ID
    * @return Array Array of [id] => [name]
    */
   
-  public function potentialParents($currentCou) {
-    // Editing an existing COU requires removing it and its children
-    if($currentCou != NULL)
-    {
+  public function potentialParents($currentCou, $coId) {
+    // Editing an existing COU requires removing it and its children from the list of potential parents
+    if($currentCou) {
       // Find this COU and its children
       $childrenArrays = $this->children($currentCou, false, 'id');
       $childrenList = Set::extract($childrenArrays, '{n}.Cou.id');
-
+      
       // Set up filter to ignore children
       $conditions = array(
                     'AND' => array(
@@ -163,16 +208,17 @@ class Cou extends AppModel {
                         )
                       ),
                       array(
-                        array('Cou.co_id' => $this->data['Cou']['co_id'] )
+                        array('Cou.co_id' => $coId)
                       )
                     )
                   );
     }
+    
     // Create options list all other COUS in CO
     $optionArrays = $this->find('all', array('conditions' => $conditions) );
     $optionList = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name');
-
-    return($optionList);
+    
+    return $optionList;
   }
 
   /**
@@ -224,25 +270,22 @@ class Cou extends AppModel {
    *
    * @since  COmanage Registry v0.3
    * @param  integer COU ID to check
+   * @param  integer CO ID
    * @return boolean True if member, false otherwise
    */
   
-  public function isCoMember($couId) {
-    // Query for COU in this CO
-    $conditions = array("Cou.id" => $couId);
-
-    $dataOfCou = $this->find('first', array('conditions'=>$conditions));
-    
-    if(!empty($dataOfCou)) {
-      $coOfCou = $dataOfCou['Co']['id'];
-      $currentCou = $this->data['Cou']['co_id'];
-      
-      if($coOfCou == $currentCou) {
-        return true;
-      }
-    }
-    
-    return false;
+  public function isInCo($couId, $coId) {
+  	$args = array();
+  	$args['conditions']['Cou.id'] = $couId;
+  	$args['contain'] = false;
+  
+  	$couData = $this->find('first', $args);
+  
+  	if(!empty($couData['Cou']['co_id'])
+  			&& $couData['Cou']['co_id'] == $coId) {
+  				return true;
+  			}
+  			return false;
   }
 
   /**

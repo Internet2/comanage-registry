@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO VOOT Controller **EXPERIMENTAL**
  *
- * Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-3 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -53,7 +53,7 @@ class VootController extends StandardController {
   
   function beforeFilter() {
     // Force restful, since by definition we are
-    $this->restful = true;
+    $this->request->addDetector('restful', array('callback' => function ($request) { return true; }));
     
     // Run the auth check
     parent::beforeFilter();
@@ -91,15 +91,15 @@ class VootController extends StandardController {
       }
       catch(InvalidArgumentException $e) {
         if($e->getMessage() == _txt('er.id.unk')) {
-          $this->restResultHeader(404, "Identifier Unknown");
+          $this->Api->restResultHeader(404, "Identifier Unknown");
         } else {
-          $this->restResultHeader(404, "CO Person Unknown");
+          $this->Api->restResultHeader(404, "CO Person Unknown");
         }
         $this->response->send();
         exit;
       }
     } else {
-      $this->restResultHeader(400, "Bad Request");
+      $this->Api->restResultHeader(400, "Bad Request");
       $this->response->send();
       exit;
     }
@@ -188,9 +188,9 @@ class VootController extends StandardController {
       
       // We also need to pass member/ownership in these groups for the view
       $this->set('co_group_members', $memberships);
-      $this->restResultHeader(200, "OK");
+      $this->Api->restResultHeader(200, "OK");
     } else {
-      $this->restResultHeader(400, "Bad Request");
+      $this->Api->restResultHeader(400, "Bad Request");
     }
   }
   
@@ -248,9 +248,9 @@ class VootController extends StandardController {
       $args['fields'][] = 'CoGroupMember.co_person_id';
       
       $this->set('co_group_owners', array_values($this->CoGroupMember->find('list', $args)));
-      $this->restResultHeader(200, "OK");
+      $this->Api->restResultHeader(200, "OK");
     } else {
-      $this->restResultHeader(400, "Bad Request");
+      $this->Api->restResultHeader(400, "Bad Request");
     }
   }
 }

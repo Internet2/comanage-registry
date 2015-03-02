@@ -334,7 +334,7 @@ $(function() {
           <?php endif; // add ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.affiliation'); ?><span class="required">*</span>
+              <?php echo _txt('fd.affiliation'); ?>
             </td>
             <td>
               <?php
@@ -342,7 +342,7 @@ $(function() {
                 $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['affiliation'])
                                    ? $org_identities[0]['OrgIdentity']['affiliation']
                                    : "M");
-                $attrs['empty'] = false;
+                $attrs['empty'] = true;
 
                 if($e) {
                   print $this->Form->select('affiliation',

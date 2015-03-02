@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Model
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -147,7 +147,7 @@ class CoPetition extends AppModel {
   // Enum type hints
   
   public $cm_enum_types = array(
-    'status' => 'status_t'
+    'status' => 'StatusEnum'
   );
   
   /**
@@ -696,6 +696,10 @@ class CoPetition extends AppModel {
     
     if($coPersonRoleID) {
       $coPetitionData['CoPetition']['enrollee_co_person_role_id'] = $coPersonRoleID;
+    }
+    
+    if(!empty($requestData['EnrolleeCoPersonRole']['sponsor_co_person_id'])) {
+      $coPetitionData['CoPetition']['sponsor_co_person_id'] = $requestData['EnrolleeCoPersonRole']['sponsor_co_person_id'];
     }
     
     // Figure out the petitioner person ID. As of now, it is the authenticated
@@ -1398,7 +1402,7 @@ class CoPetition extends AppModel {
                                                        PetitionActionEnum::IdentifiersAssigned,
                                                        _txt('rs.ia.ok') . " (" . implode(',', $assigned) . ")");
               }
-              catch (Exception $e) {
+              catch(Exception $e) {
                 $fail = true;
               }
             }

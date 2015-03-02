@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Member Model
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -64,6 +64,60 @@ class CoGroupMember extends AppModel {
     )
   );
 
+  /**
+   * Add a membership in a CO Group given by name. This
+   * method directly creates a history record with an
+   * anonymous actor since this is primarily used for
+   * COU members group management.
+   * 
+   * @since COmanage Registry v0.9.3
+   * @param Integer CO Person ID
+   * @param String name of CO Group
+   * @param Boolean owner 
+   */
+  function addByGroupName($coPersonId, $groupName, $owner = false) {
+    // Find the CO using CO person.
+    $args = array();
+    $args['conditions']['CoPerson.id'] = $coPersonId;
+    $args['contain'] = false;
+    $coPerson = $this->CoPerson->find('first', $args);
+    $coId = $coPerson['CoPerson']['co_id'];
+
+    // Find the group in CO using name.
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['conditions']['CoGroup.name'] = $groupName;
+    $args['contain'] = false;
+    $group = $this->CoPerson->Co->CoGroup->find('first', $args);
+    if(empty($group)) {
+      return;
+    }
+    
+    // Add the membership.
+    $this->clear();
+    $data = array();
+    $data['CoGroupMember']['co_group_id'] = $group['CoGroup']['id'];
+    $data['CoGroupMember']['co_person_id'] = $coPersonId;
+    $data['CoGroupMember']['member'] = true;
+    $data['CoGroupMember']['owner'] = $owner;
+    $this->save($data);
+    
+    // Cut a history record.
+    try {
+      $msgData = array(
+        $group['CoGroup']['name'],
+        $group['CoGroup']['id'],
+        _txt('fd.yes'),
+        _txt('fd.no')
+       );                  
+      $msg = _txt('rs.grm.added', $msgData);
+      $this->CoPerson->HistoryRecord->record($coPersonId, null, null, null, ActionEnum::CoGroupMemberAdded, $msg);
+    } catch(Exception $e) {
+      $msg = _txt('er.grm.history', array($coPersonId, $group['CoGroup']['name']));
+      $this->log($msg);
+    }      
+  }
+  
   /**
    * Obtain the member roles for a CO Group.
    *
@@ -130,6 +184,43 @@ class CoGroupMember extends AppModel {
     return $ret;
   }
   
+  /**
+   * Obtain all group members for a CO Group.
+   *
+   * @since  COmanage Registry v0.9.2
+   * @param  Integer CO Group ID
+   * @param  Integer Maximium number of results to retrieve (or null)
+   * @param  Integer Offset to start retrieving results from (or null)
+   * @param  String Field to sort by (or null)
+   * @return Array Group information, as returned by find
+   * @todo   Rewrite to a custom find type
+   */
+  
+  public function findForCoGroup($coGroupId, $limit=null, $offset=null, $order=null) {
+    $args = array();
+    $args['joins'][0]['table'] = 'co_groups';
+    $args['joins'][0]['alias'] = 'CoGroup';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
+    $args['conditions']['CoGroup.status'] = StatusEnum::Active;
+    $args['conditions']['CoGroup.id'] = $coGroupId;
+    $args['contain'] = false;
+    
+    if($limit) {
+      $args['limit'] = $limit;
+    }
+    
+    if($offset) {
+      $args['offset'] = $offset;
+    }
+    
+    if($order) {
+      $args['order'] = $order;
+    }
+    
+    return $this->find('all', $args);
+  }
+
   /**
    * Map a set of CO Group Members to their Identifiers. Based on a similar function in CoLdapProvisionerDn.php.
    *
@@ -198,6 +289,14 @@ class CoGroupMember extends AppModel {
         $args['contain'] = false;
         
         $grp = $this->CoGroup->find('first', $args);
+        
+        // If this is a members group for CO or COU then 
+        // go onto the next membership.
+        if(isset($grp)) {
+          if($this->CoGroup->isMembersGroup($grp)) {
+            continue;
+          }
+        }
         
         if(empty($grp)) {
           throw new InvalidArgumentException(_txt('er.gr.nf', array($m['co_group_id'])));

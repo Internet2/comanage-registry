@@ -205,11 +205,18 @@
           $descTypeCount = count(array_count_values($descriptions));
           
           if($descTypeCount == 1 && !empty($coe_attributes[0]['description'])) {
-            print "</br>\n<span class=\"desc\">" . $ea['description'] . "</span>\n";
+            print "</br>\n<span class=\"desc\">" . $coe_attributes[0]['description'] . "</span>\n";
             $groupDesc = true; // Set flag for later
           }
           
-          if($mvpa && !$coe_attributes[0]['mvpa_required']) {
+          if($mvpa
+             && !$coe_attributes[0]['mvpa_required']
+             // For attributes that are popup/checklist only, this warning doesn't make sense.
+             // There's not a good way to figure out which from the configuration, so we
+             // just hardcode a list here.
+             && ($coe_attributes[0]['attribute'] != 'g:co_group_member'
+                 &&
+                 strncmp($coe_attributes[0]['attribute'], 'i:identifier:', 13))) {
             print "<br /><span class=\"required\">" . _txt('fd.pt.required') . "</span>\n";
           }
         ?>

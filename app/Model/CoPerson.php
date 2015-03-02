@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Model
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -170,8 +170,69 @@ class CoPerson extends AppModel {
   );
   
   public $cm_enum_types = array(
-    'status' => 'status_t'
+    'status' => 'StatusEnum'
   );
+  
+  /**
+   * Execute logic after a CO Person save operation.
+   * For now manage membership of CO Person in members group.
+   *
+   * @since  COmanage Registry v0.9.3
+   * @param  boolean true if a new record was created (rather than update)
+   * @param  array, the same passed into Model::save()
+   * @return none
+   */
+  
+  public function afterSave($created, $options) {
+    // Manage CO person membership in the CO members group.
+      
+    // Since the Provisioner Behavior will only provision group memberships
+    // for CO People with an Active status we do not need to manage 
+    // membership in the members group based on status here.  So we only
+    // add a CO Person to the members group upon creation and then leave
+    // it there. 
+    if($created) {
+        $coPersonId = $this->data[$this->alias]['id'];
+        $coid = $this->data[$this->alias]['co_id'];
+        
+        // Find the members group for this CO.    
+        $args = array();
+        $args['conditions']['CoGroup.name'] = 'members';
+        $args['conditions']['CoGroup.co_id'] = $coid;
+        $args['contain'] = false;
+        $membersgroup = $this->CoGroupMember->CoGroup->find('first', $args);
+        
+        // The members group may not exist if a deployment was upgraded and not
+        // reconciled so in that case just silently return.
+        if(empty($membersgroup)) {
+          return;
+        }
+            
+        // Create the membership in the members group.
+        $data = array();
+        $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
+        $data['CoGroupMember']['co_person_id'] = $coPersonId;
+        $data['CoGroupMember']['member'] = true;
+            
+        $this->CoGroupMember->save($data);
+        
+        // Cut a history record.
+        try {
+          $msgData = array(
+            'members',
+            $membersgroup['CoGroup']['id'],
+            _txt('fd.yes'),
+            _txt('fd.no')
+          );                  
+          $msg = _txt('rs.grm.added', $msgData);
+          $this->HistoryRecord->record($coPersonId, null, null, null, ActionEnum::CoGroupMemberAdded, $msg);
+        } catch(Exception $e) {
+          $msg = _txt('er.grm.history.members', array($coPersonId));
+          $this->log($msg);
+        }      
+      
+    }
+  }
   
   /**
    * Completely purge a CO Person. This will cascade deletes past where normal

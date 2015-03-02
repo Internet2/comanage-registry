@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Provisioner Behavior
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -25,11 +25,28 @@
 // Behaviors don't have access to sessions by default
 App::uses('CakeSession', 'Model/Datasource');
 
-// Direct calls using models necessary since may use Grouper data source.
-App::uses('CoGroupMember', 'Model');
-App::uses('CoGroup', 'Model');
-
 class ProvisionerBehavior extends ModelBehavior {
+  /**
+   * Specify which statuses provision which type of data
+   */
+  
+  protected $groupStatuses = array(
+    StatusEnum::Active,
+    StatusEnum::GracePeriod
+  );
+  
+  protected $personStatuses = array(
+    StatusEnum::Active,
+    StatusEnum::Expired,
+    StatusEnum::GracePeriod,
+    StatusEnum::Suspended
+  );
+  
+  protected $roleStatuses = array(
+    StatusEnum::Active,
+    StatusEnum::GracePeriod
+  );
+  
   /**
    * Handle provisioning following delete of Model.
    *
@@ -102,15 +119,15 @@ class ProvisionerBehavior extends ModelBehavior {
     $copid = null; // CO Person ID, not to be confused with $coPersonId, used below
     $gmodel = null;
     
-    // If a CO Person status has changed to or from Active, find all the groups
-    // with which that person has an association and rewrite them.
+    // If a CO Person status has changed to or from a status that triggers group provisioning,
+    // find all the groups with which that person has an association and rewrite them.
     
     if($model->name == 'CoPerson') {
       if(isset($model->cacheData[ $model->alias ]['status'])
          && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
-         && ($model->cacheData[ $model->alias ]['status'] == StatusEnum::Active
-             || $model->data[ $model->alias ]['status'] == StatusEnum::Active)) {
-        // We have a CO Person status change to or from Active. Trigger a rewrite
+         && (in_array($model->cacheData[ $model->alias ]['status'], $this->groupStatuses)
+             || in_array($model->data[ $model->alias ]['status'], $this->groupStatuses))) {
+        // We have a CO Person status change to or from a relevant status. Trigger a rewrite
         // of all groups of which the person is a member.
         
         $syncGroups = true;
@@ -168,47 +185,6 @@ class ProvisionerBehavior extends ModelBehavior {
       }
     }
     
-    if($gmodel){
-      foreach($coGroupIds as $coGroupId) {
-        try {
-          $pdata = $this->marshallCoGroupData($gmodel, $coGroupId);
-        }
-        catch(InvalidArgumentException $e) {
-          throw new InvalidArgumentException($e->getMessage());
-        }
-        
-        $paction = ProvisioningActionEnum::CoGroupUpdated;
-        
-        // It's only an add operation if the model is CoPerson
-        if($created && $model->name == 'CoGroup') {
-          $paction = ProvisioningActionEnum::CoGroupAdded;
-        }
-        
-        // Invoke all provisioning plugins
-        
-        try {
-          $this->invokePlugins($gmodel,
-                               $pdata,
-                               $paction);
-        }    
-        // What we really want to do here is catch the result (success or exception)
-        // and set the appropriate session flash message, but we don't have access to
-        // the current session, and anyway that doesn't cover RESTful interactions.
-        // So instead we syslog (which is better than nothing).
-        catch(InvalidArgumentException $e) {
-          syslog(LOG_ERR, $e->getMessage());
-          //throw new InvalidArgumentException($e->getMessage());
-        }
-        catch(RuntimeException $e) {
-          syslog(LOG_ERR, $e->getMessage());
-          //throw new RuntimeException($e->getMessage());
-        }
-      }
-    }
-    // else we could be CoGroupMember being promoted to afterSave in the middle of
-    // a CoGroup being deleted. In that scenario, we don't actually need to try
-    // to re-provision the CoGroup, so just move on to the person.
-    
     if($model->name != 'CoGroup'
        // If a group goes to or from Active, we need to rewrite its members (or really their group memberships)
        || (isset($model->cacheData[ $model->alias ]['status'])
@@ -218,28 +194,28 @@ class ProvisionerBehavior extends ModelBehavior {
       // First, find the co_person_id (directly or indirectly) and pull the record.
       // We could have more than one if an Org Identity is updated.
       
-      $coPersonId = array();
+      $coPersonIds = array();
       
       if($model->name == 'CoPerson'
          && !empty($model->data['CoPerson']['id'])) {
         $pmodel = $model;
-        $coPersonId[] = $model->data['CoPerson']['id'];
-      } elseif($model->name == 'EnrolleeCoPerson'
+        $coPersonIds[] = $model->data['CoPerson']['id'];
+      } elseif($model->alias == 'EnrolleeCoPerson'
          && !empty($model->data['EnrolleeCoPerson']['id'])) {
         // Petitions present an EnrolleeCoPerson, not a CoPerson
         $pmodel = $model;
-        $coPersonId[] = $model->data['EnrolleeCoPerson']['id'];
+        $coPersonIds[] = $model->data['EnrolleeCoPerson']['id'];
       } elseif(!empty($model->data[ $model->name ]['co_person_id'])) {
         $pmodel = $model->CoPerson;
-        $coPersonId[] = $model->data[ $model->name ]['co_person_id'];
+        $coPersonIds[] = $model->data[ $model->name ]['co_person_id'];
       } elseif(!empty($model->data[ $model->name ]['co_person_role_id'])) {
         $pmodel = $model->CoPersonRole->CoPerson;
-        $coPersonId[] = $model->CoPersonRole->field('co_person_id',
+        $coPersonIds[] = $model->CoPersonRole->field('co_person_id',
                                                     array('id' => $model->data[ $model->name ]['co_person_role_id']));
       } elseif($model->name == 'CoPersonRole' && !empty($model->data['CoPersonRole']['id'])) {
         // eg: for saveField called via CoExpirationPolicy::executePolicies()
         $pmodel = $model->CoPerson;
-        $coPersonId[] = $model->field('co_person_id',
+        $coPersonIds[] = $model->field('co_person_id',
                                       array('id' => $model->data['CoPersonRole']['id']));
       } elseif($model->name == 'Identifier'
                && !empty($model->data['Identifier']['org_identity_id'])
@@ -256,7 +232,7 @@ class ProvisionerBehavior extends ModelBehavior {
         $cpids = $model->OrgIdentity->CoOrgIdentityLink->find("list", $args);
         
         if(!empty($cpids)) {
-          $coPersonId = array_values($cpids);
+          $coPersonIds = array_values($cpids);
         }
         
         $pmodel = $model->CoPerson;
@@ -271,7 +247,7 @@ class ProvisionerBehavior extends ModelBehavior {
         $gms = $model->CoGroupMember->find('list', $args);
         
         if(!empty($gms)) {
-          $coPersonId = array_values($gms);
+          $coPersonIds = array_values($gms);
           $pmodel = $model->CoGroupMember->CoPerson;
         }
       } else {
@@ -281,59 +257,29 @@ class ProvisionerBehavior extends ModelBehavior {
         
         return true;
       }
-      
-      foreach($coPersonId as $cpid) {
-        // $cpid could be null during a delete operation. If so, we're probably
-        // in the process of removing a related model, so just skip it.
-        if(empty($cpid)) {
-          continue;
-        }
-        
-        try {
-          $pdata = $this->marshallCoPersonData($pmodel, $cpid);
-        }
-        catch(InvalidArgumentException $e) {
-          throw new InvalidArgumentException($e->getMessage());
-        }
-        
-        // Make sure CO Person data was retrieved (it won't be for certain operations
-        // surrounding CO Person delete)
-        
-        if(empty($pdata['CoPerson'])) {
-          continue;
-        }
-        
-        // Determine the provisioning action
-        
-        // For now, we don't support CoPersonEnteredGracePeriod, CoPersonExpired,
-        // or CoPersonUnexpired.
-        
-        $paction = ProvisioningActionEnum::CoPersonUpdated;
-        
-        // It's only an add operation if the model is CoPerson
-        if($created && $model->name == 'CoPerson') {
-          $paction = ProvisioningActionEnum::CoPersonAdded;
-        }
-        
-        // Invoke all provisioning plugins
-        
-        try {
-          $this->invokePlugins($pmodel,
-                               $pdata,
-                               $paction);
-        }    
-        // What we really want to do here is catch the result (success or exception)
-        // and set the appropriate session flash message, but we don't have access to
-        // the current session, and anyway that doesn't cover RESTful interactions.
-        // So instead we syslog (which is better than nothing).
-        catch(InvalidArgumentException $e) {
-          syslog(LOG_ERR, $e->getMessage());
-          //throw new InvalidArgumentException($e->getMessage());
-        }
-        catch(RuntimeException $e) {
-          syslog(LOG_ERR, $e->getMessage());
-          //throw new RuntimeException($e->getMessage());
-        }
+    }
+    
+    // We need to be careful about the order in which we provision people and groups,
+    // since if a person's identifier changes we may need the provisioner to update
+    // its references (eg: DNs) before the group updates fire, and vice versa.
+    // The order depends on which model we were called via.
+    
+    if($model->name == 'CoGroup') {
+      if($gmodel) {
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created);
+      }
+      // else we could be CoGroupMember being promoted to afterSave in the middle of
+      // a CoGroup being deleted. In that scenario, we don't actually need to try
+      // to re-provision the CoGroup, so just move on to the person.
+      if($pmodel) {
+        $this->provisionPeople($model, $pmodel, $coPersonIds, $created);
+      }
+    } else {
+      if($pmodel) {
+        $this->provisionPeople($model, $pmodel, $coPersonIds, $created);
+      }
+      if($gmodel) {
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created);
       }
     }
     
@@ -677,7 +623,8 @@ class ProvisionerBehavior extends ModelBehavior {
         // Count backwards so we don't trip over indices when we unset invalid memberships.
         
         if(!isset($coGroupData['CoGroupMember'][$i]['CoPerson']['status'])
-           || $coGroupData['CoGroupMember'][$i]['CoPerson']['status'] != StatusEnum::Active) {
+           || !in_array($coGroupData['CoGroupMember'][$i]['CoPerson']['status'],
+                        $this->groupStatuses)) {
           unset($coGroupData['CoGroupMember'][$i]);
         }
       }
@@ -702,13 +649,12 @@ class ProvisionerBehavior extends ModelBehavior {
   
   private function marshallCoPersonData($coPersonModel, $coPersonId) {
     $args = array();
-    $args['conditions']['CoPerson.id'] = $coPersonId;
+    $args['conditions'][$coPersonModel->alias.'.id'] = $coPersonId;
     // Only pull related models relevant for provisioning
     $args['contain'] = array(
       'Co',
-      // Group information handled directly below to support Grouper use case.
-      //'CoGroupMember',
-      //'CoGroupMember.CoGroup',
+      'CoGroupMember',
+      'CoGroupMember.CoGroup',
       'CoOrgIdentityLink',
       // We normally don't pull org identity data, but we'll make an exception
       // for Identifier to be able to expose eppn
@@ -725,28 +671,6 @@ class ProvisionerBehavior extends ModelBehavior {
     
     $coPersonData = $coPersonModel->find('first', $args);
     
-    // Directly query for all group memberships instead of using
-    // relations in order to support Grouper use cases.
-    $coGroupMemberModel = new CoGroupMember();
-    
-    $args = array();
-    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
-
-    $memberships = $coGroupMemberModel->find('all', $args);
-
-    $coPersonData['CoGroupMember'] = array();
-    foreach ($memberships as &$m) {
-      $groupId = $m['CoGroupMember']['co_group_id'];
-      $coGroupModel = new CoGroup();
-
-      $args = array();
-      $args['conditions']['CoGroup.id'] = $groupId;
-
-      $group = $coGroupModel->find('first', $args);
-      $m['CoGroupMember']['CoGroup'] = $group['CoGroup'];
-      $coPersonData['CoGroupMember'][] = $m['CoGroupMember'];
-    }
-
     if(empty($coPersonData)) {
       throw new InvalidArgumentException(_txt('er.cop.unk'));
     }
@@ -755,17 +679,17 @@ class ProvisionerBehavior extends ModelBehavior {
     // (even if those are active) and group memberships, but leave the rest of the
     // data in tact.
     
-    // Remove any role records that are not active
+    // Remove any role records that are not valid for provisioning
     
     if(!empty($coPersonData['CoPersonRole'])) {
       for($i = (count($coPersonData['CoPersonRole']) - 1);$i >= 0;$i--) {
         // Count backwards so we don't trip over indices when we unset invalid roles.
-        // The role record must have a valid status (for now: Active), be within validity window,
+        // The role record must have a valid status, be within validity window,
         // and be attached to a valid CO Person.
         
-        if($coPersonData['CoPerson']['status'] != StatusEnum::Active
+        if(!in_array($coPersonData[$coPersonModel->alias]['status'], $this->personStatuses)
            ||
-           $coPersonData['CoPersonRole'][$i]['status'] != StatusEnum::Active
+           !in_array($coPersonData['CoPersonRole'][$i]['status'], $this->roleStatuses)
            ||
            (!empty($coPersonData['CoPersonRole'][$i]['valid_from'])
             && strtotime($coPersonData['CoPersonRole'][$i]['valid_from']) >= time())
@@ -795,7 +719,9 @@ class ProvisionerBehavior extends ModelBehavior {
       for($i = (count($coPersonData['CoGroupMember']) - 1);$i >= 0;$i--) {
         // Count backwards so we don't trip over indices when we unset invalid memberships.
         
-        if($coPersonData['CoPerson']['status'] != StatusEnum::Active
+        // We need for CO Person to be in a status that provisions *group* memberships here,
+        // not a status for person provisioning
+        if(!in_array($coPersonData[$coPersonModel->alias]['status'], $this->groupStatuses)
            ||
            $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active) {
           unset($coPersonData['CoGroupMember'][$i]);
@@ -808,6 +734,144 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     return $coPersonData;
+  }
+  
+  /**
+   * Provision group data.
+   *
+   * @param Object $model Invoking model
+   * @param Object $gmodel Group model
+   * @param Array $coGroupIds Array of group IDs to provision
+   * @param Boolean $created As passed to afterSave()
+   * @return Boolean
+   * @throws InvalidArgumentException
+   */
+  
+  protected function provisionGroups($model, $gmodel, $coGroupIds, $created) {
+    foreach($coGroupIds as $coGroupId) {
+      try {
+        $pdata = $this->marshallCoGroupData($gmodel, $coGroupId);
+      }
+      catch(InvalidArgumentException $e) {
+        throw new InvalidArgumentException($e->getMessage());
+      }
+      
+      $paction = ProvisioningActionEnum::CoGroupUpdated;
+      
+      // It's only an add operation if the model is CoGroup
+      if($created && $model->name == 'CoGroup') {
+        $paction = ProvisioningActionEnum::CoGroupAdded;
+      }
+      
+      // Invoke all provisioning plugins
+      
+      try {
+        $this->invokePlugins($gmodel,
+                             $pdata,
+                             $paction);
+      }    
+      // What we really want to do here is catch the result (success or exception)
+      // and set the appropriate session flash message, but we don't have access to
+      // the current session, and anyway that doesn't cover RESTful interactions.
+      // So instead we syslog (which is better than nothing).
+      catch(InvalidArgumentException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new InvalidArgumentException($e->getMessage());
+      }
+      catch(RuntimeException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new RuntimeException($e->getMessage());
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Provision people data.
+   *
+   * @param Object $model Invoking model
+   * @param Object $gmodel Person model
+   * @param Array $coPersonIds Array of person IDs to provision
+   * @param Boolean $created As passed to afterSave()
+   * @return Boolean
+   * @throws InvalidArgumentException
+   */
+  
+  protected function provisionPeople($model, $pmodel, $coPersonIds, $created) {
+    foreach($coPersonIds as $cpid) {
+      // $cpid could be null during a delete operation. If so, we're probably
+      // in the process of removing a related model, so just skip it.
+      if(empty($cpid)) {
+        continue;
+      }
+      
+      try {
+        $pdata = $this->marshallCoPersonData($pmodel, $cpid);
+      }
+      catch(InvalidArgumentException $e) {
+        throw new InvalidArgumentException($e->getMessage());
+      }
+      
+      // Re-key $pdata when the person alias is EnrolleeCoPerson to make
+      // everything else work more smoothly
+      
+      if($model->alias == 'EnrolleeCoPerson' && !empty($pdata['EnrolleeCoPerson'])) {
+        $pdata['CoPerson'] = $pdata['EnrolleeCoPerson'];
+        unset($pdata['EnrolleeCoPerson']);
+      }
+      
+      // Make sure CO Person data was retrieved (it won't be for certain operations
+      // surrounding CO Person delete)
+      
+      if(empty($pdata['CoPerson'])) {
+        continue;
+      }
+      
+      // Determine the provisioning action
+      
+      $paction = ProvisioningActionEnum::CoPersonUpdated;
+      
+      if($model->name == 'CoPerson') {
+        if($created) {
+          // It's only an add operation if the model is CoPerson
+          $paction = ProvisioningActionEnum::CoPersonAdded;
+        } elseif(!empty($model->cacheData[ $model->alias ]['status'])) {
+          if($model->data[ $model->alias ]['status'] == StatusEnum::GracePeriod
+             && $model->cacheData[ $model->alias ]['status'] != StatusEnum::GracePeriod) {
+            $paction = ProvisioningActionEnum::CoPersonEnteredGracePeriod;
+          } elseif($model->data[ $model->alias ]['status'] == StatusEnum::Expired
+             && $model->cacheData[ $model->alias ]['status'] != StatusEnum::Expired) {
+            $paction = ProvisioningActionEnum::CoPersonExpired;
+          } elseif($model->data[ $model->alias ]['status'] != StatusEnum::Expired
+             && $model->cacheData[ $model->alias ]['status'] == StatusEnum::Expired) {
+            $paction = ProvisioningActionEnum::CoPersonUnexpired;
+          }
+        }
+      }
+      
+      // Invoke all provisioning plugins
+      
+      try {
+        $this->invokePlugins($pmodel,
+                             $pdata,
+                             $paction);
+      }    
+      // What we really want to do here is catch the result (success or exception)
+      // and set the appropriate session flash message, but we don't have access to
+      // the current session, and anyway that doesn't cover RESTful interactions.
+      // So instead we syslog (which is better than nothing).
+      catch(InvalidArgumentException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new InvalidArgumentException($e->getMessage());
+      }
+      catch(RuntimeException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new RuntimeException($e->getMessage());
+      }
+    }
+    
+    return true;
   }
   
   /**

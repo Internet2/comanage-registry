@@ -23,6 +23,5 @@
  */
 -->
 <div id="firstPrompt">
-  <h2><?php print _txt('op.home.select', array($cur_co['Co']['name']));
-  ?></h2>
+  <?php print _txt('op.dashboard.select', array($cur_co['Co']['name']));?>
 </div>

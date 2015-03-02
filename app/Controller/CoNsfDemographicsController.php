@@ -67,7 +67,7 @@ class CoNsfDemographicsController extends StandardController {
     if($this->action == 'edit')
     {
       // Pass previously selected options
-      if($this->restful)
+      if($this->request->is('restful'))
         $options = $this->CoNsfDemographic->extractOptions($this->request['data']['CoNsfDemographics'][0]);
       else
         $options = $this->CoNsfDemographic->extractOptions($this->data['CoNsfDemographic']);
@@ -114,7 +114,7 @@ class CoNsfDemographicsController extends StandardController {
   
   function checkWriteDependencies($reqdata, $curdata = null) {
     // Look up id to check validity
-    if($this->restful) {
+    if($this->request->is('restful')) {
       $personid = $reqdata['CoNsfDemographic'][0]['co_person_id'];
     } else {
       $personid = $reqdata['CoNsfDemographic']['co_person_id'];
@@ -131,8 +131,8 @@ class CoNsfDemographicsController extends StandardController {
     // If not valid, return error
     if($rowCount < 1)
     {
-      if($this->restful)
-        $this->restResultHeader(403, "CoPerson Does Not Exist");
+      if($this->request->is('restful'))
+        $this->Api->restResultHeader(403, "CoPerson Does Not Exist");
       else
         $this->Session->setFlash(_txt('er.cop.unk'), '', array(), 'error');
 
@@ -155,8 +155,8 @@ class CoNsfDemographicsController extends StandardController {
     // If a row for a CoPerson Id already exists when trying to add a new row, throw error
     if(!empty($rowId) && ($this->action == 'add'))
     {
-      if($this->restful)
-        $this->restResultHeader(403, "CoNsfDemographic Data Already Exists");
+      if($this->request->is('restful'))
+        $this->Api->restResultHeader(403, "CoNsfDemographic Data Already Exists");
       else
         $this->Session->setFlash(_txt('er.nd.already'), '', array(), 'error');
 
@@ -178,7 +178,7 @@ class CoNsfDemographicsController extends StandardController {
     if(!empty($this->request->data))
     {
       // Data doesn't already exist so encode for writing
-      if($this->restful)
+      if($this->request->is('restful'))
         $encoded = $this->CoNsfDemographic->encodeOptions($this->request['data']['CoNsfDemographics'][0]);
       else
         $encoded = $this->CoNsfDemographic->encodeOptions($this->request->data['CoNsfDemographic']);
