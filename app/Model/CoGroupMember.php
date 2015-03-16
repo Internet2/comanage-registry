@@ -292,13 +292,11 @@ class CoGroupMember extends AppModel {
         
         // If this is a members group for CO or COU then 
         // go onto the next membership.
-        if(isset($grp)) {
-          if($this->CoGroup->isMembersGroup($grp)) {
+        if(!empty($grp)) {
+          if($this->CoGroup->isCouMembersGroup($grp)) {
             continue;
           }
-        }
-        
-        if(empty($grp)) {
+        } else {
           throw new InvalidArgumentException(_txt('er.gr.nf', array($m['co_group_id'])));
         }
         
