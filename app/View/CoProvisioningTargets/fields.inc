@@ -61,7 +61,7 @@
   </p>
 </div>
 <br />
-<? else: /* plugins */ ?>
+<?php else: /* plugins */ ?>
 <table id="<?php print $this->action; ?>_co_provisioning_target" class="ui-widget">
   <tbody>
     <tr class="line1">
@@ -154,4 +154,4 @@
     </tr>
   </tbody>
 </table>
-<? endif; /* plugins */
+<?php endif; /* plugins */
