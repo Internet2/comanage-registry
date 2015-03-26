@@ -1157,6 +1157,7 @@ original notification at
   'rs.inv.dec-a' =>   'Invitation to %1$s declined',
   'rs.inv.sent' =>    'Invitation sent to %1$s',
   'rs.mail.verified' => 'Email Address "%1$s" verified',
+  'rs.match.possible' => 'Possible Matches',
   'rs.moved.copr' =>  'CO Person Role "%1$s" (%2$s) moved from %3$s (%4$s) to %5$s (%6$s)',
   'rs.nm.primary' =>  'Primary name updated',
   'rs.nm.primary-a' => 'Primary name updated to "%1$s"',

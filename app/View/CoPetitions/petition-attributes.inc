@@ -338,12 +338,18 @@
                       }
                       
                       if($permissions['match']
-                         // For now, match only on CO Person Official Name.
-                         // (We can only have one name field match because of how the
-                         // javascript keyup triggered code works.)
-                         && strcmp($ea['attribute'], 'p:name:official')==0
-                         && ($ea['field'] == 'given'
-                             || $ea['field'] == 'family')) {
+                         // We can only have one name field match because of how the
+                         // javascript keyup triggered code works. It's a bit tricky
+                         // to try to guess the right field (CO Person Official Name?
+                         // Org Identity Official Name, but only if also copied to the
+                         // CO Person record?), so instead we'll just use the first
+                         // name we see.
+                         
+                         // We'll need to loop through twice, once for given and once
+                         // for family
+                         && ($givenNameAttr == "" || $familyNameAttr == "")
+                         && strstr($ea['attribute'], ':name:')
+                         && ($ea['field'] == 'given' || $ea['field'] == 'family')) {
                         # XXX Temp hack to enable real-time query. This should
                         # instead be enabled for fields with an appropriate flag.
                         $args['class'] = 'matchable';

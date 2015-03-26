@@ -553,7 +553,8 @@ class CoPetitionsController extends StandardController {
     
     $p['match_policy'] = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
                                                                     array('CoEnrollmentFlow.id' => $this->enrollmentFlowID()));
-    $p['match'] = ($flowAuthorized &&
+    $p['match'] = (($roles['cmadmin'] || $flowAuthorized)
+                   &&
                    ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
                     || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     
