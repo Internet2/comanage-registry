@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Role Fields
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -258,7 +258,11 @@ $(function() {
             <td>
               <?php
                 if(isset($sponsors)) {
-                  print (($e && !$es) ? $this->Form->select('sponsor_co_person_id', $sponsors) : Sanitize::html($sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ]));
+                  if($e && !$es) {
+                    print $this->Form->select('sponsor_co_person_id', $sponsors);
+                  } elseif(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) {
+                    print Sanitize::html($sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ]);
+                  }
                 }
               ?>
             </td>

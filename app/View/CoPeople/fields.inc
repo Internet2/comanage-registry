@@ -860,8 +860,10 @@
                             }
                           }
                         ?>
-                        <?php if($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
-                                 || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation): ?>
+                        <?php if($e && $permissions['edit']
+                                 &&
+                                 ($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
+                                  || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation)): ?>
                         <div>
                           <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
                           <i><?php print _txt('fd.status.change'); ?></i>

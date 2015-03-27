@@ -602,12 +602,12 @@ class CoPeopleController extends StandardController {
     
     // Access the canvas for a CO Person? (Basically 'view' but with links)
     $p['canvas'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || ($roles['coadmin'] || $roles['couadmin'])
                     || $self);
     
     // Compare CO attributes and Org attributes?
     $p['compare'] = ($roles['cmadmin']
-                     || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                     || ($roles['coadmin'] || $roles['couadmin'])
                      || $self);
     
     // Delete an existing CO Person?
@@ -615,7 +615,7 @@ class CoPeopleController extends StandardController {
     // associated with a COU the admin isn't responsible for. We'll catch that in
     // checkDeleteDependencies.
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                    || ($roles['coadmin'] || $roles['couadmin']));
     
     // Expunge is basically delete, but since it clears history we restrict it to coadmins.
     // (Before expanding this to COU Admins, read the note in CoPerson:expunge regarding
@@ -697,7 +697,7 @@ class CoPeopleController extends StandardController {
     
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']
-                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                       || ($roles['coadmin'] || $roles['couadmin']));
     
     // Relink an Org Identity or Role to a different CO Person?
     $p['relink'] = $roles['cmadmin'] || $roles['coadmin'];
@@ -713,7 +713,7 @@ class CoPeopleController extends StandardController {
     
     // View an existing CO Person?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || ($roles['coadmin'] || $roles['couadmin'])
                   || $self);
     
     // Determine which COUs a person can manage.

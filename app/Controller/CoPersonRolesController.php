@@ -51,6 +51,7 @@ class CoPersonRolesController extends StandardController {
   // We need various related models for index and search
   public $view_contains = array(
     'Address',
+    'Cou',
     'TelephoneNumber'
   );
   
@@ -416,11 +417,11 @@ class CoPersonRolesController extends StandardController {
       // Note that here we get id => name while in CoPeopleController we just
       // get a list of names. This is to generate the pop-up on the edit form.
       $p['cous'] = $this->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
-    }
-    elseif(!empty($roles['admincous']))
-      $p['cous'] = array_values($roles['admincous']);
-    else
+    } elseif(!empty($roles['admincous'])) {
+      $p['cous'] = $roles['admincous'];
+    } else {
       $p['cous'] = array();
+    }
     
     // Delete an existing CO Person Role?
     $p['delete'] = ($roles['cmadmin']
@@ -474,7 +475,7 @@ class CoPersonRolesController extends StandardController {
     
     // View an existing CO Person Role?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || ($roles['coadmin'] || $roles['couadmin'])
                   || $self);
     
     $this->set('permissions', $p);

@@ -1077,37 +1077,32 @@ class RoleComponent extends Component {
    */
   
   public function isCouAdmin($coPersonId, $couId=null) {
-    // A person is a COU Admin if they are a member of the "admin:COU Name" group within the specified CO.
+    // A person is a COU Admin if they are a member of the "admin:COU Name" group within the specified CO,
+    // or a member of the admin group for any parent COU.
     
     global $group_sep;
     
     if($couId) {
-      // We need to find the name of the COU first.
+      $Cou = ClassRegistry::init('Cou');
       
-      $couName = "";
+      // Get a listing of this COU and its parents.
       
-      if(isset($this->cache['cou'][$couId])) {
-        $couName = $this->cache['cou'][$couId]['Cou']['name'];
-      } else {
-        $Cou = ClassRegistry::init('Cou');
+      $cous = $Cou->getPath($couId);
+      
+      if(!empty($cous)) {
+        // This will be in order from the top of the tree down to $couId, but
+        // for our purposes it doesn't matter where we find the admin membership
         
-        $args = array();
-        $args['conditions']['Cou.id'] = $couId;
-        $args['contain'] = false;
-        
-        $c = $Cou->find('first', $args);
-        
-        // Cache the results
-        
-        if(isset($c['Cou']['name'])) {
-          $this->cache['cou'][$couId] = $c;
-          $couName = $c['Cou']['name'];
-        } else {
-          return false;
+        foreach($cous as $c) {
+          if(!empty($c['Cou']['name'])
+             && $this->cachedGroupCheck($coPersonId, "admin" . $group_sep . $c['Cou']['name'])) {
+            return true;
+          }
         }
       }
       
-      return $this->cachedGroupCheck($coPersonId, "admin" . $group_sep . $couName);
+      // If we get here we've run out of things to check
+      return false;
     } else {
       // We don't need to walk the tree since we only care if a person is a COU Admin
       // for *any* group, not which groups (which would require getting the child COUs).
