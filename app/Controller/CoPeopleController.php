@@ -503,13 +503,6 @@ class CoPeopleController extends StandardController {
            || isset($this->request->query['family']))) {
       $this->match();
     } else {
-      // Set containable behavior for Paginator since parent will call
-      // Paginator->paginate('CoPerson') and the view for index does not need
-      // all the information returned.
-      //
-      // Fixes CO-262 https://bugs.internet2.edu/jira/browse/CO-262
-      $this->paginate['contain'] = array('Co.id', 'PrimaryName', 'EmailAddress', 'CoInvite.CoPetition', 'CoPersonRole');
-
       parent::index();
       // Set page title
       $this->set('title_for_layout', _txt('fd.people', array($this->cur_co['Co']['name'])));

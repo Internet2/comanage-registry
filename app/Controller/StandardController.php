@@ -600,7 +600,22 @@ class StandardController extends AppController {
     // the new paginationConditions method.
 
     if($this->request->is('restful')) {
-      if($this->requires_person) {
+      if(!empty($this->request->query['search_identifier'])) {
+        // XXX temporary implementation -- need more general approach (CO-1053)
+        $args = array();
+        $args['conditions']['Identifier.identifier'] = $this->request->query['search_identifier'];
+        if(!empty($this->params['url']['coid'])) {
+          $args['conditions']['CoPerson.co_id'] = $this->params['url']['coid'];
+        }
+        $args['joins'][0]['table'] = 'identifiers';
+        $args['joins'][0]['alias'] = 'Identifier';
+        $args['joins'][0]['type'] = 'INNER';
+        $args['joins'][0]['conditions'][0] = $req . '.id=Identifier.' . $modelid;
+        
+        $t = $model->find('all', $args);
+        
+        $this->set($modelpl, $this->Api->convertRestResponse($t));
+      } elseif($this->requires_person) {
         if(!empty($this->params['url']['copersonid'])) {
           $t = $model->findAllByCoPersonId($this->params['url']['copersonid']);
           
