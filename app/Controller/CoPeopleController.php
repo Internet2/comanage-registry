@@ -503,13 +503,6 @@ class CoPeopleController extends StandardController {
            || isset($this->request->query['family']))) {
       $this->match();
     } else {
-      // Set containable behavior for Paginator since parent will call
-      // Paginator->paginate('CoPerson') and the view for index does not need
-      // all the information returned.
-      //
-      // Fixes CO-262 https://bugs.internet2.edu/jira/browse/CO-262
-      $this->paginate['contain'] = array('Co.id', 'PrimaryName', 'EmailAddress', 'CoInvite.CoPetition', 'CoPersonRole');
-
       parent::index();
       // Set page title
       $this->set('title_for_layout', _txt('fd.people', array($this->cur_co['Co']['name'])));
@@ -602,12 +595,12 @@ class CoPeopleController extends StandardController {
     
     // Access the canvas for a CO Person? (Basically 'view' but with links)
     $p['canvas'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || ($roles['coadmin'] || $roles['couadmin'])
                     || $self);
     
     // Compare CO attributes and Org attributes?
     $p['compare'] = ($roles['cmadmin']
-                     || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                     || ($roles['coadmin'] || $roles['couadmin'])
                      || $self);
     
     // Delete an existing CO Person?
@@ -615,7 +608,7 @@ class CoPeopleController extends StandardController {
     // associated with a COU the admin isn't responsible for. We'll catch that in
     // checkDeleteDependencies.
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                    || ($roles['coadmin'] || $roles['couadmin']));
     
     // Expunge is basically delete, but since it clears history we restrict it to coadmins.
     // (Before expanding this to COU Admins, read the note in CoPerson:expunge regarding
@@ -685,7 +678,8 @@ class CoPeopleController extends StandardController {
       
       $p['match_policy'] = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->field('match_policy',
                                                                                     array('CoEnrollmentFlow.id' => $this->request->named['coef']));
-      $p['match'] = ($flowAuthorized &&
+      $p['match'] = (($roles['cmadmin'] || $flowAuthorized)
+                     &&
                      ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
                       || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     }
@@ -696,7 +690,7 @@ class CoPeopleController extends StandardController {
     
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']
-                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                       || ($roles['coadmin'] || $roles['couadmin']));
     
     // Relink an Org Identity or Role to a different CO Person?
     $p['relink'] = $roles['cmadmin'] || $roles['coadmin'];
@@ -712,7 +706,7 @@ class CoPeopleController extends StandardController {
     
     // View an existing CO Person?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || ($roles['coadmin'] || $roles['couadmin'])
                   || $self);
     
     // Determine which COUs a person can manage.

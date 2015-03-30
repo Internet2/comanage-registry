@@ -70,8 +70,7 @@ function find_ef_attribute($attrs, $attr, $type=null)
  * @return string The assembled name
  */
 
-function generateCn($name, $showHonorific = false)
-{
+function generateCn($name, $showHonorific = false) {
   // Name order is a bit tricky. We'll use the language encoding as our hint, although
   // it isn't perfect. This could be replaced with a more sophisticated test as
   // requirements evolve.
@@ -82,28 +81,35 @@ function generateCn($name, $showHonorific = false)
      || !in_array($name['language'], array('hu', 'ja', 'ko', 'za-Hans', 'za-Hant'))) {
     // Western order. Do not show honorific by default.
     
-    if( $showHonorific && ($name['honorific'] != "") )
+    if($showHonorific && !empty($name['honorific'])) {
       $cn .= ($cn != "" ? ' ' : '') . $name['honorific'];
+    }
     
-    if($name['given'] != "")
+    if(!empty($name['given'])) {
       $cn .= ($cn != "" ? ' ' : '') . $name['given'];
+    }
     
-    if($name['middle'] != "")
+    if(!empty($name['middle'])) {
       $cn .= ($cn != "" ? ' ' : '') . $name['middle'];
+    }
     
-    if($name['family'] != "")
+    if(!empty($name['family'])) {
       $cn .= ($cn != "" ? ' ' : '') . $name['family'];
+    }
     
-    if($name['suffix'] != "")
+    if(!empty($name['suffix'])) {
       $cn .= ($cn != "" ? ' ' : '') . $name['suffix'];
+    }
   } else {
     // Switch to Eastern order. It's not clear what to do with some components.
     
-    if($name['family'] != "")
+    if(!empty($name['family'])) {
       $cn .= ($cn != "" ? ' ' : '') . $name['family'];
+    }
     
-    if($name['given'] != "")
+    if(!empty($name['given'])) {
       $cn .= ($cn != "" ? ' ' : '') . $name['given'];
+    }
   }
   
   return $cn;

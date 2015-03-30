@@ -58,15 +58,17 @@ class NamesController extends MVPAController {
     parent::beforeRender();
     
     if(!$this->request->is('restful')) {
-      // Set required fields according to whether or not this is attached to a CO Person (Role)
+      // Set required and permitted fields according to whether or not this is attached to a CO Person (Role)
       
       $pids = $this->parsePersonID();
       
       if($pids['copersonid']) {
-        $this->set('required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields($this->cur_co['Co']['id']));
+        $this->set('vv_required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields($this->cur_co['Co']['id']));
+        $this->set('vv_permitted_fields', $this->Name->CoPerson->Co->CoSetting->getPermittedNameFields($this->cur_co['Co']['id']));
       } else {
         // Always use default settings for org identities
-        $this->set('required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields());
+        $this->set('vv_required_fields', $this->Name->CoPerson->Co->CoSetting->getRequiredNameFields());
+        $this->set('vv_permitted_fields', $this->Name->CoPerson->Co->CoSetting->getPermittedNameFields($this->cur_co['Co']['id']));
       }
     }
   }

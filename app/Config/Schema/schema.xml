@@ -1218,6 +1218,7 @@
     <field name="disable_expiration" type="L" />
     <field name="enable_normalization" type="L" />
     <field name="invitation_validity" type="I" />
+    <field name="permitted_fields_name" type="C" size="160" />
     <field name="required_fields_addr" type="C" size="160" />
     <field name="required_fields_name" type="C" size="160" />
     <field name="t_and_c_login_mode" type="C" size="2" />
