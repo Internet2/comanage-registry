@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Setting Model
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.1
@@ -62,6 +62,11 @@ class CoSetting extends AppModel {
     ),
     'invitation_validity' => array(
       'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'permitted_fields_name' => array(
+      'rule' => '/.*/',
       'required' => false,
       'allowEmpty' => true
     ),
@@ -130,6 +135,34 @@ class CoSetting extends AppModel {
     return $ret;
   }
   
+  /**
+   * Get permitted name fields for the specified CO.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  integer $coId CO ID, or null to get default values
+   * @return array Array of required fields
+   */
+  
+  public function getPermittedNameFields($coId=null) {
+    // It would probably be better to get this from the model somehow
+    $ret = explode(",", PermittedNameFieldsEnum::HGMFS);
+    
+    if($coId) {
+      try {
+        $str = $this->lookupValue($coId, 'permitted_fields_name');
+        
+        if($str && $str != "") {
+          $ret = explode(",", $str);
+        }
+      }
+      catch(UnderflowException $e) {
+        // Use default value
+      }
+    }
+    
+    return $ret;
+  }
+
   /**
    * Get required address fields for the specified CO.
    *

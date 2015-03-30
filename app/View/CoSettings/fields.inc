@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Settings Fields
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.1
@@ -101,7 +101,7 @@
           $attrs = array();
           $attrs['value'] = (isset($co_settings[0]['CoSetting']['required_fields_addr'])
                              ? $co_settings[0]['CoSetting']['required_fields_addr']
-                             : "");
+                             : RequiredAddressFieldsEnum::Line1);
           $attrs['empty'] = false;
           
           if($e) {
@@ -129,7 +129,7 @@
           $attrs = array();
           $attrs['value'] = (isset($co_settings[0]['CoSetting']['required_fields_name'])
                              ? $co_settings[0]['CoSetting']['required_fields_name']
-                             : "");
+                             : RequiredNameFieldsEnum::Given);
           $attrs['empty'] = false;
           
           if($e) {
@@ -142,6 +142,34 @@
             }
           } else {
             print _txt('en.required.name', null, $co_settings[0]['CoSetting']['required_fields_name']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.permitted.name'); ?></strong>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['permitted_fields_name'])
+                             ? $co_settings[0]['CoSetting']['permitted_fields_name']
+                             : PermittedNameFieldsEnum::HGMFS);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('permitted_fields_name',
+                                      $cm_texts[ $cm_lang ]['en.permitted.name'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('permitted_fields_name')) {
+              print $this->Form->error('permitted_fields_name');
+            }
+          } else {
+            print _txt('en.permitted.name', null, $co_settings[0]['CoSetting']['permitted_fields_name']);
           }
         ?>
       </td>

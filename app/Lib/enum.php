@@ -258,6 +258,20 @@ class PermittedCharacterEnum
   const Any                = 'AL';
 }
 
+// We use the actual field names here to simplify form rendering
+class PermittedNameFieldsEnum
+{
+//  const Given       = "given";  Not currently allowed due to potential conflict with RequiredNameFieldsEnum
+  const GF    = "given,family";
+  const GMF   = "given,middle,family";
+  const GFS   = "given,family,suffix";
+  const GMFS  = "given,middle,family,suffix";
+  const HGF   = "honorific,given,family";
+  const HGMF  = "honorific,given,middle,family";
+  const HGFS  = "honorific,given,family,suffix";
+  const HGMFS = "honorific,given,middle,family,suffix";
+}
+
 class PetitionActionEnum
 {
   const Approved                = 'PY';

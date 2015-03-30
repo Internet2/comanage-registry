@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Model
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -219,6 +219,7 @@ class CoEnrollmentAttribute extends AppModel {
   
   public function enrollmentFlowAttributes($coef, $defaultValues=array()) {
     $attrs = array();
+    $permNameFields = array();
     
     // First, retrieve the configured attributes
     
@@ -230,6 +231,13 @@ class CoEnrollmentAttribute extends AppModel {
     $args['contain'][] = 'CoEnrollmentFlow';
     
     $efAttrs = $this->find('all', $args);
+    
+    // We may need some global settings
+    if(!empty($efAttrs[0]['CoEnrollmentFlow']['co_id'])) {
+      // Pull the CO ID from the first EF attribute. If we don't have any attributes
+      // there won't be much for us to do, anyway.
+      $permNameFields = $this->CoEnrollmentFlow->Co->CoSetting->getPermittedNameFields($efAttrs[0]['CoEnrollmentFlow']['co_id']);
+    }
     
     foreach($efAttrs as $efAttr) {
       $attr = array();
@@ -503,11 +511,21 @@ class CoEnrollmentAttribute extends AppModel {
             // Track if the mvpa itself is required
             $attr['mvpa_required'] = $efAttr['CoEnrollmentAttribute']['required'];
             
+            // For certain MVPAs, check if this field is even permitted (currently only names)
+            // XXX this is kind of clunky -- rewrite if this expands to more attributes
+            if(strstr($efAttr['CoEnrollmentAttribute']['attribute'], ':name:')
+               && in_array($k, array('honorific','given','middle','family','suffix'))
+               && !in_array($k, $permNameFields)) {
+              // skip this field
+              continue;
+            }
+            
             // Is this individual attribute required?
             if(!empty($efAttr['CoEnrollmentAttribute']['required_fields'])) {
               // See if the field is specified in the fields list. It would be slightly
               // more efficient to not split the string for each field each time through
               // the foreach loop.
+              // XXX should honor CO Settings if not set
               
               $rfields = explode(",", $efAttr['CoEnrollmentAttribute']['required_fields']);
               

@@ -445,6 +445,15 @@ original notification at
                             PermissionEnum::ReadOnly  => 'Read Only',
                             PermissionEnum::ReadWrite => 'Read Write'),
   
+  'en.permitted.name' => array(PermittedNameFieldsEnum::GF    => 'Given, Family',
+                               PermittedNameFieldsEnum::GMF   => 'Given, Middle, Family',
+                               PermittedNameFieldsEnum::GFS   => 'Given, Family, Suffix',
+                               PermittedNameFieldsEnum::GMFS  => 'Given, Middle, Family, Suffix',
+                               PermittedNameFieldsEnum::HGF   => 'Honorific, Given, Family',
+                               PermittedNameFieldsEnum::HGMF  => 'Honorific, Given, Middle, Family',
+                               PermittedNameFieldsEnum::HGFS  => 'Honorific, Given, Family, Suffix',
+                               PermittedNameFieldsEnum::HGMFS => 'Honorific, Given, Middle, Family, Suffix'),
+  
   'en.required' =>    array(RequiredEnum::Required => 'Required',
                             RequiredEnum::Optional => 'Optional',
                             RequiredEnum::NotPermitted => 'Not Permitted'),
@@ -886,6 +895,7 @@ original notification at
   'fd.people' =>      '%1$s People',
   'fd.perm' =>        'Permission',
   'fd.perms' =>       'Permissions',
+  'fd.permitted.name' => 'Name Permitted Fields',
   'fd.petitioner' =>  'Petitioner',
   'fd.plugin' =>      'Plugin',
   'fd.plugin.ptwarn' => 'Once a Provisioning Target has been created, the Plugin cannot be changed',
