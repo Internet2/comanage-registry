@@ -151,6 +151,7 @@ class CoEnrollmentAttribute extends AppModel {
     // of special logic around them so they get their own code (code=g)
     
     $ret['g:co_group_member'] = _txt('fd.group.grmem') . " (" . _txt('ct.co_people.1') . ")";
+    $ret['g:co_group_member_owner'] = _txt('fd.group.grmemown') . " (" . _txt('ct.co_people.1') . ")";
     
     // (3) Multi valued CO Person Role attributes (code=m)
     
@@ -703,12 +704,18 @@ class CoEnrollmentAttribute extends AppModel {
         
         // ... and ownership
         
-        $attr['default'] = 0;
-        $attr['field'] = "owner";
-        // Explicitly set in case $optin is true
-        $attr['hidden'] = true;
-        $attr['modifiable'] = false;
-        $attr['required'] = true;
+        if($attrName == 'co_group_member_owner') {
+          // Repurpose most prior settings
+          $attr['label'] = _txt('fd.group.own');
+          $attr['field'] = "owner";
+        } else {
+          $attr['default'] = 0;
+          $attr['field'] = "owner";
+          // Explicitly set in case $optin is true
+          $attr['hidden'] = true;
+          $attr['modifiable'] = false;
+          $attr['required'] = true;
+        }
         
         $attrs[] = $attr;
         
