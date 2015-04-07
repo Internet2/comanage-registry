@@ -815,6 +815,7 @@ original notification at
   'fd.group.desc.adm' => '%1$s Administrators',
   'fd.group.desc.mem' => '%1$s Members',
   'fd.group.grmem' => 'Group Member',
+  'fd.group.grmemown' => 'Group Member and Owner',
   'fd.group.mem' =>   'Member',
   'fd.group.memin' => 'membership in "%1$s"',
   'fd.group.own' =>   'Owner',
