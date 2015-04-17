@@ -227,18 +227,19 @@ class CoNotification extends AppModel {
     
     $subjectCoPersonId = $this->field('subject_co_person_id');
     
-    if(!$subjectCoPersonId) {
-      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_notifications.1'), $id)));
-    }
-    
     $this->saveField($role.'_co_person_id', null);
     
-    $this->ActorCoPerson->HistoryRecord->record($subjectCoPersonId,
-                                                null,
-                                                null,
-                                                $expungerCoPersonId,
-                                                ActionEnum::NotificationParticipantExpunged,
-                                                _txt('rs.nt.expunge', array($id, $role)));
+    if($subjectCoPersonId) {
+      $this->ActorCoPerson->HistoryRecord->record($subjectCoPersonId,
+                                                  null,
+                                                  null,
+                                                  $expungerCoPersonId,
+                                                  ActionEnum::NotificationParticipantExpunged,
+                                                  _txt('rs.nt.expunge', array($id, $role)));
+    }
+    // else subject can be null if (eg) a group provisioner failed and a notification
+    // is sent to the admins. In that case, don't bother with the history record
+    // because there's nowhere to attach the record to.
     
     return true;
   }
