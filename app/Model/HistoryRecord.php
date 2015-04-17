@@ -83,7 +83,7 @@ class HistoryRecord extends AppModel {
   );
   
   /**
-   * Expunge the Actor from a Notification. This operation should only be performed
+   * Expunge the Actor from a History Record. This operation should only be performed
    * as part of a CO Person expunge. A History Record will be created for the subject
    * indicating that a participant was removed, without indicating who. This function
    * should be called from within a transaction.
@@ -103,19 +103,19 @@ class HistoryRecord extends AppModel {
     $subjectCoPersonRoleId = $this->field('co_person_role_id');
     $subjectOrgIdentityId = $this->field('org_identity_id');
     
-    if(!$subjectCoPersonId && !$subjectOrgIdentityId) {
-      // We should have at least one CO Person ID or one Org Identity ID
-      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.history_records.1'), $id)));
-    }
-    
     $this->saveField('actor_co_person_id', null);
     
-    $this->record($subjectCoPersonId,
-                  $subjectCoPersonRoleId,
-                  $subjectOrgIdentityId,
-                  $expungerCoPersonId,
-                  ActionEnum::HistoryRecordActorExpunged,
-                  _txt('rs.hr.expunge', array($id)));
+    if($subjectCoPersonId || $subjectOrgIdentityId) {
+      $this->record($subjectCoPersonId,
+                    $subjectCoPersonRoleId,
+                    $subjectOrgIdentityId,
+                    $expungerCoPersonId,
+                    ActionEnum::HistoryRecordActorExpunged,
+                    _txt('rs.hr.expunge', array($id)));
+    }
+    // else subject can be null if (eg) a group provisioner failed and a notification
+    // is sent to the admins. In that case, don't bother with the history record
+    // because there's nowhere to attach the record to.
     
     return true;
   }
