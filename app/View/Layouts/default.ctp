@@ -54,6 +54,22 @@
     <?php print $this->Html->script('jquery/superfish/js/superfish.js'); ?>
     <?php print $this->Html->script('jquery/spin.min.js'); ?>
 
+    <script type="text/javascript">
+    function js_onload_call_hooks() {
+      // On page load, call any defined initialization functions.
+      // Make sure function is defined before calling.
+      
+      if(window.js_local_onload) {
+        js_local_onload();
+      }
+    }
+    </script>
+
+    <?php 
+      // Only load the noty and common script code for authenticated users.
+      if($this->Session->check('Auth.User')): 
+      ?>
+
     <?php print $this->Html->script('jquery/noty/jquery.noty.js'); ?>
     <?php print $this->Html->script('jquery/noty/layouts/topCenter.js'); ?>
     <?php print $this->Html->script('jquery/noty/themes/comanage.js'); ?>
@@ -168,14 +184,6 @@
       $('#dialog').dialog('open');
     }
     
-    function js_onload_call_hooks() {
-      // On page load, call any defined initialization functions.
-      // Make sure function is defined before calling.
-      
-      if(window.js_local_onload) {
-        js_local_onload();
-      }
-    }
     
     function js_onsubmit_call_hooks() {
       // On form submit, call any defined functions.
@@ -505,6 +513,8 @@
     });
 
     </script>
+
+    <?php endif; // End including noty and common script code for authenticated users only. ?>
     
     <!-- Include external files and scripts -->
     <?php
@@ -654,12 +664,17 @@
 
     <!-- Common UI components -->
 
+    <?php 
+      // Only load this common UI component for authenticated users.
+      if($this->Session->check('Auth.User')): 
+      ?>
     <div id="dialog" title="Confirm">
       <p>
         <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
         <span id="dialog-text"><?php print _txt('op.proceed.ok'); ?></span>
       </p>
     </div>
+    <?php endif; ?>
 
     <div class="contentWidth">
       <?php print $this->element('footer'); ?>
