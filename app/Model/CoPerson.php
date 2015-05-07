@@ -272,6 +272,11 @@ class CoPerson extends AppModel {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
+    // Set the person to Deleted so they are deprovisioned quickly and to prevent
+    // notification errors as the expunge is processed.
+    $this->id = $coPersonId;
+    $this->saveField('status', StatusEnum::Deleted);
+    
     // Rewrite any Notification where this person is an actor, recipient, or resolver
     
     foreach($coperson['CoNotificationActor'] as $n) {
