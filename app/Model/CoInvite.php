@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Invite Model
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -117,57 +117,6 @@ class CoInvite extends AppModel {
             throw new RuntimeException($e->getMessage());
           }
         } elseif(isset($invite['CoPetition']['id'])) {
-          // Let CoPetition handle the relevant updates
-          
-          // We don't bother checking if confirm_email is still true, since it's not really
-          // clear how we should handle the enrollment flow configuration being changed
-          // in the middle of an enrollment.
-          
-          if($confirm) {
-            // If a login identifier was provided, attach it to the org identity if not already present.
-            
-            if($loginIdentifier) {
-              // Validate the identifier, even if null. (If null but authn was required, we'll
-              // get an Exception, which will ultimately pass back up to a redirect.)
-              
-              try {
-                $this->CoPetition->validateIdentifier($invite['CoPetition']['id'],
-                                                      $loginIdentifier,
-                                                      $invite['CoPetition']['enrollee_co_person_id']);
-              }
-              catch(RuntimeException $e) {
-                // Re-throw the exception
-                $dbc->rollback();
-                throw new RuntimeException($e->getMessage());
-              }
-            }
-            
-            // Update status to Confirmed. updateStatus() will promote to PendingApproval or whatever
-            
-            try {
-              $this->CoPetition->updateStatus($invite['CoPetition']['id'],
-                                              StatusEnum::Confirmed,
-                                              $invite['CoPetition']['enrollee_co_person_id']);
-            }
-            catch(Exception $e) {
-              $dbc->rollback();
-              throw new RuntimeException($e->getMessage());
-            }
-          } else {
-            // Simply deny the petition. We're not authenticated, so we just assume the
-            // enrollee CO Person is also the actor.
-            
-            try {
-              $this->CoPetition->updateStatus($invite['CoPetition']['id'],
-                                              StatusEnum::Denied,
-                                              $invite['CoPetition']['enrollee_co_person_id']);
-            }
-            catch(Exception $e) {
-              $dbc->rollback();
-              throw new RuntimeException($e->getMessage());
-            }
-          }
-          
           // Before we can delete the invitation, we need to unlink it from the petition
           
           $this->CoPetition->id = $invite['CoPetition']['id'];

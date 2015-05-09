@@ -199,8 +199,6 @@ class AppController extends Controller {
       // cos/select if we don't find a CO but one is required. Instead, we throw
       // an error.
       
-      // We can't check for RESTful here since $this->data isn't set yet for post data.
-      
       // The CO might be specified as a named parameter "co" or posted as "Co.id"
       // or posted as "Model.co_id".
       

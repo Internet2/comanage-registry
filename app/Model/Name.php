@@ -144,7 +144,10 @@ class Name extends AppModel {
     // on error. (afterSave is not called if the save itself fails.) So it's up to
     // the controller (or other calling code) to begin/commit/rollback.
     
-    if(isset($this->data['Name']['primary_name'])) {
+    if(isset($this->data['Name']['primary_name'])
+       // If we're saving via an enrollment flow trust whatever we were given in
+       // terms of primary name flags
+       && !isset($this->data['Name']['co_enrollment_attribute_id'])) {
       // Is there an existing primary name? If not make sure this Name is primary.
       // In order to answer this, we need either an Org Identity ID or a CO Person ID.
       // However, if we were called via saveField these might not be in $this->data.

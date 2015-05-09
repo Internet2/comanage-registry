@@ -207,7 +207,8 @@ class CoProvisioningTargetsController extends StandardController {
     
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']
-                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                       || $roles['coadmin'] 
+                       || ($managed && $roles['couadmin']));
     
     // (Re)provision all CO People?
     $p['provisionall'] = ($roles['cmadmin'] || $roles['coadmin']);

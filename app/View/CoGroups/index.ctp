@@ -380,13 +380,13 @@
               
               $isMembersGroup = ($c['CoGroup']['name'] == 'members' || strncmp($c['CoGroup']['name'], 'members:', 8) == 0); 
               
-              $disabled = !($permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $isMembersGroup;
+              $disabled = !($e || $permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $isMembersGroup;
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
                                           array('disabled' => $disabled,
                                                 'checked'    => $isMember))
                     . _txt('fd.group.mem') . "\n";
               
-              $disabled = !($permissions['selectany'] || $isOwner) || $isMembersGroup;
+              $disabled = !($e || $permissions['selectany'] || $isOwner) || $isMembersGroup;
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
                                           array('disabled' => $disabled,
                                                 'checked'    => $isOwner))

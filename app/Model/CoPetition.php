@@ -132,13 +132,16 @@ class CoPetition extends AppModel {
       'allowEmpty' => true
     ),
     'status' => array(
-      'rule' => array('inList', array(StatusEnum::Approved,
-                                      StatusEnum::Declined,
-                                      StatusEnum::Denied,
-                                      StatusEnum::Duplicate,
-                                      StatusEnum::Invited,
-                                      StatusEnum::PendingApproval,
-                                      StatusEnum::PendingConfirmation)),
+      'rule' => array('inList', array(PetitionStatusEnum::Active,
+                                      PetitionStatusEnum::Approved,
+                                      PetitionStatusEnum::Confirmed,
+                                      PetitionStatusEnum::Created,
+                                      PetitionStatusEnum::Declined,
+                                      PetitionStatusEnum::Denied,
+                                      PetitionStatusEnum::Duplicate,
+                                      PetitionStatusEnum::Finalized,
+                                      PetitionStatusEnum::PendingApproval,
+                                      PetitionStatusEnum::PendingConfirmation)),
       'required' => true,
       'message' => 'A valid status must be selected'
     )
@@ -196,6 +199,57 @@ class CoPetition extends AppModel {
         }
       }
     }
+  }
+  
+  /**
+   * Possibly assign identifiers for a petition.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @param Integer $actorCoPersonId CO Person ID for actor
+   * @return Boolean True if successful, false otherwise
+   */
+  
+  public function assignIdentifiers($id, $actorCoPersonId) {
+    // This function should only be called once the decision has been made that identifiers
+    // should be assigned.
+    
+    $ret = true;
+    
+    $coPersonID = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    $coID = $this->field('co_id', array('CoPetition.id' => $id));
+    
+    if($coID && $coPersonID) {
+      $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID, $actorCoPersonId);
+      
+      if(!empty($res)) {
+        // See if any identifiers were assigned, and if so create a history record
+        $assigned = array();
+        
+        foreach(array_keys($res) as $idType) {
+          if($res[$idType] == 1) {
+            $assigned[] = $idType;
+          } elseif($res[$idType] != 2) {
+            // It'd probably be helpful if we caught this error somewhere...
+            $ret = false;
+          }
+        }
+        
+        if(!empty($assigned)) {
+          try {
+            $this->CoPetitionHistoryRecord->record($id,
+                                                   $actorCoPersonId,
+                                                   PetitionActionEnum::IdentifiersAssigned,
+                                                   _txt('rs.ia.ok') . " (" . implode(',', $assigned) . ")");
+          }
+          catch(Exception $e) {
+            $ret = false;
+          }
+        }
+      }
+    }
+    
+    return $ret;
   }
   
   /**
@@ -276,450 +330,19 @@ class CoPetition extends AppModel {
   }
   
   /**
-   * Create a new CO Petition.
+   * Convert attributes from "hierarchical" operational model format to "flat" petition format.
    *
-   * @since  COmanage Registry v0.6
-   * @param  Integer Enrollment Flow ID
-   * @param  Integer CO ID to attach the petition to
-   * @param  Array   Request data, as provided by (eg) $this->request->data
-   * @param  Integer CO Person ID of the petitioner
-   * @return Integer ID of newly created Petition
-   * @throws InvalidArgumentException
-   * @throws RunTimeException
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $enrollmentFlowID Enrollment Flow ID
+   * @param  Integer $coPetitionID     CO Petition ID
+   * @param  Array   $orgData          Array of OrgIdentity attributes (and related models)
+   * @param  Array   $coData           Array of CoPerson attributes (and related models)
+   * @param  Array   $coRoleData       Array of CoPersonRole attributes (and related models)
+   * @return Array Array of attributes in petition format
    */
   
-  public function createPetition($enrollmentFlowID, $coId, $requestData, $petitionerId) {
-    // Don't cleverly rename this to create(), since there is already a create method
-    // in the default Model.
-    
-    // We have to do a bunch of non-standard work here. We're passed a bunch of data
-    // for other models, basically enough to create a Person/Role. We need to use
-    // it to create appropriate records, then create a Petition record with the
-    // appropriate entries.
-    
-    $orgIdentityID = null;
-    $coPersonID = null;
-    $coPersonRoleID = null;
-    
-    // Track whether or not our processing was successful.
-    
-    $fail = false;
-    
-    // Determine an initial status. We don't jump straight to Active, since post-creation actions may be required for that.
-    
-    $verifyEmail = $this->CoEnrollmentFlow->field('verify_email',
-                                                   array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-    
-    $requireAuthn = $this->CoEnrollmentFlow->field('require_authn',
-                                                   array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-    
-    $approvalPolicy = $this->CoEnrollmentFlow->field('approval_required',
-                                                     array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-    
-    $efName = $this->CoEnrollmentFlow->field('name',
-                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-    
-    $tAndCMode = $this->CoEnrollmentFlow->field('t_and_c_mode',
-                                                array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-    
-    $initialStatus = StatusEnum::Approved;
-    
-    if($verifyEmail || $requireAuthn) {
-      $initialStatus = StatusEnum::PendingConfirmation;
-    } elseif($approvalPolicy) {
-      $initialStatus = StatusEnum::PendingApproval;
-    }
-    
-    // Start a transaction. We don't really need to save until we validate CO Person Role
-    // (which needs co_person_id), but for consistency we'll follow a validate/save/rollback-on-error
-    // pattern.
-    
-    $dbc = $this->getDataSource();
-    $dbc->begin();
-    
-    // Walk through the request data and validate it manually. We have to do it this
-    // way because it's possible for an enrollment flow to define (say) two addresses,
-    // one of which is required and one of which is optional. (We can't just directly
-    // rely on Cake since enrollment flow rules may not match up with default model rules.)
-    
-    // We try validating all user provided data (ie: not the data we assemble ourselves,
-    // such as the Petition), even if some failed, in order to generate the full
-    // set of errors at once when re-rendering the petition form.
-    
-    // Start by pulling the enrollment attributes configuration.
-    
-    $efAttrs = $this->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($enrollmentFlowID);
-    
-    // Obtain a list of enrollment flow attributes' required status for use later.
-    
-    $fArgs = array();
-    $fArgs['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = $enrollmentFlowID;
-    $fArgs['fields'] = array('CoEnrollmentAttribute.id', 'CoEnrollmentAttribute.required');
-    $reqAttrs = $this->CoEnrollmentFlow->CoEnrollmentAttribute->find("list", $fArgs);
-    
-    // Obtain a list of attributes that are to be copied to the CO Person (Role) from the Org Identity
-    
-    $cArgs = array();
-    $cArgs['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = $enrollmentFlowID;
-    $cArgs['conditions']['CoEnrollmentAttribute.copy_to_coperson'] = true;
-    $cArgs['fields'] = array('CoEnrollmentAttribute.id', 'CoEnrollmentAttribute.attribute');
-    $copyAttrs = $this->CoEnrollmentFlow->CoEnrollmentAttribute->find("list", $cArgs);
-    
-    // Adjust validation rules for top level attributes only (OrgIdentity, CO Person, CO Person Role)
-    // and validate those models without validating the associated models.
-    
-    // We'll start building an array of org data to save as we validate the provided data.
-    
-    $orgData = array();
-    
-    $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
-    
-    if($CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
-      // Platform is configured to pull org identities from the form.
-      
-      // Assemble OrgIdentity attributes.
-      
-      $orgData['EnrolleeOrgIdentity'] = $this->EnrolleeOrgIdentity->filterModelAttributes($requestData['EnrolleeOrgIdentity']);
-      
-      // Attach this org identity to this CO (if appropriate)
-      
-      if(!$CmpEnrollmentConfiguration->orgIdentitiesPooled())
-        $orgData['EnrolleeOrgIdentity']['co_id'] = $coId;
-      
-      // Dynamically adjust validation rules according to the enrollment flow
-      $this->adjustValidationRules('EnrolleeOrgIdentity', $efAttrs);
-      
-      // Manually validate OrgIdentity
-      $this->EnrolleeOrgIdentity->set($orgData);
-      
-      // Make sure to use invalidFields(), which won't try to validate (possibly
-      // missing) related models.
-      $errFields = $this->EnrolleeOrgIdentity->invalidFields();
-      
-      if(!empty($errFields)) {
-        $fail = true;
-      }
-      
-      // Now validate related models
-      
-      $v = $this->validateRelated("EnrolleeOrgIdentity", $requestData, $orgData, $efAttrs);
-      
-      if($v) {
-        $orgData = $v;
-      } else {
-        $fail = true;
-      }
-    } else {
-      // The Org Identity will need to be populated via some other way,
-      // such as via attributes pulled during login.
-      
-      throw new RuntimeException("Not implemented");
-    }
-    
-    if(!$fail && !empty($orgData)) {
-      // Save the Org Identity. All the data is validated, so don't re-validate it.
-      
-      if($this->EnrolleeOrgIdentity->saveAssociated($orgData, array("validate" => false, "atomic" => true))) {
-        $orgIdentityID = $this->EnrolleeOrgIdentity->id;
-        
-        // Create a history record
-        try {
-          $this->EnrolleeOrgIdentity->HistoryRecord->record(null,
-                                                            null,
-                                                            $orgIdentityID,
-                                                            $petitionerId,
-                                                            ActionEnum::OrgIdAddedPetition);
-        }
-        catch(Exception $e) {
-          $dbc->rollback();
-          throw new RuntimeException($e->getMessage());
-        }
-      } else {
-        $dbc->rollback();
-        throw new RuntimeException(_txt('er.db.save'));
-      }
-    }
-    
-    // Validate CO Person. As of this writing, there really isn't much to validate,
-    // but that could change.
-    
-    $coData = array();
-    
-    // Check the Match policy for this Enrollment Flow.
-    
-    $matchPolicy = $this->CoEnrollmentFlow->field('match_policy',
-                                                  array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-    
-    if($matchPolicy == EnrollmentMatchPolicyEnum::Self) {
-      // The enrollee is also the petitioner, so just take the petitioner's CO Person identity
-      
-      $coPersonID = $petitionerId;
-      
-      // Create a history record
-      try {
-        $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
-                                                       null,
-                                                       $orgIdentityID,
-                                                       $petitionerId,
-                                                       ActionEnum::CoPersonMatchedPetition);
-      }
-      catch(Exception $e) {
-        $dbc->rollback();
-        throw new RuntimeException($e->getMessage());
-      }
-    } else {
-      if(!empty($requestData['EnrolleeCoPerson'])) {
-        $coData['EnrolleeCoPerson'] = $this->EnrolleeCoPerson->filterModelAttributes($requestData['EnrolleeCoPerson']);
-      }
-      $coData['EnrolleeCoPerson']['co_id'] = $coId;
-      $coData['EnrolleeCoPerson']['status'] = $initialStatus;
-      
-      // Dynamically adjust validation rules according to the enrollment flow
-      $this->adjustValidationRules('EnrolleeCoPerson', $efAttrs);
-      
-      // Manually validate CoPerson
-      $this->EnrolleeCoPerson->create($coData);
-      
-      // Make sure to use invalidFields(), which won't try to validate (possibly
-      // missing) related models.
-      $errFields = $this->EnrolleeCoPerson->invalidFields();
-      
-      if(!empty($errFields)) {
-        $fail = true;
-      }
-      
-      // Now validate related models
-      
-      $v = $this->validateRelated("EnrolleeCoPerson", $requestData, $coData, $efAttrs);
-      
-      if($v) {
-        $coData = $v;
-      } else {
-        $fail = true;
-      }
-      
-      // Loop through all EmailAddresses, Identifiers, and Names to see if there are any
-      // we should copy to the CO Person.
-      
-      foreach(array('EmailAddress', 'Identifier', 'Name') as $m) {
-        if(!empty($orgData[$m])) {
-          foreach(array_keys($orgData[$m]) as $a) {
-            // $a will be the co_enrollment_attribute:id, so we can tell different
-            // addresses apart
-            if(isset($copyAttrs[$a])) {
-              $coData[$m][$a] = $orgData[$m][$a];
-            }
-          }
-        }
-      }
-      
-      // PrimaryName shows up as a singleton, and so needs to be handled separately.
-      
-      if(!empty($orgData['PrimaryName']['co_enrollment_attribute_id'])
-         && isset($copyAttrs[ $orgData['PrimaryName']['co_enrollment_attribute_id'] ])) {
-        // Copy PrimaryName to the CO Person
-        
-        $coData['PrimaryName'] = $orgData['PrimaryName'];
-      }
-      
-      // Save the CO Person Data
-      
-      if(!$fail) {
-        if($this->EnrolleeCoPerson->saveAssociated($coData, array("validate" => false, "atomic" => true))) {
-          $coPersonID = $this->EnrolleeCoPerson->id;
-          
-          // Create a history record
-          try {
-            $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
-                                                           null,
-                                                           $orgIdentityID,
-                                                           $petitionerId,
-                                                           ActionEnum::CoPersonAddedPetition);
-            
-            // And add an explicit record for each group membership
-            
-            if(!empty($coData['CoGroupMember'])) {
-              foreach($coData['CoGroupMember'] as $gm) {
-                // Map the group ID to its name
-                
-                $groupName = $this->EnrolleeCoPerson
-                                  ->CoGroupMember
-                                  ->CoGroup
-                                  ->field('name',
-                                          array('CoGroup.id' => $gm['co_group_id']));
-                
-                $this->EnrolleeCoPerson
-                     ->HistoryRecord
-                     ->record($coPersonID,
-                              null,
-                              null,
-                              $petitionerId,
-                              ActionEnum::CoGroupMemberAdded,
-                              _txt('rs.grm.added-p',
-                                   array($groupName,
-                                         $gm['co_group_id'],
-                                         _txt($gm['member'] ? 'fd.yes' : 'fd.no'),
-                                         _txt($gm['owner'] ? 'fd.yes' : 'fd.no'))));
-              }
-            }
-          }
-          catch(Exception $e) {
-            $dbc->rollback();
-            throw new RuntimeException($e->getMessage());
-          }
-        } else {
-          $dbc->rollback();
-          throw new RuntimeException(_txt('er.db.save'));
-        }
-      }
-    }
-    
-    // Validate CO Person Role, but only if CO Person Role data was provided
-    
-    $coRoleData = array();
-    
-    if(isset($requestData['EnrolleeCoPersonRole'])) {
-      $coRoleData['EnrolleeCoPersonRole'] = $this->EnrolleeCoPersonRole->filterModelAttributes($requestData['EnrolleeCoPersonRole']);
-      $coRoleData['EnrolleeCoPersonRole']['status'] = $initialStatus;
-      $coRoleData['EnrolleeCoPersonRole']['co_person_id'] = $coPersonID;
-      
-      // Dynamically adjust validation rules according to the enrollment flow
-      
-      $this->adjustValidationRules('EnrolleeCoPersonRole', $efAttrs);
-      
-      // Manually validate CoPersonRole
-      $this->EnrolleeCoPersonRole->set($coRoleData);
-      
-      // Make sure to use invalidFields(), which won't try to validate (possibly
-      // missing) related models.
-      $errFields = $this->EnrolleeCoPersonRole->invalidFields();
-      
-      if(!empty($errFields)) {
-        $fail = true;
-      }
-      
-      // Now validate related models. This will handle Extended Attributes as well.
-      
-      $v = $this->validateRelated("EnrolleeCoPersonRole", $requestData, $coRoleData, $efAttrs);
-      
-      if($v) {
-        $coRoleData = $v;
-      } else {
-        $fail = true;
-      }
-      
-      // We're done validating user data at this point, so we can fail if there were
-      // any validation errors.
-      
-      if($fail) {
-        $dbc->rollback();
-        throw new InvalidArgumentException(_txt('er.fields'));
-      }
-      
-      // Loop through all Addresses and Telephone Numbers to see if there are any
-      // we should copy to the CO Person Role.
-      
-      foreach(array('Address', 'TelephoneNumber') as $m) {
-        if(!empty($orgData[$m])) {
-          foreach(array_keys($orgData[$m]) as $a) {
-            // $a will be the co_enrollment_attribute:id, so we can tell different
-            // addresses apart
-            if(isset($copyAttrs[$a])) {
-              $coRoleData[$m][$a] = $orgData[$m][$a];
-            }
-          }
-        }
-      }
-      
-      // Save the CO Person Role data
-      
-      if($this->EnrolleeCoPersonRole->saveAssociated($coRoleData, array("validate" => false, "atomic" => true))) {
-        $coPersonRoleID = $this->EnrolleeCoPersonRole->id;
-        
-        // Create a history record
-        try {
-          $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
-                                                         $coPersonRoleID,
-                                                         $orgIdentityID,
-                                                         $petitionerId,
-                                                         ActionEnum::CoPersonRoleAddedPetition);
-        }
-        catch(Exception $e) {
-          $dbc->rollback();
-          throw new RuntimeException($e->getMessage());
-        }
-      } else {
-        $dbc->rollback();
-        throw new RuntimeException(_txt('er.db.save'));
-      }
-    }
-    
-    // Create a CO Org Identity Link
-    
-    $coOrgLink = array();
-    $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityID;
-    $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonID;
-    
-    if($this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink)) {
-      // Create a history record
-      try {
-        $this->EnrolleeCoPerson->HistoryRecord->record($coPersonID,
-                                                       $coPersonRoleID,
-                                                       $orgIdentityID,
-                                                       $petitionerId,
-                                                       ActionEnum::CoPersonOrgIdLinked);
-      }
-      catch(Exception $e) {
-        $dbc->rollback();
-        throw new RuntimeException($e->getMessage());
-      }
-    } else {
-      $dbc->rollback();
-      throw new RuntimeException(_txt('er.db.save'));
-    }
-    
-    $coPetitionID = null;
-    
-    // Assemble the Petition, status = pending. We have most of the identifiers
-    // we need from the above saves.
-    
-    $coPetitionData = array();
-    $coPetitionData['CoPetition']['co_enrollment_flow_id'] = $enrollmentFlowID;
-    $coPetitionData['CoPetition']['co_id'] = $coId;
-    
-    if(isset($coRoleData['EnrolleeCoPersonRole']['cou_id'])) {
-      $coPetitionData['CoPetition']['cou_id'] = $coRoleData['EnrolleeCoPersonRole']['cou_id'];
-    }
-    
-    $coPetitionData['CoPetition']['enrollee_org_identity_id'] = $orgIdentityID;
-    $coPetitionData['CoPetition']['enrollee_co_person_id'] = $coPersonID;
-    
-    if($coPersonRoleID) {
-      $coPetitionData['CoPetition']['enrollee_co_person_role_id'] = $coPersonRoleID;
-    }
-    
-    if(!empty($requestData['EnrolleeCoPersonRole']['sponsor_co_person_id'])) {
-      $coPetitionData['CoPetition']['sponsor_co_person_id'] = $requestData['EnrolleeCoPersonRole']['sponsor_co_person_id'];
-    }
-    
-    // Figure out the petitioner person ID. As of now, it is the authenticated
-    // person completing the form. This could be NULL if a CMP admin who is not
-    // a member of the CO initiates the petition.
-    
-    $coPetitionData['CoPetition']['petitioner_co_person_id'] = $petitionerId;
-    $coPetitionData['CoPetition']['status'] = $initialStatus;
-    
-    if($this->save($coPetitionData)) {
-      $coPetitionID = $this->id;
-    } else {
-      $dbc->rollback();
-      throw new RuntimeException(_txt('er.db.save'));
-    }
-    
-    // Store a copy of the attributes in co_petition_attributes. In order to do this,
-    // we need to walk through the various submitted attributes and "flatten" them
-    // into a format suitable for this table. Start with org data.
-    
+  protected function flattenAttributes($enrollmentFlowID, $coPetitionID, $orgData, $coData, $coRoleData) {
+    // Return array
     $petitionAttrs = array();
     
     // Pull a mapping of attributes to attribute IDs
@@ -930,15 +553,116 @@ class CoPetition extends AppModel {
       }
     }
     
-    // Finally, try to save. Note that saveMany doesn't expect the Model name as an array
-    // component, unlike all the other saves.
+    return $petitionAttrs;
+  }
+  
+  /**
+   * Convert attributes from "flat" petition format to "hierarchical" operational model format.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $coPetitionID     CO Petition ID
+   * @return Array Array of attributes in operational format
+   * @throws InvalidArgumentException
+   */
+  
+  protected function inflateAttributes($id) {
+    $ret = array();
     
-    if(!$this->CoPetitionAttribute->saveMany($petitionAttrs['CoPetitionAttribute'])) {
-      $dbc->rollback();
+    // Pull the attribute values along with their definitions
+    
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain'][] = 'CoPetitionAttribute';
+    $args['contain']['CoPetitionAttribute'][] = 'CoEnrollmentAttribute';
+    
+    $attrs = $this->find('first', $args);
+    
+    if(empty($attrs)) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
+    }
+    
+    foreach($attrs['CoPetitionAttribute'] as $attr) {
+      // Figure out what type of attribute this is
+      $a = explode(':', $attr['CoEnrollmentAttribute']['attribute']);
+      
+      // We skip case 'e' (enrollment-only attributes) since they don't end up
+      // in the operational record.
+      
+      if($a[0] == 'g') {
+        // Group member
+        $ret['CoPerson']['CoGroupMember'][ $attr['co_enrollment_attribute_id'] ][ $attr['attribute'] ] = $attr['value'];
+      } elseif($a[0] == 'i' || $a[0] == 'm' || $a[0] == 'p') {
+        // MVPA -- reconnect based on co_enrollment_attribute_id
+        
+        switch($a[0]) {
+          case 'i':
+            $pmodel = 'OrgIdentity';
+            break;
+          case 'm':
+            $pmodel = 'CoPersonRole';
+            break;
+          case 'p':
+            $pmodel = 'CoPerson';
+            break;
+        }
+        
+        $model = Inflector::classify($a[1]);
+        
+        $ret[$pmodel][$model][ $attr['co_enrollment_attribute_id'] ][ $attr['attribute'] ] = $attr['value'];
+        // Type may already be set, but we're just clobbering it with the same value
+        $ret[$pmodel][$model][ $attr['co_enrollment_attribute_id'] ]['type'] = $a[2];
+      } elseif($a[0] == 'o') {
+        // Org Identity attribute
+        $ret['OrgIdentity'][ $a[1] ] = $attr['value'];
+      } elseif($a[0] == 'r') {
+        // CO Person Role attribute
+        $ret['CoPersonRole'][ $a[1] ] = $attr['value'];
+      } elseif($a[0] == 'x') {
+        // Extended attribute
+        $ret['CoPersonRole']['Co'.$attrs['CoPetition']['co_id'].'PersonExtendedAttribute'][ $attr['attribute'] ] = $attr['value'];
+      }
+    }
+    
+    return $ret;
+  }
+  
+  /**
+   * Create a new CO Petition.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer Enrollment Flow ID
+   * @param  Integer CO ID to attach the petition to
+   * @param  Integer CO Person ID of the petitioner
+   * @return Integer ID of newly created Petition
+   * @throws RunTimeException
+   */
+  
+  public function initialize($enrollmentFlowID, $coId, $petitionerId=null) {
+    $this->CoEnrollmentFlow->id = $enrollmentFlowID;
+    $efName = $this->CoEnrollmentFlow->field('name');
+    
+    $coPetitionData = array();
+    $coPetitionData['CoPetition']['co_enrollment_flow_id'] = $enrollmentFlowID;
+    $coPetitionData['CoPetition']['co_id'] = $coId;
+    $coPetitionData['CoPetition']['status'] = PetitionStatusEnum::Created;
+    
+    // If we don't have a petitioner, generate a token for use in linking pages
+    
+    if($petitionerId) {
+      $coPetitionData['CoPetition']['petitioner_co_person_id'] = $petitionerId;
+    } else {
+      $coPetitionData['CoPetition']['petitioner_token'] = Security::generateAuthKey();
+    }
+    
+    $this->create();
+    
+    if(!$this->save($coPetitionData)) {
       throw new RuntimeException(_txt('er.db.save'));
     }
     
-    // Add a co_petition_history_record
+    $coPetitionID = $this->id;
+    
+    // Create a Petition History Record
     
     try {
       $this->CoPetitionHistoryRecord->record($coPetitionID,
@@ -948,157 +672,43 @@ class CoPetition extends AppModel {
                                                   array($efName . " (" . $enrollmentFlowID . ")")));
     }
     catch(Exception $e) {
-      $dbc->rollback();
       throw new RuntimeException(_txt('er.db.save'));
     }
     
-    // Record agreements to Terms and Conditions, if any
+    return $coPetitionID;
+  }
+  
+  /**
+   * Link an existing CO Person to a CO Petition.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer CO Petition ID
+   * @param  Integer CO Person ID to link
+   * @param  Integer CO Person ID of the petitioner
+   * @return Boolean True on success
+   * @throws RunTimeException
+   */
+  
+  public function linkCoPerson($coPetitionId, $coPersonId, $petitionerId) {
+    $this->id = $coPetitionId;
     
-    if(!empty($requestData['CoTermsAndConditions'])) {
-      foreach(array_keys($requestData['CoTermsAndConditions']) as $coTAndCId) {
-        try {
-          // Currently, T&C is only available via a petition when authn is required.
-          // The array value should be the authenticated identifier as set by the view.
-          
-          $this->Co->CoTermsAndConditions->CoTAndCAgreement->record($coTAndCId,
-                                                                    $coPersonID,
-                                                                    $coPersonID,
-                                                                    $requestData['CoTermsAndConditions'][$coTAndCId]);
-          
-          // Also create a Petition History Record of the agreement
-          
-          $tcenum = null;
-          $tccomment = "";
-          $tcdesc = $this->Co->CoTermsAndConditions->field('description',
-                                                           array('CoTermsAndConditions.id' => $coTAndCId))
-                  . " (" . $coTAndCId . ")";
-          
-          switch($tAndCMode) {
-            case TAndCEnrollmentModeEnum::ExplicitConsent:
-              $tcenum = PetitionActionEnum::TCExplicitAgreement;
-              $tccomment = _txt('rs.pt.tc.explicit', array($tcdesc));
-              break;
-            case TAndCEnrollmentModeEnum::ImpliedConsent:
-              $tcenum = PetitionActionEnum::TCImpliedAgreement;
-              $tccomment = _txt('rs.pt.tc.implied', array($tcdesc));
-              break;
-            default:
-              throw new InvalidArgumentException("Unknown Terms and Conditions Mode: $tAndCMode");
-              break;
-          }
-          
-          $this->CoPetitionHistoryRecord->record($coPetitionID,
-                                                 $petitionerId,
-                                                 $tcenum,
-                                                 $tccomment);
-        }
-        catch(Exception $e) {
-          $dbc->rollback();
-          throw new RuntimeException(_txt('er.db.save'));
-        }
-      }
+    if(!$this->saveField('enrollee_co_person_id', $coPersonId)) {
+      throw new RuntimeException(_txt('er.db.save'));
     }
     
-    // Send email invite if configured
+    // Create a Petition History Record
     
-    if($verifyEmail) {
-      // We need an email address to send to. Since we don't have a mechanism for
-      // picking from multiple at the moment, we just pick the first one provided
-      // (which in most cases will be sufficient).
-      
-      $toEmail = "";
-      
-      if(isset($orgData['EmailAddress'])) {
-        // EmailAddresses are indexed by email_address_id, so we need to figure one.
-        // We don't use array_shift since we don't want to muck with the array.
-        
-        $i = array_keys($orgData['EmailAddress']);
-        
-        if(count($i) > 0) {
-          $toEmail = $orgData['EmailAddress'][ $i[0] ]['mail'];
-        }
-      }
-      
-      if($toEmail != "") {
-        $notifyFrom = $this->CoEnrollmentFlow->field('notify_from',
-                                                     array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-        
-        $subjectTemplate = $this->CoEnrollmentFlow->field('verification_subject',
-                                                           array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-        
-        $bodyTemplate = $this->CoEnrollmentFlow->field('verification_body',
-                                                        array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-        
-        $invValidity = $this->CoEnrollmentFlow->field('invitation_validity',
-                                                      array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-        
-        $coName = $this->Co->field('name', array('Co.id' => $coId));
-        
-        $coInviteId = $this->CoInvite->send($coPersonID,
-                                            $orgIdentityID,
-                                            $petitionerId,
-                                            $toEmail,
-                                            $notifyFrom,
-                                            $coName,
-                                            $subjectTemplate,
-                                            $bodyTemplate,
-                                            null,
-                                            $invValidity);
-        
-        // Add the invite ID to the petition record
-        
-        $this->saveField('co_invite_id', $coInviteId);
-        
-        // And add a petition history record
-        
-        try {
-          $this->CoPetitionHistoryRecord->record($coPetitionID,
-                                                 $petitionerId,
-                                                 PetitionActionEnum::InviteSent,
-                                                 _txt('rs.inv.sent', array($toEmail)));
-        }
-        catch(Exception $e) {
-          $dbc->rollback();
-          throw new RuntimeException(_txt('er.db.save'));
-        }
-      } else {
-        $dbc->rollback();
-        throw new RuntimeException(_txt('er.orgp.nomail', array(generateCn($orgData['Name']), $orgIdentityID)));
-      }
+    try {
+      $this->CoPetitionHistoryRecord->record($coPetitionId,
+                                             $petitionerId,
+                                             PetitionActionEnum::IdentityLinked,
+                                             _txt('rs.pt.link.cop', array($coPersonId)));
+    }
+    catch(Exception $e) {
+      throw new RuntimeException(_txt('er.db.save'));
     }
     
-    $dbc->commit();
-    
-    // If status is Approved, promote to Active. We do this via updateStatus to trigger
-    // various side effects, such as identifier assignment.
-    
-    if($initialStatus == StatusEnum::Approved) {
-      $this->updateStatus($this->id, StatusEnum::Active, $petitionerId);
-    }
-    
-    // Generate a notification for this new petition, if configured
-    
-    $notificationGroup = $this->CoEnrollmentFlow->field('notification_co_group_id',
-                                                         array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-    
-    if(!empty($notificationGroup)) {
-      $this->Co
-           ->CoGroup
-           ->CoNotificationRecipientGroup
-           ->register($coPersonID,
-                      null,
-                      $petitionerId,
-                      'cogroup',
-                      $notificationGroup,
-                      ActionEnum::CoPetitionCreated,
-                      _txt('rs.pt.create.not', array(generateCn($coData['PrimaryName']), $efName)),
-                      array(
-                        'controller' => 'co_petitions',
-                        'action'     => 'view',
-                        'id'         => $coPetitionID));
-    }
-    
-    return $this->id;
+    return true;
   }
   
   /**
@@ -1128,15 +738,15 @@ class CoPetition extends AppModel {
     // There must be an email address associated with the org identity associated with this petition
     
     $args = array();
-    $args['conditions']['EmailAddress.org_identity_id'] = $this->field('enrollee_org_identity_id');
-    $args['contain'] = false;
+    $args['conditions']['EnrolleeOrgIdentity.id'] = $this->field('enrollee_org_identity_id');
+    $args['contain'] = array('EmailAddress', 'PrimaryName');
+
+    $org = $this->EnrolleeOrgIdentity->find('first', $args);
     
-    $email = $this->EnrolleeOrgIdentity->EmailAddress->find('first', $args);
-    
-    if(empty($email)) {
-      throw new InvalidArgumentException(_txt('er.notfound',
-                                              array('ct.email_addresses.1',
-                                                    $args['conditions']['EmailAddress.org_identity_id'])));
+    if(empty($org['EmailAddress'])) {
+      throw new InvalidArgumentException(_txt('er.orgp.nomail',
+                                              array(generateCn($org['PrimaryName']),
+                                                    $args['conditions']['EnrolleeOrgIdentity.id'])));
     }
     
     // Unlink any existing invite
@@ -1164,7 +774,7 @@ class CoPetition extends AppModel {
     $coInviteId = $this->CoInvite->send($this->field('enrollee_co_person_id'),
                                         $this->field('enrollee_org_identity_id'),
                                         $actorCoPersonId,
-                                        $email['EmailAddress']['mail'],
+                                        $org['EmailAddress'][0]['mail'],
                                         $enrollmentFlow['CoEnrollmentFlow']['notify_from'],
                                         $this->Co->field('name',
                                                          array('Co.id' => $enrollmentFlow['CoEnrollmentFlow']['co_id'])),
@@ -1188,15 +798,736 @@ class CoPetition extends AppModel {
       $this->CoPetitionHistoryRecord->record($coPetitionId,
                                              $this->field('petitioner_co_person_id'),
                                              PetitionActionEnum::InviteSent,
-                                             _txt('rs.inv.sent', array($email['EmailAddress']['mail'])));
+                                             _txt('rs.inv.sent', array($org['EmailAddress'][0]['mail'])));
     }
     catch(Exception $e) {
       throw new RuntimeException(_txt('er.db.save'));
     }
     
-    return $email['EmailAddress']['mail'];
+    return $org['EmailAddress'][0]['mail'];
   }
 
+  /**
+   * Save (add/update) Petition attributes, including updates to operational models.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   * @param  Integer $enrollmentFlowId Enrollment Flow ID
+   * @param  Array $requestData Attributes from submitted Petition
+   * @param  Integer CO Person ID of the petitioner
+   * @return True on success
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   * @todo Support update (currently only add supported)
+   */
+  
+  public function saveAttributes($id, $enrollmentFlowId, $requestData, $petitionerId) {
+    if(!$id) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.petitions.1'))));
+    }
+    
+    // Start a transaction
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+    
+    // Walk through the request data and validate it manually. We have to do it this
+    // way because it's possible for an enrollment flow to define (say) two addresses,
+    // one of which is required and one of which is optional. (We can't just directly
+    // rely on Cake since enrollment flow rules may not match up with default model rules.)
+    
+    // We try validating all user provided data (ie: not the data we assemble ourselves,
+    // such as the Petition), even if some failed, in order to generate the full
+    // set of errors at once when re-rendering the petition form.
+    
+    // Start by pulling the enrollment attributes configuration.
+    
+    $efAttrs = $this->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($enrollmentFlowId);
+    
+    // And info about this petition
+    
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain'] = false;
+    
+    $petition = $this->find('first', $args);
+    
+    if(!$petition) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.petitions.1'), $id)));
+    }
+    
+    // Set for future saveFields
+    $this->id = $id;
+    
+    // Obtain a list of attributes that are to be copied to the CO Person (Role) from the Org Identity
+    
+    $cArgs = array();
+    $cArgs['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = $enrollmentFlowId;
+    $cArgs['conditions']['CoEnrollmentAttribute.copy_to_coperson'] = true;
+    $cArgs['fields'] = array('CoEnrollmentAttribute.id', 'CoEnrollmentAttribute.attribute');
+    $copyAttrs = $this->CoEnrollmentFlow->CoEnrollmentAttribute->find('list', $cArgs);
+    
+    // Track various identifiers
+    
+    $orgIdentityId = (!empty($petition['CoPetition']['enrollee_org_identity_id'])
+                      ? $petition['CoPetition']['enrollee_org_identity_id']
+                      : null);
+    $coPersonId = (!empty($petition['CoPetition']['enrollee_co_person_id'])
+                   ? $petition['CoPetition']['enrollee_co_person_id']
+                   : null);
+    $coPersonRoleId = (!empty($petition['CoPetition']['enrollee_co_person_role_id'])
+                       ? $petition['CoPetition']['enrollee_co_person_role_id']
+                       : null);
+    
+    // We need to create a CO/Org Identity Link if either is new
+    $createLink = false;
+    
+    // Track validation
+    
+    $fail = false;
+    $orgData = array();
+    $coData = array();
+    $coRoleData = array();
+    
+    // Validate the provided attributes
+    
+    $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
+    
+    if($CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
+      // Platform is configured to pull org identities from the form.
+      // We're keeping this for now for two possible use cases: batch loading of
+      // org identities (CO-76) (with subsequent enrollment matching to existing org id)
+      // and enrollment without org identities (CO-870).
+      
+      try {
+        $orgData = $this->validateModel('EnrolleeOrgIdentity', $requestData, $efAttrs);
+      }
+      catch(Exception $e) {
+        // Validation failed
+        $fail = true;
+      }
+    }
+    
+    try {
+      $coData = $this->validateModel('EnrolleeCoPerson', $requestData, $efAttrs);
+    }
+    catch(Exception $e) {
+      // Validation failed
+      $fail = true;
+    }
+    
+    try {
+      $coRoleData = $this->validateModel('EnrolleeCoPersonRole', $requestData, $efAttrs);
+    }
+    catch(Exception $e) {
+      // Validation failed
+      $fail = true;
+    }
+    
+    if($fail) {
+      // Validation failed
+      $dbc->rollback();
+      throw new InvalidArgumentException(_txt('er.fields'));
+    }
+    
+    // Create operational records if the petition is not already linked to one
+    
+    if(!empty($orgData) && !$orgIdentityId) {
+      // We might need to inject the CO ID
+      // XXX Don't do this or other injections on update, when that gets implemented
+      
+      $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
+      
+      if(!$CmpEnrollmentConfiguration->orgIdentitiesPooled())
+        $orgData['EnrolleeOrgIdentity']['co_id'] = $petition['CoPetition']['co_id'];
+      
+      // Save the Org Identity. All the data is validated, so don't re-validate it.
+      
+      if($this->EnrolleeOrgIdentity->saveAssociated($orgData, array("validate" => false, "atomic" => true))) {
+        $orgIdentityId = $this->EnrolleeOrgIdentity->id;
+        $createLink = true;
+        
+        // Update the petition with the new identifier
+        $this->saveField('enrollee_org_identity_id', $orgIdentityId);
+        
+        // Create a history record
+        try {
+          $this->EnrolleeOrgIdentity->HistoryRecord->record(null,
+                                                            null,
+                                                            $orgIdentityId,
+                                                            $petitionerId,
+                                                            ActionEnum::OrgIdAddedPetition);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException($e->getMessage());
+        }
+      } else {
+        $dbc->rollback();
+        throw new RuntimeException(_txt('er.db.save'));
+      }
+    }
+    
+    if(!empty($coData) && !$coPersonId) {
+      // Insert some additional attributes
+      $coData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
+      $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
+      
+      // Loop through all EmailAddresses, Identifiers, and Names to see if there are any
+      // we should copy to the CO Person.
+      
+      foreach(array('EmailAddress', 'Identifier', 'Name') as $m) {
+        if(!empty($orgData[$m])) {
+          foreach(array_keys($orgData[$m]) as $a) {
+            // $a will be the co_enrollment_attribute:id, so we can tell different
+            // addresses apart
+            if(isset($copyAttrs[$a])) {
+              $coData[$m][$a] = $orgData[$m][$a];
+            }
+          }
+        }
+      }
+      
+      // PrimaryName shows up as a singleton, and so needs to be handled separately.
+      
+      if(!empty($orgData['PrimaryName']['co_enrollment_attribute_id'])
+         && isset($copyAttrs[ $orgData['PrimaryName']['co_enrollment_attribute_id'] ])) {
+        // Copy PrimaryName to the CO Person
+        
+        $coData['PrimaryName'] = $orgData['PrimaryName'];
+      }
+      
+      // Save the CO Person Data
+      
+      if($this->EnrolleeCoPerson->saveAssociated($coData, array("validate" => false, "atomic" => true))) {
+        $coPersonId = $this->EnrolleeCoPerson->id;
+        $createLink = true;
+        
+        // Update the petition with the new identifier
+        $this->saveField('enrollee_co_person_id', $coPersonId);
+        
+        // Create a history record
+        try {
+          $this->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
+                                                         null,
+                                                         $orgIdentityId,
+                                                         $petitionerId,
+                                                         ActionEnum::CoPersonAddedPetition);
+          
+          // And add an explicit record for each group membership
+          
+          if(!empty($coData['CoGroupMember'])) {
+            foreach($coData['CoGroupMember'] as $gm) {
+              // Map the group ID to its name
+              
+              $groupName = $this->EnrolleeCoPerson
+                                ->CoGroupMember
+                                ->CoGroup
+                                ->field('name',
+                                        array('CoGroup.id' => $gm['co_group_id']));
+              
+              $this->EnrolleeCoPerson
+                   ->HistoryRecord
+                   ->record($coPersonId,
+                            null,
+                            null,
+                            $petitionerId,
+                            ActionEnum::CoGroupMemberAdded,
+                            _txt('rs.grm.added-p',
+                                 array($groupName,
+                                       $gm['co_group_id'],
+                                       _txt($gm['member'] ? 'fd.yes' : 'fd.no'),
+                                       _txt($gm['owner'] ? 'fd.yes' : 'fd.no'))));
+            }
+          }
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException($e->getMessage());
+        }
+      } else {
+        $dbc->rollback();
+        throw new RuntimeException(_txt('er.db.save'));
+      }
+    }
+    
+    if(!empty($coRoleData) && !$coPersonRoleId) {
+      // Insert some additional attributes
+      $coRoleData['EnrolleeCoPersonRole']['co_person_id'] = $coPersonId;
+      $coRoleData['EnrolleeCoPersonRole']['status'] = StatusEnum::Pending;
+      
+      // Loop through all Addresses and Telephone Numbers to see if there are any
+      // we should copy to the CO Person Role.
+      foreach(array('Address', 'TelephoneNumber') as $m) {
+        if(!empty($orgData[$m])) {
+          foreach(array_keys($orgData[$m]) as $a) {
+            // $a will be the co_enrollment_attribute:id, so we can tell different
+            // addresses apart
+            if(isset($copyAttrs[$a])) {
+              $coRoleData[$m][$a] = $orgData[$m][$a];
+            }
+          }
+        }
+      }
+      
+      // Save the CO Person Role data
+      
+      if($this->EnrolleeCoPersonRole->saveAssociated($coRoleData, array("validate" => false, "atomic" => true))) {
+        $coPersonRoleId = $this->EnrolleeCoPersonRole->id;
+        
+        // Update the petition with the new identifier
+        $this->saveField('enrollee_co_person_role_id', $coPersonRoleId);
+        
+        // And COU ID, if set
+        if(!empty($coRoleData['EnrolleeCoPersonRole']['cou_id'])) {
+          $this->saveField('cou_id', $coRoleData['EnrolleeCoPersonRole']['cou_id']);
+        }
+        
+        // And Sponsor ID, if set
+        if(!empty($coRoleData['EnrolleeCoPersonRole']['sponsor_co_person_id'])) {
+          $this->saveField('sponsor_co_person_id', $coRoleData['EnrolleeCoPersonRole']['sponsor_co_person_id']);
+        }
+        
+        // Create a history record
+        try {
+          $this->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
+                                                         $coPersonRoleId,
+                                                         $orgIdentityId,
+                                                         $petitionerId,
+                                                         ActionEnum::CoPersonRoleAddedPetition);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException($e->getMessage());
+        }
+      } else {
+        $dbc->rollback();
+        throw new RuntimeException(_txt('er.db.save'));
+      }
+    }
+    
+    if($createLink) {
+      // Create a CO Org Identity Link
+      
+      $coOrgLink = array();
+      $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityId;
+      $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonId;
+      
+      if($this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink)) {
+        // Create a history record
+        try {
+          $this->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
+                                                         $coPersonRoleId,
+                                                         $orgIdentityId,
+                                                         $petitionerId,
+                                                         ActionEnum::CoPersonOrgIdLinked);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException($e->getMessage());
+        }
+      } else {
+        $dbc->rollback();
+        throw new RuntimeException(_txt('er.db.save'));
+      }      
+    }
+    
+    // Flatten the attributes to store in the petition
+    
+    try {
+      $petitionAttrs = $this->flattenAttributes($enrollmentFlowId, $id, $orgData, $coData, $coRoleData);
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
+    }
+    
+    // Try to save. Note that saveMany doesn't expect the Model name as an array
+    // component, unlike all the other saves.
+    
+    if(!$this->CoPetitionAttribute->saveMany($petitionAttrs['CoPetitionAttribute'])) {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+    
+    // Add a co_petition_history_record
+    
+    try {
+      $this->CoPetitionHistoryRecord->record($id,
+                                             $petitionerId,
+                                             PetitionActionEnum::AttributesUpdated,
+                                             _txt('rs.pt.attr.upd'));
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+    
+    // Record agreements to Terms and Conditions, if any
+    
+    if(!empty($requestData['CoTermsAndConditions'])) {
+      $tAndCMode = $this->CoEnrollmentFlow->field('t_and_c_mode',
+                                                  array('CoEnrollmentFlow.id' => $enrollmentFlowId));
+      
+      foreach(array_keys($requestData['CoTermsAndConditions']) as $coTAndCId) {
+        try {
+          // Currently, T&C is only available via a petition when authn is required.
+          // The array value should be the authenticated identifier as set by the view.
+          
+          $this->Co->CoTermsAndConditions->CoTAndCAgreement->record($coTAndCId,
+                                                                    $coPersonId,
+                                                                    $coPersonId,
+                                                                    $requestData['CoTermsAndConditions'][$coTAndCId]);
+          
+          // Also create a Petition History Record of the agreement
+          
+          $tcenum = null;
+          $tccomment = "";
+          $tcdesc = $this->Co->CoTermsAndConditions->field('description',
+                                                           array('CoTermsAndConditions.id' => $coTAndCId))
+                  . " (" . $coTAndCId . ")";
+          
+          switch($tAndCMode) {
+            case TAndCEnrollmentModeEnum::ExplicitConsent:
+              $tcenum = PetitionActionEnum::TCExplicitAgreement;
+              $tccomment = _txt('rs.pt.tc.explicit', array($tcdesc));
+              break;
+            case TAndCEnrollmentModeEnum::ImpliedConsent:
+              $tcenum = PetitionActionEnum::TCImpliedAgreement;
+              $tccomment = _txt('rs.pt.tc.implied', array($tcdesc));
+              break;
+            default:
+              throw new InvalidArgumentException("Unknown Terms and Conditions Mode: $tAndCMode");
+              break;
+          }
+          
+          $this->CoPetitionHistoryRecord->record($id,
+                                                 $petitionerId,
+                                                 $tcenum,
+                                                 $tccomment);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+      }
+    }
+    
+    // Generate a notification for this new petition, if configured
+    $notificationGroup = $this->CoEnrollmentFlow->field('notification_co_group_id',
+                                                         array('CoEnrollmentFlow.id' => $enrollmentFlowId));
+    
+    if(!empty($notificationGroup) && !empty($coData['PrimaryName'])) {
+      $efName = $this->CoEnrollmentFlow->field('name',
+                                               array('CoEnrollmentFlow.id' => $enrollmentFlowId));
+      
+      $this->Co
+           ->CoGroup
+           ->CoNotificationRecipientGroup
+           ->register($coPersonId,
+                      null,
+                      $petitionerId,
+                      'cogroup',
+                      $notificationGroup,
+                      ActionEnum::CoPetitionCreated,
+                      _txt('rs.pt.create.not', array(generateCn($coData['PrimaryName']), $efName)),
+                      array(
+                        'controller' => 'co_petitions',
+                        'action'     => 'view',
+                        'id'         => $id));
+    }
+    
+    // Commit
+    $dbc->commit();
+    
+    return true;
+  }
+  
+  /**
+   * Send enrollee approval notification for a Petition.
+   * - postcondition: Notification sent
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer CO Petition ID
+   * @param  Integer CO Person ID of actor sending the notification
+   * @return True on success
+   * @throws InvalidArgumentException
+   */
+  
+  public function sendApprovalNotification($id, $actorCoPersonId) {
+    // First we need some info from the petition and enrollment flow
+    
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain'][] = 'CoEnrollmentFlow';
+    $args['contain'][] = 'Co';
+    $args['contain']['EnrolleeOrgIdentity'] = array('EmailAddress', 'PrimaryName');
+    
+    $pt = $this->find('first', $args);
+    
+    if(!$pt) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
+    }
+    
+    if(isset($pt['CoEnrollmentFlow']['notify_on_approval'])
+       && $pt['CoEnrollmentFlow']['notify_on_approval']) {
+      // We'll embed some email logic here (similar to that in CoInvite), since we don't
+      // have a notification infrastructure yet. This should get refactored when CO-207
+      // is addressed. (Be sure to remove the reference to App::uses('CakeEmail'), above.)
+      
+      // Which address should we send to? How about the one we sent the invitation to...
+      // but we can't guarantee access to that since the invitation will have been
+      // discarded. So we use the same logic as resend() above and sendConfirmation() below.
+      
+      if(!empty($pt['EnrolleeOrgIdentity']['EmailAddress'])) {
+        $toEmail = null;
+        
+        // Which email do we pick? Ultimately we could look at type and/or verified,
+        // but for now we'll just pick the first one. Note array_shift will muck with $pt,
+        // but we don't need it anymore.
+        
+        $ea = array_shift($pt['EnrolleeOrgIdentity']['EmailAddress']);
+        
+        if(empty($ea['mail'])) {
+          throw new RuntimeException(_txt('er.orgp.nomail',
+                                          array(generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']),
+                                                $pt['EnrolleeOrgIdentity']['id'])));
+        }
+        
+        $toEmail = $ea['mail'];
+        
+        $notifyFrom = $pt['CoEnrollmentFlow']['notify_from'];
+        $subjectTemplate = $pt['CoEnrollmentFlow']['approval_subject'];
+        $bodyTemplate = $pt['CoEnrollmentFlow']['approval_body'];
+        $coName = $pt['Co']['name'];
+        
+        // Try to send the notification
+        
+        $email = new CakeEmail('default');
+        
+        $substitutions = array(
+          'CO_NAME' => $coName
+        );
+        
+        try {
+          $msgSubject = processTemplate($subjectTemplate, $substitutions);
+          $msgBody = processTemplate($bodyTemplate, $substitutions);
+          
+          $email->emailFormat('text')
+                ->to($toEmail)
+                ->subject($msgSubject);
+          
+          // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
+          if(!empty($notifyFrom)) {
+            $email->from($notifyFrom);
+          }
+          
+          // Send the email
+          $email->send($msgBody);
+          
+          // And cut a history record
+          
+          $this->CoPetitionHistoryRecord->record($id,
+                                                 $actorCoPersonId,
+                                                 PetitionActionEnum::NotificationSent,
+                                                 _txt('rs.nt.sent', array($toEmail)));
+        }
+        catch(Exception $e) {
+          // We don't want to fail, but we will at least record that something went wrong
+          
+          $this->CoPetitionHistoryRecord->record($id,
+                                                 $actorCoPersonId,
+                                                 PetitionActionEnum::NotificationSent,
+                                                 _txt('er.nt.send', array($toEmail, $e->getMessage())));
+        }
+      } else {
+        // We don't want to fail, but we will at least record that something went wrong
+        
+        $this->CoPetitionHistoryRecord->record($id,
+                                               $actorCoPersonId,
+                                               PetitionActionEnum::NotificationSent,
+                                               _txt('er.nt.email'));
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Send approvers notification for a Petition.
+   * - postcondition: Notification sent
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer CO Petition ID
+   * @param  Integer CO Person ID of actor sending the notification
+   * @return True on success
+   * @throws InvalidArgumentException
+   */
+  
+  public function sendApproverNotification($id, $actorCoPersonId) {
+    // First we need some info from the petition and enrollment flow
+    
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain'][] = 'CoEnrollmentFlow';
+    $args['contain'][] = 'Cou';
+    $args['contain']['EnrolleeOrgIdentity'][] = 'PrimaryName';
+    
+    $pt = $this->find('first', $args);
+    
+    if(!$pt) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
+    }
+    
+    $cogroupids = array();
+    
+    if(!empty($pt['CoEnrollmentFlow']['approver_co_group_id'])) {
+      $cogroupids[] = $pt['CoEnrollmentFlow']['approver_co_group_id'];
+    } else {
+      // We need to look up the appropriate admin group(s). Start with the CO Admins.
+      
+      try {
+        $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id']);
+      }
+      catch(Exception $e) {
+        $fail = true;
+      }
+      
+      // To see if we should notify COU Admins, we need to see if this petition was
+      // attached to a COU
+      
+      if(!empty($pt['Cou']['name'])) {
+        // Use the COU name so we can map to its admin group
+        
+        try {
+          $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id'], $pt['Cou']['name']);
+        }
+        catch(Exception $e) {
+          $fail = true;
+        }
+      }
+    }
+    
+    // Now that we have a list of groups, register the notifications
+    // -- we don't fail on notification failures
+    
+    foreach($cogroupids as $cgid) {
+      $this->Co
+           ->CoGroup
+           ->CoNotificationRecipientGroup
+           ->register($pt['CoPetition']['enrollee_co_person_id'],
+                      null,
+                      $actorCoPersonId,
+                      'cogroup',
+                      $cgid,
+                      ActionEnum::CoPetitionUpdated,
+                      _txt('rs.pt.status', array(generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']),
+                                                 _txt('en.status', null, $pt['CoPetition']['status']),
+                                                 _txt('en.status', null, PetitionStatusEnum::PendingApproval),
+                                                 $pt['CoEnrollmentFlow']['name'])),
+                      array(
+                        'controller' => 'co_petitions',
+                        'action'     => 'view',
+                        'id'         => $id
+                      ),
+                      true);
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Send a confirmation (invite) for a Petition.
+   * - postcondition: Invite sent
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer CO Petition ID
+   * @param  Integer CO Person ID of actor sending the invite
+   * @throws InvalidArgumentException
+   * @return String Address the invitation was sent to
+   */
+  
+  public function sendConfirmation($id, $actorCoPersonId) {
+    // Just let any exceptions fall through
+    
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain']['EnrolleeOrgIdentity'] = array('EmailAddress', 'PrimaryName');
+    
+    $pt = $this->find('first', $args);
+    
+    if(empty($pt)) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
+    }
+    
+    if(empty($pt['EnrolleeOrgIdentity']['EmailAddress'])) {
+      throw new RuntimeException(_txt('er.orgp.nomail',
+                                      array(generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']),
+                                            $pt['EnrolleeOrgIdentity']['id'])));
+    }
+    
+    $toEmail = null;
+    
+    // Which email do we pick? Ultimately we could look at type and/or verified,
+    // but for now we'll just pick the first one. If this logic changes, resend()
+    // will also need to be updated.
+    // Note array_shift will muck with $pt, but we don't need it anymore.
+    
+    $ea = array_shift($pt['EnrolleeOrgIdentity']['EmailAddress']);
+    
+    if(empty($ea['mail'])) {
+      throw new RuntimeException(_txt('er.orgp.nomail',
+                                      array(generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']),
+                                            $pt['EnrolleeOrgIdentity']['id'])));
+    }
+    
+    $toEmail = $ea['mail'];
+    
+    // Now we need some info from the enrollment flow
+    
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.id'] = $pt['CoPetition']['co_enrollment_flow_id'];
+    $args['contain'][] = 'Co';
+    
+    $ef = $this->CoEnrollmentFlow->find('first', $args);
+    
+    if(!$ef) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_flows.1'),
+                                                                   $pt['CoPetition']['co_enrollment_flow_id'])));
+    }
+    
+    // We can now send the invitation
+    $coInviteId = $this->CoInvite->send($pt['CoPetition']['enrollee_co_person_id'],
+                                        $pt['CoPetition']['enrollee_org_identity_id'],
+                                        $actorCoPersonId,
+                                        $toEmail,
+                                        $ef['CoEnrollmentFlow']['notify_from'],
+                                        $ef['Co']['name'],
+                                        $ef['CoEnrollmentFlow']['verification_subject'],
+                                        $ef['CoEnrollmentFlow']['verification_body'],
+                                        null,
+                                        $ef['CoEnrollmentFlow']['invitation_validity']);
+    
+    // Add the invite ID to the petition record
+    
+    $this->id = $id;
+    $this->saveField('co_invite_id', $coInviteId);
+    
+    // And add a petition history record
+    
+    try {
+      $this->CoPetitionHistoryRecord->record($id,
+                                             $actorCoPersonId,
+                                             PetitionActionEnum::InviteSent,
+                                             _txt('rs.inv.sent', array($toEmail)));
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+    
+    return $toEmail;
+  }
+  
   /**
    * Update the status of a CO Petition.
    * - precondition: The Petition must be in a state suitable for the desired new status.
@@ -1240,28 +1571,26 @@ class CoPetition extends AppModel {
                                               array('ct.co_enrollment_flows.1', $args['conditions']['CoEnrollmentFlow.id'])));
     }
     
+    // We may need these later
+    $coPersonID = $this->field('enrollee_co_person_id');
+    $coPersonRoleID = $this->field('enrollee_co_person_role_id');    
+    
     if($curStatus == StatusEnum::PendingConfirmation) {
       // A Petition can go from Pending Confirmation to Pending Approval, Approved, or Denied.
       // It can also go to Confirmed, though we'll override that.
       
       if($newStatus == StatusEnum::Approved
          || $newStatus == StatusEnum::Confirmed
+         || $newStatus == StatusEnum::Declined
          || $newStatus == StatusEnum::Denied
          || $newStatus == StatusEnum::Duplicate
          || $newStatus == StatusEnum::PendingApproval) {
         $valid = true;
       }
       
-      // If newStatus is Confirmed, set to PendingApproval or Approved as necessary,
-      // and create an additional history record.
+      // If newStatus is Confirmed create an additional history record.
       
       if($newStatus == StatusEnum::Confirmed) {
-        if($enrollmentFlow['CoEnrollmentFlow']['approval_required']) {
-          $newPetitionStatus = StatusEnum::PendingApproval;
-        } else {
-          $newPetitionStatus = StatusEnum::Approved;
-        }
-        
         try {
           $this->CoPetitionHistoryRecord->record($id,
                                                  $actorCoPersonID,
@@ -1271,9 +1600,7 @@ class CoPetition extends AppModel {
           throw new RuntimeException($e->getMessage());
         }
       }
-    }
-    
-    if($curStatus == StatusEnum::PendingApproval) {
+    } elseif($curStatus == StatusEnum::PendingApproval) {
       // A Petition can go from PendingApproval to Approved or Denied
       
       if($newStatus == StatusEnum::Approved
@@ -1281,34 +1608,27 @@ class CoPetition extends AppModel {
          || $newStatus == StatusEnum::Duplicate) {
         $valid = true;
       }
-    }
-    
-    if($curStatus == StatusEnum::Approved) {
-      // An approved status doesn't itself go to Active, but migrates
-      // the CO Person and CO Person Role status. It's not really clear
-      // if this is the right place to do this, but there's not really
-      // another place at the moment. Perhaps something for CO-321.
+    } elseif($curStatus == StatusEnum::Approved) {
+      // On finalization, set the CO Person and CO Person Role to Active.
       
-      if($newStatus == StatusEnum::Active) {
+      if($newStatus == PetitionStatusEnum::Finalized) {
         $valid = true;
-        $newPetitionStatus = StatusEnum::Approved;
-        $newCoPersonStatus = $newStatus;
-      }
-    }
-    
-    // If a CO Person Role is defined update the CO Person (& Role) status
-    
-    $coPersonRoleID = $this->field('enrollee_co_person_role_id');    
-    
-    if($coPersonRoleID) {
-      $newCoPersonStatus = $newPetitionStatus;
-      
-      // XXX This is temporary for CO-321 since there isn't currently a way for an approved person
-      // to become active. This should be dropped when a more workflow-oriented mechanism is implemented.
-      // Note similar code in createPetition().
-      if($newPetitionStatus == StatusEnum::Approved) {
+        $newPetitionStatus = PetitionStatusEnum::Finalized;
         $newCoPersonStatus = StatusEnum::Active;
       }
+    } else {
+      // For now accept all other status transitions. It might make sense to drop
+      // the validity check completely.
+      
+      $valid = true;
+    }
+    
+    // If a CO Person Role is defined update the CO Person (& Role) status,
+    // but not if the new petition status is Finalized (since that doesn't apply
+    // to the person/role).
+    
+    if($coPersonRoleID && $newPetitionStatus != PetitionStatusEnum::Finalized) {
+      $newCoPersonStatus = $newPetitionStatus;
     }
     
     if($valid) {
@@ -1319,8 +1639,7 @@ class CoPetition extends AppModel {
       $dbc = $this->getDataSource();
       $dbc->begin();
       
-      // Update the Petition status, if it changed. (Pushing from Approved to
-      // Active isn't actually a Petition status change.)
+      // Update the Petition status, if it changed.
       
       if($curStatus != $newPetitionStatus) {
         if(!$this->saveField('status', $newPetitionStatus)) {
@@ -1340,6 +1659,7 @@ class CoPetition extends AppModel {
         
         if(!$fail) {
           $petitionAction = null;
+          $comment = null;
           
           switch($newPetitionStatus) {
             case StatusEnum::Approved:
@@ -1355,56 +1675,22 @@ class CoPetition extends AppModel {
             case StatusEnum::Duplicate:
               $petitionAction = PetitionActionEnum::FlaggedDuplicate;
               break;
+            default:
+              $petitionAction = PetitionActionEnum::StatusUpdated;
+              $comment = _txt('rs.pt.status.h', array(_txt('en.status.pt', null, $curStatus),
+                                                      _txt('en.status.pt', null, $newPetitionStatus)));
+              break;
           }
           
           if($petitionAction) {
             try {
               $this->CoPetitionHistoryRecord->record($id,
                                                      $actorCoPersonID,
-                                                     $petitionAction);
+                                                     $petitionAction,
+                                                     $comment);
             }
             catch (Exception $e) {
               $fail = true;
-            }
-          }
-        }
-      }
-      
-      // Maybe assign identifiers, but only for new approvals
-      
-      // We do this before setting the CO Person status to Active because we want the
-      // identifiers to exist prior to provisioning (and specifically, LDAP DN construction),
-      // which happens when the CO Person status goes to Active.
-      
-      if(!$fail && $newPetitionStatus == StatusEnum::Approved) {
-        $coPersonID = $this->field('enrollee_co_person_id');
-        
-        if($coID && $coPersonID) {
-          $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID, $actorCoPersonID);
-          
-          if(!empty($res)) {
-            // See if any identifiers were assigned, and if so create a history record
-            $assigned = array();
-            
-            foreach(array_keys($res) as $idType) {
-              if($res[$idType] == 1) {
-                $assigned[] = $idType;
-              } elseif($res[$idType] != 2) {
-                // It'd probably be helpful if we caught this error somewhere...
-                $fail = true;
-              }
-            }
-            
-            if(!empty($assigned)) {
-              try {
-                $this->CoPetitionHistoryRecord->record($id,
-                                                       $actorCoPersonID,
-                                                       PetitionActionEnum::IdentifiersAssigned,
-                                                       _txt('rs.ia.ok') . " (" . implode(',', $assigned) . ")");
-              }
-              catch(Exception $e) {
-                $fail = true;
-              }
             }
           }
         }
@@ -1440,8 +1726,6 @@ class CoPetition extends AppModel {
       // Recalculate the overall CO Person status
       
       if(!$fail && isset($newCoPersonStatus)) {
-        $coPersonID = $this->field('enrollee_co_person_id');
-        
         if($coPersonID) {
           try {
             $this->EnrolleeCoPerson->recalculateStatus($coPersonID);
@@ -1451,92 +1735,6 @@ class CoPetition extends AppModel {
           }
         } else {
           $fail = true;
-        }
-      }
-      
-      // Send an approval notification, if configured
-      
-      if(!$fail && $newPetitionStatus == StatusEnum::Approved) {
-        $enrollmentFlowID = $this->field('co_enrollment_flow_id');
-        
-        $notify = $this->CoEnrollmentFlow->field('notify_on_approval',
-                                                 array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-        
-        if($notify) {
-          // We'll embed some email logic here (similar to that in CoInvite), since we don't
-          // have a notification infrastructure yet. This should get refactored when CO-207
-          // is addressed. (Be sure to remove the reference to App::uses('CakeEmail'), above.)
-          
-          // Which address should we send to? How about the one we sent the invitation to...
-          // but we can't guarantee access to that since the invitation will have been
-          // discarded. So we use the same logic as resend(), above.
-          
-          $args = array();
-          $args['conditions']['EmailAddress.org_identity_id'] = $this->field('enrollee_org_identity_id');
-          $args['contain'] = false;
-          
-          $email = $this->EnrolleeOrgIdentity->EmailAddress->find('first', $args);
-          
-          if(isset($email['EmailAddress']['mail']) && $email['EmailAddress']['mail'] != "") {
-            $toEmail = $email['EmailAddress']['mail'];
-            
-            $notifyFrom = $this->CoEnrollmentFlow->field('notify_from',
-                                                         array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-            
-            $subjectTemplate = $this->CoEnrollmentFlow->field('approval_subject',
-                                                              array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-            
-            $bodyTemplate = $this->CoEnrollmentFlow->field('approval_body',
-                                                           array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-            
-            $coName = $this->Co->field('name', array('Co.id' => $this->field('co_id')));
-            
-            // Try to send the notification
-            
-            $email = new CakeEmail('default');
-            
-            $substitutions = array(
-              'CO_NAME' => $coName
-            );
-            
-            try {
-              $msgSubject = processTemplate($subjectTemplate, $substitutions);
-              $msgBody = processTemplate($bodyTemplate, $substitutions);
-              
-              $email->emailFormat('text')
-                    ->to($toEmail)
-                    ->subject($msgSubject);
-              
-              // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
-              if(!empty($notifyFrom)) {
-                $email->from($notifyFrom);
-              }
-              
-              // Send the email
-              $email->send($msgBody);
-              
-              // And cut a history record
-              
-              $this->CoPetitionHistoryRecord->record($id,
-                                                     $actorCoPersonID,
-                                                     PetitionActionEnum::NotificationSent,
-                                                     _txt('rs.nt.sent', array($toEmail)));
-            } catch(Exception $e) {
-              // We don't want to fail, but we will at least record that something went wrong
-              
-              $this->CoPetitionHistoryRecord->record($id,
-                                                     $actorCoPersonID,
-                                                     PetitionActionEnum::NotificationSent,
-                                                     _txt('er.nt.send', array($toEmail, $e->getMessage())));
-            }
-          } else {
-            // We don't want to fail, but we will at least record that something went wrong
-            
-            $this->CoPetitionHistoryRecord->record($id,
-                                                   $actorCoPersonID,
-                                                   PetitionActionEnum::NotificationSent,
-                                                   _txt('er.nt.email'));
-          }
         }
       }
       
@@ -1556,80 +1754,17 @@ class CoPetition extends AppModel {
       
       // Register some notifications. We'll need the enrollee's name for this.
       
-      if(empty($coPersonID)) {
-        // In case we haven't pulled these already -- XXX we could clean this up and pull $this only once at the top
-        $coPersonID = $this->field('enrollee_co_person_id');
-      }
-      
-      $args = array();
-      $args['conditions']['EnrolleeCoPerson.id'] = $coPersonID;
-      $args['contain'][] = 'PrimaryName';
-      
-      $enrollee = $this->EnrolleeCoPerson->find('first', $args);
-      
-      if(!empty($enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'])) {
-        // If there is a notification group defined, send info on the status change
-        // -- we don't fail on notification failures
+      if($coPersonID) {
+        $args = array();
+        $args['conditions']['EnrolleeCoPerson.id'] = $coPersonID;
+        $args['contain'][] = 'PrimaryName';
         
-        $this->Co
-             ->CoGroup
-             ->CoNotificationRecipientGroup
-             ->register($coPersonID,
-                        null,
-                        $actorCoPersonID,
-                        'cogroup',
-                        $enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'],
-                        ActionEnum::CoPetitionUpdated,
-                        _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
-                                                   _txt('en.status', null, $curStatus),
-                                                   _txt('en.status', null, $newPetitionStatus),
-                                                   $enrollmentFlow['CoEnrollmentFlow']['name'])),
-                        array(
-                          'controller' => 'co_petitions',
-                          'action'     => 'view',
-                          'id'         => $id));
-      }
-      
-      if($newPetitionStatus == StatusEnum::PendingApproval) {
-        $cogroupids = array();
+        $enrollee = $this->EnrolleeCoPerson->find('first', $args);
         
-        if(!empty($enrollmentFlow['CoEnrollmentFlow']['approver_co_group_id'])) {
-          $cogroupids[] = $enrollmentFlow['CoEnrollmentFlow']['approver_co_group_id'];
-        } else {
-          // We need to look up the appropriate admin group(s). Start with the CO Admins.
+        if(!empty($enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'])) {
+          // If there is a notification group defined, send info on the status change
+          // -- we don't fail on notification failures
           
-          try {
-            $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($coID);
-          }
-          catch(Exception $e) {
-            $fail = true;
-          }
-          
-          // To see if we should notify COU Admins, we need to see if this petition was
-          // attached to a COU
-          
-          $couID = $this->field('cou_id');
-          
-          if(!empty($couID)) {
-            // Map this COU ID to it's name so we can then map that to its admin group
-            
-            $couName = $this->Cou->field('name', array('Cou.id' => $couID));
-            
-            if(!empty($couName)) {
-              try {
-                $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($coID, $couName);
-              }
-              catch(Exception $e) {
-                $fail = true;
-              }
-            }
-          }
-        }
-        
-        // Now that we have a list of groups, register the notifications
-        // -- we don't fail on notification failures
-        
-        foreach($cogroupids as $cgid) {
           $this->Co
                ->CoGroup
                ->CoNotificationRecipientGroup
@@ -1637,18 +1772,16 @@ class CoPetition extends AppModel {
                           null,
                           $actorCoPersonID,
                           'cogroup',
-                          $cgid,
+                          $enrollmentFlow['CoEnrollmentFlow']['notification_co_group_id'],
                           ActionEnum::CoPetitionUpdated,
-                         _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
-                                                    _txt('en.status', null, $curStatus),
-                                                    _txt('en.status', null, $newPetitionStatus),
-                                                    $enrollmentFlow['CoEnrollmentFlow']['name'])),
+                          _txt('rs.pt.status', array(generateCn($enrollee['PrimaryName']),
+                                                     _txt('en.status.pt', null, $curStatus),
+                                                     _txt('en.status.pt', null, $newPetitionStatus),
+                                                     $enrollmentFlow['CoEnrollmentFlow']['name'])),
                           array(
                             'controller' => 'co_petitions',
                             'action'     => 'view',
-                            'id'         => $id
-                          ),
-                          true);
+                            'id'         => $id));
         }
       }
       
@@ -1725,8 +1858,8 @@ class CoPetition extends AppModel {
       $orgId = $this->field('enrollee_org_identity_id');
       
       if($orgId) {
-        // For now, we assume the identifier type is ePPN. XXX This probably isn't right,
-        // and should be customizable.
+        // For now, we assume the identifier type is ePPN. This probably isn't right,
+        // and should be customizable. (CO-460)
         
         $args = array();
         $args['conditions']['Identifier.identifier'] = $loginIdentifier;
@@ -1830,6 +1963,56 @@ class CoPetition extends AppModel {
         throw new InvalidArgumentException(_txt('er.notprov.id', array('ct.org_identities.1')));
       }
     }
+  }
+  
+  /**
+   * Validate a model's worth of data provided in a petition, including related models.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  string $pmodel Name of model to validate
+   * @param  Array $requestData Data as submitted in the petition
+   * @param  Array $efAttrs Enrollment flow attribute configuration
+   * @return Array of validated attributes
+   * @throws RuntimeException
+   */
+  
+  protected function validateModel($pmodel, $requestData, $efAttrs) {
+    $ret = array();
+    
+    if(!empty($requestData[$pmodel])) {
+      // Adjust validation rules for top level attributes only (OrgIdentity, CO Person, CO Person Role)
+      // and validate those models without validating the associated models.
+      
+      // We'll start building an array of org data to save as we validate the provided data.
+      
+      $ret[$pmodel] = $this->$pmodel->filterModelAttributes($requestData[$pmodel]);
+      
+      // Dynamically adjust validation rules according to the enrollment flow
+      $this->adjustValidationRules($pmodel, $efAttrs);
+      
+      // Manually validate OrgIdentity
+      $this->$pmodel->set($ret);
+      
+      // Make sure to use invalidFields(), which won't try to validate (possibly
+      // missing) related models.
+      $errFields = $this->$pmodel->invalidFields();
+      
+      if(!empty($errFields)) {
+        $fail = true;
+      }
+      
+      // Now validate related models
+      
+      $v = $this->validateRelated($pmodel, $requestData, $ret, $efAttrs);
+      
+      if($v) {
+        $ret = $v;
+      } else {
+        throw new RuntimeException(_txt('er.validation'));
+      }
+    }
+    
+    return $ret;
   }
   
   /**

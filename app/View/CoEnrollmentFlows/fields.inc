@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Configuration Fields
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -83,7 +83,10 @@
     }
   }
   
-  if($this->action != "add" && $permissions['select']) {
+  if($this->action != "add"
+     && $permissions['select']
+     && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['status'])
+     && $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] == EnrollmentFlowStatusEnum::Active) {
     // Shortcut to start enrollment flow
     
     $sidebarButtons[] = array(
@@ -91,7 +94,7 @@
       'title'   => _txt('op.begin'),
       'url'     => array(
         'controller' => 'co_petitions',
-        'action' => 'add',
+        'action' => 'start',
         'coef' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
       )
     );
@@ -181,7 +184,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] : StatusEnum::Active);
+          $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] : EnrollmentFlowStatusEnum::Active);
           $attrs['empty'] = false;
           
           if($e) {

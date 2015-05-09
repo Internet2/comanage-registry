@@ -64,97 +64,57 @@ class CoPetitionsController extends StandardController {
     'Cou'
   );
   
+  // Cached copy of enrollment flow ID, once determined
+  protected $cachedEnrollmentFlowID = -1;
+  
+  // Index of next steps. This ordering may be a bit unintuitive, since often a
+  // step leads to a next step when the predecessor is not configured to run.
+  // There are also steps that result in temporarily exiting the flow, so what
+  // appears to be the next step doesn't necessarily actually run.
+  
+  // Be very careful before changing the order of these steps, or inserting new ones.
+  
+  protected $nextSteps = array(
+    'start'                    => 'selectEnrollee',
+    'selectEnrollee'           => 'petitionerAttributes',
+    'petitionerAttributes'     => 'sendConfirmation',
+    'sendConfirmation'         => 'waitForConfirmation',
+    // execution continues here if confirmation not required
+    'waitForConfirmation'      => 'sendApproverNotification',
+    // We have both redirectOnConfirm and waitForApproval because depending on the
+    // confirmation we might have different paths to completing the processConfirmation step
+    'sendApproverNotification' => 'waitForApproval',
+    'waitForApproval'          => 'finalize',
+    // execution continues at finalize if approval not required
+    // processConfirmation is re-entry point following confirmation
+    'processConfirmation'      => 'collectIdentifier',
+    'collectIdentifier'        => 'sendApproverNotification',
+    // approve is re-entry point following approval
+    'approve'                  => 'sendApprovalNotification',
+    'sendApprovalNotification' => 'finalize',
+    'deny'                     => 'finalize',
+    'finalize'                 => 'redirectOnConfirm'
+  );
+  
   /**
    * Add a CO Petition.
-   * - precondition: Model specific attributes in $this->request->data (optional)
-   * - postcondition: On success, new Object created
-   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
-   * - postcondition: $<object>_id or $invalid_fields set (REST)
-   * - postcondition: $co_enrollment_attributes may be set.
    *
    * @since  COmanage Registry v0.5
    * @throws RuntimeException
    */
-  
+
   function add() {
     if(!$this->request->is('restful')) {
-      $enrollmentFlowID = $this->enrollmentFlowID();
+      // For compatibility reasons, redirect to /start. (This can ultimately be tossed.)
       
-      // Make sure this enrollment flow is active
-      $status = $this->CoPetition->CoEnrollmentFlow->field('status',
-                                                           array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-      
-      if($status != EnrollmentFlowStatusEnum::Active) {
-        $this->Session->setFlash(_txt('er.ef.active'), '', array(), 'error');
-        $this->performRedirect();
-      }
-      
-      // Set the title to be the name of the enrollment flow
-      
-      $this->set('title_for_layout',
-                 $this->CoPetition->CoEnrollmentFlow->field('name',
-                                                            array('CoEnrollmentFlow.id' => $enrollmentFlowID)));
-      
-      $authnReq = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
-                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-      
-      if(!$authnReq && !$this->Session->check('Auth.User.name')) {
-        // If authentication is not required, and we're not authenticated as
-        // a valid user, hide the login/logout button to minimize confusion
-        $this->set('noLoginLogout', true);
-      }
-      
-      if($this->request->is('post')) {
-        // Set the view var. We need this on both success and failure.
+      if(!empty($this->request->params['named']['coef'])) {
+        $redirect = array(
+          'controller' => 'co_petitions',
+          'action'     => 'start',
+          'coef'       => $this->request->params['named']['coef']
+        );
         
-        $this->set('co_enrollment_attributes',
-                   $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($enrollmentFlowID));
-        
-        try {
-          $petitionId = $this->CoPetition->createPetition($enrollmentFlowID,
-                                                          $this->cur_co['Co']['id'],
-                                                          $this->request->data,
-                                                          $this->Session->read('Auth.User.co_person_id'));
-          
-          $matchPolicy = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
-                                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-          
-          $authzLevel = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
-                                                                   array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-          
-          if($authzLevel == EnrollmentAuthzEnum::None) {
-            // Figure out where to redirect the enrollee to
-            $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_submit',
-                                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-            
-            if(!$targetUrl || $targetUrl == "") {
-              // Default redirect is to /, which isn't really a great target
-              
-              $this->Session->setFlash(_txt('rs.pt.create.self'), '', array(), 'success');
-              $targetUrl = "/";
-            }
-            // else we suppress the flash message, since it may not make sense in context
-            // or may appear "randomly" (eg: if the targetUrl is outside the Cake framework)
-            
-            // Store the CO Petition ID in the session, so the target can pick it up if desired
-            $this->Session->write('CoPetition.id', $petitionId);
-            
-            $this->redirect($targetUrl);
-          } elseif($authnReq && $matchPolicy == EnrollmentMatchPolicyEnum::Self) {
-            // Clear any session for account linking
-            $this->Session->setFlash(_txt('rs.pt.login'), '', array(), 'success');
-            $this->redirect("/auth/logout");
-          } else {
-            // Standard redirect
-            $this->Session->setFlash(_txt('rs.pt.create'), '', array(), 'success');
-            $this->performRedirect();
-          }
-        }
-        catch(Exception $e) {
-          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
-        }
-      } else {
-        parent::add();
+        $this->redirect($redirect);
       }
     } else {
       // REST API gets standard behavior
@@ -165,27 +125,13 @@ class CoPetitionsController extends StandardController {
   
   /**
    * Approve a petition.
-   * - precondition: $id must exist and be in 'Pending Approval' state
-   * - postcondition: On error, session flash message set
-   * - postcondition: Redirect generated
    *
    * @since  COmanage Registry v0.5
    * @param  Integer Petition ID
    */
   
-  function approve($id) {
-    try {
-      $this->CoPetition->updateStatus($id,
-                                      StatusEnum::Approved,
-                                      $this->Session->read('Auth.User.co_person_id'));
-      
-      $this->Session->setFlash(_txt('rs.pt.approve'), '', array(), 'success');
-    }
-    catch(Exception $e) {
-      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
-    }
-    
-    $this->performRedirect();
+  public function approve($id) {
+    $this->dispatch('approve', $id);
   }
   
   /**
@@ -196,27 +142,94 @@ class CoPetitionsController extends StandardController {
    */
   
   function beforeFilter() {
-    if(!$this->request->is('restful') && ($this->action == 'add' || $this->action == 'edit')) {
-      // Make sure we were given a valid enrollment flow
+    $steps = null;
+    
+    if($this->enrollmentFlowID() > -1) {
+      $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
+    }
+    
+    if(!$this->request->is('restful')) {
+      // Under certain circumstances, we may wish to drop authentication.
+      $noAuth = false;
       
-      $args['conditions']['CoEnrollmentFlow.id'] = $this->enrollmentFlowID();
-      $args['contain'] = false;
-      $ef = $this->CoPetition->CoEnrollmentFlow->find('first', $args);
-      
-      if(empty($ef)) {
-        $this->Session->setFlash(_txt('er.coef.unk'), '', array(), 'error');
-      } elseif(isset($ef['CoEnrollmentFlow']['authz_level'])
-               && $ef['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None
-               && isset($ef['CoEnrollmentFlow']['require_authn'])
-               && !$ef['CoEnrollmentFlow']['require_authn']) {
-        // If this enrollment flow allows unauthenticated enrollments, drop the auth
-        // requirement, but only if authentication is not required for the flow.
-        // Only do this for add for the moment, since we don't currently
-        // know what it means for an unauthenticated enrollment to be edited without
-        // authentication.
+      if($this->action == 'add') {
+        // add just redirects to start
+        $noAuth = true;
+      } elseif(isset($steps[$this->action])) {
+        $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
         
-        if($this->action == 'add' && $this->isAuthorized()) {
-          $this->Auth->allow('add');
+        if($steps[$this->action]['role'] == EnrollmentRole::Petitioner
+           || $steps[$this->action]['role'] == EnrollmentRole::Enrollee) {
+          // Pull the enrollment flow configuration to determine what we should do
+          
+          $args = array();
+          $args['conditions']['CoEnrollmentFlow.id'] = $this->enrollmentFlowID();
+          $args['contain'] = false;
+          
+          $ef = $this->CoPetition->CoEnrollmentFlow->find('first', $args);
+          
+          if(empty($ef)) {
+            $this->Session->setFlash(_txt('er.coef.unk'), '', array(), 'error');
+          } elseif($steps[$this->action]['role'] == EnrollmentRole::Petitioner
+                   && isset($ef['CoEnrollmentFlow']['authz_level'])
+                   && $ef['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None
+                   // We need isAuthorized() to run to populate $permissions
+                   && $this->isAuthorized()) {
+            // This enrollment flow doesn't require authentication for the petitioner.
+            // Drop it completely for the 'start' step. For the others, we should have
+            // a token that matches the token in the petition.
+            
+            if($this->action == 'start') {
+              $noAuth = true;
+            } else {
+              $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+              $passedToken = $this->parseToken();
+              
+              if($token && $token != '' && $passedToken
+                 && $token == $passedToken) {
+                $noAuth = true;
+                
+                // Dump the token into a viewvar in case needed
+                $this->set('vv_petition_token', $token);
+              } else {
+                $this->Session->setFlash(_txt('er.token'), '', array(), 'error');
+                $this->redirect("/");
+              }
+            }
+          } elseif($steps[$this->action]['role'] == EnrollmentRole::Enrollee
+                   && (!isset($ef['CoEnrollmentFlow']['require_authn'])
+                       || !$ef['CoEnrollmentFlow']['require_authn'])
+                   // We need isAuthorized() to run to populate $permissions
+                   && $this->isAuthorized()) {
+            // This enrollment flow doesn't require authentication for the enrollee.
+            // Redirected from CO Invites controller, we should have a token that
+            // matches the token in the petition.
+            
+            $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+            $passedToken = $this->parseToken();
+            
+            if($token && $token != '' && $passedToken
+               && $token == $passedToken) {
+              $noAuth = true;
+              
+              // Dump the token into a viewvar in case needed
+              $this->set('vv_petition_token', $token);
+            } else {
+              $this->Session->setFlash(_txt('er.token'), '', array(), 'error');
+              $this->redirect("/");
+            }
+          }
+        }
+      }
+      
+      if($noAuth) {
+        $this->Auth->allow($this->action);
+        
+        if(!$this->Session->check('Auth.User.name')) {
+          // If authentication is not required, and we're not authenticated as
+          // a valid user, hide the login/logout button to minimize confusion
+          
+          $this->set('noLoginLogout', true);
         }
       }
     }
@@ -241,73 +254,75 @@ class CoPetitionsController extends StandardController {
    */
   
   function beforeRender() {
+    // As a general rule, any viewvars that needs to be used by /view as well as one
+    // or more execute_ steps should be set here.
+    
     if(!$this->request->is('restful')) {
-      // Set the enrollment flow ID to make it easier to carry forward through failed submissions
-      $this->set('co_enrollment_flow_id', $this->enrollmentFlowID());
+      $enrollmentFlowID = $this->enrollmentFlowID();
       
-      if(($this->action == 'add' || $this->action == 'edit' || $this->action == 'view')) {
-        $enrollmentFlowID = $this->enrollmentFlowID();
+      // Set the enrollment flow ID to make it easier to carry forward through failed submissions
+      $this->set('co_enrollment_flow_id', $enrollmentFlowID);
+      $this->set('vv_co_petition_id', $this->parseCoPetitionId());
+      
+      if(in_array($this->action, array('petitionerAttributes', 'view'))) {
+        $defaultValues = array();
         
-        if($this->request->is('get')) {
-          // If we processed a post, this will have already been set.
+        if($enrollmentFlowID) {
+          // Provide default values for name for self enrollment.
           
-          $defaultValues = array();
+          $p['match_policy'] = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
+                                                                          array('CoEnrollmentFlow.id' => $enrollmentFlowID));
           
-          if($enrollmentFlowID) {
-            // Provide default values for name for self enrollment.
+          if($p['match_policy'] == EnrollmentMatchPolicyEnum::Self) {
+            $defName = $this->Session->read('Auth.User.name');
             
-            $p['match_policy'] = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
-                                                                            array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-            
-            if($p['match_policy'] == EnrollmentMatchPolicyEnum::Self) {
-              $defName = $this->Session->read('Auth.User.name');
-              
-              if(!empty($defName)) {
-                // Populate select attributes only
-                $defaultValues['EnrolleeOrgIdentity.Name']['honorific'] = $defName['honorific'];
-                $defaultValues['EnrolleeOrgIdentity.Name']['given'] = $defName['given'];
-                $defaultValues['EnrolleeOrgIdentity.Name']['middle'] = $defName['middle'];
-                $defaultValues['EnrolleeOrgIdentity.Name']['family'] = $defName['family'];
-                $defaultValues['EnrolleeOrgIdentity.Name']['suffix'] = $defName['suffix'];
-              }
+            if(!empty($defName)) {
+              // Populate select attributes only
+              $defaultValues['EnrolleeOrgIdentity.Name']['honorific'] = $defName['honorific'];
+              $defaultValues['EnrolleeOrgIdentity.Name']['given'] = $defName['given'];
+              $defaultValues['EnrolleeOrgIdentity.Name']['middle'] = $defName['middle'];
+              $defaultValues['EnrolleeOrgIdentity.Name']['family'] = $defName['family'];
+              $defaultValues['EnrolleeOrgIdentity.Name']['suffix'] = $defName['suffix'];
             }
           }
-          
-          $this->loadModel('CmpEnrollmentConfiguration');
-          
-          $envValues = false;
-          $enrollmentAttributes = $this->CoPetition
-                                       ->CoEnrollmentFlow
-                                       ->CoEnrollmentAttribute
-                                       ->enrollmentFlowAttributes($this->enrollmentFlowID(),
-                                                                  $defaultValues);
-          
-          if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
-            // If enrollment flows can populate org identities, then see if we're configured
-            // to pull environment variables. If so, for this configuration they simply
-            // replace modifiable default values.
-            
-            $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
-            
-            if($envValues) {
-              // This flow might be configured to ignore authoritative values
-              $ignoreAuthValues = $this->CoPetition
-                                       ->CoEnrollmentFlow->field('ignore_authoritative',
-                                                                 array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-              
-              if(!$ignoreAuthValues) {
-                $enrollmentAttributes = $this->CoPetition
-                                             ->CoEnrollmentFlow
-                                             ->CoEnrollmentAttribute
-                                             ->mapEnvAttributes($enrollmentAttributes,
-                                                                $envValues);
-              }
-            }
-          }
-          
-          $this->set('co_enrollment_attributes', $enrollmentAttributes);
         }
         
+        $this->loadModel('CmpEnrollmentConfiguration');
+        
+        $envValues = false;
+        $enrollmentAttributes = $this->CoPetition
+                                     ->CoEnrollmentFlow
+                                     ->CoEnrollmentAttribute
+                                     ->enrollmentFlowAttributes($this->enrollmentFlowID(),
+                                                                $defaultValues);
+        
+        if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
+          // If enrollment flows can populate org identities, then see if we're configured
+          // to pull environment variables. If so, for this configuration they simply
+          // replace modifiable default values.
+          
+          $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
+          
+          if($envValues) {
+            // This flow might be configured to ignore authoritative values
+            $ignoreAuthValues = $this->CoPetition
+                                     ->CoEnrollmentFlow->field('ignore_authoritative',
+                                                               array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+            
+            if(!$ignoreAuthValues) {
+              $enrollmentAttributes = $this->CoPetition
+                                           ->CoEnrollmentFlow
+                                           ->CoEnrollmentAttribute
+                                           ->mapEnvAttributes($enrollmentAttributes,
+                                                              $envValues);
+            }
+          }
+        }
+        
+        $this->set('co_enrollment_attributes', $enrollmentAttributes);
+      }
+      
+      if(in_array($this->action, array('petitionerAttributes', 'view'))) {
         // Pull any relevant Terms and Conditions that must be agreed to. We only do this
         // if authentication is required (otherwise we can't really assert who agreed),
         // and only for CO-wide T&C (ie: those without a COU ID specified). There's not
@@ -336,24 +351,6 @@ class CoPetitionsController extends StandardController {
           
           $this->set('vv_tandc_mode', (!empty($tcmode) ? $tcmode : TAndCEnrollmentModeEnum::ExplicitConsent));
         }
-        
-        // See if there is introductory text
-        
-        $introText = $this->CoPetition->CoEnrollmentFlow->field('introduction_text',
-                                                                array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-        
-        if($introText) {
-          $this->set('vv_introduction_text', $introText);
-        }
-        
-        // Or conclusion text
-        
-        $conclText = $this->CoPetition->CoEnrollmentFlow->field('conclusion_text',
-                                                                array('CoEnrollmentFlow.id' => $enrollmentFlowID));
-        
-        if($conclText) {
-          $this->set('vv_conclusion_text', $conclText);
-        }
       }
       
       if(($this->action == 'edit' || $this->action == 'view')
@@ -376,15 +373,6 @@ class CoPetitionsController extends StandardController {
     }
     
     parent::beforeRender();
-    
-    // Possibly override the title
-    
-    if($this->action == 'view' || $this->action == 'edit') {
-      $this->set('title_for_layout',
-                 _txt('op.' . $this->action . '-f',
-                      array(_txt('ct.co_petitions.1'),
-                            generateCn($this->viewVars['co_petitions'][0]['EnrolleeCoPerson']['PrimaryName']))));
-    }
   }
   
   /**
@@ -397,12 +385,14 @@ class CoPetitionsController extends StandardController {
    */
   
   protected function calculateImpliedCoId() {
-    if($this->action == 'add') {
+    if($this->enrollmentFlowID() != -1
+       && ($this->action == 'add'  // Leave add for now since it redirects to start
+           || in_array($this->action, array_keys($this->nextSteps)))) {
       // Map enrollment flow ID to CO
       
       $coId = $this->CoPetition->CoEnrollmentFlow->field('co_id',
                                                          array('id' => $this->enrollmentFlowID()));
-      
+  
       if($coId) {
         return $coId;
       } else {
@@ -415,28 +405,264 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Collect identifiers following email confirmation
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function collectIdentifier($id) {
+    $this->dispatch('collectIdentifier', $id);
+  }
+  
+  /**
    * Deny a petition.
-   * - precondition: $id must exist and be in 'Pending Approval' or 'Pending Confirmation' state
-   * - postcondition: On error, session flash message set
-   * - postcondition: Redirect generated
    *
    * @since  COmanage Registry v0.5
    * @param  Integer Petition ID
    */
   
-  function deny($id) {
-    try {
-      $this->CoPetition->updateStatus($id,
-                                      StatusEnum::Denied,
-                                      $this->Session->read('Auth.User.co_person_id'));
-      
-      $this->Session->setFlash(_txt('rs.pt.deny'), '', array(), 'success');
-    }
-    catch (Exception $e) {
-      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+  public function deny($id) {
+    $this->dispatch('deny', $id);
+  }
+  
+  /**
+   * Dispatch a step. This function will determine what step is being executed
+   * and call the appropriate execute_ function, handoff to a plugin, or redirect
+   * to the next step, as appropriate.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  String $step Current step name
+   * @param  Integer $id CO Petition ID, if known
+   */
+  
+  protected function dispatch($step, $id=null) {
+    // Determine the relevant enrollment flow ID
+    $efId = $this->enrollmentFlowID();
+    
+    if($efId == -1) {
+      $this->Session->setFlash(_txt('er.coef.unk'), '', array(), 'error');
+      $this->performRedirect();
     }
     
-    $this->performRedirect();
+    // Make sure this enrollment flow is active
+    $status = $this->CoPetition->CoEnrollmentFlow->field('status',
+                                                         array('CoEnrollmentFlow.id' => $efId));
+    
+    if($status != EnrollmentFlowStatusEnum::Active) {
+      $this->Session->setFlash(_txt('er.ef.active'), '', array(), 'error');
+      $this->performRedirect();
+    }
+    
+    if(!$id && $step != 'start') {
+      $this->Session->setFlash(_txt('er.notprov.id', array(_txt('ct.co_petitions.1'))), '', array(), 'error');
+      $this->performRedirect();
+    }
+    
+    // Obtain the configured petition steps
+    $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($efId);
+    
+    $this->set('vv_configured_steps', $steps);
+    $this->set('vv_current_step', $step);
+    
+    // Is step configured?
+    if(!isset($steps[$step])) {
+      $this->Session->setFlash(_txt('er.unknown', array($step)), '', array(), 'error');
+      $this->performRedirect();
+    }
+    
+    if($steps[$step]['enabled'] != RequiredEnum::NotPermitted) {
+      // Set some view vars
+      $this->set('title_for_layout',
+                 $this->CoPetition->CoEnrollmentFlow->field('name',
+                                                            array('CoEnrollmentFlow.id' => $efId)));
+      
+      if(isset($this->request->params['named']['done'])) {
+        // Run the next plugin, if applicable
+        
+        $plugins = App::objects('plugin');
+        
+        // Make sure $plugins is in alphabetical order so we know which one to
+        // try next.
+        sort($plugins);
+        
+        // If there is garbage in $done or if it's "core", array_search will return
+        // a zero/false index which will tell us to start from the first entry in
+        // $plugins.
+        $current = array_search($this->request->params['named']['done'], $plugins);
+        
+        if(!is_integer($current)) {
+          $current = 0;
+        } else {
+          // Move to the next item
+          $current++;
+        }
+        
+        for($i = $current;$i < count($plugins);$i++) {
+          $pluginModel = ClassRegistry::init($plugins[$i] . "." . $plugins[$i]);
+          
+          if(!empty($pluginModel->cmPluginType)
+             && $pluginModel->cmPluginType == 'enroller') {
+            // Redirect to the plugin
+            
+            $redirect = array(
+              'plugin'     => Inflector::underscore($pluginModel->name),
+              'controller' => Inflector::underscore($pluginModel->name) . '_co_petitions',
+              'action'     => $step
+            );
+            
+            // Append petition ID or enrollment flow ID according to what we know
+            if($id) {
+              $redirect[] = $id;
+            } elseif($this->parseCoPetitionId()) {
+              $redirect[] = $this->parseCoPetitionId();
+            } else {
+              $redirect['coef'] = $efId;
+            }
+            
+            // If there is a token attached to the petition, insert it into the URL
+            $token = null;
+            
+            if($steps[$step]['role'] == EnrollmentRole::Petitioner) {
+              $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $id));
+            } elseif($steps[$step]['role'] == EnrollmentRole::Enrollee) {
+              $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $id));
+            }
+            
+            if($token) {
+              $redirect['token'] = $token;
+            }
+            
+            $this->redirect($redirect);
+            break;
+          }
+        }
+      } else {
+        // Run the step. This will typically happen first, unless we're now in
+        // a plugin. (Plugins extend this controller.)
+        
+        $curPlugin = null;
+        
+        if(!empty($this->request->params['plugin'])) {
+          $curPlugin = Inflector::classify($this->request->params['plugin']);
+        }
+        
+        // Generate hint URL for where to go when the step is completed
+        $onFinish = $this->generateDoneRedirect($step, $id, $curPlugin);
+        $this->set('vv_on_finish_url', $onFinish);
+        
+        // Run the step
+        $fname = null;
+        
+        if($curPlugin) {
+          // We're executing on behalf of a plugin. (We require the format
+          // execute_plugin_STEP so we can distinguish from core workflow steps,
+          // since plugins extend CoPetitiosController.)
+          $fname = "execute_plugin_" . $step;
+          
+          if(!is_callable(array($this,$fname))) {
+            // This plugin does not implement anything for this step, redirect to the next step
+            $this->redirect($onFinish);
+          }
+          
+          try {
+            $this->$fname($id, $onFinish);
+          }
+          catch(Exception $e) {
+            $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+            $this->performRedirect(); 
+          }
+          
+          // Make sure we don't issue a redirect
+          return;
+        } elseif($steps[$step]['enabled'] == RequiredEnum::Required) {
+          // We run the core workflow step, but only if it's Required (vs Optional)
+          $fname = "execute_" . $step;
+          
+          try {
+            $this->$fname($id);
+          }
+          catch(Exception $e) {
+            $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+            $this->performRedirect(); 
+          }
+          
+          // Make sure we don't issue a redirect
+          return;
+        }
+      }
+    }
+    
+    // If we've completed the start step, before redirecting to the next step
+    // create a new petition artifact and use that for redirection purposes
+    
+    $ptid = $id;
+    
+    if($step == 'start') {
+      // $id is null
+      
+      try {
+        // Pull the CO ID from the enrollment flow
+        $coId = $this->CoPetition->CoEnrollmentFlow->field('co_id',
+                                                           array('CoEnrollmentFlow.id' => $efId));
+        
+        // We only record the CO Person ID if authorization is required. If not required,
+        // we don't record it even if there is a valid login session. This is for
+        // consistency, though it is a bit arbitrary. If this decision changes,
+        // beforeFilter() will need to be updated to not check a token if there is
+        // a co_person_id in the petition record.
+        
+        $petitionerCoPersonId = null;
+        
+        $authz = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
+                                                            array('CoEnrollmentFlow.id' => $efId));
+        
+        if($authz != EnrollmentAuthzEnum::None) {
+          $petitionerCoPersonId = $this->Session->read('Auth.User.co_person_id');
+        }
+        
+        $ptid = $this->CoPetition->initialize($efId,
+                                              $coId,
+                                              $petitionerCoPersonId);
+      }
+      catch(Exception $e) {
+        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->performRedirect();
+      }
+    }
+    
+    // If we get here, redirect to the next step
+    
+    if($step == 'finalize'
+       && $steps['redirectOnConfirm']['enabled'] == RequiredEnum::NotPermitted) {
+      // If we've completed the finalize step, we're done, unless redirectOnConfirm
+      // is set. This is true when there is no approval step
+      
+      $this->Session->setFlash(_txt('rs.pt.final'), '', array(), 'success');
+      $this->performRedirect();
+    } else {
+      $redirect = array(
+        'controller' => 'co_petitions',
+        'action'     => $this->nextSteps[$step],
+        $ptid
+      );
+      
+      // If there is a token attached to the petition, insert it into the URL
+      
+      $token = null;
+      
+      if($steps[$step]['role'] == EnrollmentRole::Petitioner) {
+        $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $ptid));
+      } elseif($steps[$step]['role'] == EnrollmentRole::Enrollee) {
+        $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $ptid));
+      }
+      
+      if($token) {
+        $redirect['token'] = $token;
+      }
+      
+      $this->redirect($redirect);
+    }
   }
   
   /**
@@ -473,23 +699,430 @@ class CoPetitionsController extends StandardController {
    */
   
   function enrollmentFlowID() {
-    if(isset($this->request->params['pass'][0])) {
+    if($this->cachedEnrollmentFlowID > -1) {
+      return $this->cachedEnrollmentFlowID;
+    }
+    
+    $coPetitionId = $this->parseCoPetitionId();
+    
+    if($coPetitionId) {
       // Don't trust the coef parameter, but look up the enrollment flow
       // associated with this ID
       
       $coef = $this->CoPetition->field('co_enrollment_flow_id',
-                                       array('CoPetition.id' => $this->request->params['pass'][0]));
+                                       array('CoPetition.id' => $coPetitionId));
       
-      return ($coef ? $coef : -1);
+      if($coef) {
+        $this->cachedEnrollmentFlowID = $coef;
+      }
     } elseif(isset($this->request->params['named']['coef'])) {
-      return $this->request->params['named']['coef'];
+      // calculateImpliedCO should verify this is valid and in the current CO
+      $this->cachedEnrollmentFlowID = $this->request->params['named']['coef'];
     } elseif(isset($this->request->data['CoPetition']['co_enrollment_flow_id'])) {
       // We can trust this element since form tampering checks mean it's the
       // same value the view emitted.
-      return $this->request->data['CoPetition']['co_enrollment_flow_id'];
+      $this->cachedEnrollmentFlowID = $this->request->data['CoPetition']['co_enrollment_flow_id'];
     }
     
-    return -1;
+    return $this->cachedEnrollmentFlowID;
+  }
+  
+  /**
+   * Execute CO Petition 'approve' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_approve($id) {
+    // Let any Exceptions pass through
+    
+    $this->CoPetition->updateStatus($id,
+                                    PetitionStatusEnum::Approved,
+                                    $this->Session->read('Auth.User.co_person_id'));
+    
+    $this->Session->setFlash(_txt('rs.pt.approve'), '', array(), 'success');
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('approve', $id));    
+  }
+  
+  /**
+   * Execute CO Petition 'collectIdentifier' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_collectIdentifier($id) {
+    // If a login identifier was provided, attach it to the org identity if not already present
+    
+    $loginIdentifier = $this->Session->read('Auth.User.username');
+    
+    if($loginIdentifier) {
+      // Validate the identifier, even if null. (If null but authn was required, we'll
+      // get an Exception, which will ultimately pass back up to a redirect.)
+      
+      // Let any Exceptions pass through
+      
+      $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+      
+      $this->CoPetition->validateIdentifier($id,
+                                            $loginIdentifier,
+                                            $coPersonId);
+    }
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('collectIdentifier', $id));    
+  }
+  
+  /**
+   * Execute CO Petition 'deny' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_deny($id) {
+    // Let any Exceptions pass through
+    
+    $this->CoPetition->updateStatus($id,
+                                    PetitionStatusEnum::Denied,
+                                    $this->Session->read('Auth.User.co_person_id'));
+    
+    $this->Session->setFlash(_txt('rs.pt.deny'), '', array(), 'success');
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('deny', $id));    
+  }  
+  
+  /**
+   * Execute CO Petition 'finalize' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_finalize($id) {
+    // If not Denied, set the person status to Active and the petition status to Final
+    // Let any Exceptions pass through
+    
+    $curStatus = $this->CoPetition->field('status', array('CoPetition.id' => $id));
+    
+    if($curStatus != PetitionStatusEnum::Declined
+       && $curStatus != PetitionStatusEnum::Denied) {
+      // Possibly assign identifiers. Do this before updating status because we
+      // want the identifiers to exist prior to provisioning (and specifically,
+      // LDAP DN construction), which happens when the CO Person status goes to Active.
+      $this->CoPetition->assignIdentifiers($id,
+                                           $this->Session->read('Auth.User.co_person_id'));
+      
+      // This also updates the CO Person/Role to Active
+      $this->CoPetition->updateStatus($id,
+                                      PetitionStatusEnum::Finalized,
+                                      $this->Session->read('Auth.User.co_person_id'));
+    }
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('finalize', $id));  
+  }
+  
+  /**
+   * Execute CO Petition 'petitionerAttributes' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_petitionerAttributes($id) {
+    // When this is called, it's just a GET to render the form. POST processing is
+    // handled by petitionerAttributes(), which doesn't call dispatch() on POST.
+  }
+  
+  /**
+   * Execute CO Petition 'processConfirmation' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_processConfirmation($id) {
+    // At this point, the invitation will already have been processed and unlinked.
+    // We just need to update petition status.
+    
+    if(!empty($this->request->params['named']['confirm'])) {
+      $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+      
+      $this->CoPetition->updateStatus($id,
+                                      ($this->request->params['named']['confirm'] == 'true'
+                                       ? PetitionStatusEnum::Confirmed
+                                       : PetitionStatusEnum::Declined),
+                                      $coPersonId);
+    } else {
+      // Throw an exception
+      throw new InvalidArgumentException(_txt('er.reply.unk'));
+    }
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('processConfirmation', $id));
+  }
+  
+  /**
+   * Execute CO Petition 'redirectOnConfirm' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_redirectOnConfirm($id) {
+    // Figure out where to redirect the enrollee to
+    $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_confirm',
+                                                            array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    
+    if(!$targetUrl || $targetUrl == "") {
+      // Force a logout since we probably just made a change to information relevant
+      // for login (such as linking an account).
+      
+      $this->Session->setFlash(_txt('rs.pt.relogin'), '', array(), 'success');
+      $targetUrl = "/auth/logout";
+    }
+    // else we suppress the flash message, since it may not make sense in context
+    // or may appear "randomly" (eg: if the targetUrl is outside the Cake framework)
+    
+    $this->redirect($targetUrl);
+  }
+  
+  /**
+   * Execute CO Petition 'redirectOnSubmit' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_redirectOnSubmit($id) {
+    $matchPolicy = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
+                                                              array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    
+    $authzLevel = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
+                                                             array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    
+    $authnReq = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
+                                                           array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    
+    if($authzLevel == EnrollmentAuthzEnum::None) {
+      // Figure out where to redirect the petitioner to
+      $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_submit',
+                                                              array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+      
+      if(!$targetUrl || $targetUrl == "") {
+        // Default redirect is to /, which isn't really a great target
+        
+        $this->Session->setFlash(_txt('rs.pt.create.self'), '', array(), 'success');
+        $targetUrl = "/";
+      }
+      // else we suppress the flash message, since it may not make sense in context
+      // or may appear "randomly" (eg: if the targetUrl is outside the Cake framework)
+      
+      $this->redirect($targetUrl);
+    } elseif($authnReq && $matchPolicy == EnrollmentMatchPolicyEnum::Self) {
+      // Clear any session for account linking
+      $this->Session->setFlash(_txt('rs.pt.login'), '', array(), 'success');
+      $this->redirect("/auth/logout");
+    } else {
+      // Standard redirect
+      $this->Session->setFlash(_txt('rs.pt.create'), '', array(), 'success');
+      $this->performRedirect();
+    }
+  }
+    
+  /**
+   * Execute CO Petition 'selectEnrollee' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_selectEnrollee($id) {
+    $matchPolicy = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
+                                                              array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    
+    if($matchPolicy == EnrollmentMatchPolicyEnum::Self) {
+      // Grab the current CO Person ID and store it in the petition
+      
+      $ptid = $this->CoPetition->linkCoPerson($id,
+                                              $this->Session->read('Auth.User.co_person_id'),
+                                              $this->Session->read('Auth.User.co_person_id'));
+    }
+    
+    $this->redirect($this->generateDoneRedirect('selectEnrollee', $id));
+  }
+  
+  /**
+   * Execute CO Petition 'sendApprovalNotification' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_sendApprovalNotification($id) {
+    $this->CoPetition->sendApprovalNotification($id, $this->Session->read('Auth.User.co_person_id'));
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('sendApprovalNotification', $id));
+  }
+  
+  /**
+   * Execute CO Petition 'sendApproverNotification' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_sendApproverNotification($id) {
+    $this->CoPetition->sendApproverNotification($id, $this->Session->read('Auth.User.co_person_id'));
+    
+    $this->CoPetition->updateStatus($id,
+                                    PetitionStatusEnum::PendingApproval, 
+                                    $this->Session->read('Auth.User.co_person_id'));
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('sendApproverNotification', $id));
+  }
+  
+  /**
+   * Execute CO Petition 'sendConfirmation' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_sendConfirmation($id) {
+    $this->CoPetition->sendConfirmation($id, $this->Session->read('Auth.User.co_person_id'));
+    
+    $this->CoPetition->updateStatus($id,
+                                    PetitionStatusEnum::PendingConfirmation, 
+                                    $this->Session->read('Auth.User.co_person_id'));
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('sendConfirmation', $id));
+  }
+  
+  /**
+   * Execute CO Petition 'start' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID, should be null
+   * @throws Exception
+   */
+  
+  protected function execute_start($id) {
+    $introText = $this->CoPetition->CoEnrollmentFlow->field('introduction_text',
+                                                            array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    
+    if(!empty($introText)) {
+      // Render the start view
+      
+      $this->set('vv_intro_text', $introText);
+    } else {
+      // The step is done
+      
+      $this->redirect($this->generateDoneRedirect('start', $id));
+    }
+  }
+  
+  /**
+   * Execute CO Petition 'waitForConfirmation' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_waitForApproval($id) {
+    // If approval_required is false, this step is skipped.
+    // If true, we've sent the notification already, so we just need to issue a suitable redirect.
+    
+    $this->execute_redirectOnConfirm($id);
+  }
+  
+  /**
+   * Execute CO Petition 'waitForConfirmation' step
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_waitForConfirmation($id) {
+    // If verify_email is false, this step is skipped.
+    // If true, we've sent the confirmation already, so we just need to issue a suitable redirect.
+    
+    $this->execute_redirectOnSubmit($id);
+  }
+  
+  /**
+   * Finalize the CO Petition
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function finalize($id) {
+    $this->dispatch('finalize', $id);
+  }
+  
+  /**
+   * Generate a redirect for use after completion of a step.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  String  $step      Current step
+   * @param  Integer $id        CO Petition ID, if known
+   * @param  String  $curPlugin Current plugin, or null
+   * @return Array URL in Cake array format
+   */
+  
+  protected function generateDoneRedirect($step, $id=null, $curPlugin=null) {
+    $ret = array(
+      'plugin'     => null,
+      'controller' => 'co_petitions',
+      'action'     => $step
+    );
+    
+    if($id) {
+      $ret[] = $id;
+    } else {
+      $ret['coef'] = $this->cachedEnrollmentFlowID;
+    }
+    
+    $token = $this->parseToken();
+    
+    if($token) {
+      $ret['token'] = $token;
+    }
+    
+    $ret['done'] = ($curPlugin ? $curPlugin : 'core');
+    
+    return $ret;
   }
   
   /**
@@ -507,53 +1140,82 @@ class CoPetitionsController extends StandardController {
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
-    // Some operations are authorized according to the flow configuration.
-    $flowAuthorized = false;
+    // We determine certain permissions based on the user's role to the specified
+    // petition or flow
+    
+    $canInitiate = false;
+    $isPetitioner = false;
+    $isEnrollee = false;
+    $isApprover = false;
     
     // If an enrollment flow was specified, check the authorization for that flow
     
     if($this->enrollmentFlowID() != -1) {
-      $flowAuthorized = $this->CoPetition->CoEnrollmentFlow->authorizeById($this->enrollmentFlowID(), $roles['copersonid'], $this->Role);
+      $canInitiate = $this->CoPetition->CoEnrollmentFlow->authorizeById($this->enrollmentFlowID(), $roles['copersonid'], $this->Role);
     }
     
-    // Add a new CO Petition?
-    $p['add'] = ($roles['cmadmin'] || $flowAuthorized);
+    // If a petition was specified, check the authorizations for that petition
     
-    // Approve a CO Petition?
-    if($this->enrollmentFlowID() != -1) {
-      if(!empty($this->request->params['pass'][0])) {
-        $p['approve'] = $roles['cmadmin'] || $this->Role->isApproverForFlow($roles['copersonid'],
-                                                                            $this->enrollmentFlowID(),
-                                                                            $this->request->params['pass'][0]);
-      } else {
-        $p['approve'] = $roles['cmadmin'] || $this->Role->isApproverForFlow($roles['copersonid'], $this->enrollmentFlowID());
+    $petitionId = $this->parseCoPetitionId();
+    
+    if($petitionId) {
+      // Current values from petition
+      $args = array();
+      $args['conditions']['CoPetition.id'] = $petitionId;
+      $args['contain'] = false;
+      
+      $pt = $this->CoPetition->find('first', $args);
+      
+      if(!$pt) {
+        $this->Session->setFlash(_txt('er.notfound', array(_txt('ct.co_petitions.1', $petitionId))), '', array(), 'error');
+        $this->redirect('/');
       }
-    } else {
-      $p['approve'] = $roles['cmadmin'] || $this->Role->isApprover($roles['copersonid']);
+      
+      $curPetitioner = $pt['CoPetition']['petitioner_co_person_id'];
+      $curEnrollee = $pt['CoPetition']['enrollee_co_person_id'];
+      $petitionerToken = $pt['CoPetition']['petitioner_token'];
+      $enrolleeToken = $pt['CoPetition']['enrollee_token'];
+      
+      // Select admins can also act as the petitioner
+      $isPetitioner = $roles['cmadmin']
+                      || $roles['coadmin']
+                      || ($roles['couadmin'] && $this->Role->isCouAdminForCoPerson($roles['copersonid'], $curPetitioner))
+                      || ($curPetitioner && ($curPetitioner == $roles['copersonid']))
+                      || ($petitionerToken != '' && $petitionerToken == $this->parseToken());
+      
+      // Select admins can also act as the enrollee
+      $isEnrollee = $roles['cmadmin']
+                    || $roles['coadmin']
+                    || ($roles['couadmin'] && $this->Role->isCouAdminForCoPerson($roles['copersonid'], $curEnrollee))
+                    || ($curEnrollee && ($curEnrollee == $roles['copersonid']))
+                    || ($enrolleeToken != '' && $enrolleeToken == $this->parseToken());
+      
+      $isApprover = $roles['cmadmin'] || $this->Role->isApproverForFlow($roles['copersonid'],
+                                                                        $this->enrollmentFlowID(),
+                                                                        $petitionId);
     }
+    
+    // Add a new CO Petition? When not restful, this is just a redirect to start
+    $p['add'] = (!$this->request->is('restful') || $roles['cmadmin']);
     
     // Delete an existing CO Petition?
     // For now, this is restricted to CMP and CO Admins, until we have a better policy
-    $p['delete'] = ($roles['cmadmin']
-                    || ($flowAuthorized && $roles['coadmin']));
-    
-    // Deny an existing CO Petition?
-    $p['deny'] = $p['approve'];
+    $p['delete'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Flag an existing CO Petition as a duplicate?
-    $p['dupe'] = $p['deny'];
+    $p['dupe'] = $isApprover;
     
     // Edit an existing CO Petition?
-    $p['edit'] = ($roles['cmadmin']
-                  || ($flowAuthorized && ($roles['coadmin'] || $roles['couadmin'])));
+    $p['edit'] = false;
     
     // Match against existing CO People? If the match policy is Advisory or Automatic, we
-    // allow matching to take place as long as $flowAuthorized is also true.
+    // allow matching to take place as long as $canInitiate is also true. (Note we don't
+    // necessarily have a petition ID.)
     // Note this same permission exists in CO People
     
     $p['match_policy'] = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
                                                                     array('CoEnrollmentFlow.id' => $this->enrollmentFlowID()));
-    $p['match'] = (($roles['cmadmin'] || $flowAuthorized)
+    $p['match'] = (($roles['cmadmin'] || $canInitiate)
                    &&
                    ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
                     || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
@@ -567,11 +1229,13 @@ class CoPetitionsController extends StandardController {
 
     // Resend invitations?
     $p['resend'] = ($roles['cmadmin']
-                    || ($flowAuthorized && ($roles['coadmin'] || $roles['couadmin'])));
+                    || $roles['coadmin']
+                    || ($canInitiate && $roles['couadmin'])
+                    || $isPetitioner);
     
     // View an existing CO Petition? We allow the usual suspects to view a Petition, even
     // if they don't have permission to edit it. Also approvers need to be able to see the Petition.
-    $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $p['approve']);
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $isApprover);
     
     if($this->action == 'index' && $p['index']) {
       // These permissions may not be exactly right, but they only apply when rendering
@@ -582,6 +1246,60 @@ class CoPetitionsController extends StandardController {
       $p['edit'] = $p['delete'];  // For now, delete and edit are restricted
       $p['resend'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       $p['view'] = true;  // Approvers will have the petitions they can see filtered by the controller
+    }
+    
+    // Execute the various phases involved in a CO Petition?
+    // We need to know which phases are configured for certain permissions.
+    $steps = null;
+    
+    if($this->enrollmentFlowID() > -1) {
+      $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
+      
+      // Initiating a Petition gets us to the point of collecting petitioner attributes
+      $p['start'] = $canInitiate;
+      // Once there is a petitioner attached, we restrict who can run the associated steps
+      $p['selectEnrollee'] = $isPetitioner;
+      $p['petitionerAttributes'] = $isPetitioner;
+      $p['sendConfirmation'] = $isPetitioner;
+      $p['waitForConfirmation'] = $isPetitioner;
+      // The petition then gets handed off to the enrollee
+      $p['processConfirmation'] = $isEnrollee;
+      $p['collectIdentifier'] = $isEnrollee;
+      // Approval steps could be triggered by petitioner or enrollee, according to configuration
+      if($steps['sendApproverNotification']['role'] == EnrollmentRole::Enrollee) {
+        // Confirmation required, so approval steps get triggered by enrollee
+        $p['sendApproverNotification'] = $isEnrollee;
+        $p['waitForApproval'] = $isEnrollee;
+      } else {
+        // Approval triggered by petitioner
+        $p['sendApproverNotification'] = $isPetitioner;
+        $p['waitForApproval'] = $isPetitioner;
+      }
+      // Actual approval is handled by the approver
+      $p['approve'] = $isApprover;
+      $p['deny'] = $isApprover;
+      $p['sendApprovalNotification'] = $isApprover;
+      // Finalize could be reached by anyone, in theory
+      switch($steps['finalize']['role']) {
+        case EnrollmentRole::Approver:
+          $p['finalize'] = $isApprover;
+          break;
+        case EnrollmentRole::Enrollee:
+          $p['finalize'] = $isEnrollee;
+          break;
+        case EnrollmentRole::Petitioner:
+          $p['finalize'] = $isPetitioner;
+          break;
+        default:
+          // Shouldn't get here...
+          $p['finalize'] = false;
+          break;
+      }
+      if($steps['redirectOnConfirm']['role'] == EnrollmentRole::Enrollee) {
+        $p['redirectOnConfirm'] = $isEnrollee;
+      } else {
+        $p['redirectOnConfirm'] = false;
+      }
     }
     
     $this->set('permissions', $p);
@@ -653,7 +1371,41 @@ class CoPetitionsController extends StandardController {
     
     return $pagcond;
   }
+  
+  /**
+   * Parse a CO Petition ID from the request.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @return Integer CO Petition ID, or null
+   */
 
+  protected function parseCoPetitionId() {
+    if(!empty($this->request->params['pass'][0])) {
+      return $this->request->params['pass'][0];
+    } elseif(!empty($this->request->data['CoPetition']['id'])) {
+      return $this->request->data['CoPetition']['id'];
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Parse a petitioner or enrollee token from the request.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @return String Token, or null
+   */
+
+  protected function parseToken() {
+    if(!empty($this->request->params['named']['token'])) {
+      return $this->request->params['named']['token'];
+    } elseif(!empty($this->request->data['CoPetition']['token'])) {
+      return $this->request->data['CoPetition']['token'];
+    }
+    
+    return null;
+  }
+  
   /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
@@ -673,6 +1425,64 @@ class CoPetitionsController extends StandardController {
     } else {
       parent::performRedirect();
     }
+  }
+  
+  /**
+   * Collect CO Petition attributes from the petitioner
+   *
+   * @since  COmanage Registry v0.9.4
+   */
+  
+  public function petitionerAttributes() {
+    if($this->request->is('get')) {
+      $this->dispatch('petitionerAttributes', $this->parseCoPetitionId());
+    } else {
+      // We've already been dispatched (rendered the form) and now we're back
+      // for form submission/processing
+      
+      try {
+        $this->CoPetition->saveAttributes($this->parseCoPetitionId(),
+                                          $this->enrollmentFlowID(),
+                                          $this->request->data,
+                                          $this->Session->read('Auth.User.co_person_id'));
+        
+        // We could calculate and execute the next plugin or step directly,
+        // but that would require some refactoring.
+        $this->redirect($this->generateDoneRedirect('petitionerAttributes',
+                                                    $this->parseCoPetitionId()));
+      }
+      catch(InvalidArgumentException $e) {
+        // Validation failed
+        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->dispatch('petitionerAttributes', $this->parseCoPetitionId());
+      }
+      catch(Exception $e) {
+        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->performRedirect();
+      }
+    }
+  }
+  
+  /**
+   * Re-entry point following petition confirmation
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function processConfirmation($id) {
+    $this->dispatch('processConfirmation', $id);
+  }
+  
+  /**
+   * Redirect on confirmation of a CO Petition
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function redirectOnConfirm($id) {
+    $this->dispatch('redirectOnConfirm', $id);
   }
   
   /**
@@ -714,5 +1524,104 @@ class CoPetitionsController extends StandardController {
         'co' => $this->cur_co['Co']['id']
       ));
     }
+  }
+  
+  /**
+   * Select the enrollee for a new CO Petition
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function selectEnrollee($id) {
+    $this->dispatch('selectEnrollee', $id);
+  }
+  
+  /**
+   * Send approval notification for a new CO Petition
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function sendApprovalNotification($id) {
+    $this->dispatch('sendApprovalNotification', $id);
+  }
+  
+    /**
+   * Send approver notification for a new CO Petition
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function sendApproverNotification($id) {
+    $this->dispatch('sendApproverNotification', $id);
+  }
+  
+  /**
+   * Send enrollee email address verification confirmation email for a new CO Petition
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function sendConfirmation($id) {
+    $this->dispatch('sendConfirmation', $id);
+  }
+  
+  /**
+   * Start a new CO Petition
+   *
+   * @since  COmanage Registry v0.9.4
+   */
+  
+  public function start() {
+    $this->dispatch('start');
+  }
+  
+  /**
+   * View a CO Petition.
+   * 
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  function view($id) {    
+    parent::view($id);
+    
+    // Set the title
+    
+    if(!$this->request->is('restful')) {
+      $this->set('title_for_layout',
+                 _txt('op.' . $this->action . '-f',
+                      array(_txt('ct.co_petitions.1'),
+                            (!empty($this->viewVars['co_petitions'][0]['EnrolleeCoPerson']['PrimaryName'])
+                             ? generateCn($this->viewVars['co_petitions'][0]['EnrolleeCoPerson']['PrimaryName'])
+                             : _txt('fd.enrollee.new'))
+                            )));
+    }
+  }
+  
+  /**
+   * "Placeholder" step to allow for plugins to run after approval is sent
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function waitForApproval($id) {
+    $this->dispatch('waitForApproval', $id);
+  }
+  
+  /**
+   * "Placeholder" step to allow for plugins to run after confirmation is sent
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function waitForConfirmation($id) {
+    $this->dispatch('waitForConfirmation', $id);
   }
 }

@@ -113,7 +113,7 @@
             print $this->Html->link(_txt('op.begin'),
                                     array(
                                       'controller' => 'co_petitions',
-                                      'action' => 'add',
+                                      'action' => 'start',
                                       'coef' => $c['CoEnrollmentFlow']['id']
                                     ),
                                     array('class' => 'forwardbutton')) . "\n";

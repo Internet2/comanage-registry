@@ -368,6 +368,155 @@ class CoEnrollmentFlow extends AppModel {
   }
   
   /**
+   * Obtain a list of configured steps for the Enrollment Flow, and attributes about those steps
+   *
+   * @param Integer $id Enrollment Flow ID
+   * @return Array Array of configured steps, with step label as key and the value a hash of attributes about the step
+   * @throws InvalidArgumentException
+   */
+  
+  public function configuredSteps($id) {
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.id'] = $id;
+    $args['contain'] = false;
+    
+    $ef = $this->find('first', $args);
+    
+    if(empty($ef)) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_attributes.1'), $id)));
+    }
+    
+    // Construct an array based on the enrollment flow configuration.
+    // Required: Step is configured to run
+    // Optional: Step is not configured, but plugins may elect to execute
+    // NotPermitted: Step is not configured and plugins may not run
+    
+    $ret = array();
+    
+    // If introductory text was specified, it should be rendered.
+    
+    if(!empty($ef['CoEnrollmentFlow']['introduction_text'])) {
+      $ret['start']['enabled'] = RequiredEnum::Required;
+    } else {
+      $ret['start']['enabled'] = RequiredEnum::Optional;
+    }
+    $ret['start']['role'] = EnrollmentRole::Petitioner;
+    
+    // If match policy is self we run the selectPerson step.
+    // XXX Ultimately manual selection of an existing person should also trigger this step.
+    
+    if(!empty($ef['CoEnrollmentFlow']['match_policy'])
+       && $ef['CoEnrollmentFlow']['match_policy'] == EnrollmentMatchPolicyEnum::Self) {
+      $ret['selectEnrollee']['enabled'] = RequiredEnum::Required;
+    } else {
+      $ret['selectEnrollee']['enabled'] = RequiredEnum::NotPermitted;
+    }
+    $ret['selectEnrollee']['role'] = EnrollmentRole::Petitioner;
+    
+    // For now, petitionerAttributes is always required.
+    
+    $ret['petitionerAttributes']['enabled'] = RequiredEnum::Required;
+    $ret['petitionerAttributes']['role'] = EnrollmentRole::Petitioner;
+    
+    // If email confirmation is requested, run sendConfirmation and its helper waitForConfirmation.
+    // We can only collect identifiers if email confirmation and authentication are both set.
+    // Also enable the re-entry point following email delivery.
+    
+    if(isset($ef['CoEnrollmentFlow']['verify_email'])
+       && $ef['CoEnrollmentFlow']['verify_email']) {
+      $ret['sendConfirmation']['enabled'] = RequiredEnum::Required;
+      $ret['waitForConfirmation']['enabled'] = RequiredEnum::Required;
+      $ret['processConfirmation']['enabled'] = RequiredEnum::Required;
+      
+      // Only collect identifier if authentication is required
+      if(isset($ef['CoEnrollmentFlow']['require_authn'])
+       && $ef['CoEnrollmentFlow']['require_authn']) {
+        $ret['collectIdentifier']['enabled'] = RequiredEnum::Required;
+      } else {
+        $ret['collectIdentifier']['enabled'] = RequiredEnum::NotPermitted;
+      }
+    } else {
+      $ret['sendConfirmation']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['waitForConfirmation']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['processConfirmation']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['collectIdentifier']['enabled'] = RequiredEnum::NotPermitted;
+    }
+    
+    $ret['sendConfirmation']['role'] = EnrollmentRole::Petitioner;
+    $ret['waitForConfirmation']['role'] = EnrollmentRole::Petitioner;
+    $ret['processConfirmation']['role'] = EnrollmentRole::Enrollee;
+    $ret['collectIdentifier']['role'] = EnrollmentRole::Enrollee;
+    
+    if($ret['sendConfirmation']['enabled'] == RequiredEnum::Required) {
+      $ret['sendApproverNotification']['role'] = EnrollmentRole::Enrollee;
+      $ret['waitForApproval']['role'] = EnrollmentRole::Enrollee;
+    } else {
+      $ret['sendApproverNotification']['role'] = EnrollmentRole::Petitioner;
+      $ret['waitForApproval']['role'] = EnrollmentRole::Petitioner;
+    }
+    
+    // If approval is required, run the appropriate steps
+    
+    if(isset($ef['CoEnrollmentFlow']['approval_required'])
+       && $ef['CoEnrollmentFlow']['approval_required']) {
+      $ret['sendApproverNotification']['enabled'] = RequiredEnum::Required;
+      $ret['waitForApproval']['enabled'] = RequiredEnum::Required;
+      $ret['approve']['enabled'] = RequiredEnum::Required;
+      $ret['deny']['enabled'] = RequiredEnum::Required;
+      $ret['sendApprovalNotification']['enabled'] = RequiredEnum::Required;
+      // Redirect is handled by sendApprovalNotification
+      $ret['redirectOnConfirm']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['redirectOnConfirm']['role'] = EnrollmentRole::Approver;
+    } else {
+      $ret['sendApproverNotification']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['waitForApproval']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['approve']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['deny']['enabled'] = RequiredEnum::Required;
+      $ret['sendApprovalNotification']['enabled'] = RequiredEnum::NotPermitted;
+      
+      // If verify_email we still need to redirectOnConfirm
+      if(isset($ef['CoEnrollmentFlow']['verify_email'])
+         && $ef['CoEnrollmentFlow']['verify_email']) {
+        $ret['redirectOnConfirm']['enabled'] = RequiredEnum::Required;
+        $ret['redirectOnConfirm']['role'] = EnrollmentRole::Enrollee;
+      } else {
+        $ret['redirectOnConfirm']['enabled'] = RequiredEnum::NotPermitted;
+        $ret['redirectOnConfirm']['role'] = EnrollmentRole::Petitioner;
+      }
+    }
+    
+    $ret['approve']['role'] = EnrollmentRole::Approver;
+    $ret['deny']['role'] = EnrollmentRole::Approver;
+    $ret['sendApprovalNotification']['role'] = EnrollmentRole::Approver;
+    
+    // Finalize always runs
+    
+    $ret['finalize']['enabled'] = RequiredEnum::Required;
+    
+    if($ret['sendConfirmation']['enabled'] == RequiredEnum::Required) {
+      if($ret['sendApproverNotification']['enabled'] == RequiredEnum::Required) {
+        $ret['finalize']['role'] = EnrollmentRole::Approver;
+      } else {
+        $ret['finalize']['role'] = EnrollmentRole::Enrollee;
+      }
+    } else {
+      if($ret['sendApproverNotification']['enabled'] == RequiredEnum::Required) {
+        $ret['finalize']['role'] = EnrollmentRole::Approver;
+      } else {
+        $ret['finalize']['role'] = EnrollmentRole::Petitioner;
+      }
+    }
+    
+    // Populate labels for each step
+    
+    foreach(array_keys($ret) as $step) {
+      $ret[$step]['label'] = _txt('ef.step.' . $step);
+    }
+    
+    return $ret;
+  }
+  
+  /**
    * Duplicate an existing Enrollment Flow.
    *
    * @since  COmanage Registry v0.9.2
@@ -387,7 +536,7 @@ class CoEnrollmentFlow extends AppModel {
     $ef = $this->find('first', $args);
     
     if(empty($ef)) {
-      throw new InvalidArgumentException(_txt('%1$s "%2$s" Not Found', array(_txt('ct.co_enrollment_attributes.1'), $id)));
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_attributes.1'), $id)));
     }
     
     // We need to rename the flow
