@@ -313,19 +313,23 @@ class IdentifiersController extends MVPAController {
     
     // Add a new Identifier?
     $p['add'] = ($roles['cmadmin']
-                 || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                 || $roles['coadmin'] 
+                 || ($managed && $roles['couadmin']));
     
     // Assign (autogenerate) Identifiers? (Same logic is in CoPeopleController)
     $p['assign'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                    || $roles['coadmin'] 
+                    || ($managed && $roles['couadmin']));
     
     // Delete an existing Identifier?
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                    || $roles['coadmin'] 
+                    || ($managed && $roles['couadmin']));
     
     // Edit an existing Identifier?
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                  || $roles['coadmin'] 
+                  || ($managed && $roles['couadmin']));
     
     // View all existing Identifier?
     // Currently only supported via REST since there's no use case for viewing all
@@ -333,7 +337,8 @@ class IdentifiersController extends MVPAController {
     
     // View an existing Identifier?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                  || $roles['coadmin'] 
+                  || ($managed && $roles['couadmin']));
     
     $this->set('permissions', $p);
     return $p[$this->action];
