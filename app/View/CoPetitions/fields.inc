@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petitions Fields
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -23,30 +23,11 @@
  */
 -->
 <script type="text/javascript">
-var givenNameAttr = "";
-var familyNameAttr = "";
-  
-$(document).ready(function() {
-  $("input.matchable").keyup(function(event) {
-    if(event.which != 13) {
-      // 13 is enter/return... don't search on form submit
-      // XXX Don't hardcode fields here, or /registry prefix
-      $.ajax({
-        url: '/registry/co_people/match/coef:' + <?php print Sanitize::html($co_enrollment_flow_id); ?>
-             + '/given:' + document.getElementById(givenNameAttr).value
-             + '/family:' + document.getElementById(familyNameAttr).value
-      }).done(function(data) {
-        $('div#results').html(data);
-      });
-    }
-  });
-});
-
 $(function() {
 /*  $( "#accordion" ).accordion({
     heightStyle: "fill"
   });*/
-    // Ennumeration for tabs
+    // Enumeration for tabs
     var tabid = new Object();
     tabid["petition"]  = 0;
     tabid["attributes"]    = 1;
@@ -84,8 +65,8 @@ $(function() {
     $args['action'] = 'index';
     $args['co'] = $cur_co['Co']['id'];
     $args['sort'] = 'created';
-    $args['Search.status'][] = StatusEnum::PendingApproval;
-    $args['Search.status'][] = StatusEnum::PendingConfirmation;
+    $args['Search.status'][] = PetitionStatusEnum::PendingApproval;
+    $args['Search.status'][] = PetitionStatusEnum::PendingConfirmation;
 
     $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
     if ($this->action == "add") {
@@ -104,7 +85,7 @@ $(function() {
     // If status is pending confirmation, offer a link to resend the invite
     if($permissions['resend']
        && !empty($co_petitions[0]['CoPetition']['status'])
-       && $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
+       && $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation) {
       $sidebarButtons[]  = array(
         'icon'    => 'mail-closed',
         'title'   => _txt('op.inv.resend'),
@@ -131,8 +112,8 @@ $(function() {
     // If status is pending confirmation or approval, offer ability to flag as duplicate.
     if($permissions['dupe']
        && !empty($co_petitions[0]['CoPetition']['status'])
-       && ($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval
-           || $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation)) {
+       && ($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
+           || $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation)) {
       $sidebarButtons[]  = array(
         'icon'    => 'flag',
         'title'   => _txt('op.petition.dupe'),
@@ -145,27 +126,31 @@ $(function() {
     }
     
     // Add button for related Org Identity
-    $sidebarButtons[]  = array(
-      'icon'    => 'extlink',
-      'title'   => _txt('ct.org_identities.1'),
-      'url'     => array(
-        'controller'    => 'org_identities',
-        'action'        => 'view',
-        $co_petitions[0]['CoPetition']['enrollee_org_identity_id'],
-        'co'            => $co_petitions[0]['CoPetition']['co_id']
-      )
-    );
+    if(!empty($co_petitions[0]['CoPetition']['enrollee_org_identity_id'])) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'extlink',
+        'title'   => _txt('ct.org_identities.1'),
+        'url'     => array(
+          'controller'    => 'org_identities',
+          'action'        => 'view',
+          $co_petitions[0]['CoPetition']['enrollee_org_identity_id'],
+          'co'            => $co_petitions[0]['CoPetition']['co_id']
+        )
+      );
+    }
     
     // Add button for related CO Person
-    $sidebarButtons[]  = array(
-      'icon'    => 'extlink',
-      'title'   => _txt('ct.co_people.1'),
-      'url'     => array(
-        'controller'    => 'co_people',
-        'action'        => 'canvas',
-        $co_petitions[0]['CoPetition']['enrollee_co_person_id']
-      )
-    );
+    if(!empty($co_petitions[0]['CoPetition']['enrollee_co_person_id'])) {
+      $sidebarButtons[]  = array(
+        'icon'    => 'extlink',
+        'title'   => _txt('ct.co_people.1'),
+        'url'     => array(
+          'controller'    => 'co_people',
+          'action'        => 'canvas',
+          $co_petitions[0]['CoPetition']['enrollee_co_person_id']
+        )
+      );
+    }
     
     $this->set('sidebarButtons', $sidebarButtons);
   }
@@ -212,9 +197,9 @@ $(function() {
                 <th><?php print _txt('fd.status'); ?></th>
                 <td>
                   <?php
-                    print _txt('en.status', null, $co_petitions[0]['CoPetition']['status']);
+                    print _txt('en.status.pt', null, $co_petitions[0]['CoPetition']['status']);
                     
-                    if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval) {
+                    if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval) {
                       if($permissions['approve']) {
                         print $this->Html->link(
                           _txt('op.approve'),
@@ -228,8 +213,8 @@ $(function() {
                       }
                     }
                     
-                    if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingApproval
-                       || $co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
+                    if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
+                       || $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation) {
                       if($permissions['deny']) {
                         print $this->Html->link(
                           _txt('op.deny'),
@@ -245,7 +230,7 @@ $(function() {
                   ?>
                 </td>
               </tr>
-              <?php if($co_petitions[0]['CoPetition']['status'] == StatusEnum::PendingConfirmation
+              <?php if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation
                        && !empty($co_petitions[0]['CoInvite']['expires'])): ?>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <th><?php print _txt('fd.inv.exp'); ?></th>
@@ -256,8 +241,8 @@ $(function() {
                 <th><?php print _txt('fd.petitioner'); ?></th>
                 <td>
                   <?php
-                    if(isset($co_petitions[0]['PetitionerCoPerson']['Name'])) {
-                      print generateCn($co_petitions[0]['PetitionerCoPerson']['Name']);
+                    if(isset($co_petitions[0]['PetitionerCoPerson']['PrimaryName'])) {
+                      print generateCn($co_petitions[0]['PetitionerCoPerson']['PrimaryName']);
                     } else {
                       print _txt('fd.actor.self');
                     }
@@ -268,8 +253,8 @@ $(function() {
                 <th><?php print _txt('fd.sponsor'); ?></th>
                 <td>
                   <?php
-                    if(isset($co_petitions[0]['SponsorCoPerson']['Name'])) {
-                      print generateCn($co_petitions[0]['SponsorCoPerson']['Name']);
+                    if(isset($co_petitions[0]['SponsorCoPerson']['PrimaryName'])) {
+                      print generateCn($co_petitions[0]['SponsorCoPerson']['PrimaryName']);
                     }
                   ?>
                 </td>
@@ -278,8 +263,8 @@ $(function() {
                 <th><?php print _txt('fd.approver'); ?></th>
                 <td>
                   <?php
-                    if(isset($co_petitions[0]['ApproverCoPerson']['Name'])) {
-                      print generateCn($co_petitions[0]['ApproverCoPerson']['Name']);
+                    if(isset($co_petitions[0]['ApproverCoPerson']['PrimaryName'])) {
+                      print generateCn($co_petitions[0]['ApproverCoPerson']['PrimaryName']);
                     }
                   ?>
                 </td>

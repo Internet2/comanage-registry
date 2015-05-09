@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Invite Controller
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -296,7 +296,7 @@ class CoInvitesController extends AppController {
    * @param  String Authenticated login identifier, if set
    */
   
-  function process_invite($inviteid, $confirm, $loginIdentifier=null) {
+  protected function process_invite($inviteid, $confirm, $loginIdentifier=null) {
     // Grab the invite info in case we need it later (we're about to delete it)
     $invite = $this->CoInvite->findByInvitation($inviteid);
     
@@ -349,38 +349,40 @@ class CoInvitesController extends AppController {
     if($this->request->is('restful')) {
       $this->Api->restResultHeader(200, "Deleted");
     } else {
-      // See if this invite was attached to a CO petition, and if so whether a redirect
-      // URL was specified.
-      
-      $targetUrl = null;
+      // If the invite was attached to a CO petition, re-enter the enrollment flow
       
       if(!empty($invite['CoPetition']['id'])) {
-        $targetUrl = $this->CoInvite->CoPetition->CoEnrollmentFlow->field('redirect_on_confirm',
-                                                                          array('CoEnrollmentFlow.id' => $invite['CoPetition']['co_enrollment_flow_id']));
+        $redirect = array(
+          'controller' => 'co_petitions',
+          'action'     => 'processConfirmation',
+          $invite['CoPetition']['id'],
+          'confirm'    => ($confirm ? "true" : "false")
+        );
+        
+        // For now, we always create an enrollee token. Pretty much every currently
+        // supported enrollment flow involves a new Org Identity for the CO, so
+        // there won't be an existing CO Person identity linked to use instead.
+        // At some point (ie: additional Role enrollment; CO-310) this will change.
+        
+        $token = Security::generateAuthKey();
+        
+        $this->CoInvite->CoPetition->id = $invite['CoPetition']['id'];
+        $this->CoInvite->CoPetition->saveField('enrollee_token', $token);
+        
+        $redirect['token'] = $token;
+        
+        $this->redirect($redirect);
+      } elseif(!empty($invite['CoInvite']['email_address_id'])) {
+        $this->Session->setFlash($confirm ? _txt('rs.ev.ver') : _txt('rs.ev.cxl'), '', array(), 'success');
+      } else {
+        $this->Session->setFlash($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), '', array(), 'success');
       }
       
-      if($targetUrl && $targetUrl != "") {
-        // This shouldn't be done for Account Linking enrollment flows, since the user won't be logged out
-        // to force their linked identity to show up by logging in again.
-        
-        // Make sure the petition ID is available in the session.
-        $this->Session->write('CoPetition.id', $invite['CoPetition']['id']);
-        $this->redirect($targetUrl);
+      // If a login identifier was provided, force a logout
+      if($loginIdentifier) {
+        $this->redirect("/auth/logout");
       } else {
-        if(!empty($invite['CoPetition']['id']) && $loginIdentifier) {
-          $this->Session->setFlash(_txt('rs.pt.relogin'), '', array(), 'success');
-        } elseif(!empty($invite['CoInvite']['email_address_id'])) {
-          $this->Session->setFlash($confirm ? _txt('rs.ev.ver') : _txt('rs.ev.cxl'), '', array(), 'success');
-        } else {
-          $this->Session->setFlash($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), '', array(), 'success');
-        }
-        
-        // If a login identifier was provided, force a logout
-        if($loginIdentifier) {
-          $this->redirect("/auth/logout");
-        } else {
-          $this->redirect("/");
-        }
+        $this->redirect("/");
       }
     }
   }

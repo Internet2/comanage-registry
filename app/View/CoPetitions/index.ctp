@@ -38,7 +38,7 @@
 
 <?php
 // Globals
-global $cm_lang, $cm_texts;
+  global $cm_lang, $cm_texts;
 
   $params = array('title' => $cur_co['Co']['name'] . ' ' . _txt('ct.petitions.pl'));
   print $this->element("pageTitle", $params);
@@ -63,18 +63,13 @@ global $cm_lang, $cm_texts;
     print $this->Form->hidden('CoPetition.co_id', array('default' => $cur_co['Co']['id'])). "\n";
     
     // Build array of options based on model validation
-    $statusOptions = array_keys($cm_texts[ $cm_lang ]['en.status']);
-
-    foreach ($statusOptions as $s) {
-      $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
-    }
-
+    $searchOptions = $cm_texts[ $cm_lang ]['en.status.pt'];
+    
     // Build array to check off actively used filters on the page
     $selected = array();
+    
     if(isset($this->passedArgs['search.status'])) {
-      foreach($this->passedArgs['search.status'] as $a) {
-        $selected[] = $a;
-      }
+      $selected = $this->passedArgs['search.status'];
     }
     
     // Collect parameters and print checkboxes
@@ -82,8 +77,8 @@ global $cm_lang, $cm_texts;
                         'multiple' => 'checkbox',
                         'label'    => false,
                         'selected' => $selected);
-    print $this->Form->input('search.status', $formParams);
     
+    print $this->Form->input('search.status', $formParams);
     print $this->Form->submit(_txt('op.filter'));
     print $this->Form->end();
   ?>
@@ -111,7 +106,9 @@ global $cm_lang, $cm_texts;
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print $this->Html->link(generateCn($p['EnrolleeCoPerson']['PrimaryName']),
+          print $this->Html->link(!empty($p['EnrolleeCoPerson']['PrimaryName'])
+                                  ? generateCn($p['EnrolleeCoPerson']['PrimaryName'])
+                                  : _txt('fd.enrollee.new'),
                                   array(
                                     'controller' => 'co_petitions',
                                     'action' => ($permissions['edit']
@@ -126,7 +123,7 @@ global $cm_lang, $cm_texts;
           global $status_t;
           
           if(!empty($p['CoPetition']['status'])) {
-            print _txt('en.status', null, $p['CoPetition']['status']);
+            print _txt('en.status.pt', null, $p['CoPetition']['status']);
           }
         ?>
       </td>

@@ -486,7 +486,7 @@
   <?php
     // Render conclusion text for new petitions
     
-    if($this->action == 'add' && !empty($vv_conclusion_text)) {
+    if(!empty($vv_conclusion_text)) {
       print '<div class="ui-widget modelbox">' . $vv_conclusion_text . "</div>";
     }
   ?>
@@ -511,7 +511,7 @@
   </table>
 </div>
 </div>
-<?php if($this->action != 'add'): ?>
+<?php if($this->action == 'view'): ?>
   <div id="tabs-history">
     <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
       <tbody>
@@ -533,7 +533,7 @@
       </tbody>
     </table>
   </div>
-<?php endif; // action == add ?>
+<?php endif; // action == view ?>
 
 <div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
   <iframe id="tandc_content" height="600" width="700">

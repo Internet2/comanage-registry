@@ -154,6 +154,13 @@ class EnrollmentMatchPolicyEnum {
   const Self      = "S";
 }
 
+class EnrollmentRole
+{
+  const Approver   = 'A';
+  const Enrollee   = 'E';
+  const Petitioner = 'P';
+}
+
 class ExtendedAttributeEnum {
   const Integer   = 'INTEGER';
   const Timestamp = 'TIMESTAMP';
@@ -275,6 +282,7 @@ class PermittedNameFieldsEnum
 class PetitionActionEnum
 {
   const Approved                = 'PY';
+  const AttributesUpdated       = 'AU';
   const CommentAdded            = 'CM';
   const Created                 = 'PC';
   const Declined                = 'PX';
@@ -283,11 +291,27 @@ class PetitionActionEnum
   const FlaggedDuplicate        = 'FD';
   const IdentifierAuthenticated = 'ID';
   const IdentifiersAssigned     = 'IA';
+  const IdentityLinked          = 'IL';
   const InviteConfirmed         = 'IC';
   const InviteSent              = 'IS';
   const NotificationSent        = 'NS';
+  const StatusUpdated           = 'SU';
   const TCExplicitAgreement     = 'TE';
   const TCImpliedAgreement      = 'TI';
+}
+
+class PetitionStatusEnum
+{
+  const Active              = 'A';
+  const Approved            = 'Y';
+  const Confirmed           = 'C';
+  const Created             = 'CR';
+  const Declined            = 'X';
+  const Denied              = 'N';
+  const Duplicate           = 'D2';
+  const Finalized           = 'F';
+  const PendingApproval     = 'PA';
+  const PendingConfirmation = 'PC';
 }
 
 // The status of a provisioning plugin

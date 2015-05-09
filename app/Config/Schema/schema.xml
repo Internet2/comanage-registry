@@ -799,6 +799,8 @@
       <constraint>REFERENCES cm_co_invites(id)</constraint>
     </field>
     <field name="authenticated_identifier" type="C" size="256" />
+    <field name="petitioner_token" type="C" size="48" />
+    <field name="enrollee_token" type="C" size="48" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
