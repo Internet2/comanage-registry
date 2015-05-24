@@ -260,11 +260,13 @@ class CoEnrollmentFlowsController extends StandardController {
     // Walk through the list of flows and see which ones this user is authorized to run
     
     $authedFlows = array();
+    $roles = $this->Role->calculateCMRoles();
     
     foreach($flows as $f) {
       // pass $role to model->authorize
       
-      if($this->CoEnrollmentFlow->authorize($f, $this->Session->read('Auth.User.co_person_id'), $this->Role)) {
+      if($roles['cmadmin']
+         || $this->CoEnrollmentFlow->authorize($f, $this->Session->read('Auth.User.co_person_id'), $this->Role)) {
         $authedFlows[] = $f;
       }
     }
