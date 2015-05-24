@@ -30,7 +30,7 @@ class CoEnrollmentFlow extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable', 'Changelog' => array('priority' => 5));
   
   // Custom find types
   public $findMethods = array('authorized' => true);
@@ -62,6 +62,9 @@ class CoEnrollmentFlow extends AppModel {
     // A CO Enrollment Flow may have zero or more CO Petitions
     "CoPetition" => array('dependent' => true)
   );
+  
+  // Associated models that should be relinked to the archived attribute during Changelog archiving
+  public $relinkToArchive = array('CoPetition');
   
   // Default display field for cake generated views
   public $displayField = "name";
@@ -533,10 +536,13 @@ class CoEnrollmentFlow extends AppModel {
     $args['conditions']['CoEnrollmentFlow.id'] = $id;
     $args['contain']['CoEnrollmentAttribute'][] = 'CoEnrollmentAttributeDefault';
     
+    // This find will not pull archived or deleted attributes (as managed via
+    // Changelog behavior), which seems about right. However, we'll want to clear
+    // the attribute changelog metadata, below.
     $ef = $this->find('first', $args);
     
     if(empty($ef)) {
-      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_attributes.1'), $id)));
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_flows.1'), $id)));
     }
     
     // We need to rename the flow
@@ -554,12 +560,20 @@ class CoEnrollmentFlow extends AppModel {
       unset($ef['CoEnrollmentAttribute'][$i]['co_enrollment_flow_id']);
       unset($ef['CoEnrollmentAttribute'][$i]['created']);
       unset($ef['CoEnrollmentAttribute'][$i]['modified']);
+      // For changelog behavior
+      unset($ef['CoEnrollmentAttribute'][$i]['revision']);
+      unset($ef['CoEnrollmentAttribute'][$i]['co_enrollment_attribute_id']);
+      unset($ef['CoEnrollmentAttribute'][$i]['actor_identifier']);
       
       for($j = 0;$j < count($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault']);$j++) {
         unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['id']);
         unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['co_enrollment_attribute_id']);
         unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['created']);
         unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['modified']);
+        // For changelog behavior
+        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['revision']);
+        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['co_enrollment_attribute_id']);
+        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['actor_identifier']);
       }
     }
     

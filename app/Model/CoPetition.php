@@ -330,6 +330,94 @@ class CoPetition extends AppModel {
   }
   
   /**
+   * Filter Enrollment Attributes for those that were in effect at the time a
+   * set of Petition Attributes were created.
+   * 
+   * @since  COmanage Registry v0.9.4
+   * @param  Array $enrollmentAttributes Enrollment Attributes as obtained from CoEnrollmentAttribute::enrollmentFlowAttributes
+   * @param  Array $petitionAttributes Petition Attributes, as a hash of enrollment attribute ID and creation timestamp
+   * @return Array Enrollment Attributes in effect, in the same format as $enrollmentAttributes
+   */
+  
+  public function filterHistoricalAttributes($enrollmentAttributes, $petitionAttributes) {
+    // The attributes we want to keep, using the master parent ID as the key.
+    $keep = array();
+    
+    // Track the earliest create time from any attribute. We'll use this as an
+    // approximation to determine when the attributes were collected.
+    $createTime = PHP_INT_MAX;
+    
+    // Determining which (historical) attribute to return is a bit tricky.
+    // For example, an optional attribute may not be recorded in $petitionAttributes,
+    // so we can't just use that as an authoritative source. We start by assembling
+    // the keys of $petitionAttributes for attributes with definitions.
+    
+    foreach($enrollmentAttributes as $ea) {
+      if(isset($petitionAttributes[ $ea['id'] ])) {
+        if(isset($ea['CoEnrollmentAttribute']['co_enrollment_attribute_id'])) {
+          // Not the parent attribute
+          $keep[ $ea['CoEnrollmentAttribute']['co_enrollment_attribute_id'] ] = $ea['id'];
+        } else {
+          // Parent attribute
+          $keep[ $ea['id'] ] = $ea['id'];
+        }
+        
+        $eaTime = strtotime($petitionAttributes[ $ea['id'] ]);
+        
+        if($eaTime < $createTime) {
+          $createTime = $eaTime;
+        }
+      }
+    }
+    
+    // Now handle undefined attributes. We'll keep the most recent definition
+    // that is no later than $createTime.
+    
+    $defaultKeep = array();
+    $defaultKeepTimes = array();
+    
+    foreach($enrollmentAttributes as $ea) {
+      $parentId = null;
+      
+      if(isset($ea['CoEnrollmentAttribute']['co_enrollment_attribute_id'])) {
+        // Not the parent attribute
+        $parentId = $ea['CoEnrollmentAttribute']['co_enrollment_attribute_id'];
+      } else {
+        // Parent attribute
+        $parentId = $ea['id'];
+      }
+      
+      $eaTime = strtotime($ea['CoEnrollmentAttribute']['created']);
+      
+      if(!isset($keep[$parentId])
+         && $eaTime <= $createTime) {
+        // There was no value for this attribute, so start tracking,
+        // or replace the previously selected attribute to keep.
+        
+        if(!isset($defaultKeep[$parentId])
+           || $eaTime > $defaultKeepTimes[$parentId]) {
+          $defaultKeep[$parentId] = $ea['id'];
+          $defaultKeepTimes[$parentId] = $eaTime;
+        }
+      }
+    }
+    
+    // Re-assemble the attributes to keep. Make sure we don't return any deleted.
+    
+    $keepById = array_flip(array_merge($keep, $defaultKeep));
+    
+    $ret = array();
+    
+    foreach($enrollmentAttributes as $ea) {
+      if(isset($keepById[ $ea['id'] ])) {
+        $ret[] = $ea;
+      }
+    }
+    
+    return $ret;
+  }
+  
+  /**
    * Convert attributes from "hierarchical" operational model format to "flat" petition format.
    *
    * @since  COmanage Registry v0.9.4
@@ -338,10 +426,11 @@ class CoPetition extends AppModel {
    * @param  Array   $orgData          Array of OrgIdentity attributes (and related models)
    * @param  Array   $coData           Array of CoPerson attributes (and related models)
    * @param  Array   $coRoleData       Array of CoPersonRole attributes (and related models)
+   * @param  Array   $requestData      Original request data from form
    * @return Array Array of attributes in petition format
    */
   
-  protected function flattenAttributes($enrollmentFlowID, $coPetitionID, $orgData, $coData, $coRoleData) {
+  protected function flattenAttributes($enrollmentFlowID, $coPetitionID, $orgData, $coData, $coRoleData, $requestData) {
     // Return array
     $petitionAttrs = array();
     
@@ -1134,7 +1223,7 @@ class CoPetition extends AppModel {
     // Flatten the attributes to store in the petition
     
     try {
-      $petitionAttrs = $this->flattenAttributes($enrollmentFlowId, $id, $orgData, $coData, $coRoleData);
+      $petitionAttrs = $this->flattenAttributes($enrollmentFlowId, $id, $orgData, $coData, $coRoleData, $requestData);
     }
     catch(Exception $e) {
       $dbc->rollback();
@@ -1421,8 +1510,8 @@ class CoPetition extends AppModel {
                       $cgid,
                       ActionEnum::CoPetitionUpdated,
                       _txt('rs.pt.status', array(generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']),
-                                                 _txt('en.status', null, $pt['CoPetition']['status']),
-                                                 _txt('en.status', null, PetitionStatusEnum::PendingApproval),
+                                                 _txt('en.status.pt', null, $pt['CoPetition']['status']),
+                                                 _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
                                                  $pt['CoEnrollmentFlow']['name'])),
                       array(
                         'controller' => 'co_petitions',
@@ -1616,6 +1705,13 @@ class CoPetition extends AppModel {
         $newPetitionStatus = PetitionStatusEnum::Finalized;
         $newCoPersonStatus = StatusEnum::Active;
       }
+    } elseif($curStatus == PetitionStatusEnum::Created) {
+      if($newStatus == PetitionStatusEnum::Finalized) {
+        $newPetitionStatus = PetitionStatusEnum::Finalized;
+        $newCoPersonStatus = StatusEnum::Active;
+      }
+      
+      $valid = true;
     } else {
       // For now accept all other status transitions. It might make sense to drop
       // the validity check completely.

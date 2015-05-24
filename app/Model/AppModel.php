@@ -2,7 +2,7 @@
 /**
  * Application level Model
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
@@ -421,6 +421,28 @@ class AppModel extends Model {
   }
   
   /**
+   * Wrap the standard delete behavior to handle Changelog enabled models.
+   * 
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $id Model ID to delete
+   * @param  Boolean $cascade Whether to cascade the delete to related models
+   * @return Boolean True on success, false otherwise
+   */
+  
+  public function delete($id = null, $cascade = true) {
+    $ret = parent::delete($id, $cascade);
+    
+    if($ret === false && $this->Behaviors->enabled('Changelog')) {
+      // Check that the deleted field was set in lieu of the (incorrect) return
+      // code from delete() (which will always be false with Changelog behavior).
+      
+      return (bool)$this->field('deleted');
+    }
+    
+    return $ret;
+  }
+  
+  /**
    * Filter a model's native attributes from its related models.
    *
    * @since  COmanage Registry v0.7
@@ -605,6 +627,30 @@ class AppModel extends Model {
     // We should perhaps be using read() and/or buildQuery() instead.
     
     return $dbc->fetchAll($dbc->buildStatement($args, $this) . " FOR UPDATE", array(), array('cache' => false));
+  }
+  
+  /**
+   * Recursively reload a behavior for a model and it's dependent=true related models.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  String $behavior Name of behavior to disable
+   * @param  Array $params Argumenths to pass to Behavior
+   */
+  
+  public function reloadBehavior($behavior, $params = array()) {
+    if($this->Behaviors->enabled($behavior)) {
+      // We only want to update the configuration of already loaded behaviors.
+      // ie: We don't want to add changelog behavior to a model that isn't set up
+      // for it.
+      
+      $this->Behaviors->load($behavior, $params);
+    }
+    
+    foreach(array_merge($this->hasMany, $this->hasOne) as $assoc => $data) {
+      if($data['dependent'] === true) {
+        $this->$assoc->reloadBehavior($behavior, $params);
+      }
+    }
   }
   
   /**

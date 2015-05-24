@@ -36,6 +36,10 @@ class CosController extends StandardController {
     )
   );
   
+  // In order to delete a CO, we need to always use hard delete, since soft
+  // deleting records will result in foreign key dependencies sticking around
+  public $useHardDelete = true;
+  
   /**
    * Perform any dependency checks required prior to a delete operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)

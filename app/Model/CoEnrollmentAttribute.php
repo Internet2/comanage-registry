@@ -30,7 +30,7 @@ class CoEnrollmentAttribute extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable', 'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models
   public $belongsTo = array("CoEnrollmentFlow");     // A CO Enrollment Attribute is part of a CO Enrollment Flow
@@ -40,6 +40,9 @@ class CoEnrollmentAttribute extends AppModel {
     // A CO Petition Attribute is defined by a CO Enrollment Attribute
     "CoPetitionAttribute" => array('dependent' => true)
   );
+  
+  // Associated models that should be relinked to the archived attribute during Changelog archiving
+  public $relinkToArchive = array('CoPetitionAttribute');
   
   // Default display field for cake generated views
   public $displayField = "label";
@@ -91,8 +94,13 @@ class CoEnrollmentAttribute extends AppModel {
       'rule'       => array('validateLanguage'),
       'required'   => false,
       'allowEmpty' => true
+    ),
+    'co_enrollment_attribute_id' => array(
+      'rule' => array('numeric'),
+      'required' => false,
+      'allowEmpty' => true
     )
-  );
+  );  
   
   /**
    * Determine the attributes available to be requested as part of an Enrollment Flow.
@@ -215,10 +223,11 @@ class CoEnrollmentAttribute extends AppModel {
    * @since  COmanage Registry 0.5
    * @param  integer CO Enrollment Flow ID
    * @param  Array Default values, keyed on Model name
+   * @param  Boolean Whether to include archived (historical) attributes as well
    * @return Array Configured attributes and metadata
    */
   
-  public function enrollmentFlowAttributes($coef, $defaultValues=array()) {
+  public function enrollmentFlowAttributes($coef, $defaultValues=array(), $archived=false) {
     $attrs = array();
     $permNameFields = array();
     
@@ -230,6 +239,9 @@ class CoEnrollmentAttribute extends AppModel {
     $args['order']['CoEnrollmentAttribute.ordr'] = 'asc';
     $args['contain'][] = 'CoEnrollmentAttributeDefault';
     $args['contain'][] = 'CoEnrollmentFlow';
+    if($archived) {
+      $args['archived'] = true;
+    }
     
     $efAttrs = $this->find('all', $args);
     
@@ -269,6 +281,11 @@ class CoEnrollmentAttribute extends AppModel {
           $attrModel = $this->CoEnrollmentFlow->CoPetition->Co->CoExtendedAttribute;
           break;
         }
+        
+        // XXX We could rewrite a bunch of stuff to reference this link to the parent
+        // model rather than manually copy fields like 'id' and others that won't
+        // vary even when a single logical attribute is expanded into multiple physical ones.
+        $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];
         
         // The attribute ID
         $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
@@ -486,6 +503,7 @@ class CoEnrollmentAttribute extends AppModel {
         
         $attr = array();
         
+        $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];
         $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
         $attr['hidden'] = true;
@@ -506,6 +524,7 @@ class CoEnrollmentAttribute extends AppModel {
             
             // The attribute ID and attribute key will be the same for all components
             // of a multi-valued attribute
+            $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];
             $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
             $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
             
@@ -643,6 +662,7 @@ class CoEnrollmentAttribute extends AppModel {
         // contruct the $attrs entry.
         
         $attr = array();
+        $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];
         $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
         $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
@@ -688,6 +708,7 @@ class CoEnrollmentAttribute extends AppModel {
         // Inject hidden attributes to specify membership
         
         $attr = array();
+        $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];
         $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
         $attr['group'] = $efAttr['CoEnrollmentAttribute']['label'];
@@ -723,6 +744,7 @@ class CoEnrollmentAttribute extends AppModel {
         
         $attr = array();
         
+        $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];
         $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
         $attr['hidden'] = true;
@@ -737,6 +759,7 @@ class CoEnrollmentAttribute extends AppModel {
         
         $attr = array();
         
+        $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];
         $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
         $attr['label'] = $efAttr['CoEnrollmentAttribute']['label'];

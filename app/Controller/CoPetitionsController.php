@@ -294,9 +294,44 @@ class CoPetitionsController extends StandardController {
                                      ->CoEnrollmentFlow
                                      ->CoEnrollmentAttribute
                                      ->enrollmentFlowAttributes($this->enrollmentFlowID(),
-                                                                $defaultValues);
+                                                                $defaultValues,
+                                                                // For viewing a petition, we want the archived attributes as well
+                                                                $this->action == 'view');
         
-        if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
+        if($this->action == 'view') {
+          // Pull the current attribute values
+          $vArgs = array();
+          $vArgs['conditions']['CoPetitionAttribute.co_petition_id'] = $this->CoPetition->id;
+          $vArgs['fields'] = array(
+            'CoPetitionAttribute.attribute',
+            'CoPetitionAttribute.value',
+            'CoPetitionAttribute.co_enrollment_attribute_id'
+          );
+          $vAttrs = $this->CoPetition->CoPetitionAttribute->find("list", $vArgs);
+          
+          $this->set('co_petition_attribute_values', $vAttrs);
+          
+          // For viewing a petition, we want the attributes defined at the time the
+          // petition attributes were submitted. This turns out to be somewhat
+          // complicated to determine, so we hand it off for filtering.
+          
+          // We need a slightly different set of data here. Strictly speaking we
+          // should do a select distinct, but practically it won't matter since
+          // all petition attributes for a given enrollment attribute will have
+          // approximately the same created time.
+          $vArgs = array();
+          $vArgs['conditions']['CoPetitionAttribute.co_petition_id'] = $this->CoPetition->id;
+          $vArgs['fields'] = array(
+            'CoPetitionAttribute.co_enrollment_attribute_id',
+            'CoPetitionAttribute.created'
+          );
+          $vAttrs = $this->CoPetition->CoPetitionAttribute->find("list", $vArgs);
+          
+          $enrollmentAttributes = $this->CoPetition->filterHistoricalAttributes($enrollmentAttributes, $vAttrs);
+        }
+        
+        if($this->action != 'view'
+           && $this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
           // If enrollment flows can populate org identities, then see if we're configured
           // to pull environment variables. If so, for this configuration they simply
           // replace modifiable default values.
@@ -351,24 +386,6 @@ class CoPetitionsController extends StandardController {
           
           $this->set('vv_tandc_mode', (!empty($tcmode) ? $tcmode : TAndCEnrollmentModeEnum::ExplicitConsent));
         }
-      }
-      
-      if(($this->action == 'edit' || $this->action == 'view')
-          && $this->request->is('get')) {
-        // This information is already embedded in $co_petitions, but it's easier for the
-        // views to access it this way. Also, arguably $co_petitions needs some trimming
-        // via containable.
-        
-        $vArgs = array();
-        $vArgs['conditions']['CoPetitionAttribute.co_petition_id'] = $this->CoPetition->id;
-        $vArgs['fields'] = array(
-          'CoPetitionAttribute.attribute',
-          'CoPetitionAttribute.value',
-          'CoPetitionAttribute.co_enrollment_attribute_id'
-        );
-        $vAttrs = $this->CoPetition->CoPetitionAttribute->find("list", $vArgs);
-        
-        $this->set('co_petition_attribute_values', $vAttrs);
       }
     }
     
@@ -1062,7 +1079,7 @@ class CoPetitionsController extends StandardController {
     // If approval_required is false, this step is skipped.
     // If true, we've sent the notification already, so we just need to issue a suitable redirect.
     
-    $this->execute_redirectOnConfirm($id);
+    $this->execute_redirectOnSubmit($id);
   }
   
   /**
@@ -1247,6 +1264,11 @@ class CoPetitionsController extends StandardController {
       $p['resend'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       $p['view'] = true;  // Approvers will have the petitions they can see filtered by the controller
     }
+    
+    // View Enrollment Attribute definitions? This is for link generation only, the actual
+    // authz is in CoEnrollmentAttributesController.
+    
+    $p['viewEA'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Execute the various phases involved in a CO Petition?
     // We need to know which phases are configured for certain permissions.

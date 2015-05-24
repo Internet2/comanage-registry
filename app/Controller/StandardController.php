@@ -29,6 +29,10 @@ class StandardController extends AppController {
   // Used for activating tabs on pages; will hold name of tab or NULL
   public $redirectTab = NULL;
 
+  // Deleting certain records requires forcing a hard delete so that changelog
+  // behavior is skipped
+  public $useHardDelete = false;
+
   /**
    * Add a Standard Object.
    * - precondition: Model specific attributes in $this->request->data (optional)
@@ -267,9 +271,20 @@ class StandardController extends AppController {
       
       return;
     }
-
+    
+    if($this->useHardDelete) {
+      // We need to walk the model relations and adjust Changelog behavior
+      // for any related model. This is because beforeFind will still fire,
+      // altering the list of records to be deleted, even though deleteAll doesn't
+      // fire callbacks. We also need the behavior to clear internal foreign keys
+      // so that we don't get foreign key errors when rows are not deleted in the
+      // proper order.
+      
+      $model->reloadBehavior('Changelog', array('expunge' => true));
+    }
+    
     // Remove the object.
-
+    
     if($model->delete($id)) {
       if($this->recordHistory('delete', null, $op)) {
         if($this->request->is('restful'))

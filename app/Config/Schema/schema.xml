@@ -694,6 +694,12 @@
     <field name="ignore_authoritative" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_enrollment_flow_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_enrollment_flows_i1">
       <col>co_id</col>
@@ -707,6 +713,10 @@
     <!-- Used by AppController::menuContent() -->
     <index name="co_enrollment_flows_i3">
       <col>status</col>
+    </index>
+    
+    <index name="co_enrollment_flows_i4">
+      <col>co_enrollment_flow_id</col>
     </index>
   </table>
   
@@ -735,9 +745,19 @@
     <field name="language" type="C" size="16" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_enrollment_attribute_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_attributes(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_enrollment_attributes_i1">
       <col>co_enrollment_flow_id</col>
+    </index>
+    
+    <index name="co_enrollment_attributes_i2">
+      <col>co_enrollment_attribute_id</col>
     </index>
   </table>
   
@@ -755,9 +775,19 @@
     <field name="modifiable" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_enrollment_attribute_default_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_attribute_defaults(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_enrollment_attribute_defaults_i1">
       <col>co_enrollment_attribute_id</col>
+    </index>
+    
+    <index name="co_enrollment_attribute_defaults_i2">
+      <col>co_enrollment_attribute_default_id</col>
     </index>
   </table>
   
@@ -843,6 +873,10 @@
     
     <index name="co_petition_attributes_i1">
       <col>co_petition_id</col>
+    </index>
+    
+    <index name="co_petition_attributes_i2">
+      <col>co_enrollment_attribute_id</col>
     </index>
   </table>
   

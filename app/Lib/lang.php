@@ -570,6 +570,7 @@ original notification at
                                       ContactEnum::Office => 'Office'),
 
   // Errors
+  'er.archived' =>    'This record is already archived and cannot be edited',
   'er.auth' =>        'Not authenticated',
   'er.auth.co' =>     'You are not a member of any COs. Please contact an administrator for assistance.',
   'er.auth.empty' =>  'Found empty username at login. Please contact an administrator for assistance.',
@@ -608,6 +609,7 @@ original notification at
   'er.cou.gr.adminmembers' => 'COU created, but failed to create initial admin and members groups',
   'er.cou.sameco' =>  'COUs must be in the same CO',
   'er.delete' =>      'Delete Failed',
+  'er.delete.already' => 'Record is already marked deleted',
   'er.deleted-a' =>   'Deleted "%1$s"',  // XXX is this an er or an rs?
   'er.db.connect' =>  'Failed to connect to database: %1$s',
   'er.db.schema' =>   'Possibly failed to update database schema',
@@ -723,6 +725,7 @@ original notification at
   'fd.attrs.copr' =>  'Role Attributes',
   'fd.attrs.org' =>   'Organizational Attributes',
   'fd.attrs.pet' =>   'Petition Attributes',
+  'fd.changelog' =>   'Change Log',
   'fd.closed' =>      'Closed',
   'fd.comment' =>     'Comment',
   'fd.conditions' =>  'Conditions',
@@ -731,6 +734,7 @@ original notification at
   'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',  
   'fd.co_people.status' => 'CO Person Status',
   'fd.created' =>     'Created',
+  'fd.deleted' =>     'Deleted',
   // Demographics fields
   'fd.de.persid'  =>  'Person ID',
   'fd.de.gender'  =>  'Gender',
@@ -935,6 +939,8 @@ original notification at
   'fd.plugin.ptwarn' => 'Once a Provisioning Target has been created, the Plugin cannot be changed',
   'fd.prov.status' => 'Provisioning Status',
   'fd.prov.status.for' => 'Provisioning Status for %1$s',
+  'fd.pt.archived' => 'The definition of this attribute changed after the creation of this petition',
+  'fd.pt.deleted' =>  'This attribute was deleted after the creation of this petition',
   'fd.pt.textfield' => 'Text Field (Petition Use Only)',
   'fd.pt.required' => '&dagger; denotes required fields if you populate this section',
   'fd.recipient' =>   'Recipient',
@@ -944,6 +950,7 @@ original notification at
   'fd.required.name' => 'Name Required Fields',
   'fd.resolved' =>    'Resolved',
   'fd.resolver' =>    'Resolver',
+  'fd.revision' =>    'Revision',
   'fd.roles' =>       'Roles',
   'fd.searchbase' =>  'Search Base',
   'fd.sshkey.comment' => 'Comment',

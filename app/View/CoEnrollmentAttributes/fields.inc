@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Fields
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -226,10 +226,12 @@
 
   $this->set('sidebarButtons', $sidebarButtons);
   
-  // Populate cross references
-  print $this->Form->hidden('co_enrollment_flow_id', array('default' => $vv_coefid)) . "\n";
-  print $this->Form->hidden('CoEnrollmentAttributeDefault.0.id') . "\n";
-  print $this->Form->hidden('CoEnrollmentAttributeDefault.0.co_enrollment_attribute_id') . "\n";
+  if($this->action != 'view') {
+    // Populate cross references
+    print $this->Form->hidden('co_enrollment_flow_id', array('default' => $vv_coefid)) . "\n";
+    print $this->Form->hidden('CoEnrollmentAttributeDefault.0.id') . "\n";
+    print $this->Form->hidden('CoEnrollmentAttributeDefault.0.co_enrollment_attribute_id') . "\n";
+  }
   
   $l = 1;
 ?>
@@ -550,3 +552,7 @@
                               array('type'=>'reset'));
   }
 ?>
+<br />
+<div>
+  <?php print $this->element("changelog"); ?>
+</div>

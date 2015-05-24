@@ -98,8 +98,7 @@
           print $this->Html->link($c['CoEnrollmentAttribute']['label'],
                                   array('controller' => 'co_enrollment_attributes',
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                        $c['CoEnrollmentAttribute']['id'],
-                                        'coef' => $vv_coefid));
+                                        $c['CoEnrollmentAttribute']['id']));
         ?>
       </td>
       <td><?php print $vv_available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
@@ -111,8 +110,7 @@
             print $this->Html->link(_txt('op.edit'),
                                     array('controller' => 'co_enrollment_attributes',
                                           'action' => 'edit',
-                                          $c['CoEnrollmentAttribute']['id'],
-                                          'coef' => $vv_coefid),
+                                          $c['CoEnrollmentAttribute']['id']),
                                     array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'])

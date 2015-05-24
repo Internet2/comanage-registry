@@ -185,7 +185,16 @@
   ?>
     <div class="ui-widget modelbox">
       <div class = "boxtitle">
-        <b><?php print $m ?></b>
+        <b><?php
+          if($permissions['viewEA']) {
+            print $this->Html->link($m,
+                                    array('controller' => 'co_enrollment_attributes',
+                                          'action' => 'view',
+                                          $coe_attributes[0]['CoEnrollmentAttribute']['id']));
+          } else {
+            print $m;
+          }
+        ?></b>
         <?php
           // Is the MVPA required? We'll just check the first attribute since they
           // should all be the same.
@@ -218,6 +227,13 @@
                  &&
                  strncmp($coe_attributes[0]['attribute'], 'i:identifier:', 13))) {
             print "<br /><span class=\"required\">" . _txt('fd.pt.required') . "</span>\n";
+          }
+          
+          if(!empty($ea['CoEnrollmentAttribute']['co_enrollment_attribute_id'])) {
+            print "<br /><span class=\"required\">" . _txt('fd.pt.archived') . "</span>\n";
+          } elseif(isset($ea['CoEnrollmentAttribute']['deleted'])
+                   && $ea['CoEnrollmentAttribute']['deleted']) {
+            print "<br /><span class=\"required\">" . _txt('fd.pt.deleted') . "</span>\n";
           }
         ?>
       </div>

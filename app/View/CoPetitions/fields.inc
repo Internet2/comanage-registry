@@ -230,6 +230,10 @@ $(function() {
                   ?>
                 </td>
               </tr>
+              <tr class="line<?php print ($l % 2); $l++; ?>">
+                <th><?php print _txt('ct.co_enrollment_flows.1'); ?></th>
+                <td><?php print $co_petitions[0]['CoEnrollmentFlow']['name']; ?></td>
+              </tr>
               <?php if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation
                        && !empty($co_petitions[0]['CoInvite']['expires'])): ?>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -301,5 +305,3 @@ $(function() {
   </div>
       <?php endif; ?>
 </div>
-
-
