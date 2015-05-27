@@ -29,6 +29,11 @@
   $modelu = Inflector::underscore($req);
 
   $l = 0;
+  
+  if($this->action == 'add') {
+    // There can't be a changelog yet...
+    return;
+  }
 ?>
 <div>
   <h2>

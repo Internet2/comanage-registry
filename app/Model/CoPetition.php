@@ -1054,12 +1054,6 @@ class CoPetition extends AppModel {
         $dbc->rollback();
         throw new RuntimeException(_txt('er.db.save'));
       }
-    }
-    
-    if(!empty($coData) && !$coPersonId) {
-      // Insert some additional attributes
-      $coData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
-      $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
       
       // Loop through all EmailAddresses, Identifiers, and Names to see if there are any
       // we should copy to the CO Person.
@@ -1084,6 +1078,12 @@ class CoPetition extends AppModel {
         
         $coData['PrimaryName'] = $orgData['PrimaryName'];
       }
+    }
+    
+    if(!empty($coData) && !$coPersonId) {
+      // Insert some additional attributes
+      $coData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
+      $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
       
       // Save the CO Person Data
       
