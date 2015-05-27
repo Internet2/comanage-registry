@@ -171,64 +171,7 @@ class ChangelogBehavior extends ModelBehavior {
     
     if(!empty($query['contain'])
        && (!isset($query['contain'][0]) || $query['contain'][0] != false)) {
-      /**
-       * modifyContain will walk the array of $query['contain'] and append
-       * conditions to constrain the contain to eliminate deleted or archived
-       * attributes.
-       */
-      
-      function modifyContain($model, $contain) {
-        $ret = $contain;
-        
-        foreach($contain as $k => $v) {
-          if(is_array($v)) {
-            // eg: $query['contain'] = array('Model1' => array('Model2'));
-            
-            // First check the model represented by the key
-            
-            if($model->$k->Behaviors->enabled('Changelog')) {
-              $cparentfk = Inflector::underscore($k) . "_id";
-              
-              $ret[$k]['conditions'] = array(
-                $k.'.'.$cparentfk => null,
-                $k.'.deleted IS NOT true'
-              );
-            }
-            
-            // Now walk the value array
-            
-            foreach($contain[$k] as $k2 => $v2) {
-              if(is_array($v2)) {
-                $ret[$v2] = modifyContain($model->$k->$v2, $ret[$v2]);
-              } else {
-                if($model->$k->$v2->Behaviors->enabled('Changelog')) {
-                  $cparentfk = Inflector::underscore($v2) . "_id";
-                  
-                  $ret[$k][$v2]['conditions'] = array(
-                    $v2.'.'.$cparentfk => null,
-                    $v2.'.deleted IS NOT true'
-                  );
-                }
-              }
-            }
-          } else {
-            // eg: $query['contain'] = array('Model1', 'Model2');
-            
-            if($model->$v->Behaviors->enabled('Changelog')) {
-              $cparentfk = Inflector::underscore($v) . "_id";
-              
-              $ret[$v]['conditions'] = array(
-                $v.'.'.$cparentfk => null,
-                $v.'.deleted IS NOT true'
-              );
-            }
-          }
-        }
-        
-        return $ret;
-      }
-      
-      $ret['contain'] = modifyContain($model, $query['contain']);
+      $ret['contain'] = $this->modifyContain($model, $query['contain']);
     }
     
     return $ret;
@@ -400,6 +343,63 @@ class ChangelogBehavior extends ModelBehavior {
     }
     
     return true;
+  }
+
+  /**
+   * modifyContain will walk the array of $query['contain'] and append
+   * conditions to constrain the contain to eliminate deleted or archived
+   * attributes.
+   */
+  
+  protected function modifyContain($model, $contain) {
+    $ret = $contain;
+    
+    foreach($contain as $k => $v) {
+      if(is_array($v)) {
+        // eg: $query['contain'] = array('Model1' => array('Model2'));
+        
+        // First check the model represented by the key
+        
+        if($model->$k->Behaviors->enabled('Changelog')) {
+          $cparentfk = Inflector::underscore($k) . "_id";
+          
+          $ret[$k]['conditions'] = array(
+            $k.'.'.$cparentfk => null,
+            $k.'.deleted IS NOT true'
+          );
+        }
+        
+        // Now walk the value array
+        
+        foreach($contain[$k] as $k2 => $v2) {
+          if(is_array($v2)) {
+            $ret[$v2] = $this->modifyContain($model->$k->$v2, $ret[$v2]);
+          } else {
+            if($model->$k->$v2->Behaviors->enabled('Changelog')) {
+              $cparentfk = Inflector::underscore($v2) . "_id";
+              
+              $ret[$k][$v2]['conditions'] = array(
+                $v2.'.'.$cparentfk => null,
+                $v2.'.deleted IS NOT true'
+              );
+            }
+          }
+        }
+      } else {
+        // eg: $query['contain'] = array('Model1', 'Model2');
+        
+        if($model->$v->Behaviors->enabled('Changelog')) {
+          $cparentfk = Inflector::underscore($v) . "_id";
+          
+          $ret[$v]['conditions'] = array(
+            $v.'.'.$cparentfk => null,
+            $v.'.deleted IS NOT true'
+          );
+        }
+      }
+    }
+    
+    return $ret;
   }
   
   /**

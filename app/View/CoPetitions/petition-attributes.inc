@@ -186,7 +186,7 @@
     <div class="ui-widget modelbox">
       <div class = "boxtitle">
         <b><?php
-          if($permissions['viewEA']) {
+          if(isset($permissions['viewEA']) && $permissions['viewEA']) {
             print $this->Html->link($m,
                                     array('controller' => 'co_enrollment_attributes',
                                           'action' => 'view',
