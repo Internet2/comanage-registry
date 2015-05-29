@@ -274,7 +274,7 @@ class ChangelogBehavior extends ModelBehavior {
           
           foreach($model->relinkToArchive as $amodel) {
             if(isset($model->belongsTo[$amodel])) {
-              $aparentfk = Inflector::underscore($amodel) . "_id";
+              $aparentfk = Inflector::underscore($amodel->$amodel->name) . "_id";
               
               // We have the original foreign key, but the parent model got rekeyed
               // as part of this save and we need to look up the new (archive) ID.
@@ -355,13 +355,28 @@ class ChangelogBehavior extends ModelBehavior {
     $ret = $contain;
     
     foreach($contain as $k => $v) {
-      if(is_array($v)) {
+      if(is_int($k)) {
+        // eg: $query['contain'] = array('Model1', 'Model2');
+        
+        if($model->$v->Behaviors->enabled('Changelog')) {
+          $cparentfk = Inflector::underscore($model->$v->name) . "_id";
+          
+          $ret[$v]['conditions'] = array(
+            $v.'.'.$cparentfk => null,
+            $v.'.deleted IS NOT true'
+          );
+          
+          // Unset the original, which is keyed on an index number ($k)
+          unset($ret[$k]);
+        }
+      } else {
         // eg: $query['contain'] = array('Model1' => array('Model2'));
+        // eg: $query['contain'] = array('Model1' => 'Model2');
         
         // First check the model represented by the key
         
         if($model->$k->Behaviors->enabled('Changelog')) {
-          $cparentfk = Inflector::underscore($k) . "_id";
+          $cparentfk = Inflector::underscore($model->$k->name) . "_id";
           
           $ret[$k]['conditions'] = array(
             $k.'.'.$cparentfk => null,
@@ -369,32 +384,34 @@ class ChangelogBehavior extends ModelBehavior {
           );
         }
         
-        // Now walk the value array
+        // And now the value
         
-        foreach($contain[$k] as $k2 => $v2) {
-          if(is_array($v2)) {
-            $ret[$v2] = $this->modifyContain($model->$k->$v2, $ret[$v2]);
-          } else {
-            if($model->$k->$v2->Behaviors->enabled('Changelog')) {
-              $cparentfk = Inflector::underscore($v2) . "_id";
-              
-              $ret[$k][$v2]['conditions'] = array(
-                $v2.'.'.$cparentfk => null,
-                $v2.'.deleted IS NOT true'
-              );
+        if(is_array($v)) {
+          // Now walk the value array
+          
+          foreach($contain[$k] as $k2 => $v2) {
+            if(is_array($v2)) {
+              $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
+            } else {
+              if($model->$k->$v2->Behaviors->enabled('Changelog')) {
+                $cparentfk = Inflector::underscore($model->$k->$v2->name) . "_id";
+                
+                $ret[$k][$v2]['conditions'] = array(
+                  $v2.'.'.$cparentfk => null,
+                  $v2.'.deleted IS NOT true'
+                );
+              }
             }
           }
-        }
-      } else {
-        // eg: $query['contain'] = array('Model1', 'Model2');
-        
-        if($model->$v->Behaviors->enabled('Changelog')) {
-          $cparentfk = Inflector::underscore($v) . "_id";
-          
-          $ret[$v]['conditions'] = array(
-            $v.'.'.$cparentfk => null,
-            $v.'.deleted IS NOT true'
-          );
+        } else {
+          if($model->$k->$v->Behaviors->enabled('Changelog')) {
+            $cparentfk = Inflector::underscore($model->$k->$v->name) . "_id";
+            
+            $ret[$k][$v]['conditions'] = array(
+              $v.'.'.$cparentfk => null,
+              $v.'.deleted IS NOT true'
+            );
+          }
         }
       }
     }
