@@ -151,11 +151,11 @@
   function fields_update_gadgets() {
     // Hide or show gadgets according to current state
     if(document.getElementById('CoEnrollmentFlowNotifyOnApproval').checked) {
-      $("#CoEnrollmentFlowApprovalSubject").closest("tr").css('display','');
-      $("#CoEnrollmentFlowApprovalBody").closest("tr").css('display', '');
+      $("#CoEnrollmentFlowApprovalSubject").closest("tr").show('fade');
+      $("#CoEnrollmentFlowApprovalBody").closest("tr").show('fade');
     } else {
-      $("#CoEnrollmentFlowApprovalSubject").closest("tr").css('display','none');
-      $("#CoEnrollmentFlowApprovalBody").closest("tr").css('display','none');
+      $("#CoEnrollmentFlowApprovalSubject").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowApprovalBody").closest("tr").hide('fade');
     }
   }
   
@@ -506,7 +506,7 @@
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">
-      <td>
+      <td class="indented">
         <strong class="fieldTitle"><?php print _txt('fd.ef.asub'); ?></strong><br />
         <span class="descr"><?php print _txt('fd.ef.asub.desc'); ?></span>
       </td>
@@ -518,7 +518,7 @@
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">
-      <td>
+      <td class="indented">
         <strong class="fieldTitle"><?php print _txt('fd.ef.abody'); ?></strong><br />
         <span class="descr"><?php print _txt('fd.ef.abody.desc'); ?></span>
       </td>
