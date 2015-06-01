@@ -452,6 +452,9 @@ th, td {
 .line2 {
   background-color: #e5e5e5;
 }
+td.indented {
+  border-left: 3em solid #fff;
+}
 .menuitembutton {
   width: 250px;
 }
@@ -550,6 +553,10 @@ label,
 #edit_co_enrollment_configuration textarea,
 #edit_co_enrollment_configuration input[type=text] {
   width: 522px;
+}
+
+#org_attributes {
+  margin-top: 1.5em;
 }
 
 /* 2-column layout */
