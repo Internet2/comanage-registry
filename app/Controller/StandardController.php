@@ -630,7 +630,9 @@ class StandardController extends AppController {
         $t = $model->find('all', $args);
         
         $this->set($modelpl, $this->Api->convertRestResponse($t));
-      } elseif($this->requires_person) {
+      } elseif($this->requires_person
+               // This is a bit of a hack, we should really refactor this
+               || $req == 'CoOrgIdentityLink') {
         if(!empty($this->params['url']['copersonid'])) {
           $t = $model->findAllByCoPersonId($this->params['url']['copersonid']);
           

@@ -43,23 +43,28 @@
         {
           // Some attributes are treated specially
           
-          switch($k)
-          {
-          case 'CoPersonId':
-            $a['Person'] = array('Type' => 'CO',
-                                 'Id' => $m[$req][$k]);
-            break;
-          case 'CoPersonRoleId':
-            $a['Person'] = array('Type' => 'CoRole',
-                                 'Id' => $m[$req][$k]);
-            break;
-          case 'OrgIdentityId':
-            $a['Person'] = array('Type' => 'Org',
-                                 'Id' => $m[$req][$k]);
-            break;
-          default:
+          if($req == 'CoOrgIdentityLink') {
+            // We don't want to rewrite person attributes for org identity links
             $a[$k] = $m[$req][$k];
-            break;
+          } else {
+            switch($k)
+            {
+            case 'CoPersonId':
+              $a['Person'] = array('Type' => 'CO',
+                                   'Id' => $m[$req][$k]);
+              break;
+            case 'CoPersonRoleId':
+              $a['Person'] = array('Type' => 'CoRole',
+                                   'Id' => $m[$req][$k]);
+              break;
+            case 'OrgIdentityId':
+              $a['Person'] = array('Type' => 'Org',
+                                   'Id' => $m[$req][$k]);
+              break;
+            default:
+              $a[$k] = $m[$req][$k];
+              break;
+            }
           }
         }
       }
