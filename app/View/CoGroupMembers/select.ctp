@@ -74,7 +74,7 @@ $(document).ready(function () {
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print $this->Html->link(Sanitize::html(generateCn($p['PrimaryName'])),
+          print $this->Html->link(generateCn($p['PrimaryName']),
                                   array('controller' => 'co_people',
                                         'action' => 'canvas',
                                         $p['CoPerson']['id'],
