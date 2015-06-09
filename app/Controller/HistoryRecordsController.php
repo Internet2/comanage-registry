@@ -161,16 +161,14 @@ class HistoryRecordsController extends StandardController {
           $args['OR']['CoPersonRole.cou_id'] = array_keys($this->viewVars['permissions']['cous']);
           $args['OR'][] = 'CoPersonRole.cou_id IS NULL';
           $args['OR'][] = 'HistoryRecord.co_person_role_id IS NULL';
-        } else {
-          // This should catch the case where COUs aren't in use
-          $args[] = 'HistoryRecord.co_person_role_id IS NULL';
         }
+        // else COUs aren't in use. (Only admins can invoke /index, and the view var
+        // will be populated for any admin.)
         
         $this->Paginator->settings = $this->paginate;
         $this->set('history_records', $this->Paginator->paginate('HistoryRecord', $args));
       } elseif(!empty($this->params['named']['orgidentityid'])) {
-        // Org ID is a bit tricky when org identities are pooled, because we shouldn't pull
-        // history for that Org ID related to COs other than the current one.
+        // Org ID is a bit tricky when org identities are pooled, see below.
         // Note a join isn't needed here because paginate+contain is already joining the right tables.
         
         $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
@@ -178,21 +176,19 @@ class HistoryRecordsController extends StandardController {
         $args = array();
         $args['HistoryRecord.org_identity_id'] = $this->request->params['named']['orgidentityid'];
         
-        if($pool) {
-          $args['CoPerson.co_id'] = $this->cur_co['Co']['id'];
+        if(!$pool) {
+          if(!empty($this->viewVars['permissions']['cous'])) {
+            // Pull records in the COUs this user can see, as well as those with no COU attached.
+            // Note a join isn't needed here because paginate+contain is already joining the right tables.
+            
+            $args['OR']['CoPersonRole.cou_id'] = array_keys($this->viewVars['permissions']['cous']);
+            $args['OR'][] = 'CoPersonRole.cou_id IS NULL';
+            $args['OR'][] = 'HistoryRecord.co_person_role_id IS NULL';
+          }
+          // else COUs aren't in use. (Only admins can invoke /index, and the view var
+          // will be populated for any admin.)
         }
-        
-        if(!empty($this->viewVars['permissions']['cous'])) {
-          // Pull records in the COUs this user can see, as well as those with no COU attached.
-          // Note a join isn't needed here because paginate+contain is already joining the right tables.
-          
-          $args['OR']['CoPersonRole.cou_id'] = array_keys($this->viewVars['permissions']['cous']);
-          $args['OR'][] = 'CoPersonRole.cou_id IS NULL';
-          $args['OR'][] = 'HistoryRecord.co_person_role_id IS NULL';
-        } else {
-          // This should catch the case where COUs aren't in use
-          $args[] = 'HistoryRecord.co_person_role_id IS NULL';
-        }
+        // else any admin can see history (and only admins can invoke /index)
         
         $this->Paginator->settings = $this->paginate;
         $this->set('history_records', $this->Paginator->paginate('HistoryRecord', $args));
@@ -260,12 +256,15 @@ class HistoryRecordsController extends StandardController {
     if($this->action == 'index' && $p['index']) {
       // Determine which COUs a person can manage, needed for index() to filter records
       
-      if($roles['cmadmin'] || $roles['coadmin'])
+      if($roles['cmadmin'] || $roles['coadmin']) {
         $p['cous'] = $this->HistoryRecord->CoPerson->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
-      elseif(!empty($roles['admincous']))
+      } elseif(!empty($roles['admincous'])) {
         $p['cous'] = $roles['admincous'];
-      else
+      } else {
+        // This should only be empty if there are no COUs. A COU Admin must be an
+        // admin of at least one COU.
         $p['cous'] = array();
+      }
     }
     
     $this->set('permissions', $p);
