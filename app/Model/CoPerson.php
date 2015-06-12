@@ -30,7 +30,9 @@ class CoPerson extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable', 'Provisioner');
+  public $actsAs = array('Containable',
+                         'Provisioner',
+                         'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models
   public $belongsTo = array("Co");                    // A CO Person Source is attached to one CO
@@ -146,6 +148,7 @@ class CoPerson extends AppModel {
       'content' => array(
         'rule' => array('inList', array(StatusEnum::Active,
                                         StatusEnum::Approved,
+                                        StatusEnum::Confirmed,
                                         StatusEnum::Declined,
                                         StatusEnum::Deleted,
                                         StatusEnum::Denied,

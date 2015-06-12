@@ -102,6 +102,19 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="org_identities_i1">
+      <col>co_id</col>
+    </index>
+    <index name="org_identities_i2">
+      <col>org_identity_id</col>
+    </index>
   </table>
   
   <table name="co_people">
@@ -116,9 +129,18 @@
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_people_i1">
       <col>co_id</col>
+    </index>
+    <index name="co_people_i2">
+      <col>co_person_id</col>
     </index>
   </table>
   
@@ -175,6 +197,12 @@
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_person_roles_i1">
       <col>co_person_id</col>
@@ -184,6 +212,9 @@
     </index>
     <index name="co_person_roles_i3">
       <col>cou_id</col>
+    </index>
+    <index name="co_person_roles_i4">
+      <col>co_person_role_id</col>
     </index>
   </table>
 
@@ -208,7 +239,16 @@
     <field name="primary_name" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="name_id" type="I">
+      <constraint>REFERENCES cm_names(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
+    <index name="names_i1">
+      <col>name_id</col>
+    </index>
     <!-- There should be a unique constraint on primary_name+co_person_id and
          primary_name+org_identity_id, but the nulls may make that tricky -->
   </table>
@@ -285,6 +325,12 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="identifier_id" type="I">
+      <constraint>REFERENCES cm_identifiers(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="identifiers_i1">
       <col>identifier</col>
@@ -296,6 +342,10 @@
       <col>identifier</col>
       <col>type</col>
       <col>org_identity_id</col>
+    </index>
+    
+    <index name="identifiers_i3">
+      <col>identifier_id</col>
     </index>
   </table>
 
@@ -315,15 +365,27 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="email_address_id" type="I">
+      <constraint>REFERENCES cm_email_addresses(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="email_addresses_i1">
       <col>co_person_id</col>
     </index>
+    
     <index name="email_addresses_i2">
       <col>org_identity_id</col>
     </index>
+    
     <index name="email_addresses_i3">
-      <col>mars</col>
+      <col>mail</col>
+    </index>
+    
+    <index name="email_addresses_i4">
+      <col>email_address_id</col>
     </index>
   </table>
   
@@ -382,13 +444,24 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="address_id" type="I">
+      <constraint>REFERENCES cm_addresses(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="addresses_i1">
       <col>co_person_role_id</col>
-    </index>    
+    </index>
+    
     <index name="addresses_i2">
       <col>org_identity_id</col>
-    </index>    
+    </index>
+    
+    <index name="addresses_i3">
+      <col>address_id</col>
+    </index>
   </table>
 
   <table name="telephone_numbers">
@@ -406,13 +479,24 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
-    
+    <field name="telephone_number_id" type="I">
+      <constraint>REFERENCES cm_telephone_numbers(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+        
     <index name="telephone_numbers_i1">
       <col>co_person_role_id</col>
-    </index>    
+    </index>
+    
     <index name="telephone_numbers_i2">
       <col>org_identity_id</col>
-    </index>    
+    </index>
+    
+    <index name="telephone_numbers_i3">
+      <col>telephone_number_id</col>
+    </index>
   </table>
   
   <table name="api_users">
@@ -808,6 +892,9 @@
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
     <field name="enrollee_org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="archived_org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
     </field>
     <field name="enrollee_co_person_id" type="I">

@@ -838,6 +838,7 @@ class CoPetitionsController extends StandardController {
       // Possibly assign identifiers. Do this before updating status because we
       // want the identifiers to exist prior to provisioning (and specifically,
       // LDAP DN construction), which happens when the CO Person status goes to Active.
+      
       $this->CoPetition->assignIdentifiers($id,
                                            $this->Session->read('Auth.User.co_person_id'));
       
@@ -1079,7 +1080,22 @@ class CoPetitionsController extends StandardController {
     // If approval_required is false, this step is skipped.
     // If true, we've sent the notification already, so we just need to issue a suitable redirect.
     
-    $this->execute_redirectOnSubmit($id);
+    // Figure out where to redirect the petitioner to
+    $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_confirm',
+                                                            array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    
+    if(!$targetUrl || $targetUrl == "") {
+      // Default redirect is to /, which isn't really a great target. We could
+      // redirect to the dashboard for the CO, but we may yet require approval.
+      // At least / will generate an informational message for the user.
+      
+      $this->Session->setFlash(_txt('rs.pt.confirm'), '', array(), 'success');
+      $targetUrl = "/";
+    }
+    // else we suppress the flash message, since it may not make sense in context
+    // or may appear "randomly" (eg: if the targetUrl is outside the Cake framework)
+    
+    $this->redirect($targetUrl);
   }
   
   /**

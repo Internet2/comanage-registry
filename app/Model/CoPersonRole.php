@@ -30,7 +30,10 @@ class CoPersonRole extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable', 'Normalization', 'Provisioner');
+  public $actsAs = array('Containable',
+                         'Normalization' => array('priority' => 4),
+                         'Provisioner',
+                         'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -123,6 +126,7 @@ class CoPersonRole extends AppModel {
       'content' => array(
         'rule' => array('inList', array(StatusEnum::Active,
                                         StatusEnum::Approved,
+                                        StatusEnum::Confirmed,
                                         StatusEnum::Declined,
                                         StatusEnum::Deleted,
                                         StatusEnum::Denied,

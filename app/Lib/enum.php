@@ -30,6 +30,7 @@ class ActionEnum
   const CoGroupMemberEdited             = 'ECGM';
   const CoPersonAddedManual             = 'ACPM';
   const CoPersonAddedPetition           = 'ACPP';
+  const CoPersonDeletedManual           = 'DCPM';
   const CoPersonEditedManual            = 'ECPM';
   const CoPersonEditedPetition          = 'ECPP';
   const CoPersonManuallyProvisioned     = 'PCPM';
@@ -71,6 +72,8 @@ class ActionEnum
   const NotificationResolved            = 'NOTR';
   const OrgIdAddedManual                = 'AOIM';
   const OrgIdAddedPetition              = 'AOIP';
+  const OrgIdDeletedManual              = 'DOIM';
+  const OrgIdDeletedPetition            = 'DOIP';
   const OrgIdEditedLoginEnv             = 'EOIE';
   const OrgIdEditedManual               = 'EOIM';
   const OrgIdEditedPetition             = 'EOIP';
@@ -131,6 +134,7 @@ class EmailAddressEnum {
 }
 
 class EnrollmentAuthzEnum {
+  const AuthUser      = 'AU';
   const CoAdmin       = 'CA';
   const CoGroupMember = 'CG';
   const CoOrCouAdmin  = 'A';
@@ -292,6 +296,7 @@ class PetitionActionEnum
   const IdentifierAuthenticated = 'ID';
   const IdentifiersAssigned     = 'IA';
   const IdentityLinked          = 'IL';
+  const IdentityRelinked        = 'IR';
   const InviteConfirmed         = 'IC';
   const InviteSent              = 'IS';
   const NotificationSent        = 'NS';

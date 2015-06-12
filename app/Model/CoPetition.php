@@ -56,12 +56,18 @@ class CoPetition extends AppModel {
       'className' => 'OrgIdentity',
       'foreignKey' => 'enrollee_org_identity_id'
     ),
+    "ArchivedOrgIdentity" => array(
+      'className' => 'OrgIdentity',
+      'foreignKey' => 'archived_org_identity_id'
+    ),
     "PetitionerCoPerson" => array(
       'className' => 'CoPerson',
-      'foreignKey' => 'petitioner_co_person_id'),
+      'foreignKey' => 'petitioner_co_person_id'
+    ),
     "SponsorCoPerson" => array(
       'className' => 'CoPerson',
-      'foreignKey' => 'sponsor_co_person_id')
+      'foreignKey' => 'sponsor_co_person_id'
+    )
   );
   
   public $hasMany = array(
@@ -801,6 +807,111 @@ class CoPetition extends AppModel {
   }
   
   /**
+   * Relink a Petition and the associated CO Person to an already existing Org Identity.
+   * This function should be called from within a transaction.
+   *
+   * @param Integer $id CO Petition ID
+   * @param Integer $targetOrgIdentityId Org Identity ID to relink to
+   * @param Integer $actorCoPersonId CO Person ID of the person triggering the relink
+   * @param String  $mode How to handle original identity: 'delete', 'merge', 'replace'
+   * @throws RuntimeException
+   * @throws OverflowException
+   */
+  
+  public function relinkOrgIdentity($id, $targetOrgIdentityId, $actorCoPersonId, $mode='delete') {
+    // This is probably already set, but just in case.
+    $this->id = $id;
+    
+    // Pull the org identity links for the EnrolleeOrgIdentity and make sure
+    // it is ONLY attached to the EnrolleeCoPersonId. If so, relink and delete.
+    
+    $enrolleeCoPId = $this->field('enrollee_co_person_id');
+    $petitionOrgId = $this->field('enrollee_org_identity_id');
+    
+    $args = array();
+    $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $petitionOrgId;
+    
+    $lnks = $this->EnrolleeOrgIdentity->CoOrgIdentityLink->findForUpdate($args['conditions'],
+                                                                         array('co_person_id'));
+    
+    if(empty($lnks)
+       || (count($lnks)==1
+           && $lnks[0]['CoOrgIdentityLink']['co_person_id'] == $enrolleeCoPId)) {
+      // There are no links from the enrollee org identity or there is exactly one link
+      // and it is to the enrollee CO Person, so we're clear to proceed. First, relink
+      // the petition and the CO Org Identity Link.
+     
+      if(!$this->saveField('enrollee_org_identity_id', $targetOrgIdentityId)) {
+        throw new RuntimeException(_txt('er.db.save'));
+      }
+      
+      if(!empty($lnks)) {
+        // This should only match the row retrieved above
+        
+        if(!$this->EnrolleeOrgIdentity
+                 ->CoOrgIdentityLink
+                 ->updateAll(array('CoOrgIdentityLink.org_identity_id' => $targetOrgIdentityId),
+                             array('CoOrgIdentityLink.org_identity_id' => $petitionOrgId))) {
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+      }
+      
+      if($mode == 'merge') {
+        // Merge values/related models before deleting the duplicate identity
+        
+        throw new RuntimeException("NOT IMPLEMENTED");
+      }
+      
+      // Delete the duplicate org identity. This will trigger ChangelogBehavior,
+      // so the id will still be valid even after the delete.
+      
+      try {
+        $this->EnrolleeOrgIdentity->delete($petitionOrgId);
+        
+        // Create some history records and a petition history record
+        
+        $this->EnrolleeCoPerson->HistoryRecord->record($enrolleeCoPId,
+                                                       null,
+                                                       $petitionOrgId,
+                                                       $actorCoPersonId,
+                                                       ActionEnum::CoPersonOrgIdUnlinked);
+        
+        $this->EnrolleeCoPerson->HistoryRecord->record($enrolleeCoPId,
+                                                       null,
+                                                       $petitionOrgId,
+                                                       $actorCoPersonId,
+                                                       ActionEnum::OrgIdDeletedPetition,
+                                                       _txt('rs.pt.org.del'));
+        
+        $this->EnrolleeCoPerson->HistoryRecord->record($enrolleeCoPId,
+                                                       null,
+                                                       $targetOrgIdentityId,
+                                                       $actorCoPersonId,
+                                                       ActionEnum::CoPersonOrgIdLinked,
+                                                       _txt('rs.pt.relink.org', array($targetOrgIdentityId)));
+        
+        $this->CoPetitionHistoryRecord->record($id,
+                                               $actorCoPersonId,
+                                               PetitionActionEnum::IdentityLinked,
+                                               _txt('rs.pt.relink.org', array($targetOrgIdentityId)));
+      }
+      catch(Exception $e) {
+        throw new RuntimeException($e->getMessage());
+      }
+    } else {
+      // One or more links to an existing CO Person that's not the enrollee were found.
+      // We can't automatically clean up, so throw an error.
+      
+      $this->CoPetitionHistoryRecord->record($id,
+                                             $actorCoPersonId,
+                                             PetitionActionEnum::IdentityLinked,
+                                             _txt('er.pt.relink.org'));
+      
+      throw new OverflowException(_txt('er.pt.relink.org'));
+    }
+  }
+  
+  /**
    * Resend an invite for a Petition.
    * - postcondition: Invite sent
    *
@@ -829,7 +940,7 @@ class CoPetition extends AppModel {
     $args = array();
     $args['conditions']['EnrolleeOrgIdentity.id'] = $this->field('enrollee_org_identity_id');
     $args['contain'] = array('EmailAddress', 'PrimaryName');
-
+    
     $org = $this->EnrolleeOrgIdentity->find('first', $args);
     
     if(empty($org['EmailAddress'])) {
@@ -1630,7 +1741,7 @@ class CoPetition extends AppModel {
    * @throws RuntimeException
    */
   
-  function updateStatus($id, $newStatus, $actorCoPersonID) {
+  public function updateStatus($id, $newStatus, $actorCoPersonID) {
     // Try to find the status of the requested petition
     
     $this->id = $id;
@@ -1697,21 +1808,12 @@ class CoPetition extends AppModel {
          || $newStatus == StatusEnum::Duplicate) {
         $valid = true;
       }
-    } elseif($curStatus == StatusEnum::Approved) {
+    } elseif($newStatus == PetitionStatusEnum::Finalized) {
       // On finalization, set the CO Person and CO Person Role to Active.
       
-      if($newStatus == PetitionStatusEnum::Finalized) {
-        $valid = true;
-        $newPetitionStatus = PetitionStatusEnum::Finalized;
-        $newCoPersonStatus = StatusEnum::Active;
-      }
-    } elseif($curStatus == PetitionStatusEnum::Created) {
-      if($newStatus == PetitionStatusEnum::Finalized) {
-        $newPetitionStatus = PetitionStatusEnum::Finalized;
-        $newCoPersonStatus = StatusEnum::Active;
-      }
-      
       $valid = true;
+      $newPetitionStatus = PetitionStatusEnum::Finalized;
+      $newCoPersonStatus = StatusEnum::Active;
     } else {
       // For now accept all other status transitions. It might make sense to drop
       // the validity check completely.
@@ -1798,11 +1900,12 @@ class CoPetition extends AppModel {
         if($coPersonRoleID) {
           $this->EnrolleeCoPersonRole->id = $coPersonRoleID;
           $curCoPersonRoleStatus = $this->EnrolleeCoPersonRole->field('status');
+          
           $this->EnrolleeCoPersonRole->saveField('status', $newCoPersonStatus);
           
-          // Create a history record
           try {
-            $this->EnrolleeCoPersonRole->HistoryRecord->record($this->field('enrollee_co_person_id'),
+            // Create a history record
+            $this->EnrolleeCoPersonRole->HistoryRecord->record($coPersonID,
                                                                $coPersonRoleID,
                                                                null,
                                                                $actorCoPersonID,
@@ -1810,27 +1913,15 @@ class CoPetition extends AppModel {
                                                                _txt('en.action', null, ActionEnum::CoPersonRoleEditedPetition) . ": "
                                                                . _txt('en.status', null, $curCoPersonRoleStatus) . " > "
                                                                . _txt('en.status', null, $newCoPersonStatus));
+            
+            // Recalculate the overall CO Person status
+            if($coPersonID) {
+              $this->EnrolleeCoPerson->recalculateStatus($coPersonID);
+            }
           }
           catch(Exception $e) {
             $fail = true;
           }
-        } else {
-          $fail = true;
-        }
-      }
-      
-      // Recalculate the overall CO Person status
-      
-      if(!$fail && isset($newCoPersonStatus)) {
-        if($coPersonID) {
-          try {
-            $this->EnrolleeCoPerson->recalculateStatus($coPersonID);
-          }
-          catch(Exception $e) {
-            $fail = true;
-          }
-        } else {
-          $fail = true;
         }
       }
       
@@ -1914,7 +2005,7 @@ class CoPetition extends AppModel {
   
   /**
    * Validate an identifier obtained via authentication, possibly attaching it to the
-   * Org Identity.
+   * Org Identity. Duplicate Org Identities may also be consolidated.
    * - postcondition: Identifier attached to Org Identity
    *
    * @since  COmanage Registry v0.7
@@ -1922,6 +2013,7 @@ class CoPetition extends AppModel {
    * @param  String Login Identifier
    * @param  Integer Actor CO Person ID
    * @throws InvalidArgumentException
+   * @throws OverflowException
    * @throws RuntimeException
    */
   
@@ -1954,6 +2046,10 @@ class CoPetition extends AppModel {
       $orgId = $this->field('enrollee_org_identity_id');
       
       if($orgId) {
+        // Start a transaction
+        $dbc = $this->getDataSource();
+        $dbc->begin();
+        
         // For now, we assume the identifier type is ePPN. This probably isn't right,
         // and should be customizable. (CO-460)
         
@@ -1962,15 +2058,20 @@ class CoPetition extends AppModel {
         $args['conditions']['Identifier.org_identity_id'] = $orgId;
         $args['conditions']['Identifier.type'] = IdentifierEnum::ePPN;
         
-        $identifier = $this->EnrolleeOrgIdentity->Identifier->find('first', $args);
+        $identifier = $this->EnrolleeOrgIdentity->Identifier->findForUpdate($args['conditions'],
+                                                                            array('Identifier.login',
+                                                                                  'Identifier.id'));
         
-        if(!empty($identifier)) {
+        if(!empty($identifier[0]['Identifier'])) {
+          // The authenticated identifier is already associated with the enrollee org identity
+          
           // Make sure login flag is set
           
-          if(!$identifier['Identifier']['login']) {
-            $this->EnrolleeOrgIdentity->Identifier->id = $identifier['Identifier']['id'];
+          if(!$identifier[0]['Identifier']['login']) {
+            $this->EnrolleeOrgIdentity->Identifier->id = $identifier[0]['Identifier']['id'];
             
             if(!$this->EnrolleeOrgIdentity->Identifier->saveField('login', true)) {
+              $dbc->rollback();
               throw new RuntimeException(_txt('er.db.save'));
             }
             
@@ -1985,17 +2086,20 @@ class CoPetition extends AppModel {
                                                              _txt('rs.pt.id.login', array($loginIdentifier)));
             }
             catch(Exception $e) {
+              $dbc->rollback();
               throw new RuntimeException($e->getMessage());
             }
           }
         } else {
-          // Add the identifier and update petition and org identity history
+          // Add the identifier and update petition and org identity history, but first check
+          // to see if it's already in use.
           
           $args = array();
           $args['conditions'][] = 'Identifier.org_identity_id IS NOT NULL';
           $args['conditions']['Identifier.identifier'] = $loginIdentifier;
           $args['conditions']['Identifier.type'] = IdentifierEnum::ePPN;
           $args['conditions']['Identifier.status'] = StatusEnum::Active;
+          $args['joins'] = array();
           
           $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
           
@@ -2007,45 +2111,108 @@ class CoPetition extends AppModel {
             $args['joins'][0]['alias'] = 'OrgIdentity';
             $args['joins'][0]['type'] = 'INNER';
             $args['joins'][0]['conditions'][0] = 'Identifier.org_identity_id=OrgIdentity.id';
+            $args['conditions']['OrgIdentity.co_id'] = $this->field('co_id');
           }
           
-          $i = $this->EnrolleeOrgIdentity->Identifier->findForUpdate($args['conditions'], array('identifier'));
+          $identifier2 = $this->EnrolleeOrgIdentity->Identifier->findForUpdate($args['conditions'],
+                                                                               array('Identifier.identifier',
+                                                                                     'Identifier.org_identity_id'),
+                                                                               $args['joins']);
           
-          if(!empty($i)) {
-            throw new RuntimeException(_txt('er.ia.exists', array($loginIdentifier)));
-          }
-          
-          $identifier = array();
-          $identifier['Identifier']['identifier'] = $loginIdentifier;
-          $identifier['Identifier']['org_identity_id'] = $orgId;
-          $identifier['Identifier']['type'] = IdentifierEnum::ePPN;
-          $identifier['Identifier']['login'] = true;
-          $identifier['Identifier']['status'] = StatusEnum::Active;
-          
-          if(!$this->EnrolleeOrgIdentity->Identifier->save($identifier)) {
-            throw new RuntimeException(_txt('er.db.save'));
-          }
-          
-          // Create a history record
-          
-          try {
-            $this->EnrolleeCoPerson->HistoryRecord->record(null,
-                                                           null,
-                                                           $orgId,
-                                                           $actorCoPersonId,
-                                                           ActionEnum::OrgIdEditedPetition,
-                                                           _txt('rs.pt.id.attached', array($loginIdentifier)));
-          }
-          catch(Exception $e) {
-            throw new RuntimeException($e->getMessage());
+          if(!empty($identifier2)) {
+            // We have an org identity attached to this identifier. See if there are
+            // any links to CO People in the current CO.
+            
+            $args = array();
+            $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $identifier2[0]['Identifier']['org_identity_id'];
+            $args['conditions']['CoPerson.co_id'] = $this->field('co_id');
+            $args['joins'][0]['table'] = 'co_people';
+            $args['joins'][0]['alias'] = 'CoPerson';
+            $args['joins'][0]['type'] = 'INNER';
+            $args['joins'][0]['conditions'][0] = 'CoOrgIdentityLink.co_person_id=CoPerson.id';
+            
+            $cop = $this->EnrolleeOrgIdentity->CoOrgIdentityLink->findForUpdate($args['conditions'],
+                                                                                array('co_person_id'),
+                                                                                $args['joins']);
+            
+            if(!empty($cop)) {
+              // Duplicate: There is already a CO Person with this identifier in this CO,
+              // so flag this petition and its associated identity as a duplicate
+              
+              // We want to flag as duplicate and commit, but then throw an exception
+              // back up the stack so an error can be rendered for the user
+              
+              try {
+                $this->updateStatus($id,
+                                    StatusEnum::Duplicate,
+                                    $actorCoPersonId);
+              }
+              catch(Exception $e) {
+                $dbc->rollback();
+                throw new RuntimeException($e->getMessage());
+              }
+              
+              $dbc->commit();
+              throw new OverflowException(_txt('er.pt.duplicate', array($loginIdentifier)));
+            } else {
+              // Merge: There is no CO Person with this identifier, so relink the petition
+              // and the enrollee co person to the org identity we found and clean up the
+              // one created as part of the petition.
+              
+              try {
+                $this->relinkOrgIdentity($id,
+                                         $identifier2[0]['Identifier']['org_identity_id'],
+                                         $actorCoPersonId);
+              }
+              catch(Exception $e) {
+                $dbc->rollback();
+                
+                // An OverflowException indicates manual intervention required, but we
+                // don't actually handle it separately from a coding standpoint... we just
+                // want the error message to get rendered.
+                
+                throw new RuntimeException($e->getMessage());
+              }
+            }
+          } else {
+            // Identifier not found, so attach it to the enrollee org identity
+            
+            $identifier3 = array();
+            $identifier3['Identifier']['identifier'] = $loginIdentifier;
+            $identifier3['Identifier']['org_identity_id'] = $orgId;
+            $identifier3['Identifier']['type'] = IdentifierEnum::ePPN;
+            $identifier3['Identifier']['login'] = true;
+            $identifier3['Identifier']['status'] = StatusEnum::Active;
+            
+            if(!$this->EnrolleeOrgIdentity->Identifier->save($identifier3)) {
+              $dbc->rollback();
+              throw new RuntimeException(_txt('er.db.save'));
+            }
+            
+            // Create a history record
+            
+            try {
+              $this->EnrolleeCoPerson->HistoryRecord->record(null,
+                                                             null,
+                                                             $orgId,
+                                                             $actorCoPersonId,
+                                                             ActionEnum::OrgIdEditedPetition,
+                                                             _txt('rs.pt.id.attached', array($loginIdentifier)));
+            }
+            catch(Exception $e) {
+              $dbc->rollback();
+              throw new RuntimeException($e->getMessage());
+            }
           }
         }
         
         // Store the authenticated identifier in the petition. We don't do this as
         // a foreign key because (1) there is no corresponding co_enrollment_attribute
         // and (2) the identifier might subsequently be deleted from the identifiers table.
+        // (Though with changelog behavior #2 is no longer an issue.)
         
         if(!$this->saveField('authenticated_identifier', $loginIdentifier)) {
+          $dbc->rollback();
           throw new RuntimeException(_txt('er.db.save'));
         }
         
@@ -2055,6 +2222,8 @@ class CoPetition extends AppModel {
                                                $actorCoPersonId,
                                                PetitionActionEnum::IdentifierAuthenticated,
                                                _txt('rs.pt.id.auth', array($loginIdentifier)));
+        
+        $dbc->commit();
       } else {
         throw new InvalidArgumentException(_txt('er.notprov.id', array('ct.org_identities.1')));
       }

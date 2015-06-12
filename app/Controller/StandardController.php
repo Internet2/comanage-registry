@@ -226,19 +226,6 @@ class StandardController extends AppController {
     $req = $this->modelClass;
     $model = $this->$req;
     
-    // When deleting a model such as OrgIdentity that has a Name which is sorted by, Cake deletes
-    // the name but then tries to do a find sorted by Name (which fails because it doesn't join
-    // the table). There's probably a bug that needs to be fixed, but it's easier just to unset
-    // the ordering on delete (which we don't need in the first place).
-    unset($model->order);
-
-    if(isset($this->delete_recursion))
-      $model->recursive = $this->delete_recursion;
-    
-    // Cache the name before deleting, and also check that $id exists
-    
-    $model->id = $id;
-    
     if(!isset($id) || $id < 1) {
       if($this->request->is('restful'))
         $this->Api->restResultHeader(400, "Invalid Fields");
@@ -248,11 +235,31 @@ class StandardController extends AppController {
       return;
     }
     
+    // When deleting a model such as OrgIdentity that has a Name which is sorted by, Cake deletes
+    // the name but then tries to do a find sorted by Name (which fails because it doesn't join
+    // the table). There's probably a bug that needs to be fixed, but it's easier just to unset
+    // the ordering on delete (which we don't need in the first place).
+    unset($model->order);
+    
+    $args = array();
+    $args['conditions'][$req.'.id'] = $id;
+    
+    if(isset($this->delete_contains)) {
+      // Use containable behavior
+      
+      $args['contain'] = $this->delete_contains;
+    }
+    
+    $curdata = $model->find('first', $args);
+    
+    // Cache the name before deleting, and also check that $id exists
+    
+    $model->id = $id;
+    
     // read() populates $this->request->data. Note it also resets any model associations
     // set via bindModel().
-    $op = $model->read();
     
-    if(empty($op)) {
+    if(empty($curdata)) {
       if($this->request->is('restful'))
         $this->Api->restResultHeader(404, $req . " Unknown");
       else
@@ -260,12 +267,12 @@ class StandardController extends AppController {
       
       return;
     }
-
-    $name = $this->generateDisplayKey($op);
-
+    
+    $name = $this->generateDisplayKey($curdata);
+    
     // Perform model specific checks
-
-    if(!$this->checkDeleteDependencies($op)) {
+    
+    if(!$this->checkDeleteDependencies($curdata)) {
       if(!$this->request->is('restful'))
         $this->performRedirect();
       
@@ -286,7 +293,7 @@ class StandardController extends AppController {
     // Remove the object.
     
     if($model->delete($id)) {
-      if($this->recordHistory('delete', null, $op)) {
+      if($this->recordHistory('delete', null, $curdata)) {
         if($this->request->is('restful'))
           $this->Api->restResultHeader(200, "Deleted");
         else

@@ -653,16 +653,19 @@ class ProvisionerBehavior extends ModelBehavior {
     // Only pull related models relevant for provisioning
     $args['contain'] = array(
       'Co',
-      'CoGroupMember',
-      'CoGroupMember.CoGroup',
-      'CoOrgIdentityLink',
+      'CoGroupMember' => array('CoGroup'),
+      // 'CoGroup'
+      // 'CoGroupMember.CoGroup',
+      'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier')),
+      //'CoOrgIdentityLink',
       // We normally don't pull org identity data, but we'll make an exception
       // for Identifier to be able to expose eppn
-      'CoOrgIdentityLink.OrgIdentity.Identifier',
-      'CoPersonRole',
-      'CoPersonRole.Address',
-      'CoPersonRole.Cou',
-      'CoPersonRole.TelephoneNumber',
+      //'CoOrgIdentityLink.OrgIdentity.Identifier',
+      'CoPersonRole' => array('Address', 'Cou', 'TelephoneNumber'),
+      //'CoPersonRole',
+      //'CoPersonRole.Address',
+      //'CoPersonRole.Cou',
+      //'CoPersonRole.TelephoneNumber',
       'EmailAddress',
       'Identifier', 
       'PrimaryName',

@@ -425,3 +425,5 @@ $(function() {
     </div>
   <?php endif; // add ?>
 </div>
+<?php
+  print $this->element("changelog");

@@ -43,8 +43,12 @@ class CoPeopleController extends StandardController {
   // This controller needs a CO to be set
   public $requires_co = true;
 
-  // We need Name on delete
-  public $delete_recursion = 2;
+  // We need Name and Person Role on delete
+  public $delete_contains = array(
+    'CoPersonRole',
+    'Name',
+    'PrimaryName'
+  );
   
   // Use edit_contains to select the associated models we need for canvas.
   // Should also migrate view_ and delete_ (though delete_ is not yet supported.) (CO-195)
@@ -470,8 +474,12 @@ class CoPeopleController extends StandardController {
         }
         break;
       case 'delete':
-        // We don't handle delete since the CO person and its associated history
-        // is about to be deleted
+        $this->CoPerson->HistoryRecord->record($this->CoPerson->id,
+                                               null,
+                                               (isset($olddata['CoOrgIdentityLink'][0]['org_identity_id'])
+                                               ? $olddata['CoOrgIdentityLink'][0]['org_identity_id'] : null),
+                                               $this->Session->read('Auth.User.co_person_id'),
+                                               ActionEnum::CoPersonDeletedManual);
         break;
       case 'edit':
         $this->CoPerson->HistoryRecord->record($this->CoPerson->id,

@@ -245,3 +245,5 @@
     </tr>
   </tbody>
 </table>
+<?php
+  print $this->element("changelog");

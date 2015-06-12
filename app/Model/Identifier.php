@@ -43,7 +43,9 @@ class Identifier extends AppModel {
   // Default ordering for find operations
   public $order = array("identifier");
   
-  public $actsAs = array('Containable', 'Provisioner');
+  public $actsAs = array('Containable',
+                         'Provisioner',
+                         'Changelog' => array('priority' => 5));
   
   // Validation rules for table elements
   // Validation rules must be named 'content' for petition dynamic rule adjustment

@@ -39,6 +39,12 @@ class OrgIdentitiesController extends StandardController {
     )
   );
   
+  public $delete_contains = array(
+    'CoOrgIdentityLink' => array('CoPerson' => array('Co', 'PrimaryName')),
+    'Name',
+    'PrimaryName'
+  );
+  
   public $edit_contains = array(
     'Address',
     'Co',
@@ -124,41 +130,41 @@ class OrgIdentitiesController extends StandardController {
   
   function checkDeleteDependencies($curdata) {
     // We need to retrieve past the first order to get Name
-    $this->OrgIdentity->CoOrgIdentityLink->recursive = 2;
     
-    $coppl = $this->OrgIdentity->CoOrgIdentityLink->findAllByOrgIdentityId($curdata['OrgIdentity']['id']);
-
-    if(!empty($coppl))
-    {
-      // The OrgIdentity is a member of at least one CO.  This needs to be
-      // manually resolved, since (eg) it may be desirable to associate the
-      // CO Person with a new OrgIdentity (if, say, somebody changes affiliation).
-          
-      // Generate an array of CO Person ID and CO ID/Name or a message
-      // for the views to render.
-          
-      if($this->request->is('restful')) {
-        $memberships = array();
-          
-        for($i = 0; $i < count($coppl); $i++) {
-          $memberships[$coppl[$i]['CoPerson']['Co']['id']] = $coppl[$i]['CoPerson']['Co']['name'];
+    if(!empty($curdata['CoOrgIdentityLink'])) {
+      // The OrgIdentity may be a member of at least one CO. In order to check we need
+      // to walk the co org identity links and check that deleted status of any associated
+      // CO people. (If a CO Person is deleted, ChangelogBehavior will flag the person as
+      // deleted but the identity link will remain.)
+      
+      $memberships = array();
+      
+      foreach($curdata['CoOrgIdentityLink'] as $l) {
+        // Skip this record if it's deleted or not current
+        
+        if((!isset($l['CoPerson']['deleted']) || !$l['CoPerson']['deleted'])
+           && !$l['CoPerson']['co_person_id']) {
+          $memberships[ $l['CoPerson']['Co']['id'] ] = $l['CoPerson']['Co']['name'];
         }
-            
-        $this->Api->restResultHeader(403, "CoPerson Exists");
-        $this->set('memberships', $memberships);
-      } else {
-        $cs = "";
-        
-        for($i = 0; $i < count($coppl); $i++)
-          $cs .= ($i > 0 ? "," : "") . $coppl[$i]['CoPerson']['Co']['name'];
-        
-        $this->Session->setFlash(_txt('er.comember',
-                                      array(generateCn($coppl[0]['OrgIdentity']['PrimaryName']),
-                                            Sanitize::html($cs))),
-                                 '', array(), 'error');
       }
       
-      return false;
+      if(!empty($memberships)) {
+        // The OrgIdentity is a member of at least one CO.  This needs to be
+        // manually resolved, since (eg) it may be desirable to associate the
+        // CO Person with a new OrgIdentity (if, say, somebody changes affiliation).
+        
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(403, "CoPerson Exists");
+          $this->set('memberships', $memberships);
+        } else {
+          $this->Session->setFlash(_txt('er.comember',
+                                        array(generateCn($curdata['PrimaryName']),
+                                              Sanitize::html(join(',', array_values($memberships))))),
+                                   '', array(), 'error');
+        }
+        
+        return false;
+      }
     }
     
     return true;
@@ -309,8 +315,11 @@ class OrgIdentitiesController extends StandardController {
                                                   ActionEnum::OrgIdAddedManual);
         break;
       case 'delete':
-        // We don't handle delete since the org identity and its associated history
-        // is about to be deleted
+        $this->OrgIdentity->HistoryRecord->record(null,
+                                                  null,
+                                                  $this->OrgIdentity->id,
+                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  ActionEnum::OrgIdDeletedManual);
         break;
       case 'edit':
         $this->OrgIdentity->HistoryRecord->record(null,

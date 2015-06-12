@@ -89,7 +89,12 @@ class AppModel extends Model {
          || $attr == 'org_identity_id'
          // Skip record metadata
          || $attr == 'created'
-         || $attr == 'modified') {
+         || $attr == 'modified'
+         // And changelog metadata
+         || $attr == 'revision'
+         || $attr == 'deleted'
+         || $attr == 'actor_identifier'
+         || $attr == Inflector::underscore($model).'_id') {
         continue;
       }
       

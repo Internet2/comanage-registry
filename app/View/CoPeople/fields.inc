@@ -1119,7 +1119,7 @@
         </li>
         <li id="fields-orgid" class="fieldGroup">
           <?php
-            if($e) {
+            if(isset($permissions['link']) && $permissions['link']) {
               print '<div class="coAddEditButtons">';
               $linktarget = array(
                 'controller' => 'org_identities',
@@ -1229,3 +1229,5 @@
   <?php print _txt('op.id.auto.confirm'); ?>
 </div>
 
+<?php
+  print $this->element("changelog");

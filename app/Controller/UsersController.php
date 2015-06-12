@@ -187,7 +187,8 @@ class UsersController extends AppController {
               $params = array(
                 'conditions' => array(
                   'CoGroupMember.co_person_id' => $l['co_person_id']
-                )
+                ),
+                'contain' => false
               );
               $memberships = $this->CoGroupMember->find('all', $params);
               

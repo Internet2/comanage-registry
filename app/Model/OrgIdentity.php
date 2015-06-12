@@ -30,7 +30,7 @@ class OrgIdentity extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable', 'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models
   public $hasOne = array(
@@ -53,6 +53,10 @@ class OrgIdentity extends AppModel {
     "CoPetition" => array(
       'dependent' => true,
       'foreignKey' => 'enrollee_org_identity_id'
+    ),
+    "ArchivedCoPetition" => array(
+      'className' => 'CoPetition',
+      'foreignKey' => 'archived_org_identity_id'
     ),
     // A person can have one or more email address
     "EmailAddress" => array('dependent' => true),

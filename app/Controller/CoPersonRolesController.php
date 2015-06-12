@@ -348,8 +348,11 @@ class CoPersonRolesController extends StandardController {
                                                    ActionEnum::CoPersonRoleAddedManual);
         break;
       case 'delete':
-        // We don't handle delete since the CO Person Role and its associated history
-        // is about to be deleted
+        $this->CoPersonRole->HistoryRecord->record($olddata['CoPersonRole']['co_person_id'],
+                                                   $this->CoPersonRole->id,
+                                                   null,
+                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                   ActionEnum::CoPersonRoleDeletedManual);
         break;
       case 'edit':
         $this->CoPersonRole->HistoryRecord->record($newdata['CoPersonRole']['co_person_id'],
