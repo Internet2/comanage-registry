@@ -65,18 +65,19 @@ class ChangelogBehavior extends ModelBehavior {
   
   public function beforeDelete(Model $model, $cascade = true) {
     $mname = $model->name;
+    $malias = $model->alias;
     $parentfk = Inflector::underscore($mname) . "_id";
     
-    if(isset($this->settings[$model->alias]['expunge'])
-       && $this->settings[$model->alias]['expunge']) {
+    if(isset($this->settings[$malias]['expunge'])
+       && $this->settings[$malias]['expunge']) {
       // We're in the process of expunging physical records. Instead of the normal
       // behavior, clear any internal foreign keys to our parent record so cake doesn't
       // throw database errors when it tries to delete archived rows. (There's no
       // guarantee of delete order within a model, so it may try to delete the parent
       // record before the children. Using model associations causes infinite recursion.)
       
-      $model->updateAll(array($mname.'.'.$parentfk => null),
-                        array($mname.'.'.$parentfk => $model->id));
+      $model->updateAll(array($malias.'.'.$parentfk => null),
+                        array($malias.'.'.$parentfk => $model->id));
       
       return true;
     }
@@ -87,9 +88,7 @@ class ChangelogBehavior extends ModelBehavior {
     $dataSource = $model->getDataSource();
     $dataSource->begin();
     
-    $deleteStatus = $model->field('deleted');
-    
-    if($deleteStatus) {
+    if($this->isDeleted($model, $model->id, true)) {
       // We can't really pass back an error to be nicely rendered, but we can
       // at least force a stack trace.
       throw new RuntimeException(_txt('er.delete.already'));
@@ -116,7 +115,8 @@ class ChangelogBehavior extends ModelBehavior {
       foreach(array_merge(array_keys($model->hasOne),
                           array_keys($model->hasMany)) as $rmodel) {
         if($model->$rmodel->Behaviors->enabled('Changelog')
-           && !in_array($rmodel, $model->relinkToArchive)) {
+           && (!$model->relinkToArchive
+               || !in_array($rmodel, $model->relinkToArchive))) {
           if(!$model->$rmodel->deleteAll(array($rmodel . '.' . $parentfk => $model->id), true, true)) {
             $dataSource->rollback();
           }
@@ -141,6 +141,7 @@ class ChangelogBehavior extends ModelBehavior {
   
   public function beforeFind(Model $model, array $query) {
     $mname = $model->name;
+    $malias = $model->alias;
     $parentfk = Inflector::underscore($mname) . "_id";
     
     $ret = $query;
@@ -150,28 +151,42 @@ class ChangelogBehavior extends ModelBehavior {
     if((isset($query['archived']) && $query['archived'])
        ||
        // We're in the process of expunging physical records, so do no magic
-       (isset($this->settings[$model->alias]['expunge'])
-        && $this->settings[$model->alias]['expunge'])) {
+       (isset($this->settings[$malias]['expunge'])
+        && $this->settings[$malias]['expunge'])) {
       // Don't modify the query, we've specifically been asked for archived attribtues.
       
       return $ret;
     }
     
-    if(!isset($query['conditions'][$mname . '.id'])
-       && !isset($query['conditions']['id'])) {
+    if(isset($query['conditions'][$malias . '.id'])
+       || isset($query['conditions']['id'])) {
+      if(!empty($query['contain'])
+         && (!isset($query['contain'][0]) || $query['contain'][0] != false)) {
+        // Whether or not we modify the related models depends on whether the ID
+        // we're retrieving is deleted.
+        
+        if(!$this->isDeleted($model,
+                             isset($query['conditions'][$malias . '.id'])
+                             ? $query['conditions'][$malias . '.id']
+                             : $query['conditions']['id'])) {
+          // Current record is not deleted, so don't pull deleted related attributes
+          $ret['contain'] = $this->modifyContain($model, $query['contain']);
+        }
+      }
+    } else {
       // No id set, so we're probably doing a search of some sort. Filter out
       // any deleted or archived attributes.
       
-      $ret['conditions'][$mname . '.' . $parentfk] = null;
+      $ret['conditions'][$malias . '.' . $parentfk] = null;
       // Careful with checking deleted. We need to check for NOT true (ie: both
       // null and false are OK to return). This seems to be the only way to
       // get that query without throwing errors or returning incorrect results.
-      $ret['conditions'][] = $mname . '.deleted IS NOT true';
-    }
-    
-    if(!empty($query['contain'])
-       && (!isset($query['contain'][0]) || $query['contain'][0] != false)) {
-      $ret['contain'] = $this->modifyContain($model, $query['contain']);
+      $ret['conditions'][] = $malias . '.deleted IS NOT true';
+      
+      if(!empty($query['contain'])
+         && (!isset($query['contain'][0]) || $query['contain'][0] != false)) {
+        $ret['contain'] = $this->modifyContain($model, $query['contain']);
+      }
     }
     
     return $ret;
@@ -188,16 +203,18 @@ class ChangelogBehavior extends ModelBehavior {
   
   public function beforeSave(Model $model, $options = array()) {
     $mname = $model->name;
+    $malias = $model->alias;
     $parentfk = Inflector::underscore($mname) . "_id";
     
-    // Before we do anything, make sure we're operating on the latest version of
-    // the record. We don't allow editing of already archived attributes.
-    
-    $curParent = $model->field($parentfk);
-    
-    if($curParent) {
-      throw new RuntimeException(_txt('er.archived'));
+    if(!empty($model->data[$malias]['id'])) {
+      // Before we do anything, make sure we're operating on the latest version of
+      // the record. We don't allow editing of already archived attributes.
+      
+      if($this->isDeleted($model, $model->data[$malias]['id'], true)) {
+        throw new RuntimeException(_txt('er.archived'));
+      }
     }
+    // else it's an add, nothing to check
     
     // Start a transaction. This may result in nested transactions if associated
     // data is being saved, but that's OK.
@@ -209,56 +226,75 @@ class ChangelogBehavior extends ModelBehavior {
     // so we walk through the entire set of data and apply the appropriate munging to
     // any model for which Changelog is enabled.
     
-    if(!empty($model->data[$mname])) {
-      if(empty($model->data[$mname]['id'])) {
+    if(!empty($model->data[$malias])) {
+      if(empty($model->data[$malias]['id'])) {
         // Add operation, so this is a new instance of this model. Set the revision
         // to 0 (for compatibility with records that existed before the model was
         // enabled for ChangelogBehavior) and make sure the parent key is null.
         
-        $model->data[$mname][$parentfk] = null;
-        $model->data[$mname]['revision'] = 0;
+        $model->data[$malias][$parentfk] = null;
+        $model->data[$malias]['revision'] = 0;
         
         // For an add, we don't need to rekey related models
       } else {
         // Edit operation. We operate a bit counterintuitively here... we let the
-        // edit go through and then create a *new* record for the archived value.
+        // edit go through but first create a *new* record for the archived value.
         // We do this to avoid having to re-key most related records (the default
         // behavior is that related models want the most recent value), and to avoid
         // having to trick cake into converting an edit to an add.
         
         // We do the copy here (vs afterSave) so we can abort on error.
         
-        // Start by pulling fields that won't get submitted by the form, and so
-        // won't be in $model->data.
+        // We use the full record from the database. We do this for a couple
+        // of reasons: on a saveField(), $model->data will only have the field being
+        // saved, not the full record. Similarly, the form posted by the user will be
+        // missing some fields (revision, actor_identifier).
         
-        $curRevision = $model->field('revision');
-        $curActor = $model->field('actor_identifier');
+        // The current record as pulled from the database
+        $args = array();
+        $args['conditions'][$malias.'.id'] = $model->data[$malias]['id'];
+        // Make sure to disable callbacks so we don't screw up the find
+        $args['callbacks'] = false;
+        // Callbacks are disabled, so contain is ignored -- use recursive instead
+        $args['recursive'] = -1;
         
-        // Now create the archive copy
+        $curRecord = $model->find('first', $args);
         
-        $archiveData = array();
-        $archiveData[$mname] = $model->data[$mname];
+        if(!$curRecord) {
+          $dataSource->rollback();
+          
+          throw new RuntimeException(_txt('er.notfound',
+                                          array($malias, $model->data[$malias]['id'])));
+        }
+        
+        $curRevision = $curRecord[$malias]['revision'];
+        
+        // Make sure we don't pull related models into the archive
+        $archiveData[$malias] = $curRecord[$malias];
         
         // Fix links and attributes
-        unset($archiveData[$mname]['id']);
-        $archiveData[$mname][$parentfk] = $model->data[$mname]['id'];
-        $archiveData[$mname]['revision'] = $curRevision;
-        $archiveData[$mname]['actor_identifier'] = $curActor;
-        if(!isset($archiveData[$mname]['deleted'])) {
-          $archiveData[$mname]['deleted'] = false;
+        unset($archiveData[$malias]['id']);
+        $archiveData[$malias][$parentfk] = $model->data[$malias]['id'];
+        if(!isset($archiveData[$malias]['deleted'])) {
+          $archiveData[$malias]['deleted'] = false;
         }
         
         // We need to jump through some hoops related to how Cake 2 is semi-object oriented
         $origId = $model->id;
         $origData = $model->data;
+        // On a saveField, whitelist will be set to just the field being updated, but for
+        // archive we need to copy the entire record.
+        $origWhitelist = $model->whitelist;
         
         // Reset model state for new save
+        $model->whitelist = null;
         $model->create();
       
-        // Disable callbacks so we don't loop indefinitely
-        if(!$model->save($archiveData, array('callbacks' => false))) {
+        // Disable callbacks so we don't loop indefinitely. Also disable validation because
+        // we're copying old data, which presumably validated once (though it might not now).
+        if(!$model->save($archiveData, array('callbacks' => false,
+                                             'validate' => false))) {
           $dataSource->rollback();
-          
           throw new RuntimeException(_txt('er.db.save'));
         }
         
@@ -283,7 +319,7 @@ class ChangelogBehavior extends ModelBehavior {
               // executed code.
               
               // The current value of this model's foreign key to the parent
-              $currentfkid = $origData[$mname][$aparentfk];
+              $currentfkid = $origData[$malias][$aparentfk];
               
               // The parent foreign key for the current foreign key
               $parentfkid = null;
@@ -320,6 +356,7 @@ class ChangelogBehavior extends ModelBehavior {
                 
                 if(!$model->saveField($aparentfk, $targetArchive[$amodel]['id'], array('callbacks' => false))) {
                   $dataSource->rollback();
+                  throw new RuntimeException(_txt('er.db.save'));
                 }
               }
             }
@@ -329,20 +366,55 @@ class ChangelogBehavior extends ModelBehavior {
         // Restore original data for the intended save
         $model->create($origData);
         $model->id = $origId;
+        $model->whitelist = $origWhitelist;
         // For use in afterSave
         $model->archiveId = $archiveId;
         
         // Bump the revision number for the current attribute
-        $model->data[$mname]['revision'] = $curRevision + 1;
+        $model->data[$malias]['revision'] = $curRevision + 1;
       }
       
       // Set common attributes for add and edit
-      $model->data[$mname]['deleted'] = false;
+      $model->data[$malias]['deleted'] = false;
       // Forcing a read of the CakeSession is sub-optimal, but consistent with what we do elsewhere
-      $model->data[$mname]['actor_identifier'] = CakeSession::read('Auth.User.username');
+      $model->data[$malias]['actor_identifier'] = CakeSession::read('Auth.User.username');
     }
     
     return true;
+  }
+  
+  /**
+   * Determine if a record is flagged as deleted.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Model $model Model instance
+   * @param  Integer $id Record ID to check
+   * @param  Boolean $archived If true, consider archived records as deleted as well
+   * @return boolean true if record is flagged as deleted, false otherwise
+   * @throws InvalidArgumentException
+   */
+  
+  protected function isDeleted($model, $id, $archived=false) {
+    $mname = $model->name;
+    $parentfk = Inflector::underscore($mname) . "_id";
+    $malias = $model->alias;
+    
+    $args = array();
+    $args['conditions'][$malias.'.id'] = $id;
+    // Make sure to disable callbacks so we don't screw up the find
+    $args['callbacks'] = false;
+    // Callbacks are disabled, so contain is ignored -- use recursive instead
+    $args['recursive'] = -1;
+    
+    $curRecord = $model->find('first', $args);
+    
+    if(empty($curRecord)) {
+      throw new InvalidArgumentException(_txt('er.notfound', array($malias, $id)));
+    }
+    
+    return ((isset($curRecord[$malias]['deleted']) && $curRecord[$malias]['deleted'])
+            ||
+            ($archived && !empty($curRecord[$malias][$parentfk])));
   }
 
   /**
@@ -357,6 +429,9 @@ class ChangelogBehavior extends ModelBehavior {
     foreach($contain as $k => $v) {
       if(is_int($k)) {
         // eg: $query['contain'] = array('Model1', 'Model2');
+        // eg: $query['contain'] = array('Model1.Model2');
+        // For now, we don't support this second use case. Rewrite your contains
+        // statement to use a different format.
         
         if($model->$v->Behaviors->enabled('Changelog')) {
           $cparentfk = Inflector::underscore($model->$v->name) . "_id";
@@ -373,20 +448,18 @@ class ChangelogBehavior extends ModelBehavior {
         // eg: $query['contain'] = array('Model1' => array('Model2'));
         // eg: $query['contain'] = array('Model1' => 'Model2');
         
-        // First check the model represented by the key
-        
-        if($model->$k->Behaviors->enabled('Changelog')) {
-          $cparentfk = Inflector::underscore($model->$k->name) . "_id";
-          
-          $ret[$k]['conditions'] = array(
-            $k.'.'.$cparentfk => null,
-            $k.'.deleted IS NOT true'
-          );
-        }
-        
-        // And now the value
-        
         if(is_array($v)) {
+          // First handle Model1
+          
+          if($model->$k->Behaviors->enabled('Changelog')) {
+            $cparentfk = Inflector::underscore($model->$k->name) . "_id";
+            
+            $ret[$k]['conditions'] = array(
+              $k.'.'.$cparentfk => null,
+              $k.'.deleted IS NOT true'
+            );
+          }
+          
           // Now walk the value array
           
           foreach($contain[$k] as $k2 => $v2) {
@@ -404,6 +477,12 @@ class ChangelogBehavior extends ModelBehavior {
             }
           }
         } else {
+          // First handle Model1. We have to unset the value first because $v
+          // is a single value, not an array. This requires handling quite a few
+          // scenarios given Cake's, uh, flexibility in specifiying contains.
+          
+          unset($ret[$k]);
+          
           if($model->$k->$v->Behaviors->enabled('Changelog')) {
             $cparentfk = Inflector::underscore($model->$k->$v->name) . "_id";
             
@@ -411,7 +490,20 @@ class ChangelogBehavior extends ModelBehavior {
               $v.'.'.$cparentfk => null,
               $v.'.deleted IS NOT true'
             );
+          } else {
+            $ret[$k][] = $v;
           }
+          
+          if($model->$k->Behaviors->enabled('Changelog')) {
+            $cparentfk = Inflector::underscore($model->$k->name) . "_id";
+            
+            $ret[$k]['conditions'] = array(
+              $k.'.'.$cparentfk => null,
+              $k.'.deleted IS NOT true'
+            );
+          }
+          // else we shouldn't have to do anything since handling of $v should
+          // have re-created $ret[$k]
         }
       }
     }

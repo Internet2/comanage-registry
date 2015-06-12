@@ -30,7 +30,7 @@
 
   $l = 0;
   
-  if($this->action == 'add') {
+  if($this->action == 'add' || $this->action == 'invite') {
     // There can't be a changelog yet...
     return;
   }
