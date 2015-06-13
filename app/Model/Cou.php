@@ -147,39 +147,39 @@ class Cou extends AppModel {
    */
   
   public function beforeDelete($cascade) {
-      // Call AppModel parent beforeDelete first so that any
-      // plugins that need to be consulted are so consulted
-      // first.
-      parent::beforeDelete($cascade);
-      
-      // Delete the associated admin and members groups.
-      // The checkDeleteDependencies method on the CousController will
-      // only call delete if there are no roles in the COU and the
-      // COU is really being deleted so we do not have to worry about
-      // that here.
-      $conditions = array();
-      $conditions['Cou.id'] = $this->id;
-      
-      $args = array();
-      $args['conditions'] = $conditions;
-      $args['contain']['Co'] = 'CoGroup';
-      
-      $cou = $this->find('first', $args);
-      $couName = $cou['Cou']['name'];
-      
-      foreach($cou['Co']['CoGroup'] as $group) {
-          $groupName = $group['name'];
-          if($groupName == ('admin:' . $couName)) {
-          	// Delete the admin group.
-            $this->Co->CoGroup->delete($group['id']);
-          } elseif($groupName == 'members:' . $couName) {
-          	// Delete the members group.
-            $this->Co->CoGroup->delete($group['id']);
-          }
+    // Call AppModel parent beforeDelete first so that any
+    // plugins that need to be consulted are so consulted
+    // first.
+    parent::beforeDelete($cascade);
+    
+    // Delete the associated admin and members groups.
+    // The checkDeleteDependencies method on the CousController will
+    // only call delete if there are no roles in the COU and the
+    // COU is really being deleted so we do not have to worry about
+    // that here.
+    $conditions = array();
+    $conditions['Cou.id'] = $this->id;
+    
+    $args = array();
+    $args['conditions'] = $conditions;
+    $args['contain']['Co'] = 'CoGroup';
+    
+    $cou = $this->find('first', $args);
+    $couName = $cou['Cou']['name'];
+    
+    foreach($cou['Co']['CoGroup'] as $group) {
+      $groupName = $group['name'];
+      if($groupName == ('admin:' . $couName)) {
+        // Delete the admin group.
+        $this->Co->CoGroup->delete($group['id']);
+      } elseif($groupName == 'members:' . $couName) {
+        // Delete the members group.
+        $this->Co->CoGroup->delete($group['id']);
       }
-      
-      // Return true so that the delete actually happens.
-  		return true;
+    }
+    
+    // Return true so that the delete actually happens.
+    return true;
   }
 
   /**
@@ -275,17 +275,17 @@ class Cou extends AppModel {
    */
   
   public function isInCo($couId, $coId) {
-  	$args = array();
-  	$args['conditions']['Cou.id'] = $couId;
-  	$args['contain'] = false;
+    $args = array();
+    $args['conditions']['Cou.id'] = $couId;
+    $args['contain'] = false;
   
-  	$couData = $this->find('first', $args);
+    $couData = $this->find('first', $args);
   
-  	if(!empty($couData['Cou']['co_id'])
-  			&& $couData['Cou']['co_id'] == $coId) {
-  				return true;
-  			}
-  			return false;
+    if(!empty($couData['Cou']['co_id'])
+        && $couData['Cou']['co_id'] == $coId) {
+          return true;
+        }
+        return false;
   }
 
   /**
@@ -298,7 +298,6 @@ class Cou extends AppModel {
    */
 
   public function isChildCou($couBranch, $couNode) {
-
     // Get list of all children of $couBranch
     $childrenArrays = $this->children($couBranch, false, 'id');
     $childrenList = Set::extract($childrenArrays, '{n}.Cou.id');

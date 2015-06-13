@@ -626,8 +626,10 @@ class StandardController extends AppController {
         // XXX temporary implementation -- need more general approach (CO-1053)
         $args = array();
         $args['conditions']['Identifier.identifier'] = $this->request->query['search_identifier'];
-        if(!empty($this->params['url']['coid'])) {
-          $args['conditions']['CoPerson.co_id'] = $this->params['url']['coid'];
+
+        $orgPooled = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
+        if(!empty($this->params['url']['coid']) && !$orgPooled) {
+          $args['conditions'][$model->name . '.co_id'] = $this->params['url']['coid'];
         }
         $args['joins'][0]['table'] = 'identifiers';
         $args['joins'][0]['alias'] = 'Identifier';
