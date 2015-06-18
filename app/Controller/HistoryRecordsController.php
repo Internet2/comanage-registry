@@ -229,6 +229,8 @@ class HistoryRecordsController extends StandardController {
     // For index views, we need to make sure the viewer has permission to see
     // records associated with the requested person.
     
+    $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
+    
     if(!empty($roles['copersonid'])) {
       if(!empty($pids['copersonid'])) {
         $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
@@ -236,6 +238,17 @@ class HistoryRecordsController extends StandardController {
       } elseif(!empty($pids['orgidentityid'])) {
         $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
                                                              $pids['orgidentityid']);
+      }
+    } elseif($pool) {
+      // We won't get here for a CO Person's history even if pooled because roles[copersonid]
+      // will be set. This is intentional -- we prefer to know the CO Person ID of the
+      // current user if possible. That only won't be the case when pooled and examining org
+      // identity history, since there is no CO in the current context.
+      
+      if(!empty($pids['orgidentityid'])) {
+        $managed = $this->Role->isCoOrCouAdminForOrgIdentity(null,
+                                                             $pids['orgidentityid'],
+                                                             $this->Session->read('Auth.User.username'));
       }
     }
     
@@ -246,12 +259,16 @@ class HistoryRecordsController extends StandardController {
     
     // Add history records?
     $p['add'] = ($roles['cmadmin']
-                 || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                 || ($managed && ($roles['coadmin'] || $roles['couadmin']
+                                  || ($pool &&
+                                      ($roles['admin'] || $roles['subadmin'])))));
     
     // View history records?
     // We could allow $self to view own records, but for the moment we don't (for no specific reason)
     $p['index'] = ($roles['cmadmin']
-                   || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                   || ($managed && ($roles['coadmin'] || $roles['couadmin']
+                                    || ($pool &&
+                                        ($roles['admin'] || $roles['subadmin'])))));
     
     if($this->action == 'index' && $p['index']) {
       // Determine which COUs a person can manage, needed for index() to filter records
@@ -262,7 +279,8 @@ class HistoryRecordsController extends StandardController {
         $p['cous'] = $roles['admincous'];
       } else {
         // This should only be empty if there are no COUs. A COU Admin must be an
-        // admin of at least one COU.
+        // admin of at least one COU. It will also be empty if org identities are pooled
+        // since there are no COUs in the current context.
         $p['cous'] = array();
       }
     }

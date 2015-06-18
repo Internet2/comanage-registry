@@ -159,7 +159,7 @@ class CoPeopleController extends StandardController {
   protected function calculateImpliedCoId() {
     if(($this->action == "invite"
         // The first pass through link will not include a CO Person ID, but the second will
-        || ($this->action == "link" && !empty($this->request->params['passed'][0])))
+        || ($this->action == "link" && empty($this->request->params['passed'][0])))
        && !empty($this->request->params['named']['orgidentityid'])) {
       if(isset($this->viewVars['pool_org_identities']) && $this->viewVars['pool_org_identities']) {
         // When org identities are pooled, accept the CO ID from the URL

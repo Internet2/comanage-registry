@@ -39,14 +39,15 @@
 <?php
 // Globals
   global $cm_lang, $cm_texts;
-
-  $params = array('title' => $cur_co['Co']['name'] . ' ' . _txt('ct.petitions.pl'));
+  
+  $params = array('title' => (!empty($cur_co['Co']['name']) ? $cur_co['Co']['name'] . ' ' : '')
+                              . _txt('ct.petitions.pl'));
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
   $this->Html->addCrumb(_txt('ct.petitions.pl'));
   
-  if($permissions['add']) {
+  if($permissions['add'] && !empty($cur_co)) {
     print $this->Html->link(_txt('op.enroll'),
                             array('controller' => 'co_enrollment_flows', 'action' => 'select', 'co' => $cur_co['Co']['id']),
                             array('class' => 'addbutton'));    
@@ -196,7 +197,7 @@
           }
           
           if($permissions['delete'])
-            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($p['CoPetition']['id'])) . '\', \'' . $this->Html->url(array('controller' => 'co_petitions', 'action' => 'delete', $p['CoPetition']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . "</button>\n";
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($p['CoPetition']['id'])) . '\', \'' . $this->Html->url(array('controller' => 'co_petitions', 'action' => 'delete', $p['CoPetition']['id'])) . '\')";>' . _txt('op.delete') . "</button>\n";
           
           if($permissions['resend'] && $p['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
             $url = array(

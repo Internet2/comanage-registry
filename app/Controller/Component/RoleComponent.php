@@ -48,6 +48,7 @@ class RoleComponent extends Component {
     
     $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
     
+    $args = array();
     $args['fields'][] = 'CoEnrollmentFlow.id';
     $args['joins'][0]['table'] = 'co_group_members';
     $args['joins'][0]['alias'] = 'CoGroupMember';
@@ -60,6 +61,60 @@ class RoleComponent extends Component {
     
     // find() will return id => id with only one field specified, so just pull the keys
     return array_keys($efs);
+  }
+  
+  /**
+   * Determine what CO Enrollment Flows an Org Identity may approve. Note unlike
+   * approverFor this function WILL return enrollment flows where the CO Person is
+   * an approver by way of group membership.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Array Array of Org Identity IDs
+   * @return Array List CO Enrollment Flow IDs
+   */
+  
+  public function approverForByOrgIdentities($orgIdentityIds) {
+    $ret = array();
+    
+    if(empty($orgIdentityIds)) {
+      return $ret;
+    }
+    
+    // 1 - Pull COs and CO Person IDs for each $orgIdentityId
+    
+    $CoOrgIdentityLink = ClassRegistry::init('CoOrgIdentityLink');
+    
+    $args = array();
+    $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $orgIdentityIds;
+    $args['conditions']['CoPerson.status'] = StatusEnum::Active;
+    $args['contain'][] = 'CoPerson';
+    
+    $links = $CoOrgIdentityLink->find('all', $args);
+    
+    // 2 - For each CO Person ID, if an admin or cou admin pull all enrollment flows
+    // for the specified ID. for now, we treat COU admins and CO admins the same
+    // -- any can see any petition within the CO. If not an admin, then determine
+    // which flows the person can see.
+    
+    $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
+    
+    foreach($links as $l) {
+      if($this->isCoOrCouAdmin($l['CoPerson']['id'], $l['CoPerson']['co_id'])) {
+        $args = array();
+        $args['fields'][] = 'CoEnrollmentFlow.id';
+        $args['conditions']['CoEnrollmentFlow.co_id'] = $l['CoPerson']['co_id'];
+        $args['contain'] = false;
+        
+        $efs = $CoEnrollmentFlow->find('list', $args);
+        
+        // find() will return id => id with only one field specified, so just pull the keys
+        $ret = array_merge($ret, array_keys($efs));
+      } else {
+        $ret = array_merge($ret, $this->approverFor($l['CoPerson']['id']));
+      }
+    }
+    
+    return $ret;
   }
   
   /**
@@ -1011,12 +1066,24 @@ class RoleComponent extends Component {
    * @since  COmanage Registry v0.8
    * @param  Integer CO Person ID of potential CO(U) Admin
    * @param  Integer Org Identity ID of subject
+   * @param  String Authenticated user ID, for use when org identities are pooled and there is no CO Person ID in context
    * @return Boolean True if the CO Person is a CO(U) Administrator for the subject, false otherwise
    */
    
-  public function isCoOrCouAdminForOrgIdentity($coPersonId, $subjectOrgIdentityId) {
+  public function isCoOrCouAdminForOrgIdentity($coPersonId, $subjectOrgIdentityId, $identifier=null) {
     // A person is an admin if org identities are pooled or if the subject and the CO person
     // are in the CO. First check that they're even an admin at all.
+    
+    $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
+    
+    $pool = $CmpEnrollmentConfiguration->orgIdentitiesPooled();
+    
+    if($pool && $identifier) {
+      // If org identities are pooled then we can't have a $coPersonId in context.
+      // Look up the identifier and see if they are an admin of some sort.
+      
+      return $this->identifierIsCoAdmin($identifier) || $this->identifierIsCouAdmin($identifier);
+    }
     
     if(!$coPersonId || !$subjectOrgIdentityId) {
       return false;
@@ -1024,10 +1091,9 @@ class RoleComponent extends Component {
     
     if($this->isCoAdmin($coPersonId)
        || $this->isCouAdmin($coPersonId)) {
-      $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
-      
-      if($CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
-        // All CO and COU Admins can manage all org identities
+      if($pool) {
+        // All CO and COU Admins can manage all org identities. We probably won't get
+        // here since this scenario should have been caught above.
         
         return true;
       } else {

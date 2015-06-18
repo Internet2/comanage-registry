@@ -515,14 +515,22 @@ class CoGroupsController extends StandardController {
     // Lookup the person in question to find their name
     
     $args = array();
-    $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
-    $args['contain'] = 'PrimaryName';
+    $args['conditions']['CoPerson.id'] = (!empty($this->request->params['named']['copersonid'])
+                                          ? $this->request->params['named']['copersonid']
+                                          // Default to the current user
+                                          : $this->Session->read('Auth.User.co_person_id'));
+    $args['contain'] = array('PrimaryName');
     
     $coPerson = $this->CoGroup->CoGroupMember->CoPerson->find('first', $args);
     
     if(!empty($coPerson)) {
       // Set name for page title
       $this->set('name_for_title', Sanitize::html(generateCn($coPerson['PrimaryName'])));
+      $this->set('vv_co_person_id', $coPerson['CoPerson']['id']);
+    } else {
+      // Most likely CMP admin trying to view "their" groups in a CO they're not actually a member of
+      $this->Session->setFlash(_txt('er.co.notmember'), '', array(), 'error');
+      $this->performRedirect();
     }
     
     // XXX proper authz here is probably something like "(all open CO groups

@@ -220,6 +220,8 @@ class OrgIdentitiesController extends StandardController {
    */
   
   function find() {
+    $coid = null;
+    
     if(!empty($this->request->params['named']['copersonid'])) {
       // Find the CO Person name
       $args = array();
@@ -236,11 +238,15 @@ class OrgIdentitiesController extends StandardController {
                                  '', array(), 'error');
         $this->performRedirect();
       }
+      
+      $coid = $cop['CoPerson']['co_id'];
     } else {
       $this->set('title_for_layout', _txt('op.find.inv', array($this->cur_co['Co']['name'])));
+      
+      $coid = $this->cur_co['Co']['id'];
     }
     
-    $this->set('cur_co', $this->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($this->cur_co['Co']['id']));
+    $this->set('cur_co', $this->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($coid));
     
     // Use server side pagination
     
@@ -364,6 +370,17 @@ class OrgIdentitiesController extends StandardController {
                                                            $this->request->params['pass'][0]);
     }
     
+    // Or are we requesting a CO we manage?
+    $manager = false;
+    
+    if(isset($roles['copersonid'])
+       && $roles['copersonid']
+       && isset($this->request->params['named']['co'])
+       && ($this->action == 'find')) {
+      $managed = $this->Role->isCoOrCouAdmin($roles['copersonid'],
+                                             $this->request->params['named']['co']);
+    }
+    
     // Is this our own record?
     $self = false;
     
@@ -382,7 +399,7 @@ class OrgIdentitiesController extends StandardController {
     $p = array();
     
     // Determine what operations this user can perform. This varies according to
-    // whether or not organizational identities are pooled -- if they are, we need
+    // whether or not organizational identities are pooled -- if they aren't, we need
     // to restrict access to only org identities in the same CO.
     
     if($this->CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
@@ -401,7 +418,7 @@ class OrgIdentitiesController extends StandardController {
       
       // Find an Org Person to add to a CO?
       $p['find'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
-  
+      
       // View all existing Org People?
       $p['index'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       $p['search'] = $p['index'];

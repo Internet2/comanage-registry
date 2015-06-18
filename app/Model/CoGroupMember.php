@@ -40,7 +40,8 @@ class CoGroupMember extends AppModel {
   public $displayField = "co_person_id";
   
   // Default ordering for find operations
-  public $order = array("co_person_id");
+// XXX CO-296 Toss default order?
+//  public $order = array("co_person_id");
   
   public $actsAs = array('Containable', 'Provisioner');
 

@@ -29,6 +29,9 @@ class CoPetitionsController extends StandardController {
   
   public $helpers = array('Time');
   
+  // When using additional models, we must also specify our own
+  public $uses = array('CoPetition', 'CmpEnrollmentConfiguration');
+  
   public $paginate = array(
     'limit' => 25,
     'order' => array(
@@ -155,6 +158,17 @@ class CoPetitionsController extends StandardController {
       if($this->action == 'add') {
         // add just redirects to start
         $noAuth = true;
+      } elseif($this->action == 'index') {
+        // In order to search for petitions by Org Identity, we may need to not require a CO
+        // (ie: if org identities are pooled)
+        
+        $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
+        
+        if($pool) {
+          $this->requires_co = false;
+        }
+        
+        $this->set('pool_org_identities', $pool);
       } elseif(isset($steps[$this->action])) {
         $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
         
@@ -1254,9 +1268,19 @@ class CoPetitionsController extends StandardController {
                    ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
                     || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
     
+    $pool = isset($this->viewVars['pool_org_identities']) && $this->viewVars['pool_org_identities'];
+    
     // View all existing CO Petitions?
     // Before adjusting this, see paginationConditions(), below
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $this->Role->isApprover($roles['copersonid']));
+    $p['index'] = ($roles['cmadmin']
+                   || $roles['coadmin'] || $roles['couadmin']
+                   // Only allow "any admin" if org identities are pooled and
+                   // we don't have a CO Person ID for the user (so we're in an
+                   // Org Identity context, such as search by Org Identity ID)
+                   || ($pool
+                       && !$roles['copersonid'] 
+                       && ($roles['admin'] || $roles['subadmin']))
+                   || $this->Role->isApprover($roles['copersonid']));
     
     // Search all existing CO Petitions?
     $p['search'] = $p['index'];
@@ -1375,6 +1399,16 @@ class CoPetitionsController extends StandardController {
     // Filter by Org Identity ID
     if(!empty($this->params['named']['search.orgidentityid'])) {
       $pagcond['conditions']['CoPetition.enrollee_org_identity_id'] = $this->params['named']['search.orgidentityid'];
+      
+      if(!$this->requires_co) {
+        // This is a bit complicated... we need to filter records based on the COs for which
+        // the current user is an admin of some sort.
+        
+        // Pull org_identity_id from session -- in theory there can be more than one, though... sigh
+        $efs = $this->Role->approverForByOrgIdentities(Hash::extract($this->Session->read('Auth.User.org_identities'), "{n}.org_id"));
+        
+        $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $efs;
+      }
     }
     
     // Potentially filter by enrollment flow ID. Our assumption is that if we make it

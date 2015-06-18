@@ -38,7 +38,8 @@
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',
-      Sanitize::html($this->request->params['named']['copersonid']));
+      $vv_co_person_id
+    );
     $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
 
     $this->Html->addCrumb(_txt('op.manage.grm'));
@@ -94,7 +95,7 @@
     // beforeFilter needs CO ID
     print $this->Form->hidden('CoGroupMember.co_id', array('default' => $cur_co['Co']['id'])) . "\n";
     // Group ID must be global for isAuthorized
-    print $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $this->request->params['named']['copersonid'])) . "\n";
+    print $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $vv_co_person_id)) . "\n";
   }
 ?>
 <script type="text/javascript">
@@ -364,7 +365,7 @@
               
               foreach($c['CoGroupMember'] as $cgm) {
                 // Walk the CoGroupMemberships for this CoGroup to find the target CO Person
-                if($cgm['co_person_id'] == $this->request->params['named']['copersonid']) {
+                if($cgm['co_person_id'] == $vv_co_person_id) {
                   $gmID = $cgm['id'];
                   $isMember = $cgm['member'];
                   $isOwner = $cgm['owner'];

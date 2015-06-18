@@ -175,7 +175,6 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         $args['plugin'] = null;
         $args['controller'] = 'co_groups';
         $args['action'] = 'select';
-        $args['copersonid'] = $this->Session->read('Auth.User.co_person_id');
         $args['co'] = $menuCoId;
         print $this->Html->link(_txt('op.grm.my.groups'), $args);
         print "</li>";
