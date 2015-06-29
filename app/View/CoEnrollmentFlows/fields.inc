@@ -123,6 +123,32 @@
     }
   }
   
+  function authn_update_gadgets() {
+    // Hide and show accordingly.
+    
+    var confirm = document.getElementById('CoEnrollmentFlowVerifyEmail').checked;
+    var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
+    
+    if(confirm) {
+      $("#CoEnrollmentFlowInvitationValidity").closest("tr").show('fade');
+      $("#CoEnrollmentFlowVerificationSubject").closest("tr").show('fade');
+      $("#CoEnrollmentFlowVerificationBody").closest("tr").show('fade');
+      $("#CoEnrollmentFlowRequireAuthn").closest("tr").show('fade');
+      
+      if(authn) {
+        $("#CoEnrollmentFlowDuplicateMode").closest("tr").show('fade');
+      } else {
+        $("#CoEnrollmentFlowDuplicateMode").closest("tr").hide('fade');
+      }
+    } else {
+      $("#CoEnrollmentFlowInvitationValidity").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowVerificationSubject").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowVerificationBody").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowRequireAuthn").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowDuplicateMode").closest("tr").hide('fade');
+    }
+  }
+  
   function authz_update_gadgets() {
     // Hide and show accordingly. Reset sub-popups to prevent superfluous data from
     // being saved. (ie: we don't need a group ID if not setting authz to 'CG')
@@ -161,6 +187,7 @@
   
   function js_local_onload() {
     approver_update_gadgets();
+    authn_update_gadgets();
     authz_update_gadgets();
     fields_update_gadgets();
   }
@@ -344,12 +371,13 @@
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('verify_email')
+                     ? $this->Form->input('verify_email', array('onClick' => 'authn_update_gadgets()'))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verify_email'])); ?>
       </td>
     </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
+    <?php $ll = $l; // use an alternate index for indented rows ?>
+    <tr class="line<?php print ($ll % 2); $ll++; ?>">
+      <td class="indented">
         <strong class="fieldTitle"><?php print _txt('fd.ef.invval'); ?></strong><br />
         <span class="descr"><?php print _txt('fd.ef.invval.desc'); ?></span>
       </td>
@@ -361,15 +389,76 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['invitation_validity'])); ?>
       </td>
     </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
+    <tr class="line<?php print ($ll % 2); $ll++; ?>">
+      <td class="indented">
+        <strong class="fieldTitle"><?php print _txt('fd.ef.vsub'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.vsub.desc'); ?></span>
+      </td>
       <td>
+        <?php print ($e
+                     ? $this->Form->input('verification_subject',
+                                          array('default' => _txt('em.invite.subject.ef')))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_subject'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($ll % 2); $ll++; ?>">
+      <td class="indented">
+        <strong class="fieldTitle"><?php print _txt('fd.ef.vbody'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.vbody.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('verification_body',
+                                          array('default' => _txt('em.invite.body.ef')))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_body'])); ?>
+      </td>
+    </tr>    <tr class="line<?php print ($ll % 2); $ll++; ?>">
+      <td class="indented">
         <strong class="fieldTitle"><?php print _txt('fd.ef.authn'); ?></strong><br />
         <span class="descr"><?php print _txt('fd.ef.authn.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('require_authn')
+                     ? $this->Form->input('require_authn', array('onClick' => 'authn_update_gadgets()'))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($ll % 2); $ll++; ?>" style="display:none">
+      <td class="indented">
+        <strong class="fieldTitle"><?php print _txt('fd.ef.dupe'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.dupe.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (isset($co_enrollment_flows)
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']
+                             : EnrollmentDupeModeEnum::Duplicate);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('duplicate_mode',
+                                      $cm_texts[ $cm_lang ]['en.enrollment.dupe'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('duplicate_mode')) {
+              print $this->Form->error('duplicate_mode');
+            }
+          } else {
+            print _txt('en.enrollment.dupe', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.ef.efn'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.efn.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('notify_from')
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_from'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -399,98 +488,6 @@
             }
           }
         ?>
-      </td>
-    </tr>
-<!--
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.epx'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.epx.desc'); ?></span>
-      </td>
-      <td>
-        <?php /*print ($e
-                     ? $this->Form->input('early_provisioning_exec')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['early_provisioning_exec']));*/ ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.px'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.px.desc'); ?></span>
-      </td>
-      <td>
-        <?php /*print ($e
-                     ? $this->Form->input('provisioning_exec')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['provisioning_exec'])); */?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.noep'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.noep.desc'); ?></span>
-      </td>
-      <td>
-        <?php /*print ($e
-                     ? $this->Form->input('notify_on_early_provision')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_early_provision']));*/ ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.nop'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.nop.desc'); ?></span>
-      </td>
-      <td>
-        <?php /*print ($e
-                     ? $this->Form->input('notify_on_provision')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_provision']));*/ ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.noa'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.noa.desc'); ?></span>
-      </td>
-      <td>
-        <?php /*print ($e
-                     ? $this->Form->input('notify_on_active')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_active']));*/ ?>
-      </td>
-    </tr>
--->
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.efn'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.efn.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('notify_from')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_from'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.vsub'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.vsub.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('verification_subject',
-                                          array('default' => _txt('em.invite.subject.ef')))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_subject'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.vbody'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.vbody.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('verification_body',
-                                          array('default' => _txt('em.invite.body.ef')))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_body'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

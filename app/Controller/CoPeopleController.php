@@ -196,6 +196,20 @@ class CoPeopleController extends StandardController {
                                                 array(_txt('ct.co_enrollment_flows.1'),
                                                       Sanitize::html($this->request->params['named']['coef']))));
       }
+    } elseif($this->action == "select"
+             && !empty($this->request->params['named']['copetitionid'])) {
+      // Pull the CO from the Petition
+      
+      $coId = $this->CoPerson->Co->CoPetition->field('co_id',
+                                                     array('id' => $this->request->params['named']['copetitionid']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_petitions.1'),
+                                                      Sanitize::html($this->request->params['named']['copetitionid']))));
+      }
     }
     
     return parent::calculateImpliedCoId();
@@ -678,6 +692,7 @@ class CoPeopleController extends StandardController {
     // If an enrollment flow was specified, check the authorization for that flow
     
     $p['match'] = false;
+    $p['select'] = false;
     
     if(isset($this->request->named['coef'])) {
       $flowAuthorized = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->authorizeById($this->request->named['coef'],
@@ -690,6 +705,25 @@ class CoPeopleController extends StandardController {
                      &&
                      ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
                       || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
+    }
+    
+    if(!empty($this->request->params['named']['copetitionid'])) {
+      $ef = $this->CoPerson->Co->CoPetition->field('co_enrollment_flow_id',
+                                                   array('CoPetition.id' => $this->request->params['named']['copetitionid']));
+      
+      if($ef) {
+        $flowAuthorized = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->authorizeById($ef,
+                                                                                           $roles['copersonid'],
+                                                                                           $this->Role);
+        
+        $p['match_policy'] = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->field('match_policy',
+                                                                                      array('CoEnrollmentFlow.id' => $ef));
+        
+        // Select generates a complete people picker
+        $p['select'] = (($roles['cmadmin'] || $flowAuthorized)
+                        &&
+                        $p['match_policy'] == EnrollmentMatchPolicyEnum::Select);
+      }
     }
     
     // View petitions?
@@ -1005,5 +1039,34 @@ class CoPeopleController extends StandardController {
 
     // redirect the user to the url
     $this->redirect($url, null, true);
+  }
+
+  /**
+   * Identify the target CO Person for an enrollment flow.
+   *
+   * @since  COmanage Registry v0.9.4
+   */
+
+  public function select() {
+    if(!$this->request->is('restful')) {
+      // We basically want the index behavior, but we set some view vars to allow
+      // the enrollment flow breadcrumbs to render
+      
+      // Map the petition ID to an enrollment flow to obtain the configured petition steps
+      
+      if(!empty($this->request->params['named']['copetitionid'])) {
+        $efId = $this->CoPerson->Co->CoPetition->field('co_enrollment_flow_id',
+                                                       array('CoPetition.id' => $this->request->params['named']['copetitionid']));
+        
+        if($efId) {
+          $steps = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->configuredSteps($efId);
+          
+          $this->set('vv_configured_steps', $steps);
+          $this->set('vv_current_step', 'selectEnrollee');
+        }
+      }      
+      
+      $this->index();
+    }
   }
 }

@@ -173,7 +173,7 @@ $(function() {
                   if($this->Form->isFieldError('affiliation')) {
                     print $this->Form->error('affiliation');
                   }
-                } else {
+                } elseif(!empty($co_person_roles[0]['CoPersonRole']['affiliation'])) {
                   print $vv_copr_affiliation_types[ $co_person_roles[0]['CoPersonRole']['affiliation'] ];
                 }
               ?>

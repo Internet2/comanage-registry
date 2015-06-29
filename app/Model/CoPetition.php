@@ -815,7 +815,6 @@ class CoPetition extends AppModel {
    * @param Integer $actorCoPersonId CO Person ID of the person triggering the relink
    * @param String  $mode How to handle original identity: 'delete', 'merge', 'replace'
    * @throws RuntimeException
-   * @throws OverflowException
    */
   
   public function relinkOrgIdentity($id, $targetOrgIdentityId, $actorCoPersonId, $mode='delete') {
@@ -904,10 +903,162 @@ class CoPetition extends AppModel {
       
       $this->CoPetitionHistoryRecord->record($id,
                                              $actorCoPersonId,
-                                             PetitionActionEnum::IdentityLinked,
+                                             PetitionActionEnum::IdentityRelinked,
                                              _txt('er.pt.relink.org'));
       
-      throw new OverflowException(_txt('er.pt.relink.org'));
+      throw new RuntimeException(_txt('er.pt.relink.org'));
+    }
+  }
+  
+  /**
+   * Relink a Petition and the associated CO Person Role to already existing Org Identity and CO Person.
+   * This function should be called from within a transaction.
+   *
+   * @param Integer $id CO Petition ID
+   * @param Integer $targetOrgIdentityId Org Identity ID to relink to
+   * @param Integer $targetCoPersonId CO Person ID to relink to
+   * @param Integer $actorCoPersonId CO Person ID of the person triggering the relink
+   * @param EnrollmentDupeModeEnum $mode How to handle duplicate
+   * @throws RuntimeException
+   * @throws OverflowException
+   */
+  
+  public function relinkRole($id, $targetOrgIdentityId, $targetCoPersonId, $actorCoPersonId, $mode) {
+    // This is probably already set, but just in case.
+    $this->id = $id;
+    
+    // Pull the org identity links for the EnrolleeOrgIdentity and make sure
+    // it is ONLY attached to the EnrolleeCoPersonId, and vice versa.
+    // If so, relink and delete.
+    
+    $petitionCoPId = $this->field('enrollee_co_person_id');
+    $petitionOrgId = $this->field('enrollee_org_identity_id');
+    $petitionRoleId = $this->field('enrollee_co_person_role_id');
+    $petitionCouId = $this->field('cou_id');
+    
+    if(!$petitionRoleId) {
+      throw new RuntimeException(_txt('er.copr.none'));
+    }
+    
+    $args = array();
+    $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $petitionOrgId;
+    
+    $lnks = $this->EnrolleeOrgIdentity->CoOrgIdentityLink->findForUpdate($args['conditions'],
+                                                                         array('id', 'co_person_id'));
+    
+    if(empty($lnks)
+       || (count($lnks)==1
+           && $lnks[0]['CoOrgIdentityLink']['co_person_id'] == $petitionCoPId)) {
+      // There are no links from the enrollee org identity or there is exactly one link
+      // and it is to the enrollee CO Person. Now check the reverse.
+      
+      $args = array();
+      $args['conditions']['CoOrgIdentityLink.co_person_id'] = $petitionCoPId;
+      
+      $lnks2 = $this->EnrolleeOrgIdentity->CoOrgIdentityLink->findForUpdate($args['conditions'],
+                                                                            array('org_identity_id'));
+      
+      if(empty($lnks2)
+         || (count($lnks2)==1
+             && $lnks2[0]['CoOrgIdentityLink']['org_identity_id'] == $petitionOrgId)) {
+        if($mode == EnrollmentDupeModeEnum::NewRoleCouCheck
+           && $petitionCouId) {
+          // If $targetCoPersonId already has an active role in $petitionCouId throw an error
+          
+          $args = array();
+          $args['conditions']['EnrolleeCoPersonRole.co_person_id'] = $targetCoPersonId;
+          $args['conditions']['EnrolleeCoPersonRole.cou_id'] = $petitionCouId;
+          $args['conditions']['EnrolleeCoPersonRole.status'] = StatusEnum::Active;
+          
+          $copr = $this->EnrolleeCoPersonRole->findForUpdate($args['conditions'],
+                                                             array('id'));
+          
+          if(!empty($copr)) {
+            throw new OverflowException(_txt('er.pt.dupe.cou'));
+          }
+        }
+        
+        // Now we're clear to proceed. First, relink the petition.
+        
+        if(!$this->saveField('enrollee_org_identity_id', $targetOrgIdentityId)
+           || !$this->saveField('enrollee_co_person_id', $targetCoPersonId)) {
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+        
+        // We don't need to update any CoOrgIdentityLinks because we haven't changed
+        // any such association. (We should have been passed target identities that were
+        // already linked.)
+        
+        // Update the role to be attached to the target CO Person ID.
+        
+        if(!$this->EnrolleeCoPersonRole
+                 ->updateAll(array('EnrolleeCoPersonRole.co_person_id' => $targetCoPersonId),
+                             array('EnrolleeCoPersonRole.co_person_id' => $petitionCoPId))) {
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+        
+        // Delete the duplicate identities. This will trigger ChangelogBehavior,
+        // so the relevant ids will still be valid even after the delete.
+        
+        try {
+          $this->EnrolleeOrgIdentity->delete($petitionOrgId);
+          $this->EnrolleeCoPerson->delete($petitionCoPId);
+          
+          // We also need to delete the link
+          $this->EnrolleeCoPerson->CoOrgIdentityLink->delete($lnks[0]['CoOrgIdentityLink']['id']);
+          
+          // Create some history records and a petition history record
+          
+          $this->EnrolleeCoPerson->HistoryRecord->record($targetCoPersonId,
+                                                         $petitionRoleId,
+                                                         null,
+                                                         $actorCoPersonId,
+                                                         ActionEnum::CoPersonRoleRelinked,
+                                                         _txt('rs.pt.relink.role', array($targetCoPersonId)));
+          
+          $this->EnrolleeCoPerson->HistoryRecord->record(null,
+                                                         null,
+                                                         $petitionOrgId,
+                                                         $actorCoPersonId,
+                                                         ActionEnum::OrgIdDeletedPetition,
+                                                         _txt('rs.pt.org.del'));          
+          
+          $this->EnrolleeCoPerson->HistoryRecord->record($petitionCoPId,
+                                                         null,
+                                                         null,
+                                                         $actorCoPersonId,
+                                                         ActionEnum::CoPersonDeletedPetition,
+                                                         _txt('rs.pt.cop.del'));          
+          
+          $this->CoPetitionHistoryRecord->record($id,
+                                                 $actorCoPersonId,
+                                                 PetitionActionEnum::IdentityRelinked,
+                                                 _txt('rs.pt.relink.role', array($targetCoPersonId)));
+        }
+        catch(Exception $e) {
+          throw new RuntimeException($e->getMessage());
+        }
+      } else {
+        // One or more links to an existing Org Identity that's not the enrollee were found.
+        // We can't automatically clean up, so throw an error.
+        
+        $this->CoPetitionHistoryRecord->record($id,
+                                               $actorCoPersonId,
+                                               PetitionActionEnum::IdentityLinked,
+                                               _txt('er.pt.relink.role.o'));
+        
+        throw new RuntimeException(_txt('er.pt.relink.role.o'));
+      }
+    } else {
+      // One or more links to an existing CO Person that's not the enrollee were found.
+      // We can't automatically clean up, so throw an error.
+      
+      $this->CoPetitionHistoryRecord->record($id,
+                                             $actorCoPersonId,
+                                             PetitionActionEnum::IdentityLinked,
+                                             _txt('er.pt.relink.role.c'));
+      
+      throw new RuntimeException(_txt('er.pt.relink.role.c'));
     }
   }
   
@@ -1461,6 +1612,7 @@ class CoPetition extends AppModel {
     $args['contain'][] = 'CoEnrollmentFlow';
     $args['contain'][] = 'Co';
     $args['contain']['EnrolleeOrgIdentity'] = array('EmailAddress', 'PrimaryName');
+    $args['contain']['EnrolleeCoPerson'] = array('EmailAddress', 'PrimaryName');
     
     $pt = $this->find('first', $args);
     
@@ -1477,24 +1629,41 @@ class CoPetition extends AppModel {
       // Which address should we send to? How about the one we sent the invitation to...
       // but we can't guarantee access to that since the invitation will have been
       // discarded. So we use the same logic as resend() above and sendConfirmation() below.
+      // Unlike those cases, though, we'll look at a CO Person record for an address
+      // if there is no attached Org Identity (eg: additional role enrollment).
+      
+      $toEmail = null;
+      $toName = null;
+      
+      // Which email do we pick? Ultimately we could look at type and/or verified,
+      // but for now we'll just pick the first one. Note array_shift will muck with $pt,
+      // but we don't need it anymore.
       
       if(!empty($pt['EnrolleeOrgIdentity']['EmailAddress'])) {
-        $toEmail = null;
-        
-        // Which email do we pick? Ultimately we could look at type and/or verified,
-        // but for now we'll just pick the first one. Note array_shift will muck with $pt,
-        // but we don't need it anymore.
-        
         $ea = array_shift($pt['EnrolleeOrgIdentity']['EmailAddress']);
+        $toName = generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']);
         
         if(empty($ea['mail'])) {
           throw new RuntimeException(_txt('er.orgp.nomail',
-                                          array(generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']),
+                                          array($toName,
                                                 $pt['EnrolleeOrgIdentity']['id'])));
         }
         
         $toEmail = $ea['mail'];
+      } elseif(!empty($pt['EnrolleeCoPerson']['EmailAddress'])) {
+        $ea = array_shift($pt['EnrolleeCoPerson']['EmailAddress']);
+        $toName = generateCn($pt['EnrolleeCoPerson']['PrimaryName']);
         
+        if(empty($ea['mail'])) {
+          throw new RuntimeException(_txt('er.cop.nomail',
+                                          array($toName,
+                                                $pt['EnrolleeCoPerson']['id'])));
+        }
+        
+        $toEmail = $ea['mail'];
+      }
+      
+      if($toEmail) {  
         $notifyFrom = $pt['CoEnrollmentFlow']['notify_from'];
         $subjectTemplate = $pt['CoEnrollmentFlow']['approval_subject'];
         $bodyTemplate = $pt['CoEnrollmentFlow']['approval_body'];
@@ -1570,6 +1739,7 @@ class CoPetition extends AppModel {
     $args['conditions']['CoPetition.id'] = $id;
     $args['contain'][] = 'CoEnrollmentFlow';
     $args['contain'][] = 'Cou';
+    $args['contain']['EnrolleeCoPerson'][] = 'PrimaryName';
     $args['contain']['EnrolleeOrgIdentity'][] = 'PrimaryName';
     
     $pt = $this->find('first', $args);
@@ -1610,6 +1780,14 @@ class CoPetition extends AppModel {
     // Now that we have a list of groups, register the notifications
     // -- we don't fail on notification failures
     
+    $enrolleeName = "?";
+    
+    if(!empty($pt['EnrolleeCoPerson']['PrimaryName'])) {
+      $enrolleeName = generateCn($pt['EnrolleeCoPerson']['PrimaryName']);
+    } elseif(!empty($pt['EnrolleeOrgIdentity']['PrimaryName'])) {
+      $enrolleeName = generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']);
+    }
+    
     foreach($cogroupids as $cgid) {
       $this->Co
            ->CoGroup
@@ -1620,7 +1798,7 @@ class CoPetition extends AppModel {
                       'cogroup',
                       $cgid,
                       ActionEnum::CoPetitionUpdated,
-                      _txt('rs.pt.status', array(generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']),
+                      _txt('rs.pt.status', array($enrolleeName,
                                                  _txt('en.status.pt', null, $pt['CoPetition']['status']),
                                                  _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
                                                  $pt['CoEnrollmentFlow']['name'])),
@@ -2018,7 +2196,10 @@ class CoPetition extends AppModel {
    */
   
   public function validateIdentifier($id, $loginIdentifier, $actorCoPersonId) {
-    // Find the enrollment flow associated with this petition to determine some configuration parameters
+    // Find the enrollment flow associated with this petition to determine some configuration parameters.
+    // It's arguable that we should pass certain actions back to the controller ta handle, such as
+    // handling duplicates, but for now it's easier to handle this all in one transaction.
+    // Perhaps some refactoring may make sense in the future, though.
     
     $this->id = $id;
     
@@ -2136,24 +2317,77 @@ class CoPetition extends AppModel {
                                                                                 $args['joins']);
             
             if(!empty($cop)) {
-              // Duplicate: There is already a CO Person with this identifier in this CO,
-              // so flag this petition and its associated identity as a duplicate
+              // Duplicate: There is already a CO Person with this identifier in this CO.
               
-              // We want to flag as duplicate and commit, but then throw an exception
-              // back up the stack so an error can be rendered for the user
-              
-              try {
-                $this->updateStatus($id,
-                                    StatusEnum::Duplicate,
-                                    $actorCoPersonId);
+              if(!isset($enrollmentFlow['CoEnrollmentFlow']['duplicate_mode'])
+                 || $enrollmentFlow['CoEnrollmentFlow']['duplicate_mode'] == EnrollmentDupeModeEnum::Duplicate) {
+                // Flag this petition and its associated identity as a duplicate
+                
+                // We want to flag as duplicate and commit, but then throw an exception
+                // back up the stack so an error can be rendered for the user
+                
+                try {
+                  $this->updateStatus($id,
+                                      StatusEnum::Duplicate,
+                                      $actorCoPersonId);
+                  
+                  // While we're here, grab the authenticated identifier, which would otherwise
+                  // be done below
+                  
+                  $this->saveField('authenticated_identifier', $loginIdentifier);
+                  
+                  // Create a petition history record
+                  
+                  $this->CoPetitionHistoryRecord->record($id,
+                                                         $actorCoPersonId,
+                                                         PetitionActionEnum::IdentifierAuthenticated,
+                                                         _txt('rs.pt.id.auth', array($loginIdentifier)));
+                }
+                catch(Exception $e) {
+                  $dbc->rollback();
+                  throw new RuntimeException($e->getMessage());
+                }
+                
+                $dbc->commit();
+                throw new OverflowException(_txt('er.pt.duplicate', array($loginIdentifier)));
+              } else {
+                // Maybe merge...
+                
+                try {
+                  $this->relinkRole($id,
+                                    $identifier2[0]['Identifier']['org_identity_id'],
+                                    $cop[0]['CoOrgIdentityLink']['co_person_id'],
+                                    $actorCoPersonId,
+                                    $enrollmentFlow['CoEnrollmentFlow']['duplicate_mode']);
+                }
+                catch(OverflowException $e) {
+                  // Mode is NewRoleCouCheck and an existing role in the same COU was found.
+                  // Convert to duplicate.
+                  
+                  $this->updateStatus($id,
+                                      StatusEnum::Duplicate,
+                                      $actorCoPersonId);
+                  
+                  // While we're here, grab the authenticated identifier, which would otherwise
+                  // be done below
+                  
+                  $this->saveField('authenticated_identifier', $loginIdentifier);
+                  
+                  // Create a petition history record
+                  
+                  $this->CoPetitionHistoryRecord->record($id,
+                                                         $actorCoPersonId,
+                                                         PetitionActionEnum::IdentifierAuthenticated,
+                                                         _txt('rs.pt.id.auth', array($loginIdentifier)));
+                  
+                  $dbc->commit();
+                  throw new OverflowException(_txt('er.pt.duplicate', array($loginIdentifier)));
+                }
+                catch(Exception $e) {
+                  $dbc->rollback();
+                  throw new RuntimeException($e->getMessage());
+                }
               }
-              catch(Exception $e) {
-                $dbc->rollback();
-                throw new RuntimeException($e->getMessage());
-              }
-              
-              $dbc->commit();
-              throw new OverflowException(_txt('er.pt.duplicate', array($loginIdentifier)));
             } else {
               // Merge: There is no CO Person with this identifier, so relink the petition
               // and the enrollee co person to the org identity we found and clean up the
@@ -2167,7 +2401,7 @@ class CoPetition extends AppModel {
               catch(Exception $e) {
                 $dbc->rollback();
                 
-                // An OverflowException indicates manual intervention required, but we
+                // An Exception may also indicate manual intervention required, but we
                 // don't actually handle it separately from a coding standpoint... we just
                 // want the error message to get rendered.
                 

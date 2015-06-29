@@ -310,7 +310,7 @@ class ChangelogBehavior extends ModelBehavior {
           
           foreach($model->relinkToArchive as $amodel) {
             if(isset($model->belongsTo[$amodel])) {
-              $aparentfk = Inflector::underscore($amodel->$amodel->name) . "_id";
+              $aparentfk = Inflector::underscore($model->$amodel->name) . "_id";
               
               // We have the original foreign key, but the parent model got rekeyed
               // as part of this save and we need to look up the new (archive) ID.

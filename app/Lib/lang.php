@@ -204,6 +204,7 @@ original notification at
     ActionEnum::CoPersonAddedManual         => 'CO Person Created (Manual)',
     ActionEnum::CoPersonAddedPetition       => 'CO Person Created (Petition)',
     ActionEnum::CoPersonDeletedManual       => 'CO Person Deleted (Manual)',
+    ActionEnum::CoPersonDeletedPetition     => 'CO Person Deleted (Petition)',
     ActionEnum::CoPersonEditedManual        => 'CO Person Edited',
     ActionEnum::CoPersonEditedPetition      => 'CO Person Edited (Petition)',
     ActionEnum::CoPersonManuallyProvisioned => 'CO Person Provisioned (Manual)',
@@ -352,10 +353,17 @@ original notification at
     EnrollmentAuthzEnum::None           => 'None'
   ),
   
+  'en.enrollment.dupe' => array(
+    EnrollmentDupeModeEnum::Duplicate       => 'Flag as Duplicate',
+    EnrollmentDupeModeEnum::NewRole         => 'Create New Role',
+    EnrollmentDupeModeEnum::NewRoleCouCheck => 'Create New Role If Different COU'
+  ),
+  
   'en.enrollment.match' => array(
     EnrollmentMatchPolicyEnum::Advisory  => 'Advisory',
     EnrollmentMatchPolicyEnum::Automatic => 'Automatic',
     EnrollmentMatchPolicyEnum::None      => 'None',
+    EnrollmentMatchPolicyEnum::Select    => 'Select',
     EnrollmentMatchPolicyEnum::Self      => 'Self'
   ),
   
@@ -599,6 +607,7 @@ original notification at
   'er.comember' =>    '%1$s is a member of one or more COs (%2$s) and cannot be removed.',
   'er.coumember' =>   '%1$s is a member of one or more COUs that you do not manage (%2$s) and cannot be removed.',
   'er.cop.member' =>  '%1$s is already a member of %2$s and cannot be added again. However, an additional role may be added.',
+  'er.cop.nomail' =>  '%1$s (CO Person %2$s) has no known email address.<br />Add an email address and then try again.',
   'er.cop.unk' =>     'Unknown CO Person',
   'er.cop.unk-a' =>   'Unknown CO Person "%1$s"',
   // XXX These should become er.copr (or tossed if not needed)
@@ -686,8 +695,11 @@ original notification at
   // er.prov is a javascript string and so cannot take a parameter
   'er.prov' =>        'Provisioning failed: ',
   'er.prov.plugin' => 'Provisioning failed for %1$s: %2$s',
+  'er.pt.dupe.cou' => 'The target CO Person already has a Role in the specified COU',
   'er.pt.duplicate' => 'The identifier "%1$s" is already attached to an identity enrolled in this CO. This petition has been flagged as a duplicate.',
   'er.pt.relink.org' => 'Could not automatically relink Org Identity due to another existing CO Person record',
+  'er.pt.relink.role.c' => 'Could not automatically relink CO Person Role due to another existing CO Person record',
+  'er.pt.relink.role.o' => 'Could not automatically relink CO Person Role due to another existing Org Identity record',
   'er.pt.resend.status' => 'Cannot resend an invitation not in Pending Confirmation status',
   'er.pt.status' =>   'Change of petition status from %1$s to %2$s is not permitted',
   'er.reorder' =>     'Reorder failed: ',
@@ -793,6 +805,8 @@ original notification at
   'fd.ef.coef.desc' => 'If enabled, allow organizational identity attributes to be collected via forms during CO enrollment flows (these attributes will be less authoritative than those obtained via LDAP or SAML, however those options are not currently supported)',
   'fd.ef.concl' =>    'Conclusion',
   'fd.ef.concl.desc' => 'Optional text to display at the bottom of a Petition form, before the Submit button',
+  'fd.ef.dupe'     => 'Duplicate Enrollment Mode',
+  'fd.ef.dupe.desc' => 'How to handle automatically detected duplicate enrollments',
   'fd.ef.efn'      => 'From Address For Notifications',
   'fd.ef.efn.desc' => 'Email address notifications will come from',
   'fd.ef.env'      => 'Enable Environment Attribute Retrieval',
@@ -841,6 +855,7 @@ original notification at
   'fd.ef.vsub.desc' => 'Subject line for email message sent as part of verification step.',
   // (End enrollment configuration fields)
   // Enrollment Flow Template Names
+  'fd.ef.tmpl.arl' => 'Additional Role (Template)',
   'fd.ef.tmpl.csp' => 'Conscription With Approval (Template)',
   'fd.ef.tmpl.inv' => 'Invitation (Template)',
   'fd.ef.tmpl.lnk' => 'Account Linking (Template)',
@@ -1171,6 +1186,7 @@ original notification at
   'op.see.notifications' =>  'View full notifications list...',
   'op.select' =>      'Select',
   'op.select-a' =>    'Select a %1$s',
+  'op.select.select' => 'Please select the CO Person you would like to attach to this Petition by clicking the associated select button.',
   'op.submit' =>      'Submit',
   'op.tc.agree' =>    'Agree to Terms and Conditions',
   'op.tc.agree.i' =>  'I Agree',
@@ -1234,6 +1250,7 @@ original notification at
   'rs.pt.approve' =>  'Petition Approved',
   'rs.pt.attr.upd' => 'Petition attributes updated',
   'rs.pt.confirm' =>  'Petition Confirmed',
+  'rs.pt.cop.del' =>  'Deleted duplicate CO Person',
   'rs.pt.create' =>   'Petition Created',
   'rs.pt.create.from' => 'Petition created from enrollment flow "%1$s"',
   'rs.pt.create.not' => 'Petition created for %1$s from enrollment flow "%2$s"',
@@ -1248,6 +1265,7 @@ original notification at
   'rs.pt.login' =>    'Petition Created. You have been logged out, and an activation URL has been sent to your email address. Please click the link in that email to continue.',
   'rs.pt.org.del' =>  'Deleted duplicate Org Identity',
   'rs.pt.relink.org' => 'Relinked CO Person to existing Org Identity (%1$s)',
+  'rs.pt.relink.role' => 'Relinked CO Person Role to existing CO Person (%1$s)',
   'rs.pt.relogin' =>  'Petition Confirmed. You have been logged out, and will need to login again for your new identity to take effect.',
   'rs.pt.status' =>   'Petition for %1$s changed status from %2$s to %3$s (%4$s)',
   'rs.pt.status.h' => 'Petition changed status from %1$s to %2$s',

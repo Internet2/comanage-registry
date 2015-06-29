@@ -31,6 +31,7 @@ class ActionEnum
   const CoPersonAddedManual             = 'ACPM';
   const CoPersonAddedPetition           = 'ACPP';
   const CoPersonDeletedManual           = 'DCPM';
+  const CoPersonDeletedPetition         = 'DCPP';
   const CoPersonEditedManual            = 'ECPM';
   const CoPersonEditedPetition          = 'ECPP';
   const CoPersonManuallyProvisioned     = 'PCPM';
@@ -144,6 +145,13 @@ class EnrollmentAuthzEnum {
   const None          = 'N';
 }
 
+class EnrollmentDupeModeEnum
+{
+  const Duplicate       = 'D';
+  const NewRole         = 'R';
+  const NewRoleCouCheck = 'C';
+}
+
 class EnrollmentFlowStatusEnum
 {
   const Active              = 'A';
@@ -155,6 +163,7 @@ class EnrollmentMatchPolicyEnum {
   const Advisory  = "A";
   const Automatic = "M";
   const None      = "N";
+  const Select    = "P";
   const Self      = "S";
 }
 

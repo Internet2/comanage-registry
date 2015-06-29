@@ -24,7 +24,7 @@
 -->
 <?php
   if(count($matches) > 0) {
-    print '<h2 class="ui-state-default">' . _txt('rs.match.possible') . '</h2>';   // XXX LOCALIZE THIS
+    print '<h2 class="ui-state-default">' . _txt('rs.match.possible') . '</h2>';
     print "<ul>\n";
     
     foreach ($matches as $m) {

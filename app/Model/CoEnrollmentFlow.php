@@ -110,6 +110,7 @@ class CoEnrollmentFlow extends AppModel {
                       array(EnrollmentMatchPolicyEnum::Advisory,
                             EnrollmentMatchPolicyEnum::Automatic,
                             EnrollmentMatchPolicyEnum::None,
+                            EnrollmentMatchPolicyEnum::Select,
                             EnrollmentMatchPolicyEnum::Self))
     ),
     'approval_required' => array(
@@ -248,6 +249,7 @@ class CoEnrollmentFlow extends AppModel {
     $cous = !empty($couList);
     
     $templates = array();
+    $templates[] = $this->templateAdditionalRole($coId, $orgIdentities, $cous);
     $templates[] = $this->templateConscriptionApproval($coId, $orgIdentities, $cous);
     $templates[] = $this->templateInvitation($coId, $orgIdentities, $cous);
     $templates[] = $this->templateSelfSignupApproval($coId, $orgIdentities, $cous);
@@ -406,10 +408,10 @@ class CoEnrollmentFlow extends AppModel {
     $ret['start']['role'] = EnrollmentRole::Petitioner;
     
     // If match policy is self we run the selectPerson step.
-    // XXX Ultimately manual selection of an existing person should also trigger this step.
     
     if(!empty($ef['CoEnrollmentFlow']['match_policy'])
-       && $ef['CoEnrollmentFlow']['match_policy'] == EnrollmentMatchPolicyEnum::Self) {
+       && ($ef['CoEnrollmentFlow']['match_policy'] == EnrollmentMatchPolicyEnum::Select
+           || $ef['CoEnrollmentFlow']['match_policy'] == EnrollmentMatchPolicyEnum::Self)) {
       $ret['selectEnrollee']['enabled'] = RequiredEnum::Required;
     } else {
       $ret['selectEnrollee']['enabled'] = RequiredEnum::NotPermitted;
@@ -639,6 +641,92 @@ class CoEnrollmentFlow extends AppModel {
         'ordr'                  => $ordr++
       );
     }
+    
+    return $ret;
+  }
+  
+  /**
+   * Generate a template for an Additional Role administrator based enrollment flow.
+   *
+   * @param  Integer $coId          CO ID for template
+   * @param  Boolean $orgIdentities True if org identity attributes may be collected (CMP setting)
+   * @param  Boolean $cous          True if COUs are defined for this CO
+   * @return Array Template in the usual Cake format
+   */
+  
+  protected function templateAdditionalRole($coId, $orgIdentities, $cous) {
+    $ret = array();
+    
+    // Start with the enrollment flow configuration
+    
+    $ret['CoEnrollmentFlow'] = array(
+      'name'                => _txt('fd.ef.tmpl.arl'),
+      'co_id'               => $coId,
+      'approval_required'   => false,
+      'status'              => EnrollmentFlowStatusEnum::Template,
+      'match_policy'        => EnrollmentMatchPolicyEnum::Select,
+      'authz_level'         => EnrollmentAuthzEnum::CoOrCouAdmin,
+      'verify_email'        => false,
+      'notify_on_approval'  => false,
+      't_and_c_mode'        => TAndCEnrollmentModeEnum::Ignore
+    );
+    
+    // Define required attributes for this flow -- required here means the
+    // flow will fail without these
+    
+    $ret['CoEnrollmentAttribute'] = array();
+    $ordr = 1;
+    
+    // COU, if COUs are enabled
+    
+    if($cous) {
+      $ret['CoEnrollmentAttribute'][] = array(
+        'attribute'             => 'r:cou_id',
+        'required'              => RequiredEnum::Required,
+        'label'                 => _txt('fd.cou'),
+        'ordr'                  => $ordr++
+      );
+    }
+    
+    // CO Person Role affiliation
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:affiliation',
+      'required'              => RequiredEnum::Required,
+      'label'                 => _txt('fd.affiliation'),
+      'ordr'                  => $ordr++
+    );
+    
+    // Define additional attributes for this flow -- while we flag these as
+    // optional, a deployer will likely want to flip them to required
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:title',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.title'),
+      'ordr'                  => $ordr++
+    );
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:sponsor_co_person_id',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.sponsor'),
+      'ordr'                  => $ordr++
+    );
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:valid_from',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.valid_from'),
+      'ordr'                  => $ordr++
+    );
+    
+    $ret['CoEnrollmentAttribute'][] = array(
+      'attribute'             => 'r:valid_through',
+      'required'              => RequiredEnum::Optional,
+      'label'                 => _txt('fd.valid_through'),
+      'ordr'                  => $ordr++
+    );
     
     return $ret;
   }

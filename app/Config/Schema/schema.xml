@@ -755,14 +755,9 @@
     <field name="verify_email" type="L" />
     <field name="invitation_validity" type="I" />
     <field name="require_authn" type="L" />
-    <field name="early_provisioning_exec" type="C" size="128" />
-    <field name="provisioning_exec" type="C" size="128" />
     <field name="notification_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
-    <field name="notify_on_early_provision" type="C" size="128" />
-    <field name="notify_on_provision" type="C" size="128" />
-    <field name="notify_on_active" type="C" size="128" />
     <field name="status" type="C" size="2" />
     <field name="notify_from" type="C" size="256" />
     <field name="verification_subject" type="C" size="256" />
@@ -776,6 +771,7 @@
     <field name="redirect_on_submit" type="C" size="256" />
     <field name="redirect_on_confirm" type="C" size="256" />
     <field name="ignore_authoritative" type="L" />
+    <field name="duplicate_mode" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_enrollment_flow_id" type="I">

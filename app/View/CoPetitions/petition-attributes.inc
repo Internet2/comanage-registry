@@ -149,6 +149,7 @@
     // Sort attributes by model for printing
     $coea_model = array();
     $misc_attr = array();
+    $hidden_attr = array();
     
     foreach($co_enrollment_attributes as $ea) {
       // Sort hidden ones out, but if this is view only don't separate out

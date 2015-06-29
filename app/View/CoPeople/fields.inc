@@ -1155,6 +1155,7 @@
                           <th class="ui-widget-header"><?php print _txt('fd.identifier.ids.login'); ?></th>
                           <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                         </tr>
+                        <?php if(!empty($co_people[0]['CoOrgIdentityLink'])): ?>
                         <?php foreach($co_people[0]['CoOrgIdentityLink'] as $link): ?>
                           <tr class="line<?php print ($l % 2); $l++; ?>">
                             <td>
@@ -1210,6 +1211,7 @@
                             </td>
                           </tr>
                         <?php endforeach; ?>
+                        <?php endif; ?>
                         </tbody>
                       </table>
                     </td>

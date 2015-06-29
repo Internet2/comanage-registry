@@ -25,7 +25,7 @@
 
 <script>
   $(function() {
-
+    
     $( ".line1, .line2" ).accordion({
       collapsible: true,
       active     : false
@@ -58,6 +58,8 @@
   } elseif($this->action == 'relink') {
     // Add breadcrumbs
     $this->Html->addCrumb(_txt('op.relink'));
+  } elseif($this->action == 'select') {
+    print $this->element("enrollmentCrumbs");
   } else {
     // Add breadcrumbs
     $this->Html->addCrumb(_txt('me.population'));
@@ -118,7 +120,16 @@
                                                        $vv_co_person_role['CoPersonRole']['id'])); ?></strong>
   </p>
 </div>
-<br /><?php endif; // relink ?>
+<br />
+<?php elseif($this->action == 'select'): ?>
+<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+  <p>
+    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <strong><?php print _txt('op.select.select'); ?></strong>
+  </p>
+</div>
+<br />
+<?php endif; // link ?>
 
 <div id="sorter" class="listControl">
   <?php print _txt('fd.sort.by'); ?>:
@@ -143,8 +154,16 @@
     <?php
       $args = array();
       $args['controller'] = 'co_people';
-      $args['action'] = 'index';
-      $args['co'] = $cur_co['Co']['id'];
+      $args['action'] = $this->action;
+      if($this->action == 'index') {
+        $args['co'] = $cur_co['Co']['id'];
+      } else {
+        // A link/relink operation is in progress
+        if(!empty($this->request->params['pass'][0])) {
+          $args[] = $this->request->params['pass'][0];
+        }
+        $args = array_merge($args, $this->request->params['named']);
+      }
       $alphaSearch = '';
 
       if(!empty($this->request->params['named']['Search.familyNameStart'])) {
@@ -256,7 +275,8 @@
               // Edit button
               if($permissions['edit'])
                 print $this->Html->link((($this->action == 'relink'
-                                          || $this->action == 'link')
+                                          || $this->action == 'link'
+                                          || $this->action == 'select')
                                          ? _txt('op.view')
                                          : _txt('op.edit')),
                     array('controller' => 'co_people',
@@ -301,6 +321,15 @@
                                         array('class'   => 'relinkbutton',
                                               'onclick' => 'noprop(event);'))
                       . "\n";
+              } elseif($this->action == 'select') {
+                print $this->Html->link(_txt('op.select'),
+                          array('controller'    => 'co_petitions',
+                                'action'        => 'selectEnrollee',
+                                $this->request->params['named']['copetitionid'],
+                                'copersonid'    => $p['CoPerson']['id']),
+                          array('class'   => 'relinkbutton',
+                                'onclick' => 'noprop(event);'))
+                      . "\n"; 
               }
             }
           ?>

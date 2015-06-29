@@ -679,7 +679,9 @@ class CoEnrollmentAttribute extends AppModel {
           $attr['hidden'] = (isset($efAttr['CoEnrollmentAttribute']['hidden'])
                              && $efAttr['CoEnrollmentAttribute']['hidden']);
         }
-        $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
+        $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
+                               ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
+                               : false);
         $attr['validate']['content']['rule'][0] = 'inList';
         
         // Pull the set of groups for the select

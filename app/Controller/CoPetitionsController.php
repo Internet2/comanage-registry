@@ -35,7 +35,7 @@ class CoPetitionsController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'modified' => 'asc'
+      'modified' => 'desc'
     ),
     'contain' => array(
       'ApproverCoPerson' => 'PrimaryName',
@@ -170,8 +170,6 @@ class CoPetitionsController extends StandardController {
         
         $this->set('pool_org_identities', $pool);
       } elseif(isset($steps[$this->action])) {
-        $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
-        
         if($steps[$this->action]['role'] == EnrollmentRole::Petitioner
            || $steps[$this->action]['role'] == EnrollmentRole::Enrollee) {
           // Pull the enrollment flow configuration to determine what we should do
@@ -998,6 +996,25 @@ class CoPetitionsController extends StandardController {
       $ptid = $this->CoPetition->linkCoPerson($id,
                                               $this->Session->read('Auth.User.co_person_id'),
                                               $this->Session->read('Auth.User.co_person_id'));
+    } elseif($matchPolicy == EnrollmentMatchPolicyEnum::Select) {
+      if(!empty($this->request->params['named']['copersonid'])) {
+        // We're back from the people picker. Grap the requested CO Person ID and store it
+        
+        $ptid = $this->CoPetition->linkCoPerson($id,
+                                                $this->request->params['named']['copersonid'],
+                                                $this->Session->read('Auth.User.co_person_id'));
+      } else {
+        // Redirect into the CO Person picker
+        
+        $r = array(
+          'plugin'       => null,
+          'controller'   => 'co_people',
+          'action'       => 'select',
+          'copetitionid' => $id
+        );
+        
+        $this->redirect($r);
+      }
     }
     
     $this->redirect($this->generateDoneRedirect('selectEnrollee', $id));
