@@ -48,7 +48,8 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           $collabMenuCoId = $menuCoData['co_id'];
 
           if((!isset($menuCoData['co_person']['status'])
-              || $menuCoData['co_person']['status'] != StatusEnum::Active)
+              || ($menuCoData['co_person']['status'] != StatusEnum::Active
+                  && $menuCoData['co_person']['status'] != StatusEnum::GracePeriod))
              && !$permissions['menu']['admin']) {
             // Don't render this CO, the person is not an active member (or a CMP admin)
             continue;

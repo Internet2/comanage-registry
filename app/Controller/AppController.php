@@ -818,7 +818,7 @@ class AppController extends Controller {
     if($this->viewVars['permissions']['menu']['admin']) {
       // Show all active COs for admins
       $this->loadModel('Co');
-      $params = array('conditions' => array('Co.status' => 'A'),
+      $params = array('conditions' => array('Co.status' => StatusEnum::Active),
                       'fields'     => array('Co.id', 'Co.name', 'Co.description'),
                       'recursive'  => false
                      );

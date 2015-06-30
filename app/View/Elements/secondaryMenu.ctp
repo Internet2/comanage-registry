@@ -126,7 +126,8 @@
                 
                 foreach($menuContent['cos'] as $co) {
                   if(isset($co['co_person']['status'])
-                     && $co['co_person']['status'] == StatusEnum::Active) {
+                     && ($co['co_person']['status'] == StatusEnum::Active
+                         || $co['co_person']['status'] == StatusEnum::GracePeriod)) {
                     print "<li>";
                     $args = array(
                       'controller' => 'co_people',

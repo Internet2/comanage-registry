@@ -265,7 +265,7 @@ class RoleComponent extends Component {
    * @param  Integer CO Person ID
    * @param  Integer CO ID
    * @param  Integer COU ID
-   * @param  Boolean Whether to check only active roles or all roles
+   * @param  Boolean Whether to check only active (including grace period) roles or all roles
    * @return Boolean True if the CO Person has a matching role, false otherwise
    */
   
@@ -296,8 +296,8 @@ class RoleComponent extends Component {
     $args['conditions']['CoPerson.id'] = $coPersonId;
     $args['conditions']['CoPerson.co_id'] = $coId;
     if($active) {
-      $args['conditions']['CoPerson.status'] = StatusEnum::Active;
-      $args['conditions']['CoPersonRole.status'] = StatusEnum::Active;
+      $args['conditions']['CoPerson.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+      $args['conditions']['CoPersonRole.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
     }
     if($couId) {
       $args['conditions']['CoPersonRole.cou_id'] = $couId;

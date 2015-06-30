@@ -32,13 +32,14 @@
   $err = "";
   
   if(!empty($userInfo['cos'])) {
-    // Make sure there is at least one active role
+    // Make sure there is at least one active or grace period role
     $active = false;
     
     foreach($userInfo['cos'] as $co) {
       if(!empty($co['co_person']['CoPersonRole'])) {
         foreach($co['co_person']['CoPersonRole'] as $r) {
-          if($r['status'] == StatusEnum::Active) {
+          if($r['status'] == StatusEnum::Active
+             || $r['status'] == StatusEnum::GracePeriod) {
             $active = true;
             break 2;
           }
@@ -106,7 +107,8 @@
           $collabMenuCoId = $menuCoData['co_id'];
 
           if((!isset($menuCoData['co_person']['status'])
-              || $menuCoData['co_person']['status'] != StatusEnum::Active)
+              || ($menuCoData['co_person']['status'] != StatusEnum::Active
+                  && $menuCoData['co_person']['status'] != StatusEnum::GracePeriod))
             && !$permissions['menu']['admin']) {
             // Don't render this CO, the person is not an active member (or a CMP admin)
             continue;
