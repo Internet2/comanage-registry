@@ -100,10 +100,12 @@
   
   print $this->Form->hidden('action', array('default' => ActionEnum::CommentAdded));
   print $this->Form->hidden('actor_co_person_id', array('default' => $this->Session->read('Auth.User.co_person_id')));
+  
+  $l = 1;
 ?>
 <table id="<?php print $this->action; ?>_history_record" class="ui-widget">
   <tbody>
-    <tr class="line1">
+    <tr class="line<?php print $l%2;$l++; ?>">
       <td>
         <?php print _txt('fd.comment'); ?><span class="required">*</span>
       </td>
@@ -112,9 +114,104 @@
                      ? $this->Form->input('comment',
                                           array('class' => 'focusFirst',
                                                 'size'  => '80'))
-                     : ""); ?>
+                     : Sanitize::html($history_records[0]['HistoryRecord']['comment'])); ?>
       </td>
     </tr>
+    <?php if($this->action == 'view'): ?>
+    <tr class="line<?php print $l%2;$l++; ?>">
+      <td>
+        <?php print _txt('fd.action'); ?>
+      </td>
+      <td>
+        <?php print Sanitize::html($history_records[0]['HistoryRecord']['action']); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print $l%2;$l++; ?>">
+      <td>
+        <?php print _txt('ct.co_people.1'); ?>
+      </td>
+      <td>
+        <?php
+          if(!empty($history_records[0]['CoPerson']['id'])) {
+            print $this->Html->link(
+              generateCn($history_records[0]['CoPerson']['PrimaryName']),
+              array(
+                'controller' => 'co_people',
+                'action' => 'canvas',
+                $history_records[0]['CoPerson']['id']
+              )
+            );
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print $l%2;$l++; ?>">
+      <td>
+        <?php print _txt('ct.co_person_roles.1'); ?>
+      </td>
+      <td>
+        <?php
+          if(!empty($history_records[0]['CoPersonRole']['id'])) {
+            print $this->Html->link(
+              Sanitize::html($history_records[0]['CoPersonRole']['title'])
+              . " (" . $history_records[0]['CoPersonRole']['id'] . ")",
+              array(
+                'controller' => 'co_person_roles',
+                'action' => 'view',
+                $history_records[0]['CoPersonRole']['id']
+              )
+            );
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print $l%2;$l++; ?>">
+      <td>
+        <?php print _txt('ct.org_identities.1'); ?>
+      </td>
+      <td>
+        <?php
+          if(!empty($history_records[0]['OrgIdentity']['id'])) {
+            print $this->Html->link(
+              generateCn($history_records[0]['OrgIdentity']['PrimaryName']),
+              array(
+                'controller' => 'org_identities',
+                'action' => 'view',
+                $history_records[0]['OrgIdentity']['id']
+              )
+            );
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print $l%2;$l++; ?>">
+      <td>
+        <?php print _txt('fd.actor'); ?>
+      </td>
+      <td>
+        <?php
+          if(!empty($history_records[0]['ActorCoPerson']['id'])) {
+            print $this->Html->link(
+              generateCn($history_records[0]['ActorCoPerson']['PrimaryName']),
+              array(
+                'controller' => 'co_people',
+                'action' => 'view',
+                $history_records[0]['ActorCoPerson']['id']
+              )
+            );
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print $l%2;$l++; ?>">
+      <td>
+        <?php print _txt('fd.created'); ?>
+      </td>
+      <td>
+        <?php print $this->Time->niceShort($history_records[0]['HistoryRecord']['created']); ?>
+      </td>
+    </tr>
+    <? endif; // view ?>
     <tr>
       <td>
         <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />

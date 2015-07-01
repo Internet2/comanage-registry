@@ -51,9 +51,12 @@ class HistoryRecordsController extends StandardController {
   
   public $requires_person = true;
   
-  // We really want to use contains to get Names attached to the various person/org identities,
-  // but StandardController doesn't support that yet.
-  public $view_recursion = 2;
+  public $view_contains = array(
+    'ActorCoPerson' => 'PrimaryName',
+    'CoPerson' => 'PrimaryName',
+    'CoPersonRole',
+    'OrgIdentity' => 'PrimaryName'
+  );
   
   /**
    * Add a History Record.
@@ -232,12 +235,34 @@ class HistoryRecordsController extends StandardController {
     $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
     
     if(!empty($roles['copersonid'])) {
-      if(!empty($pids['copersonid'])) {
-        $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
-                                                          $pids['copersonid']);
-      } elseif(!empty($pids['orgidentityid'])) {
-        $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
-                                                             $pids['orgidentityid']);
+      if($this->action == 'view') {
+        if(!empty($this->request->params['pass'][0])) {
+          // We need to pull the record to determine authz
+          
+          $args = array();
+          $args['conditions']['HistoryRecord.id'] = $this->request->params['pass'][0];
+          $args['contain'] = false;
+          
+          $hr = $this->HistoryRecord->find('first', $args);
+          
+          if(!empty($hr)) {
+            if(!empty($hr['HistoryRecord']['co_person_id'])) {
+              $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                                $hr['HistoryRecord']['co_person_id']);
+            } elseif(!empty($hr['HistoryRecord']['org_identity_id'])) {
+              $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
+                                                                   $hr['HistoryRecord']['org_identity_id']);
+            }
+          }
+        }
+      } else {
+        if(!empty($pids['copersonid'])) {
+          $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                            $pids['copersonid']);
+        } elseif(!empty($pids['orgidentityid'])) {
+          $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
+                                                               $pids['orgidentityid']);
+        }
       }
     } elseif($pool) {
       // We won't get here for a CO Person's history even if pooled because roles[copersonid]
@@ -284,6 +309,12 @@ class HistoryRecordsController extends StandardController {
         $p['cous'] = array();
       }
     }
+    
+    // View a single history record?
+    $p['view'] = ($roles['cmadmin']
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin']
+                                   || ($pool &&
+                                       ($roles['admin'] || $roles['subadmin'])))));
     
     $this->set('permissions', $p);
     return $p[$this->action];
