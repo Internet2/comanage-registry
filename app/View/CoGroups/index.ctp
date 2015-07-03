@@ -321,6 +321,11 @@
           if(!empty($permissions['member'])
              && in_array($c['CoGroup']['id'], $permissions['member']))
             $v = true;
+
+          // Admin groups cannot be deleted.
+          if($c['CoGroup']['name'] == 'admin' || strncmp($c['CoGroup']['name'], 'admin:', 6) == 0) {
+            $d = false;
+          }
             
           // Members groups cannot be edited or deleted.
           if($c['CoGroup']['name'] == 'members' || strncmp($c['CoGroup']['name'], 'members:', 8) == 0) {
