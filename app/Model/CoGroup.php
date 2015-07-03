@@ -143,11 +143,11 @@ class CoGroup extends AppModel {
    * @return String name of the Cou
    */
   function couNameFromAdminOrMembersGroup($group) {
-  	if($this->isCouAdminGroup($group)) {
-  		return substr($group['CoGroup']['name'], 6);	
-  	} elseif ($this->isCouMembersGroup($group)) {
-  		return substr($group['CoGroup']['name'], 8);	
-  	}
+    if($this->isCouAdminGroup($group)) {
+      return substr($group['CoGroup']['name'], 6);  
+    } elseif ($this->isCouMembersGroup($group)) {
+      return substr($group['CoGroup']['name'], 8);  
+    }
   }
   
   /**
@@ -163,9 +163,9 @@ class CoGroup extends AppModel {
     $args['conditions']['CoGroup.co_id'] = $coId;
     $args['conditions']['CoGroup.name'] = $name;
     $args['contain'] = false;
-  	$group = $this->find('first', $args);
+    $group = $this->find('first', $args);
     
-  	return $group;
+    return $group;
   }
 
   /**
@@ -215,9 +215,9 @@ class CoGroup extends AppModel {
    * @return Boolean true if admin group
    */
   public function isCouAdminGroup($group) {
-  	// Right now we simply look at the name of the group.
+    // Right now we simply look at the name of the group.
     if (strncmp($group['CoGroup']['name'], 'admin:', 6) == 0) {
-    	return true;
+      return true;
     }
     return false;
   }
@@ -234,6 +234,21 @@ class CoGroup extends AppModel {
       $members = $this->isCouMembersGroup($group);
       return ($admin || $members);
   }
+
+  /**
+   * Determine if the group is the members group for CO.
+   * 
+   * @since COmanage Registry v0.9.4
+   * @param Array representing CoGroup
+   * @return Boolean true if members group
+   */
+  public function isCoMembersGroup($group) {
+    // Right now we simply look at the name of the group.
+    if ($group['CoGroup']['name'] == 'members') {
+      return true;
+    }
+    return false;
+  }
   
   /**
    * Determine if the group is a members group for COU.
@@ -243,9 +258,9 @@ class CoGroup extends AppModel {
    * @return Boolean true if members group
    */
   public function isCouMembersGroup($group) {
-  	// Right now we simply look at the name of the group.
+    // Right now we simply look at the name of the group.
     if (strncmp($group['CoGroup']['name'], 'members:', 8) == 0) {
-    	return true;
+      return true;
     }
     return false;
   }
@@ -312,16 +327,16 @@ class CoGroup extends AppModel {
     $args = array();
     $args['conditions']['CoGroup.id'] = $id;
     $args['contain']['Co'] = 'Cou';
-  	$group = $this->find('first', $args);
+    $group = $this->find('first', $args);
       
-  	if(empty($group)) {
-  		return false;
-  	}
-  	
-  	// Make sure the group is a members group.    
+    if(empty($group)) {
+      return false;
+    }
+    
+    // Make sure the group is a members group.    
     $name = $group['CoGroup']['name'];
     if($name != 'members' && strncmp($name, 'members:', 8) != 0) {
-    	return false;
+      return false;
     }
     
     $coId = $group['CoGroup']['co_id'];
@@ -331,12 +346,12 @@ class CoGroup extends AppModel {
     $couId = null;
     if($name != 'members') {
         foreach($group['Co']['Cou'] as $cou) {
-    			if($name == 'members:' . $cou['name']) {
-    				$couId = $cou['id'];
-    			}      
+          if($name == 'members:' . $cou['name']) {
+            $couId = $cou['id'];
+          }      
         }                    
     }
-  	
+    
     // Find all CO people for the CO.
     $args = array();
     $args['conditions']['CoPerson.co_id'] = $group['CoGroup']['co_id'];
@@ -348,54 +363,54 @@ class CoGroup extends AppModel {
     // members of the group that should be members.
     foreach($coPeople as $coPerson) {
       $coPersonId = $coPerson['CoPerson']['id'];
-    	if(isset($couId)) {
-				// Check for role in the COU.
+      if(isset($couId)) {
+        // Check for role in the COU.
         foreach($coPerson['CoPersonRole'] as $role) {
-        	if($role['cou_id'] == $couId) {
-        		// Since have role in the COU should be in the COU members group.
-        		$isMember = false;
-        		foreach($coPerson['CoGroupMember'] as $membership) {
-        			if($membership['co_group_id'] == $id) {
-        				$isMember = true;
+          if($role['cou_id'] == $couId) {
+            // Since have role in the COU should be in the COU members group.
+            $isMember = false;
+            foreach($coPerson['CoGroupMember'] as $membership) {
+              if($membership['co_group_id'] == $id) {
+                $isMember = true;
                 break;
-        			}
-        		}	
+              }
+            } 
             if(!$isMember) {
               $data = array();
               $data['CoGroupMember']['co_group_id'] = $id;
               $data['CoGroupMember']['co_person_id'] = $coPerson['CoPerson']['id'];
               $data['CoGroupMember']['member'] = true;
               $this->Co->CoPerson->CoGroupMember->clear();
-							$success = $this->Co->CoPerson->CoGroupMember->save($data);              
+              $success = $this->Co->CoPerson->CoGroupMember->save($data);              
               if(!$success) {
-              	$this->log("Error saving membership for CoPerson.id $coPersonId in CoGroup.id $id");
-              	return false;
+                $this->log("Error saving membership for CoPerson.id $coPersonId in CoGroup.id $id");
+                return false;
               }
             }
-        	}	
+          } 
         }
-    	} else {
-				// Check for membership in the CO members group.    		
+      } else {
+        // Check for membership in the CO members group.        
         $isMember = false;
         foreach($coPerson['CoGroupMember'] as $membership) {
-        	if($membership['co_group_id'] == $id) {
-        		$isMember = true;
-        		break;
-        	}	
+          if($membership['co_group_id'] == $id) {
+            $isMember = true;
+            break;
+          } 
         }
         if(!$isMember) {
-	        $data = array();
+          $data = array();
           $data['CoGroupMember']['co_group_id'] = $id;
           $data['CoGroupMember']['co_person_id'] = $coPerson['CoPerson']['id'];
           $data['CoGroupMember']['member'] = true;
           $this->Co->CoPerson->CoGroupMember->clear();
-  				$success = $this->Co->CoPerson->CoGroupMember->save($data);              
+          $success = $this->Co->CoPerson->CoGroupMember->save($data);              
           if(!$success) {
- 	        	$this->log("Error saving membership for CoPerson.id $coPersonId in CoGroup.id $id");
-          	return false;
+            $this->log("Error saving membership for CoPerson.id $coPersonId in CoGroup.id $id");
+            return false;
           }
         }
-    	}
+      }
     }
     
     // Find all memberships for the group.
@@ -406,35 +421,35 @@ class CoGroup extends AppModel {
     
     // Loop over the memberships to find any that should not exist for this group.
     foreach($memberships as $membership) {
-    	if(isset($couId)) {
-      	// This is a COU members group so check for role in the COU.
+      if(isset($couId)) {
+        // This is a COU members group so check for role in the COU.
         $delete = true;
         foreach($membership['CoPerson']['CoPersonRole'] as $role) {
-        	if($role['cou_id'] == $couId) {
-        		$delete = false;
+          if($role['cou_id'] == $couId) {
+            $delete = false;
             break;
-        	}
+          }
         }
         if($delete) {
           $success = $this->Co->CoPerson->CoGroupMember->delete($membership['CoGroupMember']['id']);
           if(!$success) {
-          	$this->log("Error deleting CoGroupMember.id " . $membership['CoGroupMember']['id']);
+            $this->log("Error deleting CoGroupMember.id " . $membership['CoGroupMember']['id']);
             return false;
           }
         }
-    	} else {
+      } else {
         // This is a CO members group so check person in the CO.
-    		if($membership['CoPerson']['co_id'] != $coId) {
+        if($membership['CoPerson']['co_id'] != $coId) {
           $success = $this->Co->CoPerson->CoGroupMember->delete($membership['CoGroupMember']['id']);
           if(!$success) {
-          	$this->log("Error deleting CoGroupMember.id " . $membership['CoGroupMember']['id']);
+            $this->log("Error deleting CoGroupMember.id " . $membership['CoGroupMember']['id']);
             return false;
           }
-    		}
-    	}
+        }
+      }
     }
     
-  	return true;	
+    return true;  
   }
   
   /**
@@ -446,8 +461,8 @@ class CoGroup extends AppModel {
    */
   public function reconcileMembersGroupsExistence($coId) {
     // Find the CO, COUs, and groups.
-  	$args = array();
-  	$args['conditions']['Co.id'] = $coId;
+    $args = array();
+    $args['conditions']['Co.id'] = $coId;
     $args['contain'][] = 'Cou';
     $args['contain'][] = 'CoGroup';
     $co = $this->Co->find('first', $args);
@@ -455,71 +470,71 @@ class CoGroup extends AppModel {
     // Loop over groups looking for CO members group.
     $membersGroupExists = false;
     foreach($co['CoGroup'] as $group) {
-    	if($group['name'] == 'members') {
-    		$membersGroupExists = true;
-    		break;
-    	}	
+      if($group['name'] == 'members') {
+        $membersGroupExists = true;
+        break;
+      } 
     }
     
     if(!$membersGroupExists) {
-    	// Create the CO members group.
+      // Create the CO members group.
       $this->clear();
-    	$data = array();
+      $data = array();
       $data['CoGroup']['co_id'] = $coId;
-    	$data['CoGroup']['name'] = 'members';
-    	$data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($co['Co']['name']));
+      $data['CoGroup']['name'] = 'members';
+      $data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($co['Co']['name']));
       $data['CoGroup']['open'] = false;
       $data['CoGroup']['status'] = StatusEnum::Active;
       if(!$this->save($data)) {
-      	return false;
+        return false;
       }
     }
     
     // Loop over the COUs looking for COU members groups.
     foreach($co['Cou'] as $cou) {
-    	$membersGroupName = 'members:' . $cou['name'];
-    	$membersGroupExists = false;
-	    foreach($co['CoGroup'] as $group) {
-	    	if($group['name'] == $membersGroupName) {
-	    		$membersGroupExists = true;
-	    		break;
-	    	}	
-	    }
+      $membersGroupName = 'members:' . $cou['name'];
+      $membersGroupExists = false;
+      foreach($co['CoGroup'] as $group) {
+        if($group['name'] == $membersGroupName) {
+          $membersGroupExists = true;
+          break;
+        } 
+      }
       if(!$membersGroupExists) {
-      	// Create the CO members group.
+        // Create the CO members group.
         $this->clear();
-      	$data = array();
+        $data = array();
         $data['CoGroup']['co_id'] = $coId;
-      	$data['CoGroup']['name'] = $membersGroupName;
-      	$data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($cou['name']));
+        $data['CoGroup']['name'] = $membersGroupName;
+        $data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($cou['name']));
         $data['CoGroup']['open'] = false;
         $data['CoGroup']['status'] = StatusEnum::Active;
         if(!$this->save($data)) {
-        	$couId = $cou['id'];
-        	return false;
+          $couId = $cou['id'];
+          return false;
         }
       }
     }
     
     // Loop over groups looking for groups that match the
     // COU members groups structure but that don't have
-	  // matching COU.
+    // matching COU.
     foreach($co['CoGroup'] as $group) {
-    	if(strncmp($group['name'], 'members:', 8) == 0) {
-      	$couExists = false;
-      	foreach($co['Cou'] as $cou) {
-        	$nameFromCou = 'members:' . $cou['name'];
-        	if($group['name'] == $nameFromCou) {
-        		$couExists = true;
-        		break;
-        	}
-      	}
-        if(!$couExists) {
-        	$this->delete($group['id']);
+      if(strncmp($group['name'], 'members:', 8) == 0) {
+        $couExists = false;
+        foreach($co['Cou'] as $cou) {
+          $nameFromCou = 'members:' . $cou['name'];
+          if($group['name'] == $nameFromCou) {
+            $couExists = true;
+            break;
+          }
         }
-    	}	
+        if(!$couExists) {
+          $this->delete($group['id']);
+        }
+      } 
     }
-  	
-  	return true;    
+    
+    return true;    
   }
 }
