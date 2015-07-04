@@ -294,7 +294,8 @@ class CoGroupMember extends AppModel {
         // If this is a members group for CO or COU then 
         // go onto the next membership.
         if(!empty($grp)) {
-          if($this->CoGroup->isCouMembersGroup($grp)) {
+          if($this->CoGroup->isCouMembersGroup($grp) 
+             || $this->CoGroup->isCoMembersGroup($grp)) {
             continue;
           }
         } else {

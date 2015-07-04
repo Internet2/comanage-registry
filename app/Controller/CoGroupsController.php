@@ -56,6 +56,42 @@ class CoGroupsController extends StandardController {
   }
 
   /**
+   * Perform any dependency checks required prior to a delete operation.
+   * This method is intended to be overridden by model-specific controllers.
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkDeleteDependencies($curdata) {
+    $name = $curdata['CoGroup']['name'];
+
+    // Admin groups for CO or COU cannot be deleted by user through controller.
+    if ($name == 'admin' || strncmp($name, 'admin:', 6) == 0) {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Admin groups cannot be deleted");
+      } else {
+        $this->Session->setFlash(_txt('er.gr.admin.delete'), '', array(), 'error');
+      }
+      return false;
+    }
+
+    // Members groups for CO or COU cannot be deleted by user through controller.
+    if ($name == 'members' || strncmp($name, 'members:', 8) == 0) {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "Members groups cannot be deleted");
+      } else {
+        $this->Session->setFlash(_txt('er.gr.members.delete'), '', array(), 'error');
+      }
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
