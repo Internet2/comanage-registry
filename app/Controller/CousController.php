@@ -242,29 +242,33 @@ class CousController extends StandardController {
         }
       }
     } elseif(!$this->request->is('restful') && $this->action == 'edit') {
-    	// Manage name changes in admin and members groups.
-    	// Only do this via HTTP.
-    	if(isset($this->Cou->id)) {
+      // Manage name changes in admin and members groups.
+      // Only do this via HTTP.
+      if(isset($this->Cou->id)) {
         $couName = $curdata['Cou']['name'];
         $prefixes = array('admin:' => 'Administrators', 'members:' => 'Members');
         $manyData = array();
+        
         foreach($prefixes as $prefix => $suffix) {
-	        $groupName = $prefix . $couName;
-	      	$group = $this->Cou->Co->CoGroup->findByName($reqdata['Cou']['co_id'], $groupName);
-          $data = array();
-          $data['CoGroup']['id'] = $group['CoGroup']['id'];
-          $data['CoGroup']['co_id'] = $group['CoGroup']['co_id'];
-          $data['CoGroup']['open'] = $group['CoGroup']['open'];
-          $data['CoGroup']['status'] = $group['CoGroup']['status'];
-	      	$data['CoGroup']['name'] = $prefix . $reqdata['Cou']['name'];
-          $data['CoGroup']['description'] = $reqdata['Cou']['name'] . ' ' . $suffix; 
-          $manyData[] = $data;
+          $groupName = $prefix . $couName;
+          $group = $this->Cou->Co->CoGroup->findByName($reqdata['Cou']['co_id'], $groupName);
+          
+          if(!empty($group)) {
+            $data = array();
+            $data['CoGroup']['id'] = $group['CoGroup']['id'];
+            $data['CoGroup']['co_id'] = $group['CoGroup']['co_id'];
+            $data['CoGroup']['open'] = $group['CoGroup']['open'];
+            $data['CoGroup']['status'] = $group['CoGroup']['status'];
+            $data['CoGroup']['name'] = $prefix . $reqdata['Cou']['name'];
+            $data['CoGroup']['description'] = $reqdata['Cou']['name'] . ' ' . $suffix; 
+            $manyData[] = $data;
+          }
         }
-      	$success = $this->Cou->Co->CoGroup->saveMany($manyData);
-        if(!$success) {
-        	$this->log("Error saving group after name change for COU");
-        }
-    	}  
+      	
+        if(!$this->Cou->Co->CoGroup->saveMany($manyData)) {
+          $this->log("Error saving group after name change for COU");
+    	}
+      }
     }
     
     return true;
