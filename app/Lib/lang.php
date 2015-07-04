@@ -1067,6 +1067,7 @@ original notification at
   'me.people'          => 'People',
   'me.platform'        => 'Platform',
   'me.population'      => 'My Population',
+  'me.population.cou'  => 'My %1$s Population',
   'me.tandc'           => 'Terms and Conditions',
 
   // Operations

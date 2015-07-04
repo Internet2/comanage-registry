@@ -717,6 +717,8 @@ class AppController extends Controller {
     // XXX This permission is somewhat confusingly named (implies cmp admin managing COs)
     // as is 'admin' below (which really implies cmadmin)
     $p['menu']['cos'] = $roles['admin'] || $roles['subadmin'];
+    // Which COUs?
+    $p['menu']['admincous'] = $roles['admincous'];
     
     // Manage any CO configuration?
     $p['menu']['coconfig'] = $roles['admin'];

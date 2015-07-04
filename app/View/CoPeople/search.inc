@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Search
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -86,15 +86,29 @@ global $cm_lang, $cm_texts;
             $formParams = array('options' => $searchOptions,
                                 'type'    => 'select',
                                 'empty'   => ' ',
-                                'label'   => 'Status'); // XXX not I18n
+                                'label'   => _txt('fd.status'));
             
             print $this->Form->input('Search.status', $formParams);
           ?>
         </td>
       </tr>
+      <?php if(!empty($vv_cous)): ?>
       <tr>
         <td>
-          <?php print $this->Form->submit('Search'); // XXX Not I18n ?>
+          <?php
+            $formParams = array('options' => $vv_cous,
+                                'type'    => 'select',
+                                'empty'   => ' ',
+                                'label'   => _txt('fd.cou'));
+            
+            print $this->Form->input('Search.couid', $formParams);
+          ?>
+        </td>
+      </tr>
+      <?php endif; // cous ?>
+      <tr>
+        <td>
+          <?php print $this->Form->submit(_txt('op.search')); ?>
         </td>
       </tr>
     </table>

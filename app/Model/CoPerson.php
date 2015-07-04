@@ -41,7 +41,7 @@ class CoPerson extends AppModel {
     "CoNsfDemographic" => array('dependent' => true),
     // A person can have one invite (per CO)
     "CoInvite" => array('dependent' => true),
-    // An Org Identity has one Primary Name, which is a pointer to a Name
+    // An CO Person has one Primary Name, which is a pointer to a Name
     "PrimaryName" => array(
       'className'  => 'Name',
       'conditions' => array('PrimaryName.primary_name' => true),

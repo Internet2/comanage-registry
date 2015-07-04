@@ -142,6 +142,13 @@ class CoPeopleController extends StandardController {
       $this->set('vv_cop_identifier_types', $this->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_cop_name_types', $this->CoPerson->Name->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_copr_affiliation_types', $this->CoPerson->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
+      
+      // List of current COUs
+      $args = array();
+      $args['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('Cou.id', 'Cou.name');
+      $args['contain'] = false;
+      $this->set('vv_cous', $this->CoPerson->Co->Cou->find('list', $args));
     }
     
     parent::beforeRender();
@@ -853,21 +860,37 @@ class CoPeopleController extends StandardController {
     if($this->requires_co) {
       $pagcond['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
     }
-
+    
+    // Filtering by name operates using any name, so preferred or other names
+    // can also be searched. However, filter by letter ("familyNameStart") only
+    // works on PrimaryName so that the results match the index list.
+    
     // Filter by Given name
     if(!empty($this->params['named']['Search.givenName'])) {
       $searchterm = strtolower($this->params['named']['Search.givenName']);
       // We set up LOWER() indices on these columns (CO-1006)
-      $pagcond['conditions']['LOWER(PrimaryName.given) LIKE'] = "%$searchterm%";
+      $pagcond['conditions']['LOWER(Name.given) LIKE'] = "%$searchterm%";
     }
-
+    
     // Filter by Family name
     if(!empty($this->params['named']['Search.familyName'])) {
       $searchterm = strtolower($this->params['named']['Search.familyName']);
-      $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "%$searchterm%";
+      $pagcond['conditions']['LOWER(Name.family) LIKE'] = "%$searchterm%";
     }
-
-    // Filter by start of Family name (starts with searchterm)
+    
+    if(!empty($this->params['named']['Search.givenName'])
+       || !empty($this->params['named']['Search.familyName'])) {
+      $pagcond['joins'][] = array(
+        'table' => 'names',
+        'alias' => 'Name',
+        'type' => 'INNER',
+        'conditions' => array(
+          'Name.co_person_id=CoPerson.id' 
+        )
+      );
+    }
+    
+    // Filter by start of Primary Family name (starts with searchterm)
     if(!empty($this->params['named']['Search.familyNameStart'])) {
       $searchterm = strtolower($this->params['named']['Search.familyNameStart']);
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
@@ -898,7 +921,35 @@ class CoPeopleController extends StandardController {
       $searchterm = $this->params['named']['Search.status'];
       $pagcond['conditions']['CoPerson.status'] = $searchterm;
     }
- 
+    
+    // Filter by COU
+    if(!empty($this->params['named']['Search.couid'])) {
+      // If a CO Person has more than one role, this search will cause them go show up once
+      // per role in the results (select co_people.id,co_person_roles.id where co_person_role.cou_id=#
+      // will generate one row per co_person_role_id). In order to fix this, we can use
+      // aggregate functions and grouping, like this:
+      //      $pagcond['fields'] = array('CoPerson.id',
+      //                                 'MIN(CoPersonRole.id)');
+      //      $pagcond['group'] = array('CoPerson.id', 'Co.id', 'PrimaryName.family', 'PrimaryName.given');
+      // This produces the correct results, however Cake then goes into an infinite loop
+      // trying to pull some related data for the results. So for now, we just leave duplicates
+      // in the search results.
+      $pagcond['conditions']['CoPersonRole.cou_id'] = $this->params['named']['Search.couid'];
+      $pagcond['joins'][] = array(
+        'table' => 'co_person_roles',
+        'alias' => 'CoPersonRole',
+        'type' => 'INNER',
+        'conditions' => array(
+          'CoPersonRole.co_person_id=CoPerson.id' 
+        )
+      );
+    }
+    
+    // We need to manually add this in for some reason. (It should have been
+    // added automatically by Cake based on the CoPerson Model definition of
+    // PrimaryName.)
+    $pagcond['conditions']['PrimaryName.primary_name'] = true;
+    
     return $pagcond;
   }
 

@@ -77,7 +77,6 @@
           'co'         => $cur_co['Co']['id']
         )
       );    
-    
     } elseif($permissions['add']) {
       $sidebarButtons[] = array(
         'icon'    => 'circle-plus',
@@ -155,6 +154,7 @@
       $args = array();
       $args['controller'] = 'co_people';
       $args['action'] = $this->action;
+      
       if($this->action == 'index') {
         $args['co'] = $cur_co['Co']['id'];
       } else {
@@ -162,8 +162,12 @@
         if(!empty($this->request->params['pass'][0])) {
           $args[] = $this->request->params['pass'][0];
         }
-        $args = array_merge($args, $this->request->params['named']);
       }
+      
+      // Merge (propagate) all prior search criteria, except familyNameStart
+      $args = array_merge($args, $this->request->params['named']);
+      unset($args['Search.familyNameStart']);
+      
       $alphaSearch = '';
 
       if(!empty($this->request->params['named']['Search.familyNameStart'])) {

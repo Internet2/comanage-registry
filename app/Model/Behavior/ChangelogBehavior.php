@@ -187,6 +187,22 @@ class ChangelogBehavior extends ModelBehavior {
          && (!isset($query['contain'][0]) || $query['contain'][0] != false)) {
         $ret['contain'] = $this->modifyContain($model, $query['contain']);
       }
+      
+      if(!empty($query['joins'])) {
+        // We might have joined tables in the query conditions. If so, insert
+        // the appropriate filters
+        
+        foreach($query['joins'] as $j) {
+          $jmodel = $j['alias'];
+          
+          if($model->$jmodel->Behaviors->enabled('Changelog')) {
+            $cparentfk = Inflector::underscore($model->$jmodel->name) . "_id";
+            
+            $ret['conditions'][$jmodel.'.'.$cparentfk] = null;
+            $ret['conditions'][] = $jmodel.'.deleted IS NOT true';
+          }
+        }
+      }
     }
     
     return $ret;

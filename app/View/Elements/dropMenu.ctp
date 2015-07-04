@@ -90,11 +90,26 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         $args['controller'] = 'co_people';
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
-
+        
         print $this->Html->link(_txt('me.population'), $args);
         print "</li>";
+        
+        if(!empty($permissions['menu']['admincous'])) {
+          foreach($permissions['menu']['admincous'] as $couid => $couname) {
+            print "<li>";
+            $args = array();
+            $args['plugin'] = null;
+            $args['controller'] = 'co_people';
+            $args['action'] = 'index';
+            $args['co'] = $menuCoId;
+            $args['Search.couid'] = $couid;
+            
+            print $this->Html->link(_txt('me.population.cou', array($couname)), $args);
+            print "</li>";
+          }
+        }
       }
-
+      
       if (isset($permissions['menu']['orgidentities']) && $permissions['menu']['orgidentities']) {
         $args = array();
         $args['plugin'] = null;
@@ -207,7 +222,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         print '<span class="sf-sub-indicator"> »</span>';
         print '</a>';
         print '<ul>';
-
+        
         if (isset($permissions['menu']['cosettings']) && $permissions['menu']['cosettings']) {
           print "<li>";
           $args = array();

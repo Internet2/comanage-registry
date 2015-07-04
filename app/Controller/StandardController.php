@@ -816,8 +816,18 @@ class StandardController extends AppController {
         
         $local = $this->paginationConditions();
         
+        // XXX We could probaby come up with a better approach than manually enumerating
+        // each field we want to copy...
         if(!empty($local['conditions'])) {
           $this->paginate['conditions'] = $local['conditions'];
+        }
+        
+        if(!empty($local['fields'])) {
+          $this->paginate['fields'] = $local['fields'];
+        }
+        
+        if(!empty($local['group'])) {
+          $this->paginate['group'] = $local['group'];
         }
         
         if(!empty($local['joins'])) {
