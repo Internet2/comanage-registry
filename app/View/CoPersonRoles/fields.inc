@@ -70,16 +70,9 @@
     'action' => 'canvas',
     $co_people[0]['CoPerson']['id']);
   $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']), $args);
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_person_roles.1')));
+  $this->Html->addCrumb($crumbTxt);
 
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_person_roles.1'));
-  }
-  if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.co_person_roles.1'));
-  }
-  if($this->action == "view") {
-    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.co_person_roles.1'));
-  }
 ?>
 
 <script>

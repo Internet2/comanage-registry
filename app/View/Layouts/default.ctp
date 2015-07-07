@@ -419,7 +419,6 @@
         });
 
         // Dialog
-
         // This generic dialog gets modified by the calling function
 
         $("#dialog").dialog({
@@ -436,8 +435,8 @@
           }
         });
 
-        // Add a spinner when a form is submitted
-        $("input[type='submit']").click(function() {
+        // Add a spinner when a form is submitted or when any item is clicked with a "spin" class
+        $("input[type='submit'],.spin").click(function() {
 
           var spinnerDiv = '<div id="coSpinner"></div>';
           $("body").append(spinnerDiv);
@@ -468,15 +467,11 @@
 
         });
 
-      });
-
-      // Turn on the sidebar menus
-      $(function() {
+        // Turn on the sidebar menus
         $( "#menu" ).menu();
-      });
 
-      $(function() {
-        <?php // Flash Messages
+        // Flash Messages
+        <?php
           $f = $this->Session->flash('error');
 
           if($f && $f != "") {
@@ -508,6 +503,7 @@
             print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
           }
         ?>
+
       });
 
       </script>

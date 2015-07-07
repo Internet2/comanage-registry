@@ -36,18 +36,8 @@
 
   // Add breadcrumbs
   $this->Html->addCrumb(_txt('ct.cos.pl'), array('controller' => 'cos', 'action' => 'index'));
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.cos.1'));
-  }
-  if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.cos.1'));
-    }
-  if($this->action == "view") {
-    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.cos.1'));
-  }
-  if($this->action == "select") {
-    $this->Html->addCrumb(_txt('op.select') . ' ' . _txt('ct.cos.1'));
-  }
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.cos.1')));
+  $this->Html->addCrumb($crumbTxt);
     
 ?>
 <table id="<?php echo $this->action; ?>_co" class="ui-widget">

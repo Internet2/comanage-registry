@@ -41,15 +41,18 @@
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('ct.co_enrollment_flows.pl'), $args);
+
+  $crumbTxt = '';
   if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_enrollment_flows.1'));
+    $crumbTxt = _txt('op.add-a', array(_txt('ct.co_enrollment_flows.1')));
   }
   if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.co_enrollment_flows.1'));
+    $crumbTxt = _txt('op.edit-a', array(_txt('ct.co_enrollment_flows.1')));
   }
   if($this->action == "view") {
-    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.co_enrollment_flows.1'));
+    $crumbTxt = _txt('op.view-a', array(_txt('ct.co_enrollment_flows.1')));
   }
+  $this->Html->addCrumb($crumbTxt);
      
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');

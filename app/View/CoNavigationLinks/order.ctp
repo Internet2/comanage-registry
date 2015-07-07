@@ -28,7 +28,15 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
-  $this->Html->addCrumb(_txt('op.reorder') . ' ' . _txt('ct.co_navigation_links.pl'));
+  // Add breadcrumbs
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_navigation_links';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_navigation_links.pl'), $args);
+  $crumbTxt = _txt('op.reorder-a', array(_txt('ct.co_navigation_links.pl')));
+  $this->Html->addCrumb($crumbTxt);
 
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
@@ -106,7 +114,7 @@
     <?php foreach ($co_navigation_links as $c): ?>
       <tr id = "CoNavigationLinkId_<?php print $c['CoNavigationLink']['id']?>" class="line1">
         <td class = "order">
-          <span class="ui-icon ui-icon-arrowthick-2-n-s"></span> 
+          <span class="ui-icon ui-icon-arrow-4"></span>
         </td>
         <td>
           <?php

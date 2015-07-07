@@ -44,15 +44,8 @@
     $args['co'] = $cur_co['Co']['id'];
   }
   $this->Html->addCrumb(_txt('ct.cous.pl'), $args);
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.cous.1'));
-  }
-  if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.cous.1'));
-  }
-  if($this->action == "view") {
-    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.cous.1'));
-  }
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.cous.1')));
+  $this->Html->addCrumb($crumbTxt);
     
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";

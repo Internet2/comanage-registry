@@ -50,7 +50,7 @@
 
 <?php
   if($permissions['add']) {
-    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_extended_types.1'),
+    print $this->Html->link(_txt('op.add-a',array(_txt('ct.co_extended_types.1'))),
                             array('controller' => 'co_extended_types',
                                   'action' => 'add',
                                   'co' => $cur_co['Co']['id'],

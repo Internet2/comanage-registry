@@ -89,7 +89,7 @@ global $cm_lang, $cm_texts;
       <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
       <td><?php if(isset($p['OrgIdentity']['affiliation'])) print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); ?></td>
       
-      <td>
+      <td class="actions">
         <?php
           if($permissions['edit'])
             print $this->Html->link(
@@ -99,11 +99,11 @@ global $cm_lang, $cm_texts;
                 'action' => 'edit',
                 $p['OrgIdentity']['id']
               ),
-              array('class' => 'editbutton')
+              array('class' => 'editbutton spin')
             ) . "\n";
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html(generateCn($p['PrimaryName'])) . '\', \'' . $this->Html->url(array('controller' => 'org_identities', 'action' => 'delete', $p['OrgIdentity']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            echo '<button class="deletebutton spin" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html(generateCn($p['PrimaryName'])) . '\', \'' . $this->Html->url(array('controller' => 'org_identities', 'action' => 'delete', $p['OrgIdentity']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

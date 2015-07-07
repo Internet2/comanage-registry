@@ -26,7 +26,8 @@
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
-  $this->Html->addCrumb(_txt('op.select') . ' ' . _txt('ct.enrollment_flows.1'));
+  $crumbTxt = _txt('op.select-a',array(_txt('ct.enrollment_flows.1')));
+  $this->Html->addCrumb($crumbTxt);
 ?>
 
 <table id="cous" class="ui-widget">

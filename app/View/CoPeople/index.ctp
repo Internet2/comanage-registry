@@ -133,10 +133,10 @@
 <div id="sorter" class="listControl">
   <?php print _txt('fd.sort.by'); ?>:
   <ul>
-    <li><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></li>
-    <li><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></li>
-    <li><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></li>
-    <li><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?></li>
+    <li class="spin"><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></li>
+    <li class="spin"><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></li>
+    <li class="spin"><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></li>
+    <li class="spin"><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?></li>
   </ul>
 </div>
 
@@ -164,21 +164,22 @@
         }
       }
       
-      // Merge (propagate) all prior search criteria, except familyNameStart
+      // Merge (propagate) all prior search criteria, except familyNameStart and page
       $args = array_merge($args, $this->request->params['named']);
       unset($args['Search.familyNameStart']);
+      unset($args['page']);
       
       $alphaSearch = '';
 
       if(!empty($this->request->params['named']['Search.familyNameStart'])) {
-        $alphaSearch = Sanitize::html($this->request->params['named']['Search.familyNameStart']);
+        $alphaSearch = $this->request->params['named']['Search.familyNameStart'];
       }
 
-      foreach(range('a','z') as $i) {
+      foreach(_txt('me.alpha') as $i) {
         $args['Search.familyNameStart'] = $i;
-        $alphaStyle = '';
+        $alphaStyle = ' class="spin"';
         if ($alphaSearch == $i) {
-          $alphaStyle = ' class="selected"';
+          $alphaStyle = ' class="selected spin"';
         }
         print '<li' . $alphaStyle . '>' . $this->html->link($i,$args) . '</li>';
       }

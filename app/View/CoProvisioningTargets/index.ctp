@@ -30,7 +30,7 @@
   $this->Html->addCrumb(_txt('ct.co_provisioning_targets.pl'));
 
   if($permissions['add']) {
-    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_provisioning_targets.1'),
+    print $this->Html->link(_txt('op.add-a',array(_txt('ct.co_provisioning_targets.1'))),
                            array('controller' => 'co_provisioning_targets',
                                  'action' => 'add',
                                  'co' => $cur_co['Co']['id']),

@@ -31,7 +31,7 @@
     $args =  array('controller' => 'co_nsf_demographics',
                    'action'     => 'add');
     $classArgs = array('class' => 'addbutton');
-    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_nsf_demographics.1'),
+    print $this->Html->link(_txt('op.add-a',(_txt('ct.co_nsf_demographics.1'))),
                             $args,
                             $classArgs) . '
                                    <br />
