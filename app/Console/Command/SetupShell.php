@@ -33,6 +33,7 @@
                       'CoPerson',
                       'CoPersonRole',
                       'Identifier',
+                      'Meta',
                       'OrgIdentity');
     
     function main()
@@ -68,7 +69,9 @@ WHERE i.login=true;
       // - A group called 'admin' in the COmanage CO
       // - A group called 'members' in the COmanage CO
       // - The administrator as a member of the admin and members groups
-
+      // - Set up platform defaults
+      // - Register the current version for future upgrade purposes
+      
       // Start with the COmanage CO
       
       $this->out("- " . _txt('se.db.co'));
@@ -201,7 +204,6 @@ WHERE i.login=true;
       
       $this->CoOrgIdentityLink->save($coil);
       $coil_id = $this->CoOrgIdentityLink->id;
-        
       
       // Add the CO Person Role to the admin group
       
@@ -236,9 +238,17 @@ WHERE i.login=true;
       $this->out("- " . _txt('se.cmp.init'));
       $this->CmpEnrollmentConfiguration->createDefault();
       
+      // Register the current version for future upgrade purposes
+      // Read the current release from the VERSION file
+      $versionFile = APP . DS . 'Config' . DS . "VERSION";
+      
+      $targetVersion = rtrim(file_get_contents($versionFile));
+      
+      $this->Meta->setUpgradeVersion($targetVersion, true);
+      
       // Generate security salt and seed files if they don't already exist
       
-      $securitySaltFilename = APP . "/Config/security.salt";
+      $securitySaltFilename = APP . DS . "Config" . DS . "security.salt";
       
       if(file_exists($securitySaltFilename)) {
         $this->out("- " . _txt('se.security.salt.exists'));
@@ -253,7 +263,7 @@ WHERE i.login=true;
         file_put_contents($securitySaltFilename, $salt);
       }
       
-      $securitySeedFilename = APP . "/Config/security.seed";
+      $securitySeedFilename = APP . DS . "Config" . DS . "security.seed";
       
       if(file_exists($securitySeedFilename)) {
         $this->out("- " . _txt('se.security.seed.exists'));
