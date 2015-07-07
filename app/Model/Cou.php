@@ -212,6 +212,9 @@ class Cou extends AppModel {
                       )
                     )
                   );
+    } else {
+      $conditions = array();
+      $conditions['Cou.co_id'] = $coId;
     }
     
     // Create options list all other COUS in CO

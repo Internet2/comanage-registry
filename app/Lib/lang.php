@@ -712,6 +712,11 @@ original notification at
   'er.ssh.type' =>    'Unknown SSH key type "%1$s"',
   'er.timeout' =>     'Your session has expired. Please login again.',
   'er.token' =>       'Invalid token',
+  'er.ug.blocked' =>  'Cannot automatically upgrade past version %1$s. Please upgrade to that version first.',
+  'er.ug.fail' =>     'ERROR: Upgrade failed',
+  'er.ug.order' =>    'Target version is before current version (cannot downgrade)',
+  'er.ug.same' =>     'Current and target versions are the same',
+  'er.ug.version' =>  'Unknown version "%1$s"',
   'er.unknown' =>     'Unknown value "%1$s"',
   'er.validation' =>  'Validation failed',
   
@@ -1317,6 +1322,12 @@ original notification at
   'sh.cron.done' =>       'Cron shell finished',
   'sh.cron.xp' =>         'Running expirations for CO %1$s (%2$s)',
   'sh.cron.xp.disabled' => 'Expirations are disabled for this CO',
+  'sh.ug.arg.desc' =>     'Perform upgrade steps',
+  'sh.ug.arg.version' =>  'Version to upgrade to (default: current RELEASE)',
+  'sh.ug.current' =>      'Current version: %1$s',
+  'sh.ug.post' =>         'Executing post-database step (%1$s)',
+  'sh.ug.pre' =>          'Executing pre-database step (%1$s)',
+  'sh.ug.target' =>       'Target version: %1$s',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

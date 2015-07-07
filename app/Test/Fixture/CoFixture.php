@@ -52,6 +52,16 @@ class CoFixture extends CakeTestFixture {
       $arecord['modified']    = date('Y-m-d H:i:s');
       $records[] = $arecord;
 
+      // A third CO.
+      $arecord = array();
+      $arecord['id']          = 3;
+      $arecord['name']        = 'Test CO 2';
+      $arecord['description'] = 'Description for Test CO 2';
+      $arecord['status']      = SuspendableStatusEnum::Active;
+      $arecord['created']     = date('Y-m-d H:i:s');
+      $arecord['modified']    = date('Y-m-d H:i:s');
+      $records[] = $arecord;
+
       $this->records = $records;
 
       parent::init();
