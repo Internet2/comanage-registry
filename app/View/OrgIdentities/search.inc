@@ -71,7 +71,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.name.given');
-            $args['value'] = $this->request->params['named']['Search.givenName'];
+            $args['value'] = isset($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
             print $this->Form->input('Search.givenName',$args);
           ?>
         </td>
@@ -81,7 +81,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.name.family');
-            $args['value'] = $this->request->params['named']['Search.familyName'];
+            $args['value'] = isset($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
             print $this->Form->input('Search.familyName',$args);
           ?>
         </td>
@@ -91,7 +91,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.identifier.identifier');
-            $args['value'] = $this->request->params['named']['Search.identifier'];
+            $args['value'] = isset($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
             print $this->Form->input('Search.identifier', $args);
           ?>
         </td>
@@ -101,7 +101,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.o');
-            $args['value'] = $this->request->params['named']['Search.organization'];
+            $args['value'] = isset($this->request->params['named']['Search.organization']) ? $this->request->params['named']['Search.organization'] : '';
             print $this->Form->input('Search.organization',$args);
           ?>
         </td>
@@ -111,7 +111,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.ou');
-            $args['value'] = $this->request->params['named']['Search.department'];
+            $args['value'] = isset($this->request->params['named']['Search.department']) ? $this->request->params['named']['Search.department'] : '';
             print $this->Form->input('Search.department',$args);
           ?>
         </td>
@@ -121,7 +121,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.title');
-            $args['value'] = $this->request->params['named']['Search.title'];
+            $args['value'] = isset($this->request->params['named']['Search.title']) ? $this->request->params['named']['Search.title'] : '';
             print $this->Form->input('Search.title',$args);
           ?>
         </td>
@@ -134,7 +134,7 @@ global $cm_lang, $cm_texts;
                                 'type'    => 'select',
                                 'empty'   => '',
                                 'label'   => _txt('fd.affiliation'),
-                                'value'   => $this->request->params['named']['Search.affiliation']);
+                                'value'   => (isset($this->request->params['named']['Search.affiliation']) ? $this->request->params['named']['Search.affiliation'] : ''));
             print $this->Form->input('Search.affiliation', $formParams);
           ?>
         </td>
