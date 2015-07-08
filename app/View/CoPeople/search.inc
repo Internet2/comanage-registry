@@ -67,13 +67,22 @@ global $cm_lang, $cm_texts;
     <table>
       <tr>
         <td>
-          <?php // XXX these names aren't I18nified. Cake is inflecting "givenName" to "Given Name" (CO-1007) ?>
-          <?php print $this->Form->input('Search.givenName',array('value' => $this->request->params['named']['Search.givenName'])); ?>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.name.given');
+            $args['value'] = $this->request->params['named']['Search.givenName'];
+            print $this->Form->input('Search.givenName',$args);
+          ?>
         </td>
       </tr>
       <tr>
         <td>
-          <?php print $this->Form->input('Search.familyName',array('value' => $this->request->params['named']['Search.familyName'])); ?>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.name.family');
+            $args['value'] = $this->request->params['named']['Search.familyName'];
+            print $this->Form->input('Search.familyName',$args);
+          ?>
         </td>
       </tr>
       <tr>
@@ -82,7 +91,6 @@ global $cm_lang, $cm_texts;
             $args = array();
             $args['label'] = _txt('fd.identifier.identifier');
             $args['value'] = $this->request->params['named']['Search.identifier'];
-            
             print $this->Form->input('Search.identifier', $args);
           ?>
         </td>
