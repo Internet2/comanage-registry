@@ -1077,6 +1077,9 @@ original notification at
   'me.population.cou'  => 'My %1$s Population',
   'me.tandc'           => 'Terms and Conditions',
 
+  // Breadcrumbs
+  'bc.home'            => 'Home',
+
   // Alphabet menu (for co_people filter by first letter of family name)
   // Can be changed to a static array of internationalized characters, for example:
   //'me.alpha' => array('a','ä','b','c'),

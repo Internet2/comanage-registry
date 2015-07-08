@@ -71,7 +71,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.name.given');
-            $args['value'] = isset($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
+            $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
             print $this->Form->input('Search.givenName',$args);
           ?>
         </td>
@@ -81,7 +81,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.name.family');
-            $args['value'] = isset($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
+            $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
             print $this->Form->input('Search.familyName',$args);
           ?>
         </td>
@@ -91,7 +91,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.identifier.identifier');
-            $args['value'] = isset($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
+            $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
             print $this->Form->input('Search.identifier', $args);
           ?>
         </td>
@@ -119,7 +119,7 @@ global $cm_lang, $cm_texts;
                                 'type'    => 'select',
                                 'empty'   => ' ',
                                 'label'   => _txt('fd.status'),
-                                'value'   => (isset($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
+                                'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
             
             print $this->Form->input('Search.status', $formParams);
           ?>
@@ -133,7 +133,7 @@ global $cm_lang, $cm_texts;
                                 'type'    => 'select',
                                 'empty'   => ' ',
                                 'label'   => _txt('fd.cou'),
-                                'value'   => (isset($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
+                                'value'   => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
             
             print $this->Form->input('Search.couid', $formParams);
           ?>

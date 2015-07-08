@@ -646,7 +646,7 @@
 
         // insert breadcrumbs on all but the homepage
         if ($this->request->here != $this->request->webroot) {
-          echo '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', 'Home') . "</div>";
+          echo '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', _txt('bc.home')) . "</div>";
         }
 
         // insert the page internal content
