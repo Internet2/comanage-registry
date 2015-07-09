@@ -590,6 +590,7 @@ original notification at
   'er.auth.empty' =>  'Found empty username at login. Please contact an administrator for assistance.',
   'er.auth.org' =>    'The identifier "%1$s" is not registered. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
   'er.auth.roles' =>  'You do not have any current roles. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
+  'er.changelog.model.load' => 'Failed to load model "%1$s"',
   'er.co.cm.edit' =>  'Cannot edit COmanage CO',
   'er.co.cm.rm' =>    'Cannot remove COmanage CO',
   'er.co.exists' =>   'A CO named "%1$s" already exists',

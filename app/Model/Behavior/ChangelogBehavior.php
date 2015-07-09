@@ -192,14 +192,32 @@ class ChangelogBehavior extends ModelBehavior {
         // We might have joined tables in the query conditions. If so, insert
         // the appropriate filters
         
-        foreach($query['joins'] as $j) {
-          $jmodel = $j['alias'];
-          
-          if($model->$jmodel->Behaviors->enabled('Changelog')) {
-            $cparentfk = Inflector::underscore($model->$jmodel->name) . "_id";
-            
-            $ret['conditions'][$jmodel.'.'.$cparentfk] = null;
-            $ret['conditions'][] = $jmodel.'.deleted IS NOT true';
+        foreach($ret['joins'] as $j) {
+          // The model being joined in the query may not have a direct
+          // relationship to the model on which the find is being done
+          // so we load it here directly and if it fails to load throw
+          // an exception.
+          $jmodel = ClassRegistry::init($j['alias'], true);
+          if($jmodel) {
+            if($jmodel->Behaviors->enabled('Changelog')) {
+              // If the model being joined has changelog behavior add conditions
+              // on the join so that rows from earlier versions or soft deleted
+              // rows are not included after the join.
+              $cparentfk = Inflector::underscore($jmodel->name) . "_id";
+              if(!array_key_exists('conditions', $j)) {
+                $j['conditions'] = array();
+              }
+
+              // Add condition to the join condition that the joined model
+              // model_id column is null.
+              $j['conditions'][] = $jmodel->name.'.'.$cparentfk.' IS NULL';
+
+              // Add condition to the join condition that the joined model
+              // deleted column is not true.
+              $j['conditions'][] = $jmodel->name.'.deleted IS NOT true';
+            }
+          } else {
+            throw new RuntimeException(_txt('er.changelog.model.load', array($j['alias'])));
           }
         }
       }
