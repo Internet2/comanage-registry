@@ -174,7 +174,7 @@
     <div id="notification">
       <ul class="sf-menu">
         <li>
-          <a class="menuTop" href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id; ?>">
+          <a class="menuTop" href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id_notifications; ?>">
             <span>
               <?php print count($vv_my_notifications); ?>
             </span>
@@ -205,7 +205,7 @@
             </li>
             <?php endforeach; ?>
             <li class="see-all">
-              <a href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id; ?>/sort:created/direction:desc"><?php print _txt('op.see.notifications')?></a>
+              <a href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id_notifications; ?>/sort:created/direction:desc"><?php print _txt('op.see.notifications')?></a>
             </li>
           </ul>
         </li>
