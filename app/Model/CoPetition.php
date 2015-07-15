@@ -393,7 +393,9 @@ class CoPetition extends AppModel {
         $parentId = $ea['id'];
       }
       
-      $eaTime = strtotime($ea['CoEnrollmentAttribute']['created']);
+      // We actually want the modified time, not the create time since
+      // ChangelogBehavior "edits in place".
+      $eaTime = strtotime($ea['CoEnrollmentAttribute']['modified']);
       
       if(!isset($keep[$parentId])
          && $eaTime <= $createTime) {
