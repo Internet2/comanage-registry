@@ -590,6 +590,7 @@ original notification at
   'er.auth.empty' =>  'Found empty username at login. Please contact an administrator for assistance.',
   'er.auth.org' =>    'The identifier "%1$s" is not registered. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
   'er.auth.roles' =>  'You do not have any current roles. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
+  'er.changelog.model.load' => 'Failed to load model "%1$s"',
   'er.co.cm.edit' =>  'Cannot edit COmanage CO',
   'er.co.cm.rm' =>    'Cannot remove COmanage CO',
   'er.co.exists' =>   'A CO named "%1$s" already exists',
@@ -1078,16 +1079,25 @@ original notification at
   'me.population.cou'  => 'My %1$s Population',
   'me.tandc'           => 'Terms and Conditions',
 
+  // Breadcrumbs
+  'bc.home'            => 'Home',
+
+  // Alphabet menu (for co_people filter by first letter of family name)
+  // Can be changed to a static array of internationalized characters, for example:
+  //'me.alpha' => array('a','ä','b','c'),
+  'me.alpha' => range('a','z'),
+
   // Operations
   'op.accept' =>      'Accept',
   'op.ack' =>         'Acknowledge',
   'op.add' =>         'Add',
-  'op.add-a' =>       'Add "%1$s"',
+  'op.add-a' =>       'Add %1$s',
   'op.add.new' =>     'Add a New %1$s',
   'op.approve' =>     'Approve',
   'op.back' =>        'Back',
   'op.begin' =>       'Begin',
   'op.cancel' =>      'Cancel',
+  'op.clear.all' =>   'Clear All',
   'op.compare' =>     'Compare',
   'op.config' =>      'Configure',
   'op.confirm' =>     'Confirm',
@@ -1187,6 +1197,7 @@ original notification at
   'op.relink.select' => 'Please select the CO Person you would like to move the Organizational Identity "%1$s" (%2$s) to by clicking the associated relink button.',
   'op.remove' =>      'Remove',
   'op.reorder' =>     'Reorder',
+  'op.reorder-a' =>     'Reorder %1$s',
   'op.reset' =>       'Reset Form',
   'op.restore.ef' =>  'Add/Restore Default Templates',
   'op.restore.types' => 'Add/Restore Default Types',
@@ -1194,7 +1205,7 @@ original notification at
   'op.search' =>      'Search',
   'op.see.notifications' =>  'View full notifications list...',
   'op.select' =>      'Select',
-  'op.select-a' =>    'Select a %1$s',
+  'op.select-a' =>    'Select %1$s',
   'op.select.select' => 'Please select the CO Person you would like to attach to this Petition by clicking the associated select button.',
   'op.submit' =>      'Submit',
   'op.tc.agree' =>    'Agree to Terms and Conditions',

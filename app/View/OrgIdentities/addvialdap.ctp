@@ -32,7 +32,8 @@
     $args['co'] = $cur_co['Co']['id'];
   }
   $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
-  $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.org_identities.1'));
+  $crumbTxt = _txt('op.add-a', array(_txt('ct.org_identities.1')));
+  $this->Html->addCrumb($crumbTxt);
 
   // XXX this page needs I18N and maybe sanitize_html
 

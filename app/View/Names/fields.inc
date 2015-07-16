@@ -88,16 +88,9 @@
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
 
   }
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('fd.name')));
+  $this->Html->addCrumb($crumbTxt);
 
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('fd.name'));
-  }
-  if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('fd.name'));
-  }
-  if($this->action == "view") {
-    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('fd.name'));
-  }
 ?>
 <table id="<?php echo $this->action; ?>_name" class="ui-widget">
   <tbody>

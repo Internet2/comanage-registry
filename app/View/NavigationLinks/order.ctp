@@ -30,7 +30,8 @@
 
   // Add breadcrumbs
   $this->Html->addCrumb(_txt('ct.navigation_links.pl'), array('controller' => 'navigation_links', 'action' => 'index'));
-  $this->Html->addCrumb(_txt('op.reorder') . ' ' . _txt('ct.navigation_links.pl'));
+  $crumbTxt = _txt('op.reorder-a', array(_txt('ct.navigation_links.pl')));
+  $this->Html->addCrumb($crumbTxt);
 
   // Add buttons to sidebar
   $sidebarButtons = $this->get('sidebarButtons');
@@ -39,7 +40,7 @@
   if($permissions['add']) {
     $sidebarButtons[] = array(
       'icon'    => 'circle-plus',
-      'title'   => _txt('op.add') . ' ' . _txt('ct.navigation_links.1'),
+      'title'   => _txt('op.add-a',array(_txt('ct.navigation_links.1'))),
       'url'     => array(
         'controller' => 'navigation_links', 
         'action' => 'add'
@@ -106,7 +107,7 @@
     <?php foreach ($navigation_links as $c): ?>
       <tr id = "NavigationLinkId_<?php print $c['NavigationLink']['id']?>" class="line1">
         <td class = "order">
-          <span class="ui-icon ui-icon-arrowthick-2-n-s"></span> 
+          <span class="ui-icon ui-icon-arrow-4"></span>
         </td>
         <td>
           <?php

@@ -36,12 +36,9 @@
 
   // Add breadcrumbs
   $this->Html->addCrumb(_txt('ct.navigation_links.pl'), array('controller' => 'navigation_links', 'action' => 'index'));
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.navigation_links.1'));
-  }
-  if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.navigation_links.1'));
-  }
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.navigation_links.1')));
+  $this->Html->addCrumb($crumbTxt);
+
 ?>
 
 <table id="<?php print $this->action; ?>_link" class="ui-widget">

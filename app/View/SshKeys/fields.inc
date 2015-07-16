@@ -59,13 +59,8 @@
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
   }
-
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.ssh_keys.1'));
-  }
-  if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.ssh_keys.1'));
-  }
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.ssh_keys.1')));
+  $this->Html->addCrumb($crumbTxt);
 
 ?>
 <table id="<?php print $this->action; ?>_ssh_key" class="ui-widget">

@@ -29,7 +29,7 @@
   $this->Html->addCrumb(_txt('ct.co_identifier_assignments.pl'));
 
   if($permissions['add'])
-    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.co_identifier_assignments.1'),
+    print $this->Html->link(_txt('op.add-a',array(_txt('ct.co_identifier_assignments.1'))),
                             array('controller' => 'co_identifier_assignments', 'action' => 'add', 'co' => $cur_co['Co']['id']),
                             array('class' => 'addbutton')) . "\n";
     

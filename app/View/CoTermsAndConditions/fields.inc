@@ -41,16 +41,9 @@
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('ct.co_terms_and_conditions.pl'), $args);
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.co_terms_and_conditions.1'));
-  }
-  if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.co_terms_and_conditions.1'));
-  }
-  if($this->action == "view") {
-    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.co_terms_and_conditions.1'));
-  }
-  
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_terms_and_conditions.1')));
+  $this->Html->addCrumb($crumbTxt);
+
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
 <table id="<?php print $this->action; ?>_co_terms_and_conditions" class="ui-widget">

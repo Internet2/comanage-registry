@@ -442,6 +442,9 @@ th, td {
   padding: 0.5em;
   text-align: left;
 }
+td.actions {
+  white-space: nowrap;
+}
 /* zebra stripes for rows; 0 used for autoincrementing line counters */
 .line0 {
   background-color: #e5e5e5;
@@ -537,7 +540,14 @@ label,
 #advancedSearch .submit{
   float: right;
 }
-
+.clearButton {
+  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+  border: 1px solid #ddd;
+  color: #999;
+  float: right;
+  margin: 0.5em 0 0;
+  cursor: pointer;
+}
 /* For enrollment form */
 #formbox {
   background-color: #F3F4F3;
@@ -947,7 +957,9 @@ label,
 #co_people .ui-widget-content {
   background-color: #FAFAFA;
 }
-
+.ui-sortable tr {
+  cursor: move;
+}
 /* Footer */
 .footer {
   clear: both;

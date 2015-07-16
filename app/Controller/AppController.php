@@ -676,7 +676,7 @@ class AppController extends Controller {
     } else {
       if(!empty($copersonid)) {
         $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid));
-        $this->set('vv_co_person_id', $copersonid);
+        $this->set('vv_co_person_id_notifications', $copersonid);
       }
     }
   }

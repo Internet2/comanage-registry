@@ -35,7 +35,7 @@
   if($permissions['add']){
     $sidebarButtons[] = array(
       'icon'    => 'circle-plus',
-      'title'   => _txt('op.add') . ' ' . _txt('ct.co_extended_attributes.1'),
+      'title'   => _txt('op.add-a',array(_txt('ct.co_extended_attributes.1'))),
       'url'     => array(
         'controller' => 'co_extended_attributes',
         'action' => 'add',

@@ -30,7 +30,7 @@
   $this->Html->addCrumb(_txt('ct.cos.pl'));
 
   if($permissions['add'])
-    print $this->Html->link(_txt('op.add') . ' ' . _txt('ct.cos.1'),
+    print $this->Html->link(_txt('op.add-a',array(_txt('ct.cos.1'))),
                            array('controller' => 'cos', 'action' => 'add'),
                            array('class' => 'addbutton')) . '
     <br />

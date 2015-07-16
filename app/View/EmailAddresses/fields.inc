@@ -92,16 +92,9 @@
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
 
   }
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.email_addresses.1')));
+  $this->Html->addCrumb($crumbTxt);
 
-  if($this->action == "add") {
-    $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.email_addresses.1'));
-  }
-  if($this->action == "edit") {
-    $this->Html->addCrumb(_txt('op.edit') . ' ' . _txt('ct.email_addresses.1'));
-  }
-  if($this->action == "view") {
-    $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.email_addresses.1'));
-  }
 ?>
 <table id="<?php echo $this->action; ?>_email_address" class="ui-widget">
   <tbody>

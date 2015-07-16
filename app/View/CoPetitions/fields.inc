@@ -69,12 +69,8 @@ $(function() {
     $args['Search.status'][] = PetitionStatusEnum::PendingConfirmation;
 
     $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
-    if ($this->action == "add") {
-      $this->Html->addCrumb(_txt('op.add') . ' ' . _txt('ct.petitions.1'));
-    }
-    if ($this->action == "view") {
-      $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.petitions.1'));
-    }
+    $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.petitions.1')));
+    $this->Html->addCrumb($crumbTxt);
   }
 
   // Add links to sidebar

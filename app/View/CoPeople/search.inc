@@ -24,14 +24,37 @@
 
 // Globals
 global $cm_lang, $cm_texts;
+
 ?>
 
-<script>
+<script type="text/javascript">
+  function clearAdvancedSearch(formObj) {
+    for (var i=0; i<formObj.elements.length; i++) {
+      t = formObj.elements[i].type;
+      if(t == "text" || t == "select-one") {
+        formObj.elements[i].value = "";
+      }
+    }
+    formObj.submit();
+  }
+
   $(function() {
     $( "#advancedSearch" ).accordion({
-      collapsible: true,
-      active     : 0
+      collapsible: true
     });
+    // Collapse search accordian on small devices (on page load)
+    if (window.innerWidth < 992) {
+      $( "#advancedSearch" ).accordion("option","active",false);
+    }
+    // Collapse or show accordian on window resize as well
+    window.onresize = function () {
+      if (window.innerWidth > 991) {
+        $( "#advancedSearch" ).accordion("option","active",0);
+      }
+      if (window.innerWidth < 992) {
+        $( "#advancedSearch" ).accordion("option","active",false);
+      }
+    }
   });
 </script>
 
@@ -45,13 +68,22 @@ global $cm_lang, $cm_texts;
     <table>
       <tr>
         <td>
-          <?php // XXX these names aren't I18nified. Cake is inflecting "givenName" to "Given Name" (CO-1007) ?>
-          <?php print $this->Form->input('Search.givenName'); ?>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.name.given');
+            $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
+            print $this->Form->input('Search.givenName',$args);
+          ?>
         </td>
       </tr>
       <tr>
         <td>
-          <?php print $this->Form->input('Search.familyName'); ?>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.name.family');
+            $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
+            print $this->Form->input('Search.familyName',$args);
+          ?>
         </td>
       </tr>
       <tr>
@@ -59,7 +91,7 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.identifier.identifier');
-            
+            $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
             print $this->Form->input('Search.identifier', $args);
           ?>
         </td>
@@ -86,7 +118,8 @@ global $cm_lang, $cm_texts;
             $formParams = array('options' => $searchOptions,
                                 'type'    => 'select',
                                 'empty'   => ' ',
-                                'label'   => _txt('fd.status'));
+                                'label'   => _txt('fd.status'),
+                                'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
             
             print $this->Form->input('Search.status', $formParams);
           ?>
@@ -99,7 +132,8 @@ global $cm_lang, $cm_texts;
             $formParams = array('options' => $vv_cous,
                                 'type'    => 'select',
                                 'empty'   => ' ',
-                                'label'   => _txt('fd.cou'));
+                                'label'   => _txt('fd.cou'),
+                                'value'   => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
             
             print $this->Form->input('Search.couid', $formParams);
           ?>
@@ -109,10 +143,14 @@ global $cm_lang, $cm_texts;
       <tr>
         <td>
           <?php print $this->Form->submit(_txt('op.search')); ?>
+          <button type="button" onclick="clearAdvancedSearch(this.form)" class="clearButton spin">
+            <?php print _txt('op.clear.all');?>
+          </button>
         </td>
       </tr>
     </table>
 
     <?php print $this->Form->end();?>
+
   </div>
 </div>

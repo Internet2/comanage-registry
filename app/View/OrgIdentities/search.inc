@@ -24,14 +24,37 @@
 
 // Globals
 global $cm_lang, $cm_texts;
+
 ?>
 
-<script>
+<script type="text/javascript">
+  function clearAdvancedSearch(formObj) {
+    for (var i=0; i<formObj.elements.length; i++) {
+      t = formObj.elements[i].type;
+      if(t == "text" || t == "select-one") {
+        formObj.elements[i].value = "";
+      }
+    }
+    formObj.submit();
+  }
+
   $(function() {
     $( "#advancedSearch" ).accordion({
-      collapsible: true,
-      active     : false
+      collapsible: true
     });
+    // Collapse search accordian on small devices (on page load)
+    if (window.innerWidth < 992) {
+      $( "#advancedSearch" ).accordion("option","active",false);
+    }
+    // Collapse or show accordian on window resize as well
+    window.onresize = function () {
+      if (window.innerWidth > 991) {
+        $( "#advancedSearch" ).accordion("option","active",0);
+      }
+      if (window.innerWidth < 992) {
+        $( "#advancedSearch" ).accordion("option","active",false);
+      }
+    }
   });
 </script>
 
@@ -45,12 +68,22 @@ global $cm_lang, $cm_texts;
     <table>
       <tr>
         <td>
-          <?php print $this->Form->input('Search.givenName'); ?>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.name.given');
+            $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
+            print $this->Form->input('Search.givenName',$args);
+          ?>
         </td>
       </tr>
       <tr>
         <td>
-          <?php print $this->Form->input('Search.familyName'); ?>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.name.family');
+            $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
+            print $this->Form->input('Search.familyName',$args);
+          ?>
         </td>
       </tr>
       <tr>
@@ -58,24 +91,39 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.identifier.identifier');
-            
+            $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
             print $this->Form->input('Search.identifier', $args);
           ?>
         </td>
       </tr>
       <tr>
         <td>
-          <?php print $this->Form->input('Search.organization'); ?>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.o');
+            $args['value'] = !empty($this->request->params['named']['Search.organization']) ? $this->request->params['named']['Search.organization'] : '';
+            print $this->Form->input('Search.organization',$args);
+          ?>
         </td>
       </tr>
       <tr>
         <td>
-          <?php print $this->Form->input('Search.department'); ?>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.ou');
+            $args['value'] = !empty($this->request->params['named']['Search.department']) ? $this->request->params['named']['Search.department'] : '';
+            print $this->Form->input('Search.department',$args);
+          ?>
         </td>
       </tr>
       <tr>
         <td>
-          <?php print $this->Form->input('Search.title'); ?>
+          <?php
+            $args = array();
+            $args['label'] = _txt('fd.title');
+            $args['value'] = !empty($this->request->params['named']['Search.title']) ? $this->request->params['named']['Search.title'] : '';
+            print $this->Form->input('Search.title',$args);
+          ?>
         </td>
       </tr>
       <tr>
@@ -85,14 +133,18 @@ global $cm_lang, $cm_texts;
             $formParams = array('options' => $searchOptions,
                                 'type'    => 'select',
                                 'empty'   => '',
-                                'label'   => 'Affiliation');
+                                'label'   => _txt('fd.affiliation'),
+                                'value'   => (!empty($this->request->params['named']['Search.affiliation']) ? $this->request->params['named']['Search.affiliation'] : ''));
             print $this->Form->input('Search.affiliation', $formParams);
           ?>
         </td>
       </tr>
       <tr>
         <td>
-          <?php print $this->Form->submit('Search'); ?>
+          <?php print $this->Form->submit(_txt('op.search')); ?>
+          <button type="button" onclick="clearAdvancedSearch(this.form)" class="clearButton spin">
+            <?php print _txt('op.clear.all');?>
+          </button>
         </td>
       </tr>
     </table>
