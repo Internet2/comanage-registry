@@ -393,14 +393,14 @@ $(function() {
             if($perm == PermissionEnum::ReadWrite) {
               print '<div>';
                 print '<div>';
-                  print $this->Html->link($addr['line1'],
+                  print $this->Html->link($addr['street'],
                                           array('controller' => 'addresses',
                                                 'action' => 'edit',
                                                 $addr['id']))
                         . " (" . $vv_copr_address_types[ $addr['type'] ]. ")<br />\n";
                 print '</div>';
                 print '<div>';
-                  print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['line1'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                  print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['street'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                   print $this->Html->link(_txt('op.edit'),
                                           array('controller' => 'addresses',
                                                 'action' => 'edit',
@@ -409,7 +409,7 @@ $(function() {
                 print '</div>';
               print '</div>';
             } elseif($perm == PermissionEnum::ReadOnly) {
-              print '<div><div>' . Sanitize::html($addr['line1']) . " (" . $vv_copr_address_types[ $addr['type'] ] . ")</div><div></div></div>\n";
+              print '<div><div>' . Sanitize::html($addr['street']) . " (" . $vv_copr_address_types[ $addr['type'] ] . ")</div><div></div></div>\n";
             }
           }
         }

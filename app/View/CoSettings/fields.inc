@@ -101,7 +101,7 @@
           $attrs = array();
           $attrs['value'] = (isset($co_settings[0]['CoSetting']['required_fields_addr'])
                              ? $co_settings[0]['CoSetting']['required_fields_addr']
-                             : RequiredAddressFieldsEnum::Line1);
+                             : RequiredAddressFieldsEnum::Street);
           $attrs['empty'] = false;
           
           if($e) {

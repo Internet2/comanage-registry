@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO LDAP Provisioning Target Fields
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
@@ -220,7 +220,7 @@
     <tr class="line2">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.opts'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.opts.desc'); ?></font>
+        <font class="desc"><?php /* print _txt('pl.ldapprovisioner.opts.desc'); */ ?></font>
       </td>
       <td>
         <?php

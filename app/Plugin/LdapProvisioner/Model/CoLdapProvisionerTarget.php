@@ -353,6 +353,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               case 'mail':
               case 'mobile':
               case 'postalCode':
+              case 'roomNumber':
               case 'st':
               case 'street':
               case 'telephoneNumber':
@@ -363,6 +364,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'mail' => 'EmailAddress',
                   'mobile' => 'TelephoneNumber',
                   'postalCode' => 'Address',
+                  'roomNumber' => 'Address',
                   'st' => 'Address',
                   'street' => 'Address',
                   'telephoneNumber' => 'TelephoneNumber'
@@ -374,8 +376,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'mail' => 'mail',
                   'mobile' => 'number',
                   'postalCode' => 'postal_code',
+                  'roomNumber' => 'room',
                   'st' => 'state',
-                  'street' => 'line1',
+                  'street' => 'street',
                   'telephoneNumber' => 'number'
                 );
                 
@@ -552,6 +555,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // if we checked before inserting each value, above, but that would require a
     // fairly large refactoring.)
     
+    // While we're here, convert newlines to $ so the attribute doesn't end up
+    // base-64 encoded.
+    
     foreach(array_keys($attributes) as $a) {
       if(is_array($attributes[$a])) {
         // Multi-valued. The easiest thing to do is reconstruct the array. We can't
@@ -567,12 +573,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         
         foreach($attributes[$a] as $v) {
           if(!isset($h[ strtolower($v) ])) {
-            $newa[] = $v;
+            $newa[] = str_replace("\r\n", "$", $v);
             $h[ strtolower($v) ] = true;
           }
         }
         
         $attributes[$a] = $newa;
+      } else {
+        $attributes[$a] = str_replace("\r\n", "$", $attributes[$a]);
       }
     }
     
@@ -1088,6 +1096,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         ),
         'attributes' => array(
           // For now, CO Person is always attached to preferred name (CO-333)
+          // This isn't true anymore (CO-716)
           'givenName' => array(
             'required'    => false,
             'multiple'    => false
@@ -1127,6 +1136,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'employeeType' => array(
             'required'    => false,
             'multiple'    => true
+          ),
+          'roomNumber' => array(
+            'description' => _txt('pl.ldapprovisioner.attr.roomnumber.desc'),
+            'required'    => false,
+            'grouping'    => 'address'
           ),
           'uid' => array(
             'required'    => false,

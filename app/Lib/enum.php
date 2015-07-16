@@ -371,9 +371,9 @@ class RequiredEnum
 // We use the actual field names here to simplify form rendering
 class RequiredAddressFieldsEnum
 {
-  const Line1                       = "line1";
-  const Line1CityStatePostal        = "line1,locality,state,postal_code";
-  const Line1CityStatePostalCountry = "line1,locality,state,postal_code,country";
+  const Street                       = "street";
+  const StreetCityStatePostal        = "street,locality,state,postal_code";
+  const StreetCityStatePostalCountry = "street,locality,state,postal_code,country";
 }
 
 class RequiredNameFieldsEnum

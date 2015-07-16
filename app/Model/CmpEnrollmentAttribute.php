@@ -165,10 +165,10 @@ class CmpEnrollmentAttribute extends AppModel {
         'ldap_name' => 'telephoneNumber',
         'saml_name' => 'telephoneNumber'
       ),
-      'addresses:line1' => array(
+      'addresses:street' => array(
         'type'      => ContactEnum::Office,
         'required'  => RequiredEnum::Optional,
-        'label'     => _txt('fd.address.line1') . " (" . _txt('en.address.type', null, ContactEnum::Office) . ")",
+        'label'     => _txt('fd.address.street') . " (" . _txt('en.address.type', null, ContactEnum::Office) . ")",
         'env_name'  => 'CMP_EF_STREET',
         'ldap_name' => 'street',
         'saml_name' => 'street'

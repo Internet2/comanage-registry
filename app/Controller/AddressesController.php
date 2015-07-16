@@ -32,7 +32,7 @@ class AddressesController extends MVPAController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'line1' => 'asc'
+      'street' => 'asc'
     )
   );
   

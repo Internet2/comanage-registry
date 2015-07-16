@@ -52,8 +52,8 @@ class DefaultNormalizer extends AppModel {
     
     $normalizations = array(
       'Address' => array(
-        'mixCase' => array('line1', 'line2', 'locality', 'state', 'country'),
-        'trimWhitespace' => array('line1', 'line2', 'locality', 'state', 'postal_code', 'country')
+        'mixCase' => array('street', 'locality', 'state', 'country'),
+        'trimWhitespace' => array('street', 'locality', 'state', 'postal_code', 'country')
       ),
       'CoPersonRole' => array(
         'mixCase' => array('title', 'o', 'ou'),

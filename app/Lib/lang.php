@@ -488,9 +488,9 @@ original notification at
                             RequiredEnum::Optional => 'Optional',
                             RequiredEnum::NotPermitted => 'Not Permitted'),
   
-  'en.required.address' => array(RequiredAddressFieldsEnum::Line1                       => 'Line1',
-                                 RequiredAddressFieldsEnum::Line1CityStatePostal        => 'Line1, City, State, ZIP/Postal Code',
-                                 RequiredAddressFieldsEnum::Line1CityStatePostalCountry => 'Line1, City, State, ZIP/Postal Code, Country'),
+  'en.required.address' => array(RequiredAddressFieldsEnum::Street                       => 'Street',
+                                 RequiredAddressFieldsEnum::StreetCityStatePostal        => 'Street, City, State, ZIP/Postal Code',
+                                 RequiredAddressFieldsEnum::StreetCityStatePostalCountry => 'Street, City, State, ZIP/Postal Code, Country'),
   
   'en.required.name' => array(RequiredNameFieldsEnum::Given       => 'Given Name',
                               RequiredNameFieldsEnum::GivenFamily => 'Given Name, Family Name'),
@@ -731,10 +731,10 @@ original notification at
   // The next set must be named fd.model.validation-field
   'fd.address.country' => 'Country',
   'fd.address.language' => 'Language',
-  'fd.address.line1' => 'Address Line 1',
-  'fd.address.line2' => 'Address Line 2',
+  'fd.address.street' => 'Street',
   'fd.address.locality' => 'City',
   'fd.address.postal_code' => 'ZIP/Postal Code',
+  'fd.address.room' => 'Room',
   'fd.address.state' => 'State',
   'fd.address.fields.req' => 'An address must consist of at least these fields:',
   'fd.admin' =>       'Administrator',
@@ -982,6 +982,7 @@ original notification at
   'fd.resolver' =>    'Resolver',
   'fd.revision' =>    'Revision',
   'fd.roles' =>       'Roles',
+  'fd.room' =>        'Room',
   'fd.searchbase' =>  'Search Base',
   'fd.sshkey.comment' => 'Comment',
   'fd.sshkey.skey' => 'Key',
@@ -1321,6 +1322,7 @@ original notification at
   'sh.ug.post' =>         'Executing post-database step (%1$s)',
   'sh.ug.pre' =>          'Executing pre-database step (%1$s)',
   'sh.ug.target' =>       'Target version: %1$s',
+  'sh.ug.094.address' =>  'Migrating address configurations',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

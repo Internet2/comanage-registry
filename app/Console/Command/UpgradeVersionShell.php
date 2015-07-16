@@ -23,7 +23,7 @@
  */
 
 class UpgradeVersionShell extends AppShell {
-  var $uses = array('Meta');
+  var $uses = array('Meta', 'Address');
   
   // A list of known versions, must be semantic versioning compliant. The value
   // is a "blocker" version that prevents an upgrade from happening. For example,
@@ -32,10 +32,13 @@ class UpgradeVersionShell extends AppShell {
   // then 1.1.0 -> 1.2.0). Without the blocker, an upgrade from 1.0.0 to 1.2.0
   // is permitted.
 
-  // Make sure to keep this list in order so we can walk the array rather than compare version strings
+  // Make sure to keep this list in order so we can walk the array rather than compare version strings.
+  // If you flag a version as blocking, be sure to document why.
   protected $versions = array(
     "0.9.3" => array('block' => false),
-    "0.9.4" => array('block' => true, 'pre' => 'pre094', /* 'post' => 'post094' */)
+    // 0.9.4 blocks because it's the first version to use UpgradeVersionShell.
+    // Also, see notes in Address::_ug094().
+    "0.9.4" => array('block' => true, /* 'pre' => 'pre094', */ 'post' => 'post094')
   );
   
   public function getOptionParser() {
@@ -208,7 +211,9 @@ class UpgradeVersionShell extends AppShell {
   
   // Version specific pre/post functions
   
-  public function pre094() {
-    $this->out('hello');
+  public function post094() {
+    // 0.9.4 consolidates cm_addresses:line1 and line2 into street (CO-539)
+    $this->out(_txt('sh.ug.094.address'));
+    $this->Address->_ug094();
   }
 }

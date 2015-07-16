@@ -173,7 +173,7 @@ class CoSetting extends AppModel {
   
   public function getRequiredAddressFields($coId=null) {
     // It would probably be better to get this from the model somehow
-    $ret = explode(",", RequiredAddressFieldsEnum::Line1);
+    $ret = explode(",", RequiredAddressFieldsEnum::Street);
     
     if($coId) {
       try {

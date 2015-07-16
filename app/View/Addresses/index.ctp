@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Address Index View
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -31,7 +31,7 @@
 <table id="addresses" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('line1', _txt('fd.address.line1')); ?></th>
+      <th><?php echo $this->Paginator->sort('street', _txt('fd.address.street')); ?></th>
       <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
       <th><?php echo $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
@@ -46,7 +46,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          echo $this->Html->link($a['Address']['line1'],
+          echo $this->Html->link($a['Address']['street'],
                                  array('controller' => 'addresses',
                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $a['Address']['id']));
         ?>
@@ -85,7 +85,7 @@
             
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($a['Address']['line1'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $a['Address']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($a['Address']['street'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $a['Address']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

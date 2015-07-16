@@ -593,7 +593,7 @@ $(function() {
               {
                 print '<div>';
                   print '<div>';
-                    print $this->Html->link($addr['line1'], array('controller' => 'addresses',
+                    print $this->Html->link($addr['street'], array('controller' => 'addresses',
                                                                   'action'     => 'edit',
                                                                   $addr['id'],
                                                                   'co'         => ($pool_org_identities ? false : $cur_co['Co']['id'])));
@@ -601,7 +601,7 @@ $(function() {
                   print '</div>';
                   print '<div>';
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                  print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['line1'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'], 'co' => ($pool_org_identities ? false : $cur_co['Co']['id']))) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
+                  print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($addr['street'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $addr['id'], 'co' => ($pool_org_identities ? false : $cur_co['Co']['id']))) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
 
                   print $this->Html->link(_txt('op.edit'),
                                           array('controller' => 'addresses',
@@ -633,7 +633,7 @@ $(function() {
               foreach($org_identities[0]['Address'] as $addr)
               {
                 print '<div>';
-                  print Sanitize::html($addr['line1']) . " (" . _txt('en.address.type', null, $addr['type']) . ")\n";
+                  print Sanitize::html($addr['street']) . " (" . _txt('en.address.type', null, $addr['type']) . ")\n";
                 print '</div>';
               }
             }

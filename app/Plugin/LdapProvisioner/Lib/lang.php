@@ -2,7 +2,7 @@
 /**
  * COmanage Registry LDAP Provisioner Plugin Language File
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
@@ -45,6 +45,7 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   // Plugin texts
   'pl.ldapprovisioner.attr.hasmember.desc'  => 'Applies to Group',
   'pl.ldapprovisioner.attr.ismemberof.desc' => 'Applies to Person',
+  'pl.ldapprovisioner.attr.roomnumber.desc' => 'Uses Address Type',
   'pl.ldapprovisioner.attrs'          => 'Attributes',
   'pl.ldapprovisioner.attrs.desc'     => 'Attributes to export to this LDAP server',
   'pl.ldapprovisioner.basedn'         => 'People Base DN',
