@@ -286,7 +286,14 @@ class ApiComponent extends Component {
           fclose($fh);
           if(!empty($doc)) {
             $json = json_decode($doc, true);
-            $this->reqData = $json[$this->reqModelNamePl][0];
+            
+            if(!empty($json[$this->reqModelNamePl][0])) {
+              $this->reqData = $json[$this->reqModelNamePl][0];
+            } else {
+              // Just copy the whole document. We do this for (eg) co_provisioning/provision
+              // which uses a different format.
+              $this->reqData = $json;
+            }
           }
           break;
         case 'xml':
