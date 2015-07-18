@@ -72,7 +72,10 @@ class DefaultNormalizer extends AppModel {
         'trimWhitespace' => array('honorific', 'given', 'middle', 'family', 'suffix')
       ),
       'TelephoneNumber' => array(
-        'trimWhitespace' => array('number')
+        // Following E.123 format, we only use spaces in telephone numbers
+        // (the + and extension label get added by formatTelephone at rendering time)
+        'punctuationToSpace' => array('country_code', 'area_code', 'number', 'extension'),
+        'trimWhitespace' => array('country_code', 'area_code', 'number', 'extension')
       ),
     );
     
@@ -91,7 +94,7 @@ class DefaultNormalizer extends AppModel {
                              array('', ''),
                              $model);
         
-        // Figure out which extendeda attributes are of type string
+        // Figure out which extended attributes are of type string
         
         $args = array();
         $args['conditions']['co_id'] = $coId;
@@ -115,20 +118,17 @@ class DefaultNormalizer extends AppModel {
         }
       }
       
-      // Run the appropriate normalizations for each field within the model
-      
-      if(!empty($normalizations[$model]['mixCase'])) {
-        foreach($normalizations[$model]['mixCase'] as $field) {
-          if(!empty($ret[$model][$field])) {
-            $ret[$model][$field] = $this->mixCase($ret[$model][$field], $field);
-          }
-        }
+      // Other than Extended Attributes, make sure we're working with a known model
+      if(!isset($normalizations[$model])) {
+        continue;
       }
       
-      if(!empty($normalizations[$model]['trimWhitespace'])) {
-        foreach($normalizations[$model]['trimWhitespace'] as $field) {
+      // Run the appropriate normalizations for each field within the model
+      
+      foreach(array_keys($normalizations[$model]) as $normalization) {
+        foreach($normalizations[$model][$normalization] as $field) {
           if(!empty($ret[$model][$field])) {
-            $ret[$model][$field] = trim($ret[$model][$field]);
+            $ret[$model][$field] = $this->$normalization($ret[$model][$field], $field);
           }
         }
       }
@@ -169,5 +169,31 @@ class DefaultNormalizer extends AppModel {
     } else {
       return ucwords(strtolower($str));
     }
+  }
+  
+  /**
+   * Punctuation To Space.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  String $str   String to mix case for
+   * @param  String $field Field name $str is for
+   * @return String Normalized string
+   */
+  
+  protected function punctuationToSpace($str, $field) {
+    return preg_replace("/[^[:alnum:]]+/", " ", $str);
+  }
+  
+  /**
+   * Trim Whitespace.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  String $str   String to mix case for
+   * @param  String $field Field name $str is for
+   * @return String Normalized string
+   */
+  
+  protected function trimWhiteSpace($str, $field) {
+    return trim($str);
   }
 }

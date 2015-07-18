@@ -392,7 +392,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                       if(empty($targetType) || ($targetType == $m['type'])) {
                         // And finally that the attribute itself is set
                         if(!empty($m[ $cols[$attr] ])) {
-                          $attributes[$attr][] = $m[ $cols[$attr] ];
+                          if($mods[$attr] == 'TelephoneNumber') {
+                            // Handle these specially... we want to format the number
+                            // from the various components of the record
+                            $attributes[$attr][] = formatTelephone($m);
+                          } else {
+                            $attributes[$attr][] = $m[ $cols[$attr] ];
+                          }
+                          
                           $found = true;
                         }
                       }

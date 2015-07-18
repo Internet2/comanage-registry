@@ -38,21 +38,21 @@
 
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonroleid'])) {
-    echo $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->params['named']['copersonroleid']))) . "\n";
+    print $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->params['named']['copersonroleid']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonroleid']);
   } elseif(isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
-    echo $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->data['TelephoneNumber']['co_person_role_id']))) . "\n";
+    print $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->data['TelephoneNumber']['co_person_role_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['TelephoneNumber']['co_person_role_id']);
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
+    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
   } elseif(isset($this->request->data['TelephoneNumber']['org_identity_id'])) {
-    echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['TelephoneNumber']['org_identity_id']))) . "\n";
+    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['TelephoneNumber']['org_identity_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['TelephoneNumber']['org_identity_id']);
   }
 
   if(isset($this->params['named']['co']))
-    echo $this->Form->hidden('co_id', array('default' => Sanitize::html($this->params['named']['co']))) . "\n";
+    print $this->Form->hidden('co_id', array('default' => Sanitize::html($this->params['named']['co']))) . "\n";
 
   // Add breadcrumbs
   if(isset($this->request->params['named']['copersonroleid']) || isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
@@ -63,13 +63,12 @@
     $args['action'] = 'index';
     $args['co'] = $cur_co['Co']['id'];
     $this->Html->addCrumb(_txt('me.population'), $args);
-
+    
     $args = array(
       'controller' => 'co_person_roles',
       'action' => 'edit',
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.co_person_roles.1'), $args);
-
   } elseif(isset($this->request->params['named']['orgidentityid']) || isset($this->request->data['TelephoneNumber']['org_identity_id'])) {
     // Org ID History
     $args = array();
@@ -80,31 +79,55 @@
       $args['co'] = $cur_co['Co']['id'];
     }
     $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
-
+    
     $args = array(
       'controller' => 'orgIdentities',
       'action' => 'edit',
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
-
   }
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.telephone_numbers.1')));
   $this->Html->addCrumb($crumbTxt);
 
+  $l = 1;
 ?>
-<table id="<?php echo $this->action; ?>_telephone_number" class="ui-widget">
+<table id="<?php print $this->action; ?>_telephone_number" class="ui-widget">
   <tbody>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.telephone_number.number'); ?><span class="required">*</span>
+        <?php print _txt('fd.telephone_number.country_code'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('number', array('class' => 'focusFirst')) : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['number'])); ?>
+        <?php print ($e ? $this->Form->input('country_code') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['country_code'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.type'); ?>
+        <?php print _txt('fd.telephone_number.area_code'); ?>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('area_code') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['area_code'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.telephone_number.number'); ?><span class="required">*</span>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('number', array('class' => 'focusFirst')) : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['number'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.telephone_number.extension'); ?>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('extension') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['extension'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.type'); ?>
       </td>
       <td>
         <?php
@@ -133,7 +156,7 @@
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }

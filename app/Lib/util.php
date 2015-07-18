@@ -62,6 +62,49 @@ function find_ef_attribute($attrs, $attr, $type=null)
 }
 
 /**
+ * Render a telephone number in E.123 format
+ *
+ * @since  COmanage Registry v0.9.4
+ * @param  Array $phone Array of TelephoneNumber attributes
+ * @return string The formatted telephone number
+ */
+
+function formatTelephone($phone) {
+  $n = "";
+  
+  if(!empty($phone['country_code'])) {
+    // We'll only output + style if a country code was provided
+    $n = "+" . $phone['country_code'];
+  }
+  
+  if(!empty($phone['area_code'])) {
+    if($n != "") {
+      $n .= " ";
+    }
+    
+    $n .= $phone['area_code'];
+  }
+  
+  if(!empty($phone['number'])) {
+    if($n != "") {
+      $n .= " ";
+    }
+    
+    $n .= $phone['number'];
+  }
+  
+  if(!empty($phone['extension'])) {
+    if($n != "") {
+      $n .= " " . _txt('fd.telephone.ext');
+    }
+    
+    $n .= $phone['extension'];
+  }
+  
+  return $n;
+}
+
+/**
  * Assemble a common name from the array $name.
  *
  * @since  COmanage Registry v0.1

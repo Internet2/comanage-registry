@@ -536,7 +536,7 @@ $(function() {
               {
                 print '<div>';
                   print '<div>';
-                    print $this->Html->link($t['number'], array('controller' => 'telephone_numbers',
+                    print $this->Html->link(formatTelephone($t), array('controller' => 'telephone_numbers',
                                                       'action' => 'edit',
                                                       $t['id'],
                                                       'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
@@ -544,7 +544,7 @@ $(function() {
                   print '</div>';
                   print '<div>';
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                  print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['number'])) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'], 'co' => ($pool_org_identities ? false : $cur_co['Co']['id']))) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
+                  print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(formatTelephone($t))) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
 
                   print $this->Html->link(_txt('op.edit'),
                                           array('controller' => 'telephone_numbers',

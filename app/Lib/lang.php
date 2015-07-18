@@ -732,8 +732,8 @@ original notification at
   // The next set must be named fd.model.validation-field
   'fd.address.country' => 'Country',
   'fd.address.language' => 'Language',
-  'fd.address.street' => 'Street',
   'fd.address.locality' => 'City',
+  'fd.address.street' => 'Street',
   'fd.address.postal_code' => 'ZIP/Postal Code',
   'fd.address.room' => 'Room',
   'fd.address.state' => 'State',
@@ -925,6 +925,9 @@ original notification at
   'fd.key' =>         'Key',
   'fd.language' =>    'Language',
   'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
+  // XXX Leave these until 1.0.0 (CO-1098)
+  'fd.line1' =>       'line1',
+  'fd.line2' =>       'line2',
   'fd.link.location' => 'Link Location',  
   'fd.link.order' =>  'Link Order',
   'fd.link.title' =>  'Link Title',
@@ -1009,8 +1012,13 @@ original notification at
   'fd.tc.mode.login.desc' => 'How to handle Terms and Conditions at login, if any are defined. See <a href="https://spaces.internet2.edu/display/COmanage/Registry+Terms+and+Conditions">Terms and Conditions</a>',
   'fd.tc.none' =>     'There are no applicable Terms and Conditions',
   'fd.tc.url.desc' => 'The URL to the Terms and Conditions, which will be displayed in a popup',
-  // This must be named fd.model.validation-field
-  'fd.telephone_number.number' => 'Phone',
+  // These must be named fd.model.validation-field
+  'fd.telephone_number.country_code' => 'Country Code',
+  'fd.telephone_number.area_code' => 'Area Code',
+  'fd.telephone_number.number' => 'Number',
+  'fd.telephone_number.extension' => 'Extension',
+  // This one is for rendering into a telephone number string (eg: 555 1212 x279)
+  'fd.telephone.ext' => 'x',
   'fd.text' =>        'Text',
   'fd.text.original' => 'Original Translation',
   'fd.timestamp' =>   'Timestamp',

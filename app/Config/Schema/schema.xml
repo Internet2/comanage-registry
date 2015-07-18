@@ -476,7 +476,10 @@
       <key />
       <autoincrement />
     </field>
+    <field name="country_code" type="C" size="3" />
+    <field name="area_code" type="C" size="8" />
     <field name="number" type="C" size="64" />
+    <field name="extension" type="C" size="16" />
     <field name="type" type="C" size="32" />
     <field name="co_person_role_id" type="I">
       <constraint>REFERENCES cm_co_person_roles(id)</constraint>

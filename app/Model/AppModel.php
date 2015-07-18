@@ -594,6 +594,32 @@ class AppModel extends Model {
       if(!empty($copt['CoProvisioningTarget']['co_id'])) {
         return $copt['CoProvisioningTarget']['co_id'];
       }
+    } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $this->alias)) {
+      // Extended attributes need to be handled specially, as usual, since there
+      // are no explicit validation rules. Find the CO via the CO Person Role ID.
+      // (ie: We don't trust the Model name in order to follow the general pattern
+      // of lookup the CO ID from the relevant record, though probably we could
+      // just trust it.)
+      
+      // Find the CO via the CO Person via the CO Person Role
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'CoPersonRole';
+      
+      $copr = $this->find('first', $args);
+      
+      if(!empty($copr['CoPersonRole']['co_person_id'])) {
+        $args = array();
+        $args['conditions']['CoPersonRole.co_person_id'] = $copr['CoPersonRole']['co_person_id'];
+        $args['contain'][] = 'CoPerson';
+        
+        $cop = $this->CoPersonRole->find('first', $args);
+        
+        if(!empty($cop['CoPerson']['co_id'])) {
+          return $cop['CoPerson']['co_id'];
+        }
+      }
     } else {
       throw new LogicException(_txt('er.co.fail'));
     }

@@ -346,14 +346,14 @@ $(function() {
             if($perm == PermissionEnum::ReadWrite) {
               print '<div>';
                 print '<div>';
-                  print $this->Html->link($t['number'],
+                  print $this->Html->link(formatTelephone($t),
                                           array('controller' => 'telephone_numbers',
                                                 'action' => 'edit',
                                                 $t['id']))
                         . " (" . $vv_copr_telephonenumber_types[ $t['type'] ] . ")<br />\n";
                 print '</div>';
                 print '<div>';
-                  print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['number'])) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                  print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(formatTelephone($t))) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
                   print $this->Html->link(_txt('op.edit'),
                                           array('controller' => 'telephone_numbers',
                                                 'action' => 'edit',
@@ -362,7 +362,7 @@ $(function() {
                 print '</div>';
               print '</div>';
             } elseif($perm == PermissionEnum::ReadOnly) {
-              print '<div><div>' . Sanitize::html($t['number']) . " (" . $vv_copr_telephonenumber_types[ $t['type'] ] . ")</div><div></div></div>\n";
+              print '<div><div>' . Sanitize::html(formatTelephone($t)) . " (" . $vv_copr_telephonenumber_types[ $t['type'] ] . ")</div><div></div></div>\n";
             }
           }
         }

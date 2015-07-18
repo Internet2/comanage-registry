@@ -53,11 +53,32 @@ class TelephoneNumber extends AppModel {
   // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
     // Don't require number or type since $belongsTo saves won't validate if they're empty
+    'country_code' => array(
+      'content' => array(
+        'rule' => array('maxLength', 3),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'area_code' => array(
+      'content' => array(
+        'rule' => array('maxLength', 8),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
     'number' => array(
       'content' => array(
         'rule' => array('maxLength', 64),   // cake has telephone number validation, but US only
         'required' => false,                // We allow any chars to cover things like "ext 2009"
         'allowEmpty' => false
+      )
+    ),
+    'extension' => array(
+      'content' => array(
+        'rule' => array('maxLength', 16),
+        'required' => false,
+        'allowEmpty' => true
       )
     ),
     'type' => array(
