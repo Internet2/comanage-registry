@@ -1341,7 +1341,6 @@
     <field name="co_id" type="I">
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
-      <unique />
     </field>
     <field name="enable_nsf_demo" type="L" />
     <field name="disable_expiration" type="L" />
@@ -1356,6 +1355,7 @@
     
     <index name="co_settings_i1">
       <col>co_id</col>
+      <unique />
     </index>
   </table>
 </schema>

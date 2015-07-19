@@ -385,10 +385,9 @@
         <span class="descr"><?php print _txt('fd.ef.invval.desc'); ?></span>
       </td>
       <td>
-        <?php global $def_inv_validity;
-              print ($e
+        <?php print ($e
                      ? $this->Form->input('invitation_validity',
-                                          array('default' => $def_inv_validity))
+                                          array('default' => DEF_INV_VALIDITY))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['invitation_validity'])); ?>
       </td>
     </tr>

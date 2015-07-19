@@ -90,6 +90,47 @@ class CoSetting extends AppModel {
     )
   );
   
+  // Default values for each setting
+  
+  protected $defaultSettings = array(
+    'disable_expiration'    => false,
+    'enable_normalization'  => true,
+    'enable_nsf_demo'       => false,
+    'invitation_validity'   => DEF_INV_VALIDITY,
+    'permitted_fields_name' => PermittedNameFieldsEnum::HGMFS,
+    'required_fields_addr'  => RequiredAddressFieldsEnum::Street,
+    'required_fields_name'  => RequiredNameFieldsEnum::Given,
+    't_and_c_login_mode'    => TAndCLoginModeEnum::NotEnforced
+  );
+  
+  /**
+   * Create a CO Settings entry for the specified CO, populated with default values.
+   *
+   * @since  COmanage Registry v0.9.4
+   * @param  Integer $coId CO ID
+   * @return Integer CoSetting ID
+   * @throws RuntimeException
+   */
+  
+  public function addDefaults($coId) {
+    // We don't check that a row doesn't exist already for $coId... that should have
+    // been done before we were called. But even if it wasn't, the database UNIQUE
+    // constraint will prevent the row from being added.
+    
+    $c = array();
+    $c['CoSetting'] = $this->defaultSettings;
+    $c['CoSetting']['co_id'] = $coId;
+    
+    try {
+      $this->save($c);
+    }
+    catch(Exception $e) {
+      throw new RuntimeException(_txt('er.db.save-a', array($e->getMessage())));
+    }
+    
+    return $this->id;
+  }
+  
   /**
    * Determine if Expirations are enabled for the specified CO.
    *
@@ -99,18 +140,9 @@ class CoSetting extends AppModel {
    */
   
   public function expirationEnabled($coId) {
-    $ret = true;
-    
-    try {
-      // Note we flip the value. The data model specifies "disable" so that
-      // the default (ie: no value present in the table) is enabled.
-      $ret = !$this->lookupValue($coId, 'disable_expiration');
-    }
-    catch(UnderflowException $e) {
-      // Use default value
-    }
-    
-    return (boolean)$ret;
+    // Note we flip the value. The data model specifies "disabled so that
+    // the default (ie: no value present in the table) is enabled.
+    return !$this->lookupValue($coId, 'disable_expiration');
   }
   
   /**
@@ -122,17 +154,7 @@ class CoSetting extends AppModel {
    */
   
   public function getInvitationValidity($coId) {
-    global $def_inv_validity;
-    $ret = $def_inv_validity;
-    
-    try {
-      $ret = $this->lookupValue($coId, 'invitation_validity');
-    }
-    catch(UnderflowException $e) {
-      // Use default value
-    }
-    
-    return $ret;
+    return $this->lookupValue($coId, 'invitation_validity');
   }
   
   /**
@@ -144,19 +166,13 @@ class CoSetting extends AppModel {
    */
   
   public function getPermittedNameFields($coId=null) {
-    // It would probably be better to get this from the model somehow
-    $ret = explode(",", PermittedNameFieldsEnum::HGMFS);
+    $ret = explode(",", $this->defaultSettings['permitted_fields_name']);
     
     if($coId) {
-      try {
-        $str = $this->lookupValue($coId, 'permitted_fields_name');
-        
-        if($str && $str != "") {
-          $ret = explode(",", $str);
-        }
-      }
-      catch(UnderflowException $e) {
-        // Use default value
+      $str = $this->lookupValue($coId, 'permitted_fields_name');
+      
+      if($str && $str != "") {
+        $ret = explode(",", $str);
       }
     }
     
@@ -172,19 +188,13 @@ class CoSetting extends AppModel {
    */
   
   public function getRequiredAddressFields($coId=null) {
-    // It would probably be better to get this from the model somehow
-    $ret = explode(",", RequiredAddressFieldsEnum::Street);
+    $ret = explode(",", $this->defaultSettings['required_fields_addr']);
     
     if($coId) {
-      try {
-        $str = $this->lookupValue($coId, 'required_fields_addr');
-        
-        if($str && $str != "") {
-          $ret = explode(",", $str);
-        }
-      }
-      catch(UnderflowException $e) {
-        // Use default value
+      $str = $this->lookupValue($coId, 'required_fields_addr');
+      
+      if($str && $str != "") {
+        $ret = explode(",", $str);
       }
     }
     
@@ -200,19 +210,13 @@ class CoSetting extends AppModel {
    */
   
   public function getRequiredNameFields($coId=null) {
-    // It would probably be better to get this from the model somehow
-    $ret = explode(",", RequiredNameFieldsEnum::Given);
+    $ret = explode(",", $this->defaultSettings['required_fields_name']);
     
     if($coId) {
-      try {
-        $str = $this->lookupValue($coId, 'required_fields_name');
-        
-        if($str && $str != "") {
-          $ret = explode(",", $str);
-        }
-      }
-      catch(UnderflowException $e) {
-        // Use default value
+      $str = $this->lookupValue($coId, 'required_fields_name');
+      
+      if($str && $str != "") {
+        $ret = explode(",", $str);
       }
     }
     
@@ -228,16 +232,7 @@ class CoSetting extends AppModel {
    */
   
   public function getTAndCLoginMode($coId) {
-    $ret = TAndCLoginModeEnum::NotEnforced;
-    
-    try {
-      $ret = $this->lookupValue($coId, 't_and_c_login_mode');
-    }
-    catch(UnderflowException $e) {
-      // Use default value
-    }
-    
-    return $ret;
+    return $this->lookupValue($coId, 't_and_c_login_mode');
   }
   
   /**
@@ -247,7 +242,6 @@ class CoSetting extends AppModel {
    * @param  integer $coId CO ID
    * @param  string  $field Field name to retrieve, corresponding to column/field name
    * @return mixed   Value for setting
-   * @throws UnderflowException (if no row found)
    */
   
   protected function lookupValue($coId, $field) {
@@ -262,8 +256,8 @@ class CoSetting extends AppModel {
     if(isset($s['CoSetting'][$field])) {
       return $s['CoSetting'][$field];
     } else {
-      // If not present throw error to distinguish from null/0/false/etc
-      throw new UnderflowException($coId);
+      // If not present, return the default value
+      return $this->defaultSettings[$field];
     }
   }
   
@@ -276,16 +270,7 @@ class CoSetting extends AppModel {
    */
   
   public function normalizationsEnabled($coId) {
-    $ret = true;
-    
-    try {
-      $ret = $this->lookupValue($coId, 'enable_normalization');
-    }
-    catch(UnderflowException $e) {
-      // Use default value
-    }
-    
-    return (boolean)$ret;
+    return (boolean)$this->lookupValue($coId, 'enable_normalization');
   }
   
   /**
@@ -297,15 +282,6 @@ class CoSetting extends AppModel {
    */
   
   public function nsfDemgraphicsEnabled($coId) {
-    $ret = false;
-    
-    try {
-      $ret = $this->lookupValue($coId, 'enable_nsf_demo');
-    }
-    catch(UnderflowException $e) {
-      // Use default value
-    }
-    
-    return (boolean)$ret;
+    return (boolean)$this->lookupValue($coId, 'enable_nsf_demo');
   }
 }

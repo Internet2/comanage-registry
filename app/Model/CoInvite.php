@@ -284,14 +284,12 @@ class CoInvite extends AppModel {
       throw new RuntimeException($e->getMessage());
     }
     
-    global $def_inv_validity;
-    
     $invite = array();
     $invite['CoInvite']['co_person_id'] = $coPersonId;
     $invite['CoInvite']['invitation'] = Security::generateAuthKey();
     $invite['CoInvite']['mail'] = $toEmail;
     // XXX date format may not be portable
-    $invite['CoInvite']['expires'] = date('Y-m-d H:i:s', strtotime('+' . ($expiry ? $expiry : $def_inv_validity) . ' minutes'));
+    $invite['CoInvite']['expires'] = date('Y-m-d H:i:s', strtotime('+' . ($expiry ? $expiry : DEF_INV_VALIDITY) . ' minutes'));
     if($emailAddressID) {
       $invite['CoInvite']['email_address_id'] = $emailAddressID;
     }

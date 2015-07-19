@@ -51,29 +51,31 @@ class CoSettingsController extends StandardController {
     // CO Setting record for the current CO. If there isn't we create it. Then,
     // we redirect to edit(), which behaves more normally.
     
+    $settingId = null;
+    
     $args = array();
     $args['conditions']['CoSetting.co_id'] = $this->cur_co['Co']['id'];
     $args['contain'] = false;
     
     $c = $this->CoSetting->find('first', $args);
     
-    if(!$c) {
-      // Create the record. No required elements at the moment, so all we need is
-      // the co id.
+    if($c) {
+      $settingId = $c['CoSetting']['id'];
+    } else {
+      // Create the record.
       
-      $c = array();
-      $c['CoSetting']['co_id'] = $this->cur_co['Co']['id'];
-      
-      if($this->CoSetting->save($c)) {
-        $c['CoSetting']['id'] = $this->CoSetting->id;
-      } else {
-        $this->Session->setFlash($this->CoSetting->validationErrors, '', array(), 'error');
+      try {      
+        $settingId = $this->CoSetting->addDefaults($this->cur_co['Co']['id']);
+      }
+      catch(Exception $e) {
+        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->redirect('/');
       }
     }
     
     // Redirect to edit
     
-    $this->redirect(array('action' => 'edit', $c['CoSetting']['id']));
+    $this->redirect(array('action' => 'edit', $settingId));
   }
   
   /**

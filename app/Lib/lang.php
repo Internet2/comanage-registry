@@ -630,6 +630,7 @@ original notification at
   'er.db.connect' =>  'Failed to connect to database: %1$s',
   'er.db.schema' =>   'Possibly failed to update database schema',
   'er.db.save' =>     'Database save failed',
+  'er.db.save-a' =>   'Database save failed: %1$s',
   'er.ea.alter' =>    'Failed to alter table for attribute',
   'er.ea.exists' =>   'An attribute named "%1$s" already exists within the CO',
   'er.ea.index' =>    'Failed to update index for attribute',
