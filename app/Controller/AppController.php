@@ -711,66 +711,66 @@ class AppController extends Controller {
     $p['menu']['cogroups'] = $roles['user'];
     
     // Manage org identity data?
-    $p['menu']['orgidentities'] = $roles['admin'] || $roles['subadmin'];
+    $p['menu']['orgidentities'] = $roles['coadmin'] || $roles['couadmin'];
     
-    // Manage any CO (or COU) population?
+    // Manage the CO (or COU) population?
     // XXX This permission is somewhat confusingly named (implies cmp admin managing COs)
     // as is 'admin' below (which really implies cmadmin)
-    $p['menu']['cos'] = $roles['admin'] || $roles['subadmin'];
+    $p['menu']['cos'] = $roles['coadmin'] || $roles['couadmin'];
     // Which COUs?
     $p['menu']['admincous'] = $roles['admincous'];
     
     // Manage any CO configuration?
-    $p['menu']['coconfig'] = $roles['admin'];
+    $p['menu']['coconfig'] = $roles['coadmin'];
     
     // Select from available enrollment flows?
     $p['menu']['createpetition'] = $roles['user'];
     
     // Invite (default enrollment) new CO people?
-    $p['menu']['invite'] = $roles['admin'] || $roles['subadmin'];
+    $p['menu']['invite'] = $roles['coadmin'] || $roles['subadmin'];
     
     // Review / approve petitions?
     // XXX this isn't exactly the right check, but then neither are most of the others (CO-731)
-    $p['menu']['petitions'] = $roles['admin']
+    $p['menu']['petitions'] = $roles['coadmin']
     // XXX A side effect of this current logic is that the link only appears when the person is viewing
     // another link with the CO specified in it (otherwise copersonid isn't set)
                               || ($roles['copersonid'] && $this->Role->isApprover($roles['copersonid']));
     
     // Manage CO extended attributes?
-    $p['menu']['extattrs'] = $roles['admin'];
+    $p['menu']['extattrs'] = $roles['coadmin'];
     
     // Manage CO extended typees?
-    $p['menu']['exttypes'] = $roles['admin'];
+    $p['menu']['exttypes'] = $roles['coadmin'];
     
     // Manage CO ID Assignment?
-    $p['menu']['idassign'] = $roles['admin'];
+    $p['menu']['idassign'] = $roles['coadmin'];
     
     // Manage COU definitions?
-    $p['menu']['cous'] = $roles['admin'];
+    $p['menu']['cous'] = $roles['coadmin'];
 
     // Manage CO enrollment flow definitions?
-    $p['menu']['coef'] = $roles['admin'];
+    $p['menu']['coef'] = $roles['coadmin'];
     
     // Manage CO Localizations
-    $p['menu']['colocalizations'] = $roles['admin'];
+    $p['menu']['colocalizations'] = $roles['coadmin'];
   
     // Manage CO Links?
-    $p['menu']['conavigationlinks'] = $roles['admin'];
+    $p['menu']['conavigationlinks'] = $roles['coadmin'];
 
     // Manage CO provisioning targets?
-    $p['menu']['coprovtargets'] = $roles['admin'];
+    $p['menu']['coprovtargets'] = $roles['coadmin'];
     
     // Manage CO self service permissions?
-    $p['menu']['coselfsvcperm'] = $roles['admin'];
+    $p['menu']['coselfsvcperm'] = $roles['coadmin'];
     
     // Manage CO settings?
-    $p['menu']['cosettings'] = $roles['admin'];
+    $p['menu']['cosettings'] = $roles['coadmin'];
     
     // Manage CO terms and conditions?
-    $p['menu']['cotandc'] = $roles['admin'];
+    $p['menu']['cotandc'] = $roles['coadmin'];
     
     // Manage CO expiration policies?
-    $p['menu']['coxp'] = $roles['admin'];
+    $p['menu']['coxp'] = $roles['coadmin'];
       
     // Admin COmanage?
     $p['menu']['admin'] = $roles['cmadmin'];
