@@ -63,11 +63,11 @@ class CmpEnrollmentConfigurationsController extends StandardController {
    * @since  COmanage Registry v0.3
    * @param  Array Request data
    * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
    * @return boolean true if dependency checks succeed, false otherwise.
-   *
    */
   
-  function checkWriteFollowups($reqdata, $curdata = null) {
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     if($this->action == 'edit')
     {
       // Check to see if the pool org identities setting has been changed, and

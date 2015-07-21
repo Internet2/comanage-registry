@@ -103,10 +103,11 @@ class CoProvisioningTargetsController extends StandardController {
    * @since  COmanage Registry v0.8
    * @param  Array Request data
    * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkWriteFollowups($reqdata, $curdata = null) {
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     if(!$curdata) {
       // Create an instance of the plugin provisioning target. We do this here to avoid
       // an inconsistent state where the co_provisioning_target is created without a

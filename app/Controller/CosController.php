@@ -121,10 +121,11 @@ class CosController extends StandardController {
    * @since  COmanage Registry v0.1
    * @param  Array Request data
    * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkWriteFollowups($reqdata, $curdata = null) {
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     // Create an admin and member Group for the new CO. As of now, we don't try to populate
     // them with the current user, since it may not be desirable for the current
     // user (say, the CMP admin) to be a member of the new CO. See also CO-84.

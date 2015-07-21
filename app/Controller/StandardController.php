@@ -204,10 +204,11 @@ class StandardController extends AppController {
    * @since  COmanage Registry v0.1
    * @param  Array Request data
    * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkWriteFollowups($reqdata, $curdata = null) {
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     return true;      
   }
   
@@ -492,6 +493,10 @@ class StandardController extends AppController {
     // Make sure ID is set
     $data[$req]['id'] = $id;
     
+    // Create a copy of data so checkWriteFollowups can see what modifications
+    // were made by callbacks
+    $origdata = $data;
+    
     // Set the view var since views require it on error... we need this
     // before any further returns.
     $this->set($modelpl, array(0 => $curdata));
@@ -514,7 +519,7 @@ class StandardController extends AppController {
       $this->set($modelpl, array(0 => $data));
       
       if(!$this->recordHistory('edit', $data, $curdata)
-         || !$this->checkWriteFollowups($data, $curdata)) {
+         || !$this->checkWriteFollowups($data, $curdata, $origdata)) {
         if(!$this->request->is('restful')) {
           $this->performRedirect();
         }

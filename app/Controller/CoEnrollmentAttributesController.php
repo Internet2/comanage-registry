@@ -241,10 +241,11 @@ class CoEnrollmentAttributesController extends StandardController {
    * @since  COmanage Registry v0.8.1
    * @param  Array Request data
    * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkWriteFollowups($reqdata, $curdata = null) {
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     // Perform a quick check to see if the attribute can no longer have a default attribute.
     // Currently, only types 'g', 'o', 'r', and 'x' can.
     

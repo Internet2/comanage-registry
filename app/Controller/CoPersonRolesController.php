@@ -253,10 +253,11 @@ class CoPersonRolesController extends StandardController {
    * @since  COmanage Registry v0.9.2
    * @param  Array Request data
    * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkWriteFollowups($reqdata, $curdata = null) {
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     // This is basically a hack to normalize extended attributes, because Cake 2.x
     // won't see changes to associated data made by behaviors. (This is fixed in
     // Cake 3.) We can't do this in the model because of the order in which
@@ -294,9 +295,24 @@ class CoPersonRolesController extends StandardController {
     if(!empty($reqdata['CoPersonRole']['status'])
        && !empty($curdata['CoPersonRole']['status'])
        && $reqdata['CoPersonRole']['status'] != $curdata['CoPersonRole']['status']) {
-      // This could arguable go in CoPersonRole::afterSave, but it's a lot easier here
+      // This could arguably go in CoPersonRole::afterSave, but it's a lot easier here
       // since we already have old and new state
-      $this->CoPersonRole->CoPerson->recalculateStatus($reqdata['CoPersonRole']['co_person_id']);
+      $newStatus = $this->CoPersonRole->CoPerson->recalculateStatus($reqdata['CoPersonRole']['co_person_id']);
+      
+      if($newStatus != $reqdata['CoPerson']['status']) {
+        $this->Session->setFlash(_txt('rs.cop.recalc',
+                                      array(_txt('en.status', null, $newStatus))),
+                                 '', array(), 'info');
+      }
+    }
+    
+    if(isset($reqdata['CoPersonRole']['status'])
+       && isset($origdata['CoPersonRole']['status'])
+       && $reqdata['CoPersonRole']['status'] != $origdata['CoPersonRole']['status']) {
+      $this->Session->setFlash(_txt('rs.copr.mod',
+                                    array(_txt('en.status', null, $origdata['CoPersonRole']['status']),
+                                          _txt('en.status', null, $reqdata['CoPersonRole']['status']))),
+                               '', array(), 'info');
     }
     
     return true;

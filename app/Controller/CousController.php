@@ -196,10 +196,11 @@ class CousController extends StandardController {
    * @since  COmanage Registry v0.2
    * @param  Array Request data
    * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
    * @return boolean true if dependency checks succeed, false otherwise.
    */
- 
-  function checkWriteFollowups($reqdata, $curdata = null) {
+  
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     if(!$this->request->is('restful') && $this->action == 'add') {
     	// Create admin and members Groups for the new COU. As of now, we don't try to populate
     	// them with the current user, since it may not be desirable for the current

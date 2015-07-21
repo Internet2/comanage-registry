@@ -176,10 +176,11 @@ class CoGroupsController extends StandardController {
    * @since  COmanage Registry v0.1
    * @param  Array Request data
    * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkWriteFollowups($reqdata, $curdata = null) {
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     // Add the co person as owner/member of the new group, but only via HTTP
     
     if(!$this->request->is('restful') && $this->action == 'add')

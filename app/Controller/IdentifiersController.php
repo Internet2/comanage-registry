@@ -240,10 +240,11 @@ class IdentifiersController extends MVPAController {
    * @since  COmanage Registry v0.6
    * @param  Array Request data
    * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
    * @return boolean true if dependency checks succeed, false otherwise.
    */
   
-  function checkWriteFollowups($reqdata, $curdata = null) {
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     $dbc = $this->Identifier->getDataSource();
     
     if(isset($this->cur_co)) {

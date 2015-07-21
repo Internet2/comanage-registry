@@ -654,7 +654,7 @@ class CoPerson extends AppModel {
    *
    * @since  COmanage Registry v0.9.2
    * @param  Integer $id CO Person ID
-   * @return Boolean true on success
+   * @return StatusEnum New status
    * @throws RuntimeException
    */
   
@@ -747,7 +747,7 @@ class CoPerson extends AppModel {
     }
     // else no roles, leave status unchanged
     
-    return true;
+    return $newStatus;
   }
   
   /**
