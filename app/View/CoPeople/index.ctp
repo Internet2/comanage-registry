@@ -52,16 +52,15 @@
   $params = array('title' => _txt('fd.people', array($cur_co['Co']['name'])));
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  print $this->element("coCrumb");
   if($this->action == 'link') {
-    // Add breadcrumbs
     $this->Html->addCrumb(_txt('op.link'));
   } elseif($this->action == 'relink') {
-    // Add breadcrumbs
     $this->Html->addCrumb(_txt('op.relink'));
   } elseif($this->action == 'select') {
     print $this->element("enrollmentCrumbs");
   } else {
-    // Add breadcrumbs
     $this->Html->addCrumb(_txt('me.population'));
     
     // Add buttons to sidebar

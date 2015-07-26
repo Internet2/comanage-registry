@@ -55,6 +55,7 @@
     print $this->Form->hidden('co_id', array('default' => Sanitize::html($this->params['named']['co']))) . "\n";
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   if(isset($this->request->params['named']['copersonroleid']) || isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
     // CO Person History
     $args = array();

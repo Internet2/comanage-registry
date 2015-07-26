@@ -26,6 +26,7 @@
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'co_people';

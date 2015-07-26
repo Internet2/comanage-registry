@@ -28,6 +28,7 @@
     $params = array('title' => _txt('op.gr.memadd', array($name_for_title)));
 
     // Add breadcrumbs
+    print $this->element("coCrumb");
     $args = array();
     $args['plugin'] = null;
     $args['controller'] = 'co_people';

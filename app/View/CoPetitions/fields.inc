@@ -59,6 +59,7 @@ $(function() {
 
   // Add breadcrumbs (if user is logged into the platform)
   if(!isset($noLoginLogout) || !$noLoginLogout) {
+    print $this->element("coCrumb");
     $args = array();
     $args['plugin'] = null;
     $args['controller'] = 'co_petitions';

@@ -63,6 +63,7 @@ $(function() {
     return(false);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'org_identities';

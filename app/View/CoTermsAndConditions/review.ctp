@@ -26,6 +26,7 @@
                                                           array(generateCn($vv_co_person['PrimaryName']), $cur_co['Co']['name']))));
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_terms_and_conditions.pl'));
   
   // Determine if there are any not-agreed-to-t&c

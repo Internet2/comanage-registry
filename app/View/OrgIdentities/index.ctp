@@ -29,6 +29,7 @@ global $cm_lang, $cm_texts;
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.org_identities.pl'));
 
   if($permissions['add']) {

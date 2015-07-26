@@ -22,6 +22,13 @@
  * @version       $Id$
  */
 -->
+<?php
+  // Add breadcrumb
+  if(!empty($cur_co['Co']['name'])) {
+    $this->Html->addCrumb(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_STRING));
+  }
+?>
+
 <div id="firstPrompt">
   <?php print _txt('op.dashboard.select', array($cur_co['Co']['name']));?>
 </div>

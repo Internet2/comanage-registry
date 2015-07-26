@@ -59,6 +59,7 @@
                   && $email_addresses[0]['EmailAddress']['verified']);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   if(isset($this->request->params['named']['copersonid']) || isset($this->request->data['EmailAddress']['co_person_id'])) {
     // CO Person History
     $args = array();

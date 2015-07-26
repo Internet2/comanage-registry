@@ -27,6 +27,7 @@
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_extended_types.pl'));
   
   // Which attribute are we currently looking at? If not set, we'll default

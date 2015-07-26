@@ -45,6 +45,7 @@
   print $this->Form->hidden('actor_co_person_id', array('default' => $this->Session->read('Auth.User.co_person_id')));
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'co_petitions';

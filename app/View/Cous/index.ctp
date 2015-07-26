@@ -27,6 +27,7 @@
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.cous.pl'));
 
   if($permissions['add'])

@@ -26,6 +26,7 @@
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $crumbTxt = _txt('op.select-a',array(_txt('ct.enrollment_flows.1')));
   $this->Html->addCrumb($crumbTxt);
 ?>
