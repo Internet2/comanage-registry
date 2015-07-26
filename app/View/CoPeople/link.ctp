@@ -92,13 +92,13 @@
     maybe_enable_submit();
   }
 </script>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.link.confirm'); ?></strong>
   </p>
 </div>
-<div style="float:left;width:100%;">
+<div class="innerContent">
   <ul>
     <li>
     <?php print _txt('op.link.info',

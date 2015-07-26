@@ -285,7 +285,19 @@ ul.sf-menu li.dropMenu li a:hover {
   text-align: center;
   margin: 10px 0 0 0;
 }
-
+/* General icon and box styling */
+.co-info {
+  float: left;
+  margin-right: .3em;
+}
+.co-info-topbox {
+  margin-top: 20px;
+  padding: 0 .7em;
+}
+.co-alert {
+  float:left;
+  margin:0 7px 20px 0;
+}
 /*** Logout button ***/
 #logout a {
   display: block;
@@ -445,6 +457,9 @@ th, td {
 td.actions {
   white-space: nowrap;
 }
+th.actionButtons {
+  width:70px;
+}
 /* zebra stripes for rows; 0 used for autoincrementing line counters */
 .line0 {
   background-color: #e5e5e5;
@@ -499,6 +514,10 @@ label,
 }
 .select-name {
   font-size: 1.4em;
+}
+.submitButton {
+  float:left;
+  margin:0 10px 0 0;
 }
 
 /* Tabbed Boxes */
@@ -757,6 +776,9 @@ label,
   padding: 5px;
 }
 /* Petitions */
+#petition {
+  min-height: 350px;
+}
 #view_co_petition .checkbutton {
   margin-left: 1em;
 }

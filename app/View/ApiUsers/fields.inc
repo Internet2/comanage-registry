@@ -40,34 +40,32 @@
   $this->Html->addCrumb($crumbTxt);
 
 ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 
-0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;">
-</span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('ap.note.privs'); ?></strong>
   </p>
 </div>
 <table id="<?php print $this->action; ?>_api_users" class="ui-widget">
   <tbody>
     <tr class="line1">
-      <td>
-        <b><?php print _txt('fd.username.api'); ?></b></b><span class="required">*</span>
-      </td>
+      <th>
+        <?php print _txt('fd.username.api'); ?><span class="required">*</span>
+      </th>
       <td>
         <?php print ($e
                      ? $this->Form->input('username', array('class' => 'focusFirst'))
                      : Sanitize::html($api_users[0]['ApiUser']['username'])); ?>
       </td>
       <td>
-        <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <span class="ui-icon ui-icon-info co-info"></span>
         <i><?php print _txt('ap.note.username'); ?></i>
       </td>
     </tr>
     <tr class="line2">
-      <td>
-        <b><?php print _txt('fd.password'); ?></b><span class="required">*</span>
-      </td>
+      <th>
+        <?php print _txt('fd.password'); ?><span class="required">*</span>
+      </th>
       <td>
         <?php print ($e
                      ? $this->Form->password('password')

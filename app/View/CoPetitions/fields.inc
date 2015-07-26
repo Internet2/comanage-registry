@@ -163,7 +163,7 @@ $(function() {
   // lot of logic to embed in a view file, and plausibly this code should be
   // refactored at some point.
 ?>
-<div style="min-height: 350px;">
+<div id="petition">
   <?php if($this->action != 'add'): // Enable tabs only if we're viewing an existing petition ?>
   <div id="tabs">
     <ul>

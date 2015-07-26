@@ -107,7 +107,7 @@
       </td>
       <?php if($e && $isVerified): ?>
       <td>
-        <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <span class="ui-icon ui-icon-info co-info"></span>
         <i><?php print _txt('fd.email_address.verified.warn'); ?></i>
       </td>
       <?php endif; ?>

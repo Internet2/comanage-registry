@@ -37,15 +37,15 @@
   }
 ?>
 
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
 <?php if($op == 'invite'): ?>
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('in.orgid.email'); ?></strong>
   </p>
 <?php endif; // invite ?>
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('in.orgid.co'); ?></strong>
   </p>
 </div>

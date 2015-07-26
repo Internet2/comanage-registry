@@ -93,7 +93,7 @@
         ?>
       </td>
       <td>
-        <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <span class="ui-icon ui-icon-info co-info"></span>
         <i><?php echo _txt('fd.type.warn'); ?></i>
       </td>
     </tr>
