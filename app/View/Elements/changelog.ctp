@@ -35,53 +35,83 @@
     return;
   }
 ?>
-<div>
-  <h2>
+<div id="changeLog">
+  <a href="#tabs-changelog" class="fieldGroupNameCl">
+    <span class="ui-icon ui-icon-circlesmall-plus"></span>
     <?php print _txt('fd.changelog'); ?>
-  </h2>
+  </a>
+  <ul class="fields" style="display: none;">
+    <li>
+      <div id="tabs-changelog" class="additionalinfo">
+
+        <table id="<?php print $this->action . "_" . $modelu . "_changelog"; ?>" class="ui-widget">
+          <tbody>
+          <tr class="line<?php print ($l % 2);
+                               print (${$modelpl}[0][$req]['deleted'] ? ' deleted' : '');
+                               $l++; ?>">
+            <th>
+              <?php print _txt('fd.deleted'); ?>
+            </th>
+            <td>
+              <?php print (${$modelpl}[0][$req]['deleted'] ? _txt('fd.yes') : _txt('fd.no')); ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <th>
+              <?php print _txt('fd.revision'); ?>
+            </th>
+            <td>
+              <?php
+              print ${$modelpl}[0][$req]['revision'];
+              ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <th>
+              <?php print _txt('fd.modified'); ?>
+            </th>
+            <td>
+              <?php
+              print $this->Time->niceShort(${$modelpl}[0][$req]['modified']);
+              ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <th>
+              <?php print _txt('fd.actor'); ?>
+            </th>
+            <td>
+              <?php
+              if(!empty(${$modelpl}[0][$req]['actor_identifier'])) {
+                print ${$modelpl}[0][$req]['actor_identifier'];
+              }
+              ?>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </li>
+  </ul>
 </div>
 
-<table id="<?php print $this->action . "_" . $modelu . "_changelog"; ?>" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td width="50%">
-        <b><?php print _txt('fd.deleted'); ?></b><br />
-      </td>
-      <td>
-        <?php print (${$modelpl}[0][$req]['deleted'] ? _txt('fd.yes') : _txt('fd.no')); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td width="50%">
-        <b><?php print _txt('fd.revision'); ?></b><br />
-      </td>
-      <td>
-        <?php
-          print ${$modelpl}[0][$req]['revision'];
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td width="50%">
-        <b><?php print _txt('fd.modified'); ?></b><br />
-      </td>
-      <td>
-        <?php
-          print $this->Time->niceShort(${$modelpl}[0][$req]['modified']);
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td width="50%">
-        <b><?php print _txt('fd.actor'); ?></b><br />
-      </td>
-      <td>
-        <?php
-          if(!empty(${$modelpl}[0][$req]['actor_identifier'])) {
-            print ${$modelpl}[0][$req]['actor_identifier'];
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<script type="text/javascript">
+  $(function() {
+    // Explorer menu toggle for changelog
+    $(".fieldGroupNameCl").click(function (event) {
+      event.preventDefault();
+      $(this).next(".fields").slideToggle("fast");
+      // toggle the +/- icon:
+      if ($(this).find(".ui-icon").hasClass("ui-icon-circlesmall-minus")) {
+        $(this).find(".ui-icon").removeClass("ui-icon-circlesmall-minus").addClass("ui-icon-circlesmall-plus");
+      } else {
+        $(this).find(".ui-icon").removeClass("ui-icon-circlesmall-plus").addClass("ui-icon-circlesmall-minus");
+      }
+    });
+
+    <?php if(${$modelpl}[0][$req]['deleted']): ?>
+      // Add "Deleted" text next to page title, if we're looking at a deleted entity
+      $(".pageTitle h2").append('<span class="deleted"><?php print _txt('fd.deleted'); ?></span>');
+    <?php endif ?>
+  });
+</script>

@@ -518,7 +518,8 @@
     ?>
   </head>
 
-  <body onload="js_onload_call_hooks()">
+  <body class="<?php print $this->params->controller . ' ' . $this->params->action ?>"
+        onload="js_onload_call_hooks()">
     <div class="header">
       <div id="row1">
         <div class="contentWidth">
