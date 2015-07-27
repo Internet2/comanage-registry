@@ -29,6 +29,7 @@ global $cm_lang, $cm_texts;
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.org_identities.pl'));
 
   if($permissions['add']) {
@@ -49,14 +50,14 @@ global $cm_lang, $cm_texts;
   }
 ?>
 
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('in.orgidentities'); ?></strong>
   </p>
 </div>
 <br /> 
-<table id="org_identities" class="ui-widget" style=" width:100%;">
+<table id="org_identities" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php echo $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
@@ -64,7 +65,7 @@ global $cm_lang, $cm_texts;
       <th><?php echo $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
       <th><?php echo $this->Paginator->sort('title', _txt('fd.title')); ?></th>
       <th><?php echo $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-      <th style="width:70px"><?php echo _txt('fd.actions'); ?></th>
+      <th class="actionButtons"><?php echo _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   

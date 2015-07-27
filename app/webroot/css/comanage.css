@@ -285,7 +285,19 @@ ul.sf-menu li.dropMenu li a:hover {
   text-align: center;
   margin: 10px 0 0 0;
 }
-
+/* General icon and box styling */
+.co-info {
+  float: left;
+  margin-right: .3em;
+}
+.co-info-topbox {
+  margin-top: 20px;
+  padding: 0 .7em;
+}
+.co-alert {
+  float:left;
+  margin:0 7px 20px 0;
+}
 /*** Logout button ***/
 #logout a {
   display: block;
@@ -445,6 +457,9 @@ th, td {
 td.actions {
   white-space: nowrap;
 }
+th.actionButtons {
+  width:70px;
+}
 /* zebra stripes for rows; 0 used for autoincrementing line counters */
 .line0 {
   background-color: #e5e5e5;
@@ -499,6 +514,10 @@ label,
 }
 .select-name {
   font-size: 1.4em;
+}
+.submitButton {
+  float:left;
+  margin:0 10px 0 0;
 }
 
 /* Tabbed Boxes */
@@ -703,8 +722,63 @@ label,
   background-color: #F5F5FF;
   color: #333;
 }
-
+/* Changelog */
+#changeLog ul {
+  margin: 0;
+  padding: 0;
+}
+#changeLog li {
+  list-style: none;
+  margin: 0 0 0.5em 0;
+}
+#changeLog .fieldGroupNameCl .ui-icon {
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons-16px.png") !important;
+  float: left;
+  opacity: 0.6;
+}
+#changeLog a {
+  text-decoration: none;
+}
+#changeLog .additionalinfo {
+  padding: 0;
+}
+#changeLog tr.deleted td {
+  background-color: #e33;
+  color: white;
+}
+.pageTitle .deleted {
+  background-color: #e33;
+  color: white;
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  margin-left: 0.25em;
+  padding: 0 4px;
+  text-transform: uppercase;
+}
+.fieldGroupNameCl {
+  display: block;
+  color: #2E6E9E;
+  font-size: 1.1em;
+  font-weight: bold;
+  padding: 0.3em 0;
+}
+.co_people #changeLog {
+  margin-left: 1em;
+}
+.co_people #changeLog ul {
+  margin-left: 1em;
+}
+.co_people #changeLog .fieldGroupNameCl {
+  border-bottom: 1px solid #eee;
+}
+.co_people #changeLog .additionalinfo {
+  padding: 5px;
+}
 /* Petitions */
+#petition {
+  min-height: 350px;
+}
 #view_co_petition .checkbutton {
   margin-left: 1em;
 }

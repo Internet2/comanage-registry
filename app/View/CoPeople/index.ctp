@@ -52,16 +52,15 @@
   $params = array('title' => _txt('fd.people', array($cur_co['Co']['name'])));
   print $this->element("pageTitle", $params);
 
+  // Add breadcrumbs
+  print $this->element("coCrumb");
   if($this->action == 'link') {
-    // Add breadcrumbs
     $this->Html->addCrumb(_txt('op.link'));
   } elseif($this->action == 'relink') {
-    // Add breadcrumbs
     $this->Html->addCrumb(_txt('op.relink'));
   } elseif($this->action == 'select') {
     print $this->element("enrollmentCrumbs");
   } else {
-    // Add breadcrumbs
     $this->Html->addCrumb(_txt('me.population'));
     
     // Add buttons to sidebar
@@ -94,36 +93,36 @@
 ?>
 
 <?php if($this->action == 'link'): ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.link.select', array(generateCn($vv_org_identity['PrimaryName']),
                                                      $vv_org_identity['OrgIdentity']['id'])); ?></strong>
   </p>
 </div>
 <br />
 <?php elseif($this->action == 'relink' && !empty($vv_co_org_identity_link['OrgIdentity'])): ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.relink.select', array(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),
                                                        $vv_co_org_identity_link['OrgIdentity']['id'])); ?></strong>
   </p>
 </div>
 <br />
 <?php elseif($this->action == 'relink' && !empty($vv_co_person_role['CoPersonRole'])): ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.relink.role.select', array($vv_co_person_role['CoPersonRole']['title'],
                                                        $vv_co_person_role['CoPersonRole']['id'])); ?></strong>
   </p>
 </div>
 <br />
 <?php elseif($this->action == 'select'): ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.select.select'); ?></strong>
   </p>
 </div>

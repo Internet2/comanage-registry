@@ -518,7 +518,8 @@
     ?>
   </head>
 
-  <body onload="js_onload_call_hooks()">
+  <body class="<?php print $this->params->controller . ' ' . $this->params->action ?>"
+        onload="js_onload_call_hooks()">
     <div class="header">
       <div id="row1">
         <div class="contentWidth">
@@ -662,7 +663,7 @@
       // Don't load the following UI component when loading the Shib EDS. ?>
       <div id="dialog" title="Confirm">
         <p>
-          <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+          <span class="ui-icon ui-icon-alert co-alert"></span>
           <span id="dialog-text"><?php print _txt('op.proceed.ok'); ?></span>
         </p>
       </div>

@@ -35,6 +35,7 @@
     return(false);
 
   // Add breadcrumbs
+    print $this->element("coCrumb");
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = '_co_terms_and_conditions';

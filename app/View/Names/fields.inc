@@ -55,6 +55,7 @@
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   if(isset($this->request->params['named']['copersonid']) || isset($this->request->data['Name']['co_person_id'])) {
     // CO Person History
     $args = array();

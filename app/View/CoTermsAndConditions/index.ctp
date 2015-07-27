@@ -26,6 +26,7 @@
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_terms_and_conditions.pl'));
 
   // Add buttons to sidebar

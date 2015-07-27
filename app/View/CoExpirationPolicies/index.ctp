@@ -26,6 +26,7 @@
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_expiration_policies.pl'));
 
   // Add buttons to sidebar

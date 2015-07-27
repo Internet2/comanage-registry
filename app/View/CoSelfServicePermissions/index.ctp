@@ -26,6 +26,7 @@
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_self_service_permissions.pl'));
 
   // Add buttons to sidebar
@@ -46,9 +47,9 @@
   $this->set('sidebarButtons', $sidebarButtons);
 ?>
 
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('fd.ssp.default'); ?></strong>
   </p>
 </div>

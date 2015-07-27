@@ -1,8 +1,8 @@
-<!--
+<?php
 /**
- * COmanage Registry CO Dashboard Dashboard View
+ * COmanage Registry CO Bread Crumb
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,21 +14,19 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.9.2
+ * @since         COmanage Registry v0.9.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<?php
-  // Add breadcrumb
-  if(!empty($cur_co['Co']['name'])) {
-    $this->Html->addCrumb(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_STRING));
-  }
-?>
 
-<div id="firstPrompt">
-  <?php print _txt('op.dashboard.select', array($cur_co['Co']['name']));?>
-</div>
+  if(!empty($cur_co['Co']['name'])) {
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_dashboards';
+    $args['action'] = 'dashboard';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_STRING), $args);
+  }

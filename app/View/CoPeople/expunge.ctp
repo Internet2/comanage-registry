@@ -26,6 +26,7 @@
   print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'co_people';
@@ -70,13 +71,13 @@
     maybe_enable_submit();
   }
 </script>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.expunge.confirm', array(generateCn($vv_co_person['PrimaryName']))); ?></strong>
   </p>
 </div>
-<div style="float:left;width:100%;">
+<div class="innerContent">
   <p>
     <?php print _txt('op.expunge.info'); ?>
     
@@ -132,7 +133,7 @@
     if($hrcnt > 0):
   ?>
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.expunge.info.hist', array($hrcnt,
                                                            $this->Html->url(array('controller'      => 'history_records',
                                                                                   'action'          => 'index',
@@ -142,7 +143,7 @@
   
   <?php if(!empty($vv_co_person['CoNotificationActor'])): ?>
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.expunge.info.not.act', array(count($vv_co_person['CoNotificationActor']),
                                                               $this->Html->url(array('controller'      => 'co_notifications',
                                                                                      'action'          => 'index',
@@ -153,7 +154,7 @@
   
   <?php if(!empty($vv_co_person['CoNotificationRecipient'])): ?>
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.expunge.info.not.rec', array(count($vv_co_person['CoNotificationRecipient']),
                                                               $this->Html->url(array('controller'          => 'co_notifications',
                                                                                      'action'              => 'index',
@@ -164,7 +165,7 @@
   
   <?php if(!empty($vv_co_person['CoNotificationResolver'])): ?>
   <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    <span class="ui-icon ui-icon-info co-info"></span>
     <strong><?php print _txt('op.expunge.info.not.res', array(count($vv_co_person['CoNotificationResolver']),
                                                               $this->Html->url(array('controller'         => 'co_notifications',
                                                                                      'action'             => 'index',

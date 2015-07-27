@@ -43,6 +43,7 @@
     return(false);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'co_people';
@@ -865,7 +866,7 @@
                                  ($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
                                   || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation)): ?>
                         <div>
-                          <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+                          <span class="ui-icon ui-icon-info co-info"></span>
                           <i><?php print _txt('fd.status.change'); ?></i>
                         </div>
                         <?php endif; ?>

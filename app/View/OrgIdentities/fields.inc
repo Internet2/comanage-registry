@@ -63,6 +63,7 @@ $(function() {
     return(false);
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'org_identities';
@@ -395,7 +396,7 @@ $(function() {
               <?php
                 if($e)
                 {
-                  print '<div style="float:left; margin:0 10px 0 0;">';
+                  print '<div class="submitButton">';
                     print $this->Form->submit($submit_label);
                   print '</div>';
                   print $this->Form->button(_txt('op.reset'), 

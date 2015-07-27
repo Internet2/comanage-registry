@@ -35,6 +35,7 @@
     return false;
 
   // Add breadcrumbs
+  print $this->element("coCrumb");
   if(isset($this->request->params['named']['copersonid'])) {
     // CO Person History
     $args = array();
