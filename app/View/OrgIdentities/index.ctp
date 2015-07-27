@@ -56,7 +56,21 @@ global $cm_lang, $cm_texts;
     <strong><?php print _txt('in.orgidentities'); ?></strong>
   </p>
 </div>
-<br /> 
+
+<?php // Load the top search bar
+if(isset($permissions['search']) && $permissions['search'] ) {
+  if(!empty($this->plugin)) {
+    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/OrgIdentities/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  } else {
+    $fileLocation = APP . "View/OrgIdentities/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  }
+}
+?>
+
 <table id="org_identities" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">

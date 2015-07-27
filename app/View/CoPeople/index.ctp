@@ -37,6 +37,8 @@
       return false;
     });
 
+    $("#clearSearchButton").button();
+
   });
 
   function togglePeople(state) {
@@ -64,6 +66,7 @@
     $this->Html->addCrumb(_txt('me.population'));
     
     // Add buttons to sidebar
+    /* XXX DEPRECATED.  Keep for now.
     $sidebarButtons = $this->get('sidebarButtons');
     
     if($permissions['enroll'] && !empty($co_enrollment_flows)) {
@@ -89,6 +92,7 @@
     }  
     
     $this->set('sidebarButtons', $sidebarButtons);
+    */
   }
 ?>
 
@@ -185,6 +189,20 @@
     ?>
   </ul>
 </div>
+
+<?php // Load the top search bar
+if(isset($permissions['search']) && $permissions['search'] ) {
+  if(!empty($this->plugin)) {
+    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoPeople/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  } else {
+    $fileLocation = APP . "View/CoPeople/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  }
+}
+?>
 
 <div id="co_people">
   <?php $i = 0; ?>
