@@ -203,7 +203,6 @@
 
         // Make all submit buttons pretty
         $("input:submit").button();
-        $("form .submit").css('float','left');
 
         // Other buttons
         $(".addbutton").button({
@@ -620,17 +619,20 @@
             </ul>
 
             <?php // Advanced Search (CO-139)
-              if(isset($permissions['search']) && $permissions['search'] ) {
-                // Get a pointer to our model
-                $model = $this->name;
-                if(!empty($this->plugin)) {
-                  $fileLocation = APP . "Plugin/" . $this->plugin . "/View/" . $model . "/search.inc";
-                  if(file_exists($fileLocation))
-                    include($fileLocation);
-                } else {
-                  $fileLocation = APP . "View/" . $model . "/search.inc";
-                  if(file_exists($fileLocation))
-                    include($fileLocation);
+              // skip on the index pages, where we've moved searching to the top, but keep on the others
+              if ($this->action != 'index') {
+                if(isset($permissions['search']) && $permissions['search'] ) {
+                  // Get a pointer to our model
+                  $model = $this->name;
+                  if(!empty($this->plugin)) {
+                    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/" . $model . "/search-side.inc";
+                    if(file_exists($fileLocation))
+                      include($fileLocation);
+                  } else {
+                    $fileLocation = APP . "View/" . $model . "/search-side.inc";
+                    if(file_exists($fileLocation))
+                      include($fileLocation);
+                  }
                 }
               }
             ?>

@@ -486,9 +486,15 @@ input.text {
   width: 95%;
   padding: 0.4em;
 }
+input[type="text"],
+ input[type="number"] {
+   border: 1px solid #ccc;
+   padding: 3px;
+ }
 input[type="text"]:focus,
 input[type="number"]:focus {
   background-color: #ffd;
+  border: 1px solid #999;
 }
 fieldset {
   margin-top: 25px;
@@ -515,9 +521,16 @@ label,
 .select-name {
   font-size: 1.4em;
 }
+form .submit {
+  float: left;
+}
 .submitButton {
   float:left;
   margin:0 10px 0 0;
+}
+select {
+  -webkit-appearance: menulist-button;
+  height: 2em;
 }
 
 /* Tabbed Boxes */
@@ -529,7 +542,56 @@ label,
 .coTabs {
   min-height:350px;
 }
-
+/* For Top Search (co_people index and org_identity index) */
+.topSearch {
+  height: 38;
+  text-align: right;
+  white-space: nowrap;
+  margin-bottom: 0.5em;
+}
+.topSearch p {
+  float: left;
+  margin: 0.5em;
+  color: #666;
+}
+.topSearch fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+.topSearch .input {
+  float: left;
+  margin-right: 2px;
+}
+.topSearch input[type=text] {
+  width: 92%;
+  height: 2em;
+  padding: 2px 4px;
+  border: 1px solid #ddd;
+}
+#orgIdSearch {
+  margin: 0.5em 0 3.25em 0;
+}
+#orgIdSearch.topSearch input[type=text] {
+   width: 88%;
+}
+.topSearch label {
+  display: none;
+}
+.topSearch select {
+  color: #777;
+  width: 98%;
+  height: 2.5em;
+  margin: 0;
+  border: 1px solid #ddd;
+}
+.topSearch option[value=''] {
+  font-style: italic;
+}
+.topSearch .submit,
+.topSearch .clearButton {
+  float: right;
+}
 /* For Advanced Search box */
 #advancedSearch {
   margin-top: 0.5em;
@@ -537,10 +599,10 @@ label,
 #advancedSearch .ui-accordion-header {
   font-weight: normal;
 }
-#advancedSearch .ui-accordion-content{
+#advancedSearch .ui-accordion-content {
   padding: 0px;
 }
-#advancedSearch td{
+#advancedSearch td {
   border: none;
 }
 #advancedSearch td label{
@@ -548,24 +610,16 @@ label,
   position: relative;
 }
 #advancedSearch input,
-#advancedSearch select{
+#advancedSearch select {
   float: right;
   clear: both;
   width: 120px;
 }
-#advancedSearch select{
+#advancedSearch select {
   width: 146px;
 }
-#advancedSearch .submit{
+#advancedSearch .submit {
   float: right;
-}
-.clearButton {
-  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-  border: 1px solid #ddd;
-  color: #999;
-  float: right;
-  margin: 0.5em 0 0;
-  cursor: pointer;
 }
 /* For enrollment form */
 #formbox {

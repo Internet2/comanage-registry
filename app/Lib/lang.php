@@ -1106,7 +1106,7 @@ original notification at
   'op.back' =>        'Back',
   'op.begin' =>       'Begin',
   'op.cancel' =>      'Cancel',
-  'op.clear.all' =>   'Clear All',
+  'op.clear.all' =>   'Clear',
   'op.compare' =>     'Compare',
   'op.config' =>      'Configure',
   'op.confirm' =>     'Confirm',

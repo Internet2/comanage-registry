@@ -59,6 +59,12 @@
   .modelbox table tr > *:first-child {
      min-width: 50px !important;
    }
+  #coPeopleSearch .input {
+    width: 14.6%;
+  }
+  #orgIdSearch .input {
+    width: 9.5%;
+  }
 }
 
 /* MEDIUM */
@@ -85,7 +91,13 @@
   }
   #co_people .panel1,
   #co_people .panel2 {
-    width: 635px;
+    width: 850px;
+  }
+  #coPeopleSearch .input {
+    width: 16.7%;
+  }
+  #orgIdSearch .input {
+    width: 10%;
   }
 }
 
@@ -101,7 +113,13 @@
   }
   #co_people .panel1,
   #co_people .panel2 {
-    width: 850px;
+    width: 1150px;
+  }
+  #coPeopleSearch .input {
+    width: 17.4%;
+  }
+  #orgIdSearch .input {
+    width: 11%;
   }
 }
 
