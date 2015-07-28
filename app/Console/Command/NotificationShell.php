@@ -2,7 +2,7 @@
 /**
  * COmanage Notification Shell
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.4
@@ -28,58 +28,57 @@ class NotificationShell extends AppShell {
   public function getOptionParser() {
     $parser = parent::getOptionParser();
     
-    // XXX I18N this
     $parser->addArgument(
       'coName',
       array(
-        'help'     => 'Name of CO (cm_cos:name)',
+        'help'     => _txt('sh.nt.arg.coname'),
         'required' => true
       )
     )->AddArgument(
       'subjectIdentifier',
       array(
-        'help'     => 'Identifier associated with CO Person notification is about',
+        'help'     => _txt('sh.nt.arg.subjectidentifier'),
         'required' => true
       )
     )->AddArgument(
       'actorIdentifier',
       array(
-        'help'     => 'Identifier associated with CO Person who sent notification',
+        'help'     => _txt('sh.nt.arg.actoridentifier'),
         'required' => true
       )
     )->AddArgument(
       'recipientIdentifier',
       array(
-        'help'     => 'Either the name of a CO Group or the identifier of a CO Person to send the notification to',
+        'help'     => _txt('sh.nt.arg.recipientidentifier'),
         'required' => true
       )
     )->AddArgument(
       'action',
       array(
-        'help'     => '4-character action code (eg: from ActionEnum)',
+        'help'     => _txt('sh.nt.arg.action'),
         'required' => true
       )
     )->AddArgument(
       'comment',
       array(
-        'help'     => 'Human readable comment (for body of notification)',
+        'help'     => _txt('sh.nt.arg.comment'),
         'required' => true
       )
     )->AddArgument(
       'source',
       array(
-        'help'     => 'Source of notification, either as a URL or a comma separated list of controller,action,id,arg0,val0 (arg0/val0 are optional)',
+        'help'     => _txt('sh.nt.arg.source'),
         'required' => true
       )
     )->addOption(
       'resolve',
       array(
         'short' => 'r',
-        'help' => 'If set, resolution is required (not just acknowledgment)',
+        'help' => _txt('sh.nt.arg.resolve'),
         'boolean' => true,
       )
-    )->description("Manually generate a Notification")
-    ->epilog("Identifiers are specified as <type>:<value>, eg: 'eppn:plee@university.edu', corresponding to cm_identifiers");
+    )->description(_txt('sh.nt.arg.desc'))
+    ->epilog(_txt('sh.nt.arg.epilog'));
     
     return $parser;
   }
