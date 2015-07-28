@@ -218,7 +218,9 @@
               print $this->Form->error('Name.language');
             }
           } else {
-            print _txt('en.language', null, $names[0]['Name']['language']);
+            if(!empty($names[0]['Name']['language'])) {
+              print _txt('en.language', null, $names[0]['Name']['language']);
+            }
           }
         ?>
       </td>
