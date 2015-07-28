@@ -1513,7 +1513,21 @@ class CoPetitionsController extends StandardController {
         'co' => $this->cur_co['Co']['id']
       ));
     } else {
-      parent::performRedirect();
+      // By default, return to the list of petitions pending approval. For admins,
+      // this is probably where they'll want to go. For others, they probably won't
+      // have permission and will end up at /... we might want to fix that at
+      // some point.
+      
+      $this->redirect(array(
+        'controller'    => 'co_petitions',
+        'action'        => 'index',
+        'co'            => $this->cur_co['Co']['id'],
+        'sort'          => 'created',
+        'direction'     => 'desc',
+        'search.status' => array(
+          StatusEnum::PendingApproval
+        )
+      ));
     }
   }
   

@@ -1227,6 +1227,8 @@ original notification at
   'op.upload.new' =>  'Upload a New %1$s',
   'op.verify' =>      'Verify',
   'op.view' =>        'View',
+  'op.view.all' =>    'View All',
+  'op.view.pending' => 'View Pending',
   'op.view-a' =>      'View %1$s',
   'op.view-f' =>      'View %1$s for %2$s',
   

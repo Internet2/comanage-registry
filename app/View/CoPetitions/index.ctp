@@ -48,11 +48,25 @@
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.petitions.pl'));
   
-  if($permissions['add'] && !empty($cur_co)) {
-    print $this->Html->link(_txt('op.enroll'),
-                            array('controller' => 'co_enrollment_flows', 'action' => 'select', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'addbutton'));    
-  }
+  print $this->Html->link(_txt('op.view.all'),
+                          array('controller' => 'co_petitions',
+                                'action'     => 'index',
+                                'co'         => $cur_co['Co']['id'],
+                                'sort'       => 'created',
+                                'direction'  => 'desc'),
+                          array('class' => 'searchbutton'));    
+  
+  print $this->Html->link(_txt('op.view.pending'),
+                          array('controller'    => 'co_petitions',
+                                'action'        => 'index',
+                                'co'            => $cur_co['Co']['id'],
+                                'sort'          => 'created',
+                                'direction'     => 'desc',
+                                'search.status' => array(
+                                  StatusEnum::PendingApproval,
+                                  StatusEnum::PendingConfirmation
+                                )),
+                          array('class' => 'searchbutton'));    
 ?>
 
 <button id="statusfilter" class = "searchbutton">
