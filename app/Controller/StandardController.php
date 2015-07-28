@@ -167,6 +167,24 @@ class StandardController extends AppController {
   }
   
   /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v0.9.4
+   */
+
+  public function beforeRender() {
+    if($this->modelClass == 'CoPerson'
+       || $this->modelClass == 'OrgIdentity') {
+      // Populate list of statuses for people searches
+      
+      global $cm_lang, $cm_texts;
+      $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status']);
+    }
+    
+    parent::beforeRender();
+  }
+  
+  /**
    * Perform any dependency checks required prior to a delete operation.
    * This method is intended to be overridden by model-specific controllers.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)

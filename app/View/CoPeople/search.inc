@@ -75,23 +75,7 @@ global $cm_lang, $cm_texts;
     print $this->Form->input('Search.identifier', $args);
     ?>
     <?php
-    // This needs to pull StatusEnum values based on the model (CO-1007)
-    $statusOptions = array(StatusEnum::Active,
-      StatusEnum::Approved,
-      StatusEnum::Declined,
-      StatusEnum::Deleted,
-      StatusEnum::Denied,
-      StatusEnum::Invited,
-      StatusEnum::Pending,
-      StatusEnum::PendingApproval,
-      StatusEnum::PendingConfirmation,
-      StatusEnum::Suspended);
-
-    foreach ($statusOptions as $s) {
-      $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
-    }
-
-    $formParams = array('options' => $searchOptions,
+    $formParams = array('options' => $vv_statuses,
       'type'    => 'select',
       'empty'   => ' ',
       'label'   => _txt('fd.status'),
