@@ -345,6 +345,9 @@ class CoGroupsController extends StandardController {
       if(!empty($this->request->params['named']['copersonid'])) {
         $managedp = $this->Role->isCoAdminForCoPerson($roles['copersonid'],
                                                       $this->request->params['named']['copersonid']);
+        if($roles['copersonid'] == $this->request->params['named']['copersonid']) {
+          $self = true;
+        }
       } elseif ($roles['copersonid'] == $this->Session->read('Auth.User.co_person_id')) {
         $self = true;
       }
