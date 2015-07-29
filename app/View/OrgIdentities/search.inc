@@ -101,7 +101,7 @@ global $cm_lang, $cm_texts;
   $searchOptions = $cm_texts[ $cm_lang ]['en.org_identity.affiliation'];
   $formParams = array('options' => $searchOptions,
     'type'    => 'select',
-    'empty'   => _txt('fd.affiliation'),
+    'empty'   => _txt('fd.affiliation') . ' ' . _txt('op.select.empty'),
     'label'   => _txt('fd.affiliation'),
     'tabindex' => '7',
     'onchange' => 'this.form.submit()',

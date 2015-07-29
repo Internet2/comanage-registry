@@ -151,6 +151,20 @@
   </ul>
 </div>
 
+<?php // Load the top search bar
+if(isset($permissions['search']) && $permissions['search'] ) {
+  if(!empty($this->plugin)) {
+    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoPeople/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  } else {
+    $fileLocation = APP . "View/CoPeople/search.inc";
+    if(file_exists($fileLocation))
+      include($fileLocation);
+  }
+}
+?>
+
 <div id="peopleAlphabet" class="listControl">
   <ul>
     <?php
@@ -189,20 +203,6 @@
     ?>
   </ul>
 </div>
-
-<?php // Load the top search bar
-if(isset($permissions['search']) && $permissions['search'] ) {
-  if(!empty($this->plugin)) {
-    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoPeople/search.inc";
-    if(file_exists($fileLocation))
-      include($fileLocation);
-  } else {
-    $fileLocation = APP . "View/CoPeople/search.inc";
-    if(file_exists($fileLocation))
-      include($fileLocation);
-  }
-}
-?>
 
 <div id="co_people">
   <?php $i = 0; ?>

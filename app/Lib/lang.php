@@ -1216,6 +1216,7 @@ original notification at
   'op.select' =>      'Select',
   'op.select-a' =>    'Select %1$s',
   'op.select.select' => 'Please select the CO Person you would like to attach to this Petition by clicking the associated select button.',
+  'op.select.empty' => '(select...)',
   'op.submit' =>      'Submit',
   'op.tc.agree' =>    'Agree to Terms and Conditions',
   'op.tc.agree.i' =>  'I Agree',

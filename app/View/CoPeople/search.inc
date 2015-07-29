@@ -79,7 +79,7 @@ global $cm_lang, $cm_texts;
       'type'    => 'select',
       'empty'   => ' ',
       'label'   => _txt('fd.status'),
-      'empty'   => _txt('fd.status'),
+      'empty'   => _txt('fd.status') . ' ' . _txt('op.select.empty'),
       'onchange' => 'this.form.submit()',
       'tabindex' => '4',
       'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
@@ -92,7 +92,7 @@ global $cm_lang, $cm_texts;
         'type'    => 'select',
         'empty'   => ' ',
         'label'   => _txt('fd.cou'),
-        'empty'   => _txt('fd.cou'),
+        'empty'   => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
         'onchange' => 'this.form.submit()',
         'tabindex' => '5',
         'value'   => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));

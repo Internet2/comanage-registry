@@ -467,7 +467,7 @@
         });
 
         // Turn on the sidebar menus
-        $( "#menu" ).menu();
+        $("#menu").menu();
 
         // Flash Messages
         <?php

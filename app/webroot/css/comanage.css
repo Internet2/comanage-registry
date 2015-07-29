@@ -26,7 +26,7 @@ body {
 }
 .contentWidth {
   margin: auto;
-  min-width: 600px;
+  min-width: 620px;
 }
 html {
   overflow-y: scroll;
@@ -544,10 +544,11 @@ select {
 }
 /* For Top Search (co_people index and org_identity index) */
 .topSearch {
-  height: 38;
+  /*height: 38;*/
+  padding: 0.5em;
+  background-color: #eee;
   text-align: right;
   white-space: nowrap;
-  margin-bottom: 0.5em;
 }
 .topSearch p {
   float: left;
@@ -570,7 +571,8 @@ select {
   border: 1px solid #ddd;
 }
 #orgIdSearch {
-  margin: 0.5em 0 3.25em 0;
+  margin: 0.5em 0;
+  min-height: 30px;
 }
 #orgIdSearch.topSearch input[type=text] {
    width: 88%;
@@ -591,6 +593,17 @@ select {
 .topSearch .submit,
 .topSearch .clearButton {
   float: right;
+}
+
+#topLinks {
+  float: right;
+  margin-top: 1.75em;
+}
+#topLinks .ui-icon {
+  float: left;
+}
+#topLinks.ui-widget-content {
+  border: none;
 }
 /* For Advanced Search box */
 #advancedSearch {
@@ -904,9 +917,9 @@ select {
 }
 /* Alpha search  */
 #peopleAlphabet {
-  margin: 0.5em 0;
+  margin: 0 0 1.2em 0;
   font-size: 1.2em;
-  border: 1px solid #eee;
+  border-top: 1px solid #ddd;
 }
 #peopleAlphabet ul {
   display: table;
