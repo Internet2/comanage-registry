@@ -345,13 +345,11 @@ class CoGroupsController extends StandardController {
       if(!empty($this->request->params['named']['copersonid'])) {
         $managedp = $this->Role->isCoAdminForCoPerson($roles['copersonid'],
                                                       $this->request->params['named']['copersonid']);
-        
-        if($roles['copersonid'] == $this->request->params['named']['copersonid']) {
-          $self = true;
-        }
+      } elseif ($roles['copersonid'] == $this->Session->read('Auth.User.co_person_id')) {
+        $self = true;
       }
     }
-    
+
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
@@ -559,7 +557,7 @@ class CoGroupsController extends StandardController {
     $args['contain'] = array('PrimaryName');
     
     $coPerson = $this->CoGroup->CoGroupMember->CoPerson->find('first', $args);
-    
+
     if(!empty($coPerson)) {
       // Set name for page title
       $this->set('name_for_title', Sanitize::html(generateCn($coPerson['PrimaryName'])));

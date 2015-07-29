@@ -522,13 +522,13 @@ class CoGroupMembersController extends StandardController {
     // Check for CO members group and if not then check for COU members group.
     $isMembersGroup = false;
     if($coGroup['CoGroup']['name'] == 'members') {
-    	$isMembersGroup = true;
+      $isMembersGroup = true;
     } else {
-        foreach($coGroup['Co']['Cou'] as $cou) {
-        	if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
-        		$isMembersGroup = true;
-        	}
-    		}            
+      foreach($coGroup['Co']['Cou'] as $cou) {
+        if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
+          $isMembersGroup = true;
+        }
+      }            
     }
     
     $this->set('isMembersGroup', $isMembersGroup);
@@ -544,10 +544,12 @@ class CoGroupMembersController extends StandardController {
   
   public function update() {
     if(!$this->request->is('restful')) {
+      $targetCoPersonId = $this->request->data['CoGroupMember']['co_person_id'];
+      $userCoPersonId   = $this->Session->read('Auth.User.co_person_id');
       try {
-        $this->CoGroupMember->updateMemberships($this->request->data['CoGroupMember']['co_person_id'],
+        $this->CoGroupMember->updateMemberships($targetCoPersonId,
                                                 $this->request->data['CoGroupMember']['rows'],
-                                                $this->Session->read('Auth.User.co_person_id'));
+                                                $userCoPersonId);
         
         $this->Session->setFlash(_txt('rs.saved'), '', array(), 'success');
       }
@@ -556,11 +558,18 @@ class CoGroupMembersController extends StandardController {
       }
       
       // Issue redirect
-      
-      $this->redirect(array('controller' => 'co_groups',
-                            'action'     => 'select',
-                            'copersonid' => $this->request->data['CoGroupMember']['co_person_id'],
-                            'co'         => $this->cur_co['Co']['id']));
+      $redir = array();
+      $redir['controller'] = 'co_groups';
+      $redir['action']     = 'select';
+      $redir['co']         = $this->cur_co['Co']['id'];
+
+      // If the current user is not the same as the target CO Person for whom
+      // memberships are being managed then include the copersonid parameter.
+      if($targetCoPersonId != $userCoPersonId) {
+        $redir['copersonid'] = $targetCoPersonId;
+      }
+
+      $this->redirect($redir);
     }
   }
   
