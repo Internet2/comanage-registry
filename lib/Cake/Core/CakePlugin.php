@@ -37,19 +37,39 @@ class CakePlugin {
  *
  * Examples:
  *
- * 	`CakePlugin::load('DebugKit')` will load the DebugKit plugin and will not load any bootstrap nor route files
- *	`CakePlugin::load('DebugKit', array('bootstrap' => true, 'routes' => true))` will load the bootstrap.php and routes.php files
- * 	`CakePlugin::load('DebugKit', array('bootstrap' => false, 'routes' => true))` will load routes.php file but not bootstrap.php
- * 	`CakePlugin::load('DebugKit', array('bootstrap' => array('config1', 'config2')))` will load config1.php and config2.php files
- *	`CakePlugin::load('DebugKit', array('bootstrap' => 'aCallableMethod'))` will run the aCallableMethod function to initialize it
+ * `CakePlugin::load('DebugKit')`
  *
- * Bootstrap initialization functions can be expressed as a PHP callback type, including closures. Callbacks will receive two
- * parameters (plugin name, plugin configuration)
+ * Will load the DebugKit plugin and will not load any bootstrap nor route files
+ *
+ * `CakePlugin::load('DebugKit', array('bootstrap' => true, 'routes' => true))`
+ *
+ * will load the bootstrap.php and routes.php files
+ *
+ * `CakePlugin::load('DebugKit', array('bootstrap' => false, 'routes' => true))`
+ *
+ * will load routes.php file but not bootstrap.php
+ *
+ * `CakePlugin::load('DebugKit', array('bootstrap' => array('config1', 'config2')))`
+ *
+ * will load config1.php and config2.php files
+ *
+ * `CakePlugin::load('DebugKit', array('bootstrap' => 'aCallableMethod'))`
+ *
+ * will run the aCallableMethod function to initialize it
+ *
+ * Bootstrap initialization functions can be expressed as a PHP callback type,
+ * including closures. Callbacks will receive two parameters
+ * (plugin name, plugin configuration)
  *
  * It is also possible to load multiple plugins at once. Examples:
  *
- * `CakePlugin::load(array('DebugKit', 'ApiGenerator'))` will load the DebugKit and ApiGenerator plugins
- * `CakePlugin::load(array('DebugKit', 'ApiGenerator'), array('bootstrap' => true))` will load bootstrap file for both plugins
+ * `CakePlugin::load(array('DebugKit', 'ApiGenerator'))`
+ *
+ * will load the DebugKit and ApiGenerator plugins
+ *
+ * `CakePlugin::load(array('DebugKit', 'ApiGenerator'), array('bootstrap' => true))`
+ *
+ * will load bootstrap file for both plugins
  *
  * ```
  * 	CakePlugin::load(array(
@@ -58,7 +78,9 @@ class CakePlugin {
  * 		), array('bootstrap' => true))
  * ```
  *
- * Will only load the bootstrap for ApiGenerator and only the routes for DebugKit
+ * Will only load the bootstrap for ApiGenerator and only the routes for DebugKit.
+ * By using the `path` option you can specify an absolute path to the plugin. Make
+ * sure that the path is slash terminated or your plugin will not be located properly.
  *
  * @param string|array $plugin name of the plugin to be loaded in CamelCase format or array or plugins to load
  * @param array $config configuration options for the plugin
@@ -107,13 +129,26 @@ class CakePlugin {
  *
  * ```
  * 	CakePlugin::loadAll(array(
- *		array('bootstrap' => true),
+ * 		array('bootstrap' => true),
  * 		'DebugKit' => array('routes' => true, 'bootstrap' => false),
  * 	))
  * ```
  *
  * The above example will load the bootstrap file for all plugins, but for DebugKit it will only load
- * the routes file and will not look for any bootstrap script.
+ * the routes file and will not look for any bootstrap script. If you are loading
+ * many plugins that inconsistently support routes/bootstrap files, instead of detailing
+ * each plugin you can use the `ignoreMissing` option:
+ *
+ * ```
+ * CakePlugin::loadAll(array(
+ *   'ignoreMissing' => true,
+ *   'bootstrap' => true,
+ *   'routes' => true,
+ * ));
+ * ```
+ *
+ * The ignoreMissing option will do additional file_exists() calls but is simpler
+ * to use.
  *
  * @param array $options Options list. See CakePlugin::load() for valid options.
  * @return void

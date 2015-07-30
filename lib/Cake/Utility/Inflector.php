@@ -107,7 +107,8 @@ class Inflector {
 			'hero' => 'heroes',
 			'tooth' => 'teeth',
 			'goose' => 'geese',
-			'foot' => 'feet'
+			'foot' => 'feet',
+			'sieve' => 'sieves'
 		)
 	);
 
@@ -385,8 +386,10 @@ class Inflector {
 			self::$_plural['cacheIrregular'] = '(?:' . implode('|', array_keys(self::$_plural['merged']['irregular'])) . ')';
 		}
 
-		if (preg_match('/(.*)\\b(' . self::$_plural['cacheIrregular'] . ')$/i', $word, $regs)) {
-			self::$_cache['pluralize'][$word] = $regs[1] . substr($word, 0, 1) . substr(self::$_plural['merged']['irregular'][strtolower($regs[2])], 1);
+		if (preg_match('/(.*?(?:\\b|_))(' . self::$_plural['cacheIrregular'] . ')$/i', $word, $regs)) {
+			self::$_cache['pluralize'][$word] = $regs[1] .
+				substr($regs[2], 0, 1) .
+				substr(self::$_plural['merged']['irregular'][strtolower($regs[2])], 1);
 			return self::$_cache['pluralize'][$word];
 		}
 
@@ -434,8 +437,10 @@ class Inflector {
 			self::$_singular['cacheIrregular'] = '(?:' . implode('|', array_keys(self::$_singular['merged']['irregular'])) . ')';
 		}
 
-		if (preg_match('/(.*)\\b(' . self::$_singular['cacheIrregular'] . ')$/i', $word, $regs)) {
-			self::$_cache['singularize'][$word] = $regs[1] . substr($word, 0, 1) . substr(self::$_singular['merged']['irregular'][strtolower($regs[2])], 1);
+		if (preg_match('/(.*?(?:\\b|_))(' . self::$_singular['cacheIrregular'] . ')$/i', $word, $regs)) {
+			self::$_cache['singularize'][$word] = $regs[1] .
+				substr($regs[2], 0, 1) .
+				substr(self::$_singular['merged']['irregular'][strtolower($regs[2])], 1);
 			return self::$_cache['singularize'][$word];
 		}
 
@@ -478,7 +483,8 @@ class Inflector {
  */
 	public static function underscore($camelCasedWord) {
 		if (!($result = self::_cache(__FUNCTION__, $camelCasedWord))) {
-			$result = strtolower(preg_replace('/(?<=\\w)([A-Z])/', '_\\1', $camelCasedWord));
+			$underscoredWord = preg_replace('/(?<=\\w)([A-Z])/', '_\\1', $camelCasedWord);
+			$result = mb_strtolower($underscoredWord);
 			self::_cache(__FUNCTION__, $camelCasedWord, $result);
 		}
 		return $result;
@@ -494,7 +500,11 @@ class Inflector {
  */
 	public static function humanize($lowerCaseAndUnderscoredWord) {
 		if (!($result = self::_cache(__FUNCTION__, $lowerCaseAndUnderscoredWord))) {
-			$result = ucwords(str_replace('_', ' ', $lowerCaseAndUnderscoredWord));
+			$result = explode(' ', str_replace('_', ' ', $lowerCaseAndUnderscoredWord));
+			foreach ($result as &$word) {
+				$word = mb_strtoupper(mb_substr($word, 0, 1)) . mb_substr($word, 1);
+			}
+			$result = implode(' ', $result);
 			self::_cache(__FUNCTION__, $lowerCaseAndUnderscoredWord, $result);
 		}
 		return $result;

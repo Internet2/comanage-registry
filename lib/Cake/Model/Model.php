@@ -20,7 +20,7 @@
 
 App::uses('ClassRegistry', 'Utility');
 App::uses('Validation', 'Utility');
-App::uses('String', 'Utility');
+App::uses('CakeText', 'Utility');
 App::uses('Hash', 'Utility');
 App::uses('BehaviorCollection', 'Model');
 App::uses('ModelBehavior', 'Model');
@@ -134,7 +134,7 @@ class Model extends Object implements CakeEventListener {
  *
  * ```
  * public $validate = array(
- *     'name' => 'notEmpty'
+ *     'name' => 'notBlank'
  * );
  * ```
  *
@@ -1428,8 +1428,12 @@ class Model extends Object implements CakeEventListener {
  * @return string Column type
  */
 	public function getColumnType($column) {
-		$db = $this->getDataSource();
 		$cols = $this->schema();
+		if (isset($cols[$column]) && isset($cols[$column]['type'])) {
+			return $cols[$column]['type'];
+		}
+
+		$db = $this->getDataSource();
 		$model = null;
 
 		$startQuote = isset($db->startQuote) ? $db->startQuote : null;
@@ -1713,7 +1717,7 @@ class Model extends Object implements CakeEventListener {
  *   - validate: Set to true/false to enable or disable validation.
  *   - fieldList: An array of fields you want to allow for saving.
  *   - callbacks: Set to false to disable callbacks. Using 'before' or 'after'
- *      will enable only those callbacks.
+ *     will enable only those callbacks.
  *   - `counterCache`: Boolean to control updating of counter caches (if any)
  *
  * @param array $fieldList List of fields to allow to be saved
@@ -1915,9 +1919,9 @@ class Model extends Object implements CakeEventListener {
 				if (empty($this->data[$this->alias][$this->primaryKey]) && $this->_isUUIDField($this->primaryKey)) {
 					if (array_key_exists($this->primaryKey, $this->data[$this->alias])) {
 						$j = array_search($this->primaryKey, $fields);
-						$values[$j] = String::uuid();
+						$values[$j] = CakeText::uuid();
 					} else {
-						list($fields[], $values[]) = array($this->primaryKey, String::uuid());
+						list($fields[], $values[]) = array($this->primaryKey, CakeText::uuid());
 					}
 				}
 
@@ -1937,9 +1941,8 @@ class Model extends Object implements CakeEventListener {
 			$this->_saveMulti($joined, $this->id, $db);
 		}
 
-		$this->whitelist = $_whitelist;
-
 		if (!$success) {
+			$this->whitelist = $_whitelist;
 			return $success;
 		}
 
@@ -1960,6 +1963,7 @@ class Model extends Object implements CakeEventListener {
 
 		$this->_clearCache();
 		$this->validationErrors = array();
+		$this->whitelist = $_whitelist;
 		$this->data = false;
 
 		return $success;
@@ -2026,7 +2030,7 @@ class Model extends Object implements CakeEventListener {
 					$values = array($id, $row);
 
 					if ($isUUID && $primaryAdded) {
-						$values[] = String::uuid();
+						$values[] = CakeText::uuid();
 					}
 
 					$newValues[$row] = $values;
@@ -2331,11 +2335,11 @@ class Model extends Object implements CakeEventListener {
 					if ($options['deep']) {
 						$saved = $this->saveAssociated($record, array('atomic' => false) + $options);
 					} else {
-						$saved = $this->save($record, array('atomic' => false) + $options);
+						$saved = (bool)$this->save($record, array('atomic' => false) + $options);
 					}
 				}
 
-				$validates = ($validates && ($saved === true || (is_array($saved) && !in_array(false, $saved, true))));
+				$validates = ($validates && ($saved === true || (is_array($saved) && !in_array(false, Hash::flatten($saved), true))));
 				if (!$validates) {
 					$validationErrors[$key] = $this->validationErrors;
 				}
@@ -2474,9 +2478,9 @@ class Model extends Object implements CakeEventListener {
 					if ($options['deep']) {
 						$saved = $Model->saveAssociated($values, array('atomic' => false) + $options);
 					} else {
-						$saved = $Model->save($values, array('atomic' => false) + $options);
+						$saved = (bool)$Model->save($values, array('atomic' => false) + $options);
 					}
-					$validates = ($saved === true || (is_array($saved) && !in_array(false, $saved, true)));
+					$validates = ($saved === true || (is_array($saved) && !in_array(false, Hash::flatten($saved), true)));
 				}
 
 				if ($validates) {
@@ -2530,11 +2534,11 @@ class Model extends Object implements CakeEventListener {
 							if ($options['deep']) {
 								$saved = $Model->saveAssociated($values, array('atomic' => false) + $options);
 							} else {
-								$saved = $Model->save($values, $options);
+								$saved = (bool)$Model->save($values, $options);
 							}
 						}
 
-						$validates = ($validates && ($saved === true || (is_array($saved) && !in_array(false, $saved, true))));
+						$validates = ($validates && ($saved === true || (is_array($saved) && !in_array(false, Hash::flatten($saved), true))));
 						if (!$validates) {
 							$validationErrors[$association] = $Model->validationErrors;
 						}
@@ -2648,7 +2652,7 @@ class Model extends Object implements CakeEventListener {
  *    Fields are treated as SQL snippets, to insert literal values manually escape your data.
  * @param mixed $conditions Conditions to match, true for all records
  * @return bool True on success, false on failure
- * @link http://book.cakephp.org/2.0/en/models/saving-your-data.html#model-updateall-array-fields-array-conditions
+ * @link http://book.cakephp.org/2.0/en/models/saving-your-data.html#model-updateall-array-fields-mixed-conditions
  */
 	public function updateAll($fields, $conditions = true) {
 		return $this->getDataSource()->update($this, $fields, null, $conditions);
@@ -3187,7 +3191,7 @@ class Model extends Object implements CakeEventListener {
 				$list = array("{n}.{$this->alias}.{$this->primaryKey}", "{n}.{$this->alias}.{$this->displayField}", null);
 			} else {
 				if (!is_array($query['fields'])) {
-					$query['fields'] = String::tokenize($query['fields']);
+					$query['fields'] = CakeText::tokenize($query['fields']);
 				}
 
 				if (count($query['fields']) === 1) {

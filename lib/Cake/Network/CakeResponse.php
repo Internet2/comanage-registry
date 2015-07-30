@@ -68,6 +68,7 @@ class CakeResponse {
 		415 => 'Unsupported Media Type',
 		416 => 'Requested range not satisfiable',
 		417 => 'Expectation Failed',
+		429 => 'Too Many Requests',
 		500 => 'Internal Server Error',
 		501 => 'Not Implemented',
 		502 => 'Bad Gateway',
@@ -95,7 +96,7 @@ class CakeResponse {
 		'cpio' => 'application/x-cpio',
 		'cpt' => 'application/mac-compactpro',
 		'csh' => 'application/x-csh',
-		'csv' => array('text/csv', 'application/vnd.ms-excel', 'text/plain'),
+		'csv' => array('text/csv', 'application/vnd.ms-excel'),
 		'dcr' => 'application/x-director',
 		'dir' => 'application/x-director',
 		'dms' => 'application/octet-stream',
@@ -1138,7 +1139,7 @@ class CakeResponse {
 /**
  * Checks whether a response has not been modified according to the 'If-None-Match'
  * (Etags) and 'If-Modified-Since' (last modification date) request
- * headers headers. If the response is detected to be not modified, it
+ * headers. If the response is detected to be not modified, it
  * is marked as so accordingly so the client can be informed of that.
  *
  * In order to mark a response as not modified, you need to set at least
@@ -1336,7 +1337,7 @@ class CakeResponse {
 			'download' => null
 		);
 
-		if (strpos($path, '..') !== false) {
+		if (strpos($path, '..' . DS) !== false) {
 			throw new NotFoundException(__d(
 				'cake_dev',
 				'The requested file contains `..` and will not be read.'
@@ -1495,9 +1496,10 @@ class CakeResponse {
  * @return bool
  */
 	protected function _clearBuffer() {
-		//@codingStandardsIgnoreStart
-		return @ob_end_clean();
-		//@codingStandardsIgnoreEnd
+		if (ob_get_length()) {
+			return ob_end_clean();
+		}
+		return true;
 	}
 
 /**

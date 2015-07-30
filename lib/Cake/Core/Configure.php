@@ -103,10 +103,10 @@ class Configure {
 				self::$_values['Exception']
 			);
 
-			// Preload Debugger + String in case of E_STRICT errors when loading files.
+			// Preload Debugger + CakeText in case of E_STRICT errors when loading files.
 			if (self::$_values['debug'] > 0) {
 				class_exists('Debugger');
-				class_exists('String');
+				class_exists('CakeText');
 			}
 		}
 	}
@@ -179,7 +179,7 @@ class Configure {
  * Configure::read('Name.key'); will return only the value of Configure::Name[key]
  * ```
  *
- * @param string $var Variable to obtain. Use '.' to access array elements.
+ * @param string|null $var Variable to obtain. Use '.' to access array elements.
  * @return mixed value stored in configure, or null.
  * @link http://book.cakephp.org/2.0/en/development/configuration.html#Configure::read
  */
@@ -191,12 +191,36 @@ class Configure {
 	}
 
 /**
+ * Used to read and delete a variable from Configure.
+ *
+ * This is primarily used during bootstrapping to move configuration data
+ * out of configure into the various other classes in CakePHP.
+ *
+ * @param string $var The key to read and remove.
+ * @return array|null
+ */
+	public static function consume($var) {
+		$simple = strpos($var, '.') === false;
+		if ($simple && !isset(self::$_values[$var])) {
+			return null;
+		}
+		if ($simple) {
+			$value = self::$_values[$var];
+			unset(self::$_values[$var]);
+			return $value;
+		}
+		$value = Hash::get(self::$_values, $var);
+		self::$_values = Hash::remove(self::$_values, $var);
+		return $value;
+	}
+
+/**
  * Returns true if given variable is set in Configure.
  *
  * @param string $var Variable name to check for
  * @return bool True if variable is there
  */
-	public static function check($var = null) {
+	public static function check($var) {
 		if (empty($var)) {
 			return false;
 		}
@@ -216,7 +240,7 @@ class Configure {
  * @return void
  * @link http://book.cakephp.org/2.0/en/development/configuration.html#Configure::delete
  */
-	public static function delete($var = null) {
+	public static function delete($var) {
 		self::$_values = Hash::remove(self::$_values, $var);
 	}
 
@@ -241,7 +265,7 @@ class Configure {
 /**
  * Gets the names of the configured reader objects.
  *
- * @param string $name Name to check. If null returns all configured reader names.
+ * @param string|null $name Name to check. If null returns all configured reader names.
  * @return array Array of the configured reader objects.
  */
 	public static function configured($name = null) {
@@ -419,7 +443,7 @@ class Configure {
 /**
  * Clear all values stored in Configure.
  *
- * @return bool success.
+ * @return bool Success.
  */
 	public static function clear() {
 		self::$_values = array();

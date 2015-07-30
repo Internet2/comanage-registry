@@ -432,6 +432,7 @@ class ExtractTask extends AppShell {
 					$category = isset($category) ? $category : 6;
 					$category = (int)$category;
 					$categoryName = $categories[$category];
+
 					$domain = isset($domain) ? $domain : 'default';
 					$details = array(
 						'file' => $this->_file,
@@ -443,8 +444,11 @@ class ExtractTask extends AppShell {
 					if (isset($context)) {
 						$details['msgctxt'] = $context;
 					}
-					$this->_addTranslation($categoryName, $domain, $singular, $details);
-				} else {
+					// Skip LC_TIME files as we use a special file format for them.
+					if ($categoryName !== 'LC_TIME') {
+						$this->_addTranslation($categoryName, $domain, $singular, $details);
+					}
+				} elseif (!is_array($this->_tokens[$count - 1]) || $this->_tokens[$count - 1][0] != T_FUNCTION) {
 					$this->_markerError($this->_file, $line, $functionName, $count);
 				}
 			}
@@ -686,7 +690,6 @@ class ExtractTask extends AppShell {
 		$output .= "msgid \"\"\n";
 		$output .= "msgstr \"\"\n";
 		$output .= "\"Project-Id-Version: PROJECT VERSION\\n\"\n";
-		$output .= "\"POT-Creation-Date: " . date("Y-m-d H:iO") . "\\n\"\n";
 		$output .= "\"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\\n\"\n";
 		$output .= "\"Last-Translator: NAME <EMAIL@ADDRESS>\\n\"\n";
 		$output .= "\"Language-Team: LANGUAGE <EMAIL@ADDRESS>\\n\"\n";

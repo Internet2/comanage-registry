@@ -49,6 +49,19 @@ class Validation {
 	public static $errors = array();
 
 /**
+ * Backwards compatibility wrapper for Validation::notBlank().
+ *
+ * @param string|array $check Value to check.
+ * @return bool Success.
+ * @deprecated 2.7.0 Use Validation::notBlank() instead.
+ * @see Validation::notBlank()
+ */
+	public static function notEmpty($check) {
+		trigger_error('Validation::notEmpty() is deprecated. Use Validation::notBlank() instead.', E_USER_DEPRECATED);
+		return self::notBlank($check);
+	}
+
+/**
  * Checks that a string contains something other than whitespace
  *
  * Returns true if string contains something other than whitespace
@@ -59,12 +72,12 @@ class Validation {
  * @param string|array $check Value to check
  * @return bool Success
  */
-	public static function notEmpty($check) {
+	public static function notBlank($check) {
 		if (is_array($check)) {
 			extract(self::_defaults($check));
 		}
 
-		if (empty($check) && $check != '0') {
+		if (empty($check) && (string)$check !== '0') {
 			return false;
 		}
 		return self::_check($check, '/[^\s]+/m');
@@ -143,7 +156,7 @@ class Validation {
  * Returns true if $check is in the proper credit card format.
  *
  * @param string|array $check credit card number to validate
- * @param string|array $type 'all' may be passed as a sting, defaults to fast which checks format of most major credit 
+ * @param string|array $type 'all' may be passed as a sting, defaults to fast which checks format of most major credit
  * cards
  *    if an array is used only the values of the array are checked.
  *    Example: array('amex', 'bankcard', 'maestro')
@@ -455,7 +468,7 @@ class Validation {
  * Validates for an email address.
  *
  * Only uses getmxrr() checking for deep validation if PHP 5.3.0+ is used, or
- * any PHP version on a non-windows distribution
+ * any PHP version on a non-Windows distribution
  *
  * @param string $check Value to check
  * @param bool $deep Perform a deeper validation (if true), by also checking availability of host
@@ -594,7 +607,7 @@ class Validation {
 		$defaults = array('in' => null, 'max' => null, 'min' => null);
 		$options += $defaults;
 
-		$check = array_filter((array)$check);
+		$check = array_filter((array)$check, 'strlen');
 		if (empty($check)) {
 			return false;
 		}

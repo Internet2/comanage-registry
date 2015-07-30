@@ -408,7 +408,7 @@ class FormHelper extends AppHelper {
 				'action' => $options['action'],
 			);
 			$options['action'] = array_merge($actionDefaults, (array)$options['url']);
-			if (empty($options['action'][0]) && !empty($id)) {
+			if (!isset($options['action'][0]) && !empty($id)) {
 				$options['action'][0] = $id;
 			}
 		} elseif (is_string($options['url'])) {
@@ -1086,13 +1086,13 @@ class FormHelper extends AppHelper {
 				unset($options['options']);
 				return $this->select($fieldName, $list, $options);
 			case 'time':
-				$options['value'] = $selected;
+				$options += array('value' => $selected);
 				return $this->dateTime($fieldName, null, $timeFormat, $options);
 			case 'date':
-				$options['value'] = $selected;
+				$options += array('value' => $selected);
 				return $this->dateTime($fieldName, $dateFormat, null, $options);
 			case 'datetime':
-				$options['value'] = $selected;
+				$options += array('value' => $selected);
 				return $this->dateTime($fieldName, $dateFormat, $timeFormat, $options);
 			case 'textarea':
 				return $this->textarea($fieldName, $options + array('cols' => '30', 'rows' => '6'));
@@ -1287,12 +1287,13 @@ class FormHelper extends AppHelper {
 			isset($fieldDef['length']) &&
 			is_scalar($fieldDef['length']) &&
 			$fieldDef['length'] < 1000000 &&
+			$fieldDef['type'] !== 'decimal' &&
 			$options['type'] !== 'select'
 		);
 		if ($autoLength &&
 			in_array($options['type'], array('text', 'textarea', 'email', 'tel', 'url', 'search'))
 		) {
-			$options['maxlength'] = $fieldDef['length'];
+			$options['maxlength'] = (int)$fieldDef['length'];
 		}
 		return $options;
 	}
@@ -1470,6 +1471,15 @@ class FormHelper extends AppHelper {
  * Creates a set of radio widgets. Will create a legend and fieldset
  * by default. Use $options to control this
  *
+ * You can also customize each radio input element using an array of arrays:
+ *
+ * ```
+ * $options = array(
+ *  array('name' => 'United states', 'value' => 'US', 'title' => 'My title'),
+ *  array('name' => 'Germany', 'value' => 'DE', 'class' => 'de-de', 'title' => 'Another title'),
+ * );
+ * ```
+ *
  * ### Attributes:
  *
  * - `separator` - define the string in between the radio buttons
@@ -1552,6 +1562,15 @@ class FormHelper extends AppHelper {
 		$this->_domIdSuffixes = array();
 		foreach ($options as $optValue => $optTitle) {
 			$optionsHere = array('value' => $optValue, 'disabled' => false);
+			if (is_array($optTitle)) {
+				if (isset($optTitle['value'])) {
+					$optionsHere['value'] = $optTitle['value'];
+				}
+
+				$optionsHere += $optTitle;
+				$optTitle = $optionsHere['name'];
+				unset($optionsHere['name']);
+			}
 
 			if (isset($value) && strval($optValue) === strval($value)) {
 				$optionsHere['checked'] = 'checked';
@@ -1571,7 +1590,7 @@ class FormHelper extends AppHelper {
 			if (is_array($between)) {
 				$optTitle .= array_shift($between);
 			}
-			$allOptions = array_merge($attributes, $optionsHere);
+			$allOptions = $optionsHere + $attributes;
 			$out[] = $this->Html->useTag('radio', $attributes['name'], $tagName,
 				array_diff_key($allOptions, array('name' => null, 'type' => null, 'id' => null)),
 				$optTitle
@@ -2212,6 +2231,11 @@ class FormHelper extends AppHelper {
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::year
  */
 	public function year($fieldName, $minYear = null, $maxYear = null, $attributes = array()) {
+		if (is_array($minYear)) {
+			$attributes = $minYear;
+			$minYear = null;
+		}
+
 		$attributes += array('empty' => true, 'value' => null);
 		if ((empty($attributes['value']) || $attributes['value'] === true) && $value = $this->value($fieldName)) {
 			if (is_array($value)) {
@@ -2309,6 +2333,11 @@ class FormHelper extends AppHelper {
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::hour
  */
 	public function hour($fieldName, $format24Hours = false, $attributes = array()) {
+		if (is_array($format24Hours)) {
+			$attributes = $format24Hours;
+			$format24Hours = false;
+		}
+
 		$attributes += array('empty' => true, 'value' => null);
 		$attributes = $this->_dateTimeSelected('hour', $fieldName, $attributes);
 

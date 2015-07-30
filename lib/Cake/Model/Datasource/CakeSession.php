@@ -137,7 +137,7 @@ class CakeSession {
 /**
  * Pseudo constructor.
  *
- * @param string $base The base path for the Session
+ * @param string|null $base The base path for the Session
  * @return void
  */
 	public static function init($base = null) {
@@ -160,7 +160,7 @@ class CakeSession {
 /**
  * Setup the Path variable
  *
- * @param string $base base path
+ * @param string|null $base base path
  * @return void
  */
 	protected static function _setPath($base = null) {
@@ -227,7 +227,7 @@ class CakeSession {
  * @param string $name Variable name to check for
  * @return bool True if variable is there
  */
-	public static function check($name = null) {
+	public static function check($name) {
 		if (empty($name) || !self::_hasSession() || !self::start()) {
 			return false;
 		}
@@ -246,7 +246,7 @@ class CakeSession {
  * within the session id. For example, the file session handler only allows
  * characters in the range a-z A-Z 0-9 , (comma) and - (minus).
  *
- * @param string $id Id to replace the current session id
+ * @param string|null $id Id to replace the current session id
  * @return string Session id
  */
 	public static function id($id = null) {
@@ -356,7 +356,7 @@ class CakeSession {
 /**
  * Get / Set the user agent
  *
- * @param string $userAgent Set the user agent
+ * @param string|null $userAgent Set the user agent
  * @return string Current user agent
  */
 	public static function userAgent($userAgent = null) {
@@ -372,9 +372,9 @@ class CakeSession {
 /**
  * Returns given session variable, or all of them, if no parameters given.
  *
- * @param string|array $name The name of the session variable (or a path as sent to Set.extract)
+ * @param string|null $name The name of the session variable (or a path as sent to Set.extract)
  * @return mixed The value of the session variable, null if session not available,
- *   session not started, or provided name not found in the session.
+ *   session not started, or provided name not found in the session, false on failure.
  */
 	public static function read($name = null) {
 		if (empty($name) && $name !== null) {
@@ -433,6 +433,24 @@ class CakeSession {
 	}
 
 /**
+ * Reads and deletes a variable from session.
+ *
+ * @param string $name The key to read and remove (or a path as sent to Hash.extract).
+ * @return mixed The value of the session variable, null if session not available,
+ *   session not started, or provided name not found in the session.
+ */
+	public static function consume($name) {
+		if (empty($name)) {
+			return null;
+		}
+		$value = self::read($name);
+		if ($value !== null) {
+			self::_overwrite($_SESSION, Hash::remove($_SESSION, $name));
+		}
+		return $value;
+	}
+
+/**
  * Helper method to destroy invalid sessions.
  *
  * @return void
@@ -452,11 +470,19 @@ class CakeSession {
 	}
 
 /**
- * Clears the session, the session id, and renews the session.
+ * Clears the session.
  *
+ * Optionally also clears the session id and renews the session.
+ *
+ * @param bool $renew If the session should also be renewed. Defaults to true.
  * @return void
  */
-	public static function clear() {
+	public static function clear($renew = true) {
+		if (!$renew) {
+			$_SESSION = array();
+			return;
+		}
+
 		$_SESSION = null;
 		self::$id = null;
 		self::renew();
@@ -721,7 +747,7 @@ class CakeSession {
  * @return void
  */
 	public static function renew() {
-		if (!session_id()) {
+		if (session_id() === '') {
 			return;
 		}
 		if (isset($_COOKIE[session_name()])) {

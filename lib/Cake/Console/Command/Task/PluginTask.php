@@ -1,7 +1,5 @@
 <?php
 /**
- * The Plugin Task handles creating an empty plugin, ready to be used
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -123,7 +121,7 @@ class PluginTask extends AppShell {
 				'Test' . DS . 'Fixture',
 				'View' . DS . 'Elements',
 				'View' . DS . 'Helper',
-				'View' . DS . 'Layout',
+				'View' . DS . 'Layouts',
 				'webroot' . DS . 'css',
 				'webroot' . DS . 'js',
 				'webroot' . DS . 'img',

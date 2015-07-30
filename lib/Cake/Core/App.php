@@ -259,7 +259,7 @@ class App {
  *
  * Usage:
  *
- * `App::build(array(Model' => array('/a/full/path/to/models/'))); will setup a new search path for the Model package`
+ * `App::build(array('Model' => array('/a/full/path/to/models/'))); will setup a new search path for the Model package`
  *
  * `App::build(array('Model' => array('/path/to/models/')), App::RESET); will setup the path as the only valid path for searching models`
  *
@@ -874,10 +874,12 @@ class App {
 				),
 				'Vendor' => array(
 					'%s' . 'Vendor' . DS,
-					dirname(dirname(CAKE)) . DS . 'vendors' . DS,
+					ROOT . DS . 'vendors' . DS,
+					dirname(dirname(CAKE)) . DS . 'vendors' . DS
 				),
 				'Plugin' => array(
 					APP . 'Plugin' . DS,
+					ROOT . DS . 'plugins' . DS,
 					dirname(dirname(CAKE)) . DS . 'plugins' . DS
 				)
 			);
