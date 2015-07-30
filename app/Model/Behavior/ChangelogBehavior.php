@@ -481,6 +481,7 @@ class ChangelogBehavior extends ModelBehavior {
       } else {
         // eg: $query['contain'] = array('Model1' => array('Model2'));
         // eg: $query['contain'] = array('Model1' => 'Model2');
+        // eg: $query['contain'] = array('conditions' => array('Model1.foo =' => 'value'));
         
         if(is_array($v)) {
           // First handle Model1
@@ -497,7 +498,12 @@ class ChangelogBehavior extends ModelBehavior {
           // Now walk the value array
           
           foreach($contain[$k] as $k2 => $v2) {
-            if(is_array($v2)) {
+            // Cast $k2 to a string since (int)0 == 'conditions' somehow evaluates to true
+            if((string)$k2 == 'conditions') {
+              // Third example, nothing to do but copy (merge) the conditions
+              
+              $ret[$k]['conditions'] = array_merge($ret[$k]['conditions'], $v2);
+            } elseif(is_array($v2)) {
               $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
             } else {
               if($model->$k->$v2->Behaviors->enabled('Changelog')) {
