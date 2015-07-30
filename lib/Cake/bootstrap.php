@@ -172,8 +172,6 @@ Configure::write('App.imageBaseUrl', IMAGES_URL);
 Configure::write('App.cssBaseUrl', CSS_URL);
 Configure::write('App.jsBaseUrl', JS_URL);
 
-Configure::bootstrap(isset($boot) ? $boot : true);
-
 if (function_exists('mb_internal_encoding')) {
 	$encoding = Configure::read('App.encoding');
 	if (!empty($encoding)) {
@@ -438,3 +436,5 @@ if (!function_exists('mb_encode_mimeheader')) {
 	}
 
 }
+
+Configure::bootstrap(isset($boot) ? $boot : true);
