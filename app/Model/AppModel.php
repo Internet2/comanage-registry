@@ -654,10 +654,10 @@ class AppModel extends Model {
     $args['group'] = null;
     
     // Appending to the generated query should be fairly portable.
+    // We use buildQuery to ensure callbacks (such as ChangelogBehavior) are
+    // invoked, then buildStatement to turn it into SQL.
     
-    // We should perhaps be using read() and/or buildQuery() instead.
-    
-    return $dbc->fetchAll($dbc->buildStatement($args, $this) . " FOR UPDATE", array(), array('cache' => false));
+    return $dbc->fetchAll($dbc->buildStatement($this->buildQuery('all', $args), $this) . " FOR UPDATE", array(), array('cache' => false));
   }
   
   /**
