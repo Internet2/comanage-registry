@@ -177,6 +177,8 @@ class CoPersonRolesController extends StandardController {
       // Dynamic models won't have behaviors attached, so add them here
       $this->CoPersonRole->$cl->Behaviors->attach('Normalization');
       
+      // Changelog is bound in checkWriteFollowups -- see there for explanation
+      
       // Make sure extended attributes show up as part of containable queries
       $this->edit_contains[] = $cl;
       $this->view_contains[] = $cl;
@@ -233,13 +235,19 @@ class CoPersonRolesController extends StandardController {
       }      
       
       $a = $this->CoPersonRole->Cou->findById($reqdata['CoPersonRole']['cou_id']);
-
+      
       if(empty($a)) {
         $this->Api->restResultHeader(403, "COU Does Not Exist");
         return false;
       }
     }
-
+    
+    // Extended attributes are saved separately in checkWriteFollowups, so start
+    // a transaction.
+    
+    $dbc = $this->CoPersonRole->getDataSource();
+    $dbc->begin();
+    
     return true;
   }
   
@@ -270,24 +278,75 @@ class CoPersonRolesController extends StandardController {
     // We need to do a similar hack for handling Extended Attributes in the
     // REST API, but that's located in StandardController::add/edit.
     
-    if(!empty($reqdata)) {
-      foreach(array_keys($reqdata) as $m) {
-        if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)
-           && !empty($reqdata[$m]['id'])) {
-          // Extended attribute found; id should always be set since even on
-          // create the initial save already happened.
-          
-          // Create a temporary copy of the data to save
-          $d = array(
-            $m => $reqdata[$m]
-          );
-          
-          $this->CoPersonRole->$m->save($d);
-          
-          // We don't worry about history here because generally Extended Attributes
-          // are not saved on their own. History will be generated on the original call.
-        }
+    $eaModel = 'Co' . $this->cur_co['Co']['id'] . 'PersonExtendedAttribute';
+    
+    // $origdata should have the originally requested Extended Attributes.
+    // $reqdata will hold their current (persisted) values, since StandardController
+    // repopulated $reqdata post-save to account for normalizations, but we haven't
+    // yet saved the extended attributes yet.
+    
+    if(!empty($origdata[$eaModel])) {
+      // Create a temporary copy of the data to save
+      $d = array(
+        $eaModel => $origdata[$eaModel]
+      );
+      
+      // Clear out metadata, if set (edit)
+      unset($d[$eaModel]['created']);
+      unset($d[$eaModel]['modified']);
+      
+      if(!empty($reqdata['CoPersonRole']['id'])) {
+        // Point the record to the current CO Person Role
+        $d[$eaModel]['co_person_role_id'] = $reqdata['CoPersonRole']['id'];
       }
+      
+      if($this->CoPersonRole->Behaviors->enabled('Changelog')
+         && !empty($reqdata[$eaModel]['co_person_role_id'])) {
+        // Because extended attributes don't carry the changelog metadata (parent
+        // foreign key becomes a mess, among other reasons) we manually emulate the
+        // desired outcome. We do it here rather than in a model because there's not
+        // a clearly better place to do it.
+        
+        // WAS: PR-1 <=> EA-1
+        // HAVE: PR-1 <=> EA-1 , PR-2
+        // WANT: PR-1 <=> EA-2, PR-2 <=> EA-1
+        
+        // We check for co_person_role_id above to see if this is an edit operation.
+        // On add we don't need to do anything special.
+        
+        // First, find the archived CoPersonRole. We want to copy the current EA values
+        // (helpfully available in $reqdata) to a new row and link it to that CoPersonRole.
+        // We should also have the current set of values in $reqdata, including the
+        // extended attribute row ID we need to update.
+        
+        $args = array();
+        $args['conditions']['CoPersonRole.id'] = $reqdata[$eaModel]['co_person_role_id'];
+        $args['changelog']['revision'] = $reqdata['CoPersonRole']['revision'] - 1;
+        $args['contain'] = false;
+        
+        $priorRole = $this->CoPersonRole->find('first', $args);
+        
+        if(!empty($priorRole['CoPersonRole']['id'])) {
+          // Create archive of current (previous) extended attribute values
+          
+          $eaCopy = array();
+          $eaCopy[$eaModel] = $reqdata[$eaModel];
+          $eaCopy[$eaModel]['co_person_role_id'] = $priorRole['CoPersonRole']['id'];
+          unset($eaCopy[$eaModel]['id']);
+          unset($eaCopy[$eaModel]['created']);
+          unset($eaCopy[$eaModel]['modified']);
+          
+          // Save the archive
+          $this->CoPersonRole->$eaModel->save($eaCopy);
+        }
+        
+        // Now we can just go ahead with the save of the operational record
+      }
+      
+      $this->CoPersonRole->$eaModel->save($d);
+      
+      // We don't worry about history here because generally Extended Attributes
+      // are not saved on their own. History will be generated on the original call.
     }
     
     // If the role status changed, recalculate the overall person status
@@ -314,6 +373,12 @@ class CoPersonRolesController extends StandardController {
                                           _txt('en.status', null, $reqdata['CoPersonRole']['status']))),
                                '', array(), 'info');
     }
+    
+    // Commit under pretty much all circumstances. If there was an error in the
+    // meantime we won't be able to explicitly rollback, but the termination of the
+    // request should cause that to happen.
+    $dbc = $this->CoPersonRole->getDataSource();
+    $dbc->commit();
     
     return true;
   }

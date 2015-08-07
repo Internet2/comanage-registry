@@ -240,7 +240,7 @@ class CoEnrollmentAttribute extends AppModel {
     $args['contain'][] = 'CoEnrollmentAttributeDefault';
     $args['contain'][] = 'CoEnrollmentFlow';
     if($archived) {
-      $args['archived'] = true;
+      $args['changelog']['archived'] = true;
     }
     
     $efAttrs = $this->find('all', $args);

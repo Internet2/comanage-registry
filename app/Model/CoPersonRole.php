@@ -317,25 +317,26 @@ class CoPersonRole extends AppModel {
     foreach($coPerson['CoGroupMember'] as $membership) {
       $groupName = $membership['CoGroup']['name'];
     	if(strncmp($groupName, 'members:', 8) == 0 && $membership['member']) {
-    		if(!in_array($groupName, $couMembersGroupNames)) {
-    			// Delete CO person from COU members group and cut a history record.
+    	  if(!in_array($groupName, $couMembersGroupNames)) {
+          // Delete CO person from COU members group and cut a history record.
           $this->CoPerson->CoGroupMember->delete($membership['id']);
           // Cut history record.
           $msgData = array(
             $groupName,
-         	  $membership['CoGroup']['id']
-	  			);
+            $membership['CoGroup']['id']
+	  );
           $msg = _txt('rs.grm.deleted', $msgData);
           try {
           	$this->CoPerson->HistoryRecord->record(
           		$coPersonId,
-              null,
+                        null,
           		null, 
           		null, 
           		ActionEnum::CoGroupMemberDeleted, 
           		$msg
           		);
-          } catch (Exception $e) {
+          }
+          catch (Exception $e) {
             $coPersonId = $copersonrole['CoPerson']['id'];
             $coPersonRoleId = $copersonrole['CoPersonRole']['id'];
             $group = $membership['CoGroup']['name'];
@@ -344,8 +345,8 @@ class CoPersonRole extends AppModel {
             	"from group $group: " . $e->getMessage();
             $this->log($msg);
           }                  
-    		}	
-    	}
+    	}	
+      }
     }
   }
 }

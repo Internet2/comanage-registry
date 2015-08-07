@@ -148,13 +148,28 @@ class ChangelogBehavior extends ModelBehavior {
     
     // Inspect query conditions to see if we need to modify the query
     
-    if((isset($query['archived']) && $query['archived'])
+    if((isset($query['changelog']['archived'])
+        && $query['changelog']['archived'])
        ||
        // We're in the process of expunging physical records, so do no magic
        (isset($this->settings[$malias]['expunge'])
         && $this->settings[$malias]['expunge'])) {
       // Don't modify the query, we've specifically been asked for archived attribtues.
       
+      return $ret;
+    }
+    
+    if(!empty($query['changelog']['revision'])
+       && !empty($query['conditions'][$malias . '.id'])) {
+      // We've been asked for a prior revision of a parent attribute. We have to
+      // rewrite the query a bit since we were asked for a specific ID, but the
+      // older revision will have a different ID.
+      
+      $ret['conditions'][$malias . '.' . $parentfk] = $query['conditions'][$malias . '.id'];
+      $ret['conditions'][$malias . '.revision'] = $query['changelog']['revision'];
+      unset($ret['conditions'][$malias . '.id']);
+      
+      // Don't further modify the query (not clear yet what we would do for contain...)
       return $ret;
     }
     

@@ -524,10 +524,23 @@ class StandardController extends AppController {
     if(!$this->checkWriteDependencies($data, $curdata))
       return;
     
+    if($req == 'CoPersonRole') {
+      // We add a hack here for Extended Attributes. We remove them from the save so that
+      // they can be saved separately by CoPersonRolesController::checkWriteFollowups.
+      // We do this because for Cake 2 behaviors can't modify related models during a save,
+      // and so the save takes place there. With ChangelogBehavior we want the save to
+      // execute exactly once.
+      
+      $eaModel = 'Co' . $this->cur_co['Co']['id'] . 'PersonExtendedAttribute';
+      unset($data[$eaModel]);
+      
+      // We'll reread the data after the save anyway, which will restore the (normalized)
+      // Extended Attributes for purposes of history and followups.
+    }
+
     // Finally, try to save.
 
-    if($model->saveAll($data))
-    {
+    if($model->saveAll($data)) {
       // Reread the data so we account for any normalizations
       $data = $model->read();
       

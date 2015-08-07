@@ -739,7 +739,7 @@ class AppController extends Controller {
     // Manage CO extended attributes?
     $p['menu']['extattrs'] = $roles['cmadmin'] || $roles['coadmin'];
     
-    // Manage CO extended typees?
+    // Manage CO extended types?
     $p['menu']['exttypes'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Manage CO ID Assignment?
