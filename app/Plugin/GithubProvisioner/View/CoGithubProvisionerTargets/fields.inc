@@ -190,13 +190,13 @@
       <td>
         <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
       </td>
-      <td>
-        <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-        <i><?php print _txt('pl.githubprovisioner.oauth'); ?></i>
-        <?php
+      <td><?php
           if($e)
             print $this->Form->submit($submit_label);
         ?>
+        <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+        <i><?php print _txt('pl.githubprovisioner.oauth'); ?></i>
+
       </td>
     </tr>
   </tbody>

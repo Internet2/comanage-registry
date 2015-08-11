@@ -24,7 +24,8 @@
 -->
 <?php
   if(count($matches) > 0) {
-    print '<h2 class="ui-state-default">' . _txt('rs.match.possible') . '</h2>';
+    print '<div class="ui-state-highlight ui-corner-all co-info-topbox">';
+    print '<h3>' . _txt('rs.match.possible') . '</h3>';
     print "<ul>\n";
     
     foreach ($matches as $m) {
@@ -45,4 +46,5 @@
     }
     
     print "</ul>\n";
+    print "</div>\n";
   }

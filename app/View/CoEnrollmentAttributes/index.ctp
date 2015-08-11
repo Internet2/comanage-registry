@@ -23,9 +23,6 @@
  */
 -->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $args = array();
@@ -44,38 +41,41 @@
   
   $this->Html->addCrumb(_txt('ct.co_enrollment_attributes.pl'));
 
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
-  
-  // Add button
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+
+  // Add top links
+  $params['topLinks'] = array();
+
   if($permissions['add']) {
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-plus',
-      'title'   => _txt('op.add-a', array(_txt('ct.co_enrollment_attributes.1'))),
-      'url'     => array(
-        'controller' => 'co_enrollment_attributes', 
-        'action' => 'add', 
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.co_enrollment_attributes.1'))),
+      array(
+        'controller' => 'co_enrollment_attributes',
+        'action' => 'add',
         'coef' => $vv_coefid
-      )
+      ),
+      array('class' => 'addbutton')
     );
   }
 
   if($permissions['order']) {
     // Reorder button
-    $sidebarButtons[] = array(
-      'icon'    => 'pencil',
-      'title'   => _txt('op.order.attr'),
-      'url'     => array(
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.order.attr'),
+      array(
         'controller' => 'co_enrollment_attributes',
         'action'     => 'order',
         'coef'       => $vv_coefid,
         'direction'  => 'asc',
         'sort'       => 'ordr'
-      )
+      ),
+      array('class' => 'movebutton')
     );
   }
 
-  $this->set('sidebarButtons', $sidebarButtons);
+  print $this->element("pageTitleAndNav", $params);
 
 ?>
 

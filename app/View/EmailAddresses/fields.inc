@@ -109,7 +109,7 @@
       <?php if($e && $isVerified): ?>
       <td>
         <span class="ui-icon ui-icon-info co-info"></span>
-        <i><?php print _txt('fd.email_address.verified.warn'); ?></i>
+        <em><?php print _txt('fd.email_address.verified.warn'); ?></em>
       </td>
       <?php endif; ?>
     </tr>
@@ -174,7 +174,7 @@
     </tr>
     <tr>
       <td>
-        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
+        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php

@@ -26,8 +26,10 @@
   $model = $this->name;
   $req = Inflector::singularize($model);
 
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+  print $this->element("pageTitleAndNav", $params);
 
   $submit_label = _txt('op.save');
   echo $this->Form->create($req,

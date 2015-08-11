@@ -23,20 +23,31 @@
  */
 -->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.cous.pl'));
 
-  if($permissions['add'])
-    print $this->Html->link(_txt('op.add.new', array(_txt('ct.cous.1'))),
-                            array('controller' => 'cous', 'action' => 'add', 'co' => $this->params['named']['co']),
-                            array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+
+  // Add top links
+  $params['topLinks'] = array();
+
+  if($permissions['add']) {
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add.new', array(_txt('ct.cous.1'))),
+      array(
+        'controller' => 'cous',
+        'action' => 'add',
+        'co' => $this->params['named']['co']
+      ),
+      array('class' => 'addbutton')
+    );
+  }
+
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 
 <table id="cous" class="ui-widget">

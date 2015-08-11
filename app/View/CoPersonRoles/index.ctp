@@ -24,19 +24,30 @@
 
 -->
 <?php
-  $params = array('title' => $cur_co['Co']['name'] . "People");
-  print $this->element("pageTitle", $params);
-
   // Globals
   global $cm_lang, $cm_texts;
 
-  if($permissions['add'])
-    echo $this->Html->link(_txt('op.inv'),
-                           array('controller' => 'org_identities', 'action' => 'find', 'co' => $this->request->params['named']['co']),
-                           array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+  // Add page title
+  $params = array();
+  $params['title'] = $cur_co['Co']['name'] . "People";
+
+  // Add top links
+  $params['topLinks'] = array();
+
+  if($permissions['add']) {
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.inv'),
+      array(
+        'controller' => 'org_identities',
+        'action' => 'find',
+        'co' => $this->request->params['named']['co']
+      ),
+      array('class' => 'addbutton')
+    );
+  }
+
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 
 <table id="co_person_roles" class="ui-widget">

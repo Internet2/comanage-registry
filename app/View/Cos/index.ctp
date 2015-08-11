@@ -23,19 +23,29 @@
  */
 -->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   $this->Html->addCrumb(_txt('ct.cos.pl'));
 
-  if($permissions['add'])
-    print $this->Html->link(_txt('op.add-a',array(_txt('ct.cos.1'))),
-                           array('controller' => 'cos', 'action' => 'add'),
-                           array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+
+  // Add top links
+  $params['topLinks'] = array();
+
+  if($permissions['add']) {
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.cos.1'))),
+      array(
+        'controller' => 'cos',
+        'action' => 'add'
+      ),
+      array('class' => 'addbutton')
+    );
+  }
+
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 
 <table id="cos" class="ui-widget">

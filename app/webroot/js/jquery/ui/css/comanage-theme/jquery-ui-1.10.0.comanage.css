@@ -233,11 +233,11 @@ button.ui-button-icons-only {
   line-height: normal;
 }
 .ui-button-text-only .ui-button-text {
-  padding: .4em 1em;
+  padding: .3em 1em;
 }
 .ui-button-icon-only .ui-button-text,
 .ui-button-icons-only .ui-button-text {
-  padding: .4em;
+  padding: .3em;
   text-indent: -9999999px;
 }
 .ui-button-text-icon-primary .ui-button-text,
@@ -247,7 +247,7 @@ button.ui-button-icons-only {
 }
 .ui-button-text-icon-secondary .ui-button-text,
 .ui-button-text-icons .ui-button-text {
-  padding: .4em 2.1em .4em 1em;
+  padding: .3em 2.1em .3em 1em;
 }
 .ui-button-text-icons .ui-button-text {
   padding-left: 2.1em;
@@ -255,7 +255,7 @@ button.ui-button-icons-only {
 }
 /* no icon support for input elements, provide padding by default */
 input.ui-button {
-  padding: .4em 1em;
+  padding: .3em 1em;
 }
 
 /* button icon element(s) */
@@ -734,7 +734,7 @@ button.ui-button::-moz-focus-inner {
 }
 .ui-tabs .ui-tabs-nav {
   margin: 0;
-  padding: .2em .2em 0;
+  padding: 0.2em 0.2em 0;
   border-bottom: 1px solid #aaa;
 }
 .ui-tabs .ui-tabs-nav li {
@@ -742,7 +742,7 @@ button.ui-button::-moz-focus-inner {
   float: left;
   position: relative;
   top: 0;
-  margin: 1px .2em 0 0;
+  margin: 0 0.2em 0 0;
   border-bottom: 0;
   padding: 0;
   white-space: nowrap;

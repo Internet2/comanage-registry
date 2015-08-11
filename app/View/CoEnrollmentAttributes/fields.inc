@@ -220,11 +220,6 @@
   
   if(!$e && !$permissions['view'])
     return(false);
-    
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
-
-  $this->set('sidebarButtons', $sidebarButtons);
   
   if($this->action != 'view') {
     // Populate cross references
@@ -543,16 +538,20 @@
                         ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
+    <tr>
+      <td></td>
+      <td>
+        <?php
+        if($e) {
+          print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+          print $this->Form->button(_txt('op.reset'),
+            array('type'=>'reset'));
+        }
+        ?>
+      </td>
+    </tr>
   </table>
 </div>
-<?php
-  if($e) {
-    print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-    print $this->Form->button(_txt('op.reset'), 
-                              array('type'=>'reset'));
-  }
-?>
-<br />
 <div>
   <?php print $this->element("changelog"); ?>
 </div>

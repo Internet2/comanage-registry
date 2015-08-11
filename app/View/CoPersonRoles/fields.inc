@@ -206,7 +206,7 @@ $(function() {
                            || $co_person_roles[0]['CoPersonRole']['status'] == StatusEnum::PendingConfirmation)): ?>
               <div>
                 <span class="ui-icon ui-icon-info co-info"></span>
-                <i><?php print _txt('fd.status.change'); ?></i>
+                <em><?php print _txt('fd.status.change'); ?></em>
               </div>
               <?php endif; ?>
             </td>
@@ -320,7 +320,7 @@ $(function() {
           ?>
           <tr>
             <td>
-              <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
+              <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
             </td>
             <td>
               <?php

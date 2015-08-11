@@ -22,29 +22,31 @@
  * @version       $Id$
  */-->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_localizations.pl'));
 
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+
+  // Add top links
+  $params['topLinks'] = array();
 
   if($permissions['add']) {
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-plus',
-      'title'   => _txt('op.add-a',array(_txt('ct.co_localizations.1'))),
-      'url'     => array(
-        'controller' => 'co_localizations', 
-        'action' => 'add', 
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.co_localizations.1'))),
+      array(
+        'controller' => 'co_localizations',
+        'action' => 'add',
         'co' => $cur_co['Co']['id']
-      )
+      ),
+      array('class' => 'addbutton')
     );
   }
-  
-  $this->set('sidebarButtons', $sidebarButtons);
+
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 
 <table id="co_localizations" class="ui-widget">

@@ -24,10 +24,6 @@
 -->
 
 <?php
-  // Set page title
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $args = array();
@@ -39,23 +35,27 @@
   $crumbTxt = _txt('op.reorder-a', array(_txt('ct.co_navigation_links.pl')));
   $this->Html->addCrumb($crumbTxt);
 
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
-  
-  // Add button
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+
+  // Add top links
+  $params['topLinks'] = array();
+
   if($permissions['add']) {
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-plus',
-      'title'   => _txt('op.add') . ' ' . _txt('ct.co_navigation_links.1'),
-      'url'     => array(
-        'controller' => 'co_navigation_links', 
-        'action' => 'add',
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.co_navigation_links.1'))),
+      array(
+        'controller' => 'co_navigation_links',
+        'action'     => 'add',
         'co'         => $cur_co['Co']['id']
-      )
+      ),
+      array('class' => 'addbutton')
     );
   }
-  
-  $this->set('sidebarButtons', $sidebarButtons);
+
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 <script type="text/javascript">
   $(function() {
@@ -149,7 +149,7 @@
   
   print $this->Html->link(_txt('op.done'),
                           $args,
-                          array('class'  => 'backbutton'));
+                          array('class'  => 'backbutton right'));
 ?>
 
 <div id="result-dialog" title="<?php print _txt('op.reorder'); ?>">

@@ -23,23 +23,31 @@
  */
 -->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_provisioning_targets.pl'));
 
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+
+  // Add top links
+  $params['topLinks'] = array();
+
   if($permissions['add']) {
-    print $this->Html->link(_txt('op.add-a',array(_txt('ct.co_provisioning_targets.1'))),
-                           array('controller' => 'co_provisioning_targets',
-                                 'action' => 'add',
-                                 'co' => $cur_co['Co']['id']),
-                           array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.co_provisioning_targets.1'))),
+      array(
+        'controller' => 'co_provisioning_targets',
+        'action' => 'add',
+        'co' => $cur_co['Co']['id']
+      ),
+      array('class' => 'addbutton')
+    );
   }
+
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 <script type="text/javascript">
   // The controller passes a list of IDs, which we need to convert to a javascript array.

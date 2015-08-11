@@ -36,7 +36,7 @@ $(document).ready(function() {
              + '/given:' + document.getElementById(givenNameAttr).value
              + '/family:' + document.getElementById(familyNameAttr).value
       }).done(function(data) {
-        $('div#results').html(data);
+        $('#petitionerMatchResults').html(data);
       });
     }
   });

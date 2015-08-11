@@ -33,7 +33,11 @@
   
   if(!$e && !$permissions['view'])
     return(false);
-  
+
+  // Add breadcrumbs
+  print $this->element("coCrumb");
+  $this->Html->addCrumb(_txt('ct.co_settings.pl'));
+
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
   $l = 1;
@@ -204,7 +208,7 @@
     </tr>
     <tr>
       <td>
-        <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php

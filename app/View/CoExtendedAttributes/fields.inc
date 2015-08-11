@@ -52,7 +52,7 @@
     <tr class="line1">
       <td>
         <?php echo _txt('fd.name'); ?><span class="required">*</span><br />
-        <i><?php echo _txt('fd.lan.desc'); ?></i>
+        <em><?php echo _txt('fd.lan.desc'); ?></em>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
@@ -92,10 +92,10 @@
           if($e && $this->action=='edit')
             echo $this->Form->hidden('type');
         ?>
-      </td>
-      <td>
-        <span class="ui-icon ui-icon-info co-info"></span>
-        <i><?php echo _txt('fd.type.warn'); ?></i>
+        <p>
+          <span class="ui-icon ui-icon-info co-info"></span>
+          <em><?php echo _txt('fd.type.warn'); ?></em>
+        </p>
       </td>
     </tr>
     <tr class="line2">
@@ -108,7 +108,7 @@
     </tr>
     <tr>
       <td>
-        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
+        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php

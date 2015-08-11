@@ -22,30 +22,42 @@
  * @version       $Id$
  */-->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_identifier_assignments.pl'));
 
-  if($permissions['add'])
-    print $this->Html->link(_txt('op.add-a',array(_txt('ct.co_identifier_assignments.1'))),
-                            array('controller' => 'co_identifier_assignments', 'action' => 'add', 'co' => $cur_co['Co']['id']),
-                            array('class' => 'addbutton')) . "\n";
-    
-  if($permissions['assignall']) {
-    print '<a class="provisionbutton"
-              title="' . _txt('op.id.auto.all') . '"
-              onclick="javascript:js_confirm_autogenerate(\'' .
-                                                       $this->Html->url(array('controller' => 'identifiers',
-                                                                                              'action' => 'assign.json'))
-                                                      . '\');">'
-          . _txt('op.id.auto.all') . "</a>\n" . '
-    <br />
-    <br />
-    ';
-  }
+// Add page title
+$params = array();
+$params['title'] = $title_for_layout;
+
+// Add top links
+$params['topLinks'] = array();
+
+if($permissions['add']) {
+  $params['topLinks'][] = $this->Html->link(
+    _txt('op.add-a',array(_txt('ct.co_identifier_assignments.1'))),
+    array(
+      'controller' => 'co_identifier_assignments',
+      'action' => 'add',
+      'co' => $cur_co['Co']['id']
+    ),
+    array('class' => 'addbutton')
+  );
+}
+
+if($permissions['assignall']) {
+  $params['topLinks'][] = '<a class="provisionbutton" title="' .
+    _txt('op.id.auto.all') .
+    '" onclick="javascript:js_confirm_autogenerate(\'' .
+     $this->Html->url(array(
+       'controller' => 'identifiers',
+       'action' => 'assign.json')
+     ) . '\');">' . _txt('op.id.auto.all') .
+    "</a>\n";
+}
+
+print $this->element("pageTitleAndNav", $params);
+
 ?>
 <script type="text/javascript">
   // This is based in large part on CoProvisioningTargets/index.ctp

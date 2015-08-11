@@ -22,13 +22,17 @@
  * @version       $Id$
  */-->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $crumbTxt = _txt('op.select-a',array(_txt('ct.enrollment_flows.1')));
   $this->Html->addCrumb($crumbTxt);
+
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 
 <table id="cous" class="ui-widget">

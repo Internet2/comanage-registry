@@ -76,7 +76,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php print _txt('fd.name'); ?><span class="required">*</span><br />
-        <i><?php print _txt('fd.an.desc'); ?></i>
+        <em><?php print _txt('fd.an.desc'); ?></em>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_types[0]['CoExtendedType']['name'])); ?>
@@ -93,7 +93,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php print _txt('fd.status'); ?><span class="required">*</span><br />
-        <i><?php print _txt('fd.status.et.desc'); ?></i>
+        <em><?php print _txt('fd.status.et.desc'); ?></em>
       </td>
       <td>
         <?php
@@ -126,7 +126,7 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php print _txt('fd.affiliation.ep'); ?><br />
-        <i><?php print _txt('fd.affiliation.ep.map.desc'); ?></i>
+        <em><?php print _txt('fd.affiliation.ep.map.desc'); ?></em>
       </td>
       <td>
         <?php
@@ -152,7 +152,7 @@
     <?php endif; // affiliation ?>
     <tr>
       <td>
-        <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php

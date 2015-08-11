@@ -23,29 +23,31 @@
  */
 -->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_extended_attributes.pl'));
 
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
 
-  if($permissions['add']){
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-plus',
-      'title'   => _txt('op.add-a',array(_txt('ct.co_extended_attributes.1'))),
-      'url'     => array(
+  // Add top links
+  $params['topLinks'] = array();
+
+  if($permissions['add']) {
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.co_extended_attributes.1'))),
+      array(
         'controller' => 'co_extended_attributes',
         'action' => 'add',
         'co' => $cur_co['Co']['id']
-      )
+      ),
+      array('class' => 'addbutton')
     );
   }
 
-  $this->set('sidebarButtons', $sidebarButtons);
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 
 <table id="cos" class="ui-widget">
