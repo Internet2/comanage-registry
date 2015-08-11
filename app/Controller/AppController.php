@@ -350,6 +350,7 @@ class AppController extends Controller {
     
     // XXX This list should really be set on a per-Controller basis (eg: link only applies to CoPeople)
     if($this->action == 'add'
+       || $this->action == 'addKeyFile' // for SshKeysController
        || $this->action == 'assign'
        || $this->action == 'find'  // for OrgIdentitiesController
        || $this->action == 'index'

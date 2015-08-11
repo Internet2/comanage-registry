@@ -37,12 +37,21 @@ $(document).ready(function () {
 <?php
   // Add breadcrumbs
   print $this->element("coCrumb");
+
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'co_groups';
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+  
+  $args = array(
+    'controller' => 'co_groups',
+    'action' => 'edit',
+    $co_group['CoGroup']['id']
+  );
+  $this->Html->addCrumb($co_group['CoGroup']['name'], $args);
+
   $this->Html->addCrumb(_txt('ct.co_group_members.pl'));
 
   // Add page title

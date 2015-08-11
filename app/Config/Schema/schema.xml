@@ -163,6 +163,12 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_org_identity_link_id" type="I">
+      <constraint>REFERENCES cm_co_org_identity_links(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_org_identity_links_i1">
       <col>co_person_id</col>
@@ -173,7 +179,12 @@
     <index name="co_org_identity_links_i3">
       <col>co_person_id</col>
       <col>org_identity_id</col>
+<!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
       <unique />
+-->
+    </index>
+    <index name="co_org_identity_links_i4">
+      <col>co_org_identity_link_id</col>
     </index>
   </table>
   
@@ -412,18 +423,25 @@
     <field name="expires" type="T" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_invite_id" type="I">
+      <constraint>REFERENCES cm_co_invites(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_invites_i1">
       <col>co_person_id</col>
     </index>
-    
     <index name="co_invites_i2">
       <col>invitation</col>
     </index>
-    
     <index name="co_invites_i3">
       <col>co_person_id</col>
       <col>mail</col>
+    </index>
+    <index name="co_invites_i4">
+      <col>co_invite_id</col>
     </index>
   </table>
   
@@ -540,6 +558,12 @@
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_groups_i1">
       <col>co_id</col>
@@ -550,7 +574,12 @@
     <index name="co_groups_i3">
       <col>co_id</col>
       <col>name</col>
+<!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
       <unique />
+-->
+    </index>
+    <index name="co_groups_i4">
+      <col>co_group_id</col>
     </index>
   </table>
   
@@ -571,6 +600,12 @@
     <field name="owner" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_group_member_id" type="I">
+      <constraint>REFERENCES cm_co_group_members(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_group_members_i1">
       <col>co_group_id</col>
@@ -581,7 +616,12 @@
     <index name="co_group_members_i3">
       <col>co_group_id</col>
       <col>co_person_id</col>
+<!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
       <unique />
+-->    
+    </index>
+    <index name="co_group_members_i4">
+      <col>co_group_member_id</col>
     </index>
   </table>
   
@@ -1012,9 +1052,18 @@
     <field name="disability" type="C" size="4" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_nsf_demographic_id" type="I">
+      <constraint>REFERENCES cm_co_nsf_demographics(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_nsf_demographics_i1">
       <col>co_person_id</col>
+    </index>
+    <index name="co_nsf_demographics_i2">
+      <col>co_nsf_demographic_id</col>
     </index>
   </table>
   
@@ -1307,9 +1356,18 @@
     <field name="skey" type="X" size="4000" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="ssh_key_id" type="I">
+      <constraint>REFERENCES cm_ssh_keys(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="ssh_keys_i1">
       <col>co_person_id</col>
+    </index>
+    <index name="ssh_keys_i2">
+      <col>ssh_key_id</col>
     </index>
   </table>
   

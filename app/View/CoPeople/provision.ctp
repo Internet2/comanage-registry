@@ -46,6 +46,12 @@
     $this->Html->addCrumb(generateCn($co_person['PrimaryName']), $args);
   } elseif(!empty($co_group)) {
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+    $args = array(
+      'controller' => 'co_groups',
+      'action' => 'edit',
+      $co_group['CoGroup']['id']
+    );
+    $this->Html->addCrumb($co_group['CoGroup']['name'], $args);
   }
   $this->Html->addCrumb(_txt('op.prov.view'));
 ?>

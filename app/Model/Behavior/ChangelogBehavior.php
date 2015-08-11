@@ -108,13 +108,14 @@ class ChangelogBehavior extends ModelBehavior {
       // do for related models that don't implement changelog behavior, so for
       // now we just ignore them.
       
-      // For related models that do implement changelog, we call delete on them
+      // For dependent related models that do implement changelog, we call delete on them
       // as well, unless they are set for $relinkToArchive, in which case we leave
       // them pointing to the deleted attribute.
       
-      foreach(array_merge(array_keys($model->hasOne),
-                          array_keys($model->hasMany)) as $rmodel) {
-        if($model->$rmodel->Behaviors->enabled('Changelog')
+      foreach(array_merge($model->hasOne, $model->hasMany) as $rmodel => $roptions) {
+        if(isset($roptions['dependent'])
+           && $roptions['dependent']
+           && $model->$rmodel->Behaviors->enabled('Changelog')
            && (!$model->relinkToArchive
                || !in_array($rmodel, $model->relinkToArchive))) {
           if(!$model->$rmodel->deleteAll(array($rmodel . '.' . $parentfk => $model->id), true, true)) {
@@ -207,29 +208,28 @@ class ChangelogBehavior extends ModelBehavior {
         // We might have joined tables in the query conditions. If so, insert
         // the appropriate filters
         
-        foreach($ret['joins'] as $j) {
+        foreach($query['joins'] as $i => $j) {
           // The model being joined in the query may not have a direct
           // relationship to the model on which the find is being done
           // so we load it here directly and if it fails to load throw
           // an exception.
+          
           $jmodel = ClassRegistry::init($j['alias'], true);
+          
           if($jmodel) {
             if($jmodel->Behaviors->enabled('Changelog')) {
               // If the model being joined has changelog behavior add conditions
               // on the join so that rows from earlier versions or soft deleted
               // rows are not included after the join.
               $cparentfk = Inflector::underscore($jmodel->name) . "_id";
-              if(!array_key_exists('conditions', $j)) {
-                $j['conditions'] = array();
-              }
-
+              
               // Add condition to the join condition that the joined model
               // model_id column is null.
-              $j['conditions'][] = $jmodel->name.'.'.$cparentfk.' IS NULL';
-
+              $ret['joins'][$i]['conditions'][] = $jmodel->name.'.'.$cparentfk.' IS NULL';
+              
               // Add condition to the join condition that the joined model
               // deleted column is not true.
-              $j['conditions'][] = $jmodel->name.'.deleted IS NOT true';
+              $ret['joins'][$i]['conditions'][] = $jmodel->name.'.deleted IS NOT true';
             }
           } else {
             throw new RuntimeException(_txt('er.changelog.model.load', array($j['alias'])));
@@ -497,17 +497,39 @@ class ChangelogBehavior extends ModelBehavior {
         // eg: $query['contain'] = array('Model1' => array('Model2'));
         // eg: $query['contain'] = array('Model1' => 'Model2');
         // eg: $query['contain'] = array('conditions' => array('Model1.foo =' => 'value'));
+        // eg: $query['contain'] = array('Model1' => array('conditions' => array('Model1.foo' => 'value),
+        //                                                 'Model2' => array('conditions' => array('Model2.foo' => 'value'))
         
         if(is_array($v)) {
           // First handle Model1
           
-          if($model->$k->Behaviors->enabled('Changelog')) {
-            $cparentfk = Inflector::underscore($model->$k->name) . "_id";
+          if($k == 'conditions') {
+            // Example 4. We haven't yet handled $model (this is Model2, not Model1),
+            // so merge it with the conditions in $v
             
-            $ret[$k]['conditions'] = array(
-              $k.'.'.$cparentfk => null,
-              $k.'.deleted IS NOT true'
-            );
+            if($model->Behaviors->enabled('Changelog')) {
+              $parentfk = Inflector::underscore($model->name) . "_id";
+              
+              $ret['conditions'] = array(
+                $model->name.'.'.$parentfk => null,
+                $model->name.'.deleted IS NOT true'
+              );
+              
+              $ret['conditions'] = array_merge($ret['conditions'], $v);
+            }
+            
+            // $v is an array of conditions, not models, so we want to jump to the
+            // next entry in $contain
+            continue;
+          } else {
+            if($model->$k->Behaviors->enabled('Changelog')) {
+              $cparentfk = Inflector::underscore($model->$k->name) . "_id";
+              
+              $ret[$k]['conditions'] = array(
+                $k.'.'.$cparentfk => null,
+                $k.'.deleted IS NOT true'
+              );
+            }
           }
           
           // Now walk the value array

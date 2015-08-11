@@ -69,7 +69,9 @@ class CoGroup extends AppModel {
 // XXX CO-296 Toss default order?
 //  public $order = array("CoGroup.name");
   
-  public $actsAs = array('Containable', 'Provisioner');
+  public $actsAs = array('Containable',
+                         'Provisioner',
+                         'Changelog' => array('priority' => 5));
 
   // Validation rules for table elements
   public $validate = array(
@@ -79,7 +81,7 @@ class CoGroup extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'name' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => true,
       'message' => 'A name must be provided'
     ),

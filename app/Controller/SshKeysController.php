@@ -33,6 +33,10 @@ class SshKeysController extends StandardController {
   // like an MVPAController.)
   public $requires_person = true;
   
+  // We'll also require CO, though if we ever allow SSH keys to attach to the Org
+  // Identity we'll want to operate like (or just extend) MVPAController.
+  public $requires_co = true;
+  
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 25,

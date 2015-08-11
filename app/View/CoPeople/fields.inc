@@ -1150,7 +1150,7 @@
                       <table id="<?php print $this->action; ?>_org_identities" class="ui-widget">
                         <tbody>
                         <tr class="line<?php print ($l % 2); $l++; ?>">
-                          <th class="ui-widget-header"></th>
+                          <th class="ui-widget-header"><?php print _txt('fd.name'); ?></th>
                           <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
                           <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
                           <th class="ui-widget-header"><?php print _txt('fd.identifier.ids.login'); ?></th>
@@ -1160,7 +1160,13 @@
                         <?php foreach($co_people[0]['CoOrgIdentityLink'] as $link): ?>
                           <tr class="line<?php print ($l % 2); $l++; ?>">
                             <td>
-                              <?php print $link['OrgIdentity']['id']; ?>
+                              <?php
+                                if(!empty($link['OrgIdentity']['PrimaryName'])) {
+                                  print generateCn($link['OrgIdentity']['PrimaryName']);
+                                }
+                                
+                                print " (" . $link['OrgIdentity']['id'] . ")";
+                              ?>
                             </td>
                             <td>
                               <?php

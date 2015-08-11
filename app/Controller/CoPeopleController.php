@@ -55,7 +55,7 @@ class CoPeopleController extends StandardController {
   public $edit_contains = array(
     'CoGroupMember' => array('CoGroup'),
     'CoNsfDemographic',
-    'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier')),
+    'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier', 'PrimaryName')),
     'CoPersonRole' => array('CoPetition', 'Cou'),
     'EmailAddress',
     'Identifier',

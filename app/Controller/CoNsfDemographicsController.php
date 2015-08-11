@@ -296,8 +296,7 @@ class CoNsfDemographicsController extends StandardController {
       // If person's id is available, redirect to the person's edit page
       $args = array(
         'controller' => 'co_people',
-        'action'     => 'edit',
-        'co'         => $this->cur_co['Co']['id'],
+        'action'     => 'canvas',
         Sanitize::html($this->params['data']['CoNsfDemographic']['co_person_id'])
       );
     } elseif($this->viewVars['permissions']['index'] == true) {
