@@ -23,8 +23,12 @@
  */
 -->
 <?php
-  $params = array('title' => _txt('op.select-a', array(_txt('ct.cos.1'))));
+
+  // Add page title
+  $params = array();
+  $params['title'] =  _txt('op.select-a', array(_txt('ct.cos.1')));
   print $this->element("pageTitle", $params);
+
 ?>
 
 <p>

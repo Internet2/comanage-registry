@@ -29,8 +29,10 @@
   // Since this is an add operation, we may not have any data.
   // (Currently, only controllers like CoPersonRole prepopulate fields for rendering.)
 
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+  print $this->element("pageTitleAndNav", $params);
 
   $submit_label = _txt('op.add');
   

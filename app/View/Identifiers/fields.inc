@@ -131,7 +131,7 @@
     <tr class="line1">
       <td>
         <?php echo _txt('fd.identifier.login'); ?><br />
-        <i><?php echo _txt('fd.identifier.login.desc'); ?></i>
+        <em><?php echo _txt('fd.identifier.login.desc'); ?></em>
       </td>
       <td>
         <?php echo ($e ? $this->Form->input('login') : Sanitize::html($identifiers[0]['Identifier']['login'])); ?>
@@ -164,7 +164,7 @@
     </tr>
     <tr>
       <td>
-        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
+        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php

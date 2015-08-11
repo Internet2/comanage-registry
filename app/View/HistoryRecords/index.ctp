@@ -22,25 +22,6 @@
  * @version       $Id$
  */
 
-  $params = array('title' => _txt('ct.history_records.pl'));
-  print $this->element("pageTitle", $params);
-
-  if($permissions['add']) {
-    $args = array();
-    $args['controller'] = 'history_records';
-    $args['action'] = 'add';
-    
-    if(isset($this->request->params['named']['copersonid'])) {
-      $args['copersonid'] = Sanitize::html($this->request->params['named']['copersonid']);
-    } elseif(isset($this->request->params['named']['orgidentityid'])) {
-      $args['orgidentityid'] = Sanitize::html($this->request->params['named']['orgidentityid']);
-    }
-    
-    print $this->Html->link(_txt('op.add'),
-                            $args,
-                            array('class' => 'addbutton'));
-  }
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   if(isset($this->request->params['named']['copersonid'])) {
@@ -80,6 +61,34 @@
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
   }
   $this->Html->addCrumb(_txt('ct.history_records.pl'));
+
+  // Add page title
+  $params = array();
+  $params['title'] = _txt('ct.history_records.pl');
+
+  // Add top links
+  $params['topLinks'] = array();
+
+  if($permissions['add']) {
+    $args = array();
+    $args['controller'] = 'history_records';
+    $args['action'] = 'add';
+
+    if(isset($this->request->params['named']['copersonid'])) {
+      $args['copersonid'] = Sanitize::html($this->request->params['named']['copersonid']);
+    } elseif(isset($this->request->params['named']['orgidentityid'])) {
+      $args['orgidentityid'] = Sanitize::html($this->request->params['named']['orgidentityid']);
+    }
+
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.history_records.1'))),
+      $args,
+      array('class' => 'addbutton')
+    );
+  }
+
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 
 <table id="org_identities" class="ui-widget">

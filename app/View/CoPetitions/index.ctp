@@ -37,41 +37,58 @@
 </script>
 
 <?php
-// Globals
+  // Globals
   global $cm_lang, $cm_texts;
-  
-  $params = array('title' => (!empty($cur_co['Co']['name']) ? $cur_co['Co']['name'] . ' ' : '')
-                              . _txt('ct.petitions.pl'));
-  print $this->element("pageTitle", $params);
 
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.petitions.pl'));
-  
-  print $this->Html->link(_txt('op.view.all'),
-                          array('controller' => 'co_petitions',
-                                'action'     => 'index',
-                                'co'         => $cur_co['Co']['id'],
-                                'sort'       => 'created',
-                                'direction'  => 'desc'),
-                          array('class' => 'searchbutton'));    
-  
-  print $this->Html->link(_txt('op.view.pending'),
-                          array('controller'    => 'co_petitions',
-                                'action'        => 'index',
-                                'co'            => $cur_co['Co']['id'],
-                                'sort'          => 'created',
-                                'direction'     => 'desc',
-                                'search.status' => array(
-                                  StatusEnum::PendingApproval,
-                                  StatusEnum::PendingConfirmation
-                                )),
-                          array('class' => 'searchbutton'));    
+
+  // Add page title
+  $params = array();
+  $params['title'] = (!empty($cur_co['Co']['name']) ? $cur_co['Co']['name'] . ' ' : '') . _txt('ct.petitions.pl');
+
+  // Add top links
+  $params['topLinks'] = array();
+
+  $params['topLinks'][] = $this->Html->link(
+    _txt('op.view.all'),
+    array('controller' => 'co_petitions',
+          'action'     => 'index',
+          'co'         => $cur_co['Co']['id'],
+          'sort'       => 'created',
+          'direction'  => 'desc'),
+    array('class' => 'searchbutton')
+  );
+
+  $params['topLinks'][] =  $this->Html->link(
+    _txt('op.view.pending'),
+    array(
+      'controller'    => 'co_petitions',
+      'action'        => 'index',
+      'co'            => $cur_co['Co']['id'],
+      'sort'          => 'created',
+      'direction'     => 'desc',
+      'search.status' => array(
+        StatusEnum::PendingApproval,
+        StatusEnum::PendingConfirmation
+      )
+    ),
+    array('class' => 'searchbutton')
+  );
+
+  $params['topLinks'][] = $this->Html->link(
+    _txt('op.filter.status'), '#',
+    array(
+      'class' => 'searchbutton',
+      'id' => 'statusfilter'
+    )
+  );
+
+  print $this->element("pageTitleAndNav", $params);
 ?>
 
-<button id="statusfilter" class = "searchbutton">
-  <?php print _txt('op.filter.status');?>
-</button>
+
 
 <div id="statusfilterdialog" title="<?php print _txt('op.filter.status.by'); ?>">
   <?php

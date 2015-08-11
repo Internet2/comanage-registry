@@ -12,6 +12,7 @@
 <tr><td><a href="CmpAdmin-Login">Login</a></td></tr>
 <tr><td><a href="CmpAdmin-CreateCO">CreateCO</a></td></tr>
 <tr><td><a href="CmpAdmin-EditCO">EditCO</a></td></tr>
+<tr><td><a href="CmpAdmin-AddEnrollmentFlowConscribeUser">ConscribeUserToCO</a></td></tr>
 <tr><td><a href="CmpAdmin-DeleteCO">DeleteCO</a></td></tr>
 <tr><td><a href="CmpAdmin-Logout">Logout</a></td></tr>
 </tbody></table>

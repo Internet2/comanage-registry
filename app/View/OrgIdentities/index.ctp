@@ -25,58 +25,33 @@
 // Globals
 global $cm_lang, $cm_texts;
 
-// top links
+// Add breadcrumbs
+print $this->element("coCrumb");
+$this->Html->addCrumb(_txt('ct.org_identities.pl'));
+
+// Add page title
+$params = array();
+$params['title'] = _txt('ct.org_identities.pl');
+
+// Add top links
+$params['topLinks'] = array();
+
 if($permissions['add']) {
   // add new organizational identity link
-  print '<ul id="topLinks"><li>';
-  print $this->Html->link(
-    '<span class="ui-icon ui-icon-circle-plus"></span>' . _txt('op.add.new', array(_txt('ct.org_identities.1'))),
+  $params['topLinks'][] = $this->Html->link(
+    _txt('op.add.new', array(_txt('ct.org_identities.1'))),
     array(
       'controller'    => 'org_identities',
       'action' => 'add',
       'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
     ),
-    array(
-      'class'    => 'ui-corner-all',
-      'escape'   => FALSE
-    )
+    array('class' => 'addbutton')
   );
-  print '</li></ul>';
 }
 
-$params = array('title' => _txt('ct.org_identities.pl'));
-print $this->element("pageTitle", $params);
-
-// Add breadcrumbs
-print $this->element("coCrumb");
-$this->Html->addCrumb(_txt('ct.org_identities.pl'));
-
-/* XXX DEPRECATED - keep for now
-if($permissions['add']) {
-  // Add button to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
-
-  $sidebarButtons[]  = array(
-    'icon'    => 'circle-plus',
-    'title'   => _txt('op.add.new', array(_txt('ct.org_identities.1'))),
-    'url'     => array(
-      'controller'    => 'org_identities',
-      'action' => 'add',
-      'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
-    )
-  );
-
-  $this->set('sidebarButtons', $sidebarButtons);
-}
-*/
+print $this->element("pageTitleAndNav", $params);
 
 ?>
-
-<script type="text/javascript">
-  $(function() {
-    $("#topLinks").menu();
-  });
-</script>
 
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>

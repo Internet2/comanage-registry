@@ -22,9 +22,11 @@
  * @version       $Id$
  */
 
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-  
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+  print $this->element("pageTitleAndNav", $params);
+
   // It seems easier to generate the form manually than with FormHelper, since it's not really a form as Cake knows it
   $curstatus = "";
   

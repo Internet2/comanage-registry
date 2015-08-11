@@ -82,7 +82,7 @@
     </tr>
     <tr>
       <td>
-        <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php

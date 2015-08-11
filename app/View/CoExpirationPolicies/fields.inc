@@ -116,7 +116,7 @@
       <tbody>
         <!-- Conditions -->
         <tr>
-          <td colspan="2"><i><?php print _txt('fd.xp.conditions'); ?></i></td>
+          <td colspan="2"><em><?php print _txt('fd.xp.conditions'); ?></em></td>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
@@ -258,7 +258,7 @@
       <tbody>
         <!-- Actions -->
         <tr>
-          <td colspan="2"><i><?php print _txt('fd.xp.actions'); ?></i></td>
+          <td colspan="2"><em><?php print _txt('fd.xp.actions'); ?></em></td>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>

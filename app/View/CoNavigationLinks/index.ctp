@@ -22,45 +22,45 @@
  * @version       $Id$
  */-->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_navigation_links.pl'));
 
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
-  
-  // Add button
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+
+  // Add top links
+  $params['topLinks'] = array();
+
   if($permissions['add']) {
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-plus',
-      'title'   => _txt('op.add-a',array(_txt('ct.co_navigation_links.1'))),
-      'url'     => array(
-        'controller' => 'co_navigation_links', 
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.co_navigation_links.1'))),
+      array(
+        'controller' => 'co_navigation_links',
         'action'     => 'add',
         'co'         => $cur_co['Co']['id']
-      )
+      ),
+      array('class' => 'addbutton')
     );
   }
 
   if($permissions['order']) {
-    // Reorder button
-    $sidebarButtons[] = array(
-      'icon'    => 'pencil',
-      'title'   => _txt('op.order.link'),
-      'url'     => array(
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.order.link'),
+      array(
         'controller' => 'co_navigation_links',
         'action'     => 'order',
         'direction'  => 'asc',
         'sort'       => 'ordr',
         'co' => $cur_co['Co']['id']
-      )
+      ),
+      array('class' => 'movebutton')
     );
   }
 
-  $this->set('sidebarButtons', $sidebarButtons);
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 
 <table id="co_navigation_links" class="ui-widget">

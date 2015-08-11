@@ -405,7 +405,7 @@
               </tr>
               <tr>
                 <th>
-                  <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />
+                  <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
                 </th>
                 <td>
                   <?php
@@ -867,7 +867,7 @@
                                   || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation)): ?>
                         <div>
                           <span class="ui-icon ui-icon-info co-info"></span>
-                          <i><?php print _txt('fd.status.change'); ?></i>
+                          <em><?php print _txt('fd.status.change'); ?></em>
                         </div>
                         <?php endif; ?>
                       </td>

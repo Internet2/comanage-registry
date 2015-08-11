@@ -20,19 +20,29 @@
    */
 -->
 <?php
-  $params = array('title' => _txt('ct.organizations.pl'));
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   $this->Html->addCrumb(_txt('ct.organizations.pl'));
 
-  if($permissions['add'])
-    echo $this->Html->link(_txt('op.add'),
-                           array('controller' => 'organizations', 'action' => 'add'),
-                           array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
+  // Add page title
+  $params = array();
+  $params['title'] = _txt('ct.organizations.pl');
+
+  // Add top links
+  $params['topLinks'] = array();
+
+  if($permissions['add']) {
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.organizations.1'))),
+      array(
+        'controller' => 'organizations',
+        'action' => 'add'
+      ),
+      array('class' => 'addbutton')
+    );
+  }
+
+  print $this->element("pageTitleAndNav", $params);
+
 ?>
 
 <table id="organizations" class="ui-widget">

@@ -27,4 +27,12 @@
       <?php print $title; ?>
     </h2>
   </div>
+
+  <?php if(!empty($topLinks)): ?>
+    <ul id="topLinks">
+      <?php foreach ($topLinks as $t): ?>
+        <li><?php print $t?></li>
+      <?php endforeach; ?>
+    </ul>
+  <?php endif ?>
 </div>

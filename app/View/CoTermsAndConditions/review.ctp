@@ -21,14 +21,15 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
-
-  print $this->element("pageTitle", array('title' => _txt('fd.tc.for',
-                                                          array(generateCn($vv_co_person['PrimaryName']), $cur_co['Co']['name']))));
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_terms_and_conditions.pl'));
-  
+
+  // Add page title
+  $params = array();
+  $params['title'] = _txt('fd.tc.for', array(generateCn($vv_co_person['PrimaryName']), $cur_co['Co']['name']));
+  print $this->element("pageTitleAndNav", $params);
+
   // Determine if there are any not-agreed-to-t&c
   $pending = false;
   

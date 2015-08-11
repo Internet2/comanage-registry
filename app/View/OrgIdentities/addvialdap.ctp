@@ -75,7 +75,7 @@
     </tr>
     <tr>
       <td>
-        <i><span class="required">* denotes required field</span></i><br />
+        <em><span class="required">* denotes required field</span></em><br />
       </td>
       <td>
         <?php echo $this->Form->submit('Search'); ?>

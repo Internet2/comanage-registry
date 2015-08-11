@@ -35,9 +35,6 @@ $(document).ready(function () {
 
 </script>
 <?php
-  $params = array('title' => _txt('op.grm.edit', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])));
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $args = array();
@@ -47,6 +44,12 @@ $(document).ready(function () {
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
   $this->Html->addCrumb(_txt('ct.co_group_members.pl'));
+
+  // Add page title
+  $params = array();
+  $params['title'] = _txt('op.grm.edit', array($cur_co['Co']['name'], $co_group['CoGroup']['name']));
+
+  print $this->element("pageTitleAndNav", $params);
 
 ?>
 

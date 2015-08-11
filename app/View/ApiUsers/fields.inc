@@ -59,7 +59,7 @@
       </td>
       <td>
         <span class="ui-icon ui-icon-info co-info"></span>
-        <i><?php print _txt('ap.note.username'); ?></i>
+        <em><?php print _txt('ap.note.username'); ?></em>
       </td>
     </tr>
     <tr class="line2">
@@ -74,7 +74,7 @@
     </tr>
     <tr>
       <td>
-        <i><span class="required"><?php echo _txt('fd.req'); ?></span></i><br />
+        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php

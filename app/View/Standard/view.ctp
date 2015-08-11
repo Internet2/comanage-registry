@@ -30,20 +30,14 @@
   // Get a pointer to our data
   $d = $$modelpl;
 
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
 
-  print '<div>';
-  if(!empty($this->plugin)) {
-    include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/fields.inc");
-  } else {
-    include(APP . "View/" . $model . "/fields.inc");
-  }
-  print '</div>';
+  // Add top links
+  $params['topLinks'] = array();
 
   // If user has edit permission, offer an edit button in the sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
-
   if(!empty($permissions['edit']) && $permissions['edit']) {
 
     // special case co_people
@@ -53,19 +47,28 @@
     }
 
     $a = array('controller' => $modelpl, 'action' => $editAction, $d[0][$req]['id']);
-    
-    if(isset($this->params['named']['co']))
+
+    if(isset($this->params['named']['co'])) {
       $a['co'] = $this->params['named']['co'];
-    
-    // Add edit button to the sidebar
-    $sidebarButtons = $this->get('sidebarButtons');
-    $sidebarButtons[] = array(
-      'icon'    => 'pencil',
-      'title'   => _txt('op.edit'),
-      'url'     => $a
+    }
+
+    // Add edit button to the top links
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.edit'),
+      $a,
+      array('class' => 'editbutton')
     );
 
-    $this->set('sidebarButtons', $sidebarButtons);
-
   }
+
+  print $this->element("pageTitleAndNav", $params);
+
+  print '<div>';
+  if(!empty($this->plugin)) {
+    include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/fields.inc");
+  } else {
+    include(APP . "View/" . $model . "/fields.inc");
+  }
+  print '</div>';
+
 ?>

@@ -324,6 +324,13 @@
           text: true
         });
 
+        $(".movebutton").button({
+          icons: {
+            primary: 'ui-icon-arrow-4'
+          },
+          text: true
+        });
+
         $(".searchbutton").button({
           icons: {
             primary: 'ui-icon-search'

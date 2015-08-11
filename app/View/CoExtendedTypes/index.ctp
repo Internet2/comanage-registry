@@ -23,13 +23,46 @@
  */
 -->
 <?php
-  $params = array('title' => $title_for_layout);
-  print $this->element("pageTitle", $params);
-
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_extended_types.pl'));
-  
+
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+
+  // Add top links
+  $params['topLinks'] = array();
+
+  if($permissions['add']) {
+    $params['topLinks'][] =  $this->Html->link(
+      _txt('op.add-a',array(_txt('ct.co_extended_types.1'))),
+      array('controller' => 'co_extended_types',
+        'action' => 'add',
+        'co' => $cur_co['Co']['id'],
+        '?' => array(
+          'attr' => $attr
+        )),
+      array('class' => 'addbutton')
+    );
+
+    $params['topLinks'][] =  $this->Html->link(
+      _txt('op.restore.types'),
+      array('controller' => 'co_extended_types',
+        'action' => 'addDefaults',
+        'co' => $cur_co['Co']['id'],
+        '?' => array(
+          // Strictly speaking, we don't need to pass attr as a query string,
+          // but it's helpful because it will look like Model.field and if
+          // that's at the end of the URL it will be parsed as a doctype (eg: .json).
+          'attr' => $attr,
+        )),
+      array('class' => 'addbutton')
+    );
+  }
+
+  print $this->element("pageTitleAndNav", $params);
+
   // Which attribute are we currently looking at? If not set, we'll default
   // to Identifier.type since that's what was specified in CoExtendedTypesController.
   $attr = 'Identifier.type';
@@ -48,35 +81,6 @@
   </select>
 </form>
 <br />
-
-<?php
-  if($permissions['add']) {
-    print $this->Html->link(_txt('op.add-a',array(_txt('ct.co_extended_types.1'))),
-                            array('controller' => 'co_extended_types',
-                                  'action' => 'add',
-                                  'co' => $cur_co['Co']['id'],
-                                  '?' => array(
-                                    'attr' => $attr
-                                  )),
-                            array('class' => 'addbutton')) . '
-    ';
-    
-    print $this->Html->link(_txt('op.restore.types'),
-                            array('controller' => 'co_extended_types',
-                                  'action' => 'addDefaults',
-                                  'co' => $cur_co['Co']['id'],
-                                  '?' => array(
-                                    // Strictly speaking, we don't need to pass attr as a query string,
-                                    // but it's helpful because it will look like Model.field and if
-                                    // that's at the end of the URL it will be parsed as a doctype (eg: .json).
-                                    'attr' => $attr,
-                                  )),
-                            array('class' => 'addbutton')) . '
-    <br />
-    <br />
-    ';
-  }
-?>
 
 <table id="co_extended_types" class="ui-widget">
   <thead>

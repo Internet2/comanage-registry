@@ -105,7 +105,7 @@
   }
   
   $this->set('sidebarButtons', $sidebarButtons);
-  
+
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
   $l = 1;
