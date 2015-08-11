@@ -602,9 +602,7 @@ class ProvisionerBehavior extends ModelBehavior {
     $args['conditions']['CoGroup.id'] = $coGroupId;
     // Only pull related models relevant for provisioning
     $args['contain'] = array(
-      'CoGroupMember',
-      'CoGroupMember.CoPerson',
-      'CoGroupMember.CoPerson.Identifier'
+      'CoGroupMember' => array('CoPerson' => array('Identifier'))
     );
     
     $coGroupData = $coGroupModel->find('first', $args);

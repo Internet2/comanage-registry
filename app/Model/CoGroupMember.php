@@ -43,7 +43,9 @@ class CoGroupMember extends AppModel {
 // XXX CO-296 Toss default order?
 //  public $order = array("co_person_id");
   
-  public $actsAs = array('Containable', 'Provisioner');
+  public $actsAs = array('Containable',
+                         'Provisioner',
+                         'Changelog' => array('priority' => 5));
 
   // Validation rules for table elements
   public $validate = array(
