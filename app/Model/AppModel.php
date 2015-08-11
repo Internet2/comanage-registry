@@ -435,13 +435,43 @@ class AppModel extends Model {
    */
   
   public function delete($id = null, $cascade = true) {
+    // Because of limitations in Cake 2, we need to do some extra work here for
+    // ChangelogBehavior. For a discussion of why, see this thread:
+    // https://groups.google.com/forum/?fromgroups#!topic/cakephp-core/2vIZN8Sq8RE
+    // It is likely this code can be refactored into a less hacky implementation
+    // with Cake 3.
+    
+    if($this->Behaviors->enabled('Changelog')) {
+      // The first problem is that ChangelogBehavior must implement soft delete in
+      // beforeDelete(), and then must return false to prevent Cake from hard
+      // deleting the record. This has the unfortunate side effect of preventing
+      // any subsequent behaviors from firing. However, we need ProvisionerBehavior
+      // to run before ChangelogBehavior in order to cache data prior to the delete
+      // (normally the order is the opposite). A more general solution would probably
+      // be to invert the order of all Behaviors, but for now we simply ensure that
+      // Provisioner runs before Changelog.
+      
+      $this->reloadBehavior('Provisioner', array('priority' => '1'));
+    }
+    
+    // Now run the actual delete.
     $ret = parent::delete($id, $cascade);
     
     if($ret === false && $this->Behaviors->enabled('Changelog')) {
       // Check that the deleted field was set in lieu of the (incorrect) return
       // code from delete() (which will always be false with Changelog behavior).
       
-      return (bool)$this->field('deleted');
+      if((bool)$this->field('deleted')) {
+        // Now that the (soft) delete was successful, manually fire the afterDelete
+        // callbacks. These otherwise wouldn't run due to the false return.
+        
+        $this->getEventManager()->dispatch(new CakeEvent('Model.afterDelete', $this));
+        $this->_clearCache();
+        
+        return true;
+      } else {
+        return false;
+      }
     }
     
     return $ret;
