@@ -45,7 +45,7 @@ class CmpEnrollmentConfiguration extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'name' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => true,
       'message' => 'A name must be provided'
     ),

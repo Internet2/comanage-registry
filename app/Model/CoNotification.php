@@ -147,30 +147,30 @@ class CoNotification extends AppModel {
       'required' => true
     ),
     'email_subject' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
     'email_body' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
     'resolution_subject' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
     'resolution_body' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
     'notification_time' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     ),
     'resolution_time' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     )
   );
   

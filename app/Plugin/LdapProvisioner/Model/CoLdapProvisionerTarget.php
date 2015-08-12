@@ -66,16 +66,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       'message' => 'Please enter a valid ldap or ldaps URL'
     ),
     'binddn' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     ),
     'password' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     ),
     'dnattr' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     ),
     'basedn' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     ),
     'oc_person' => array(
       'rule' => 'boolean'

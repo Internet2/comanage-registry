@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Grouper Provisioner Target Model
  *
- * Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8.3
@@ -26,7 +26,6 @@ App::uses("CoProvisionerPluginTarget", "Model", "ConnectionManager");
 App::uses('GrouperRestClient', 'GrouperProvisioner.Lib');
 App::uses('GrouperRestClientException', 'GrouperProvisioner.Lib');
 App::uses('GrouperCouProvisioningStyle', 'GrouperProvisioner.Lib');
-
 
 class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
 
@@ -73,47 +72,47 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
       'message' => 'Please enter a valid context path'
     ),
     'login' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
     	'required' => true,
       'on' => null,
       'allowEmpty' => false,
     ),
     'password' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
     	'required' => true,
       'on' => null,
       'allowEmpty' => false,
     ),
     'stem' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
     	'required' => true,
       'allowEmpty' => false,
       'on' => null,
     ),
-  	'login_identifier' => array(
-  		'rule' => 'notEmpty',
-    	'required' => true,
+    'login_identifier' => array(
+      'rule' => 'notBlank',
+      'required' => true,
       'allowEmpty' => false,
       'on' => null,
-  	),
-  	'email_identifier' => array(
-  		'rule' => 'notEmpty',
-    	'required' => true,
+    ),
+    'email_identifier' => array(
+      'rule' => 'notBlank',
+      'required' => true,
       'allowEmpty' => false,
       'on' => null,
-  	),
-  	'subject_view' => array(
-    	'subjectViewRule1' => array(
-        'rule' => array('maxLength', 30),
-      	'required' => true,
-        'allowEmpty' => false,
-        'on' => null,
-        ),
-      'subjectViewRule2' => array(
-        'rule' => 'isUnique',
+    ),
+    'subject_view' => array(
+      'subjectViewRule1' => array(
+      'rule' => array('maxLength', 30),
+      'required' => true,
+      'allowEmpty' => false,
+      'on' => null,
+    ),
+    'subjectViewRule2' => array(
+      'rule' => 'isUnique',
       	'message' => 'The view name must be unique'
-        )  			
-  	)	
+      )  			
+    )	
   );
   
   /**

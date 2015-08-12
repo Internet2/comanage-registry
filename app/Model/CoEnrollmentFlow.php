@@ -76,7 +76,7 @@ class CoEnrollmentFlow extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'name' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => true,
       'message' => 'A name must be provided'
     ),
@@ -163,12 +163,12 @@ class CoEnrollmentFlow extends AppModel {
       'allowEmpty' => true
     ),
     'verification_subject' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
     'verification_body' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
@@ -176,22 +176,22 @@ class CoEnrollmentFlow extends AppModel {
       'rule' => array('boolean')
     ),
     'approval_subject' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
     'approval_body' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
     'introduction_text' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
     'conclusion_text' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),

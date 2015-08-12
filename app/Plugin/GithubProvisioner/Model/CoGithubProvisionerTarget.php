@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Github Provisioner Target Model
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.9.1
@@ -50,16 +50,16 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
       'message' => 'A CO Provisioning Target ID must be provided'
     ),
     'github_user' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     ),
     'github_org' => array(
       'rule' => array('maxlength', 80)
     ),
     'client_id' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     ),
     'client_secret' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     ),
     'access_token' => array(
       'rule' => array('maxlength', 80)

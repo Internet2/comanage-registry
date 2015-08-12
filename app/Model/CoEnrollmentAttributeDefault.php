@@ -53,7 +53,7 @@ class CoEnrollmentAttributeDefault extends AppModel {
       'rule'       => '/.*/'
     ),
     'value' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required'   => true,
       'allowEmpty' => true,
       'message'    => 'A value must be provided'

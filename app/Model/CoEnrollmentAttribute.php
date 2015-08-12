@@ -53,12 +53,12 @@ class CoEnrollmentAttribute extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'label' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => true,
       'message' => 'A label must be provided'
     ),
     'attribute' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => true,
       'message' => 'An attribute must be provided'
     ),

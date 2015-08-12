@@ -77,7 +77,7 @@ class Cou extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'name' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => true,
       'message' => 'A name must be provided'
     ),

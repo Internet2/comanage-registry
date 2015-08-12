@@ -57,7 +57,7 @@ class CoProvisioningExport extends AppModel {
       'allowEmpty' => true
     ),
     'exporttime' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     )
   );
   

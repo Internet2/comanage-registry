@@ -61,7 +61,7 @@ class CoExtendedType extends AppModel {
       'message' => 'A name must be provided and consist of alphanumeric characters'
     ),
     'display_name' => array(
-      'rule' => 'notEmpty',
+      'rule' => 'notBlank',
       'required' => true,
       'message' => 'A name must be provided'
     ),

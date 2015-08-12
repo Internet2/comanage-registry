@@ -57,7 +57,7 @@ class CoLdapProvisionerDn extends AppModel {
       'allowEmpty' => true
     ),
     'dn' => array(
-      'rule' => 'notEmpty'
+      'rule' => 'notBlank'
     )
   );
   
