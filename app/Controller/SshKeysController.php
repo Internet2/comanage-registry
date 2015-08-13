@@ -2,7 +2,7 @@
 /**
  * COmanage Registry SSH Key Controller
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9
@@ -70,17 +70,17 @@ class SshKeysController extends StandardController {
                                  array('SshKey' => $sk),
                                  null);
           
-          $this->Session->setFlash(_txt('rs.added-a3', array(_txt('ct.ssh_keys.1'))), '', array(), 'success');
+          $this->Flash->set(_txt('rs.added-a3', array(_txt('ct.ssh_keys.1'))), array('key' => 'success'));
           $this->performRedirect();
         }
         catch(InvalidArgumentException $e) {
-          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
         }
       } else {
-        $this->Session->setFlash(_txt('er.file.none'), '', array(), 'error');
+        $this->Flash->set(_txt('er.file.none'), array('key' => 'error'));
       }
     } else {
-      $this->Session->setFlash(_txt('er.cop.unk'), '', array(), 'error');
+      $this->Flash->set(_txt('er.cop.unk'), array('key' => 'error'));
     }
     
     // Redirect to add so we can try again

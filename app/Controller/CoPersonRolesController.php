@@ -121,7 +121,7 @@ class CoPersonRolesController extends StandardController {
         $this->set('co_people', array(0 => $cop));
       else
       {
-        $this->Session->setFlash(_txt('er.cop.unk-a', array($copid)), '', array(), 'error');
+        $this->Flash->set(_txt('er.cop.unk-a', array($copid)), array('key' => 'error'));
         $this->redirect(array('controller' => 'co_people', 'action' => 'index', 'co' => $this->cur_co['Co']['id']));
       }
     }
@@ -359,19 +359,19 @@ class CoPersonRolesController extends StandardController {
       $newStatus = $this->CoPersonRole->CoPerson->recalculateStatus($reqdata['CoPersonRole']['co_person_id']);
       
       if($newStatus != $reqdata['CoPerson']['status']) {
-        $this->Session->setFlash(_txt('rs.cop.recalc',
-                                      array(_txt('en.status', null, $newStatus))),
-                                 '', array(), 'info');
+        $this->Flash->set(_txt('rs.cop.recalc',
+                               array(_txt('en.status', null, $newStatus))),
+                          array('key' => 'information'));
       }
     }
     
     if(isset($reqdata['CoPersonRole']['status'])
        && isset($origdata['CoPersonRole']['status'])
        && $reqdata['CoPersonRole']['status'] != $origdata['CoPersonRole']['status']) {
-      $this->Session->setFlash(_txt('rs.copr.mod',
-                                    array(_txt('en.status', null, $origdata['CoPersonRole']['status']),
-                                          _txt('en.status', null, $reqdata['CoPersonRole']['status']))),
-                               '', array(), 'info');
+      $this->Flash->set(_txt('rs.copr.mod',
+                             array(_txt('en.status', null, $origdata['CoPersonRole']['status']),
+                                   _txt('en.status', null, $reqdata['CoPersonRole']['status']))),
+                        array('key' => 'information'));
     }
     
     // Commit under pretty much all circumstances. If there was an error in the
@@ -636,7 +636,7 @@ class CoPersonRolesController extends StandardController {
                                                  generateCn($newcop['PrimaryName']),
                                                  $newcop['CoPerson']['id']));
               
-              $this->Session->setFlash($res, '', array(), 'success');
+              $this->Flash->set($res, array('key' => 'success'));
               
               // Update history, once for old and once for new
               
@@ -658,18 +658,18 @@ class CoPersonRolesController extends StandardController {
                                                            $res);
               }
               catch(Exception $e) {
-                $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+                $this->Flash->set($e->getMessage(), array('key' => 'error'));
               }
             } else {
-              $this->Session->setFlash(_txt('er.notfound',
-                                            array(_txt('ct.co_people.1'), Sanitize::html($this->request->data['CoPersonRole']['co_person_id']))),
-                                       '', array(), 'error');
+              $this->Flash->set(_txt('er.notfound',
+                                     array(_txt('ct.co_people.1'), Sanitize::html($this->request->data['CoPersonRole']['co_person_id']))),
+                                array('key' => 'error'));
             }
           } else {
-            $this->Session->setFlash(_txt('er.db.save'), '', array(), 'error');
+            $this->Flash->set(_txt('er.db.save'), array('key' => 'error'));
           }
         } else {
-          $this->Session->setFlash(_txt('er.cop.nf', array(Sanitize::html($id))), '', array(), 'error');
+          $this->Flash->set(_txt('er.cop.nf', array(Sanitize::html($id))), array('key' => 'error'));
         }
       }
       

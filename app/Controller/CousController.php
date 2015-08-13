@@ -95,7 +95,7 @@ class CousController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "CoPersonRole Exists");
       } else {
-        $this->Session->setFlash(_txt('er.cou.copr', array($curdata['Cou']['name'])), '', array(), 'error');
+        $this->Flash->set(_txt('er.cou.copr', array($curdata['Cou']['name'])), array('key' => 'error'));
       }
       
       return false;
@@ -109,7 +109,7 @@ class CousController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Child COU Exists");
       } else {
-        $this->Session->setFlash(_txt('er.cou.child', array(Sanitize::html($curdata['Cou']['name']))), '', array(), 'error');
+        $this->Flash->set(_txt('er.cou.child', array(Sanitize::html($curdata['Cou']['name']))), array('key' => 'error'));
       }
       
       return false;
@@ -142,7 +142,7 @@ class CousController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Name In Use");
         } else {
-          $this->Session->setFlash(_txt('er.cou.exists', array($reqdata['Cou']['name'])), '', array(), 'error');          
+          $this->Flash->set(_txt('er.cou.exists', array($reqdata['Cou']['name'])), array('key' => 'error')); 
         }
         
         return false;
@@ -163,7 +163,7 @@ class CousController extends StandardController {
           if($this->request->is('restful')) {
             $this->Api->restResultHeader(403, "Wrong CO");
           } else {
-            $this->Session->setFlash(_txt('er.cou.sameco', array($reqdata['Cou']['name'])), '', array(), 'error');
+            $this->Flash->set(_txt('er.cou.sameco', array($reqdata['Cou']['name'])), array('key' => 'error'));
           }
           
           return false;
@@ -174,7 +174,7 @@ class CousController extends StandardController {
           if($this->request->is('restful')) {
             $this->Api->restResultHeader(403, "Parent Would Create Cycle");
           } else {
-            $this->Session->setFlash(_txt('er.cou.cycle', array($reqdata['CoGroupMember']['co_group_id'])), '', array(), 'error');
+            $this->Flash->set(_txt('er.cou.cycle', array($reqdata['CoGroupMember']['co_group_id'])), array('key' => 'error'));
           }
           
           return false;
@@ -232,13 +232,13 @@ class CousController extends StandardController {
         $members_create = $this->Cou->Co->CoGroup->save($a);
         
         if(!$admin_create and !$members_create) {
-          $this->Session->setFlash(_txt('er.cou.gr.adminmembers'), '', array(), 'info');
+          $this->Flash->set(_txt('er.cou.gr.adminmembers'), array('key' => 'information'));
           return false;
         } elseif (!$admin_create) {
-          $this->Session->setFlash(_txt('er.cou.gr.admin'), '', array(), 'info');
+          $this->Flash->set(_txt('er.cou.gr.admin'), array('key' => 'information'));
           return false;
         } elseif (!$members_create) {
-          $this->Session->setFlash(_txt('er.cou.gr.members'), '', array(), 'info');
+          $this->Flash->set(_txt('er.cou.gr.members'), array('key' => 'information'));
           return false;
         }
       }

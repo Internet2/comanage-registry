@@ -39,6 +39,7 @@ class AppController extends Controller {
   // All controllers use these components
   public $components = array('Auth',
                              'Api',
+                             'Flash',
                              'RequestHandler', // For REST
                              'Role',
                              'Security',
@@ -46,8 +47,8 @@ class AppController extends Controller {
                              'Paginator');
   
   // We should probably add helpers here instead of in each Controller. To do so,
-  // make sure to define the default Html and Form helpers.
-  // public $helpers = array('Form', 'Html', 'Time', etc...);
+  // make sure to define the default Html and Form helpers (and Flash).
+  // public $helpers = array('Form', 'Html', 'Time', 'Js', 'Permission', 'Session', 'Flash');
   
   // Determine if controller requires a CO to be selected
   public $requires_co = false;
@@ -127,6 +128,8 @@ class AppController extends Controller {
     // a stack trace instead of a redirect by setting unauthorizedRedirect to false.
     $this->Auth->unauthorizedRedirect = "/";
     $this->Auth->authError = _txt('er.permission');
+    // Default flash key is 'auth', switch to 'error' so it maps to noty's default type
+    $this->Auth->flash = array('key' => 'error');
     
     if($this->request->is('restful')) {
       // Set up basic auth and attempt to login the API user, unless we're already
@@ -247,7 +250,7 @@ class AppController extends Controller {
             $this->verifyRequestedId();
           }
           catch(InvalidArgumentException $e) {
-            $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+            $this->Flash->set($e->getMessage(), '', array(), 'error');
             $this->redirect("/");
           }
           
@@ -281,7 +284,7 @@ class AppController extends Controller {
             }
           }
         } else {
-          $this->Session->setFlash(_txt('er.co.unk-a', array($coid)), '', array(), 'error');
+          $this->Flash->set(_txt('er.co.unk-a', array($coid)), '', array(), 'error');
           $this->redirect("/");
         }
       }
@@ -558,11 +561,11 @@ class AppController extends Controller {
     } elseif($redirectMode != "calculate") {
       switch($rc) {
         case -1:
-          $this->Session->setFlash(_txt('er.person.noex'), '', array(), 'error');            
+          $this->Flash->set(_txt('er.person.noex'), '', array(), 'error');            
           $this->redirect($redirect);
           break;
         case 0:
-          $this->Session->setFlash(_txt('er.person.none'), '', array(), 'error');            
+          $this->Flash->set(_txt('er.person.none'), '', array(), 'error');            
           $this->redirect($redirect);
           break;
       }

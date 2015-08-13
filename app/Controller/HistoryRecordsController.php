@@ -198,7 +198,7 @@ class HistoryRecordsController extends StandardController {
       } else {
         // Throw an error. This controller doesn't permit retrieve all history via the UI.
         
-        $this->Session->setFlash(_txt('er.fields'), '', array(), 'error');
+        $this->Flash->set(_txt('er.fields'), array('key' => 'error'));
         
         // It's not really clear where we should redirect to, since we're missing the
         // parameter that would indicate where we came from.

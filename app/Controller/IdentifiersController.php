@@ -97,31 +97,31 @@ class IdentifiersController extends MVPAController {
           }
         } else {
           if($errs != "") {
-            $this->Session->setFlash($errs, '', array(), 'error');
+            $this->Flash->set($errs, array('key' => 'error'));
           }
           
           if(!empty($assigned)) {
-            $this->Session->setFlash(_txt('rs.ia.ok') . " (" . implode(',', $assigned) . ")",
-                                     '', array(), 'success');
+            $this->Flash->set(_txt('rs.ia.ok') . " (" . implode(',', $assigned) . ")",
+                              array('key' => 'success'));
           }
           
           if(!empty($existed)) {
-            $this->Session->setFlash(_txt('er.ia.already') . " (" . implode(',', $existed) . ")",
-                                     '', array(), 'info');
+            $this->Flash->set(_txt('er.ia.already') . " (" . implode(',', $existed) . ")",
+                              array('key' => 'information'));
           }
         }
       } else {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(200, "OK");
         } else {
-          $this->Session->setFlash(_txt('er.ia.none'), '', array(), 'info');
+          $this->Flash->set(_txt('er.ia.none'), array('key' => 'information'));
         }
       }
     } else {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "CO Does Not Exist");
       } else {
-        $this->Session->setFlash(_txt('er.co.unk'), '', array(), 'error');
+        $this->Flash->set(_txt('er.co.unk'), array('key' => 'error'));
       }
     }
     
@@ -219,7 +219,7 @@ class IdentifiersController extends MVPAController {
         if($this->request->is('restful'))
           $this->Api->restResultHeader(403, "Identifier In Use");
         else
-          $this->Session->setFlash(_txt('er.ia.exists', array(Sanitize::html($reqdata['Identifier']['identifier']))), '', array(), 'error');   
+          $this->Flash->set(_txt('er.ia.exists', array(Sanitize::html($reqdata['Identifier']['identifier']))), array('key' => 'error')); 
         
         $dbc->rollback();
         return false;

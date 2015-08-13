@@ -157,10 +157,10 @@ class OrgIdentitiesController extends StandardController {
           $this->Api->restResultHeader(403, "CoPerson Exists");
           $this->set('memberships', $memberships);
         } else {
-          $this->Session->setFlash(_txt('er.comember',
-                                        array(generateCn($curdata['PrimaryName']),
-                                              Sanitize::html(join(',', array_values($memberships))))),
-                                   '', array(), 'error');
+          $this->Flash->set(_txt('er.comember',
+                                 array(generateCn($curdata['PrimaryName']),
+                                       Sanitize::html(join(',', array_values($memberships))))),
+                            array('key' => 'error'));
         }
         
         return false;
@@ -233,9 +233,9 @@ class OrgIdentitiesController extends StandardController {
       if(!empty($cop['PrimaryName'])) {
         $this->set('title_for_layout', _txt('op.find.link', array(generateCn($cop['PrimaryName']))));
       } else {
-        $this->Session->setFlash(_txt('er.notfound',
-                                      array(_txt('ct.co_people.1'), Sanitize::html($this->request->params['named']['copersonid']))),
-                                 '', array(), 'error');
+        $this->Flash->set(_txt('er.notfound',
+                               array(_txt('ct.co_people.1'), Sanitize::html($this->request->params['named']['copersonid']))),
+                          array('key' => 'error'));
         $this->performRedirect();
       }
       
@@ -556,8 +556,6 @@ class OrgIdentitiesController extends StandardController {
   function performRedirect() {
     // On add, redirect to edit view again so MVPAs are available
 
-    //$this->Session->setFlash('"' . generateCn($this->data['Name']) . '" Added', '', array(), 'success');
-    
     if($this->action == 'add')
       $this->redirect(array('action' => 'edit',
                             $this->OrgIdentity->id,

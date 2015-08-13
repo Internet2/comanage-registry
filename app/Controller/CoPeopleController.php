@@ -278,10 +278,10 @@ class CoPeopleController extends StandardController {
             $this->Api->restResultHeader(499, "CouPerson Exists In Unowned COU");
           }
           
-          $this->Session->setFlash(_txt('er.coumember',
-                                   array(generateCn($curdata['PrimaryName']),
-                                         Sanitize::html($couname))),
-                                   '', array(), 'error');
+          $this->Flash->set(_txt('er.coumember',
+                                 array(generateCn($curdata['PrimaryName']),
+                                       Sanitize::html($couname))),
+                            array('key' => 'error'));
           
           return false;
         }
@@ -298,9 +298,9 @@ class CoPeopleController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(499, "CoPersonRole Exists");
       } else {
-        $this->Session->setFlash(_txt('er.copr.exists',
-                                      array(generateCn($curdata['PrimaryName']))),
-                                 '', array(), 'error');
+        $this->Flash->set(_txt('er.copr.exists',
+                               array(generateCn($curdata['PrimaryName']))),
+                          array('key' => 'error'));
       }
       
       return false;
@@ -334,10 +334,10 @@ class CoPeopleController extends StandardController {
       if($this->CoPerson->orgIdIsCoPerson($this->cur_co['Co']['id'],
                                           $reqdata['CoOrgIdentityLink'][0]['org_identity_id']))
       {
-        $this->Session->setFlash(_txt('er.cop.member',
-                                 array(generateCn($this->data['PrimaryName']),
-                                       $this->cur_co['Co']['name'])),
-                                 '', array(), 'error');
+        $this->Flash->set(_txt('er.cop.member',
+                               array(generateCn($this->data['PrimaryName']),
+                                     $this->cur_co['Co']['name'])),
+                          array('key' => 'error'));
         
         $redirect['controller'] = 'co_people';
         $redirect['action'] = 'index';
@@ -406,7 +406,7 @@ class CoPeopleController extends StandardController {
           $this->set('vv_co_person', $coperson);
           $this->set('title_for_layout', _txt('op.expunge-a', array(generateCn($coperson['PrimaryName']))));
         } else {
-          $this->Session->setFlash(_txt('er.cop.unk-a', array($id)), '', array(), 'error');
+          $this->Flash->set(_txt('er.cop.unk-a', array($id)), array('key' => 'error'));
           $this->performRedirect();
         }
       } else {
@@ -414,10 +414,10 @@ class CoPeopleController extends StandardController {
         
         try {
           $this->CoPerson->expunge($id, $this->Session->read('Auth.User.co_person_id'));
-          $this->Session->setFlash(_txt('rs.expunged'), '', array(), 'success');
+          $this->Flash->set(_txt('rs.expunged'), array('key' => 'success'));
         }
         catch(Exception $e) {
-          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
         }
         
         $this->performRedirect();
@@ -566,7 +566,7 @@ class CoPeopleController extends StandardController {
     }
     else
     {
-      $this->Session->setFlash(_txt('op.orgp-unk-a', array($this->request->params['named']['orgidentityid'])), '', array(), 'error');
+      $this->Flash->set(_txt('op.orgp-unk-a', array($this->request->params['named']['orgidentityid'])), array('key' => 'error'));
       $this->redirect(array('action' => 'index', 'co' => $this->cur_co['Co']['id']));
     }
   }

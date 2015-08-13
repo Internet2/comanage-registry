@@ -64,13 +64,13 @@ class CoExtendedTypesController extends StandardController {
         $this->CoExtendedType->addDefault($this->cur_co['Co']['id'],
                                           Sanitize::html($this->request->query['attr']));
         
-        $this->Session->setFlash(_txt('rs.types.defaults'), '', array(), 'success');
+        $this->Flash->set(_txt('rs.types.defaults'), array('key' => 'success'));
       }
       catch(Exception $e) {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
       }
     } else {
-      $this->Session->setFlash(_txt('er.notprov'), '', array(), 'error');
+      $this->Flash->set(_txt('er.notprov'), array('key' => 'error'));
     }
     
     // redirect back to index page
@@ -139,7 +139,7 @@ class CoExtendedTypesController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Type In Use");
         } else {
-          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
         }
         
         return false;
@@ -186,7 +186,7 @@ class CoExtendedTypesController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Name In Use");
         } else {
-          $this->Session->setFlash(_txt('er.et.exists', array($reqdata['CoExtendedType']['name'])), '', array(), 'error');
+          $this->Flash->set(_txt('er.et.exists', array($reqdata['CoExtendedType']['name'])), array('key' => 'error'));
         }
         
         return false;
@@ -212,7 +212,7 @@ class CoExtendedTypesController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Type In Use");
         } else {
-          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
         }
         
         return false;
@@ -227,7 +227,7 @@ class CoExtendedTypesController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Type In Use");
       } else {
-        $this->Session->setFlash(_txt('er.nm.official.et'), '', array(), 'error');
+        $this->Flash->set(_txt('er.nm.official.et'), array('key' => 'error'));
       }
       
       return false;

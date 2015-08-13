@@ -63,10 +63,10 @@ class CoNotificationsController extends StandardController {
       $this->CoNotification->acknowledge($id, $this->Session->read('Auth.User.co_person_id'));
     }
     catch(Exception $e) {
-      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
     }
     
-    $this->Session->setFlash(_txt('rs.nt.ackd'), '', array(), 'success');
+    $this->Flash->set(_txt('rs.nt.ackd'), array('key' => 'success'));
     
     // Not really clear where to redirect to
     $this->redirect("/");
@@ -144,10 +144,10 @@ class CoNotificationsController extends StandardController {
       $this->CoNotification->cancel($id, $this->Session->read('Auth.User.co_person_id'));
     }
     catch(Exception $e) {
-      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
     }
     
-    $this->Session->setFlash(_txt('rs.nt.cxld'), '', array(), 'success');
+    $this->Flash->set(_txt('rs.nt.cxld'), array('key' => 'success'));
     
     // Not really clear where to redirect to
     $this->redirect("/");

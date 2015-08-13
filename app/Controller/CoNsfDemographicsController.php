@@ -134,7 +134,7 @@ class CoNsfDemographicsController extends StandardController {
       if($this->request->is('restful'))
         $this->Api->restResultHeader(403, "CoPerson Does Not Exist");
       else
-        $this->Session->setFlash(_txt('er.cop.unk'), '', array(), 'error');
+        $this->Flash->set(_txt('er.cop.unk'), array('key' => 'error'));
 
       return false;
     }
@@ -158,7 +158,7 @@ class CoNsfDemographicsController extends StandardController {
       if($this->request->is('restful'))
         $this->Api->restResultHeader(403, "CoNsfDemographic Data Already Exists");
       else
-        $this->Session->setFlash(_txt('er.nd.already'), '', array(), 'error');
+        $this->Flash->set(_txt('er.nd.already'), array('key' => 'error'));
 
       return false;
     }

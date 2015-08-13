@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO GitHub Provisioner Targets Controller
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.1
@@ -97,17 +97,17 @@ class CoGithubProvisionerTargetsController extends SPTController {
                 $this->redirect($target);
               }
             } else {
-              $this->Session->setFlash(_txt('er.db.save'), '', array(), 'error');
+              $this->Flash->set(_txt('er.db.save'), array('key' => 'error'));
             }
           } else {
-            $this->Session->setFlash(_txt('er.githubprovisioner.access_token'), '', array(), 'error');
+            $this->Flash->set(_txt('er.githubprovisioner.access_token'), array('key' => 'error'));
           }
         } else {
-          $this->Session->setFlash(_txt('er.notfound', array(_txt('ct.co_github_provisioner_targets.1'), Sanitize::html($id))),
-                                   '', array(), 'error');
+          $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_github_provisioner_targets.1'), Sanitize::html($id))),
+                            array('key' => 'error'));
         }
       } else {
-        $this->Session->setFlash(_txt('er.githubprovisioner.state'), '', array(), 'error');
+        $this->Flash->set(_txt('er.githubprovisioner.state'), array('key' => 'error'));
       }
     }
     
@@ -247,15 +247,15 @@ class CoGithubProvisionerTargetsController extends SPTController {
             $this->set('vv_owned_github_orgs', $ownedOrgs);
             $this->set('title_for_layout', _txt('pl.githubprovisioner.org.select'));
           } else {
-            $this->Session->setFlash(_txt('er.githubprovisioner.orgs.none'), '', array(), 'error');
+            $this->Flash->set(_txt('er.githubprovisioner.orgs.none'), array('key' => 'error'));
           }
         }
         catch(Exception $e) {
-          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
         }
       } else {
-        $this->Session->setFlash(_txt('er.notfound', array(_txt('ct.co_github_provisioner_targets.1'), Sanitize::html($id))),
-                                 '', array(), 'error');
+        $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_github_provisioner_targets.1'), Sanitize::html($id))),
+                          array('key' => 'error'));
       }
     } else {
       // Save the field and redirect
@@ -263,9 +263,9 @@ class CoGithubProvisionerTargetsController extends SPTController {
       $this->CoGithubProvisionerTarget->id = $this->request->data['CoGithubProvisionerTarget']['id'];
       
       if($this->CoGithubProvisionerTarget->saveField('github_org', $this->request->data['CoGithubProvisionerTarget']['github_org'])) {
-        $this->Session->setFlash(_txt('pl.githubprovisioner.token.ok'), '', array(), 'success');
+        $this->Flash->set(_txt('pl.githubprovisioner.token.ok'), array('key' => 'success'));
       } else {
-        $this->Session->setFlash(_txt('er.db.save'), '', array(), 'error');
+        $this->Flash->set(_txt('er.db.save'), array('key' => 'error'));
       }
       
       $this->performRedirect();

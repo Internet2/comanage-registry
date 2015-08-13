@@ -92,15 +92,14 @@ class CoGroupMembersController extends StandardController {
         }
       }
       
-      if(count($a['CoGroupMember']) > 0)
-      {
+      if(count($a['CoGroupMember']) > 0) {
         if($this->CoGroupMember->saveAll($a['CoGroupMember']))
-          $this->Session->setFlash(_txt('rs.added'), '', array(), 'success');
+          $this->Flash->set(_txt('rs.added'), array('key' => 'success'));
         else
-          $this->Session->setFlash($this->fieldsErrorToString($this->CoGroupMember->invalidFields()), '', array(), 'error');
+          $this->Flash->set($this->fieldsErrorToString($this->CoGroupMember->invalidFields()), array('key' => 'error'));
+      } else {
+        $this->Flash->set(_txt('er.grm.none'), array('key' => 'information'));
       }
-      else
-        $this->Session->setFlash(_txt('er.grm.none'), '', array(), 'info');
         
       $this->performRedirect();
     }
@@ -197,7 +196,7 @@ class CoGroupMembersController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "CoGroup Does Not Exist");
       } else {
-        $this->Session->setFlash(_txt('er.gr.nf', array($reqdata['CoGroupMember']['co_group_id'])), '', array(), 'error');
+        $this->Flash->set(_txt('er.gr.nf', array($reqdata['CoGroupMember']['co_group_id'])), array('key' => 'error'));
         $this->performRedirect();
       }
       return false;
@@ -208,7 +207,7 @@ class CoGroupMembersController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Memberships in members groups cat not be edited");
       } else {
-        $this->Session->setFlash(_txt('er.gr.members.edit'), '', array(), 'error');
+        $this->Flash->set(_txt('er.gr.members.edit'), array('key' => 'error'));
         $this->performRedirect();
       }
       return false;
@@ -225,7 +224,7 @@ class CoGroupMembersController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "CoPerson Does Not Exist");
       } else {
-        $this->Session->setFlash(_txt('er.cop.nf', array($reqdata['CoGroupMember']['co_person_id'])), '', array(), 'error');
+        $this->Flash->set(_txt('er.cop.nf', array($reqdata['CoGroupMember']['co_person_id'])), array('key' => 'error'));
         $this->performRedirect();
       }
 
@@ -245,9 +244,9 @@ class CoGroupMembersController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "CoPerson Already Member");
         } else {
-          $this->Session->setFlash(_txt('er.grm.already', array($reqdata['CoGroupMember']['co_person_id'],
-                                                                $reqdata['CoGroupMember']['co_group_id'])),
-                                   '', array(), 'error');
+          $this->Flash->set(_txt('er.grm.already', array($reqdata['CoGroupMember']['co_person_id'],
+                                                         $reqdata['CoGroupMember']['co_group_id'])),
+                            array('key' => 'error'));
           $this->performRedirect();
         }
         
@@ -551,10 +550,10 @@ class CoGroupMembersController extends StandardController {
                                                 $this->request->data['CoGroupMember']['rows'],
                                                 $userCoPersonId);
         
-        $this->Session->setFlash(_txt('rs.saved'), '', array(), 'success');
+        $this->Flash->set(_txt('rs.saved'), array('key' => 'success'));
       }
       catch(Exception $e) {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
       }
       
       // Issue redirect
@@ -588,10 +587,10 @@ class CoGroupMembersController extends StandardController {
                                                      $this->request->data['CoGroupMember']['rows'],
                                                      $this->Session->read('Auth.User.co_person_id'));
         
-        $this->Session->setFlash(_txt('rs.saved'), '', array(), 'success');
+        $this->Flash->set(_txt('rs.saved'), array('key' => 'success'));
       }
       catch(Exception $e) {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
       }
       
       // Issue redirect

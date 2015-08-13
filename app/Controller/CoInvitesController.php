@@ -316,7 +316,7 @@ class CoInvitesController extends AppController {
           $this->Api->restResultHeader(400, "CoPerson Unknown");
         }
       } else {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
         $this->redirect("/");
         return;
       }
@@ -325,7 +325,7 @@ class CoInvitesController extends AppController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Expired");
       } else {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
         $this->redirect("/");
         return;
       }
@@ -339,7 +339,7 @@ class CoInvitesController extends AppController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(500, "Other Error");
         } else {
-          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
           $this->redirect("/");
           return;
         }
@@ -373,9 +373,9 @@ class CoInvitesController extends AppController {
         
         $this->redirect($redirect);
       } elseif(!empty($invite['CoInvite']['email_address_id'])) {
-        $this->Session->setFlash($confirm ? _txt('rs.ev.ver') : _txt('rs.ev.cxl'), '', array(), 'success');
+        $this->Flash->set($confirm ? _txt('rs.ev.ver') : _txt('rs.ev.cxl'), array('key' => 'success'));
       } else {
-        $this->Session->setFlash($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), '', array(), 'success');
+        $this->Flash->set($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), array('key' => 'success'));
       }
       
       // If a login identifier was provided, force a logout
@@ -404,7 +404,7 @@ class CoInvitesController extends AppController {
     $invite = $this->CoInvite->findByInvitation($inviteid);
     
     if(!$invite) {
-      $this->Session->setFlash(_txt('er.inv.nf'), '', array(), 'error');
+      $this->Flash->set(_txt('er.inv.nf'), array('key' => 'error'));
       // XXX what if this->restful?
     } else {
       // Database foreign key constraints should prevent inconsistencies here, so extra
@@ -558,10 +558,10 @@ class CoInvitesController extends AppController {
                                 null,
                                 $this->CoInvite->CoPerson->Co->CoSetting->getInvitationValidity($this->cur_co['Co']['id']));
           
-          $this->Session->setFlash(_txt('em.invite.ok', array($orgp['EmailAddress'][0]['mail'])), '', array(), 'success');
+          $this->Flash->set(_txt('em.invite.ok', array($orgp['EmailAddress'][0]['mail'])), array('key' => 'success'));
         }
         catch(Exception $e) {
-          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
         }
       
         // Set CO Person status to I
@@ -592,7 +592,7 @@ class CoInvitesController extends AppController {
             $this->set('invalid_fields', $this->CoInvite->invalidFields());
           }
           else
-            $this->Session->setFlash($this->fieldsErrorToString($this->CoInvite->CoPerson->invalidFields()), '', array(), 'error');
+            $this->Flash->set($this->fieldsErrorToString($this->CoInvite->CoPerson->invalidFields()), array('key' => 'error'));
         }
       }
       else
@@ -600,7 +600,7 @@ class CoInvitesController extends AppController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(400, "No Email Address");
         } else {
-          $this->Session->setFlash(_txt('er.orgp.nomail', array(generateCn($orgp['PrimaryName']), $orgp['OrgIdentity']['id'])), '', array(), 'error');
+          $this->Flash->set(_txt('er.orgp.nomail', array(generateCn($orgp['PrimaryName']), $orgp['OrgIdentity']['id'])), array('key' => 'error'));
           $this->redirect(array('controller' => 'co_people', 'action' => 'index', 'co' => $this->cur_co['Co']['id']));
         }
       }
@@ -611,7 +611,7 @@ class CoInvitesController extends AppController {
         $this->Api->restResultHeader(400, "Invalid Fields");
         $this->set('invalid_fields', array('CoPersonId' => _txt('er.cop.unk')));
       } else {
-        $this->Session->setFlash(_txt('er.cop.nf', array($cpid)), '', array(), 'error');
+        $this->Flash->set(_txt('er.cop.nf', array($cpid)), array('key' => 'error'));
       }
     }
 
@@ -682,10 +682,10 @@ class CoInvitesController extends AppController {
               $this->set('vv_co_invite', $this->CoInvite->findById($this->CoInvite->id));
               $this->set('vv_recipient', $ea);
               
-              $this->Session->setFlash(_txt('rs.ev.sent', array($ea['EmailAddress']['mail'])), '', array(), 'success');
+              $this->Flash->set(_txt('rs.ev.sent', array($ea['EmailAddress']['mail'])), array('key' => 'success'));
             }
             catch(Exception $e) {
-              $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+              $this->Flash->set($e->getMessage(), array('key' => 'error'));
             }
             
             $debug = Configure::read('debug');
@@ -712,16 +712,16 @@ class CoInvitesController extends AppController {
             }
           }
         } else {
-          $this->Session->setFlash(_txt('er.person.noex'), '', array(), 'error');
+          $this->Flash->set(_txt('er.person.noex'), array('key' => 'error'));
         }
       } else {
-        $this->Session->setFlash(_txt('er.notfound',
-                                      array(_txt('ct.email_addresses.1'),
-                                            Sanitize::html($this->request->params['named']['email_address_id']))),
-                                 '', array(), 'error');
+        $this->Flash->set(_txt('er.notfound',
+                               array(_txt('ct.email_addresses.1'),
+                                     Sanitize::html($this->request->params['named']['email_address_id']))),
+                          array('key' => 'error'));
       }
     } else {
-      $this->Session->setFlash(_txt('er.notprov.id', array(_txt('ct.email_addresses.1'))), '', array(), 'error');
+      $this->Flash->set(_txt('er.notprov.id', array(_txt('ct.email_addresses.1'))), array('key' => 'error'));
     }
   }
 }

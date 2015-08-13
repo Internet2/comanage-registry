@@ -68,8 +68,7 @@ class CmpEnrollmentConfigurationsController extends StandardController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
-    if($this->action == 'edit')
-    {
+    if($this->action == 'edit') {
       // Check to see if the pool org identities setting has been changed, and
       // if so perform the appropriate updates. At the moment, we only do this
       // on edit and not add since when we add the one and only CMP enrollment
@@ -77,26 +76,20 @@ class CmpEnrollmentConfigurationsController extends StandardController {
       
       if(isset($curdata)
          && ($curdata['CmpEnrollmentConfiguration']['pool_org_identities']
-             != $reqdata['CmpEnrollmentConfiguration']['pool_org_identities']))
-      {
-        if($reqdata['CmpEnrollmentConfiguration']['pool_org_identities'])
-        {
+             != $reqdata['CmpEnrollmentConfiguration']['pool_org_identities'])) {
+        if($reqdata['CmpEnrollmentConfiguration']['pool_org_identities']) {
           // Enable pooling
           
-          if(!$this->OrgIdentity->pool())
-          {
-            $this->Session->setFlash(_txt('er.orgp.pool'), '', array(), 'info');
-            return(false);
+          if(!$this->OrgIdentity->pool()) {
+            $this->Flash->set(_txt('er.orgp.pool'), 'information');
+            return false;
           }
-        }
-        else
-        {
+        } else {
           // Disable pooling
           
-          if(!$this->OrgIdentity->unpool())
-          {
-            $this->Session->setFlash(_txt('er.orgp.unpool'), '', array(), 'info');
-            return(false);
+          if(!$this->OrgIdentity->unpool()) {
+            $this->Flash->set(_txt('er.orgp.unpool'), 'information');
+            return false;
           }
         }
       }
@@ -187,7 +180,7 @@ class CmpEnrollmentConfigurationsController extends StandardController {
         $fid = $this->CmpEnrollmentConfiguration->createDefault();
       }
       catch(Exception $e) {
-        $this->Session->setFlash(_txt('er.efcf.init'), '', array(), 'error');
+        $this->Flash->set(_txt('er.efcf.init'), array('key' => 'error'));
         $this->redirect(array('controller' => 'pages', 'action' => 'menu'));
         return;
       }

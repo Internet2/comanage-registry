@@ -56,10 +56,10 @@ class CoEnrollmentFlowsController extends StandardController {
     try {
       $this->CoEnrollmentFlow->addDefaults($this->cur_co['Co']['id']);
       
-      $this->Session->setFlash(_txt('rs.ef.defaults'), '', array(), 'success');
+      $this->Flash->set(_txt('rs.ef.defaults'), array('key' => 'success'));
     }
     catch(Exception $e) {
-      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
     }
     
     // redirect back to index page
@@ -110,9 +110,9 @@ class CoEnrollmentFlowsController extends StandardController {
       if($reqdata['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CoGroupMember) {
         if(!isset($reqdata['CoEnrollmentFlow']['authz_co_group_id'])
            || $reqdata['CoEnrollmentFlow']['authz_co_group_id'] == "") {
-          $this->Session->setFlash(_txt('er.ef.authz.gr',
-                                        array(_txt('en.enrollment.authz', null, $reqdata['CoEnrollmentFlow']['authz_level']))),
-                                   '', array(), 'error');
+          $this->Flash->set(_txt('er.ef.authz.gr',
+                                 array(_txt('en.enrollment.authz', null, $reqdata['CoEnrollmentFlow']['authz_level']))),
+                            array('key' => 'error'));
           
           return false;
         }
@@ -120,9 +120,9 @@ class CoEnrollmentFlowsController extends StandardController {
                || $reqdata['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::CouPerson) {
         if(!isset($reqdata['CoEnrollmentFlow']['authz_cou_id'])
            || $reqdata['CoEnrollmentFlow']['authz_cou_id'] == "") {
-          $this->Session->setFlash(_txt('er.ef.authz.cou',
-                                        array(_txt('en.enrollment.authz', null, $reqdata['CoEnrollmentFlow']['authz_level']))),
-                                   '', array(), 'error');
+          $this->Flash->set(_txt('er.ef.authz.cou',
+                                 array(_txt('en.enrollment.authz', null, $reqdata['CoEnrollmentFlow']['authz_level']))),
+                            array('key' => 'error'));
           
           return false;
         }
@@ -143,10 +143,10 @@ class CoEnrollmentFlowsController extends StandardController {
   public function duplicate($id) {
     try {
       $this->CoEnrollmentFlow->duplicate($id);
-      $this->Session->setFlash(_txt('rs.copy-a1', array(_txt('ct.enrollment_flows.1'))), '', array(), 'success');
+      $this->Flash->set(_txt('rs.copy-a1', array(_txt('ct.enrollment_flows.1'))), array('key' => 'success'));
     }
     catch(Exception $e) {
-      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
     }
     
     $this->performRedirect();

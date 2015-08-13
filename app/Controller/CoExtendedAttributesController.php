@@ -79,7 +79,7 @@ class CoExtendedAttributesController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Name In Use");
       } else {
-        $this->Session->setFlash(_txt('er.ea.exists', array($name)), '', array(), 'error');
+        $this->Flash->set(_txt('er.ea.exists', array($name)), array('key' => 'error'));
       }
       
       return false;
@@ -123,7 +123,7 @@ class CoExtendedAttributesController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(500, "Database Error");
       } else {
-        $this->Session->setFlash(_txt('er.ea.alter'), '', array(), 'error');
+        $this->Flash->set(_txt('er.ea.alter'), array('key' => 'error'));
       }
       
       $dbc->rollback($this);
@@ -148,7 +148,7 @@ class CoExtendedAttributesController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(500, "Database Error");
         } else {
-          $this->Session->setFlash(_txt('er.ea.table.d'), '', array(), 'error');
+          $this->Flash->set(_txt('er.ea.table.d'), array('key' => 'error'));
         }
         
         $dbc->rollback($this);
@@ -205,7 +205,7 @@ class CoExtendedAttributesController extends StandardController {
           $this->Api->restResultHeader(500, "Other Error");
         }
       } else {
-        $this->Session->setFlash($this->fieldsErrorToString($this->CoExtendedAttribute->invalidFields()), '', array(), 'error');
+        $this->Flash->set($this->fieldsErrorToString($this->CoExtendedAttribute->invalidFields()), array('key' => 'error'));
       }
       
       return false;
@@ -250,7 +250,7 @@ class CoExtendedAttributesController extends StandardController {
           if($this->request->is('restful')) {
             $this->Api->restResultHeader(500, "Database Error");
           } else {
-            $this->Session->setFlash(_txt('er.ea.table'), '', array(), 'error');
+            $this->Flash->set(_txt('er.ea.table'), array('key' => 'error'));
           }
           
           $dbc->rollback($this);
@@ -276,7 +276,7 @@ class CoExtendedAttributesController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(500, "Database Error");
         } else {
-          $this->Session->setFlash(_txt('er.ea.alter'), '', array(), 'error');
+          $this->Flash->set(_txt('er.ea.alter'), array('key' => 'error'));
         }
         
         $dbc->rollback($this);
@@ -295,7 +295,7 @@ class CoExtendedAttributesController extends StandardController {
           if($this->request->is('restful')) {
             $this->Api->restResultHeader(500, "Database Error");
           } else {
-            $this->Session->setFlash(_txt('er.ea.index'), '', array(), 'error');
+            $this->Flash->set(_txt('er.ea.index'), array('key' => 'error'));
           }
           
           $dbc->rollback($this);
@@ -325,7 +325,7 @@ class CoExtendedAttributesController extends StandardController {
           if($this->request->is('restful')) {
             $this->Api->restResultHeader(500, "Database Error");
           } else {
-            $this->Session->setFlash(_txt('er.ea.alter'), '', array(), 'error');
+            $this->Flash->set(_txt('er.ea.alter'), array('key' => 'error'));
           }
           
           $dbc->rollback($this);
@@ -363,7 +363,7 @@ class CoExtendedAttributesController extends StandardController {
             if($this->request->is('restful')) {
               $this->Api->restResultHeader(500, "Database Error");
             } else {
-              $this->Session->setFlash(_txt('er.ea.index'), '', array(), 'error');
+              $this->Flash->set(_txt('er.ea.index'), array('key' => 'error'));
             }
             
             $dbc->rollback($this);
