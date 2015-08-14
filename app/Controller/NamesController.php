@@ -89,9 +89,10 @@ class NamesController extends MVPAController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Primary Name Cannot Be Deleted");
       } else {
-        $this->Session->setFlash(_txt('er.nm.primary',
-                                      array(generateCn($curdata['Name']))),
-                                 '', array(), 'error');      }
+        $this->Flash->set(_txt('er.nm.primary',
+                               array(generateCn($curdata['Name']))),
+                          array('key' => 'error'));
+      }
       
       return false;
     }
@@ -364,11 +365,11 @@ class NamesController extends MVPAController {
     if($ret) {
       $dbc->commit($this);
       
-      $this->Session->setFlash(_txt('rs.nm.primary'), '', array(), 'success');
+      $this->Flash->set(_txt('rs.nm.primary'), array('key' => 'success'));
     } else {
       $dbc->rollback($this);
       
-      $this->Session->setFlash(_txt('er.db.save'), '', array(), 'error');
+      $this->Flash->set(_txt('er.db.save'), array('key' => 'error'));
     }
     
     if(!$this->request->is('restful')) {

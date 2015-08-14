@@ -64,14 +64,14 @@ class CoTermsAndConditionsController extends StandardController {
         if($this->request->is('restful')) {
           // XXX CO-698
         } else {
-          $this->Session->setFlash(_txt('rs.tc.agree.ok'), '', array(), 'success');        
+          $this->Flash->set(_txt('rs.tc.agree.ok'), array('key' => 'success')); 
         }
       }
       catch(Exception $e) {
         if($this->request->is('restful')) {
           // XXX CO-698
         } else {
-          $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
         }
       }
       
@@ -104,7 +104,7 @@ class CoTermsAndConditionsController extends StandardController {
       if($this->request->is('restful')) {
         // XXX CO-698
       } else {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
         $this->performRedirect();
       }
     }

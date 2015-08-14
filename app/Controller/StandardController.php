@@ -146,7 +146,7 @@ class StandardController extends AppController {
         $this->set($modelid, $model->id);
       } else {
         // Redirect to index view
-        $this->Session->setFlash(_txt('rs.added-a', array(Sanitize::html($this->generateDisplayKey()))), '', array(), 'success');
+        $this->Flash->set(_txt('rs.added-a', array(Sanitize::html($this->generateDisplayKey()))), array('key' => 'success'));
         $this->performRedirect();
       }
     } else {
@@ -160,7 +160,7 @@ class StandardController extends AppController {
           $this->Api->restResultHeader(500, "Other Error");
         }
       } else {
-        $this->Session->setFlash(_txt('er.fields'), '', array(), 'error');
+        $this->Flash->set(_txt('er.fields'), array('key' => 'error'));
         $this->regenerateForm();
       }
     }
@@ -246,10 +246,11 @@ class StandardController extends AppController {
     $model = $this->$req;
     
     if(!isset($id) || $id < 1) {
-      if($this->request->is('restful'))
+      if($this->request->is('restful')) {
         $this->Api->restResultHeader(400, "Invalid Fields");
-      else
-        $this->Session->setFlash(_txt('er.notprov.id', array($req)), '', array(), 'error');
+      } else {
+        $this->Flash->set(_txt('er.notprov.id', array($req)), array('key' => 'error'));
+      }
       
       return;
     }
@@ -279,10 +280,11 @@ class StandardController extends AppController {
     // set via bindModel().
     
     if(empty($curdata)) {
-      if($this->request->is('restful'))
+      if($this->request->is('restful')) {
         $this->Api->restResultHeader(404, $req . " Unknown");
-      else
-        $this->Session->setFlash(_txt('er.notfound', array($req, $id)), '', array(), 'error');
+      } else {
+        $this->Flash->set(_txt('er.notfound', array($req, $id)), array('key' => 'error'));
+      }
       
       return;
     }
@@ -313,16 +315,18 @@ class StandardController extends AppController {
     
     if($model->delete($id)) {
       if($this->recordHistory('delete', null, $curdata)) {
-        if($this->request->is('restful'))
+        if($this->request->is('restful')) {
           $this->Api->restResultHeader(200, "Deleted");
-        else
-          $this->Session->setFlash(_txt('er.deleted-a', array(Sanitize::html($name))), '', array(), 'success');
+        } else {
+          $this->Flash->set(_txt('er.deleted-a', array(Sanitize::html($name))), array('key' => 'success'));
+        }
       }
     } else {
-      if($this->request->is('restful'))
+      if($this->request->is('restful')) {
         $this->Api->restResultHeader(500, "Other Error");
-      else
-        $this->Session->setFlash(_txt('er.delete'), '', array(), 'error');
+      } else {
+        $this->Flash->set(_txt('er.delete'), array('key' => 'error'));
+      }
     }
     
     if(!$this->request->is('restful')) {
@@ -379,7 +383,7 @@ class StandardController extends AppController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(404, $req . " Unknown");
       } else {
-        $this->Session->setFlash(_txt('er.notfound', array(_txt('ct.' . $modelpl . '.1'), $id)), '', array(), 'error');
+        $this->Flash->set(_txt('er.notfound', array(_txt('ct.' . $modelpl . '.1'), $id)), array('key' => 'error'));
         $this->performRedirect();
       }
       
@@ -563,7 +567,7 @@ class StandardController extends AppController {
       } else {
         // Redirect to index view
         
-        $this->Session->setFlash(_txt('rs.updated', array(Sanitize::html($this->generateDisplayKey()))), '', array(), 'success');
+        $this->Flash->set(_txt('rs.updated', array(Sanitize::html($this->generateDisplayKey()))), array('key' => 'success'));
         $this->performRedirect();
       }
     } else {
@@ -577,7 +581,7 @@ class StandardController extends AppController {
           $this->Api->restResultHeader(500, "Other Error");
         }
       } else {
-        $this->Session->setFlash(_txt('er.fields'), '', array(), 'error');
+        $this->Flash->set(_txt('er.fields'), array('key' => 'error'));
       }
     }
   }
@@ -1007,7 +1011,7 @@ class StandardController extends AppController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(500, "Other Error: " . $e->getMessage());
       } else {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'info');
+        $this->Flash->set($e->getMessage(), array('key' => 'information'));
       }
       
       return false;
@@ -1111,7 +1115,7 @@ class StandardController extends AppController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(404, $req . " Unknown");
       } else {
-        $this->Session->setFlash(_txt('er.notfound', array(_txt('ct.' . $modelpl . '.1'), $id)), '', array(), 'error');
+        $this->Flash->set(_txt('er.notfound', array(_txt('ct.' . $modelpl . '.1'), $id)), array('key' => 'error'));
         $this->performRedirect();
       }
     } else {

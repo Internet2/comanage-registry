@@ -73,7 +73,7 @@ class CoGroupsController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Admin groups cannot be deleted");
       } else {
-        $this->Session->setFlash(_txt('er.gr.admin.delete'), '', array(), 'error');
+        $this->Flash->set(_txt('er.gr.admin.delete'), array('key' => 'error'));
       }
       return false;
     }
@@ -83,7 +83,7 @@ class CoGroupsController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Members groups cannot be deleted");
       } else {
-        $this->Session->setFlash(_txt('er.gr.members.delete'), '', array(), 'error');
+        $this->Flash->set(_txt('er.gr.members.delete'), array('key' => 'error'));
       }
       return false;
     }
@@ -112,7 +112,7 @@ class CoGroupsController extends StandardController {
           if($this->request->is('restful')) {
             $this->Api->restResultHeader(403, "Name Reserved");
           } else {
-            $this->Session->setFlash(_txt('er.gr.res'), '', array(), 'error');          
+            $this->Flash->set(_txt('er.gr.res'), array('key' => 'error'));
           }
           
           return false;
@@ -127,7 +127,7 @@ class CoGroupsController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Name Reserved");
         } else {
-          $this->Session->setFlash(_txt('er.gr.members.res'), '', array(), 'error');          
+          $this->Flash->set(_txt('er.gr.members.res'), array('key' => 'error'));
         }
   
         return false;
@@ -143,7 +143,7 @@ class CoGroupsController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Name In Use");
         } else {
-          $this->Session->setFlash(_txt('er.gr.exists', array($reqdata['CoGroup']['name'])), '', array(), 'error');          
+          $this->Flash->set(_txt('er.gr.exists', array($reqdata['CoGroup']['name'])), array('key' => 'error'));
         }
         
         return false;
@@ -156,7 +156,7 @@ class CoGroupsController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Members groups may not be edited directly");
       } else {
-        $this->Session->setFlash(_txt('er.gr.members.edit'), '', array(), 'error');          
+        $this->Flash->set(_txt('er.gr.members.edit'), array('key' => 'error'));
       }
   
         return false;
@@ -183,23 +183,20 @@ class CoGroupsController extends StandardController {
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     // Add the co person as owner/member of the new group, but only via HTTP
     
-    if(!$this->request->is('restful') && $this->action == 'add')
-    {
+    if(!$this->request->is('restful') && $this->action == 'add') {
       $cos = $this->Session->read('Auth.User.cos');
-
+      
       // Member of current CO? (Platform admin wouldn't be)
-      if(isset($cos) && isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id']))
-      {
+      if(isset($cos) && isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id'])) {
         $a['CoGroupMember'] = array(
           'co_group_id' => $this->CoGroup->id,
           'co_person_id' => $this->Session->read('Auth.User.co_person_id'),
           'owner' => true,
           'member' => true
         );
-    
-        if(!$this->CoGroup->CoGroupMember->save($a))
-        {
-          $this->Session->setFlash(_txt('er.gr.init'), '', array(), 'info');
+        
+        if(!$this->CoGroup->CoGroupMember->save($a)) {
+          $this->Flash->set(_txt('er.gr.init'), array('key' => 'information'));
           return false;
         }
       }
@@ -567,7 +564,7 @@ class CoGroupsController extends StandardController {
       $this->set('vv_co_person_id', $coPerson['CoPerson']['id']);
     } else {
       // Most likely CMP admin trying to view "their" groups in a CO they're not actually a member of
-      $this->Session->setFlash(_txt('er.co.notmember'), '', array(), 'error');
+      $this->Flash->set(_txt('er.co.notmember'), array('key' => 'error'));
       $this->performRedirect();
     }
     

@@ -58,7 +58,7 @@ class CosController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Cannot Remove COmanage CO");
       } else {
-        $this->Session->setFlash(_txt('er.co.cm.rm'), '', array(), 'error');
+        $this->Flash->set(_txt('er.co.cm.rm'), array('key' => 'error'));
       }
       
       return false;
@@ -85,7 +85,7 @@ class CosController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Cannot Edit COmanage CO");
         } else {
-          $this->Session->setFlash(_txt('er.co.cm.edit'), '', array(), 'error');
+          $this->Flash->set(_txt('er.co.cm.edit'), array('key' => 'error'));
         }
         
         return false;
@@ -101,7 +101,7 @@ class CosController extends StandardController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Name In Use");
         } else {
-          $this->Session->setFlash(_txt('er.co.exists', array($reqdata['Co']['name'])), '', array(), 'error');          
+          $this->Flash->set(_txt('er.co.exists', array($reqdata['Co']['name'])), array('key' => 'error')); 
         }
         
         return false;
@@ -159,13 +159,13 @@ class CosController extends StandardController {
         $members_create = $this->Co->CoGroup->save($a);
         
         if(!$admin_create and !$members_create) {
-          $this->Session->setFlash(_txt('er.co.gr.adminmembers'), '', array(), 'info');
+          $this->Flash->set(_txt('er.co.gr.adminmembers'), array('key' => 'information'));
           return(false);
         } elseif (!$admin_create) {
-          $this->Session->setFlash(_txt('er.co.gr.admin'), '', array(), 'info');
+          $this->Flash->set(_txt('er.co.gr.admin'), array('key' => 'information'));
           return(false);
         } elseif(!$members_create) {
-          $this->Session->setFlash(_txt('er.co.gr.members'), '', array(), 'info');
+          $this->Flash->set(_txt('er.co.gr.members'), array('key' => 'information'));
           return(false);
         }
       }
@@ -252,10 +252,10 @@ class CosController extends StandardController {
           $cos = $this->Co->find('all');
           
           if(count($cos) == 0) {
-            $this->Session->setFlash(_txt('er.co.none'), '', array(), 'error');
+            $this->Flash->set(_txt('er.co.none'), array('key' => 'error'));
             $this->redirect(array('controller' => 'pages', 'action' => 'menu'));
           } else {
-            $this->Session->setFlash(_txt('co.nomember'), '', array(), 'error');
+            $this->Flash->set(_txt('co.nomember'), array('key' => 'error'));
             $this->redirect(array('controller' => 'pages', 'action' => 'menu'));
           }
         }

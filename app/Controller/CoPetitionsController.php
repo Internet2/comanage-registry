@@ -181,7 +181,7 @@ class CoPetitionsController extends StandardController {
           $ef = $this->CoPetition->CoEnrollmentFlow->find('first', $args);
           
           if(empty($ef)) {
-            $this->Session->setFlash(_txt('er.coef.unk'), '', array(), 'error');
+            $this->Flash->set(_txt('er.coef.unk'), array('key' => 'error'));
           } elseif($steps[$this->action]['role'] == EnrollmentRole::Petitioner
                    && isset($ef['CoEnrollmentFlow']['authz_level'])
                    && $ef['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None
@@ -204,7 +204,7 @@ class CoPetitionsController extends StandardController {
                 // Dump the token into a viewvar in case needed
                 $this->set('vv_petition_token', $token);
               } else {
-                $this->Session->setFlash(_txt('er.token'), '', array(), 'error');
+                $this->Flash->set(_txt('er.token'), array('key' => 'error'));
                 $this->redirect("/");
               }
             }
@@ -227,7 +227,7 @@ class CoPetitionsController extends StandardController {
               // Dump the token into a viewvar in case needed
               $this->set('vv_petition_token', $token);
             } else {
-              $this->Session->setFlash(_txt('er.token'), '', array(), 'error');
+              $this->Flash->set(_txt('er.token'), array('key' => 'error'));
               $this->redirect("/");
             }
           }
@@ -470,7 +470,7 @@ class CoPetitionsController extends StandardController {
     $efId = $this->enrollmentFlowID();
     
     if($efId == -1) {
-      $this->Session->setFlash(_txt('er.coef.unk'), '', array(), 'error');
+      $this->Flash->set(_txt('er.coef.unk'), array('key' => 'error'));
       $this->performRedirect();
     }
     
@@ -479,12 +479,12 @@ class CoPetitionsController extends StandardController {
                                                          array('CoEnrollmentFlow.id' => $efId));
     
     if($status != EnrollmentFlowStatusEnum::Active) {
-      $this->Session->setFlash(_txt('er.ef.active'), '', array(), 'error');
+      $this->Flash->set(_txt('er.ef.active'), array('key' => 'error'));
       $this->performRedirect();
     }
     
     if(!$id && $step != 'start') {
-      $this->Session->setFlash(_txt('er.notprov.id', array(_txt('ct.co_petitions.1'))), '', array(), 'error');
+      $this->Flash->set(_txt('er.notprov.id', array(_txt('ct.co_petitions.1'))), array('key' => 'error'));
       $this->performRedirect();
     }
     
@@ -496,7 +496,7 @@ class CoPetitionsController extends StandardController {
     
     // Is step configured?
     if(!isset($steps[$step])) {
-      $this->Session->setFlash(_txt('er.unknown', array($step)), '', array(), 'error');
+      $this->Flash->set(_txt('er.unknown', array($step)), array('key' => 'error'));
       $this->performRedirect();
     }
     
@@ -598,7 +598,7 @@ class CoPetitionsController extends StandardController {
             $this->$fname($id, $onFinish);
           }
           catch(Exception $e) {
-            $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+            $this->Flash->set($e->getMessage(), array('key' => 'error'));
             $this->performRedirect(); 
           }
           
@@ -612,7 +612,7 @@ class CoPetitionsController extends StandardController {
             $this->$fname($id);
           }
           catch(Exception $e) {
-            $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+            $this->Flash->set($e->getMessage(), array('key' => 'error'));
             $this->performRedirect(); 
           }
           
@@ -655,7 +655,7 @@ class CoPetitionsController extends StandardController {
                                               $petitionerCoPersonId);
       }
       catch(Exception $e) {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
         $this->performRedirect();
       }
     }
@@ -667,7 +667,7 @@ class CoPetitionsController extends StandardController {
       // If we've completed the finalize step, we're done, unless redirectOnConfirm
       // is set. This is true when there is no approval step
       
-      $this->Session->setFlash(_txt('rs.pt.final'), '', array(), 'success');
+      $this->Flash->set(_txt('rs.pt.final'), array('key' => 'success'));
       $this->performRedirect();
     } else {
       $redirect = array(
@@ -710,10 +710,10 @@ class CoPetitionsController extends StandardController {
                                       StatusEnum::Duplicate,
                                       $this->Session->read('Auth.User.co_person_id'));
       
-      $this->Session->setFlash(_txt('rs.pt.dupe'), '', array(), 'success');
+      $this->Flash->set(_txt('rs.pt.dupe'), array('key' => 'success'));
     }
     catch (Exception $e) {
-      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
     }
     
     $this->performRedirect();
@@ -771,7 +771,7 @@ class CoPetitionsController extends StandardController {
                                     PetitionStatusEnum::Approved,
                                     $this->Session->read('Auth.User.co_person_id'));
     
-    $this->Session->setFlash(_txt('rs.pt.approve'), '', array(), 'success');
+    $this->Flash->set(_txt('rs.pt.approve'), array('key' => 'success'));
     
     // The step is done
     
@@ -824,7 +824,7 @@ class CoPetitionsController extends StandardController {
                                     PetitionStatusEnum::Denied,
                                     $this->Session->read('Auth.User.co_person_id'));
     
-    $this->Session->setFlash(_txt('rs.pt.deny'), '', array(), 'success');
+    $this->Flash->set(_txt('rs.pt.deny'), array('key' => 'success'));
     
     // The step is done
     
@@ -925,7 +925,7 @@ class CoPetitionsController extends StandardController {
       // Force a logout since we probably just made a change to information relevant
       // for login (such as linking an account).
       
-      $this->Session->setFlash(_txt('rs.pt.relogin'), '', array(), 'success');
+      $this->Flash->set(_txt('rs.pt.relogin'), array('key' => 'success'));
       $targetUrl = "/auth/logout";
     }
     // else we suppress the flash message, since it may not make sense in context
@@ -960,7 +960,7 @@ class CoPetitionsController extends StandardController {
       if(!$targetUrl || $targetUrl == "") {
         // Default redirect is to /, which isn't really a great target
         
-        $this->Session->setFlash(_txt('rs.pt.create.self'), '', array(), 'success');
+        $this->Flash->set(_txt('rs.pt.create.self'), array('key' => 'success'));
         $targetUrl = "/";
       }
       // else we suppress the flash message, since it may not make sense in context
@@ -969,11 +969,11 @@ class CoPetitionsController extends StandardController {
       $this->redirect($targetUrl);
     } elseif($authnReq && $matchPolicy == EnrollmentMatchPolicyEnum::Self) {
       // Clear any session for account linking
-      $this->Session->setFlash(_txt('rs.pt.login'), '', array(), 'success');
+      $this->Flash->set(_txt('rs.pt.login'), array('key' => 'success'));
       $this->redirect("/auth/logout");
     } else {
       // Standard redirect
-      $this->Session->setFlash(_txt('rs.pt.create'), '', array(), 'success');
+      $this->Flash->set(_txt('rs.pt.create'), array('key' => 'success'));
       $this->performRedirect();
     }
   }
@@ -1120,7 +1120,7 @@ class CoPetitionsController extends StandardController {
       // redirect to the dashboard for the CO, but we may yet require approval.
       // At least / will generate an informational message for the user.
       
-      $this->Session->setFlash(_txt('rs.pt.confirm'), '', array(), 'success');
+      $this->Flash->set(_txt('rs.pt.confirm'), array('key' => 'success'));
       $targetUrl = "/";
     }
     // else we suppress the flash message, since it may not make sense in context
@@ -1232,7 +1232,7 @@ class CoPetitionsController extends StandardController {
       $pt = $this->CoPetition->find('first', $args);
       
       if(!$pt) {
-        $this->Session->setFlash(_txt('er.notfound', array(_txt('ct.co_petitions.1', $petitionId))), '', array(), 'error');
+        $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_petitions.1', $petitionId))), array('key' => 'error'));
         $this->redirect('/');
       }
       
@@ -1557,11 +1557,11 @@ class CoPetitionsController extends StandardController {
       }
       catch(InvalidArgumentException $e) {
         // Validation failed
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
         $this->dispatch('petitionerAttributes', $this->parseCoPetitionId());
       }
       catch(Exception $e) {
-        $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
         $this->performRedirect();
       }
     }
@@ -1605,11 +1605,11 @@ class CoPetitionsController extends StandardController {
       $recipient = $this->CoPetition->resend($id, $this->Session->read('Auth.User.co_person_id'));
     }
     catch(Exception $e) {
-      $this->Session->setFlash($e->getMessage(), '', array(), 'error');
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
     }
     
     if($recipient) {
-      $this->Session->setFlash(_txt('rs.inv.sent', array($recipient)), '', array(), 'success');
+      $this->Flash->set(_txt('rs.inv.sent', array($recipient)), array('key' => 'success'));
     }
     
     // Redirect back to index. We might have gotten here via co_petitions or co_people,

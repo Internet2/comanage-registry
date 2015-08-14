@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Changelog Provisioner Targets Controller
  *
- * Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -55,7 +55,7 @@ class CoChangelogProvisionerTargetsController extends SPTController {
     $fh = @fopen($changelog, 'a');
     
     if(!$fh) {
-      $this->Session->setFlash(_txt('er.file.write', array($changelog)), '', array(), 'error');
+      $this->Flash->set(_txt('er.file.write', array($changelog)), array('key' => 'error'));
       return false;
     }
     
