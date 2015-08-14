@@ -478,36 +478,10 @@
 
         // Flash Messages
         <?php
-          $f = $this->Session->flash('error');
-
-          if($f && $f != "") {
-            print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
-          }
-
-          // auth = errors from AuthComponent
-          $f = $this->Session->flash('auth');
-
-          if($f && $f != "") {
-            print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
-          }
-
-          $f = $this->Session->flash('info');
-
-          if($f && $f != "") {
-            print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'info');";
-          }
-
-          $f = $this->Session->flash('success');
-
-          if($f && $f != "") {
-            print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'success');";
-          }
-
-          $f = $this->Session->error();
-
-          if($f && $f != "") {
-            print "generateFlash('". str_replace(array("'", "\n"), array("\'", ""), $f) . "', 'error');";
-          }
+          print $this->Flash->render('error');
+          print $this->Flash->render('auth');
+          print $this->Flash->render('success');
+          print $this->Flash->render('information');
         ?>
 
       });
@@ -570,12 +544,12 @@
       <?php endif ?>
       
     </div>
-    
+
     <div id="main" class="contentWidth">
       <?php
         // insert the sidebar when it exists
-        $sidebarButtons = $this->getVar('sidebarButtons');
-        if($sidebarButtons != null):
+        $sidebarButtons = $this->get('sidebarButtons');
+        if(!empty($sidebarButtons)):
       ?>
           <!-- Display sidebar menu for content -->
           <!-- Note: sidebar is now a top menu -->
@@ -648,7 +622,7 @@
 
       <?php
         /* display the view content */
-        if($sidebarButtons != null) {
+        if(!empty($sidebarButtons)) {
           print '<div id="content" class="contentWithSidebar">';
         } else {
           print '<div id="content">';
