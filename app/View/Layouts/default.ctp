@@ -254,6 +254,13 @@
           text: true
         });
 
+        $(".contactbutton").button({
+          icons: {
+            primary: 'ui-icon-contact'
+          },
+          text: true
+        });
+
         $(".copybutton").button({
           icons: {
             primary: 'ui-icon-copy'
@@ -271,6 +278,13 @@
         $(".editbutton").button({
           icons: {
             primary: 'ui-icon-pencil'
+          },
+          text: true
+        });
+
+        $(".flagbutton").button({
+          icons: {
+            primary: 'ui-icon-flag'
           },
           text: true
         });
@@ -331,6 +345,13 @@
           text: true
         });
 
+        $(".notebutton").button({
+          icons: {
+            primary: 'ui-icon-note'
+          },
+          text: true
+        });
+
         $(".searchbutton").button({
           icons: {
             primary: 'ui-icon-search'
@@ -355,6 +376,13 @@
         $(".primarybutton").button({
           icons: {
             primary: 'ui-icon-arrowthickstop-1-n'
+          },
+          text: true
+        });
+
+        $(".reconcilebutton").button({
+          icons: {
+            primary: 'ui-icon-transferthick-e-w'
           },
           text: true
         });

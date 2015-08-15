@@ -83,41 +83,6 @@ $(function() {
                                array('default' => $cur_co['Co']['id'])). "\n";
   }
 
-  // Add links to sidebar
-
-  if($this->action != "add") {
-    // Get any existing buttons
-    $sidebarButtons = $this->get('sidebarButtons');
-    
-    $sidebarButtons[]  = array(
-      'icon'    => 'note',
-      'title'   => _txt('op.history'),
-      'url'     => array(
-        'controller'    => 'history_records',
-        'action'        => 'index',
-        'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-        'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
-      )
-    );
-    
-    // Petitions
-    $sidebarButtons[] = array(
-      'icon'    => 'script',
-      'title'   => _txt('ct.co_petitions.pl'),
-      'url'     => array(
-        'controller' => 'co_petitions',
-        'action' => 'index',
-        // Since this is an index view, we still need the CO ID. paginationConditions
-        // will restrict searching to eligible enrollments.
-        'co' => ($pool_org_identities ? false : $cur_co['Co']['id']),
-        'sort' => 'modified',
-        'search.orgidentityid' => $org_identities[0]['OrgIdentity']['id']
-      )
-    );
-    
-    $this->set('sidebarButtons', $sidebarButtons);
-  }
-
   // The fields to render are determined by the CMP Enrollment Flow configuration,
   // which is passed to us in $cmp_ef_attributes. The minor gotcha is that MVPAs
   // allow multiple versions their attributes where the enrollment flow configuration

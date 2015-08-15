@@ -28,7 +28,7 @@
   // Add page title
   $params = array();
   $params['title'] = _txt('fd.tc.for', array(generateCn($vv_co_person['PrimaryName']), $cur_co['Co']['name']));
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 
   // Determine if there are any not-agreed-to-t&c
   $pending = false;

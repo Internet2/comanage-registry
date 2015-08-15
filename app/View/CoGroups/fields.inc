@@ -64,41 +64,7 @@
   $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_groups.1')));
   $this->Html->addCrumb($crumbTxt);
-  
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
 
-  if($e && !empty($co_groups[0]['CoGroup']['id'])) {
-    // Manage group memberships
-    $sidebarButtons[] = array(
-      'icon'    => 'extlink',
-      'title'   => _txt('op.manage.grm'),
-      'url'     => array(
-        'controller' => 'co_group_members',
-        'action'     => 'select',
-        'cogroup'    => $co_groups[0]['CoGroup']['id'],
-        'co'         => $cur_co['Co']['id']
-      )
-    );
-  }
-
-  if($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id'])) {
-    // Provisioning status
-    $sidebarButtons[] = array(
-      'icon'    => 'note',
-      'title'   => _txt('op.prov.view'),
-      'url'     => array(
-        'controller' => 'co_groups', 
-        'action'     => 'provision', 
-        $co_groups[0]['CoGroup']['id'], 
-        'co'         => $cur_co['Co']['id']
-      )
-    ); 
-  }
-  
-  // Set buttons for rendering in sidebar  
-  $this->set('sidebarButtons', $sidebarButtons);
-  
   // Populate the reference
   echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
 

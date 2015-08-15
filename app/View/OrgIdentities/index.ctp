@@ -49,7 +49,7 @@ if($permissions['add']) {
   );
 }
 
-print $this->element("pageTitleAndNav", $params);
+print $this->element("pageTitleAndButtons", $params);
 
 ?>
 

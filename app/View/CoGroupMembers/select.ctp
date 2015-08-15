@@ -58,7 +58,7 @@ $(document).ready(function () {
   $params = array();
   $params['title'] = _txt('op.grm.edit', array($cur_co['Co']['name'], $co_group['CoGroup']['name']));
 
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 
 ?>
 

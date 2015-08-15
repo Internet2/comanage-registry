@@ -56,7 +56,7 @@ if($permissions['assignall']) {
     "</a>\n";
 }
 
-print $this->element("pageTitleAndNav", $params);
+print $this->element("pageTitleAndButtons", $params);
 
 ?>
 <script type="text/javascript">

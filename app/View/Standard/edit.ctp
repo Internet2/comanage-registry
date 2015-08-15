@@ -26,10 +26,19 @@
   $model = $this->name;
   $req = Inflector::singularize($model);
 
-  // Add page title
+  // Add page title & page buttons
   $params = array();
   $params['title'] = $title_for_layout;
-  print $this->element("pageTitleAndNav", $params);
+  if(!empty($this->plugin)) {
+    if (file_exists("Plugin/" . $this->plugin . "/View/" . $model . "/buttons.inc")) {
+      include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/buttons.inc");
+    }
+  } else {
+    if (file_exists(APP . "View/" . $model . "/buttons.inc")) {
+      include(APP . "View/" . $model . "/buttons.inc");
+    }
+  }
+  print $this->element("pageTitleAndButtons", $params);
 
   $submit_label = _txt('op.save');
   echo $this->Form->create($req,

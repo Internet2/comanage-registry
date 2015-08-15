@@ -66,90 +66,11 @@ $(function() {
     $args['action'] = 'index';
     $args['co'] = $cur_co['Co']['id'];
     $args['sort'] = 'created';
-    $args['Search.status'][] = PetitionStatusEnum::PendingApproval;
-    $args['Search.status'][] = PetitionStatusEnum::PendingConfirmation;
+    $args['search.status'][] = PetitionStatusEnum::PendingApproval;
+    $args['search.status'][] = PetitionStatusEnum::PendingConfirmation;
 
     $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
-    $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.petitions.1')));
-    $this->Html->addCrumb($crumbTxt);
-  }
-
-  // Add links to sidebar
-  if($this->action != "add") {
-    // Get any existing buttons
-    $sidebarButtons = $this->get('sidebarButtons');
-    
-    // If status is pending confirmation, offer a link to resend the invite
-    if($permissions['resend']
-       && !empty($co_petitions[0]['CoPetition']['status'])
-       && $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation) {
-      $sidebarButtons[]  = array(
-        'icon'    => 'mail-closed',
-        'title'   => _txt('op.inv.resend'),
-        'url'     => array('controller'    => 'co_petitions',
-                           'action'        => 'resend',
-                           $co_petitions[0]['CoPetition']['id']),
-        'confirm' => _txt('op.inv.resend.confirm', array(generateCn($co_petitions[0]['EnrolleeCoPerson']['PrimaryName']))),
-        'confirmbtxt' => _txt('op.inv.resend')
-      );
-    }
-    
-    if($permissions['edit']) {
-      $sidebarButtons[]  = array(
-        'icon'    => 'note',
-        'title'   => _txt('op.petition.comment'),
-        'url'     => array(
-          'controller'    => 'co_petition_history_records',
-          'action'        => 'add',
-          'copetitionid'  => $co_petitions[0]['CoPetition']['id']
-        )
-      );
-    }
-    
-    // If status is pending confirmation or approval, offer ability to flag as duplicate.
-    if($permissions['dupe']
-       && !empty($co_petitions[0]['CoPetition']['status'])
-       && ($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
-           || $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation)) {
-      $sidebarButtons[]  = array(
-        'icon'    => 'flag',
-        'title'   => _txt('op.petition.dupe'),
-        'url'     => array('controller'    => 'co_petitions',
-                           'action'        => 'dupe',
-                           $co_petitions[0]['CoPetition']['id']),
-        'confirm' => _txt('op.petition.dupe.confirm'),
-        'confirmbtxt' => _txt('op.petition.dupe')
-      );
-    }
-    
-    // Add button for related Org Identity
-    if(!empty($co_petitions[0]['CoPetition']['enrollee_org_identity_id'])) {
-      $sidebarButtons[]  = array(
-        'icon'    => 'extlink',
-        'title'   => _txt('ct.org_identities.1'),
-        'url'     => array(
-          'controller'    => 'org_identities',
-          'action'        => 'view',
-          $co_petitions[0]['CoPetition']['enrollee_org_identity_id'],
-          'co'            => $co_petitions[0]['CoPetition']['co_id']
-        )
-      );
-    }
-    
-    // Add button for related CO Person
-    if(!empty($co_petitions[0]['CoPetition']['enrollee_co_person_id'])) {
-      $sidebarButtons[]  = array(
-        'icon'    => 'extlink',
-        'title'   => _txt('ct.co_people.1'),
-        'url'     => array(
-          'controller'    => 'co_people',
-          'action'        => 'canvas',
-          $co_petitions[0]['CoPetition']['enrollee_co_person_id']
-        )
-      );
-    }
-    
-    $this->set('sidebarButtons', $sidebarButtons);
+    $this->Html->addCrumb(_txt('op.' . $this->action . '-a', array(_txt('ct.petitions.1'))));
   }
 
   if(isset($cur_co))
@@ -194,8 +115,10 @@ $(function() {
                 <th><?php print _txt('fd.status'); ?></th>
                 <td>
                   <?php
+                    print '<span class="status">';
                     print _txt('en.status.pt', null, $co_petitions[0]['CoPetition']['status']);
-                    
+                    print '</span>';
+
                     if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval) {
                       if($permissions['approve']) {
                         print $this->Html->link(

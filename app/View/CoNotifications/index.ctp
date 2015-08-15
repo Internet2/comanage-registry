@@ -21,11 +21,14 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
+  // Add breadcrumbs
+  print $this->element("coCrumb");
+  $this->Html->addCrumb(_txt('ct.co_notifications.pl'));
 
   // Add page title
   $params = array();
   $params['title'] = $title_for_layout;
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 
   // It seems easier to generate the form manually than with FormHelper, since it's not really a form as Cake knows it
   $curstatus = "";

@@ -42,7 +42,7 @@
     );
   }
 
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 
   // Globals
   global $cm_lang, $cm_texts;

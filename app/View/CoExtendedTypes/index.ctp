@@ -61,7 +61,7 @@
     );
   }
 
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 
   // Which attribute are we currently looking at? If not set, we'll default
   // to Identifier.type since that's what was specified in CoExtendedTypesController.

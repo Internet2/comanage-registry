@@ -62,7 +62,8 @@
         array(
           'controller' => 'co_groups',
           'action' => 'add',
-          'co' => $cur_co['Co']['id']),
+          'co' => $cur_co['Co']['id']
+        ),
         array('class' => 'addbutton')
       );
 
@@ -74,7 +75,7 @@
         $url['?'] = array('coid' => $cur_co['Co']['id']);
         $jsLink = $this->Html->url($url);
         $options = array();
-        $options['class'] = 'provisionbutton';
+        $options['class'] = 'reconcilebutton';
         $options['onclick'] = "javascript:js_confirm_reconcile('$jsLink');";
         $params['topLinks'][] = $this->Html->tag('a',_txt('op.gr.reconcile.all'), $options);
       }
@@ -85,13 +86,14 @@
           'controller' => 'co_groups',
           'action' => 'select',
           'copersonid' => $this->Session->read('Auth.User.co_person_id'),
-          'co' => $cur_co['Co']['id']),
+          'co' => $cur_co['Co']['id']
+        ),
         array('class' => 'linkbutton')
       );
     }
   }
 
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
   
   if($permissions['select'] && $this->action == 'select') {
     // We're using slightly the wrong permission here... edit group instead of add group member
