@@ -1100,8 +1100,30 @@ td.order {
   margin: 0 30px 0 0;
 }
 /* Pagination */
-.pagination {
-  padding: 5px
+#pagination {
+  margin: 0;
+  padding: 0;
+}
+#pagination .paginationCounter {
+  float: right;
+  margin-right: 0.5em;
+}
+#pagination .paginationPrev {
+  margin-right: 1em;
+  font-size: 0.9em;
+}
+#pagination .paginationNext {
+  margin-left: 1em;
+  font-size: 0.9em;
+}
+body.co_people.index #pagination {
+  padding: 0.5em;
+  background-color: #9FC6E2;
+  color: white;
+  font-weight: bold;
+}
+body.co_people.index #pagination a {
+  color: white;
 }
 .outer-center {
   float: right;

@@ -460,14 +460,9 @@ if(isset($permissions['search']) && $permissions['search'] ) {
     }
   ?>
 
-  <div class="pagination">
-    <div class="outer-center">
-      <div class="product inner-center">
-        <?php print $this->Paginator->numbers(); ?>
-      </div>
-    </div>
-    <div class="clear"></div>
-  </div>
+  <?php print $this->element("pagination"); ?>
+  <div class="clear"></div>
+
 </div>
 
 <script>

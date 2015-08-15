@@ -75,7 +75,7 @@
         $url['?'] = array('coid' => $cur_co['Co']['id']);
         $jsLink = $this->Html->url($url);
         $options = array();
-        $options['class'] = 'reconcilebutton';
+        $options['class'] = 'provisionbutton';
         $options['onclick'] = "javascript:js_confirm_reconcile('$jsLink');";
         $params['topLinks'][] = $this->Html->tag('a',_txt('op.gr.reconcile.all'), $options);
       }
@@ -441,7 +441,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="5">
-        <?php echo $this->Paginator->numbers(); ?>
+        <?php print $this->element("pagination"); ?>
       </th>
     </tr>
     <tr>

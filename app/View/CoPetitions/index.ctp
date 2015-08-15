@@ -259,7 +259,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="10">
-        <?php echo $this->Paginator->numbers(); ?>
+        <?php print $this->element("pagination"); ?>
       </th>
     </tr>
   </tfoot>

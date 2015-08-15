@@ -1072,9 +1072,10 @@ original notification at
   // Informational messages
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
-  'in.orgid.co'       => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
+  'in.orgid.co'        => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
-  
+  'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
+
   // Menu
   'me.account'         => 'My Account',
   'me.changepassword'  => 'Change Password',
@@ -1179,6 +1180,7 @@ original notification at
   'op.link.to.co' =>  'Link to %1$s CO Person',
   'op.login' =>       'Login',
   'op.logout' =>      'Logout',
+  'op.next' =>        'Next',
   'op.ok' =>          'OK',
   'op.order.attr' =>  'Reorder Attributes',
   'op.order.link' =>  'Reorder Links',
@@ -1187,6 +1189,7 @@ original notification at
   'op.petition.create' => 'Create Petition',
   'op.petition.dupe' => 'Flag Petition as Duplicate',
   'op.petition.dupe.confirm' => 'Are you sure you wish to flag this petition as a duplicate?',
+  'op.previous' =>    'Previous',
   'op.primary' =>     'Make Primary',
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',
   'op.prov' =>        'Provision',

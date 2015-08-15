@@ -133,7 +133,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
   <tfoot>
   <tr class="ui-widget-header">
     <th colspan="7">
-      <?php echo $this->Paginator->numbers(); ?>
+      <?php print $this->element("pagination"); ?>
     </th>
   </tr>
   </tfoot>

@@ -129,7 +129,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="7">
-        <?php print $this->Paginator->numbers(); ?>
+        <?php print $this->element("pagination"); ?>
       </th>
     </tr>
   </tfoot>
