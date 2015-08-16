@@ -44,14 +44,12 @@
         );
       ?>
     </span>
-  <?php endif; ?>
-  <span class="paginationNumbers">
-    <?php
-      // Shows the page numbers
-      print $this->Paginator->numbers();
-    ?>
-  </span>
-  <?php if($this->paginator->hasPage(2)): ?>
+    <span class="paginationNumbers">
+      <?php
+        // Shows the page numbers
+        print $this->Paginator->numbers();
+      ?>
+    </span>
     <span class="paginationNext">
       <?php
         // Shows the next link
