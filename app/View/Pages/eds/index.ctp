@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Shibboleth Embedded Discovery Service Plugin View
+ * COmanage Registry Shibboleth Embedded Discovery Service View
  *
  * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -17,21 +17,21 @@
  * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.0
+ * @since         COmanage Registry v1.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
 
-  $params = array('title' => $title_for_layout);
+  $params = array('title' => _txt('eds.title'));
   print $this->element("pageTitle", $params);
   
-  echo $this->Html->css('ShibbolethEmbeddedDiscoveryService.idpselect', array('inline' => false));
-
+  print $this->Html->css('eds-idpselect', array('inline' => false));
 ?>
 
-<p><?php print _txt('pl.shibboletheds.layout.preamble'); ?></p>
+<p><?php print _txt('eds.layout.preamble'); ?></p>
 
 <div id="idpSelect"></div>
 
-<?php echo $this->Html->script('ShibbolethEmbeddedDiscoveryService.idpselect_config'); ?>
-<?php echo $this->Html->script('ShibbolethEmbeddedDiscoveryService.idpselect'); ?>
+<?php
+  print $this->Html->script('/pages/eds/idpselect_config');
+  print $this->Html->script('/pages/eds/idpselect');

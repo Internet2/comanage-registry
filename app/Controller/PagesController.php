@@ -50,7 +50,7 @@ class PagesController extends AppController {
  *
  * @var array
  */
-  public $uses = array();
+  public $uses = array('CmpEnrollmentConfiguration');
 
   /**
    * Callback before other controller methods are invoked or views are rendered.
@@ -60,14 +60,35 @@ class PagesController extends AppController {
   
   function beforeFilter() {
     if($this->name == 'Pages') {
-      if ( $this->request->params['pass'][0] == 'home'
-            && (!$this->Session->check('Auth.User'))) {
+      if($this->request->params['pass'][0] == 'home'
+         && (!$this->Session->check('Auth.User'))) {
         // Allow the front page to render without authentication. If there is an
         // authenticated user, we want Auth to run to set up authorizations.
         $this->Auth->allow();
-      } elseif ($this->request->params['pass'][0] == 'public') {
+      } elseif($this->request->params['pass'][0] == 'public') {
         // Allow public pages to render without authentication.
         $this->Auth->allow();
+      } elseif($this->request->params['pass'][0] == 'eds') {
+        // EDS pages need to render without authentication.
+        $this->Auth->allow();
+        
+        $edsConfig = $this->CmpEnrollmentConfiguration->edsConfiguration();
+        
+        // And we need to set some parameters
+        $this->set('vv_eds_help_url',
+                   !empty($edsConfig['CmpEnrollmentConfiguration']['eds_help_url'])
+                   ? "'" . $edsConfig['CmpEnrollmentConfiguration']['eds_help_url'] . "'"
+                   : "null");
+        
+        $this->set('vv_eds_preferred_idps',
+                   !empty($edsConfig['CmpEnrollmentConfiguration']['eds_preferred_idps'])
+                   ? "['" . join("','", preg_split('/\R/', rtrim($edsConfig['CmpEnrollmentConfiguration']['eds_preferred_idps']))) . "']"
+                   : "null");
+                   
+        $this->set('vv_eds_hidden_idps',
+                   !empty($edsConfig['CmpEnrollmentConfiguration']['eds_hidden_idps'])
+                   ? "['" . join("','", preg_split('/\R/', rtrim($edsConfig['CmpEnrollmentConfiguration']['eds_hidden_idps']))) . "']"
+                   : "null");
       }
     }
 

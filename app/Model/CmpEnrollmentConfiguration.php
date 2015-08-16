@@ -61,7 +61,22 @@ class CmpEnrollmentConfiguration extends AppModel {
     ),
     'pool_org_identities' => array(
       'rule' => array('boolean')
-    )
+    ),
+    'eds_help_url' => array(
+      'rule' => array('url', true),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'eds_preferred_idps' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'eds_hidden_idps' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
   /**
@@ -88,6 +103,23 @@ class CmpEnrollmentConfiguration extends AppModel {
     } else {
       throw new RuntimeException(_txt('er.db.save'));
     }
+  }
+  
+  /**
+   * Obtain the configurations for the Embedded Discovery Service
+   *
+   * @since  COmanage Registry v1.0.0
+   * @return Array An array of CmpEnrollmentAttributes if enabled
+   */
+  
+  public function edsConfiguration() {
+    $args = array();
+    $args['conditions']['CmpEnrollmentConfiguration.name'] = 'CMP Enrollment Configuration';
+    $args['conditions']['CmpEnrollmentConfiguration.status'] = StatusEnum::Active;
+    $args['fields'] = array('eds_help_url', 'eds_preferred_idps', 'eds_hidden_idps');
+    $args['contain'] = false;
+    
+    return $this->find('first', $args);
   }
   
   /**

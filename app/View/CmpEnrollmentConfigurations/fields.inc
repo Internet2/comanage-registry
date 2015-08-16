@@ -202,6 +202,39 @@
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['pool_org_identities'])); ?>
           </td>
         </tr>
+        <tr class="line2">
+          <td>
+            <b><?php print _txt('fd.ef.eds.help'); ?></b><br />
+            <span class="descr"><?php print _txt('fd.ef.eds.help.desc'); ?></span>
+          </td>
+          <td>
+            <?php print ($e
+                         ? $this->Form->input('eds_help_url')
+                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_help_url'])); ?>
+          </td>
+        </tr>
+        <tr class="line1">
+          <td>
+            <b><?php print _txt('fd.ef.eds.prefer'); ?></b><br />
+            <span class="descr"><?php print _txt('fd.ef.eds.prefer.desc'); ?></span>
+          </td>
+          <td>
+            <?php print ($e
+                         ? $this->Form->input('eds_preferred_idps')
+                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_preferred_idps'])); ?>
+          </td>
+        </tr>
+        <tr class="line2">
+          <td>
+            <b><?php print _txt('fd.ef.eds.hide'); ?></b><br />
+            <span class="descr"><?php print _txt('fd.ef.eds.hide.desc'); ?></span>
+          </td>
+          <td>
+            <?php print ($e
+                         ? $this->Form->input('eds_hidden_idps')
+                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_hidden_idps'])); ?>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

@@ -744,6 +744,9 @@
     <field name="attrs_from_env" type="L" />
     <field name="attrs_from_coef" type="L" />
     <field name="pool_org_identities" type="L" />
+    <field name="eds_help_url" type="C" size="256" />
+    <field name="eds_preferred_idps" type="X" size="4000" />
+    <field name="eds_hidden_idps" type="X" size="4000" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

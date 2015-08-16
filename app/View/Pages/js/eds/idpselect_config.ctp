@@ -1,9 +1,8 @@
  
 /** @class IdP Selector UI */
 function IdPSelectUIParms(){
-    // Set to false when done with configuration and ready for
-    // prodcution.
-    this.testGUI = true;
+    // Set to false when done with configuration and ready for production.
+    this.testGUI = false;
     //
     // Adjust the following to fit into your local configuration
     //
@@ -17,15 +16,15 @@ function IdPSelectUIParms(){
                                      // Approaching via the Discovery Protocol for example
     //this.defaultReturn = "https://example.org/Shibboleth.sso/DS?SAMLDS=1&target=https://example.org/secure";
     this.defaultReturnIDParam = null;
-    this.helpURL = 'https://wiki.shibboleth.net/confluence/display/SHIB2/DSRoadmap';
+    this.helpUrl = <?php print $vv_eds_help_url; ?>;
     this.ie6Hack = null;             // An array of structures to disable when drawing the pull down (needed to 
                                      // handle the ie6 z axis problem
     this.insertAtDiv = 'idpSelect';  // The div where we will insert the data
     this.maxResults = 10;            // How many results to show at once or the number at which to
                                      // start showing if alwaysShow is false
     this.myEntityID = null;          // If non null then this string must match the string provided in the DS parms
-    this.preferredIdP = null;        // Array of entityIds to always show
-    this.hiddenIdPs = null;          // Array of entityIds to delete
+    this.preferredIdP = <?php print $vv_eds_preferred_idps; ?>;        // Array of entityIds to always show
+    this.hiddenIdPs = <?php print $vv_eds_hidden_idps; ?>;          // Array of entityIds to delete
     this.ignoreKeywords = false;     // Do we ignore the <mdui:Keywords/> when looking for candidates
     this.samlIdPCookieTTL = 730;     // in days
 

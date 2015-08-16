@@ -140,6 +140,11 @@ $cm_texts['en_US'] = array(
   'ct.telephone_numbers.1' =>   'Telephone Number',
   'ct.telephone_numbers.pl' =>  'Telephone Numbers',
   
+  // Embedded Discovery Service
+  
+  'eds.layout.preamble' =>      'Please enter the name of your organization in the box or click to choose from a list.',
+  'eds.title' =>                'Please choose how to login',
+  
   // Enrollment Flow Steps
   'ef.step.approve'                  => 'Approval',
   'ef.step.collectIdentifier'        => 'Record Identifier',
@@ -816,6 +821,12 @@ original notification at
   'fd.ef.concl.desc' => 'Optional text to display at the bottom of a Petition form, before the Submit button',
   'fd.ef.dupe'     => 'Duplicate Enrollment Mode',
   'fd.ef.dupe.desc' => 'How to handle automatically detected duplicate enrollments',
+  'fd.ef.eds.help' => 'EDS Help URL',
+  'fd.ef.eds.help.desc' => 'Help URL presented by the <a href="https://spaces.internet2.edu/x/QIhRBQ">Embedded Discovery Service</a> (EDS)',
+  'fd.ef.eds.hide' => 'IdPs to hide from the EDS',
+  'fd.ef.eds.hide.desc' => 'List of entity IDs representing IdPs that should not be offered via the EDS, one per line',
+  'fd.ef.eds.prefer' => 'IdPs to prefer for the EDS',
+  'fd.ef.eds.prefer.desc' => 'List of entity Ids to always show ("prefer") via the EDS, one per line',
   'fd.ef.efn'      => 'From Address For Notifications',
   'fd.ef.efn.desc' => 'Email address notifications will come from',
   'fd.ef.env'      => 'Enable Environment Attribute Retrieval',
