@@ -874,6 +874,9 @@ td.order {
 .co_people #changeLog .additionalinfo {
   padding: 5px;
 }
+#restoreLink {
+  margin-bottom: 2em;
+}
 /* Petitions */
 #petition {
   min-height: 350px;
@@ -1103,6 +1106,7 @@ td.order {
 #pagination {
   margin: 0;
   padding: 0;
+  min-height: 1.25em;
 }
 #pagination .paginationCounter {
   float: right;
