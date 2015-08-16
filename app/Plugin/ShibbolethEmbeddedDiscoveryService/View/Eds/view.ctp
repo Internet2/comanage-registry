@@ -25,7 +25,7 @@
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
   
-  echo $this->Html->css('ShibbolethEmbeddedDiscoveryService.idpselect', array('inline' => false));
+  print $this->Html->css('ShibbolethEmbeddedDiscoveryService.idpselect', array('inline' => false));
 
 ?>
 
@@ -33,5 +33,5 @@
 
 <div id="idpSelect"></div>
 
-<?php echo $this->Html->script('ShibbolethEmbeddedDiscoveryService.idpselect_config'); ?>
-<?php echo $this->Html->script('ShibbolethEmbeddedDiscoveryService.idpselect'); ?>
+<?php print $this->Html->script('ShibbolethEmbeddedDiscoveryService.idpselect_config'); ?>
+<?php print $this->Html->script('ShibbolethEmbeddedDiscoveryService.idpselect'); ?>
