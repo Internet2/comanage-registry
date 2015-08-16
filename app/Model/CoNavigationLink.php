@@ -61,7 +61,8 @@ class CoNavigationLink extends AppModel {
     'url' => array(
       'rule' => 'url',
       'required' => false,
-      'allowEmpty' => true
+      'allowEmpty' => true,
+      'message' => 'Please provide a valid URL. Include "http://" (or similar) for off-site links.'
     ),
 
     'ordr' => array(
@@ -73,6 +74,6 @@ class CoNavigationLink extends AppModel {
       'required' => true
     )
   );
-  
+
 }
 

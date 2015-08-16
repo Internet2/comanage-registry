@@ -53,7 +53,7 @@ class NavigationLink extends AppModel {
       'rule' => 'url',
       'required' => false,
       'allowEmpty' => true,
-      'message' => 'A valid URL must be given.'
+      'message' => 'Please provide a valid URL. Include "http://" (or similar) for off-site links.'
     ),
 
     'ordr' => array(
