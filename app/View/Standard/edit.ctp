@@ -41,7 +41,7 @@
   print $this->element("pageTitleAndButtons", $params);
 
   $submit_label = _txt('op.save');
-  echo $this->Form->create($req,
+  print $this->Form->create($req,
                            array('action' => 'edit',
                                  'inputDefaults' => array('label' => false, 'div' => false)));
   if(!empty($this->plugin)) {
@@ -49,5 +49,5 @@
   } else {
     include(APP . "View/" . $model . "/fields.inc");
   }
-  echo $this->Form->end();
+  print $this->Form->end();
 ?>

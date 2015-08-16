@@ -79,7 +79,7 @@ $(function() {
     // Populate CO ID if approporiate
 
     if(!$pool_org_identities)
-      echo $this->Form->hidden('OrgIdentity.co_id',
+      print $this->Form->hidden('OrgIdentity.co_id',
                                array('default' => $cur_co['Co']['id'])). "\n";
   }
 
@@ -142,10 +142,10 @@ $(function() {
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php
-              echo _txt('fd.name.honorific');
+              print _txt('fd.name.honorific');
               
               if($e)
-                echo " " . _txt('fd.name.h.desc');
+                print " " . _txt('fd.name.h.desc');
               ?>
             </td>
             <td>
@@ -159,38 +159,38 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-                <?php echo _txt('fd.name.given'); ?><span class="required">*</span>
+                <?php print _txt('fd.name.given'); ?><span class="required">*</span>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.name.middle'); ?>
+              <?php print _txt('fd.name.middle'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
             </td>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.name.family'); ?>
+              <?php print _txt('fd.name.family'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php
-                echo _txt('fd.name.suffix');
+                print _txt('fd.name.suffix');
                 
                 if($e)
-                  echo " " . _txt('fd.name.s.desc');
+                  print " " . _txt('fd.name.s.desc');
               ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -300,7 +300,7 @@ $(function() {
           <?php endif; // add ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.affiliation'); ?>
+              <?php print _txt('fd.affiliation'); ?>
             </td>
             <td>
               <?php
@@ -328,28 +328,28 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.title'); ?>
+              <?php print _txt('fd.title'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('title', array('size' => 60,'class' => 'focusFirst'))
+              <?php print ($e ? $this->Form->input('title', array('size' => 60,'class' => 'focusFirst'))
                              : Sanitize::html($org_identities[0]['OrgIdentity']['title'])); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.o'); ?>
+              <?php print _txt('fd.o'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('o', array('size' => 60))
+              <?php print ($e ? $this->Form->input('o', array('size' => 60))
                              : Sanitize::html($org_identities[0]['OrgIdentity']['o'])); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.ou'); ?>
+              <?php print _txt('fd.ou'); ?>
             </td>
             <td>
-              <?php echo ($e ? $this->Form->input('ou', array('size' => 60))
+              <?php print ($e ? $this->Form->input('ou', array('size' => 60))
                              : Sanitize::html($org_identities[0]['OrgIdentity']['ou'])); ?>
             </td>
           </tr>

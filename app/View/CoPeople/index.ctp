@@ -246,7 +246,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
           <?php
             global $status_t;
 
-            if(!empty($p['CoPerson']['status']) ) echo _txt('en.status', null, $p['CoPerson']['status']);
+            if(!empty($p['CoPerson']['status']) ) print _txt('en.status', null, $p['CoPerson']['status']);
           ?>
         </div>
         

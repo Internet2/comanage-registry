@@ -54,7 +54,7 @@ if(!$e && !$v)
   return(false);
 
 // Add buttons
-if($e && !empty($co_groups[0]['CoGroup']['id'])) {
+if(!empty($co_groups[0]['CoGroup']['id'])) {
   // Manage group memberships
   $params['topLinks'][] = $this->Html->link(
     _txt('op.manage.grm'),

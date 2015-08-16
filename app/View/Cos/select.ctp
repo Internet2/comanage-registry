@@ -32,7 +32,7 @@
 ?>
 
 <p>
-  <?php echo _txt('co.select'); ?>
+  <?php print _txt('co.select'); ?>
 </p>
 
 <?php
@@ -47,8 +47,8 @@
 
   // Generate form
   
-  echo $this->Form->create('Co', array('action' => 'select'));
-  echo $this->Form->select('co', $a, array('empty' => false));
-  echo $this->Form->submit(_txt('op.select'));
-  echo $this->Form->end();
+  print $this->Form->create('Co', array('action' => 'select'));
+  print $this->Form->select('co', $a, array('empty' => false));
+  print $this->Form->submit(_txt('op.select'));
+  print $this->Form->end();
 ?>

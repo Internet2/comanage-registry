@@ -75,7 +75,7 @@
       <td><?php print Sanitize::html($p['OrgIdentity']['o']); ?></td>
       <td><?php print Sanitize::html($p['OrgIdentity']['title']); ?></td>
       <td><?php if(!empty($p['OrgIdentity']['affiliation'])) { print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); } ?></td>
-      <td><?php foreach($p['EmailAddress'] as $ea) echo Sanitize::html($ea['mail']) . "<br />"; ?></td>
+      <td><?php foreach($p['EmailAddress'] as $ea) print Sanitize::html($ea['mail']) . "<br />"; ?></td>
       <td><?php
         // Don't offer an invite link for org identities that are already in the CO
         

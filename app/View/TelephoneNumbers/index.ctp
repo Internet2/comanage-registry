@@ -30,12 +30,12 @@
 <table id="telephone_numbers" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('number', _txt('fd.telephone_number.number')); ?></th>
-      <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
+      <th><?php print $this->Paginator->sort('number', _txt('fd.telephone_number.number')); ?></th>
+      <th><?php print $this->Paginator->sort('type', _txt('fd.type')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
-      <th><?php echo $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
-      <th><?php echo $this->Paginator->sort('CoPersonRole.PrimaryName.family', 'CO Person Role'); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
+      <th><?php print $this->Paginator->sort('CoPersonRole.PrimaryName.family', 'CO Person Role'); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -45,13 +45,13 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          echo $this->Html->link(formatTelephone($t),
+          print $this->Html->link(formatTelephone($t),
                                  array('controller' => 'telephone_numbers',
                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $t['TelephoneNumber']['id']));
         ?>
       </td>
       <td>
-        <?php echo _txt('en.contact', null, $t['TelephoneNumber']['type']); ?>
+        <?php print _txt('en.contact', null, $t['TelephoneNumber']['type']); ?>
       </td>
       <td>
         <?php
@@ -59,7 +59,7 @@
           {
             // Generally, someone who has view permission on a telephone number can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($t['OrgIdentity']['PrimaryName']),
+              print $this->Html->link(generateCn($t['OrgIdentity']['PrimaryName']),
                                      array('controller' => 'org_identities', 'action' => 'view', $t['OrgIdentity']['id'])) . "\n";
           }
         ?>
@@ -70,7 +70,7 @@
           {
             // Generally, someone who has view permission on a telephone number can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($t['CoPersonRole']['PrimaryName']),
+              print $this->Html->link(generateCn($t['CoPersonRole']['PrimaryName']),
                                      array('controller' => 'co_person_roles', 'action' => 'view', $t['CoPersonRole']['id'])) . "\n";
           }
         ?>
@@ -78,13 +78,13 @@
       <td>    
         <?php
           if($permissions['edit'])
-            echo $this->Html->link('Edit',
+            print $this->Html->link('Edit',
                                    array('controller' => 'telephone_numbers', 'action' => 'edit', $t['TelephoneNumber']['id']),
                                    array('class' => 'editbutton')) . "\n";
             
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['TelephoneNumber']['number'])) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['TelephoneNumber']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($t['TelephoneNumber']['number'])) . '\', \'' . $this->Html->url(array('controller' => 'telephone_numbers', 'action' => 'delete', $t['TelephoneNumber']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

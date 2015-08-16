@@ -75,7 +75,7 @@
         $url['?'] = array('coid' => $cur_co['Co']['id']);
         $jsLink = $this->Html->url($url);
         $options = array();
-        $options['class'] = 'provisionbutton';
+        $options['class'] = 'reconcilebutton';
         $options['onclick'] = "javascript:js_confirm_reconcile('$jsLink');";
         $params['topLinks'][] = $this->Html->tag('a',_txt('op.gr.reconcile.all'), $options);
       }
@@ -300,11 +300,11 @@
 <table id="co_groups" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('name', _txt('fd.name')); ?></th>
-      <th><?php echo $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-      <th><?php echo $this->Paginator->sort('open', _txt('fd.open')); ?></th>
-      <th><?php echo $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
+      <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+      <th><?php print $this->Paginator->sort('open', _txt('fd.open')); ?></th>
+      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -345,19 +345,19 @@
         
           if($e || $v)
           {
-            echo $this->Html->link($c['CoGroup']['name'],
+            print $this->Html->link($c['CoGroup']['name'],
                                     array('controller' => 'co_groups',
                                           'action' => ($e ? 'edit' : ($v ? 'view' : '')), $c['CoGroup']['id'], 'co' => $cur_co['Co']['id']));
           }
           else
-            echo Sanitize::html($c['CoGroup']['name']);
+            print Sanitize::html($c['CoGroup']['name']);
         ?>
       </td>
-      <td><?php echo Sanitize::html($c['CoGroup']['description']); ?></td>
-      <td><?php echo $c['CoGroup']['open'] ? _txt('fd.open') : _txt('fd.closed'); ?></td>
+      <td><?php print Sanitize::html($c['CoGroup']['description']); ?></td>
+      <td><?php print $c['CoGroup']['open'] ? _txt('fd.open') : _txt('fd.closed'); ?></td>
       <td>
         <?php
-          echo _txt('en.status', null, $c['CoGroup']['status']);
+          print _txt('en.status', null, $c['CoGroup']['status']);
         ?>
       </td>
       <td>
@@ -428,7 +428,7 @@
             }
             
             if($d)
-              echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoGroup']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_groups', 'action' => 'delete', $c['CoGroup']['id'], 'co' => $this->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
+              print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoGroup']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_groups', 'action' => 'delete', $c['CoGroup']['id'], 'co' => $this->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
           }
         ?>
         <?php ; ?>

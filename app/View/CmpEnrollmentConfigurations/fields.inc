@@ -58,20 +58,20 @@
     // Display a warning when swapping pool state to <on>.
     
     // Set the title of the dialog    
-    $("#dialog").dialog("option", "title", "<?php echo _txt('fd.ef.pool'); ?>");
+    $("#dialog").dialog("option", "title", "<?php print _txt('fd.ef.pool'); ?>");
 
     // Set the body of the dialog
     if(document.getElementById('CmpEnrollmentConfigurationPoolOrgIdentities').checked) {
-      $("#dialog-text").text("<?php echo _txt('fd.ef.pool.on.warn'); ?>");
+      $("#dialog-text").text("<?php print _txt('fd.ef.pool.on.warn'); ?>");
     } else {
-      $("#dialog-text").text("<?php echo _txt('fd.ef.pool.off.warn'); ?>");
+      $("#dialog-text").text("<?php print _txt('fd.ef.pool.off.warn'); ?>");
     }
   
     // Set the dialog buttons
     $("#dialog").dialog("option",
                         "buttons",
                         {
-                          "<?php echo _txt('op.ok'); ?>": function() { $(this).dialog("close"); }
+                          "<?php print _txt('op.ok'); ?>": function() { $(this).dialog("close"); }
                         });
    
     // Open the dialog, but only if we're switching away from the original state

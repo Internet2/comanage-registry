@@ -30,14 +30,14 @@
 <table id="identifiers" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('identifier', _txt('fd.identifier.identifier')); ?></th>
-      <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
-      <th><?php echo $this->Paginator->sort('login', _txt('fd.identifier.login')); ?></th>
-      <th><?php echo $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+      <th><?php print $this->Paginator->sort('identifier', _txt('fd.identifier.identifier')); ?></th>
+      <th><?php print $this->Paginator->sort('type', _txt('fd.type')); ?></th>
+      <th><?php print $this->Paginator->sort('login', _txt('fd.identifier.login')); ?></th>
+      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
-      <th><?php echo $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
-      <th><?php echo $this->Paginator->sort('CoPerson.PrimaryName.family', 'CO Person'); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
+      <th><?php print $this->Paginator->sort('CoPerson.PrimaryName.family', 'CO Person'); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -47,7 +47,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          echo $this->Html->link($a['Identifier']['identifier'],
+          print $this->Html->link($a['Identifier']['identifier'],
                                  array(
                                   'controller' => 'identifiers',
                                   'action' => ($permissions['edit']
@@ -58,10 +58,10 @@
         ?>
       </td>
       <td>
-        <?php echo $a['Identifier']['type']; ?>
+        <?php print $a['Identifier']['type']; ?>
       </td>
       <td>
-        <?php echo ($a['Identifier']['login'] ? _txt('fd.true') : _txt('fd.false')); ?>
+        <?php print ($a['Identifier']['login'] ? _txt('fd.true') : _txt('fd.false')); ?>
       </td>
       <td>
         <?php
@@ -76,7 +76,7 @@
           {
             // Generally, someone who has view permission on an attribute number can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($a['OrgIdentity']['PrimaryName']),
+              print $this->Html->link(generateCn($a['OrgIdentity']['PrimaryName']),
                                      array('controller' => 'org_identities', 'action' => 'view', $a['OrgIdentity']['id'])) . "\n";
           }
         ?>
@@ -87,7 +87,7 @@
           {
             // Generally, someone who has view permission on an attribute can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($a['CoPerson']['PrimaryName']),
+              print $this->Html->link(generateCn($a['CoPerson']['PrimaryName']),
                                      array('controller' => 'co_people', 'action' => 'view', $a['CoPerson']['id'])) . "\n";
           }
         ?>
@@ -95,13 +95,13 @@
       <td>    
         <?php
           if($permissions['edit'])
-            echo $this->Html->link('Edit',
+            print $this->Html->link('Edit',
                                    array('controller' => 'identifiers', 'action' => 'edit', $a['Identifier']['id']),
                                    array('class' => 'editbutton')) . "\n";
             
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($a['Identifier']['identifier'])) . '\', \'' . $this->Html->url(array('controller' => 'identifiers', 'action' => 'delete', $a['Identifier']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($a['Identifier']['identifier'])) . '\', \'' . $this->Html->url(array('controller' => 'identifiers', 'action' => 'delete', $a['Identifier']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

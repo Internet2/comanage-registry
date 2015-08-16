@@ -38,8 +38,8 @@
       }
     ?> -->
     <title><?php print _txt('coordinate') . ': ' . $title_for_layout?></title>
-    <?php echo $this->Html->charset(); ?>
-    <?php echo $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
+    <?php print $this->Html->charset(); ?>
+    <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
 
     <!-- Include the comanage and jquery style sheets -->
@@ -658,7 +658,7 @@
 
         // insert breadcrumbs on all but the homepage
         if ($this->request->here != $this->request->webroot) {
-          echo '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', _txt('bc.home')) . "</div>";
+          print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', _txt('bc.home')) . "</div>";
         }
 
         // insert the page internal content

@@ -47,38 +47,38 @@
   if($e)
   {
     // Populate the references
-    echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
-    echo $this->Form->hidden('id', array('default' => $this->request->data['CoGroupMember']['id'])). "\n";
-    echo $this->Form->hidden('co_group_id', array('default' => $this->request->data['CoGroupMember']['co_group_id'])). "\n";
-    echo $this->Form->hidden('co_person_id', array('default' => $this->request->data['CoGroupMember']['co_person_id'])). "\n";
+    print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    print $this->Form->hidden('id', array('default' => $this->request->data['CoGroupMember']['id'])). "\n";
+    print $this->Form->hidden('co_group_id', array('default' => $this->request->data['CoGroupMember']['co_group_id'])). "\n";
+    print $this->Form->hidden('co_person_id', array('default' => $this->request->data['CoGroupMember']['co_person_id'])). "\n";
   }
 ?>
-<table id="<?php echo $this->action; ?>_co_group_member" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_group_member" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.group.mem'); ?>
+        <?php print _txt('fd.group.mem'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('member') : ($co_group_members[0]['CoGroupMember']['member'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php print ($e ? $this->Form->input('member') : ($co_group_members[0]['CoGroupMember']['member'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.group.own'); ?>
+        <?php print _txt('fd.group.own'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('owner') : ($co_group_members[0]['CoGroupMember']['owner'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php print ($e ? $this->Form->input('owner') : ($co_group_members[0]['CoGroupMember']['owner'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php
           if($e)
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
         ?>
       </td>
     </tr>

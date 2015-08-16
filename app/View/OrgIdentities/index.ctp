@@ -77,12 +77,12 @@ if(isset($permissions['search']) && $permissions['search'] ) {
 <table id="org_identities" class="ui-widget">
   <thead>
   <tr class="ui-widget-header">
-    <th><?php echo $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
-    <th><?php echo $this->Paginator->sort('o', _txt('fd.o')); ?></th>
-    <th><?php echo $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
-    <th><?php echo $this->Paginator->sort('title', _txt('fd.title')); ?></th>
-    <th><?php echo $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-    <th class="actionButtons"><?php echo _txt('fd.actions'); ?></th>
+    <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
+    <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
+    <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
+    <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
+    <th><?php print $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
+    <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
   </tr>
   </thead>
 
@@ -102,9 +102,9 @@ if(isset($permissions['search']) && $permissions['search'] ) {
         );
         ?>
       </td>
-      <td><?php echo Sanitize::html($p['OrgIdentity']['o']); ?></td>
-      <td><?php echo Sanitize::html($p['OrgIdentity']['ou']); ?></td>
-      <td><?php echo Sanitize::html($p['OrgIdentity']['title']); ?></td>
+      <td><?php print Sanitize::html($p['OrgIdentity']['o']); ?></td>
+      <td><?php print Sanitize::html($p['OrgIdentity']['ou']); ?></td>
+      <td><?php print Sanitize::html($p['OrgIdentity']['title']); ?></td>
       <td><?php if(!empty($p['OrgIdentity']['affiliation'])) print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); ?></td>
 
       <td class="actions">
@@ -121,7 +121,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
             ) . "\n";
 
         if($permissions['delete'])
-          echo '<button class="deletebutton spin" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html(generateCn($p['PrimaryName'])) . '\', \'' . $this->Html->url(array('controller' => 'org_identities', 'action' => 'delete', $p['OrgIdentity']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+          print '<button class="deletebutton spin" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . Sanitize::html(generateCn($p['PrimaryName'])) . '\', \'' . $this->Html->url(array('controller' => 'org_identities', 'action' => 'delete', $p['OrgIdentity']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>

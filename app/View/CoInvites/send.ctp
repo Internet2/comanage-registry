@@ -31,12 +31,12 @@
 You are seeing this text because <b>debug</b> is true in the configuration file <b>app/Config/core.php</b>.
 </p>
 <p>
-Email would be sent to <b><?php echo $invite['CoInvite']['mail']; ?></b> with the URL
+Email would be sent to <b><?php print $invite['CoInvite']['mail']; ?></b> with the URL
 <br />
 <br />
 <?php 
   $u = $this->Html->url(array('controller' => 'co_invites', 'action' => 'reply', $invite['CoInvite']['invitation']), true);
   
-  echo $this->Html->link($u, $u);
+  print $this->Html->link($u, $u);
 ?>
 </p>

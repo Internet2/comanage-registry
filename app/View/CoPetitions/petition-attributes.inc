@@ -392,7 +392,7 @@
                         if(!empty($ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]])) {
                           print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
                         } else {
-                          // No longer a valid enum, just echo it
+                          // No longer a valid enum, just print it
                           print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
                         }
                         break;
@@ -510,7 +510,7 @@
     <tbody>
       <tr>
         <td>
-          <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+          <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
         </td>
         <td class="submitCell">
           <?php

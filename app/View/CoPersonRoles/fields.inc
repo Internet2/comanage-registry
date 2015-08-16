@@ -46,9 +46,9 @@
   if($e)
   {
     // This is for beforeFilter
-    echo $this->Form->hidden('Co.id', array('default' => $cur_co['Co']['id'])). "\n";
+    print $this->Form->hidden('Co.id', array('default' => $cur_co['Co']['id'])). "\n";
     // And this is to link to the co person
-    echo $this->Form->hidden('co_person_id', array('default' => $co_people[0]['CoPerson']['id'])). "\n";
+    print $this->Form->hidden('co_person_id', array('default' => $co_people[0]['CoPerson']['id'])). "\n";
     // Make sure ID gets carried over
     if(isset($co_person_roles[0]['CoPersonRole']['id']))
       print $this->Form->hidden('id', array('default' => $co_person_roles[0]['CoPersonRole']['id']));
@@ -117,12 +117,12 @@ $(function() {
       <?php endif; ?>
     </ul>
     <div id="tabs-role">
-      <table id="<?php echo $this->action; ?>_co_person_role" class="ui-widget">
+      <table id="<?php print $this->action; ?>_co_person_role" class="ui-widget">
         <tbody>
           <?php if(!empty($permissions['cous'])): ?>
-          <tr class="line<?php echo ($l % 2); $l++; ?>">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'); ?><span class="required">*</span>
+              <?php print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'); ?><span class="required">*</span>
             </td>
             <td>
               <?php
@@ -146,9 +146,9 @@ $(function() {
             </td>
           <?php endif; ?>
           </tr>
-          <tr class="line<?php echo ($l % 2); $l++; ?>">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'); ?><span class="required">*</span>
+              <?php print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'); ?><span class="required">*</span>
             </td>
             <td>
               <?php
@@ -211,42 +211,42 @@ $(function() {
               <?php endif; ?>
             </td>
           </tr>
-          <tr class="line<?php echo ($l % 2); $l++; ?>">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo $cur_co['Co']['name'] . " " . _txt('fd.title'); ?>
+              <?php print $cur_co['Co']['name'] . " " . _txt('fd.title'); ?>
             </td>
             <td>
-              <?php echo (($e && !$es) ? $this->Form->input('title', array('class' => 'focusFirst','default' =>
+              <?php print (($e && !$es) ? $this->Form->input('title', array('class' => 'focusFirst','default' =>
                                                                            isset($co_person_roles[0]['CoPersonRole']['title'])
                                                                            ? $co_person_roles[0]['CoPersonRole']['title']
                                                                            : ""))
                                        : Sanitize::html($co_person_roles[0]['CoPersonRole']['title'])); ?>
             </td>
           </tr>
-          <tr class="line<?php echo ($l % 2); $l++; ?>">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.o'); ?>
+              <?php print _txt('fd.o'); ?>
             </td>
             <td>
-              <?php echo (($e && !$es) ? $this->Form->input('o',
+              <?php print (($e && !$es) ? $this->Form->input('o',
                                                             ($this->action == 'add'
                                                              ? array('default' => $cur_co['Co']['name'])
                                                              : array()))
                                        : Sanitize::html($co_person_roles[0]['CoPersonRole']['o'])); ?>
             </td>
           </tr>
-          <tr class="line<?php echo ($l % 2); $l++; ?>">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.ou'); ?>
+              <?php print _txt('fd.ou'); ?>
             </td>
             <td>
-              <?php echo (($e && !$es) ? $this->Form->input('ou') : Sanitize::html($co_person_roles[0]['CoPersonRole']['ou'])); ?>
+              <?php print (($e && !$es) ? $this->Form->input('ou') : Sanitize::html($co_person_roles[0]['CoPersonRole']['ou'])); ?>
             </td>
           </tr>
-          <tr class="line<?php echo ($l % 2); $l++; ?>">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.sponsor') . " ";
-                    echo _txt('fd.sponsor.desc');
+              <?php print _txt('fd.sponsor') . " ";
+                    print _txt('fd.sponsor.desc');
               ?>
             </td>
             <td>
@@ -261,22 +261,22 @@ $(function() {
               ?>
             </td>
           </tr>
-          <tr class="line<?php echo ($l % 2); $l++; ?>">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.valid_from'); if($e && !$es) echo " " . _txt('fd.valid_from.desc'); ?>
+              <?php print _txt('fd.valid_from'); if($e && !$es) print " " . _txt('fd.valid_from.desc'); ?>
             </td>
             <td>
-              <?php echo (($e && !$es)
+              <?php print (($e && !$es)
                           ? $this->Form->text('valid_from', array('class' => 'datepicker-f'))
                           : (($co_person_roles[0]['CoPersonRole']['valid_from'] > 0) ? strftime("%F", strtotime($co_person_roles[0]['CoPersonRole']['valid_from'])) : "")); ?>
             </td>
           </tr>
-          <tr class="line<?php echo ($l % 2); $l++; ?>">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo _txt('fd.valid_through'); if($e && !$es) echo " " . _txt('fd.valid_through.desc'); ?>
+              <?php print _txt('fd.valid_through'); if($e && !$es) print " " . _txt('fd.valid_through.desc'); ?>
             </td>
             <td>
-              <?php echo (($e && !$es)
+              <?php print (($e && !$es)
                           ? $this->Form->text('valid_through', array('class' => 'datepicker-u'))
                           : (($co_person_roles[0]['CoPersonRole']['valid_through'] > 0) ? strftime("%F", strtotime($co_person_roles[0]['CoPersonRole']['valid_through'])) : "")); ?>
             </td>
@@ -288,13 +288,13 @@ $(function() {
             
             if(!empty($cur_co['CoExtendedAttribute']))
             {
-              echo $this->Form->hidden($cl . '.id');
+              print $this->Form->hidden($cl . '.id');
               
               foreach($cur_co['CoExtendedAttribute'] as $c):
           ?>
-          <tr class="line<?php echo ($l % 2); $l++; ?>">
+          <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php echo $c['display_name']; ?>
+              <?php print $c['display_name']; ?>
             </td>
             <td>
               <?php
@@ -302,12 +302,12 @@ $(function() {
                 
                 if($c['type'] == 'TIMESTAMP')
                 {
-                  echo ($e && !$es ? $this->Form->text($cl.'.'.$attr, array('class' => 'datepicker'))
+                  print ($e && !$es ? $this->Form->text($cl.'.'.$attr, array('class' => 'datepicker'))
                                    : (($co_person_roles[0][$cl][$attr] > 0) ? strftime("%F", strtotime($co_person_roles[0][$cl][$attr])) : ""));
                 }
                 else
                 {
-                  echo ($e && !$es ? $this->Form->input($cl.'.'.$attr,
+                  print ($e && !$es ? $this->Form->input($cl.'.'.$attr,
                                                         isset($co_person_roles[0][$cl][$attr]) ? array('default' => $co_person_roles[0][$cl][$attr]) : array())
                                    : Sanitize::html($co_person_roles[0][$cl][$attr]));
                 }
@@ -320,12 +320,12 @@ $(function() {
           ?>
           <tr>
             <td>
-              <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+              <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
             </td>
             <td>
               <?php
                 if($e && !$es) {
-                  echo $this->Form->submit($submit_label);
+                  print $this->Form->submit($submit_label);
                   print $this->Form->button(_txt('op.reset'), 
                                             array('type'=>'reset'));
                 }

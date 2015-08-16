@@ -37,48 +37,48 @@
   $this->Html->addCrumb($crumbTxt);
 
 ?>
-<table id="<?php echo $this->action; ?>_organization" class="ui-widget">
+<table id="<?php print $this->action; ?>_organization" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.name'); ?><span class="required">*</span>
+        <?php print _txt('fd.name'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($organizations[0]['Organization']['name'])); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($organizations[0]['Organization']['name'])); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.domain'); ?>
+        <?php print _txt('fd.domain'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('domain') : Sanitize::html($organizations[0]['Organization']['domain'])); ?>
+        <?php print ($e ? $this->Form->input('domain') : Sanitize::html($organizations[0]['Organization']['domain'])); ?>
       </td>
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.directory'); ?>
+        <?php print _txt('fd.directory'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('directory') : Sanitize::html($organizations[0]['Organization']['directory'])); ?>
+        <?php print ($e ? $this->Form->input('directory') : Sanitize::html($organizations[0]['Organization']['directory'])); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.searchbase'); ?>
+        <?php print _txt('fd.searchbase'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('search_base') : Sanitize::html($organizations[0]['Organization']['search_base'])); ?>
+        <?php print ($e ? $this->Form->input('search_base') : Sanitize::html($organizations[0]['Organization']['search_base'])); ?>
       </td>
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }

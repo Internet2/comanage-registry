@@ -40,27 +40,27 @@
   $this->Html->addCrumb($crumbTxt);
     
 ?>
-<table id="<?php echo $this->action; ?>_co" class="ui-widget">
+<table id="<?php print $this->action; ?>_co" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.name'); ?><span class="required">*</span>
+        <?php print _txt('fd.name'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cos[0]['Co']['name'])); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cos[0]['Co']['name'])); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.desc'); ?>
+        <?php print _txt('fd.desc'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('description') : Sanitize::html($cos[0]['Co']['description'])); ?>
+        <?php print ($e ? $this->Form->input('description') : Sanitize::html($cos[0]['Co']['description'])); ?>
       </td>
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.status'); ?>
+        <?php print _txt('fd.status'); ?>
       </td>
       <td>
         <?php
@@ -84,12 +84,12 @@
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }

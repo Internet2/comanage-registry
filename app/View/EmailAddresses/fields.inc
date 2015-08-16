@@ -38,16 +38,16 @@
   
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonid'])) {
-    echo $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
+    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
   } elseif(isset($this->request->data['EmailAddress']['co_person_id'])) {
-    echo $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['co_person_id']))) . "\n";
+    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['co_person_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['co_person_id']);
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
+    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
   } elseif(isset($this->request->data['EmailAddress']['org_identity_id'])) {
-    echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['org_identity_id']))) . "\n";
+    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['org_identity_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['org_identity_id']);
   }
 
@@ -97,7 +97,7 @@
   $this->Html->addCrumb($crumbTxt);
 
 ?>
-<table id="<?php echo $this->action; ?>_email_address" class="ui-widget">
+<table id="<?php print $this->action; ?>_email_address" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
@@ -115,7 +115,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.type'); ?>
+        <?php print _txt('fd.type'); ?>
       </td>
       <td>
         <?php
@@ -174,7 +174,7 @@
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php
