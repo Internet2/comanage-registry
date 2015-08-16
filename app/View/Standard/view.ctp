@@ -61,9 +61,21 @@
 
   }
 
-  print $this->element("pageTitleAndNav", $params);
+  // Add locally configured page buttons
+  if(!empty($this->plugin)) {
+    if (file_exists("Plugin/" . $this->plugin . "/View/" . $model . "/buttons.inc")) {
+      include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/buttons.inc");
+    }
+  } else {
+    if (file_exists(APP . "View/" . $model . "/buttons.inc")) {
+      include(APP . "View/" . $model . "/buttons.inc");
+    }
+  }
 
-  print '<div>';
+  print $this->element("pageTitleAndButtons", $params);
+
+  // Output the fields
+  print '<div class="innerContent">';
   if(!empty($this->plugin)) {
     include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/fields.inc");
   } else {

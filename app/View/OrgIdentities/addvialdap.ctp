@@ -50,7 +50,7 @@
   }
 
   $submit_label = "Add New Person";
-  echo $this->Form->create('OrgIdentity',
+  print $this->Form->create('OrgIdentity',
                            array('action' => 'selectvialdap',
                                  'inputDefaults' => array('label' => false, 'div' => false)));
 ?>
@@ -62,7 +62,7 @@
         Organization<span class="required">*</span>
       </td>
       <td>
-        <?php echo $this->Form->select('organization', $r); ?>
+        <?php print $this->Form->select('organization', $r); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -70,7 +70,7 @@
         Surname <!-- XXX allow additional/configurable search terms -->
       </td>
       <td>
-        <?php echo $this->Form->input('sn'); ?>
+        <?php print $this->Form->input('sn'); ?>
       </td>
     </tr>
     <tr>
@@ -78,12 +78,12 @@
         <em><span class="required">* denotes required field</span></em><br />
       </td>
       <td>
-        <?php echo $this->Form->submit('Search'); ?>
+        <?php print $this->Form->submit('Search'); ?>
       </td>
     </tr>
   </tbody>
 </table>
 
 <?php
-  echo $this->Form->end();
+  print $this->Form->end();
 ?>

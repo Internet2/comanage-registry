@@ -46,7 +46,7 @@
     );
   }
 
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 
 ?>
 
@@ -115,7 +115,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="4">
-        <?php print $this->Paginator->numbers(); ?>
+        <?php print $this->element("pagination"); ?>
       </th>
     </tr>
   </tfoot>

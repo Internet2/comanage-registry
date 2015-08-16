@@ -51,27 +51,27 @@
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
-<table id="<?php echo $this->action; ?>_cou" class="ui-widget">
+<table id="<?php print $this->action; ?>_cou" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.name'); ?><span class="required">*</span>
+        <?php print _txt('fd.name'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cous[0]['Cou']['name'])); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cous[0]['Cou']['name'])); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.desc'); ?>
+        <?php print _txt('fd.desc'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('description') : Sanitize::html($cous[0]['Cou']['description'])); ?>
+        <?php print ($e ? $this->Form->input('description') : Sanitize::html($cous[0]['Cou']['description'])); ?>
       </td>
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.parent'); ?>
+        <?php print _txt('fd.parent'); ?>
       </td>
       <td>
         <?php
@@ -96,12 +96,12 @@
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }

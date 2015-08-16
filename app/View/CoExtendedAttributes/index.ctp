@@ -46,18 +46,18 @@
     );
   }
 
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 
 ?>
 
 <table id="cos" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('name', _txt('fd.name')); ?></th>
-      <th><?php echo $this->Paginator->sort('display_name', _txt('fd.name.d')); ?></th>
-      <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
-      <th><?php echo $this->Paginator->sort('indx', _txt('fd.index')); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
+      <th><?php print $this->Paginator->sort('display_name', _txt('fd.name.d')); ?></th>
+      <th><?php print $this->Paginator->sort('type', _txt('fd.type')); ?></th>
+      <th><?php print $this->Paginator->sort('indx', _txt('fd.index')); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -67,22 +67,22 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          echo $this->Html->link($c['CoExtendedAttribute']['name'],
+          print $this->Html->link($c['CoExtendedAttribute']['name'],
                                   array('controller' => 'co_extended_attributes',
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                                         $c['CoExtendedAttribute']['id'],
                                         'co' => $cur_co['Co']['id']));
         ?>
       </td>
-      <td><?php echo Sanitize::html($c['CoExtendedAttribute']['display_name']); ?></td>
-      <td><?php echo Sanitize::html($c['CoExtendedAttribute']['type']); ?></td>
+      <td><?php print Sanitize::html($c['CoExtendedAttribute']['display_name']); ?></td>
+      <td><?php print Sanitize::html($c['CoExtendedAttribute']['type']); ?></td>
       <td>
-        <?php echo $c['CoExtendedAttribute']['indx'] ? _txt('fd.yes') : _txt('fd.no'); ?>
+        <?php print $c['CoExtendedAttribute']['indx'] ? _txt('fd.yes') : _txt('fd.no'); ?>
       </td>
       <td>
         <?php
           if($permissions['edit'])
-            echo $this->Html->link(_txt('op.edit'),
+            print $this->Html->link(_txt('op.edit'),
                                     array('controller' => 'co_extended_attributes',
                                           'action' => 'edit',
                                           $c['CoExtendedAttribute']['id'],
@@ -90,7 +90,7 @@
                                     array('class' => 'editbutton')) . "\n";
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoExtendedAttribute']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_extended_attributes', 'action' => 'delete', $c['CoExtendedAttribute']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoExtendedAttribute']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_extended_attributes', 'action' => 'delete', $c['CoExtendedAttribute']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>
@@ -102,7 +102,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="5">
-        <?php echo $this->Paginator->numbers(); ?>
+        <?php print $this->element("pagination"); ?>
       </th>
     </tr>
   </tfoot>

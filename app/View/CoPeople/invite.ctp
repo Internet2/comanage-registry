@@ -26,8 +26,8 @@
   print $this->element("pageTitle", array('title' => $title_for_layout));
 
   $submit_label = _txt('op.inv.send');
-  echo $this->Form->create('CoPerson',
+  print $this->Form->create('CoPerson',
                            array('action' => 'add',
                                  'inputDefaults' => array('label' => false, 'div' => false)));
   include("fields.inc");
-  echo $this->Form->end();
+  print $this->Form->end();

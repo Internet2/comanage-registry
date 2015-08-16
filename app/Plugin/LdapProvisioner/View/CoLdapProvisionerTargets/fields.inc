@@ -454,7 +454,7 @@
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label,
+            print $this->Form->submit($submit_label,
                                      // We could also do this by adding onsubmit to the form open tag
                                      array('onclick' => 'return js_check_group_config()'));
             print $this->Form->button(_txt('op.reset'), 

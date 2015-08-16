@@ -45,30 +45,30 @@
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_extended_attributes.1')));
   $this->Html->addCrumb($crumbTxt);
 
-  echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+  print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
-<table id="<?php echo $this->action; ?>_co_extended_attribute" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_extended_attribute" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.name'); ?><span class="required">*</span><br />
-        <em><?php echo _txt('fd.lan.desc'); ?></em>
+        <?php print _txt('fd.name'); ?><span class="required">*</span><br />
+        <em><?php print _txt('fd.lan.desc'); ?></em>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.name.d'); ?><span class="required">*</span>
+        <?php print _txt('fd.name.d'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['display_name'])); ?>
+        <?php print ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['display_name'])); ?>
       </td>
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.type'); ?><span class="required">*</span>
+        <?php print _txt('fd.type'); ?><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -90,30 +90,30 @@
           
           // Emit data type to make validation work
           if($e && $this->action=='edit')
-            echo $this->Form->hidden('type');
+            print $this->Form->hidden('type');
         ?>
         <p>
           <span class="ui-icon ui-icon-info co-info"></span>
-          <em><?php echo _txt('fd.type.warn'); ?></em>
+          <em><?php print _txt('fd.type.warn'); ?></em>
         </p>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.index'); ?>
+        <?php print _txt('fd.index'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('indx') : ($co_extended_attributes[0]['CoExtendedAttribute']['type'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php print ($e ? $this->Form->input('indx') : ($co_extended_attributes[0]['CoExtendedAttribute']['type'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }

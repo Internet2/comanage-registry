@@ -37,22 +37,22 @@
   
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonroleid'])) {
-    echo $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->params['named']['copersonroleid']))) . "\n";
+    print $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->params['named']['copersonroleid']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonroleid']);
   } elseif(isset($this->request->data['Address']['co_person_role_id'])) {
-    echo $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->data['Address']['co_person_role_id']))) . "\n";
+    print $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->data['Address']['co_person_role_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['Address']['co_person_role_id']);
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
+    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
   } elseif(isset($this->request->data['Address']['org_identity_id'])) {
-    echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['Address']['org_identity_id']))) . "\n";
+    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['Address']['org_identity_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['Address']['org_identity_id']);
   }
 
     
   if(isset($this->request->params['named']['co']))
-    echo $this->Form->hidden('co_id', array('default' => Sanitize::html($this->request->params['named']['co']))) . "\n";
+    print $this->Form->hidden('co_id', array('default' => Sanitize::html($this->request->params['named']['co']))) . "\n";
 
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -94,77 +94,77 @@
 
   $l = 1;
 ?>
-<table id="<?php echo $this->action; ?>_address" class="ui-widget">
+<table id="<?php print $this->action; ?>_address" class="ui-widget">
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.address.street'); ?>
+        <?php print _txt('fd.address.street'); ?>
         <?php if(in_array('street', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('street', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['street'])); ?>
+        <?php print ($e ? $this->Form->input('street', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['street'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.address.room'); ?>
+        <?php print _txt('fd.address.room'); ?>
         <?php if(in_array('room', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('room') : Sanitize::html($addresses[0]['Address']['room'])); ?>
+        <?php print ($e ? $this->Form->input('room') : Sanitize::html($addresses[0]['Address']['room'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.address.locality'); ?>
+        <?php print _txt('fd.address.locality'); ?>
         <?php if(in_array('locality', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
+        <?php print ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.address.state'); ?>
+        <?php print _txt('fd.address.state'); ?>
         <?php if(in_array('state', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
+        <?php print ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.address.postal_code'); ?>
+        <?php print _txt('fd.address.postal_code'); ?>
         <?php if(in_array('postal_code', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
+        <?php print ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.address.country'); ?>
+        <?php print _txt('fd.address.country'); ?>
         <?php if(in_array('country', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>
+        <?php print ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php echo _txt('fd.type'); ?>
+        <?php print _txt('fd.type'); ?>
       </td>
       <td>
         <?php
@@ -216,12 +216,12 @@
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }

@@ -30,12 +30,12 @@
 <table id="email_addresses" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('email', _txt('fd.email_address.mail')); ?></th>
-      <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
+      <th><?php print $this->Paginator->sort('email', _txt('fd.email_address.mail')); ?></th>
+      <th><?php print $this->Paginator->sort('type', _txt('fd.type')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
-      <th><?php echo $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
-      <th><?php echo $this->Paginator->sort('CoPerson.PrimaryName.family', 'CO Person'); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
+      <th><?php print $this->Paginator->sort('CoPerson.PrimaryName.family', 'CO Person'); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -45,13 +45,13 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          echo $this->Html->link($e['EmailAddress']['mail'],
+          print $this->Html->link($e['EmailAddress']['mail'],
                                  array('controller' => 'email_addresses',
                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $e['EmailAddress']['id']));
         ?>
       </td>
       <td>
-        <?php echo _txt('en.contact', null, $e['EmailAddress']['type']); ?>
+        <?php print _txt('en.contact', null, $e['EmailAddress']['type']); ?>
       </td>
       <td>
         <?php
@@ -59,7 +59,7 @@
           {
             // Generally, someone who has view permission on an attribute can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($e['OrgIdentity']['PrimaryName']),
+              print $this->Html->link(generateCn($e['OrgIdentity']['PrimaryName']),
                                      array('controller' => 'org_identities', 'action' => 'view', $e['OrgIdentity']['id'])) . "\n";
           }
         ?>
@@ -70,7 +70,7 @@
           {
             // Generally, someone who has view permission on an attribute can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($e['CoPerson']['PrimaryName']),
+              print $this->Html->link(generateCn($e['CoPerson']['PrimaryName']),
                                      array('controller' => 'co_people', 'action' => 'view', $e['CoPerson']['id'])) . "\n";
           }
         ?>
@@ -78,13 +78,13 @@
       <td>    
         <?php
           if($permissions['edit'])
-            echo $this->Html->link('Edit',
+            print $this->Html->link('Edit',
                                    array('controller' => 'email_addresses', 'action' => 'edit', $e['EmailAddress']['id']),
                                    array('class' => 'editbutton')) . "\n";
             
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($e['EmailAddress']['mail'])) . '\', \'' . $this->Html->url(array('controller' => 'email_addresses', 'action' => 'delete', $e['EmailAddress']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($e['EmailAddress']['mail'])) . '\', \'' . $this->Html->url(array('controller' => 'email_addresses', 'action' => 'delete', $e['EmailAddress']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>
@@ -96,7 +96,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="5">
-        <?php echo $this->Paginator->numbers(); ?>
+        <?php print $this->element("pagination"); ?>
       </th>
     </tr>
   </tfoot>

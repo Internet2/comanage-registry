@@ -41,18 +41,18 @@
     );
   }
 
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 
 ?>
 
 <table id="organizations" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort(_txt('fd.name'), 'name'); ?></th>
-      <th><?php echo $this->Paginator->sort(_txt('fd.domain'), 'domain'); ?></th>
-      <th><?php echo $this->Paginator->sort(_txt('fd.directory'), 'directory'); ?></th>
-      <th><?php echo _txt('fd.searchbase'); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort(_txt('fd.name'), 'name'); ?></th>
+      <th><?php print $this->Paginator->sort(_txt('fd.domain'), 'domain'); ?></th>
+      <th><?php print $this->Paginator->sort(_txt('fd.directory'), 'directory'); ?></th>
+      <th><?php print _txt('fd.searchbase'); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -67,9 +67,9 @@
                     'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                     $o['Organization']['id'])
                 ); ?></td>
-      <td><?php echo Sanitize::html($o['Organization']['domain']); ?></td>
-      <td><?php echo Sanitize::html($o['Organization']['directory']); ?></td>
-      <td><?php echo Sanitize::html($o['Organization']['search_base']); ?></td>
+      <td><?php print Sanitize::html($o['Organization']['domain']); ?></td>
+      <td><?php print Sanitize::html($o['Organization']['directory']); ?></td>
+      <td><?php print Sanitize::html($o['Organization']['search_base']); ?></td>
       <td>
         <?php
           print $this->Html->link(
@@ -91,7 +91,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="5">
-        <?php echo $this->Paginator->numbers(); ?>
+        <?php print $this->element("pagination"); ?>
       </th>
     </tr>
   </tfoot>

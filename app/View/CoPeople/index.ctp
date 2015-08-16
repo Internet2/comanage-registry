@@ -246,7 +246,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
           <?php
             global $status_t;
 
-            if(!empty($p['CoPerson']['status']) ) echo _txt('en.status', null, $p['CoPerson']['status']);
+            if(!empty($p['CoPerson']['status']) ) print _txt('en.status', null, $p['CoPerson']['status']);
           ?>
         </div>
         
@@ -460,14 +460,9 @@ if(isset($permissions['search']) && $permissions['search'] ) {
     }
   ?>
 
-  <div class="pagination">
-    <div class="outer-center">
-      <div class="product inner-center">
-        <?php print $this->Paginator->numbers(); ?>
-      </div>
-    </div>
-    <div class="clear"></div>
-  </div>
+  <?php print $this->element("pagination"); ?>
+  <div class="clear"></div>
+
 </div>
 
 <script>

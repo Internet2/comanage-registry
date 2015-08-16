@@ -56,7 +56,7 @@ if($permissions['assignall']) {
     "</a>\n";
 }
 
-print $this->element("pageTitleAndNav", $params);
+print $this->element("pageTitleAndButtons", $params);
 
 ?>
 <script type="text/javascript">
@@ -271,7 +271,7 @@ print $this->element("pageTitleAndNav", $params);
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="3">
-        <?php print $this->Paginator->numbers(); ?>
+        <?php print $this->element("pagination"); ?>
       </th>
     </tr>
   </tfoot>

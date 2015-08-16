@@ -32,7 +32,7 @@
   // Add page title
   $params = array();
   $params['title'] = $title_for_layout;
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 
   $submit_label = _txt('op.add');
   

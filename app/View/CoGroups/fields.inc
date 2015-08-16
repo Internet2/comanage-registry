@@ -64,74 +64,40 @@
   $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_groups.1')));
   $this->Html->addCrumb($crumbTxt);
-  
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
 
-  if($e && !empty($co_groups[0]['CoGroup']['id'])) {
-    // Manage group memberships
-    $sidebarButtons[] = array(
-      'icon'    => 'extlink',
-      'title'   => _txt('op.manage.grm'),
-      'url'     => array(
-        'controller' => 'co_group_members',
-        'action'     => 'select',
-        'cogroup'    => $co_groups[0]['CoGroup']['id'],
-        'co'         => $cur_co['Co']['id']
-      )
-    );
-  }
-
-  if($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id'])) {
-    // Provisioning status
-    $sidebarButtons[] = array(
-      'icon'    => 'note',
-      'title'   => _txt('op.prov.view'),
-      'url'     => array(
-        'controller' => 'co_groups', 
-        'action'     => 'provision', 
-        $co_groups[0]['CoGroup']['id'], 
-        'co'         => $cur_co['Co']['id']
-      )
-    ); 
-  }
-  
-  // Set buttons for rendering in sidebar  
-  $this->set('sidebarButtons', $sidebarButtons);
-  
   // Populate the reference
-  echo $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
+  print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
 
 ?>
-<table id="<?php echo $this->action; ?>_co_group" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_group" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.name'); ?><span class="required">*</span>
+        <?php print _txt('fd.name'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_groups[0]['CoGroup']['name'])); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_groups[0]['CoGroup']['name'])); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.desc'); ?>
+        <?php print _txt('fd.desc'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('description') : Sanitize::html($co_groups[0]['CoGroup']['description'])); ?>
+        <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_groups[0]['CoGroup']['description'])); ?>
       </td>
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.open'); ?>
+        <?php print _txt('fd.open'); ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php print ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php echo _txt('fd.status'); ?>
+        <?php print _txt('fd.status'); ?>
       </td>
       <td>
         <?php
@@ -155,12 +121,12 @@
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }
@@ -169,7 +135,7 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php echo _txt('fd.members'); ?>
+        <?php print _txt('fd.members'); ?>
       </td>
       <td>
       <?php
@@ -220,7 +186,7 @@
             }
           } else {
             foreach($co_group_members as $c)
-              echo Sanitize::html(generateCn($c['CoPerson']['PrimaryName'])) . "<br />\n";
+              print Sanitize::html(generateCn($c['CoPerson']['PrimaryName'])) . "<br />\n";
           }
         }
       ?>

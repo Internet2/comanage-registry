@@ -32,6 +32,9 @@ html {
   overflow-y: scroll;
   overflow: -moz-scrollbars-vertical;
 }
+.innerContent {
+  clear: both;
+}
 
 /* General */
 .hidden {
@@ -604,7 +607,6 @@ select {
 .topSearch .clearButton {
   float: right;
 }
-
 #topLinks {
   float: right;
   margin: 1em 0 0 0;
@@ -872,12 +874,18 @@ td.order {
 .co_people #changeLog .additionalinfo {
   padding: 5px;
 }
+#restoreLink {
+  margin-bottom: 2em;
+}
 /* Petitions */
 #petition {
   min-height: 350px;
 }
-#view_co_petition .checkbutton {
-  margin-left: 1em;
+#view_co_petition .status {
+  margin-right: 1em;
+}
+#view_co_petition .ui-button {
+  margin: 0 0 0 0.25em;
 }
 #filters {
   width: 50%;
@@ -1095,8 +1103,31 @@ td.order {
   margin: 0 30px 0 0;
 }
 /* Pagination */
-.pagination {
-  padding: 5px
+#pagination {
+  margin: 0;
+  padding: 0;
+  min-height: 1.25em;
+}
+#pagination .paginationCounter {
+  float: right;
+  margin-right: 0.5em;
+}
+#pagination .paginationPrev {
+  margin-right: 1em;
+  font-size: 0.9em;
+}
+#pagination .paginationNext {
+  margin-left: 1em;
+  font-size: 0.9em;
+}
+body.co_people.index #pagination {
+  padding: 0.5em;
+  background-color: #9FC6E2;
+  color: white;
+  font-weight: bold;
+}
+body.co_people.index #pagination a {
+  color: white;
 }
 .outer-center {
   float: right;

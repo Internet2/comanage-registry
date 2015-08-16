@@ -42,69 +42,7 @@
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('ct.co_enrollment_flows.pl'), $args);
-
-  $crumbTxt = '';
-  if($this->action == "add") {
-    $crumbTxt = _txt('op.add-a', array(_txt('ct.co_enrollment_flows.1')));
-  }
-  if($this->action == "edit") {
-    $crumbTxt = _txt('op.edit-a', array(_txt('ct.co_enrollment_flows.1')));
-  }
-  if($this->action == "view") {
-    $crumbTxt = _txt('op.view-a', array(_txt('ct.co_enrollment_flows.1')));
-  }
-  $this->Html->addCrumb($crumbTxt);
-     
-  // Add buttons to sidebar
-  $sidebarButtons = $this->get('sidebarButtons');
-
-  if($e)
-  {
-    // Edit button
-    if($this->action == "edit" && $permissions['edit']){
-      $sidebarButtons[] = array(
-        'icon'    => 'pencil',
-        'title'   => _txt('op.edit.ea'),
-        'url'     => array(
-          'controller' => 'co_enrollment_attributes',
-          'action' => 'index',
-          'coef' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
-        )
-      );
-    }
-    
-    // Duplicate button
-    if($this->action != "add" && $permissions['duplicate']) {
-      $sidebarButtons[] = array(
-        'icon'    => 'copy',
-        'title'   => _txt('op.dupe'),
-        'url'     => array(
-          'controller' => 'co_enrollment_flows',
-          'action' => 'duplicate',
-          $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
-        )
-      );
-    }
-  }
-  
-  if($this->action != "add"
-     && $permissions['select']
-     && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['status'])
-     && $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] == EnrollmentFlowStatusEnum::Active) {
-    // Shortcut to start enrollment flow
-    
-    $sidebarButtons[] = array(
-      'icon'    => 'circle-arrow-e',
-      'title'   => _txt('op.begin'),
-      'url'     => array(
-        'controller' => 'co_petitions',
-        'action' => 'start',
-        'coef' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
-      )
-    );
-  }
-  
-  $this->set('sidebarButtons', $sidebarButtons);
+  $this->Html->addCrumb(_txt('op.' . $this->action . '-a', array(_txt('ct.co_enrollment_flows.1'))));
 
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   

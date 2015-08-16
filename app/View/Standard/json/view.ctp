@@ -86,7 +86,7 @@
       $ms[] = $a;
     }
 
-    echo json_encode(array("ResponseType" => $modelcc,
+    print json_encode(array("ResponseType" => $modelcc,
                            "Version" => "1.0",    // XXX this needs to be set by the controller
                            $modelcc => $ms)) . "\n";
   }

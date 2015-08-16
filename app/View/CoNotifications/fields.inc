@@ -34,6 +34,18 @@
   
   if(!$e && !$permissions['view'])
     return(false);
+
+  // Add breadcrumbs
+  print $this->element("coCrumb");
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_notifications';
+  $args['action'] = 'index';
+  $args['recipientcopersonid'] = $vv_co_person_id_notifications;
+  $args['sort'] = 'created';
+  $args['direction'] = 'desc';
+  $this->Html->addCrumb(_txt('ct.co_notifications.pl'), $args);
+  $this->Html->addCrumb(_txt('ct.co_notifications.1'));
   
   // XXX drop this if we don't have a manual way to create a notification
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";

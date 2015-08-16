@@ -27,18 +27,18 @@
   // Add page title
   $params = array();
   $params['title'] = _txt('ct.addresses.pl');
-  print $this->element("pageTitleAndNav", $params);
+  print $this->element("pageTitleAndButtons", $params);
 ?>
 
 <table id="addresses" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php echo $this->Paginator->sort('street', _txt('fd.address.street')); ?></th>
-      <th><?php echo $this->Paginator->sort('type', _txt('fd.type')); ?></th>
+      <th><?php print $this->Paginator->sort('street', _txt('fd.address.street')); ?></th>
+      <th><?php print $this->Paginator->sort('type', _txt('fd.type')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
-      <th><?php echo $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
-      <th><?php echo $this->Paginator->sort('CoPersonRole.PrimaryName.family', 'CO Person Role'); ?></th>
-      <th><?php echo _txt('fd.actions'); ?></th>
+      <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
+      <th><?php print $this->Paginator->sort('CoPersonRole.PrimaryName.family', 'CO Person Role'); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -48,13 +48,13 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          echo $this->Html->link($a['Address']['street'],
+          print $this->Html->link($a['Address']['street'],
                                  array('controller' => 'addresses',
                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $a['Address']['id']));
         ?>
       </td>
       <td>
-        <?php echo _txt('en.contact', null, $a['Address']['type']); ?>
+        <?php print _txt('en.contact', null, $a['Address']['type']); ?>
       </td>
       <td>
         <?php
@@ -62,7 +62,7 @@
           {
             // Generally, someone who has view permission on a telephone number can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($a['OrgIdentity']['PrimaryName']),
+              print $this->Html->link(generateCn($a['OrgIdentity']['PrimaryName']),
                                      array('controller' => 'org_identities', 'action' => 'view', $a['OrgIdentity']['id'])) . "\n";
           }
         ?>
@@ -73,7 +73,7 @@
           {
             // Generally, someone who has view permission on a telephone number can also see a person
             if($permissions['view'])
-              echo $this->Html->link(generateCn($a['CoPersonRole']['PrimaryName']),
+              print $this->Html->link(generateCn($a['CoPersonRole']['PrimaryName']),
                                      array('controller' => 'co_person_roles', 'action' => 'view', $a['CoPersonRole']['id'])) . "\n";
           }
         ?>
@@ -81,13 +81,13 @@
       <td>    
         <?php
           if($permissions['edit'])
-            echo $this->Html->link(_txt('op.edit'),
+            print $this->Html->link(_txt('op.edit'),
                                    array('controller' => 'addresses', 'action' => 'edit', $a['Address']['id']),
                                    array('class' => 'editbutton')) . "\n";
             
             
           if($permissions['delete'])
-            echo '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($a['Address']['street'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $a['Address']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($a['Address']['street'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $a['Address']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
         ?>
         <?php ; ?>
       </td>
@@ -99,7 +99,7 @@
   <tfoot>
     <tr class="ui-widget-header">
       <th colspan="5">
-        <?php echo $this->Paginator->numbers(); ?>
+        <?php print $this->element("pagination"); ?>
       </th>
     </tr>
   </tfoot>

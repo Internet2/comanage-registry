@@ -38,16 +38,16 @@
 
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonid'])) {
-    echo $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
+    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
   } elseif(isset($this->request->data['Name']['co_person_id'])) {
-    echo $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['Name']['co_person_id']))) . "\n";
+    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['Name']['co_person_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['Name']['co_person_id']);
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
+    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
   } elseif(isset($this->request->data['Name']['org_identity_id'])) {
-    echo $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['Name']['org_identity_id']))) . "\n";
+    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['Name']['org_identity_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['Name']['org_identity_id']);
   }
 
@@ -93,7 +93,7 @@
   $this->Html->addCrumb($crumbTxt);
 
 ?>
-<table id="<?php echo $this->action; ?>_name" class="ui-widget">
+<table id="<?php print $this->action; ?>_name" class="ui-widget">
   <tbody>
     <?php $l = 1; ?>
     <?php if(in_array('honorific', $vv_permitted_fields)): ?>
@@ -165,7 +165,7 @@
         ?>
       </td>
       <td>
-        <?php echo ($e ? $this->Form->input('Name.suffix') : Sanitize::html($names[0]['Name']['suffix'])); ?>
+        <?php print ($e ? $this->Form->input('Name.suffix') : Sanitize::html($names[0]['Name']['suffix'])); ?>
       </td>
     </tr>
     <?php endif; // permitted fields ?>
@@ -227,12 +227,12 @@
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php echo _txt('fd.req'); ?></span></em><br />
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>
       <td>
         <?php
           if($e) {
-            echo $this->Form->submit($submit_label);
+            print $this->Form->submit($submit_label);
             print $this->Form->button(_txt('op.reset'), 
                                       array('type'=>'reset'));
           }
