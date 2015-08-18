@@ -914,6 +914,36 @@ td.order {
 #petitionerMatchResults ul {
   margin: 0.5em 0 1em 0;
 }
+/* Enrollment Flow Steps */
+#enrollmentFlowSteps h3 {
+  margin: 0.5em;
+}
+#enrollmentFlowSteps ul {
+  margin: 1em 0 0 0.5em;
+  padding: 0;
+}
+#enrollmentFlowSteps li {
+  list-style: none;
+  margin-bottom: 0.75em;
+}
+#enrollmentFlowSteps .ui-icon {
+  float: left;
+  clear: left;
+  margin-right: 0.5em;
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png");
+}
+#enrollmentFlowSteps li.selected {
+  background-color: #fff;
+  border: 1px solid #8dbbdd;
+  font-weight: bold;
+  padding: 0.5em;
+}
+#enrollmentFlowSteps li.incomplete {
+  font-style: italic;
+}
+#enrollmentFlowSteps li.complete .ui-icon {
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_6eac2c_256x240.png");
+}
 /* Petition Attributes */
 .modelbox {
   border: 1px solid #8DBBDD;

@@ -43,10 +43,34 @@ $(document).ready(function() {
 });
 </script>
 <?php
-  $params = array('title' => $title_for_layout);
+  // Add breadcrumbs
+  print $this->element("coCrumb");
+  $this->Html->addCrumb($title_for_layout);
 
-  print $this->element("enrollmentCrumbs");
-  print $this->element("pageTitle", $params);
+  // Add page title
+  $params = array('title' => $title_for_layout);
+  print $this->element("pageTitleAndButtons", $params);
+
+  // Add enrollment flow information to sidebar
+  $enrollmentFlowSteps = $this->get('enrollmentFlowSteps');
+  $enrollmentFlowStepComplete = 'complete';
+
+  foreach(array_keys($vv_configured_steps) as $step) {
+    if($vv_configured_steps[$step]['enabled'] != RequiredEnum::NotPermitted
+      // We specifically don't want "deny" to render, so we'll skip it here
+      && $step != 'deny') {
+      $enrollmentFlowSteps[] = array(
+        'title'   => $vv_configured_steps[$step]['label'],
+        'state' => $step == $vv_current_step ? 'selected' : $enrollmentFlowStepComplete
+      );
+      if ($step == $vv_current_step) {
+        $enrollmentFlowStepComplete = 'incomplete';
+      }
+    }
+  }
+
+  $this->set('enrollmentFlowSteps', $enrollmentFlowSteps);
+
 
   $submit_label = _txt('op.add');
   
