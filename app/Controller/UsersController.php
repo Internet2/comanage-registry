@@ -259,7 +259,7 @@ class UsersController extends AppController {
       // that they do have permission to see. As a workaround, we'll just clobber the
       // existing auth flash message.
       // (Test case: new user authenticates against an enrollment flow requiring authn.)
-      CakeSession::delete('Message.auth');
+      CakeSession::delete('Message.error');
       
       $this->redirect("/auth/login");
       //throw new RuntimeException("Failed to invoke Auth component login");

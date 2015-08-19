@@ -507,7 +507,6 @@
         // Flash Messages
         <?php
           print $this->Flash->render('error');
-          print $this->Flash->render('auth');
           print $this->Flash->render('success');
           print $this->Flash->render('information');
         ?>
