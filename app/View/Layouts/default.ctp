@@ -685,9 +685,11 @@
           print '<div id="content">';
         }
 
-        // insert breadcrumbs on all but the homepage
-        if ($this->request->here != $this->request->webroot) {
-          print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ') . "</div>";
+        // insert breadcrumbs on all but the homepage if logged in
+        if($this->Session->check('Auth.User')) {
+          if ($this->request->here != $this->request->webroot) {
+            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ') . "</div>";
+          }
         }
 
         // insert the page internal content
