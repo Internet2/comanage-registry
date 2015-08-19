@@ -22,20 +22,6 @@
  * @version       $Id$
  */
 -->
-<script>
-  $(function() {
-    $( "#statusfilterdialog" ).dialog({
-      autoOpen: false,
-      width: 200,
-      modal: true
-    });
-
-    $( "#statusfilter" ).click(function() {
-      $( "#statusfilterdialog" ).dialog( "open" );
-    });
-  });
-</script>
-
 <?php
   // Globals
   global $cm_lang, $cm_texts;
@@ -77,43 +63,33 @@
     array('class' => 'searchbutton')
   );
 
-  $params['topLinks'][] = $this->Html->link(
-    _txt('op.filter.status'), '#',
-    array(
-      'class' => 'searchbutton',
-      'id' => 'statusfilter'
-    )
-  );
-
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-
-
-<div id="statusfilterdialog" title="<?php print _txt('op.filter.status.by'); ?>">
+<div id="statusFilters">
   <?php
-    print $this->Form->create('CoPetition', array('action'=>'search'));
-    print $this->Form->hidden('CoPetition.co_id', array('default' => $cur_co['Co']['id'])). "\n";
-    
-    // Build array of options based on model validation
-    $searchOptions = $cm_texts[ $cm_lang ]['en.status.pt'];
-    
-    // Build array to check off actively used filters on the page
-    $selected = array();
-    
-    if(isset($this->passedArgs['search.status'])) {
-      $selected = $this->passedArgs['search.status'];
-    }
-    
-    // Collect parameters and print checkboxes
-    $formParams = array('options'  => $searchOptions,
-                        'multiple' => 'checkbox',
-                        'label'    => false,
-                        'selected' => $selected);
-    
-    print $this->Form->input('search.status', $formParams);
-    print $this->Form->submit(_txt('op.filter'));
-    print $this->Form->end();
+  print $this->Form->create('CoPetition', array('action'=>'search'));
+  print $this->Form->hidden('CoPetition.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+  print $this->Form->submit(_txt('op.filter'));
+
+  // Build array of options based on model validation
+  $searchOptions = $cm_texts[ $cm_lang ]['en.status.pt'];
+
+  // Build array to check off actively used filters on the page
+  $selected = array();
+
+  if(isset($this->passedArgs['search.status'])) {
+    $selected = $this->passedArgs['search.status'];
+  }
+
+  // Collect parameters and print checkboxes
+  $formParams = array('options'  => $searchOptions,
+    'multiple' => 'checkbox',
+    'label'    => false,
+    'selected' => $selected);
+
+  print $this->Form->input('search.status', $formParams);
+  print $this->Form->end();
   ?>
 </div>
 
@@ -228,9 +204,23 @@
                                     array('class' => 'editbutton')) . "\n";
           }
           
-          if($permissions['delete'])
-            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($p['CoPetition']['id'])) . '\', \'' . $this->Html->url(array('controller' => 'co_petitions', 'action' => 'delete', $p['CoPetition']['id'])) . '\')";>' . _txt('op.delete') . "</button>\n";
-          
+          if($permissions['delete']) {
+            print '<button class="deletebutton" title="' .
+              _txt('op.delete') .
+              '" onclick="javascript:js_confirm_delete(\'' .
+              _jtxt(Sanitize::html($p['CoPetition']['id'])) . '\', \'' .
+              $this->Html->url(
+                array(
+                  'controller' => 'co_petitions',
+                  'action' => 'delete',
+                  $p['CoPetition']['id']
+                )
+              ) .
+              '\')";>' .
+              _txt('op.delete') .
+              "</button>\n";
+          }
+
           if($permissions['resend'] && $p['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
             $url = array(
               'controller' => 'co_petitions',

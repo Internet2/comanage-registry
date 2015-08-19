@@ -128,7 +128,7 @@ $(function() {
                                 $co_petitions[0]['CoPetition']['id'],
                                 'co' => $co_petitions[0]['CoPetition']['co_id'],
                                 'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
-                          array('class' => 'checkbutton')
+                          array('class' => 'checkbutton approve-button')
                         );
                       }
                     }
@@ -143,7 +143,7 @@ $(function() {
                                 $co_petitions[0]['CoPetition']['id'],
                                 'co' => $co_petitions[0]['CoPetition']['co_id'],
                                 'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
-                          array('class' => 'cancelbutton')
+                          array('class' => 'cancelbutton deny-button')
                         );
                       }
                     }
