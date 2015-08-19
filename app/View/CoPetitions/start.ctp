@@ -22,7 +22,9 @@
  * @version       $Id$
  */
 
-print $this->element("enrollmentCrumbs");
+// Add breadcrumbs
+print $this->element("coCrumb");
+$this->Html->addCrumb($title_for_layout);
  
 // XXX we need better spacing management (div vs p)
 print "<p>" . $vv_intro_text  . "</p>";

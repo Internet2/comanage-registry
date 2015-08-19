@@ -61,7 +61,7 @@
   } elseif($this->action == 'relink') {
     $this->Html->addCrumb(_txt('op.relink'));
   } elseif($this->action == 'select') {
-    print $this->element("enrollmentCrumbs");
+    $this->Html->addCrumb($title_for_layout);
   } else {
     $this->Html->addCrumb(_txt('me.population'));
     

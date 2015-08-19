@@ -583,88 +583,119 @@
       <?php
         // insert the sidebar when it exists
         $sidebarButtons = $this->get('sidebarButtons');
-        if(!empty($sidebarButtons)):
+        $enrollmentFlowSteps = $this->get('enrollmentFlowSteps');
+        if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)):
       ?>
           <!-- Display sidebar menu for content -->
-          <!-- Note: sidebar is now a top menu -->
           <div id="sidebar">
-            <ul id="menu">
-            <?php
-              foreach($sidebarButtons as $button => $link){
-                print '<li>'; 
-                  // Clean data
-                  $icontitle = '<span class="ui-icon ui-icon-' 
-                               . $link['icon'] 
-                               . '"></span>'
-                               . $link['title'];
-                  
-                  $url = $link['url'];
-                  
-                  $options = array();
-                  
-                  if(isset($link['options'])) {
-                    $options = (array)$link['options'];
-                  }
-                  
-                  $options['escape'] = FALSE;
-                  
-                  if(!empty($link['confirm'])) {
-                    // There is a built in Cake popup, which can be accessed by putting the confirmation text
-                    // as the fourth parameter to link. However, that uses a javascript popup rather than a
-                    // jquery popup, which is inconsistent with our look and feel.
-                    
-                    $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt($link['confirm']) . "', '" . Router::url($url) . "'";
-                    
-                    if(!empty($link['confirmbtxt'])) {
-                      // Set the text for the confirmation button
-                      $options['onclick'] .= ", '" . $link['confirmbtxt'] . "'";
-                    }
-                    
-                    $options['onclick'] .= ");return false";
-                  }
-                  
-                  print $this->Html->link(
-                    $icontitle,
-                    $url,
-                    $options
-                  );
-                print '</li>';
-              }
-            ?>
-            </ul>
 
-            <?php // Advanced Search (CO-139)
-              // skip on the index pages, where we've moved searching to the top, but keep on the others
-              if ($this->action != 'index') {
-                if(isset($permissions['search']) && $permissions['search'] ) {
-                  // Get a pointer to our model
-                  $model = $this->name;
-                  if(!empty($this->plugin)) {
-                    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/" . $model . "/search-side.inc";
-                    if(file_exists($fileLocation))
-                      include($fileLocation);
-                  } else {
-                    $fileLocation = APP . "View/" . $model . "/search-side.inc";
-                    if(file_exists($fileLocation))
-                      include($fileLocation);
+            <?php if(!empty($sidebarButtons)): ?>
+              <ul id="menu">
+              <?php
+                foreach($sidebarButtons as $button => $link){
+                  print '<li>';
+                    // Clean data
+                    $icontitle = '<span class="ui-icon ui-icon-'
+                                 . $link['icon']
+                                 . '"></span>'
+                                 . $link['title'];
+
+                    $url = $link['url'];
+
+                    $options = array();
+
+                    if(isset($link['options'])) {
+                      $options = (array)$link['options'];
+                    }
+
+                    $options['escape'] = FALSE;
+
+                    if(!empty($link['confirm'])) {
+                      // There is a built in Cake popup, which can be accessed by putting the confirmation text
+                      // as the fourth parameter to link. However, that uses a javascript popup rather than a
+                      // jquery popup, which is inconsistent with our look and feel.
+
+                      $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt($link['confirm']) . "', '" . Router::url($url) . "'";
+
+                      if(!empty($link['confirmbtxt'])) {
+                        // Set the text for the confirmation button
+                        $options['onclick'] .= ", '" . $link['confirmbtxt'] . "'";
+                      }
+
+                      $options['onclick'] .= ");return false";
+                    }
+
+                    print $this->Html->link(
+                      $icontitle,
+                      $url,
+                      $options
+                    );
+                  print '</li>';
+                }
+              ?>
+              </ul>
+
+              <?php // Advanced Search (CO-139)
+                // skip on the index pages, where we've moved searching to the top, but keep on the others
+                if ($this->action != 'index') {
+                  if(isset($permissions['search']) && $permissions['search'] ) {
+                    // Get a pointer to our model
+                    $model = $this->name;
+                    if(!empty($this->plugin)) {
+                      $fileLocation = APP . "Plugin/" . $this->plugin . "/View/" . $model . "/search-side.inc";
+                      if(file_exists($fileLocation))
+                        include($fileLocation);
+                    } else {
+                      $fileLocation = APP . "View/" . $model . "/search-side.inc";
+                      if(file_exists($fileLocation))
+                        include($fileLocation);
+                    }
                   }
                 }
-              }
-            ?>
+              ?>
+            <?php endif; // sidebarButtons ?>
+
+            <?php if(!empty($enrollmentFlowSteps)): ?>
+              <div id="enrollmentFlowSteps">
+                <h3><?php print _txt('ct.co_enrollment_flows.1') ?></h3>
+                <ul>
+                  <?php
+                    foreach($enrollmentFlowSteps as $flow => $step) {
+                      print '<li class="' . $step['state'] . '">';
+                      switch ($step['state']) {
+                        case 'complete':
+                          print '<span class="ui-icon ui-icon-check"> </span>';
+                          break;
+                        case 'selected':
+                          print '<span class="ui-icon ui-icon-arrowthick-1-e"> </span>';
+                          break;
+                        default:
+                          print '<span class="ui-icon ui-icon-help"> </span>';
+                      }
+                      print $step['title'];
+                      print '</li>';
+                    }
+                  ?>
+                </ul>
+              </div>
+            <?php endif; // enrollmentFlowSteps ?>
+
           </div>
       <?php endif; ?>
 
       <?php
         /* display the view content */
-        if(!empty($sidebarButtons)) {
+        if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
           print '<div id="content" class="contentWithSidebar">';
         } else {
           print '<div id="content">';
         }
 
-        // insert breadcrumbs on all but the homepage
-        if ($this->request->here != $this->request->webroot) {
-          print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', _txt('bc.home')) . "</div>";
+        // insert breadcrumbs on all but the homepage if logged in
+        if($this->Session->check('Auth.User')) {
+          if ($this->request->here != $this->request->webroot) {
+            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ') . "</div>";
+          }
         }
 
         // insert the page internal content

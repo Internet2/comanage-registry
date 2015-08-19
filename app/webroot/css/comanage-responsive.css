@@ -79,9 +79,10 @@
     background-color: #F5F5F5;
     border-left: 1px solid #4297D7;
     border-bottom: 1px solid #4297D7;
-    height: 100%;
     margin: 0;
     padding: 10px;
+    padding-bottom: 2em;
+    min-height: 100%;
     position: absolute;
     right: 0;
     width: 247px;
