@@ -1,11 +1,11 @@
 /app/Config/core.php
-/app/Config/email.php
-/app/Config/database.php
-/app/Config/security.salt
-/app/Config/security.seed
-/app/tmp
-/app/tmp.not
 /lib/Cake/Console/Templates/skel/tmp/
+/local/Config/database.php
+/local/Config/email.php
+/local/Config/security.salt
+/local/Config/security.seed
+/local/Plugin/GenericPlugin
+/local/tmp
 /plugins
 /vendors
 .DS_Store
