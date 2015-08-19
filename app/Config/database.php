@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Email Configuration
+ * COmanage Registry Database Configuration
  *
  * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -22,7 +22,7 @@
  * @version       $Id$
  */
 
-// Cake expects email.php to hold email configuations. We move this into the
+// Cake expects database.php to hold database configuations. We move this into the
 // LOCAL directory so it's easier to migrate across versions.
 
-include(LOCAL . 'Config' . DS . 'email.php');
+include(LOCAL . 'Config' . DS . 'database.php');

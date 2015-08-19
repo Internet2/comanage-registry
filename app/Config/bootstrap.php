@@ -26,6 +26,9 @@
 // Setup a 'default' cache configuration for use in the application.
 Cache::config('default', array('engine' => 'File'));
 
+// Local overlay directory for configuration and customizations that should survive upgrades
+define('LOCAL', ROOT . DS . 'local' . DS);
+
 /**
  * The settings below can be used to set additional paths to models, views and controllers.
  *
@@ -44,6 +47,9 @@ Cache::config('default', array('engine' => 'File'));
  * ));
  *
  */
+
+// Local overlay directory for Plugins
+App::build(array('Plugin' => array(LOCAL . 'Plugin' . DS)));
 
 /**
  * Custom Inflector rules, can be set to correctly pluralize or singularize table, model, controller names or whatever other

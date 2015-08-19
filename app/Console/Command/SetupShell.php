@@ -248,7 +248,7 @@ WHERE i.login=true;
       
       // Generate security salt and seed files if they don't already exist
       
-      $securitySaltFilename = APP . DS . "Config" . DS . "security.salt";
+      $securitySaltFilename = LOCAL . DS . "Config" . DS . "security.salt";
       
       if(file_exists($securitySaltFilename)) {
         $this->out("- " . _txt('se.security.salt.exists'));
@@ -263,7 +263,7 @@ WHERE i.login=true;
         file_put_contents($securitySaltFilename, $salt);
       }
       
-      $securitySeedFilename = APP . DS . "Config" . DS . "security.seed";
+      $securitySeedFilename = LOCAL . DS . "Config" . DS . "security.seed";
       
       if(file_exists($securitySeedFilename)) {
         $this->out("- " . _txt('se.security.seed.exists'));

@@ -541,11 +541,18 @@
 
           <div class="headerRight">
             <?php
-            // Clicking on the logo will take us to the front page
-            print $this->Html->link($this->Html->image('comanage-logo.png',
-                array('alt'     => 'COmanage','height' => 50)),
-              '/',
-              array('escape' => false));
+              $imgFile = 'comanage-logo.png';
+              
+              if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
+                // A custom logo has been installed, so use that instead
+                $imgFile = 'logo.png';
+              }
+              
+              // Clicking on the logo will take us to the front page
+              print $this->Html->link($this->Html->image($imgFile,
+                                                         array('alt' => 'COmanage','height' => 50)),
+                                      '/',
+                                      array('escape' => false));
             ?>
           </div>
           <div class="headerLeft">
