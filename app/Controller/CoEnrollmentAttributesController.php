@@ -42,6 +42,9 @@ class CoEnrollmentAttributesController extends StandardController {
   public $uses = array('CoEnrollmentAttribute',
                        'CmpEnrollmentConfiguration',
                        'CoPersonRole');
+  
+  // We don't directly require a CO, but indirectly we do.
+  public $requires_co = true;
 
   /**
    * Add an Enrollment Attribute.
