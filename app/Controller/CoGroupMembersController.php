@@ -361,12 +361,12 @@ class CoGroupMembersController extends StandardController {
     
     if(($this->action == 'add' || $this->action == 'updateGroup')
        && isset($this->request->data['CoGroupMember']['co_group_id']))
-      $this->gid = $this->request->data['CoGroupMember']['co_group_id'];
+      $this->gid = Sanitize::paranoid($this->request->data['CoGroupMember']['co_group_id']);
     elseif(($this->action == 'delete' || $this->action == 'edit' || $this->action == 'view')
            && isset($this->request->params['pass'][0]))
       $this->gid = $this->CoGroupMember->field('co_group_id', array('CoGroupMember.id' => $this->request->params['pass'][0]));
     elseif($this->action == 'select' && isset($this->request->params['named']['cogroup']))
-      $this->gid = $this->request->params['named']['cogroup'];
+      $this->gid = Sanitize::paranoid($this->request->params['named']['cogroup']);
     
     $managed = false;
     $owner = false;
@@ -431,11 +431,17 @@ class CoGroupMembersController extends StandardController {
     
     $cop = null;
     
-    if($this->action == 'add' && isset($this->request->data['CoGroupMember']['co_person_id']))
+    if($this->action == 'add' && isset($this->request->data['CoGroupMember']['co_person_id'])) {
       $cop = $this->request->data['CoGroupMember']['co_person_id'];
-    elseif($this->action == 'delete' && isset($this->request->params['named']['copersonid']))
-      $cop = $this->request->params['named']['copersonid'];
-      
+    } elseif($this->action == 'delete'
+             && isset($this->request->params['named']['return'])) {
+      if($this->request->params['named']['return'] == 'person'
+         && isset($this->request->params['named']['copersonid'])) {
+        $cop = $this->request->params['named']['copersonid'];
+      }
+      // else return = group
+    }
+    
     if(isset($cop)) {
       $params = array('controller' => 'co_people',
                       'action'     => 'canvas',

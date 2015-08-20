@@ -155,7 +155,7 @@
                                           array('class' => 'editbutton'));
                   
 	                  if($dok) {
-	                    print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $g['co_person_id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+	                    print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $g['co_person_id'], 'return' => 'group')) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
 	                  }
                   }
                   
