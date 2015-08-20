@@ -250,9 +250,12 @@ function render_plugin_menus() {
   $plugins = func_get_arg(1);
   $menu = func_get_arg(2);
   $coid = null;
-  if(func_num_args() == 4 and $menu == 'coconfig'){
-  	$coid = func_get_arg(3);
+  
+  if(func_num_args() == 4
+     && ($menu == 'coconfig' || $menu == 'copeople')){
+    $coid = func_get_arg(3);
   }
+  
   if(!empty($plugins)) {
     foreach(array_keys($plugins) as $plugin) {
       if(isset($plugins[$plugin][$menu])) {
@@ -260,7 +263,7 @@ function render_plugin_menus() {
           $args = $plugins[$plugin][$menu][$label];
           $args['plugin'] = Inflector::underscore($plugin);
           if(!empty($coid)){
-          	$args['co'] = $coid;
+            $args['co'] = $coid;
           }
           print "<li>" . $htmlHelper->link($label, $args) . "</li>\n";
         }

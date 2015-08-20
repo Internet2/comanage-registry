@@ -6,7 +6,7 @@
  * Version: $Revision$
  * Date: $Date$
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -44,9 +44,10 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       //loop over each CO
       if(count($cos) > 0) {
         print "<ul>";
+        
         foreach($cos as $menuCoName => $menuCoData) {
           $collabMenuCoId = $menuCoData['co_id'];
-
+          
           if((!isset($menuCoData['co_person']['status'])
               || ($menuCoData['co_person']['status'] != StatusEnum::Active
                   && $menuCoData['co_person']['status'] != StatusEnum::GracePeriod))
@@ -54,24 +55,33 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
             // Don't render this CO, the person is not an active member (or a CMP admin)
             continue;
           }
-
+          
           print '<li>';
-            // We use $menuCoData here and not $menuCoName because the former will indicate
-            // 'Not a Member' for CMP Admins (where they are not a member of the CO)
-            $args = array();
-            $args['plugin'] = null;
-            $args['controller'] = 'co_dashboards';
-            $args['action'] = 'dashboard';
-            $args['co'] = $collabMenuCoId;
-
-            print $this->Html->link($menuCoData['co_name'], $args);
-
-          }
+          
+          // We use $menuCoData here and not $menuCoName because the former will indicate
+          // 'Not a Member' for CMP Admins (where they are not a member of the CO)
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_dashboards';
+          $args['action'] = 'dashboard';
+          $args['co'] = $collabMenuCoId;
+          
+          print $this->Html->link($menuCoData['co_name'], $args);
+          
           print "</li>";
+        }
+        
+        // Plugins
+        if (!empty($menuContent['plugins'])) {
+          render_plugin_menus($this->Html, $menuContent['plugins'], 'cos');
+        }
+        
         print "</ul>";
       }
-    print "</li>";
+    ?>
+  </li> 
 
+  <?php
     // Output the CO submenus (People, Groups, Configuration) if a CO is selected
     if(!empty($cur_co['Co']['id'])) {
       $menuCoId = $cur_co['Co']['id'];
@@ -169,7 +179,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         }
       }
 
-      if (!empty($menuContent['plugins'])) {
+      if(!empty($menuContent['plugins'])) {
         render_plugin_menus($this->Html, $menuContent['plugins'], 'copeople', $menuCoId);
       }
 
@@ -203,14 +213,14 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         $args['co'] = $menuCoId;
         print $this->Html->link(_txt('ct.co_all_groups'), $args);
         print "</li>";
-
+        
+        // Plugins
+        if (!empty($menuContent['plugins'])) {
+          render_plugin_menus($this->Html, $menuContent['plugins'], 'cogroups', $menuCoId);
+        }
+        
         print "</ul>";
         print "</li>";
-      }
-
-      // Plugins
-      if (!empty($menuContent['plugins'])) {
-        render_plugin_menus($this->Html, $menuContent['plugins'], 'cos', $menuCoId);
       }
 
       // Configuration

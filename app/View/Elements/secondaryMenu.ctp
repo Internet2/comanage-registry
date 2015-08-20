@@ -6,7 +6,7 @@
  * Version: $Revision$
  * Date: $Date$
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -18,7 +18,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- */    
+ */
 ?>
 
 <script>
@@ -151,12 +151,15 @@
                              <ul>';
                     
                     foreach($menuContent['cos'] as $co) {
+                      if(empty($co['co_person_id']))
+                        continue;
+                      
                       $args = $menuContent['plugins'][$plugin]['coperson'][$label];
                       
                       $args[] = $co['co_person_id'];
                       $args['plugin'] = Inflector::underscore($plugin);
                       
-                      print "<li>" . $this->Html->link(_txt('me.identity.for', array($co['co_name'])), $args) . "</li>\n";
+                      print "<li>" . $this->Html->link($co['co_name'], $args) . "</li>\n";
                     }
                     
                     print "</ul></li>";
