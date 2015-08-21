@@ -220,6 +220,39 @@
   
   if(!$e && !$permissions['view'])
     return(false);
+
+  // Add breadcrumbs
+  print $this->element("coCrumb");
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_flows';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.co_enrollment_flows.pl'), $args);
+
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_flows';
+  $args['action'] = 'edit';
+  $args[] = $vv_coefid;
+  $this->Html->addCrumb($vv_ef_name, $args);
+
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_enrollment_attributes';
+  $args['action'] = 'index';
+  $args['coef'] = $vv_coefid;
+  $this->Html->addCrumb(_txt('ct.co_enrollment_attributes.pl'), $args);
+
+  if ($this->action == 'edit') {
+    $this->Html->addCrumb(_txt('op.edit'));
+  }
+  if ($this->action == 'view') {
+    $this->Html->addCrumb(_txt('op.view'));
+  }
+  if ($this->action == 'add') {
+    $this->Html->addCrumb(_txt('op.add'));
+  }
   
   if($this->action != 'view') {
     // Populate cross references
