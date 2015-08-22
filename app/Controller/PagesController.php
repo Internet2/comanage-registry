@@ -72,6 +72,11 @@ class PagesController extends AppController {
         // EDS pages need to render without authentication.
         $this->Auth->allow();
         
+        if($this->request->params['pass'][1] == 'idpselect_config') {
+          // The configuration javascript doesn't need formatting.
+          $this->layout = 'ajax';
+        }
+        
         $edsConfig = $this->CmpEnrollmentConfiguration->edsConfiguration();
         
         // And we need to set some parameters

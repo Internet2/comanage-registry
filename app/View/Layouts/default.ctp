@@ -73,7 +73,7 @@
     }
     </script>
 
-    <?php if($this->here != '/registry/shibboleth_embedded_discovery_service/eds/view'):
+    <?php if($this->here != '/registry/pages/eds/index'):
       // Don't load the following scripts when loading the Shib EDS. ?>
       
       <?php print $this->Html->script('jquery/noty/jquery.noty.js'); ?>

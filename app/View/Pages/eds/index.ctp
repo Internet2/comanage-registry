@@ -32,6 +32,7 @@
 
 <div id="idpSelect"></div>
 
+<script type="text/javascript" src="<?php print $this->Html->url(array('controller' => 'pages', 'action' => 'eds', 'idpselect_config')); ?>"></script>
+
 <?php
-  print $this->Html->script('/pages/eds/idpselect_config');
-  print $this->Html->script('/pages/eds/idpselect');
+  print $this->Html->script('eds/idpselect');
