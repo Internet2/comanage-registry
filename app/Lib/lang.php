@@ -939,9 +939,6 @@ original notification at
   'fd.key' =>         'Key',
   'fd.language' =>    'Language',
   'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
-  // XXX Leave these until 1.0.0 (CO-1098)
-  'fd.line1' =>       'line1',
-  'fd.line2' =>       'line2',
   'fd.link.location' => 'Link Location',  
   'fd.link.order' =>  'Link Order',
   'fd.link.title' =>  'Link Title',
