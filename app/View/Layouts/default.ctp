@@ -715,7 +715,7 @@
 
     <!-- Common UI components -->
 
-    <?php if($this->here != '/registry/shibboleth_embedded_discovery_service/eds/view'):
+    <?php if($this->here != '/registry/pages/eds/index'):
       // Don't load the following UI component when loading the Shib EDS. ?>
       <div id="dialog" title="Confirm">
         <p>
