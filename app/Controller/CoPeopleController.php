@@ -646,9 +646,11 @@ class CoPeopleController extends StandardController {
     
     // Edit an existing CO Person? This allows changes to cm_co_people.
     // For now, we restrict this to CO admins, though plausibly it should be
-    // expanded to COU admins with a valid role to manage.
+    // expanded to COU admins with a valid role to manage. Also, as of v1.0.0
+    // self service timezone updating is permitted.
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && $roles['coadmin']));
+                  || ($managed && $roles['coadmin'])
+                  || ($self));
     
     // Are we allowed to edit our own record?
     // If we're an admin, we act as an admin, not self.

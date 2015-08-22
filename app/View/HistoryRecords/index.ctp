@@ -94,7 +94,7 @@
 <table id="org_identities" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
-      <th><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></th>
+      <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
       <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
       <th><?php print $this->Paginator->sort('Actor.PrimaryName.family', _txt('fd.actor')); ?></th>
       <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', _txt('ct.org_identities.1')); ?></th>
@@ -107,7 +107,7 @@
     <?php $i = 0; ?>
     <?php foreach ($history_records as $h): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
-      <td><?php print $this->Time->niceShort($h['HistoryRecord']['created']); ?></td>
+      <td><?php print $this->Time->niceShort($h['HistoryRecord']['created'], $vv_tz); ?></td>
       <td><?php print Sanitize::html($h['HistoryRecord']['comment']) . "\n";?></td>
       <td>
         <?php

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Notifications Fields
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.4
@@ -177,7 +177,7 @@
         <b><?php print _txt('fd.created'); ?></b>
       </td>
       <td>
-        <?php print $this->Time->niceShort($co_notifications[0]['CoNotification']['created']); ?>
+        <?php print $this->Time->format($co_notifications[0]['CoNotification']['created'], "%c $vv_tz", false, $vv_tz); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -187,7 +187,7 @@
       <td>
         <?php
           if(!empty($co_notifications[0]['CoNotification']['notification_time'])) {
-            print $this->Time->niceShort($co_notifications[0]['CoNotification']['notification_time']);
+            print $this->Time->format($co_notifications[0]['CoNotification']['notification_time'], "%c $vv_tz", false, $vv_tz);
           }
         ?>
       </td>
@@ -199,7 +199,7 @@
       <td>
         <?php
           if(!empty($co_notifications[0]['CoNotification']['resolution_time'])) {
-            print $this->Time->niceShort($co_notifications[0]['CoNotification']['resolution_time']);
+            print $this->Time->format($co_notifications[0]['CoNotification']['resolution_time'], "%c $vv_tz", false, $vv_tz);
             
             if(!empty($co_notifications[0]['ResolverCoPerson']['PrimaryName'])) {
               print " (" . generateCn($co_notifications[0]['ResolverCoPerson']['PrimaryName']) . ")";

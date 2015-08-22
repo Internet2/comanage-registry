@@ -209,7 +209,7 @@
         <?php print _txt('fd.created'); ?>
       </td>
       <td>
-        <?php print $this->Time->niceShort($history_records[0]['HistoryRecord']['created']); ?>
+        <?php print $this->Time->format($history_records[0]['HistoryRecord']['created'], "%c $vv_tz", false, $vv_tz); ?>
       </td>
     </tr>
     <?php endif; // view ?>

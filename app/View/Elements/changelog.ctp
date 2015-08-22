@@ -72,7 +72,7 @@
             </th>
             <td>
               <?php
-              print $this->Time->niceShort(${$modelpl}[0][$req]['modified']);
+              print $this->Time->format(${$modelpl}[0][$req]['modified'], "%c $vv_tz", false, $vv_tz);
               ?>
             </td>
           </tr>

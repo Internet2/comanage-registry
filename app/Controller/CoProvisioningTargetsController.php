@@ -52,7 +52,11 @@ class CoProvisioningTargetsController extends StandardController {
     
     $plugins = $this->loadAvailablePlugins('provisioner');
     
-    // Bind the models so Cake can magically pull associated data
+    // Bind the models so Cake can magically pull associated data. Note this will
+    // create associations with *all* provisioner plugins, not just the one that
+    // is actually associated with this ProvisioningTarget. Given that most installations
+    // will only have a handful of provisioners, that seems OK (vs parsing the request
+    // data to figure out which type of Plugin we should bind).
     
     foreach(array_values($plugins) as $plugin) {
       $this->CoProvisioningTarget->bindModel(array('hasOne'
@@ -84,9 +88,9 @@ class CoProvisioningTargetsController extends StandardController {
     foreach(array_values($plugins) as $plugin) {
       $model = "Co" . $plugin . "Target";
       
-      if(!empty($this->CoProvisioningTarget->data[$model]['id'])) {
+      if(!empty($curdata[$model]['id'])) {
         $this->loadModel($plugin . "." . $model);
-        $this->$model->delete($this->CoProvisioningTarget->data[$model]['id']);
+        $this->$model->delete($curdata[$model]['id']);
       }
     }
     

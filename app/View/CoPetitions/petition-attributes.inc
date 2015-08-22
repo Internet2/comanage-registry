@@ -397,7 +397,7 @@
                         }
                         break;
                       case 'validateTimestamp':
-                        print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]);
+                        print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
                         break;
                       default:
                         print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
@@ -534,7 +534,7 @@
           <th class="ui-state-default"><?php print _txt('fd.action'); ?></th>
           <th class="ui-state-default"><?php print _txt('fd.actor'); ?></th>
           <th class="ui-state-default"><?php print _txt('fd.comment'); ?></th>
-          <th class="ui-state-default"><?php print _txt('fd.timestamp'); ?></th>
+          <th class="ui-state-default"><?php print _txt('fd.timestamp.tz', array($vv_tz)); ?></th>
         </tr>
         
         <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
@@ -542,7 +542,7 @@
           <td><?php print $hr['action']; ?></td>
           <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? generateCn($hr['ActorCoPerson']['PrimaryName']) : _txt('fd.actor.self')); ?></td>
           <td><?php print $hr['comment']; ?></td>
-          <td><?php print $this->Time->nice($hr['created']); ?></td>
+          <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
         </tr>
         <?php endforeach; // CoPetitionHistoryRecord ?>
       </tbody>

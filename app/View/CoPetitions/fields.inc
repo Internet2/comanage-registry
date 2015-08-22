@@ -158,7 +158,7 @@ $(function() {
                        && !empty($co_petitions[0]['CoInvite']['expires'])): ?>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <th><?php print _txt('fd.inv.exp'); ?></th>
-                <td><?php print $this->Time->nice($co_petitions[0]['CoInvite']['expires']); ?></td>
+                <td><?php print $this->Time->format($co_petitions[0]['CoInvite']['expires'], "%c $vv_tz", false, $vv_tz); ?></td>
               </tr>
               <?php endif; // Invitation expires ?>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -205,11 +205,11 @@ $(function() {
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <th><?php print _txt('fd.created'); ?></th>
-                <td><?php print $this->Time->nice($co_petitions[0]['CoPetition']['created']); ?></td>
+                <td><?php print $this->Time->format($co_petitions[0]['CoPetition']['created'], "%c $vv_tz", false, $vv_tz); ?></td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <th><?php print _txt('fd.modified'); ?></th>
-                <td><?php print $this->Time->nice($co_petitions[0]['CoPetition']['modified']); ?></td>
+                <td><?php print $this->Time->format($co_petitions[0]['CoPetition']['modified'], "%c $vv_tz", false, $vv_tz); ?></td>
               </tr>
             </tbody>
           </table>

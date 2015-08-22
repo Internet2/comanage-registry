@@ -268,6 +268,7 @@
 /**
  * Edit this line and correct your server timezone to fix 
  * any date & time related errors.
+ * Actually, leave this at UTC to ensure database records are consistent.
  */
 	date_default_timezone_set('UTC');
 

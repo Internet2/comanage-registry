@@ -103,8 +103,8 @@
       <th><?php print $this->Paginator->sort('PetitionerCoPerson.Name.family', _txt('fd.petitioner')); ?></th>
       <th><?php print $this->Paginator->sort('SponsorCoPerson.Name.family', _txt('fd.sponsor')); ?></th>
       <th><?php print $this->Paginator->sort('ApproverCoPerson.Name.family', _txt('fd.approver')); ?></th>
-      <th><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></th>
-      <th><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?></th>
+      <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
+      <th><?php print $this->Paginator->sort('modified', _txt('fd.modified.tz', array($vv_tz))); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
@@ -183,14 +183,14 @@
       <td>
         <?php
           if(!empty($p['CoPetition']['created'])) {
-            print $this->Time->niceShort($p['CoPetition']['created']);
+            print $this->Time->niceShort($p['CoPetition']['created'], $vv_tz);
           }
         ?>
       </td>
       <td>
         <?php
           if(!empty($p['CoPetition']['modified'])) {
-            print $this->Time->niceShort($p['CoPetition']['modified']);
+            print $this->Time->niceShort($p['CoPetition']['modified'], $vv_tz);
           }
         ?>
       </td>

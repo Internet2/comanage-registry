@@ -163,6 +163,13 @@ class CoPerson extends AppModel {
         'required' => true,
         'message' => 'A valid status must be selected'
       )
+    ),
+    'timezone' => array(
+      'content' => array(
+        'rule' => array('validateTimeZone'),
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   
@@ -775,5 +782,16 @@ class CoPerson extends AppModel {
       $drop[ $pers['CoPerson']['id'] ] = generateCn($pers['PrimaryName'], true);
     }
     return $drop;
+  }
+  
+  /**
+   * Timezone validation.
+   *
+   * @since  COmanage Registry v1.0.0
+   * @return Boolean True if valid timezone provided, false otherwise
+   */
+  
+  public function validateTimeZone($check) {
+    return in_array($check['timezone'], array_values(timezone_identifiers_list()));
   }
 }

@@ -131,6 +131,7 @@
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <field name="status" type="C" size="2" />
+    <field name="timezone" type="C" size="80" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_person_id" type="I">

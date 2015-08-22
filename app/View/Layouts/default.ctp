@@ -26,7 +26,6 @@
   header("Expires: Thursday, 10-Jan-69 00:00:00 GMT");
   header("Cache-Control: no-store, no-cache, max-age=0, must-revalidate");
   header("Pragma: no-cache");
-  
 ?>
 <!DOCTYPE html>
 <html>
@@ -53,8 +52,17 @@
     <?php print $this->Html->script('jquery/ui/js/jquery-ui-1.10.0.custom.min.js'); ?>
     <?php print $this->Html->script('jquery/superfish/js/superfish.js'); ?>
     <?php print $this->Html->script('jquery/spin.min.js'); ?>
-
+    
+    <!-- Get timezone detection -->
+    <?php print $this->Html->script('jstimezonedetect/jstz.min.js'); ?>
+    
     <script type="text/javascript">
+    // Determines the time zone of the browser client
+    var tz = jstz.determine();
+    // This won't be available for the first delivered page, but after that the
+    // server side should see it and process it
+    document.cookie = "cm_registry_tz_auto=" + tz.name() + "; path=/";
+    
     function js_onload_call_hooks() {
       // On page load, call any defined initialization functions.
       // Make sure function is defined before calling.
@@ -67,7 +75,7 @@
 
     <?php if($this->here != '/registry/shibboleth_embedded_discovery_service/eds/view'):
       // Don't load the following scripts when loading the Shib EDS. ?>
-
+      
       <?php print $this->Html->script('jquery/noty/jquery.noty.js'); ?>
       <?php print $this->Html->script('jquery/noty/layouts/topCenter.js'); ?>
       <?php print $this->Html->script('jquery/noty/themes/comanage.js'); ?>

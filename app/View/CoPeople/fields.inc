@@ -841,7 +841,8 @@
                       </th>
                       <td>
                         <?php
-                          if($e && $permissions['edit']) {
+                          if($e && $permissions['edit']
+                             && !$permissions['editself']) {
                             global $cm_lang, $cm_texts;
                             
                             $attrs = array();
@@ -858,10 +859,16 @@
                           } else {
                             if(!empty($co_people[0]['CoPerson']['status'])) {
                               print _txt('en.status', null, $co_people[0]['CoPerson']['status']);
+                              
+                              if($e) {
+                                // Self service... we need to include current status so the form saves
+                                print $this->Form->hidden('CoPerson.status');
+                              }
                             }
                           }
                         ?>
                         <?php if($e && $permissions['edit']
+                                 && !$permissions['editself']
                                  &&
                                  ($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
                                   || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation)): ?>
@@ -872,8 +879,47 @@
                         <?php endif; ?>
                       </td>
                     </tr>
-                    <?php if($e && $permissions['edit']): ?>
                     <tr class="line2">
+                      <th class="ui-widget-header">
+                        <?php print _txt('fd.timezone'); ?>
+                      </th>
+                      <td>
+                        <?php
+                          if($e && ($permissions['edit'] || $permissions['editself'])) {
+                            $attrs = array();
+                            $attrs['value'] = $co_people[0]['CoPerson']['timezone'];
+                            $attrs['empty'] = true;
+                            
+                            print $this->Form->select('CoPerson.timezone',
+                                                      // We use array_combine to force Cake to store
+                                                      // the string (eg: Europe/Amsterndam) and not the
+                                                      // index (eg: 310)
+                                                      array_combine(timezone_identifiers_list(),
+                                                                    timezone_identifiers_list()),
+                                                      $attrs);
+                            
+                            if($this->Form->isFieldError('CoPerson.timezone')) {
+                              print $this->Form->error('CoPerson.timezone');
+                            }
+                          } else {
+                            if(!empty($co_people[0]['CoPerson']['timezone'])) {
+                              print $co_people[0]['CoPerson']['timezone'];
+                            }
+                          }
+                        ?>
+                        <?php if($e &&
+                                 ($permissions['editself']
+                                  // Special check for admins, who aren't editself
+                                  || $this->Session->read('Auth.User.co_person_id') == $this->request->params['pass'][0])): ?>
+                        <div>
+                          <span class="ui-icon ui-icon-info co-info"></span>
+                          <em><?php print _txt('fd.timezone.change'); ?></em>
+                        </div>
+                        <?php endif; ?>
+                      </td>
+                    </tr>
+                    <?php if($e && ($permissions['edit'] || $permissions['editself'])): ?>
+                    <tr class="line1">
                       <td></td>
                       <td>
                         <?php

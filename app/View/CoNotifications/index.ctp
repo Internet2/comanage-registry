@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Notification Index View
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.5
@@ -62,8 +62,8 @@
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('action', _txt('fd.action')); ?></th>
       <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
-      <th><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></th>
-      <th><?php print $this->Paginator->sort('resolution_time', _txt('fd.resolved')); ?></th>
+      <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
+      <th><?php print $this->Paginator->sort('resolution_time', _txt('fd.resolved.tz', array($vv_tz))); ?></th>
     </tr>
   </thead>
   
@@ -81,13 +81,13 @@
       <td>
         <?php
           if($c['CoNotification']['created']) {
-            print $this->Time->niceShort($c['CoNotification']['created']);
+            print $this->Time->niceShort($c['CoNotification']['created'], $vv_tz);
           }
         ?>
       </td>
       <td><?php
           if($c['CoNotification']['resolution_time']) {
-            print $this->Time->niceShort($c['CoNotification']['resolution_time']);
+            print $this->Time->niceShort($c['CoNotification']['resolution_time'], $vv_tz);
           }
         ?>
       </td>
