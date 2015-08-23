@@ -263,14 +263,19 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                        || $p['CoPerson']['status'] == StatusEnum::Invited)) {
                   print '<button class="invitebutton" title="' 
                     . _txt('op.inv.resend') 
-                    . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
-                    . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
-                    . '\', \'' 
-                    . $this->Html->url(array('controller' => 'co_invites',
-                                             'action'     => 'send', 
-                                             'copersonid' => $p['CoPerson']['id'], 
-                                             'co'         => $cur_co['Co']['id'])) 
-                    . '\');">'
+                    . '" onclick="javascript:noprop(event);js_confirm_generic(\''
+                    . _txt('js.reinvite') . '\',\''   // dialog body text
+                    . $this->Html->url(array(         // dialog confirm URL
+                        'controller' => 'co_invites',
+                        'action'     => 'send',
+                        'copersonid' => $p['CoPerson']['id'],
+                        'co'         => $cur_co['Co']['id'])
+                     ) . '\',\''
+                    . _txt('op.inv.resend') . '\',\''   // dialog confirm button
+                    . _txt('op.cancel') . '\',\''       // dialog cancel button
+                    . _txt('op.inv.resend') . '\',[\''  // dialog title
+                    . _jtxt(filter_var(generateCn($p['PrimaryName']),FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+                    . '\']);">'
                     . _txt('op.inv.resend') 
                     . '</button>'
                     . "\n";
@@ -279,14 +284,19 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                   if(!empty($p['CoInvite']['CoPetition']['id'])) {
                     print '<button class="invitebutton" title="' 
                       . _txt('op.inv.resend') 
-                      . '" onclick="javascript:noprop(event);js_confirm_reinvite(\'' 
-                      . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) 
-                      . '\', \'' 
-                      . $this->Html->url(array('controller' => 'co_petitions',
-                                               'action'     => 'resend',
-                                               $p['CoInvite']['CoPetition']['id'],
-                                               'co'         => $cur_co['Co']['id'])) 
-                      . '\');">'
+                      . '" onclick="javascript:noprop(event);js_confirm_generic(\''
+                      . _txt('js.reinvite') . '\',\''   // dialog body text
+                      . $this->Html->url(array(         // dialog confirm URL
+                          'controller' => 'co_petitions',
+                          'action'     => 'resend',
+                          $p['CoInvite']['CoPetition']['id'],
+                          'co'         => $cur_co['Co']['id'])
+                      ) . '\',\''
+                      . _txt('op.inv.resend') . '\',\''   // dialog confirm button
+                      . _txt('op.cancel') . '\',\''       // dialog cancel button
+                      . _txt('op.inv.resend') . '\',[\''  // dialog title
+                      . _jtxt(filter_var(generateCn($p['PrimaryName']),FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+                      . '\']);">'
                       . _txt('op.inv.resend') 
                       . '</button>'
                       . "\n";

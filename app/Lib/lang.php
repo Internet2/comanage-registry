@@ -1112,6 +1112,13 @@ original notification at
   //'me.alpha' => array('a','ä','b','c'),
   'me.alpha' => range('a','z'),
 
+  // JavaScript dialog box strings
+  // Can include token replacements in the form of {0}, {1}, {2}, etc.
+  // Pass a replacements array as the last parameter to js_confirm_generic() in default.ctp
+  'js.remove'         =>  'Are you sure you wish to remove {0}?  This action cannot be undone.',
+  'js.reinvite'       =>  'Are you sure you wish to resend an invitation to {0}?  Any previous invitation will be invalidated.',
+  'js.confirm.verify' =>  'Are you sure you wish to send a verification request to {0}? Any previous request will be invalidated.',
+
   // Operations
   'op.accept' =>      'Accept',
   'op.ack' =>         'Acknowledge',
