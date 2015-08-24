@@ -187,6 +187,25 @@
     </tr>
     <tr class="line<?php print $l%2;$l++; ?>">
       <td>
+        <?php print _txt('ct.co_groups.1'); ?>
+      </td>
+      <td>
+        <?php
+          if(!empty($history_records[0]['CoGroup']['id'])) {
+            print $this->Html->link(
+              $history_records[0]['CoGroup']['name'],
+              array(
+                'controller' => 'co_groups',
+                'action' => 'view',
+                $history_records[0]['CoGroup']['id']
+              )
+            );
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print $l%2;$l++; ?>">
+      <td>
         <?php print _txt('fd.actor'); ?>
       </td>
       <td>

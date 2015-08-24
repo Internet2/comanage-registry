@@ -53,6 +53,7 @@ class HistoryRecordsController extends StandardController {
   
   public $view_contains = array(
     'ActorCoPerson' => 'PrimaryName',
+    'CoGroup',
     'CoPerson' => 'PrimaryName',
     'CoPersonRole',
     'OrgIdentity' => 'PrimaryName'
@@ -119,6 +120,30 @@ class HistoryRecordsController extends StandardController {
                                                 array(_txt('ct.co_people.1'),
                                                       Sanitize::html($this->request->params['named']['actorcopersonid']))));
       }
+    } elseif(!empty($this->request->params['named']['cogroupid'])) {
+      $coId = $this->HistoryRecord->CoGroup->field('co_id',
+                                                   array('id' => $this->request->params['named']['cogroupid']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_groups.1'),
+                                                      Sanitize::html($this->request->params['named']['cogroupid']))));
+      }
+    } elseif(!empty($this->request->params['pass'][0])) {
+      // This one's tricky, how do we determine the CO of a history record? 
+      // We pull the record and check the Actor CO Person ID, which will generally be populated.
+      
+      $coId = $this->HistoryRecord->findCoForRecord($this->request->params['pass'][0]);
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.history_records.1'),
+                                                      Sanitize::html($this->request->params['pass'][0]))));
+      }
     }
     
     return parent::calculateImpliedCoId();
@@ -170,7 +195,7 @@ class HistoryRecordsController extends StandardController {
         
         $this->Paginator->settings = $this->paginate;
         $this->set('history_records', $this->Paginator->paginate('HistoryRecord', $args));
-      } elseif(!empty($this->params['named']['orgidentityid'])) {
+      } elseif(!empty($this->request->params['named']['orgidentityid'])) {
         // Org ID is a bit tricky when org identities are pooled, see below.
         // Note a join isn't needed here because paginate+contain is already joining the right tables.
         
@@ -192,6 +217,12 @@ class HistoryRecordsController extends StandardController {
           // will be populated for any admin.)
         }
         // else any admin can see history (and only admins can invoke /index)
+        
+        $this->Paginator->settings = $this->paginate;
+        $this->set('history_records', $this->Paginator->paginate('HistoryRecord', $args));
+      } elseif(!empty($this->request->params['named']['cogroupid'])) {
+        $args = array();
+        $args['HistoryRecord.co_group_id'] = $this->request->params['named']['cogroupid'];
         
         $this->Paginator->settings = $this->paginate;
         $this->set('history_records', $this->Paginator->paginate('HistoryRecord', $args));
@@ -228,6 +259,7 @@ class HistoryRecordsController extends StandardController {
     $pids = $this->parsePersonID($this->request->data);
     
     $managed = false;
+    $groupManaged = false;
     
     // For index views, we need to make sure the viewer has permission to see
     // records associated with the requested person.
@@ -253,15 +285,30 @@ class HistoryRecordsController extends StandardController {
               $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
                                                                    $hr['HistoryRecord']['org_identity_id']);
             }
+            
+            // Calculate $groupManaged separately, since a group owner may not otherwis.
+            // have permission based on the subject of the record
+            if(!empty($hr['HistoryRecord']['co_group_id'])) {
+              $groupManaged = $this->Role->isGroupManager($roles['copersonid'],
+                                                          $hr['HistoryRecord']['co_group_id']);
+            }
           }
         }
       } else {
+        // Note the order of evaluation is important here. Since group managers might
+        // not be CO/U admins, we evaluate that last. If a non-admin group manager tries
+        // to post a CO Person or Org Identity ID in the URL, this will result in Permission
+        // Denied. This is intentional, since otherwise index() will build a query with
+        // these IDs (ie: there is no further authz check there).
+        
         if(!empty($pids['copersonid'])) {
           $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
                                                             $pids['copersonid']);
         } elseif(!empty($pids['orgidentityid'])) {
           $managed = $this->Role->isCoOrCouAdminForOrgIdentity($roles['copersonid'],
                                                                $pids['orgidentityid']);
+        } elseif(!empty($this->request->params['named']['cogroupid'])) {
+          $groupManaged = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['named']['cogroupid']);
         }
       }
     } elseif($pool) {
@@ -293,7 +340,8 @@ class HistoryRecordsController extends StandardController {
     $p['index'] = ($roles['cmadmin']
                    || ($managed && ($roles['coadmin'] || $roles['couadmin']
                                     || ($pool &&
-                                        ($roles['admin'] || $roles['subadmin'])))));
+                                        ($roles['admin'] || $roles['subadmin']))))
+                   || $groupManaged);
     
     if($this->action == 'index' && $p['index']) {
       // Determine which COUs a person can manage, needed for index() to filter records
@@ -314,7 +362,8 @@ class HistoryRecordsController extends StandardController {
     $p['view'] = ($roles['cmadmin']
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']
                                    || ($pool &&
-                                       ($roles['admin'] || $roles['subadmin'])))));
+                                       ($roles['admin'] || $roles['subadmin']))))
+                  || $groupManaged);
     
     $this->set('permissions', $p);
     return $p[$this->action];

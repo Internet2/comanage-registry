@@ -25,6 +25,9 @@
 class ActionEnum
 {
   // Codes beginning with 'X' (eg: 'XABC') are reserved for local use
+  const CoGroupAdded                    = 'ACGR';
+  const CoGroupDeleted                  = 'DCGR';
+  const CoGroupEdited                   = 'ECGR';
   const CoGroupMemberAdded              = 'ACGM';
   const CoGroupMemberDeleted            = 'DCGM';
   const CoGroupMemberEdited             = 'ECGM';

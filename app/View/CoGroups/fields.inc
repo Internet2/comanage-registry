@@ -147,22 +147,26 @@
                 if($g['co_group_id'] == $co_groups[0]['CoGroup']['id']) {
                   // Do not show edit or delete buttons if this is a members group.
                   if(!$isMembersGroup) {
-                  	// XXX the edit/delete buttons should really be right aligned
-                  	print $this->Html->link(_txt('op.edit'),
-                                          array('controller' => 'co_group_members',
-                                                'action' => 'edit',
-                                                $g['id']),
-                                          array('class' => 'editbutton'));
-                  
-	                  if($dok) {
-	                    print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $g['co_person_id'], 'return' => 'group')) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
-	                  }
+                    // XXX the edit/delete buttons should really be right aligned
+                    print $this->Html->link(_txt('op.edit'),
+                                            array('controller' => 'co_group_members',
+                                                  'action' => 'edit',
+                                                  $g['id']),
+                                            array('class' => 'editbutton'));
+                    
+                    if($dok) {
+                      print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($co_groups[0]['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $g['co_person_id'], 'return' => 'group')) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                    }
                   }
                   
-                  print $this->Html->link(generateCn($c['CoPerson']['PrimaryName']),
-                                          array('controller' => 'co_people',
-                                                'action' => 'canvas',
-                                                $c['CoPerson']['id']));
+                  if($permissions['admin']) {
+                    print $this->Html->link(generateCn($c['CoPerson']['PrimaryName']),
+                                            array('controller' => 'co_people',
+                                                  'action' => 'canvas',
+                                                  $c['CoPerson']['id']));
+                  } else {
+                    print generateCn($c['CoPerson']['PrimaryName']);
+                  }
                   
                   // Print person's status
                   if( !empty($c['CoPerson']['status']) ) {

@@ -57,7 +57,8 @@ class CoGroup extends AppModel {
       'className' => 'CoNotification',
       'foreignKey' => 'subject_co_group_id'
     ),
-    "CoProvisioningExport" => array('dependent' => true)
+    "CoProvisioningExport" => array('dependent' => true),
+    "HistoryRecord"
   );
 
   public $belongsTo = array("Co");           // A CoGroup is attached to one CO

@@ -270,6 +270,54 @@ class CoGroupsController extends StandardController {
   }
   
   /**
+   * Generate history records for a transaction. This method is intended to be
+   * overridden by model-specific controllers, and will be called from within a
+   * try{} block so that HistoryRecord->record() may be called without worrying
+   * about catching exceptions.
+   *
+   * @since  COmanage Registry v1.0.0
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  public function generateHistory($action, $newdata, $olddata) {
+    switch($action) {
+      case 'add':
+        $this->CoGroup->HistoryRecord->record(null,
+                                              null,
+                                              null,
+                                              $this->Session->read('Auth.User.co_person_id'),
+                                              ActionEnum::CoGroupAdded,
+                                              _txt('rs.gr.added', array($newdata['CoGroup']['name'])),
+                                              $this->CoGroup->id);
+        break;
+      case 'delete':
+        $this->CoGroup->HistoryRecord->record(null,
+                                               null,
+                                               null,
+                                               $this->Session->read('Auth.User.co_person_id'),
+                                               ActionEnum::CoGroupDeleted,
+                                               _txt('rs.gr.deleted', array($olddata['CoGroup']['name'])),
+                                               $this->CoGroup->id);
+        break;
+      case 'edit':
+        $this->CoGroup->HistoryRecord->record(null,
+                                               null,
+                                               null,
+                                               $this->Session->read('Auth.User.co_person_id'),
+                                               ActionEnum::CoGroupEdited,
+                                               _txt('en.action', null, ActionEnum::CoGroupEdited) . ": " .
+                                               $this->CoGroup->changesToString($newdata, $olddata, $this->cur_co['Co']['id']),
+                                               $this->CoGroup->id);
+        break;
+    }
+    
+    return true;
+  }
+  
+  /**
    * Obtain all CO Groups.
    * - postcondition: $<object>s set on success (REST or HTML), using pagination (HTML only)
    * - postcondition: HTTP status returned (REST)
@@ -367,6 +415,9 @@ class CoGroupsController extends StandardController {
     // Edit an existing Group?
     $p['edit'] = ($roles['cmadmin'] || $managed);
     
+    // View history for an existing Group?
+    $p['history'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
+    
     // View all existing Groups?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     
@@ -414,7 +465,7 @@ class CoGroupsController extends StandardController {
                        || ($managedp && ($roles['coadmin'] || $roles['couadmin'])));
     
     // View an existing Group?
-    $p['view'] = ($roles['cmadmin'] || $managed);
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
     
     if($this->action == 'view'
        && isset($this->request->params['pass'][0])) {

@@ -57,8 +57,7 @@ class CoPersonRole extends AppModel {
       'dependent' => true,
       'foreignKey' => 'enrollee_co_person_role_id'
     ),
-    // It's probably not right to delete history records, but generally CO person roles shouldn't be deleted
-    "HistoryRecord" => array('dependent' => true),
+    "HistoryRecord",
     // A person can have one or more telephone numbers
     "TelephoneNumber" => array('dependent' => true)
   );

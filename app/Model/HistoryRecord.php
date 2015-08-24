@@ -31,6 +31,7 @@ class HistoryRecord extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
+    "CoGroup",
     "CoPerson" => array(
       'className' => 'CoPerson',
       'foreignKey' => 'co_person_id'
@@ -61,6 +62,11 @@ class HistoryRecord extends AppModel {
       'allowEmpty' => true
     ),
     'org_identity_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'co_group_id' => array(
       'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
@@ -121,6 +127,32 @@ class HistoryRecord extends AppModel {
   }
   
   /**
+   * Obtain the CO ID for a record.
+   *
+   * @since  COmanage Registry v1.0.0
+   * @param  integer Record to retrieve for
+   * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
+   * @throws InvalidArgumentException
+   * @throws RunTimeException
+   */
+  
+  public function findCoForRecord($id) {
+    // HistoryRecords needs to get the CO via the (generally set) Actor CO Person
+    
+    $args = array();
+    $args['conditions']['HistoryRecord.id'] = $id;
+    $args['contain'][] = 'ActorCoPerson';
+    
+    $hr = $this->find('first', $args);
+    
+    if(!empty($hr['ActorCoPerson']['co_id'])) {
+      return $hr['ActorCoPerson']['co_id'];
+    }
+    
+    return parent::findCoForRecord($id);
+  }
+
+  /**
    * Create a History Record.
    *
    * @since  COmanage Registry v0.7
@@ -130,14 +162,16 @@ class HistoryRecord extends AppModel {
    * @param  Integer Actor CO Person ID
    * @param  ActionEnum Action
    * @param  String Comment (if not provided, default comment for $action is used)
+   * @param  Integer CO Group ID
    * @throws RuntimeException
    */
   
-  public function record($coPersonID, $coPersonRoleID, $orgIdentityId, $actorCoPersonID, $action, $comment=null) {
+  public function record($coPersonID, $coPersonRoleID, $orgIdentityId, $actorCoPersonID, $action, $comment=null, $coGroupID=null) {
     $historyData = array();
     $historyData['HistoryRecord']['co_person_id'] = $coPersonID;
     $historyData['HistoryRecord']['co_person_role_id'] = $coPersonRoleID;
     $historyData['HistoryRecord']['org_identity_id'] = $orgIdentityId;
+    $historyData['HistoryRecord']['co_group_id'] = $coGroupID;
     $historyData['HistoryRecord']['actor_co_person_id'] = $actorCoPersonID;
     $historyData['HistoryRecord']['action'] = $action;
     

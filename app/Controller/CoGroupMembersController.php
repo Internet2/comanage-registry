@@ -283,7 +283,8 @@ class CoGroupMembersController extends StandardController {
                                                               _txt('rs.grm.added', array($olddata['CoGroup']['name'],
                                                                                          $olddata['CoGroup']['id'],
                                                                                          _txt($newdata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
-                                                                                         _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))));
+                                                                                         _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))),
+                                                              $olddata['CoGroup']['id']);
         break;
       case 'delete':
         $this->CoGroupMember->CoPerson->HistoryRecord->record($olddata['CoGroupMember']['co_person_id'],
@@ -292,7 +293,8 @@ class CoGroupMembersController extends StandardController {
                                                               $this->Session->read('Auth.User.co_person_id'),
                                                               ActionEnum::CoGroupMemberDeleted,
                                                               _txt('rs.grm.deleted', array($olddata['CoGroup']['name'],
-                                                                                           $olddata['CoGroup']['id'])));
+                                                                                           $olddata['CoGroup']['id'])),
+                                                              $olddata['CoGroup']['id']);
         break;
       case 'edit':
         $this->CoGroupMember->CoPerson->HistoryRecord->record($olddata['CoGroupMember']['co_person_id'],
@@ -305,7 +307,8 @@ class CoGroupMembersController extends StandardController {
                                                                                           _txt($olddata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
                                                                                           _txt($olddata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'),
                                                                                           _txt($newdata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
-                                                                                          _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))));
+                                                                                          _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))),
+                                                              $olddata['CoGroup']['id']);
         break;
     }
     

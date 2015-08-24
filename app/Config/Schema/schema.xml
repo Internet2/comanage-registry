@@ -1133,6 +1133,9 @@
     <field name="org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
     </field>
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
     <field name="actor_co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
@@ -1149,6 +1152,9 @@
     </index>
     <index name="history_records_i3">
       <col>org_identity_id</col>
+    </index>
+    <index name="history_records_i4">
+      <col>co_group_id</col>
     </index>
   </table>
   

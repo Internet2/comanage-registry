@@ -203,6 +203,9 @@ original notification at
   // Enumerations, corresponding to enum.php
   // Default history comments
   'en.action' =>   array(
+    ActionEnum::CoGroupAdded                => 'CO Group Added',
+    ActionEnum::CoGroupDeleted              => 'CO Group Deleted',
+    ActionEnum::CoGroupEdited               => 'CO Group Edited',
     ActionEnum::CoGroupMemberAdded          => 'CO Group Member Added',
     ActionEnum::CoGroupMemberEdited         => 'CO Group Member Edited',
     ActionEnum::CoGroupMemberDeleted        => 'CO Group Member Deleted',
@@ -762,6 +765,8 @@ original notification at
   'fd.attrs.pet' =>   'Petition Attributes',
   'fd.changelog' =>   'Change Log',
   'fd.closed' =>      'Closed',
+  // The next set must be named fd.model.validation-field
+  'fd.co_group.description' => 'Description',
   'fd.comment' =>     'Comment',
   'fd.conditions' =>  'Conditions',
   'fd.copy-a' =>      'Copy of %1$s',
@@ -1270,6 +1275,8 @@ original notification at
   'rs.ev.ver' =>      'Email Address verified',
   'rs.ev.ver-a' =>    'Email Address %1$s verified by %2$s',
   'rs.expunged' =>    'Record Expunged',
+  'rs.gr.added' =>    'Added CO Group "%1$s"',
+  'rs.gr.deleted' =>  'Deleted CO Group "%1$s"',
   'rs.gr.reconcile.ok' => 'Members Groups Reconciled',
   'rs.grm.added' =>   'Added to CO Group %1$s (%2$s) (member=%3$s, owner=%4$s)',
   'rs.grm.added-p' => 'Added to CO Group %1$s (%2$s) via Petition (member=%3$s, owner=%4$s)',

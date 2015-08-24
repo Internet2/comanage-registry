@@ -61,8 +61,7 @@ if(!empty($co_groups[0]['CoGroup']['id'])) {
     array(
       'controller' => 'co_group_members',
       'action'     => 'select',
-      'cogroup'    => $co_groups[0]['CoGroup']['id'],
-      'co'         => $cur_co['Co']['id']
+      'cogroup'    => $co_groups[0]['CoGroup']['id']
     ),
     array('class' => 'editbutton')
   );
@@ -75,8 +74,20 @@ if($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id'])) {
     array(
       'controller' => 'co_groups',
       'action'     => 'provision',
-      $co_groups[0]['CoGroup']['id'],
-      'co'         => $cur_co['Co']['id']
+      $co_groups[0]['CoGroup']['id']
+    ),
+    array('class' => 'notebutton')
+  );
+}
+
+if($permissions['history'] && !empty($co_groups[0]['CoGroup']['id'])) {
+  // View history
+  $params['topLinks'][] = $this->Html->link(
+    _txt('op.history'),
+    array(
+      'controller' => 'history_records',
+      'action'     => 'index',
+      'cogroupid'  => $co_groups[0]['CoGroup']['id']
     ),
     array('class' => 'notebutton')
   );

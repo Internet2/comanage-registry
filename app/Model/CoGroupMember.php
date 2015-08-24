@@ -114,7 +114,7 @@ class CoGroupMember extends AppModel {
         _txt('fd.no')
        );                  
       $msg = _txt('rs.grm.added', $msgData);
-      $this->CoPerson->HistoryRecord->record($coPersonId, null, null, null, ActionEnum::CoGroupMemberAdded, $msg);
+      $this->CoPerson->HistoryRecord->record($coPersonId, null, null, null, ActionEnum::CoGroupMemberAdded, $msg, $group['CoGroup']['id']);
     } catch(Exception $e) {
       $msg = _txt('er.grm.history', array($coPersonId, $group['CoGroup']['name']));
       $this->log($msg);
@@ -335,7 +335,8 @@ class CoGroupMember extends AppModel {
                                                      $requesterCoPersonId,
                                                      ActionEnum::CoGroupMemberDeleted,
                                                      _txt('rs.grm.deleted', array($grp['CoGroup']['name'],
-                                                                                  $m['co_group_id'])));
+                                                                                  $m['co_group_id'])),
+                                                     $m['co_group_id']);
             }
             catch(Exception $e) {
               throw new RuntimeException($e->getMessage());
@@ -371,7 +372,8 @@ class CoGroupMember extends AppModel {
                                                                                    _txt($curMember ? 'fd.yes' : 'fd.no'),
                                                                                    _txt($curOwner ? 'fd.yes' : 'fd.no'),
                                                                                    _txt($member ? 'fd.yes' : 'fd.no'),
-                                                                                   _txt($owner ? 'fd.yes' : 'fd.no'))));
+                                                                                   _txt($owner ? 'fd.yes' : 'fd.no'))),
+                                                       $m['co_group_id']);
               }
               catch(Exception $e) {
                 throw new RuntimeException($e->getMessage());
@@ -414,7 +416,8 @@ class CoGroupMember extends AppModel {
                                                        _txt('rs.grm.added', array($grp['CoGroup']['name'],
                                                                                   $m['co_group_id'],
                                                                                   _txt($member ? 'fd.yes' : 'fd.no'),
-                                                                                  _txt($owner ? 'fd.yes' : 'fd.no'))));
+                                                                                  _txt($owner ? 'fd.yes' : 'fd.no'))),
+                                                       $m['co_group_id']);
               }
               catch(Exception $e) {
                 throw new RuntimeException($e->getMessage());
@@ -501,7 +504,8 @@ class CoGroupMember extends AppModel {
                                                      $requesterCoPersonId,
                                                      ActionEnum::CoGroupMemberDeleted,
                                                      _txt('rs.grm.deleted', array($grp['CoGroup']['name'],
-                                                                                  $coGroupId)));
+                                                                                  $coGroupId)),
+                                                     $coGroupId);
             }
             catch(Exception $e) {
               throw new RuntimeException($e->getMessage());
@@ -539,7 +543,8 @@ class CoGroupMember extends AppModel {
                                                                                    _txt($curMember ? 'fd.yes' : 'fd.no'),
                                                                                    _txt($curOwner ? 'fd.yes' : 'fd.no'),
                                                                                    _txt($member ? 'fd.yes' : 'fd.no'),
-                                                                                   _txt($owner ? 'fd.yes' : 'fd.no'))));
+                                                                                   _txt($owner ? 'fd.yes' : 'fd.no'))),
+                                                       $coGroupId);
               }
               catch(Exception $e) {
                 throw new RuntimeException($e->getMessage());
@@ -584,7 +589,8 @@ class CoGroupMember extends AppModel {
                                                        _txt('rs.grm.added', array($grp['CoGroup']['name'],
                                                                                   $coGroupId,
                                                                                   _txt($member ? 'fd.yes' : 'fd.no'),
-                                                                                  _txt($owner ? 'fd.yes' : 'fd.no'))));
+                                                                                  _txt($owner ? 'fd.yes' : 'fd.no'))),
+                                                       $coGroupId);
               }
               catch(Exception $e) {
                 throw new RuntimeException($e->getMessage());
