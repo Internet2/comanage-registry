@@ -83,6 +83,7 @@
       <!-- Common script code -->
       <script type="text/javascript">
 
+      // Generate flash notifications for messages
       function generateFlash(text, type) {
         var n = noty({
           text: text,
@@ -91,6 +92,18 @@
           layout: 'topCenter',
           theme: 'comanage'
         });
+      }
+
+      // Returns an i18n string with tokens replaced.
+      // For use in JavaScript dialogs.
+      //   text          - body text for the array with tokens {0}, {1}, etc
+      //   replacements  - Array of strings to replace tokens
+      function replaceTokens(text,replacements) {
+        var processedString = text;
+        for (var i = 0; i < replacements.length; i++) {
+          processedString = processedString.replace("{"+i+"}", replacements[i]);
+        }
+        return processedString;
       }
 
       // Function to confirm delete and then hand off
@@ -116,52 +129,45 @@
         $('#dialog').dialog('open');
       }
 
-      function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt) {
+      function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenReplacements) {
         // Generate a dialog box confirming <txt>.  On confirmation, forward to <url>.
         // Use confirmbtxt and cancelbtxt as text for the buttons, if provided.
+        // Use titletxt for title if it exists.
+        // If tokenReplacements exist, process them for the dialog body text.
 
         var confbutton = confirmbtxt;
         var cxlbutton = cancelbtxt;
+        var title = titletxt;
+        var replacements = tokenReplacements;
+        var bodyText = txt;
 
-        if(confbutton == undefined) confbutton = "<?php print _txt('op.ok'); ?>";
-        if(cxlbutton == undefined) cxlbutton = "<?php print _txt('op.cancel'); ?>";
+        // Perform token replacements on the body text if they exist
+        if (replacements != undefined) {
+          bodyText = replaceTokens(bodyText,replacements);
+        }
+
+        // Set defaults for confirm, cancel, and title
+        if(confbutton == undefined) {
+          confbutton = "<?php print _txt('op.ok'); ?>";
+        }
+        if(cxlbutton == undefined) {
+          cxlbutton = "<?php print _txt('op.cancel'); ?>";
+        }
+        if(title == undefined) {
+          title = "<?php print _txt('op.confirm'); ?>";
+        }
 
         // Set the title of the dialog
-        $("#dialog").dialog("option", "title", "<?php print _txt('op.confirm'); ?>");
+        $("#dialog").dialog("option", "title", title);
 
-        // Set the body of the dialog
-        $("#dialog-text").text(txt);
+        // Set the body text of the dialog
+        $("#dialog-text").text(bodyText);
 
         // Set the dialog buttons
         var dbuttons = {};
         dbuttons[cxlbutton] = function() { $(this).dialog("close"); };
         dbuttons[confbutton] = function() { window.location=url; };
-
-        $("#dialog").dialog("option",
-                            "buttons",
-                            dbuttons);
-
-        // Open the dialog
-        $('#dialog').dialog('open');
-      }
-
-      function js_confirm_reinvite(name, url) {
-        // Generate a dialog box confirming a resend of an invitation to <name>.  On confirmation, forward to <url>, which executes the invite.
-
-        // Set the title of the dialog
-        $("#dialog").dialog("option", "title", "<?php print _txt('op.inv.resend'); ?>");
-
-        // Set the body of the dialog
-        // XXX need to I18N this, but arg passing currently only works within php not javascript
-        $("#dialog-text").text("Are you sure you wish to resend an invitation to " + name + "?  Any previous invitation will be invalidated.");
-
-        // Set the dialog buttons
-        $("#dialog").dialog("option",
-                            "buttons",
-                            {
-                              "<?php print _txt('op.cancel'); ?>": function() { $(this).dialog("close"); },
-                              "<?php print _txt('op.inv.resend'); ?>": function() { window.location=url; }
-                            });
+        $("#dialog").dialog("option", "buttons", dbuttons);
 
         // Open the dialog
         $('#dialog').dialog('open');
@@ -715,7 +721,7 @@
 
     <!-- Common UI components -->
 
-    <?php if($this->here != '/registry/shibboleth_embedded_discovery_service/eds/view'):
+    <?php if($this->here != '/registry/pages/eds/index'):
       // Don't load the following UI component when loading the Shib EDS. ?>
       <div id="dialog" title="Confirm">
         <p>

@@ -68,15 +68,33 @@
       <td><?php print (isset($a['ApiUser']['password']) ? "*****" : ""); ?></td>
       <td>
         <?php
-          if($permissions['edit'])
+          if($permissions['edit']) {
             print $this->Html->link(_txt('op.edit'),
-                                    array('controller' => 'api_users',
-                                          'action' => 'edit',
-                                          $a['ApiUser']['id']),
-                                    array('class' => 'editbutton')) . "\n";
-            
-          if($permissions['delete'])
-            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($a['ApiUser']['username'])) . '\', \'' . $this->Html->url(array('controller' => 'api_users', 'action' => 'delete', $a['ApiUser']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+                array(
+                  'controller' => 'api_users',
+                  'action' => 'edit',
+                  $a['ApiUser']['id']
+                ),
+                array('class' => 'editbutton')) . "\n";
+          }
+          if($permissions['delete']) {
+            print '<button class="deletebutton" title="' . _txt('op.delete')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.remove') . '\',\''    // dialog body text
+              . $this->Html->url(array(        // dialog confirm URL
+                  'controller' => 'api_users',
+                  'action' => 'delete',
+                  $a['ApiUser']['id'])
+                ) . '\',\''
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\',[\''   // dialog title
+              . _jtxt(filter_var($a['ApiUser']['username'],FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+              . '\'])";>'
+              . _txt('op.delete')
+              . '</button>';
+          }
+
         ?>
         <?php ; ?>
       </td>

@@ -86,21 +86,69 @@
       </td>
       <td>
         <?php
-          if($permissions['compare'])
-            print $this->Html->link(_txt('op.compare'),
-                                    array('controller' => 'co_person_roles', 'action' => 'compare', $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id']),
-                                    array('class' => 'comparebutton')) . "\n";
-        
-          if($permissions['edit'])
-            print $this->Html->link(_txt('op.edit'),
-                                    array('controller' => 'co_person_roles', 'action' => 'edit', $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id']),
-                                    array('class' => 'editbutton')) . "\n";
-            
-          if($permissions['delete'])
-            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) . '\', \'' . $this->Html->url(array('controller' => 'co_person_roles', 'action' => 'delete', $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</button>' . "\n";
-            
-          if($permissions['invite'] && ($p['CoPersonRole']['status'] != 'A' && $p['CoPersonRole']['status'] != 'D'))
-            print '<button class="invitebutton" title="' . _txt('op.inv.resend') . '" onclick="javascript:js_confirm_reinvite(\'' . _jtxt(Sanitize::html(generateCn($p['PrimaryName']))) . '\', \'' . $this->Html->url(array('controller' => 'co_invites', 'action' => 'send', 'copersonroleid' => $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.inv.resend') . '</button>' . "\n";
+          if($permissions['compare']) {
+            print $this->Html->link(
+              _txt('op.compare'),
+              array(
+                'controller' => 'co_person_roles',
+                'action' => 'compare',
+                $p['CoPersonRole']['id'],
+                'co' => $cur_co['Co']['id']
+              ),
+              array('class' => 'comparebutton')
+            ) . "\n";
+          }
+          if($permissions['edit']) {
+            print $this->Html->link(
+              _txt('op.edit'),
+              array(
+                'controller' => 'co_person_roles',
+                'action' => 'edit',
+                $p['CoPersonRole']['id'],
+                'co' => $cur_co['Co']['id']
+              ),
+              array('class' => 'editbutton')
+            ) . "\n";
+          }
+          if($permissions['delete']) {
+            print '<button class="deletebutton" title="' . _txt('op.delete')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.remove') . '\',\''    // dialog body text
+              . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'co_person_roles',
+                    'action' => 'delete',
+                    $p['CoPersonRole']['id'],
+                    'co' => $cur_co['Co']['id']
+                  )
+                ) . '\',\''
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\',[\''   // dialog title
+              . _jtxt(filter_var(generateCn($p['PrimaryName']),FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+              . '\'])";>'
+              . _txt('op.delete') . '</button>' . "\n";
+          }
+          if($permissions['invite'] && ($p['CoPersonRole']['status'] != 'A' && $p['CoPersonRole']['status'] != 'D')) {
+            print '<button class="invitebutton" title="' . _txt('op.inv.resend')
+              . '" onclick="javascript:noprop(event);js_confirm_generic(\''
+              . _txt('js.reinvite') . '\',\''   // dialog body text
+              . $this->Html->url(               // dialog confirm URL
+                  array(
+                    'controller' => 'co_invites',
+                    'action' => 'send',
+                    'copersonroleid' => $p['CoPersonRole']['id'],
+                    'co' => $cur_co['Co']['id']
+                  )
+                ) . '\',\''
+              . _txt('op.inv.resend') . '\',\''   // dialog confirm button
+              . _txt('op.cancel') . '\',\''       // dialog cancel button
+              . _txt('op.inv.resend') . '\',[\''  // dialog title
+              . _jtxt(filter_var(generateCn($p['PrimaryName']),FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+              . '\']);">'
+              . _txt('op.inv.resend') . '</button>' . "\n";
+          }
+
         ?>
         <?php ; ?>
       </td>
