@@ -319,7 +319,7 @@ $(function() {
                     print $this->Form->error('status');
                   }
                 } else {
-                  if(isset($org_identities[0]['OrgIdentity']['affiliation'])) {
+                  if(!empty($org_identities[0]['OrgIdentity']['affiliation'])) {
                     print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
                   }
                 }
