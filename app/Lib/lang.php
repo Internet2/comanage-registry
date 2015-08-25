@@ -78,6 +78,7 @@ $cm_texts['en_US'] = array(
   'ct.co_identifier_assignments.pl' => 'Identifier Assignments',
   'ct.co_group_members.1' =>    'Group Member',
   'ct.co_group_members.pl' =>   'Group Members',
+  'ct.co_group_members.0' =>    'No members',
   'ct.co_groups.1' =>           'Group',
   'ct.co_groups.pl' =>          'Groups',
   'ct.co_all_groups' =>         'All Groups',
@@ -1120,7 +1121,9 @@ original notification at
   // JavaScript dialog box strings
   // Can include token replacements in the form of {0}, {1}, {2}, etc.
   // Pass a replacements array as the last parameter to js_confirm_generic() in default.ctp
-  'js.remove'         =>  'Are you sure you wish to remove {0}?  This action cannot be undone.',
+  // NOTE: these strings should escape all quotes using &quot; (or \x22) and &apos; (or \x27)
+  'js.remove'         =>  'Are you sure you wish to remove \x22{0}\x22 ?  This action cannot be undone.',
+  'js.remove.member'  =>  'Are you sure you wish to remove this member from group \x22{0}\x22 ?  This action cannot be undone.',
   'js.reinvite'       =>  'Are you sure you wish to resend an invitation to {0}?  Any previous invitation will be invalidated.',
   'js.confirm.verify' =>  'Are you sure you wish to send a verification request to {0}? Any previous request will be invalidated.',
 

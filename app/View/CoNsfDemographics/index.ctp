@@ -110,15 +110,15 @@
                           'action' => 'delete',
                           $c['CoNsfDemographic']['id']
                          );
-            print '<button class="deletebutton" title="'
-                  . _txt('op.delete')
-                  . '" onclick="javascript:js_confirm_delete(\''
-                  . _txt('op.delete.consfdemographics')
-                  . '\', \''
-                  . $this->Html->url($args)
-                  . '\')";>'
-                  . _txt('op.delete')
-                  . '</button>';
+            print '<button class="deletebutton" title="' . _txt('op.delete')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('op.delete.consfdemographics') . '\',\'' // dialog body text
+              . $this->Html->url($args) . '\',\''             // dialog confirm URL
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\')";>'   // dialog title
+              . _txt('op.delete')
+              . '</button>';
           }
         ?>
       </td>

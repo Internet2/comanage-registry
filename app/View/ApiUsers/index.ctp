@@ -81,10 +81,12 @@
             print '<button class="deletebutton" title="' . _txt('op.delete')
               . '" onclick="javascript:js_confirm_generic(\''
               . _txt('js.remove') . '\',\''    // dialog body text
-              . $this->Html->url(array(        // dialog confirm URL
-                  'controller' => 'api_users',
-                  'action' => 'delete',
-                  $a['ApiUser']['id'])
+              . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'api_users',
+                    'action' => 'delete',
+                    $a['ApiUser']['id']
+                  )
                 ) . '\',\''
               . _txt('op.remove') . '\',\''    // dialog confirm button
               . _txt('op.cancel') . '\',\''    // dialog cancel button

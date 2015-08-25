@@ -160,14 +160,17 @@
           print ($isVerified ? _txt('fd.yes') : _txt('fd.no')) . "\n";
           
           if(!$isVerified && $permissions['verifyEmailAddress']) {
-            print '<button class="checkbutton" title="Verify" type="button"
-                    onclick="javascript:js_confirm_verification(\'' 
-                    . _jtxt(Sanitize::html($email_addresses[0]['EmailAddress']['mail'])) 
-                    . '\', \'' 
-                    . $this->Html->url($url)
-                    . '\');">'
-                    . "Verify"
-                    . '</button>' . "\n";
+            print '<button class="checkbutton" title="' . _txt('op.verify')
+              . '" type="button" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.confirm.verify') . '\',\''   // dialog body text
+              . $this->Html->url($url) . '\',\''      // redirect URL
+              . _txt('op.verify') . '\',\''           // dialog confirm button
+              . _txt('op.cancel') . '\',\''           // dialog cancel button
+              . _txt('op.verify') . '\',[\''          // dialog title
+              . _jtxt(filter_var($email_addresses[0]['EmailAddress']['mail'],FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+              . '\']);">'
+              . _txt('op.verify')
+              . '</button>' . "\n";
           }
         ?>
       </td>

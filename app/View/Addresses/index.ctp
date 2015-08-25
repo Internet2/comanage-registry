@@ -58,8 +58,7 @@
       </td>
       <td>
         <?php
-          if(!empty($a['Address']['org_identity_id']))
-          {
+          if(!empty($a['Address']['org_identity_id'])) {
             // Generally, someone who has view permission on a telephone number can also see a person
             if($permissions['view'])
               print $this->Html->link(generateCn($a['OrgIdentity']['PrimaryName']),
@@ -69,8 +68,7 @@
       </td>
       <td>
         <?php
-          if(!empty($a['Address']['co_person_role_id']))
-          {
+          if(!empty($a['Address']['co_person_role_id'])) {
             // Generally, someone who has view permission on a telephone number can also see a person
             if($permissions['view'])
               print $this->Html->link(generateCn($a['CoPersonRole']['PrimaryName']),
@@ -80,14 +78,32 @@
       </td>    
       <td>    
         <?php
-          if($permissions['edit'])
+          if($permissions['edit']) {
             print $this->Html->link(_txt('op.edit'),
-                                   array('controller' => 'addresses', 'action' => 'edit', $a['Address']['id']),
-                                   array('class' => 'editbutton')) . "\n";
+                array('controller' => 'addresses', 'action' => 'edit', $a['Address']['id']),
+                array('class' => 'editbutton')) . "\n";
+          }
             
-            
-          if($permissions['delete'])
-            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($a['Address']['street'])) . '\', \'' . $this->Html->url(array('controller' => 'addresses', 'action' => 'delete', $a['Address']['id'])) . '\')";>' . _txt('op.delete') . '</button>';
+          if($permissions['delete']) {
+            print '<button class="deletebutton" title="' . _txt('op.delete')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.remove') . '\',\''    // dialog body text
+              . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'addresses',
+                    'action' => 'delete',
+                    $a['Address']['id']
+                  )
+              ) . '\',\''
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\',[\''   // dialog title
+              . _jtxt(filter_var($a['Address']['street'],FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+              . '\'])";>'
+              . _txt('op.delete')
+              . '</button>';
+          }
+
         ?>
         <?php ; ?>
       </td>

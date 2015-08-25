@@ -120,11 +120,11 @@ $(document).ready(function () {
           print $this->Form->hidden('CoGroupMember.rows.'.$i.'.co_person_id',
                                    array('default' => $p['CoPerson']['id'])) . "\n";
           print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
-                                      array('checked' => $isMember, 'disabled' => $isMembersGroup))
-                . _txt('fd.group.mem') . "\n";
+                                      array('checked' => $isMember, 'disabled' => $isMembersGroup));
+          print $this->Form->label('CoGroupMember.rows.'.$i.'.member',_txt('fd.group.mem')) . "\n";
           print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
-                                      array('checked' => $isOwner, 'disabled' => $isMembersGroup))
-                . _txt('fd.group.own') . "\n";
+                                      array('checked' => $isOwner, 'disabled' => $isMembersGroup));
+          print $this->Form->label('CoGroupMember.rows.'.$i.'.owner', _txt('fd.group.own')) . "\n";
         ?>
       </td>
     </tr>

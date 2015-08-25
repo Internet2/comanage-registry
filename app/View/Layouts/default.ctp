@@ -129,17 +129,21 @@
         $('#dialog').dialog('open');
       }
 
+      // Generate a dialog box confirming <txt>.  On confirmation, forward to <url>.
+      // txt                - body text           (string, required)
+      // url                - forward url         (string, required)
+      // confirmbtxt        - confirm button text (string, optional)
+      // cancelbtxt         - cancel button text  (string, optional)
+      // titletxt           - dialog title text   (string, optional)
+      // tokenReplacements  - strings to replace tokens in dialog body text (array, optional)
       function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenReplacements) {
-        // Generate a dialog box confirming <txt>.  On confirmation, forward to <url>.
-        // Use confirmbtxt and cancelbtxt as text for the buttons, if provided.
-        // Use titletxt for title if it exists.
-        // If tokenReplacements exist, process them for the dialog body text.
 
+        var bodyText = txt;
+        var forwardUrl = url;
         var confbutton = confirmbtxt;
         var cxlbutton = cancelbtxt;
         var title = titletxt;
         var replacements = tokenReplacements;
-        var bodyText = txt;
 
         // Perform token replacements on the body text if they exist
         if (replacements != undefined) {
@@ -166,36 +170,12 @@
         // Set the dialog buttons
         var dbuttons = {};
         dbuttons[cxlbutton] = function() { $(this).dialog("close"); };
-        dbuttons[confbutton] = function() { window.location=url; };
+        dbuttons[confbutton] = function() { window.location = forwardUrl; };
         $("#dialog").dialog("option", "buttons", dbuttons);
 
         // Open the dialog
         $('#dialog').dialog('open');
       }
-
-      function js_confirm_verification(email, url) {
-        // Generate a dialog box confirming a request to verify <email>. On confirmation, forward to <url>, which executes the sending.
-        // XXX This should be merged with js_confirm_reinvite, above, perhaps as part of CO-753.
-
-        // Set the title of the dialog
-        $("#dialog").dialog("option", "title", "<?php print _txt('op.verify'); ?>");
-
-        // Set the body of the dialog
-        // XXX need to I18N this, but arg passing currently only works within php not javascript
-        $("#dialog-text").text("Are you sure you wish to send a verification request to " + email + "? Any previous request will be invalidated.");
-
-        // Set the dialog buttons
-        $("#dialog").dialog("option",
-                            "buttons",
-                            {
-                              "<?php print _txt('op.cancel'); ?>": function() { $(this).dialog("close"); },
-                              "<?php print _txt('op.verify'); ?>": function() { window.location=url; }
-                            });
-
-        // Open the dialog
-        $('#dialog').dialog('open');
-      }
-
 
       function js_onsubmit_call_hooks() {
         // On form submit, call any defined functions.

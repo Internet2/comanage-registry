@@ -427,8 +427,26 @@
                     . "\n";
             }
             
-            if($d)
-              print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoGroup']['name'])) . '\', \'' . $this->Html->url(array('controller' => 'co_groups', 'action' => 'delete', $c['CoGroup']['id'], 'co' => $this->params['named']['co'])) . '\')";>' . _txt('op.delete') . '</button>';
+            if($d) {
+              print '<button class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'co_groups',
+                    'action' => 'delete',
+                    $c['CoGroup']['id'],
+                    'co' => $this->params['named']['co']
+                  )
+                ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . _jtxt(filter_var($c['CoGroup']['name'],FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+                . '\'])";>'
+                . _txt('op.delete')
+                . '</button>';
+            }
           }
         ?>
         <?php ; ?>

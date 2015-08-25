@@ -254,13 +254,31 @@ print $this->element("pageTitleAndButtons", $params);
       <td><?php print Sanitize::html($c['CoIdentifierAssignment']['identifier_type']); ?></td>
       <td>
         <?php
-          if($permissions['edit'])
+          if($permissions['edit']) {
             print $this->Html->link(_txt('op.edit'),
-                                    array('controller' => 'co_identifier_assignments', 'action' => 'edit', $c['CoIdentifierAssignment']['id'], 'co' => $cur_co['Co']['id']),
-                                    array('class' => 'editbutton')) . "\n";
-          
-          if($permissions['delete'])
-            print '<button class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($c['CoIdentifierAssignment']['identifier_type'])) . '\', \'' . $this->Html->url(array('controller' => 'co_identifier_assignments', 'action' => 'delete', $c['CoIdentifierAssignment']['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . "</button>";
+                array('controller' => 'co_identifier_assignments', 'action' => 'edit', $c['CoIdentifierAssignment']['id'], 'co' => $cur_co['Co']['id']),
+                array('class' => 'editbutton')) . "\n";
+          }
+          if($permissions['delete']) {
+            print '<button class="deletebutton" title="' . _txt('op.delete')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.remove') . '\',\''    // dialog body text
+              . $this->Html->url(              // dialog confirm URL
+                array(
+                  'controller' => 'co_identifier_assignments',
+                  'action' => 'delete',
+                  $c['CoIdentifierAssignment']['id'],
+                  'co' => $cur_co['Co']['id']
+                )
+              ) . '\',\''
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\',[\''   // dialog title
+              . _jtxt(filter_var($c['CoIdentifierAssignment']['description'],FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+              . '\'])";>'
+              . _txt('op.delete')
+              . '</button>';
+          }
         ?>
       </td>
     </tr>
