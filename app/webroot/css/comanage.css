@@ -942,6 +942,31 @@ td.order {
 #petitionerMatchResults ul {
   margin: 0.5em 0 1em 0;
 }
+body.co_petitions .approve-button .ui-icon,
+body.co_petitions .deny-button .ui-icon {
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png");
+}
+body.co_petitions .approve-button {
+  background-color: #2a2;
+  background-image: none;
+  border: 1px solid #191;
+  color: white;
+  font-weight: bold;
+}
+body.co_petitions .approve-button:hover {
+  background-color: #3b3;
+}
+body.co_petitions .deny-button {
+  background-color: #617989;
+  background-image: none;
+  border: 1px solid #4c5e6b;
+  color: white;
+  font-weight: bold;
+}
+body.co_petitions .deny-button:hover {
+  background-color: #c33;
+  border-color: #b22;
+}
 /* Enrollment Flow Steps */
 #enrollmentFlowSteps h3 {
   margin: 0.5em;
