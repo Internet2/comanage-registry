@@ -663,7 +663,7 @@
         // insert breadcrumbs on all but the homepage if logged in
         if($this->Session->check('Auth.User')) {
           if ($this->request->here != $this->request->webroot) {
-            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ') . "</div>";
+            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', _txt('bc.home')) . "</div>";
           }
         }
 
