@@ -173,13 +173,20 @@
         $sidebarButtons[] = array(
           'icon'    => 'circle-close',
           'title'   => _txt('op.delete'),
-          'url'     => 'javascript:js_confirm_delete("'
-                        . Sanitize::html(generateCn($co_people[0]['PrimaryName']))
-                        . '","'
-                        . $this->Html->url(array('controller' => 'co_people',
-                                                 'action'     => 'delete',
-                                                 $co_people[0]['CoPerson']['id']))
-                        . '");'
+          'url'     => 'javascript:js_confirm_generic(\''
+            . _txt('js.remove') . '\',\''    // dialog body text
+            . $this->Html->url(              // dialog confirm URL
+              array(
+                'controller' => 'co_people',
+                'action'     => 'delete',
+                $co_people[0]['CoPerson']['id']
+              )
+            ) . '\',\''
+            . _txt('op.remove') . '\',\''    // dialog confirm button
+            . _txt('op.cancel') . '\',\''    // dialog cancel button
+            . _txt('op.remove') . '\',[\''   // dialog title
+            . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+            . '\'])'
         );
       }
       
@@ -484,7 +491,23 @@
                     <?php
                     if($perm == PermissionEnum::ReadWrite) {
                       if(!$n['primary_name']) {
-                        print '<a class="deletebutton" title="' . _txt('op.delete') .'" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($n))) . '\', \'' . $this->Html->url(array('controller' => 'names', 'action' => 'delete', $n['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') .'</a>' . "\n";
+                        print '<a class="deletebutton" title="' . _txt('op.delete')
+                          . '" onclick="javascript:js_confirm_generic(\''
+                          . _txt('js.remove') . '\',\''    // dialog body text
+                          . $this->Html->url(              // dialog confirm URL
+                            array(
+                              'controller' => 'names',
+                              'action' => 'delete', $n['id'],
+                              'co' => $cur_co['Co']['id']
+                            )
+                          ) . '\',\''
+                          . _txt('op.remove') . '\',\''    // dialog confirm button
+                          . _txt('op.cancel') . '\',\''    // dialog cancel button
+                          . _txt('op.remove') . '\',[\''   // dialog title
+                          . filter_var(_jtxt(generateCn($n)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                          . '\'])";>'
+                          . _txt('op.delete')
+                          . '</a>';
 
                         print $this->Html->link(_txt('op.primary'),
                             array('controller' => 'names',
@@ -568,7 +591,23 @@
                         print '</div>';
                         print '<div>';
                         // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                        print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($id['identifier'])) . '\', \'' . $this->Html->url(array('controller' => 'identifiers', 'action' => 'delete', $id['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                        print '<a class="deletebutton" title="' . _txt('op.delete')
+                          . '" onclick="javascript:js_confirm_generic(\''
+                          . _txt('js.remove') . '\',\''    // dialog body text
+                          . $this->Html->url(              // dialog confirm URL
+                            array(
+                              'controller' => 'identifiers',
+                              'action' => 'delete', $id['id'],
+                              'co' => $cur_co['Co']['id']
+                            )
+                          ) . '\',\''
+                          . _txt('op.remove') . '\',\''    // dialog confirm button
+                          . _txt('op.cancel') . '\',\''    // dialog cancel button
+                          . _txt('op.remove') . '\',[\''   // dialog title
+                          . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                          . '\'])";>'
+                          . _txt('op.delete')
+                          . '</a>';
                         print $this->Html->link(_txt('op.edit'),
                           array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
                           array('class' => 'editbutton'));
@@ -690,7 +729,23 @@
                           . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
                         print '</div>';
                         print '<div>';
-                        print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html($ea['mail'])) . '\', \'' . $this->Html->url(array('controller' => 'email_addresses', 'action' => 'delete', $ea['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                        print '<a class="deletebutton" title="' . _txt('op.delete')
+                          . '" onclick="javascript:js_confirm_generic(\''
+                          . _txt('js.remove') . '\',\''    // dialog body text
+                          . $this->Html->url(              // dialog confirm URL
+                            array(
+                              'controller' => 'email_addresses',
+                              'action' => 'delete', $ea['id'],
+                              'co' => $cur_co['Co']['id']
+                            )
+                          ) . '\',\''
+                          . _txt('op.remove') . '\',\''    // dialog confirm button
+                          . _txt('op.cancel') . '\',\''    // dialog cancel button
+                          . _txt('op.remove') . '\',[\''   // dialog title
+                          . filter_var(_jtxt($ea['mail']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                          . '\'])";>'
+                          . _txt('op.delete')
+                          . '</a>';
                         print $this->Html->link(_txt('op.edit'),
                             array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']),
                             array('class' => 'editbutton')) . "\n";
@@ -792,7 +847,24 @@
                             print '</div>';
                             print '<div>';
                             // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                            print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(_txt('fd.group.memin', array(Sanitize::html($g['CoGroup']['name'])))) . '\', \'' . $this->Html->url(array('controller' => 'co_group_members', 'action' => 'delete', $g['id'], 'copersonid' => $co_people[0]['CoPerson']['id'], 'return' => 'person')) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                            print '<a class="deletebutton" title="' . _txt('op.delete')
+                              . '" onclick="javascript:js_confirm_generic(\''
+                              . _txt('js.remove.member') . '\',\''    // dialog body text
+                              . $this->Html->url(                     // dialog confirm URL
+                                array(
+                                  'controller' => 'co_group_members',
+                                  'action' => 'delete', $g['id'],
+                                  'copersonid' => $co_people[0]['CoPerson']['id'],
+                                  'return' => 'person'
+                                )
+                              ) . '\',\''
+                              . _txt('op.remove') . '\',\''    // dialog confirm button
+                              . _txt('op.cancel') . '\',\''    // dialog cancel button
+                              . _txt('op.remove') . '\',[\''   // dialog title
+                              . filter_var(_jtxt($g['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                              . '\'])";>'
+                              . _txt('op.delete')
+                              . '</a>';
                             print '</div>';
                             print '</div>';
                           }
@@ -1066,7 +1138,24 @@
                                     }
                                     
                                     if($permissions['delete']) {
-                                      print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::html(generateCn($co_people[0]['PrimaryName']))) . '\', \'' . $this->Html->url(array('controller' => 'co_person_roles', 'action' => 'delete', $r['id'], 'co' => $cur_co['Co']['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                                      print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                                        . '" onclick="javascript:js_confirm_generic(\''
+                                        . _txt('js.remove') . '\',\''    // dialog body text
+                                        . $this->Html->url(              // dialog confirm URL
+                                          array(
+                                            'controller' => 'co_person_roles',
+                                            'action' => 'delete',
+                                            $r['id'],
+                                            'co' => $cur_co['Co']['id']
+                                          )
+                                        ) . '\',\''
+                                        . _txt('op.remove') . '\',\''    // dialog confirm button
+                                        . _txt('op.cancel') . '\',\''    // dialog cancel button
+                                        . _txt('op.remove') . '\',[\''   // dialog title
+                                        . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                                        . '\'])";>'
+                                        . _txt('op.delete')
+                                        . '</button>';
                                     }
                                   } elseif($permissions['view']) {
                                     print $this->Html->link(_txt('op.view'),
@@ -1131,9 +1220,23 @@
                         print '</div>';
                         print '<div>';
                         // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                        // We use Sanitize::paranoid in the delete construction because a comment like 'user@host' will break
-                        // the javascript. There's probably a better filter we could do here (this also removes spaces).
-                        print '<a class="deletebutton" title="' . _txt('op.delete') . '" onclick="javascript:js_confirm_delete(\'' . _jtxt(Sanitize::paranoid($sk['comment'])) . '\', \'' . $this->Html->url(array('controller' => 'ssh_keys', 'action' => 'delete', $sk['id'])) . '\')";>' . _txt('op.delete') . '</a>' . "\n";
+                        print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                          . '" onclick="javascript:js_confirm_generic(\''
+                          . _txt('js.remove') . '\',\''    // dialog body text
+                          . $this->Html->url(              // dialog confirm URL
+                            array(
+                              'controller' => 'ssh_keys',
+                              'action' => 'delete',
+                              $sk['id']
+                            )
+                          ) . '\',\''
+                          . _txt('op.remove') . '\',\''    // dialog confirm button
+                          . _txt('op.cancel') . '\',\''    // dialog cancel button
+                          . _txt('op.remove') . '\',[\''   // dialog title
+                          . filter_var(_jtxt($sk['comment']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                          . '\'])";>'
+                          . _txt('op.delete')
+                          . '</button>';
                         print $this->Html->link(_txt('op.edit'),
                             array('controller' => 'ssh_keys', 'action' => 'edit', $sk['id']),
                             array('class' => 'editbutton')) . "\n";

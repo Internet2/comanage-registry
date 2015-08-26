@@ -167,7 +167,7 @@
               . _txt('op.verify') . '\',\''           // dialog confirm button
               . _txt('op.cancel') . '\',\''           // dialog cancel button
               . _txt('op.verify') . '\',[\''          // dialog title
-              . _jtxt(filter_var($email_addresses[0]['EmailAddress']['mail'],FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+              . filter_var(_jtxt($email_addresses[0]['EmailAddress']['mail']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
               . '\']);">'
               . _txt('op.verify')
               . '</button>' . "\n";

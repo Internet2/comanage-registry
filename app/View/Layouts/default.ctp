@@ -96,37 +96,14 @@
 
       // Returns an i18n string with tokens replaced.
       // For use in JavaScript dialogs.
-      //   text          - body text for the array with tokens {0}, {1}, etc
-      //   replacements  - Array of strings to replace tokens
+      // text          - body text for the array with tokens {0}, {1}, etc
+      // replacements  - Array of strings to replace tokens
       function replaceTokens(text,replacements) {
         var processedString = text;
         for (var i = 0; i < replacements.length; i++) {
           processedString = processedString.replace("{"+i+"}", replacements[i]);
         }
         return processedString;
-      }
-
-      // Function to confirm delete and then hand off
-      function js_confirm_delete(name, url) {
-        // Generate a dialog box confirming the removal of <name>.  On confirmation, forward to <url>, which executes the delete.
-
-        // Set the title of the dialog
-        $("#dialog").dialog("option", "title", "<?php print _txt('op.remove'); ?>" + " " + name);
-
-        // Set the body of the dialog
-        // XXX need to I18N this, but arg passing currently only works within php not javascript
-        $("#dialog-text").text("Are you sure you wish to remove " + name + "?  This action cannot be undone.");
-
-        // Set the dialog buttons
-        $("#dialog").dialog("option",
-                            "buttons",
-                            {
-                              "<?php print _txt('op.cancel'); ?>": function() { $(this).dialog("close"); },
-                              "<?php print _txt('op.remove'); ?>": function() { window.location=url; }
-                            });
-
-        // Open the dialog
-        $('#dialog').dialog('open');
       }
 
       // Generate a dialog box confirming <txt>.  On confirmation, forward to <url>.

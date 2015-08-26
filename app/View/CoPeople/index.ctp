@@ -274,7 +274,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                     . _txt('op.inv.resend') . '\',\''   // dialog confirm button
                     . _txt('op.cancel') . '\',\''       // dialog cancel button
                     . _txt('op.inv.resend') . '\',[\''  // dialog title
-                    . _jtxt(filter_var(generateCn($p['PrimaryName']),FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+                    . filter_var(_jtxt(generateCn($p['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                     . '\']);">'
                     . _txt('op.inv.resend') 
                     . '</button>'
@@ -295,7 +295,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                       . _txt('op.inv.resend') . '\',\''   // dialog confirm button
                       . _txt('op.cancel') . '\',\''       // dialog cancel button
                       . _txt('op.inv.resend') . '\',[\''  // dialog title
-                      . _jtxt(filter_var(generateCn($p['PrimaryName']),FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+                      . filter_var(_jtxt(generateCn($p['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                       . '\']);">'
                       . _txt('op.inv.resend') 
                       . '</button>'

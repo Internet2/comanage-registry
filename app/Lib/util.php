@@ -274,14 +274,13 @@ function render_plugin_menus() {
 
 /**
  * Escape a string so it is suitable for echoing into Javascript function parameters.
- * Specifically, quotes are replaced with XML representations.
+ * Specifically, quotes are double escaped for correct round-trip rendering.
  *
  * @since  COmanage Registry v0.1
  * @param  string String to be escaped
  * @return string Escaped string
  */
 
-function _jtxt($str)
-{
-  return(str_replace(array("'", '"'), array('&apos;', '&quot;'), $str));
+function _jtxt($str) {
+  return(str_replace(array("'", '"'), array('\\x27', '\\x22'), $str));
 }

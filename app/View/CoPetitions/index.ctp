@@ -205,20 +205,24 @@
           }
           
           if($permissions['delete']) {
-            print '<button class="deletebutton" title="' .
-              _txt('op.delete') .
-              '" onclick="javascript:js_confirm_delete(\'' .
-              _jtxt(Sanitize::html($p['CoPetition']['id'])) . '\', \'' .
-              $this->Html->url(
+            $displayName = (!empty($p['EnrolleeCoPerson']['PrimaryName']) ? generateCn($p['EnrolleeCoPerson']['PrimaryName']) : _txt('fd.enrollee.new')) . ' (' . $p['CoPetition']['id'] . ')';
+            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.remove') . '\',\''    // dialog body text
+              . $this->Html->url(              // dialog confirm URL
                 array(
                   'controller' => 'co_petitions',
                   'action' => 'delete',
                   $p['CoPetition']['id']
                 )
-              ) .
-              '\')";>' .
-              _txt('op.delete') .
-              "</button>\n";
+              ) . '\',\''
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\',[\''   // dialog title
+              . filter_var(_jtxt($displayName),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+              . '\'])";>'
+              . _txt('op.delete')
+              . '</button>';
           }
 
           if($permissions['resend'] && $p['CoPetition']['status'] == StatusEnum::PendingConfirmation) {
@@ -244,6 +248,11 @@
     </tr>
     <?php $i++; ?>
     <?php endforeach; // $co_petitions ?>
+    <?php
+      if (count($co_petitions) == 0) {
+        print '<tr><td colspan="10">' . _txt('ct.co_petitions.0') . '</td></tr>';
+      }
+    ?>
   </tbody>
   
   <tfoot>

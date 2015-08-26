@@ -44,11 +44,11 @@ global $cm_lang, $cm_texts;
 </script>
 
 <div id="orgIdSearch" class="topSearch">
-  <p><?php print _txt('op.search');?>:</p>
   <?php
   print $this->Form->create('OrgIdentity',array('action'=>'search'));
   print $this->Form->hidden('OrgIdentity.co_id', array('default' => $cur_co['Co']['id'])). "\n";
   ?>
+  <p><?php print _txt('op.search');?>:</p>
   <?php
   $args = array();
   $args['label'] = _txt('fd.name.given');

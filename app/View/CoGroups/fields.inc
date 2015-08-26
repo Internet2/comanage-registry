@@ -163,7 +163,7 @@
                           . _txt('op.remove') . '\',\''    // dialog confirm button
                           . _txt('op.cancel') . '\',\''    // dialog cancel button
                           . _txt('op.remove') . '\',[\''   // dialog title
-                          . _jtxt(filter_var($co_groups[0]['CoGroup']['name'],FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+                          . filter_var(_jtxt($co_groups[0]['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                           . '\'])";>'
                           . _txt('op.delete')
                           . '</a>';

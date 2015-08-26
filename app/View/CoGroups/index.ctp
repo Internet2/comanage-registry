@@ -428,7 +428,7 @@
             }
             
             if($d) {
-              print '<button class="deletebutton" title="' . _txt('op.delete')
+              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
                 . '" onclick="javascript:js_confirm_generic(\''
                 . _txt('js.remove') . '\',\''    // dialog body text
                 . $this->Html->url(              // dialog confirm URL
@@ -442,7 +442,7 @@
                 . _txt('op.remove') . '\',\''    // dialog confirm button
                 . _txt('op.cancel') . '\',\''    // dialog cancel button
                 . _txt('op.remove') . '\',[\''   // dialog title
-                . _jtxt(filter_var($c['CoGroup']['name'],FILTER_SANITIZE_STRING))  // dialog body text replacement strings
+                . filter_var(_jtxt($c['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                 . '\'])";>'
                 . _txt('op.delete')
                 . '</button>';

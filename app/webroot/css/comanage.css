@@ -630,14 +630,14 @@ td.top {
 }
 #topLinks a {
   text-decoration: none;
-  color: #222;
+  color: #1d5987;
   /* override ui-icon settings: */
   border: none;
   background: none;
   background-color: white;
 }
 #topLinks a:hover {
-  color: #1d5987;
+  color: #222;
 }
 /* For Advanced Search box */
 #advancedSearch {

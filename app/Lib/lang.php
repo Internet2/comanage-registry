@@ -105,6 +105,7 @@ $cm_texts['en_US'] = array(
   'ct.co_petition_history_records.pl' => 'CO Petition History Records',
   'ct.co_petitions.1' =>        'CO Petition',
   'ct.co_petitions.pl' =>       'CO Petitions',
+  'ct.co_petitions.0' =>        'No petitions',
   'ct.co_provisioning_targets.1'  => 'Provisioning Target',
   'ct.co_provisioning_targets.pl' => 'Provisioning Targets',
   'ct.co_self_service_permissions.1'  => 'Self Service Permission',
@@ -1122,8 +1123,8 @@ original notification at
   // Can include token replacements in the form of {0}, {1}, {2}, etc.
   // Pass a replacements array as the last parameter to js_confirm_generic() in default.ctp
   // NOTE: these strings should escape all quotes using &quot; (or \x22) and &apos; (or \x27)
-  'js.remove'         =>  'Are you sure you wish to remove \x22{0}\x22 ?  This action cannot be undone.',
-  'js.remove.member'  =>  'Are you sure you wish to remove this member from group \x22{0}\x22 ?  This action cannot be undone.',
+  'js.remove'         =>  'Are you sure you wish to remove \x22{0}\x22?  This action cannot be undone.',
+  'js.remove.member'  =>  'Are you sure you wish to remove this member from group \x22{0}\x22?  This action cannot be undone.',
   'js.reinvite'       =>  'Are you sure you wish to resend an invitation to {0}?  Any previous invitation will be invalidated.',
   'js.confirm.verify' =>  'Are you sure you wish to send a verification request to {0}? Any previous request will be invalidated.',
 

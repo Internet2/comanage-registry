@@ -110,7 +110,7 @@
                           'action' => 'delete',
                           $c['CoNsfDemographic']['id']
                          );
-            print '<button class="deletebutton" title="' . _txt('op.delete')
+            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
               . '" onclick="javascript:js_confirm_generic(\''
               . _txt('op.delete.consfdemographics') . '\',\'' // dialog body text
               . $this->Html->url($args) . '\',\''             // dialog confirm URL
