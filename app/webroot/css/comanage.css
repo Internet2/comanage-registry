@@ -957,15 +957,14 @@ body.co_petitions .approve-button:hover {
   background-color: #3b3;
 }
 body.co_petitions .deny-button {
-  background-color: #617989;
+  background-color: #c33;
   background-image: none;
-  border: 1px solid #4c5e6b;
+  border: 1px solid #b22;
   color: white;
   font-weight: bold;
 }
 body.co_petitions .deny-button:hover {
-  background-color: #c33;
-  border-color: #b22;
+  background-color: #d44;
 }
 /* Enrollment Flow Steps */
 #enrollmentFlowSteps h3 {
