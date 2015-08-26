@@ -1034,27 +1034,19 @@ body.co_petitions .deny-button:hover {
 }
 /* Groups */
 #groupMembers {
-  margin: 0;
-}
-#groupMembers ul {
   margin: 0 0 1em 0;
   padding: 0;
-  border-bottom: 1px solid #ccc;
 }
-#groupMembers li {
+#groupMembers td {
   clear: both;
   line-height: 2.1em;
-  list-style: outside none none;
   margin: 0;
   padding: 0.25em 0.25em 0.25em 0.5em;
-  border-top: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-  border-left: 1px solid #ccc;
 }
-#groupMembers li:nth-child(odd) {
+#groupMembers tr:nth-child(odd) td {
   background-color: #f5f5f5;
 }
-#groupMembers li:nth-child(even) {
+#groupMembers tr:nth-child(even) td {
   background-color: #eee;
 }
 /* Demographics */
