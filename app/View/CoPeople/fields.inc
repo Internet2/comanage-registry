@@ -505,7 +505,7 @@
                           . _txt('op.cancel') . '\',\''    // dialog cancel button
                           . _txt('op.remove') . '\',[\''   // dialog title
                           . filter_var(_jtxt(generateCn($n)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\'])";>'
+                          . '\']);">'
                           . _txt('op.delete')
                           . '</a>';
 
@@ -605,7 +605,7 @@
                           . _txt('op.cancel') . '\',\''    // dialog cancel button
                           . _txt('op.remove') . '\',[\''   // dialog title
                           . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\'])";>'
+                          . '\']);">'
                           . _txt('op.delete')
                           . '</a>';
                         print $this->Html->link(_txt('op.edit'),
@@ -743,7 +743,7 @@
                           . _txt('op.cancel') . '\',\''    // dialog cancel button
                           . _txt('op.remove') . '\',[\''   // dialog title
                           . filter_var(_jtxt($ea['mail']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\'])";>'
+                          . '\']);">'
                           . _txt('op.delete')
                           . '</a>';
                         print $this->Html->link(_txt('op.edit'),
@@ -862,7 +862,7 @@
                               . _txt('op.cancel') . '\',\''    // dialog cancel button
                               . _txt('op.remove') . '\',[\''   // dialog title
                               . filter_var(_jtxt($g['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                              . '\'])";>'
+                              . '\']);">'
                               . _txt('op.delete')
                               . '</a>';
                             print '</div>';
@@ -1134,7 +1134,7 @@
                                     }
                                     
                                     if($permissions['relink']) {
-                                      print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.role.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'copersonroleid' => $r['id'])) . '\')";>' . _txt('op.relink') . '</a>' . "\n";
+                                      print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.role.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'copersonroleid' => $r['id'])) . '\');">' . _txt('op.relink') . '</a>' . "\n";
                                     }
                                     
                                     if($permissions['delete']) {
@@ -1153,7 +1153,7 @@
                                         . _txt('op.cancel') . '\',\''    // dialog cancel button
                                         . _txt('op.remove') . '\',[\''   // dialog title
                                         . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                                        . '\'])";>'
+                                        . '\']);">'
                                         . _txt('op.delete')
                                         . '</button>';
                                     }
@@ -1234,7 +1234,7 @@
                           . _txt('op.cancel') . '\',\''    // dialog cancel button
                           . _txt('op.remove') . '\',[\''   // dialog title
                           . filter_var(_jtxt($sk['comment']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\'])";>'
+                          . '\']);">'
                           . _txt('op.delete')
                           . '</button>';
                         print $this->Html->link(_txt('op.edit'),
@@ -1352,7 +1352,7 @@
                                   array('class' => ($e && !$es ? 'editbutton' : 'viewbutton'))) . "\n";
                               
                               if($permissions['relink']) {
-                                print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'linkid' => $link['id'])) . '\')";>' . _txt('op.relink') . '</a>' . "\n";
+                                print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'linkid' => $link['id'])) . '\');">' . _txt('op.relink') . '</a>' . "\n";
                               }
                               
                               if($permissions['delete']
@@ -1361,7 +1361,7 @@
                                 // XXX Is this still a valid restriction? As of 0.9.1 one can relink an org identity
                                 // away, even if it's the last one attached to the CO Preson.
                                 
-                                print '<a class="unlinkbutton" title="' . _txt('op.unlink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.unlink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_org_identity_links', 'action' => 'delete', $link['id'])) . '\')";>' . _txt('op.unlink') . '</a>' . "\n";
+                                print '<a class="unlinkbutton" title="' . _txt('op.unlink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.unlink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_org_identity_links', 'action' => 'delete', $link['id'])) . '\');">' . _txt('op.unlink') . '</a>' . "\n";
                               }
                               ?>
                             </td>

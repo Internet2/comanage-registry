@@ -368,7 +368,7 @@ $(function() {
                     . _txt('op.cancel') . '\',\''    // dialog cancel button
                     . _txt('op.remove') . '\',[\''   // dialog title
                     . filter_var(_jtxt(formatTelephone($t)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                    . '\'])";>'
+                    . '\']);">'
                     . _txt('op.delete')
                     . '</button>';
                   print $this->Html->link(_txt('op.edit'),
@@ -425,7 +425,7 @@ $(function() {
                     . _txt('op.cancel') . '\',\''    // dialog cancel button
                     . _txt('op.remove') . '\',[\''   // dialog title
                     . filter_var(_jtxt($addr['street']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                    . '\'])";>'
+                    . '\']);">'
                     . _txt('op.delete')
                     . '</button>';
                   print $this->Html->link(_txt('op.edit'),

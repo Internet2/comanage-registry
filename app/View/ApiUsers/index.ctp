@@ -92,7 +92,7 @@
               . _txt('op.cancel') . '\',\''    // dialog cancel button
               . _txt('op.remove') . '\',[\''   // dialog title
               . filter_var(_jtxt($a['ApiUser']['username']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\'])";>'
+              . '\']);">'
               . _txt('op.delete')
               . '</button>';
           }

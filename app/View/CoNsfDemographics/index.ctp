@@ -116,7 +116,7 @@
               . $this->Html->url($args) . '\',\''             // dialog confirm URL
               . _txt('op.remove') . '\',\''    // dialog confirm button
               . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.remove') . '\')";>'   // dialog title
+              . _txt('op.remove') . '\');">'   // dialog title
               . _txt('op.delete')
               . '</button>';
           }
