@@ -640,10 +640,8 @@
                         case 'selected':
                           print '<span class="ui-icon ui-icon-arrowthick-1-e"> </span>';
                           break;
-                        default:
-                          print '<span class="ui-icon ui-icon-help"> </span>';
                       }
-                      print $step['title'];
+                      print '<span class="stepText">' . $step['title'] . '</span>';
                       print '</li>';
                     }
                   ?>

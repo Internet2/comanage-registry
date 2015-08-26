@@ -990,9 +990,16 @@ body.co_petitions .deny-button:hover {
   border: 1px solid #8dbbdd;
   font-weight: bold;
   padding: 0.5em;
+  margin-bottom: 1em;
 }
 #enrollmentFlowSteps li.incomplete {
   font-style: italic;
+  list-style: disc;
+  margin-left: 1.25em;
+  color: #888;
+}
+#enrollmentFlowSteps li.incomplete .stepText {
+  color: #222;
 }
 #enrollmentFlowSteps li.complete .ui-icon {
   background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_6eac2c_256x240.png");
