@@ -613,6 +613,9 @@ td.top {
 .topSearch .clearButton {
   float: right;
 }
+.topSearch .ui-button {
+  font-size: 1em;
+}
 #topLinks {
   float: right;
   margin: 1em 0 0 0;
@@ -1069,9 +1072,10 @@ body.co_petitions .deny-button:hover {
 }
 /* Alpha search  */
 #peopleAlphabet {
-  margin: 0 0 1.2em 0;
+  margin: 0;
   font-size: 1.2em;
   border-top: 1px solid #ddd;
+  border-bottom: 2px solid #ccc;
 }
 #peopleAlphabet ul {
   display: table;
