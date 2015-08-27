@@ -225,22 +225,12 @@ class CoGroupsController extends StandardController {
     if(!$this->request->is('restful') && $this->request->is('get')) {
       // Retrieve the set of all group members for group with ID $id.
       // Specify containable behavior to get necessary relations.
-      $conditions = array();
-      $conditions['CoGroupMember.co_group_id'] = $id;
-      $contain = array();
-      $contain['CoPerson'][] = 'PrimaryName';
-      $contain['CoPerson'][] = 'CoGroupMember';
-
-      $args = array();
-      $args['conditions'] = $conditions;
-      $args['contain'] = $contain;
-
-      $allGroupMembers = $this->CoGroup->CoGroupMember->find('all', $args);
-      $this->set('co_group_members', $allGroupMembers);
+      
+      $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
       
       // Signal if this is a members group so that the edit and delete
       // buttons on memberships can not be included.
-    
+      
       $conditions = array();
       $conditions['CoGroup.id'] = $id;
       $contain = array();
@@ -255,11 +245,11 @@ class CoGroupsController extends StandardController {
       if($coGroup['CoGroup']['name'] == 'members') {
         $isMembersGroup = true;
       } else {
-          foreach($coGroup['Co']['Cou'] as $cou) {
-            if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
-              $isMembersGroup = true;
-            }
-          }            
+        foreach($coGroup['Co']['Cou'] as $cou) {
+          if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
+            $isMembersGroup = true;
+          }
+        }
       }
       
       $this->set('isMembersGroup', $isMembersGroup);
@@ -648,11 +638,7 @@ class CoGroupsController extends StandardController {
   
   function view($id) {
     if(!$this->request->is('restful')) {
-      $this->CoGroup->CoGroupMember->recursive = 2;
-      $x = $this->CoGroup->CoGroupMember->find('all', array('conditions' =>
-                                                            array('CoGroupMember.co_group_id' => $id)));
-      
-      $this->set('co_group_members', $x);
+      $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
     }
     
     // Invoke the StandardController view

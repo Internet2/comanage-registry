@@ -143,91 +143,86 @@
     <tr class="ui-widget-header">
       <th><?php print _txt('fd.name'); ?></th>
       <th><?php print _txt('fd.status'); ?></th>
+      <th><?php print _txt('fd.roles'); ?></th>
       <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   <tbody>
     <?php
-      if(isset($co_group_members)) {
+      foreach($vv_co_group_members as $g) {
+        print '<tr>';
+        
+        // Member name
+        print '<td>';
+        if($permissions['admin']) {
+          print $this->Html->link(generateCn($g['CoPerson']['PrimaryName']),
+                                  array('controller' => 'co_people',
+                                        'action' => 'canvas',
+                                        $g['CoPerson']['id']));
+        } else {
+          print generateCn($g['CoPerson']['PrimaryName']);
+        }
+        print '</td>';
+        
+        // Member's CO Person status
+        print '<td>';
+        if(!empty($g['CoPerson']['status'])) {
+          print _txt('en.status', null, $g['CoPerson']['status']);
+        }
+        print '</td>';
+        
+        // Group role (owner vs member)
+        print '<td>';
+        if($g['CoGroupMember']['owner']) {
+          if($g['CoGroupMember']['member']) {
+            print _txt('fd.group.grmemown');
+          } else {
+            print _txt('fd.group.own.only');
+          }
+        } elseif($g['CoGroupMember']['member']) {
+          print _txt('fd.group.mem');
+        }
+        print '</td>';
+        
+        print '<td class="actions">';
         if($e) {
-          foreach($co_group_members as $c) {
-            foreach($c['CoPerson']['CoGroupMember'] as $g) {
-              // We get all the group memberships, but are only interested in the current group
-              if($g['co_group_id'] == $co_groups[0]['CoGroup']['id']) {
-                print '<tr><td>';
-                // Print member name
-                if($permissions['admin']) {
-                  print $this->Html->link(generateCn($c['CoPerson']['PrimaryName']),
-                    array('controller' => 'co_people',
-                      'action' => 'canvas',
-                      $c['CoPerson']['id']));
-                } else {
-                  print generateCn($c['CoPerson']['PrimaryName']);
-                }
-                print '</td><td>';
-                // Print member status
-                if( !empty($c['CoPerson']['status']) ) {
-                  print ' ('
-                    . _txt('en.status', null, $c['CoPerson']['status'])
-                    .')';
-                }
-
-                if($g['owner']) {
-                  if(!$g['member']) {
-                    print " " . _txt('fd.group.own.only');
-                  } else {
-                    print " " . _txt('fd.group.own');
-                  }
-                }
-                print '</td><td class="actions">';
-                // Print actions
-                // Do not show edit or delete buttons if this is a members group.
-                if(!$isMembersGroup) {
-                  print $this->Html->link(
-                    _txt('op.edit'),
-                    array(
-                      'controller' => 'co_group_members',
-                      'action' => 'edit',
-                      $g['id']
-                    ),
-                    array('class' => 'editbutton')
-                  );
-                  if($dok) {
-                    print '<a class="deletebutton" title="' . _txt('op.delete')
-                      . '" onclick="javascript:js_confirm_generic(\''
-                      . _txt('js.remove.member') . '\',\''    // dialog body text
-                      . $this->Html->url(              // dialog confirm URL
-                        array(
-                          'controller' => 'co_group_members',
-                          'action' => 'delete', $g['id'],
-                          'copersonid' => $g['co_person_id'],
-                          'return' => 'group'
-                        )
-                      ) . '\',\''
-                      . _txt('op.remove') . '\',\''    // dialog confirm button
-                      . _txt('op.cancel') . '\',\''    // dialog cancel button
-                      . _txt('op.remove') . '\',[\''   // dialog title
-                      . filter_var(_jtxt($co_groups[0]['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                      . '\']);">'
-                      . _txt('op.delete')
-                      . '</a>';
-                  }
-                }
-                print "</td></tr>\n";
-                break;
-              }
+          // Do not show edit or delete buttons if this is a members group.
+          if(!$isMembersGroup) {
+            print $this->Html->link(
+              _txt('op.edit'),
+              array(
+                'controller' => 'co_group_members',
+                'action' => 'edit',
+                $g['CoGroupMember']['co_group_id']
+              ),
+              array('class' => 'editbutton')
+            );
+            
+            if($dok) {
+              print '<a class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove.member') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'co_group_members',
+                    'action' => 'delete', $g['CoGroupMember']['co_group_id'],
+                    'copersonid' => $g['CoGroupMember']['co_person_id'],
+                    'return' => 'group'
+                  )
+                ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . filter_var(_jtxt($co_groups[0]['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.delete')
+                . '</a>';
             }
           }
-        } else {
-          foreach($co_group_members as $c) {
-            print '<tr><td colspan="3">';
-            print Sanitize::html(generateCn($c['CoPerson']['PrimaryName'])) . "<br />\n";
-            print '</td></tr>';
-          }
         }
-        if (count($co_group_members) == 0) {
-          print '<tr><td colspan="3">' . _txt('ct.co_group_members.0') . '</td></tr>';
-        }
+        print '</td>';
+        
+        print '</tr>';
       }
     ?>
   </tbody>
