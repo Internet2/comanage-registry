@@ -528,6 +528,20 @@ class OrgIdentitiesController extends StandardController {
       $pagcond['conditions']['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
     }
     
+    // Filter by email address
+    if(!empty($this->params['named']['Search.mail'])) {
+      $searchterm = strtolower($this->params['named']['Search.mail']);
+      $pagcond['conditions']['LOWER(EmailAddress.mail) LIKE'] = "%$searchterm%";
+      $pagcond['joins'][] = array(
+        'table' => 'email_addresses',
+        'alias' => 'EmailAddress',
+        'type' => 'INNER',
+        'conditions' => array(
+          'EmailAddress.org_identity_id=OrgIdentity.id' 
+        )
+      );
+    }
+    
     // Filter by identifier
     if(!empty($this->params['named']['Search.identifier'])) {
       $searchterm = strtolower($this->params['named']['Search.identifier']);

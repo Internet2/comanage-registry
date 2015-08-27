@@ -68,9 +68,17 @@ global $cm_lang, $cm_texts;
     ?>
     <?php
     $args = array();
+    $args['label'] = _txt('fd.email_address.mail');
+    $args['placeholder'] = _txt('fd.email_address.mail');
+    $args['tabindex'] = '3';
+    $args['value'] = !empty($this->request->params['named']['Search.mail']) ? $this->request->params['named']['Search.mail'] : '';
+    print $this->Form->input('Search.mail', $args);
+    ?>
+    <?php
+    $args = array();
     $args['label'] = _txt('fd.identifier.identifier');
     $args['placeholder'] = _txt('fd.identifier.identifier');
-    $args['tabindex'] = '3';
+    $args['tabindex'] = '4';
     $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
     print $this->Form->input('Search.identifier', $args);
     ?>
@@ -81,7 +89,7 @@ global $cm_lang, $cm_texts;
       'label'   => _txt('fd.status'),
       'empty'   => _txt('fd.status') . ' ' . _txt('op.select.empty'),
       'onchange' => 'this.form.submit()',
-      'tabindex' => '4',
+      'tabindex' => '5',
       'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
 
     print $this->Form->input('Search.status', $formParams);
@@ -94,7 +102,7 @@ global $cm_lang, $cm_texts;
         'label'   => _txt('fd.cou'),
         'empty'   => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
         'onchange' => 'this.form.submit()',
-        'tabindex' => '5',
+        'tabindex' => '6',
         'value'   => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
 
       print $this->Form->input('Search.couid', $formParams);
@@ -107,10 +115,10 @@ global $cm_lang, $cm_texts;
       $args['type'] = 'button';
       $args['class'] = 'clearButton spin';
       $args['onclick'] = 'clearSearch(this.form)';
-      $args['tabindex'] = '7';
+      $args['tabindex'] = '8';
       print $this->Form->button(_txt('op.clear.all'),$args);
       $args = array();
-      $args['tabindex'] = '6';
+      $args['tabindex'] = '7';
       print $this->Form->submit(_txt('op.search'),$args);
       ?>
     </div>

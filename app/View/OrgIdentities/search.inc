@@ -67,9 +67,17 @@ global $cm_lang, $cm_texts;
   ?>
   <?php
   $args = array();
+  $args['label'] = _txt('fd.email_address.mail');
+  $args['placeholder'] = _txt('fd.email_address.mail');
+  $args['tabindex'] = '3';
+  $args['value'] = !empty($this->request->params['named']['Search.mail']) ? $this->request->params['named']['Search.mail'] : '';
+  print $this->Form->input('Search.mail', $args);
+  ?>
+  <?php
+  $args = array();
   $args['label'] = _txt('fd.identifier.identifier');
   $args['placeholder'] = _txt('fd.identifier.identifier');
-  $args['tabindex'] = '3';
+  $args['tabindex'] = '4';
   $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
   print $this->Form->input('Search.identifier', $args);
   ?>
@@ -77,7 +85,7 @@ global $cm_lang, $cm_texts;
   $args = array();
   $args['label'] = _txt('fd.o');
   $args['placeholder'] = _txt('fd.o');
-  $args['tabindex'] = '4';
+  $args['tabindex'] = '5';
   $args['value'] = !empty($this->request->params['named']['Search.organization']) ? $this->request->params['named']['Search.organization'] : '';
   print $this->Form->input('Search.organization',$args);
   ?>
@@ -85,7 +93,7 @@ global $cm_lang, $cm_texts;
   $args = array();
   $args['label'] = _txt('fd.ou');
   $args['placeholder'] = _txt('fd.ou');
-  $args['tabindex'] = '5';
+  $args['tabindex'] = '6';
   $args['value'] = !empty($this->request->params['named']['Search.department']) ? $this->request->params['named']['Search.department'] : '';
   print $this->Form->input('Search.department',$args);
   ?>
@@ -93,7 +101,7 @@ global $cm_lang, $cm_texts;
   $args = array();
   $args['label'] = _txt('fd.title');
   $args['placeholder'] = _txt('fd.title');
-  $args['tabindex'] = '6';
+  $args['tabindex'] = '7';
   $args['value'] = !empty($this->request->params['named']['Search.title']) ? $this->request->params['named']['Search.title'] : '';
   print $this->Form->input('Search.title',$args);
   ?>
@@ -103,7 +111,7 @@ global $cm_lang, $cm_texts;
     'type'    => 'select',
     'empty'   => _txt('fd.affiliation') . ' ' . _txt('op.select.empty'),
     'label'   => _txt('fd.affiliation'),
-    'tabindex' => '7',
+    'tabindex' => '8',
     'onchange' => 'this.form.submit()',
     'value'   => (!empty($this->request->params['named']['Search.affiliation']) ? $this->request->params['named']['Search.affiliation'] : ''));
   print $this->Form->input('Search.affiliation', $formParams);
@@ -115,10 +123,10 @@ global $cm_lang, $cm_texts;
     $args['type'] = 'button';
     $args['class'] = 'clearButton spin';
     $args['onclick'] = 'clearSearch(this.form)';
-    $args['tabindex'] = '9';
+    $args['tabindex'] = '10';
     print $this->Form->button(_txt('op.clear.all'),$args);
     $args = array();
-    $args['tabindex'] = '8';
+    $args['tabindex'] = '9';
     print $this->Form->submit(_txt('op.search'),$args);
     ?>
   </div>

@@ -898,6 +898,22 @@ class CoPeopleController extends StandardController {
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
     }
     
+    // Filter by email address
+    if(!empty($this->params['named']['Search.mail'])) {
+      $searchterm = strtolower($this->params['named']['Search.mail']);
+      $pagcond['conditions']['LOWER(EmailAddress.mail) LIKE'] = "%$searchterm%";
+      $pagcond['joins'][] = array(
+        'table' => 'email_addresses',
+        'alias' => 'EmailAddress',
+        'type' => 'INNER',
+        'conditions' => array(
+          'EmailAddress.co_person_id=CoPerson.id' 
+        )
+      );
+      
+      // See also the note below about searching org identities for identifiers.
+    }
+    
     // Filter by identifier
     if(!empty($this->params['named']['Search.identifier'])) {
       $searchterm = strtolower($this->params['named']['Search.identifier']);
