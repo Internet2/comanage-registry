@@ -97,76 +97,76 @@
 <table id="<?php print $this->action; ?>_address" class="ui-widget">
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
+      <td class="fieldName">
         <?php print _txt('fd.address.street'); ?>
         <?php if(in_array('street', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
-      <td>
+      <td class="fieldVal">
         <?php print ($e ? $this->Form->input('street', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['street'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
+      <td class="fieldName">
         <?php print _txt('fd.address.room'); ?>
         <?php if(in_array('room', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
-      <td>
+      <td class="fieldVal">
         <?php print ($e ? $this->Form->input('room') : Sanitize::html($addresses[0]['Address']['room'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
+      <td class="fieldName">
         <?php print _txt('fd.address.locality'); ?>
         <?php if(in_array('locality', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
-      <td>
+      <td class="fieldVal">
         <?php print ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
+      <td class="fieldName">
         <?php print _txt('fd.address.state'); ?>
         <?php if(in_array('state', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
-      <td>
+      <td class="fieldVal">
         <?php print ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
+      <td class="fieldName">
         <?php print _txt('fd.address.postal_code'); ?>
         <?php if(in_array('postal_code', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
-      <td>
+      <td class="fieldVal">
         <?php print ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
+      <td class="fieldName">
         <?php print _txt('fd.address.country'); ?>
         <?php if(in_array('country', $required_fields)): ?>
         <span class="required">*</span>
         <?php endif; // required_fields ?>
       </td>
-      <td>
+      <td class="fieldVal">
         <?php print ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
+      <td class="fieldName">
         <?php print _txt('fd.type'); ?>
       </td>
-      <td>
+      <td class="fieldVal">
         <?php
         $attrs = array();
           $attrs['value'] = (isset($addresses[0]['Address']['type']) ? $addresses[0]['Address']['type'] : "");
@@ -187,10 +187,10 @@
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
+      <td class="fieldName">
         <?php print _txt('fd.language'); ?>
       </td>
-      <td>
+      <td class="fieldVal">
         <?php
           global $cm_lang, $cm_texts;
           

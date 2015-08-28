@@ -461,10 +461,17 @@ a.linkbutton:last-child {
 /* Tables */
 table {
   width: 100%;
+  border-collapse: collapse;
 }
 th, td {
   padding: 0.5em;
   text-align: left;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+}
+tr th:last-child,
+tr td:last-child {
+  border-right: none;
 }
 td.actions {
   white-space: nowrap;
@@ -584,7 +591,7 @@ td.top {
 }
 .topSearch input[type=text] {
   width: 92%;
-  height: 1.5em;
+  height: 18px;
   padding: 2px 4px;
   border: 1px solid #ddd;
 }
@@ -599,12 +606,17 @@ td.top {
   display: none;
 }
 .topSearch select {
-  color: #777;
+  color: #888;
   background-color: #fff;
   width: 98%;
-  height: 2em;
+  height: 24px;
   margin: 0;
   border: 1px solid #ddd;
+  -webkit-appearance: none;
+  -webkit-border-radius: 0px;
+  padding: 2px 4px;
+  border: 1px solid #ddd;
+
 }
 .topSearch option[value=''] {
   font-style: italic;
@@ -615,6 +627,7 @@ td.top {
 }
 .topSearch .ui-button {
   font-size: 1em;
+  height: 24px;
 }
 #topLinks {
   float: right;
