@@ -45,6 +45,7 @@ class CoPersonRolesController extends StandardController {
 
   public $edit_contains = array(
     'Address',
+    'SponsorCoPerson' => array('PrimaryName'),
     'TelephoneNumber'
   );
   
@@ -52,6 +53,7 @@ class CoPersonRolesController extends StandardController {
   public $view_contains = array(
     'Address',
     'Cou',
+    'SponsorCoPerson' => array('PrimaryName'),
     'TelephoneNumber'
   );
   
@@ -90,7 +92,6 @@ class CoPersonRolesController extends StandardController {
   /**
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: $pool_org_identities set
-   * - postcondition: $sponsors set
    *
    * @since  COmanage Registry v0.2
    */
@@ -209,8 +210,8 @@ class CoPersonRolesController extends StandardController {
       $this->set('vv_copr_affiliation_types', $this->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
       $this->set('vv_copr_telephonenumber_types', $this->CoPersonRole->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
       
-      // generate list of sponsors
-      $this->set('sponsors', $this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
+      // Generate list of sponsors
+      $this->set('vv_sponsors', $this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
     }
   }
   

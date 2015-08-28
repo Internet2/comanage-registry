@@ -1415,6 +1415,8 @@
     <field name="required_fields_addr" type="C" size="160" />
     <field name="required_fields_name" type="C" size="160" />
     <field name="t_and_c_login_mode" type="C" size="2" />
+    <field name="sponsor_eligibility" type="C" size="2" />
+    <field name="sponsor_co_group_id" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

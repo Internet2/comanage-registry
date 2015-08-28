@@ -504,6 +504,12 @@ original notification at
   
   'en.required.name' => array(RequiredNameFieldsEnum::Given       => 'Given Name',
                               RequiredNameFieldsEnum::GivenFamily => 'Given Name, Family Name'),
+  
+  'en.sponsor.eligibility' => array(SponsorEligibilityEnum::CoAdmin       => 'CO Admin',
+                                    SponsorEligibilityEnum::CoGroupMember => 'CO Group Member',
+                                    SponsorEligibilityEnum::CoOrCouAdmin  => 'CO or COU Admin',
+                                    SponsorEligibilityEnum::CoPerson      => 'Active CO Person',
+                                    SponsorEligibilityEnum::None          => 'Disable Sponsors'),
 
   'en.sshkey.type' => array(
     SshKeyTypeEnum::DSA  => 'DSA',
@@ -718,6 +724,8 @@ original notification at
   'er.pt.status' =>   'Change of petition status from %1$s to %2$s is not permitted',
   'er.reorder' =>     'Reorder failed: ',
   'er.reply.unk' =>   'Unknown Reply',
+  'er.setting' =>     'Invalid Setting',
+  'er.setting.gr' =>  'Invalid Setting: No group specified',
   'er.ssh.format' =>  'File does not appear to be a valid ssh public key',
   'er.ssh.private' => 'Uploaded file appears to be a private key',
   'er.ssh.rfc4716' => 'RFC4716 format public keys are not currently supported',
@@ -1015,6 +1023,9 @@ original notification at
   'fd.source' =>      'Source',
   'fd.sponsor' =>     'Sponsor',
   'fd.sponsor.desc' =>'(for continued membership)',
+  'fd.sponsor.inel' => 'The current sponsor is no longer eligible to act as a sponsor',
+  'fd.sponsor.mode' => 'Sponsor Eligibility Mode',
+  'fd.sponsor.mode.desc' => 'Which CO People are eligible to sponsor CO Person Roles',
   'fd.ssp.default' => 'If permission is not explicitly granted here for a supported model, then self service updates are not permitted for that model. The permission will be Read Only. Default Read Write permission is required to add new values.',
   'fd.ssp.type.desc' => '"Default" applies this permission to all types not otherwise specified',
   'fd.status' =>      'Status',

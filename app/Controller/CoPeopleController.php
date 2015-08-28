@@ -77,7 +77,6 @@ class CoPeopleController extends StandardController {
   /**
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: $pool_org_identities set
-   * - postcondition: $sponsors set
    *
    * @since  COmanage Registry v0.1
    */
@@ -98,16 +97,12 @@ class CoPeopleController extends StandardController {
   /**
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request
-   * - postcondition: Set $sponsors
    *
    * @since  COmanage Registry v0.4
    */
 
   public function beforeRender() {
     if(!$this->request->is('restful')){
-      // Generate list of sponsors
-      $this->set('sponsors', $this->CoPerson->sponsorList($this->cur_co['Co']['id']));
-      
       // Determine if there are any Enrollment Flows for this CO and if so pass
       // them to the view. Currently, we don't check for COU-specific flows. 
       

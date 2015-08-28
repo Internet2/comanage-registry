@@ -30,7 +30,13 @@ class CoSetting extends AppModel {
   public $version = "1.0";
   
   // Association rules from this model to other models
-  public $belongsTo = array("Co");
+  public $belongsTo = array(
+    "Co",
+    "SponsorCoGroup" => array(
+      'className' => 'CoGroup',
+      'foreignKey' => 'sponsor_co_group_id'
+    )
+  );
   
   // Default display field for cake generated views
   public $displayField = "co_id";
@@ -87,6 +93,21 @@ class CoSetting extends AppModel {
                             // DisableAllServices not currently supported (CO-928)
       'required' => false,
       'allowEmpty' => true
+    ),
+    'sponsor_eligibility' => array(
+      'rule' => array('inList',
+                      array(SponsorEligibilityEnum::CoAdmin,
+                            SponsorEligibilityEnum::CoGroupMember,
+                            SponsorEligibilityEnum::CoOrCouAdmin,
+                            SponsorEligibilityEnum::CoPerson,
+                            SponsorEligibilityEnum::None)),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'sponsor_co_group_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -100,6 +121,8 @@ class CoSetting extends AppModel {
     'permitted_fields_name' => PermittedNameFieldsEnum::HGMFS,
     'required_fields_addr'  => RequiredAddressFieldsEnum::Street,
     'required_fields_name'  => RequiredNameFieldsEnum::Given,
+    'sponsor_co_group_id'   => null,
+    'sponsor_eligibility'   => SponsorEligibilityEnum::CoOrCouAdmin,
     't_and_c_login_mode'    => TAndCLoginModeEnum::NotEnforced
   );
   
@@ -222,7 +245,41 @@ class CoSetting extends AppModel {
     
     return $ret;
   }
+  
+  /**
+   * Get sponsor eligibility mode.
+   *
+   * @since  COmanage Registry v1.0.0
+   * @param  integer $coId CO ID
+   * @return SponsorEligibilityEnum Sponsor Eligibility Mode
+   */
+  
+  public function getSponsorEligibility($coId) {
+    return $this->lookupValue($coId, 'sponsor_eligibility');
+  }
 
+  
+  /**
+   * Get sponsor eligibility group. The results of this call are only valid if
+   * sponsor eligibility mode is SponsorEligibilityEnum::CoGroupMember.
+   *
+   * @since  COmanage Registry v1.0.0
+   * @param  integer $coId CO ID
+   * @return SponsorEligibilityEnum Sponsor Eligibility Mode
+   * @throws InvalidArgumentException
+   */
+  
+  public function getSponsorEligibilityCoGroup($coId) {
+    // First check the mode
+    $mode = $this->getSponsorEligibility($coId);
+    
+    if($mode != SponsorEligibilityEnum::CoGroupMember) {
+      throw new InvalidArgumentException(_txt('er.setting'));
+    }
+    
+    return $this->lookupValue($coId, 'sponsor_co_group_id');
+  }
+  
   /**
    * Get the T&C login mode for the specified CO.
    *

@@ -79,6 +79,45 @@ class CoSettingsController extends StandardController {
   }
   
   /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v1.0.0
+   */
+  
+  function beforeRender() {
+    if(!$this->request->is('restful')) {
+      $args = array();
+      $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+      $args['order'] = array('CoGroup.name ASC');
+      
+      $this->set('vv_co_groups', $this->Co->CoGroup->find("list", $args));
+    }
+    
+    parent::beforeRender();
+  }
+  
+  /**
+   * Perform any dependency checks required prior to a write (add/edit) operation.
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   *
+   * @since  COmanage Registry v1.0.0
+   * @param  Array Request data
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkWriteDependencies($reqdata, $curdata = null) {
+    if($reqdata['CoSetting']['sponsor_eligibility'] == SponsorEligibilityEnum::CoGroupMember
+       && empty($reqdata['CoSetting']['sponsor_co_group_id'])) {
+      $this->Flash->set(_txt('er.setting.gr'), array('key' => 'error'));
+      
+      return false;
+    }
+    
+    return true;
+  }
+  
+  /**
    * Update a CO Setting.
    * - precondition: Model specific attributes in $this->request->data (optional)
    * - precondition: <id> must exist
