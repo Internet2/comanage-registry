@@ -105,7 +105,7 @@
       <th><?php print $this->Paginator->sort('ApproverCoPerson.Name.family', _txt('fd.approver')); ?></th>
       <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
       <th><?php print $this->Paginator->sort('modified', _txt('fd.modified.tz', array($vv_tz))); ?></th>
-      <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
   
@@ -194,7 +194,7 @@
           }
         ?>
       </td>
-      <td class="actions">
+      <td>
         <?php
           if($permissions['edit']) {
             print $this->Html->link(_txt('op.view'),
