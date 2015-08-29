@@ -259,7 +259,7 @@ class AppController extends Controller {
             $this->verifyRequestedId();
           }
           catch(InvalidArgumentException $e) {
-            $this->Flash->set($e->getMessage(), '', array(), 'error');
+            $this->Flash->set($e->getMessage(), array('key' => 'error'));
             $this->redirect("/");
           }
           
@@ -312,7 +312,7 @@ class AppController extends Controller {
             $this->set('vv_tz', date_default_timezone_get());
           }
         } else {
-          $this->Flash->set(_txt('er.co.unk-a', array($coid)), '', array(), 'error');
+          $this->Flash->set(_txt('er.co.unk-a', array($coid)), array('key' => 'error'));
           $this->redirect("/");
         }
       }
@@ -589,11 +589,11 @@ class AppController extends Controller {
     } elseif($redirectMode != "calculate") {
       switch($rc) {
         case -1:
-          $this->Flash->set(_txt('er.person.noex'), '', array(), 'error');            
+          $this->Flash->set(_txt('er.person.noex'), array('key' => 'error'));            
           $this->redirect($redirect);
           break;
         case 0:
-          $this->Flash->set(_txt('er.person.none'), '', array(), 'error');            
+          $this->Flash->set(_txt('er.person.none'), array('key' => 'error'));            
           $this->redirect($redirect);
           break;
       }
