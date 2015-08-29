@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Person/CO Group Provision View
  *
@@ -21,8 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<?php
+
   if(!empty($co_person)) {
     $params = array('title' => _txt('fd.prov.status.for', array(generateCn($co_person['PrimaryName']))));
   } elseif(!empty($co_group)) {

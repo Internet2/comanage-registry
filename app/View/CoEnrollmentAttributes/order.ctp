@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Enrollment Attribute Order View
  *
@@ -21,9 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
 
-<?php
   // Add breadcrumbs
   print $this->element("coCrumb");
   $args = array();

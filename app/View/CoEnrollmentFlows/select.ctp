@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Enrollment Flow Select View
  *
@@ -20,8 +20,8 @@
  * @since         COmanage Registry v0.5
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
- */-->
-<?php
+ */
+
   // Add breadcrumbs
   print $this->element("coCrumb");
   $crumbTxt = _txt('op.select-a',array(_txt('ct.enrollment_flows.1')));

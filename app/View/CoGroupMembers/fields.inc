@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Group Member Fields
  *
@@ -21,8 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<?php
+
   // Determine if fields are editable or viewable
   $e = ($this->action == 'edit' && $permissions['edit']);
   $v = ($this->action == 'view' && $permissions['view']);

@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Self Service Permissions Fields
  *
@@ -21,7 +21,8 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
+?>
+
 <script type="text/javascript">
   function js_local_onload() {
     update_type_select();

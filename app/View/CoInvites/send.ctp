@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Invite Send View
  *
@@ -21,7 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
+?>
 <?php
   $params = array('title' => "Invitation for " . $cur_co['Co']['name'] . " Sent to " . generateCn($invitee['PrimaryName']));
   print $this->element("pageTitle", $params);

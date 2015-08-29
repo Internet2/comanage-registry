@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Navigation Link Index View
  *
@@ -20,8 +20,8 @@
  * @since         COmanage Registry v0.8.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
- */-->
-<?php
+ */
+
   // Add breadcrumbs
   print $this->element("coCrumb");
   $this->Html->addCrumb(_txt('ct.co_navigation_links.pl'));

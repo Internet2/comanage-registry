@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Dashboard Dashboard View
  *
@@ -21,7 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
+?>
 
 <div id="firstPrompt">
   <?php print _txt('op.dashboard.select', array($cur_co['Co']['name']));?>

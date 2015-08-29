@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Person Match View
  *
@@ -21,8 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<?php
+
   if(count($matches) > 0) {
     print '<div class="ui-state-highlight ui-corner-all co-info-topbox">';
     print '<h3>' . _txt('rs.match.possible') . '</h3>';

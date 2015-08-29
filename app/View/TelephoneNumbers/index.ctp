@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry Telephone Number Index View
  *
@@ -21,8 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<?php
+
   $params = array('title' => _txt('ct.telephone_numbers.pl'));
   print $this->element("pageTitle", $params);
 ?>

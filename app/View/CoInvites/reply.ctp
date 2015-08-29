@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Invite Reply View
  *
@@ -21,7 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
+?>
 <?php if(!empty($invite)): ?>
 <?php
   $params = array('title' => $title_for_layout);

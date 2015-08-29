@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry API Users Index View
  *
@@ -20,8 +20,8 @@
  * @since         COmanage Registry v0.8.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
- */-->
-<?php
+ */
+
   // Add breadcrumbs
   $this->Html->addCrumb(_txt('ct.api_users.pl'), array('controller' => 'api_users', 'action' => 'index'));
 

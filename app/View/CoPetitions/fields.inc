@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Petitions Fields
  *
@@ -21,28 +21,26 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
+?>
+
 <script type="text/javascript">
-$(function() {
-/*  $( "#accordion" ).accordion({
-    heightStyle: "fill"
-  });*/
-    // Enumeration for tabs
-    var tabid = new Object();
-    tabid["petition"]  = 0;
-    tabid["attributes"]    = 1;
-    tabid["history"] = 2;
+  $(function() {
+      // Enumeration for tabs
+      var tabid = new Object();
+      tabid["petition"]  = 0;
+      tabid["attributes"]    = 1;
+      tabid["history"] = 2;
 
-    // Turn on Tabs
-    var $tabs = $( "#tabs" ).tabs();
-    
-    // If returning to this page via redirect, open last used tab
-    <?php if(isset($this->request->params['named']['tab'])): ?>
-      var selectedtab = "<?php print($this->request->params['named']['tab']); ?>";
+      // Turn on Tabs
+      var $tabs = $( "#tabs" ).tabs();
 
-      $tabs.tabs('option', 'active', tabid[selectedtab] );
-    <?php endif; ?>
-});
+      // If returning to this page via redirect, open last used tab
+      <?php if(isset($this->request->params['named']['tab'])): ?>
+        var selectedtab = "<?php print($this->request->params['named']['tab']); ?>";
+
+        $tabs.tabs('option', 'active', tabid[selectedtab] );
+      <?php endif; ?>
+  });
 </script>
 
 <?php

@@ -23,6 +23,7 @@
  * @version       $Id$
  */
 ?>
+
 <script type="text/javascript">
   $(function() {
     // Focus any designated form element

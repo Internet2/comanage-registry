@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Person Index View
  *
@@ -22,8 +22,6 @@
  * @version       $Id$
  */
 
--->
-<?php
   // Globals
   global $cm_lang, $cm_texts;
 

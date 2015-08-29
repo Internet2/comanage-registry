@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Notifications Fields
  *
@@ -21,8 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<?php
+
   // Determine if fields are editable
   $e = false;
   

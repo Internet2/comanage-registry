@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Invite Verify Email Address View
  *
@@ -21,7 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
+?>
 <?php
   $params = array('title' => _txt('rs.ev.sent', array($vv_recipient['EmailAddress']['mail'])));
   print $this->element("pageTitle", $params);

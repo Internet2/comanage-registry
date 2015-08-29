@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Person Invite View
  *
@@ -21,8 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<?php
+
   print $this->element("pageTitle", array('title' => $title_for_layout));
 
   $submit_label = _txt('op.inv.send');

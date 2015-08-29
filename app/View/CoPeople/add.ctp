@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Person Add View
  *
@@ -21,4 +21,4 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
+?>

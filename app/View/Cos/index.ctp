@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Index View
  *
@@ -21,8 +21,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<?php
+
   // Add breadcrumbs
   $this->Html->addCrumb(_txt('ct.cos.pl'));
 

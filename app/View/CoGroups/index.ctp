@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Group Index View
  *
@@ -21,8 +21,6 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<?php
 
   if($this->action == 'select') {
     // Add breadcrumbs

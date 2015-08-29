@@ -1,4 +1,4 @@
-<!--
+<?php
 /**
  * COmanage Registry CO Group Member Select View
  *
@@ -21,19 +21,19 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
--->
-<script>
-    
-$(document).ready(function () {
-  // Display warning for changes to co people who are not active (CO683)
-  $("input[type='checkbox']").change(function() {
-    if(this.parentElement.previousElementSibling.className != 'Active')
-      generateFlash("<?php print _txt('in.groupmember.select') ?>",
-                    "information");
-  }); 
-});
+?>
 
+<script type="text/javascript">
+  $(document).ready(function () {
+    // Display warning for changes to co people who are not active (CO683)
+    $("input[type='checkbox']").change(function() {
+      if(this.parentElement.previousElementSibling.className != 'Active')
+        generateFlash("<?php print _txt('in.groupmember.select') ?>",
+                      "information");
+    });
+  });
 </script>
+
 <?php
   // Add breadcrumbs
   print $this->element("coCrumb");
