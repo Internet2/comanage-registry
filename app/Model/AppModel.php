@@ -296,8 +296,8 @@ class AppModel extends Model {
             $newval = null;
             
             // Grab the name of this attribute and lowercase it to match the data model
-            $eaName = strtolower($extAttr['name']);
-            $eaDisplayName = $extAttr['display_name'];
+            $eaName = strtolower($extAttr['CoExtendedAttribute']['name']);
+            $eaDisplayName = $extAttr['CoExtendedAttribute']['display_name'];
             
             // Try to find the attribute in the data
             

@@ -246,7 +246,11 @@ class OrgIdentitiesController extends StandardController {
       $coid = $this->cur_co['Co']['id'];
     }
     
-    $this->set('cur_co', $this->OrgIdentity->CoOrgIdentityLink->CoPerson->Co->findById($coid));
+    $args = array();
+    $args['conditions']['Co.id'] = $coid;
+    $args['contain'] = false;
+    
+    $this->set('cur_co', $this->Co->find('first', $args));
     
     // Use server side pagination
     

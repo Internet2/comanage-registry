@@ -57,6 +57,9 @@ class CoPersonRolesController extends StandardController {
     'TelephoneNumber'
   );
   
+  // The extended attributes for this CO
+  public $extended_attributes = array();
+  
   /**
    * Add a CO Person Role Object.
    * - precondition: Model specific attributes in $this->request->data (optional)
@@ -147,28 +150,39 @@ class CoPersonRolesController extends StandardController {
         $args['joins'][1]['type'] = 'INNER';
         $args['joins'][1]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
         $args['conditions']['CoPersonRole.id'] = $this->request->params['id'];
+        $args['contain'] = false;
         
         $this->cur_co = $this->CoPersonRole->CoPerson->Co->find('first', $args);
       } elseif(isset($this->request->params['url']['coid'])) {
         // Request for all members of a CO
         
-        $this->cur_co = $this->CoPersonRole->CoPerson->Co->findById($this->request->params['url']['coid']);
+        $args = array();
+        $args['conditions']['Co.id'] = $this->request->params['url']['coid'];
+        $args['contain'] = false;
+        
+        $this->cur_co = $this->Co->find('first', $args);
       }
       // We don't currently support requests for all CO people (regardless of CO).
       // To do so, we'd have to extract the CO ID on a per-CO person basis, which
       // wouldn't be terribly efficient.
     }
     
-    $c = $this->CoPersonRole->CoPerson->Co->CoExtendedAttribute->find('count',
-                                                                      array('conditions' =>
-                                                                            array('co_id' => $this->cur_co['Co']['id'])));
+    $this->extended_attributes = $this->CoPersonRole->CoPerson->Co->CoExtendedAttribute->find('all',
+                                                                                              array('conditions' =>
+                                                                                                    array('co_id' => $this->cur_co['Co']['id'])));
     
-    if($c > 0) {
+    if(!empty($this->extended_attributes)) {
       $cl = 'Co' . $this->cur_co['Co']['id'] . 'PersonExtendedAttribute';
       
+      // With emulated changelog behavior, we want a hasOne relationship even though
+      // the physical tables can have a many-to-one relationship. We therefore order by
+      // created ASC to get the original record (changelog and emulated changelog
+      // maintain the original foreign key as the active record), which has the current
+      // values.
       $this->CoPersonRole->bindModel(array('hasOne' =>
                                            array($cl => array('className' => $cl,
-                                                              'dependent' => true))),
+                                                              'dependent' => true,
+                                                              'order' => $cl.'.created ASC'))),
                                      false);
       
       // Set up the inverse binding
@@ -212,6 +226,9 @@ class CoPersonRolesController extends StandardController {
       
       // Generate list of sponsors
       $this->set('vv_sponsors', $this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
+      
+      // Extended attributes
+      $this->set('vv_extended_attributes', $this->extended_attributes);
     }
   }
   
@@ -346,8 +363,9 @@ class CoPersonRolesController extends StandardController {
       
       $this->CoPersonRole->$eaModel->save($d);
       
-      // We don't worry about history here because generally Extended Attributes
-      // are not saved on their own. History will be generated on the original call.
+      // Manually trigger history. The StandardController call would still have the
+      // original attributes.
+      $this->generateHistory('x'.$this->action, array_merge($reqdata, $d), $curdata);
     }
     
     // If the role status changed, recalculate the overall person status
@@ -422,7 +440,14 @@ class CoPersonRolesController extends StandardController {
   
   public function generateHistory($action, $newdata, $olddata) {
     switch($action) {
+      // Because of the way extended attributes are saved in checkWriteFollowups,
+      // we ignore generateHistory as requested by StandardController and instead wait
+      // for calls from checkWriteFollowups.
       case 'add':
+      case 'edit':
+        return true;
+        break;
+      case 'xadd':
         $this->CoPersonRole->HistoryRecord->record($newdata['CoPersonRole']['co_person_id'],
                                                    $this->CoPersonRole->id,
                                                    null,
@@ -436,7 +461,7 @@ class CoPersonRolesController extends StandardController {
                                                    $this->Session->read('Auth.User.co_person_id'),
                                                    ActionEnum::CoPersonRoleDeletedManual);
         break;
-      case 'edit':
+      case 'xedit':
         $this->CoPersonRole->HistoryRecord->record($newdata['CoPersonRole']['co_person_id'],
                                                    $this->CoPersonRole->id,
                                                    null,
@@ -448,7 +473,7 @@ class CoPersonRolesController extends StandardController {
                                                                                           $olddata,
                                                                                           $this->cur_co['Co']['id'],
                                                                                           array('ExtendedAttribute'),
-                                                                                          $this->cur_co['CoExtendedAttribute']));
+                                                                                          $this->extended_attributes));
         break;
     }
     
