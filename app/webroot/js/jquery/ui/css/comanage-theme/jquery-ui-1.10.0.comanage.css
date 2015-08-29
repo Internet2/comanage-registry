@@ -768,7 +768,7 @@ button.ui-button::-moz-focus-inner {
 .ui-tabs .ui-tabs-panel {
   display: block;
   border-width: 0;
-  padding: 1em 1.4em 2.5em 1.4em;
+  padding: 1em 1.4em 2.75em 1.4em;
   background: none;
 }
 .ui-tooltip {

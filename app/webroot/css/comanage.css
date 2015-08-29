@@ -288,6 +288,10 @@ ul.sf-menu li.dropMenu li a:hover {
   text-align: center;
   margin: 10px 0 0 0;
 }
+form#notificationStatus select {
+  font-size: 1.1em;
+  margin: 0 0 0.5em 0.5em;
+}
 /* General icon and box styling */
 .co-info {
   float: left;
@@ -469,6 +473,9 @@ th, td {
   border-right: 2px solid #fff;
   border-bottom: 2px solid #fff;
 }
+tr td:first-child {
+  padding-left: 1em;
+}
 tr th:last-child,
 tr td:last-child {
   border-right: none;
@@ -512,7 +519,11 @@ input[type="text"],
  input[type="number"] {
    border: 1px solid #ccc;
    padding: 3px;
+   width: 80%;
  }
+textarea {
+  width: 80%;
+}
 input[type="text"]:focus,
 input[type="number"]:focus {
   background-color: #ffd;
@@ -728,33 +739,30 @@ td.top {
   padding: 5px;
   margin: 0 0 5px 0;
 }
-.additionalinfo:last-child{
-  margin: 0;
-}
-.additionalinfo>div{
-  margin: 0 0 5px;
+.additionalinfo > div{
+  margin: 0 0 2px;
   overflow: hidden;
-  padding: 2px 0;
+  padding: 2px 0 3px 0;
   background-color: #F5F5F5;
 }
-.additionalinfo>div:hover {
+.additionalinfo > div:hover {
   background-color: #eee;
 }
-.additionalinfo>div:last-child{
+.additionalinfo > div:last-child {
   margin: 0;
 }
-.additionalinfo>div>div:first-child{
+.additionalinfo > div>div:first-child{
   float: left;
   padding: 7px 0 0 10px;
 }
-.additionalinfo>div>div:last-child{
+.additionalinfo > div > div:last-child{
   float: right;
   padding-left: 5px;
 }
-.additionalinfo div a{
+.additionalinfo div a {
   float: left;
 }
-.additionalinfo div .ui-button{
+.additionalinfo div .ui-button {
   float: right;
 }
 #OrgIdentityEditForm .addbutton,
@@ -844,6 +852,9 @@ td.order {
   margin-left: 0.5em;
 }
 /* Changelog */
+#changeLog {
+  margin-top: 1em;
+}
 #changeLog ul {
   margin: 0;
   padding: 0;
@@ -1161,6 +1172,9 @@ body.co_petitions .deny-button:hover {
 #co_people > div > .panel1{
   float: left;
   margin: 0 10px 0 0;
+}
+#co_people .roleTitleLinks {
+  margin-right: 1em;
 }
 #noResults {
   margin: 1.5em 0 0 0;

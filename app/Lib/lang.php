@@ -1171,7 +1171,7 @@ original notification at
   'op.expunge.info.org' => 'Org Identity: <a href="%2$s">%1$s</a>',
   'op.expunge.info.org.no' => 'The Org Identity <a href="%2$s">%1$s</a> will <b>not</b> be deleted because it is associated with at least one other CO Person record',
   'op.filter' => 'Filter',
-  'op.filter.status' => 'Filter By Status',
+  'op.filter.status' => 'Filter By Status:',
   'op.filter.status.by' => 'Filter By Status',
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
   'op.find.link' =>   'Find an Organizational Identity to Link to %1$s',

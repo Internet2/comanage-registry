@@ -360,7 +360,7 @@
           print _txt('en.status', null, $c['CoGroup']['status']);
         ?>
       </td>
-      <td>
+      <td class="actions">
         <?php
           if($this->action == 'select') {
             if($permissions['select']) {

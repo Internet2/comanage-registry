@@ -38,7 +38,7 @@
   }
 ?>
 
-<form method="get" action="/registry/co_notifications/index/<?php print $vv_request_type; ?>:<?php print $vv_co_person_id; ?>">
+<form method="get" id="notificationStatus" action="/registry/co_notifications/index/<?php print $vv_request_type; ?>:<?php print $vv_co_person_id; ?>">
   <span class="select-name"><?php print _txt('op.filter.status'); ?></span>
   <select name="status" onchange="this.form.submit();">
     <option value=""><?php print _txt('fd.unresolved'); ?></option>

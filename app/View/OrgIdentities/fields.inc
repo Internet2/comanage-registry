@@ -295,7 +295,7 @@ $(function() {
           </div>
           <?php endforeach; ?>
           <?php if($e): ?>
-          <div>
+          <div class="orgIdNameAdd">
             <div>
               <?php print _txt('fd.name'); ?>
             </div>

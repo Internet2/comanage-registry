@@ -396,6 +396,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                       if($permissions['enroll']
                          && $pr['status'] == StatusEnum::PendingApproval
                          && !empty($pr['CoPetition'])) {
+                        print '<span class="roleTitleLinks">';
                         print $this->Html->link(_txt('op.petition'),
                                                 array('controller' => 'co_petitions',
                                                       'action' => 'view',
@@ -403,14 +404,17 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                                                       'co' => $pr['CoPetition'][0]['co_id'],
                                                       'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']),
                                                 array('class' => 'petitionbutton'));
-                        
+                        print '</span>';
+                        print '<span class="roleTitleText">';
                         print $this->Html->link($pr['title'],
                                                 array('controller' => 'co_petitions',
                                                       'action' => 'view',
                                                       $pr['CoPetition'][0]['id'],
                                                       'co' => $pr['CoPetition'][0]['co_id'],
                                                       'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']));
+                        print '</span>';
                       } else {
+                        print '<span class="roleTitleLinks">';
                         print $this->Html->link(($this->action == 'relink'
                                                  ? _txt('op.view')
                                                  : _txt('op.edit')),
@@ -419,20 +423,26 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                                                       $pr['id'],
                                                       'co' => $cur_co['Co']['id']),
                                                 array('class' => 'editbutton'));
-                        
+                        print '</span>';
+                        print '<span class="roleTitleText">';
                         print $this->Html->link($pr['title'],
                                                 array('controller' => 'co_person_roles',
                                                       'action' => ($permissions['edit'] ? "edit" : "view"),
                                                       $pr['id'],
                                                       'co' => $cur_co['Co']['id']));
+                        print '</span>';
                       }
                     } else{
+                      print '<span class="roleTitleText">';
                       print $pr['title'];
+                      print '</span>';
                     }
 
                     // Insert placeholder when no title exists for display
                     if(empty($pr['title'])) {
+                      print '<span class="roleTitleText">';
                       print _txt('fd.title.none');
+                      print '</span>';
                     }
 
                     // Display COU information if present
