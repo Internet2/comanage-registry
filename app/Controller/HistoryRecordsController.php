@@ -58,7 +58,13 @@ class HistoryRecordsController extends StandardController {
     'CoPersonRole',
     'OrgIdentity' => 'PrimaryName'
   );
-  
+
+  // Use the lightbox layout for view
+  public function view($id) {
+    parent::view($id);
+    $this->layout = 'lightbox';
+  }
+
   /**
    * Add a History Record.
    * - precondition: Model specific attributes in $this->request->data (optional)
@@ -71,7 +77,7 @@ class HistoryRecordsController extends StandardController {
   
   public function add() {
     parent::add();
-    
+
     if(!$this->request->is('restful')) {
       // Override page title
       $n = array();

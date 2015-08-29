@@ -161,7 +161,7 @@
               $h['HistoryRecord']['id']
             ),
             array(
-              'class' => 'viewbutton'
+              'class' => 'viewbutton lightbox'
             )
           );
         ?>
@@ -179,3 +179,12 @@
     </tr>
   </tfoot>
 </table>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('a.lightbox').magnificPopup({
+      type:'iframe'
+    });
+  });
+</script>
+

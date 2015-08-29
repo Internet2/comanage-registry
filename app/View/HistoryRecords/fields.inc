@@ -29,7 +29,6 @@
     $e = true;
     
   // We shouldn't get here if we don't have at least read permission, but check just in case
-  
   if(!$e && !$permissions['view'])
     return false;
 
@@ -231,19 +230,21 @@
       </td>
     </tr>
     <?php endif; // view ?>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-            print $this->Form->button(_txt('op.reset'), 
-                                      array('type'=>'reset'));
-          }
-        ?>
-      </td>
-    </tr>
+    <?php if($this->action != 'view'): ?>
+      <tr>
+        <td>
+          <em><span class="required"><?php print _txt('fd.req'); ?></span></em>
+        </td>
+        <td>
+          <?php
+            if($e) {
+              print $this->Form->submit($submit_label);
+              print $this->Form->button(_txt('op.reset'),
+                                        array('type'=>'reset'));
+            }
+          ?>
+        </td>
+      </tr>
+    <?php endif ?>
   </tbody>
 </table>

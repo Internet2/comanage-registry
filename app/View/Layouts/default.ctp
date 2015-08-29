@@ -47,6 +47,10 @@
       print $this->Html->css('jquery/superfish/css/superfish');
       print $this->Html->css('comanage');
       print $this->Html->css('comanage-responsive');
+      if ($this->controller = 'history_records') {
+        // Until used more broadly, limit loading of Magnific Popup
+        print $this->Html->css('jquery/magnificpopup/magnific-popup');
+      }
     ?>
 
     <!-- Get jquery code -->
@@ -55,6 +59,10 @@
       print $this->Html->script('jquery/ui/js/jquery-ui-1.10.0.custom.min.js');
       print $this->Html->script('jquery/superfish/js/superfish.js');
       print $this->Html->script('jquery/spin.min.js');
+      if ($this->controller = 'history_records') {
+        // Until used more broadly, limit loading of Magnific Popup
+        print $this->Html->script('jquery/magnificpopup/jquery.magnific-popup.min.js');
+      }
     ?>
     
     <!-- Get timezone detection -->
