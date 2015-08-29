@@ -82,14 +82,15 @@ function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenRe
   }
 
   // Set defaults for confirm, cancel, and title
+  // Values for the default variables are set globally
   if(confbutton == undefined) {
-    confbutton = "<?php print _txt('op.ok'); ?>";
+    confbutton = defaultConfirmOk;
   }
   if(cxlbutton == undefined) {
-    cxlbutton = "<?php print _txt('op.cancel'); ?>";
+    cxlbutton = defaultConfirmCancel;
   }
   if(title == undefined) {
-    title = "<?php print _txt('op.confirm'); ?>";
+    title = defaultConfirmTitle;
   }
 
   // Set the title of the dialog

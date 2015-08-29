@@ -340,4 +340,10 @@
       print $this->Flash->render('information');
     ?>
   });
+
+  // Define default text for confirm dialog
+  var defaultConfirmOk = "<?php print _txt('op.ok'); ?>";
+  var defaultConfirmCancel = "<?php print _txt('op.cancel'); ?>";
+  var defaultConfirmTitle = "<?php print _txt('op.confirm'); ?>";
+
 </script>
