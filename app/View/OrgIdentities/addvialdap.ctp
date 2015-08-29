@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Organization Fields
+ * COmanage Registry Organizational Person Add via LDAP View
  *
  * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
  *
