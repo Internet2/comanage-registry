@@ -499,6 +499,7 @@ class ChangelogBehavior extends ModelBehavior {
         // eg: $query['contain'] = array('conditions' => array('Model1.foo =' => 'value'));
         // eg: $query['contain'] = array('Model1' => array('conditions' => array('Model1.foo' => 'value),
         //                                                 'Model2' => array('conditions' => array('Model2.foo' => 'value'))
+        // eg: $query['contain'] = array('Model1' => array('Model2' => 'Model3'));
         
         if(is_array($v)) {
           // First handle Model1
@@ -542,6 +543,9 @@ class ChangelogBehavior extends ModelBehavior {
               $ret[$k]['conditions'] = array_merge($ret[$k]['conditions'], $v2);
             } elseif(is_array($v2)) {
               $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
+            } elseif(isset($model->$k->$k2)) {
+              // Fifth example
+              $ret[$k][$k2] = $this->modifyContain($model->$k, array($k2 => $v2));
             } else {
               if($model->$k->$v2->Behaviors->enabled('Changelog')) {
                 $cparentfk = Inflector::underscore($model->$k->$v2->name) . "_id";

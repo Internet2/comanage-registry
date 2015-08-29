@@ -165,6 +165,7 @@ class CoEnrollmentAttributesController extends StandardController {
         $args = array();
         $args['conditions']['co_id'] = $coid;
         $args['fields'] = array('CoGroup.id', 'CoGroup.name');
+        $args['order'] = array('CoGroup.name asc');
         $args['contain'] = false;
         
         $this->set('vv_groups', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoGroup->find('list', $args));

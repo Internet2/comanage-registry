@@ -172,6 +172,7 @@ class NotificationShell extends AppShell {
     $resolve = $this->params['resolve'];
     
     $ids = $this->CoNotification->register($subjectCoPersonId,
+                                           null, // subject group not currently supported
                                            $actorCoPersonId,
                                            $recipientType,
                                            $recipientId,
