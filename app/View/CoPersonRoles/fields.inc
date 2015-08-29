@@ -297,29 +297,25 @@ $(function() {
           <?php
             // Check for extended attributes and render
             
-            $cl = 'Co' . $cur_co['Co']['id'] . 'PersonExtendedAttribute';
-            
-            if(!empty($cur_co['CoExtendedAttribute']))
-            {
+            if(!empty($vv_extended_attributes)) {
+              $cl = 'Co' . $cur_co['Co']['id'] . 'PersonExtendedAttribute';
+              
               print $this->Form->hidden($cl . '.id');
               
-              foreach($cur_co['CoExtendedAttribute'] as $c):
+              foreach($vv_extended_attributes as $c):
           ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php print $c['display_name']; ?>
+              <?php print $c['CoExtendedAttribute']['display_name']; ?>
             </td>
             <td>
               <?php
-                $attr = strtolower($c['name']);  
+                $attr = strtolower($c['CoExtendedAttribute']['name']);  
                 
-                if($c['type'] == 'TIMESTAMP')
-                {
+                if($c['CoExtendedAttribute']['type'] == 'TIMESTAMP') {
                   print ($e && !$es ? $this->Form->text($cl.'.'.$attr, array('class' => 'datepicker'))
                                    : (($co_person_roles[0][$cl][$attr] > 0) ? strftime("%F", strtotime($co_person_roles[0][$cl][$attr])) : ""));
-                }
-                else
-                {
+                } else {
                   print ($e && !$es ? $this->Form->input($cl.'.'.$attr,
                                                         isset($co_person_roles[0][$cl][$attr]) ? array('default' => $co_person_roles[0][$cl][$attr]) : array())
                                    : Sanitize::html($co_person_roles[0][$cl][$attr]));

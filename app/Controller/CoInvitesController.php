@@ -391,7 +391,6 @@ class CoInvitesController extends AppController {
    * Find the requested invite and prompt the user to confirm or decline.
    * - precondition: $inviteid must exist and not expired or validated
    * - precondition: The associated person must be in invited state
-   * - postcondition: $cur_co set to current CO on success
    * - postcondition: $invite set on success
    * - postcondition: $invitee set to CO Person on success
    * - postcondition: Session flash message updated (HTML) on suitable error
@@ -411,9 +410,8 @@ class CoInvitesController extends AppController {
       // error checking shouldn't be needed
       
       $invitee = $this->CoInvite->CoPerson->findById($invite['CoInvite']['co_person_id']);
-      $co = $this->CoInvite->CoPerson->Co->findById($invitee['CoPerson']['co_id']);
+      $coName = $this->CoInvite->CoPerson->Co->field('name', array('Co.id' => $invitee['CoPerson']['co_id']));
       
-      $this->set('cur_co', $co);
       $this->set('invite', $invite);
       $this->set('invitee', $invitee);
       
@@ -422,7 +420,7 @@ class CoInvitesController extends AppController {
         if(!empty($invite['CoInvite']['email_address_id'])) {
           $this->set('title_for_layout', _txt('fd.ev.verify', array($invite['EmailAddress']['mail'])));
         } else {
-          $this->set('title_for_layout', _txt('fd.inv.to', array($co['Co']['name'])));
+          $this->set('title_for_layout', _txt('fd.inv.to', array($coName)));
         }
       }
       

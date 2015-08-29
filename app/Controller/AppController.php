@@ -166,7 +166,12 @@ class AppController extends Controller {
         
         if($coid != -1) {
           $this->loadModel('Co');
-          $this->cur_co = $this->Co->findById($coid);
+          
+          $args = array();
+          $args['conditions']['Co.id'] = $coid;
+          $args['contain'] = false;
+          
+          $this->cur_co = $this->Co->find('first', $args);
         }
       }
       catch(RuntimeException $e) {
@@ -221,7 +226,11 @@ class AppController extends Controller {
           $this->loadModel('Co');
         }
         
-        $this->cur_co = $this->Co->findById($coid);
+        $args = array();
+        $args['conditions']['Co.id'] = $coid;
+        $args['contain'] = false;
+        
+        $this->cur_co = $this->Co->find('first', $args);
         
         if(!empty($this->cur_co)) {
           $this->set("cur_co", $this->cur_co);
@@ -1044,7 +1053,6 @@ class AppController extends Controller {
   /**
    * Perform a sanity check on on a standard item identifier to verify it is part
    * of the current CO.
-   * - precondition: cur_co is set
    *
    * @since  COmanage Registry v0.8
    * @return Boolean True if sanity check is successful

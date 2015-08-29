@@ -257,13 +257,10 @@ class CoPeopleController extends StandardController {
         {
           // Find the name of the COU
           
-          $couname = "(?)";
+          $couname = $this->CoPerson->Co->Cou->field('name', array('Cou.id' => $pr['cou_id']));
           
-          foreach($this->cur_co['Cou'] as $cou) {
-            if($cou['id'] == $pr['cou_id']) {
-              $couname = $cou['name'];
-              break;
-            }
+          if(!$couname) {
+            $couname = "(?)";
           }
           
           if($this->request->is('restful')) {
