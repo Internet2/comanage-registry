@@ -385,6 +385,14 @@ class RequiredNameFieldsEnum
   const GivenFamily = "given,family";
 }
 
+class SponsorEligibilityEnum {
+  const CoAdmin       = 'CA';
+  const CoGroupMember = 'CG';
+  const CoOrCouAdmin  = 'A';
+  const CoPerson      = 'CP';
+  const None          = 'N';
+}
+
 class SshKeyTypeEnum
 {
   // Protocol v2

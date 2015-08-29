@@ -42,6 +42,28 @@
   
   $l = 1;
 ?>
+<script type="text/javascript">
+  <!-- JS specific to these fields -->
+  
+  function sponsor_update_gadgets() {
+    // Hide and show accordingly. Reset sub-popups to prevent superfluous data from
+    // being saved. (ie: we don't need a group ID if not setting sponsor to 'CG')
+    
+    document.getElementById('sponsorgroupdiv').style.display = "none";
+    
+    var authz = document.getElementById('CoSettingSponsorEligibility').value;
+    
+    if(authz == 'CG') {
+      document.getElementById('sponsorgroupdiv').style.display = "block";
+    } else {
+      document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
+    }
+  }
+  
+  function js_local_onload() {
+    sponsor_update_gadgets();
+  }
+</script>
 <table id="<?php print $this->action; ?>_co_settings" class="ui-widget">
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -204,6 +226,59 @@
             print _txt('en.tandc.mode.login', null, $co_settings[0]['CoSetting']['t_and_c_login_mode']);
           }
         ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.sponsor.mode'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.sponsor.mode.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['sponsor_eligibility'])
+                             ? $co_settings[0]['CoSetting']['sponsor_eligibility']
+                             : SponsorEligibilityEnum::CoOrCouAdmin);
+          $attrs['empty'] = false;
+          $attrs['onChange'] = 'sponsor_update_gadgets()';
+          
+          if($e) {
+            print $this->Form->select('sponsor_eligibility',
+                                      $cm_texts[ $cm_lang ]['en.sponsor.eligibility'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('sponsor_eligibility')) {
+              print $this->Form->error('sponsor_eligibility');
+            }
+          } else {
+            print _txt('en.sponsor_eligibility', null, $co_settings[0]['CoSetting']['sponsor_eligibility']);
+          }
+        ?>
+        <div id="sponsorgroupdiv" style="display:none">
+          <?php
+            if(!empty($vv_co_groups)) {
+              $attrs = array();
+              $attrs['value'] = (isset($co_settings[0]['CoSetting']['sponsor_co_group_id'])
+                                 ? $co_settings[0]['CoSetting']['sponsor_co_group_id']
+                                 : null);
+              $attrs['empty'] = _txt('op.select.empty');
+              
+              if($e) {
+                print $this->Form->select('sponsor_co_group_id',
+                                          $vv_co_groups,
+                                          $attrs);
+                
+                if($this->Form->isFieldError('sponsor_co_group_id')) {
+                  print $this->Form->error('sponsor_co_group_id');
+                }
+              } else {
+                print $vv_co_groups[ $co_settings[0]['CoSetting']['sponsor_co_group_id'] ];
+              }
+            }
+          ?>
+        </div>
       </td>
     </tr>
     <tr>

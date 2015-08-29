@@ -81,6 +81,7 @@ class CoEnrollmentFlowsController extends StandardController {
       
       $args = array();
       $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+      $args['order'] = array('CoGroup.name ASC');
       
       $this->set('co_groups', $this->Co->CoGroup->find("list", $args));
       

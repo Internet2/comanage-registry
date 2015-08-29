@@ -761,27 +761,85 @@ class CoPerson extends AppModel {
    * Retrieve list of sponsors for display in dropdown.
    *
    * @since  COmanage Registry v0.3
-   * @return Array Array with co_person id as keys and full name as values
+   * @return Array Array with co_person id as keys and full name as values; array will be empty if sponsoring is disabled
    */
   
-  public function sponsorList($co_id) {
-    // Query database for people
-    $args = array(
-      'contain'    => array('PrimaryName'),
-      'order'      => array('PrimaryName.family ASC'),
-      'conditions' => array('CoPerson.co_id' => $co_id)
-    );
-
-    $nameData = $this->find('all', $args);
-
-    // Make data human readable for dropdown, keyed by id
-    $drop = array();
-
-    foreach($nameData as $pers)
-    {
-      $drop[ $pers['CoPerson']['id'] ] = generateCn($pers['PrimaryName'], true);
+  public function sponsorList($coId) {
+    $ret = array();
+    
+    // For eligibility by group(s), the group IDs to check
+    $groupIds = array();
+    
+    // First we need the current setting(s).
+    $mode = $this->Co->CoSetting->getSponsorEligibility($coId);
+    
+    switch($mode) {
+      case SponsorEligibilityEnum::CoOrCouAdmin:
+        // First pull the list of COUs
+        $cous = $this->Co->Cou->allcous($coId, "names");
+        
+        foreach($cous as $cou) {
+          // Find the admin group ID
+          $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId, $cou);
+        }
+        // Fall through, we want the CO Admin group as well
+      case SponsorEligibilityEnum::CoAdmin:
+        // Find the admin group ID
+        $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId);
+        break;
+      case SponsorEligibilityEnum::CoGroupMember:
+        // Find the configured group
+        $groupId = $this->Co->CoSetting->getSponsorEligibilityCoGroup($coId);
+        
+        if($groupId) {
+          $groupIds[] = $groupId;
+        }
+        break;
+      case SponsorEligibilityEnum::CoPerson:
+        // Any Active CO Person may be a sponsor
+        $args = array();
+        $args['conditions']['CoPerson.co_id'] = $coId;
+        $args['conditions']['CoPerson.status'] = StatusEnum::Active;
+        $args['contain'][] = 'PrimaryName';
+        $args['order'] = array('PrimaryName.family ASC');
+        
+        $people = $this->find('all', $args);
+        
+        // Assemble the list, using generateCn
+        foreach($people as $p) {
+          $ret[ $p['CoPerson']['id'] ] = generateCn($p['PrimaryName']);
+        }
+        break;
+      case SponsorEligibilityEnum::None:
+        // Just return an empty array
+        break;
+      default:
+        throw new InvalidArgumentException(_txt('er.unknown', $mode));
+        break;
     }
-    return $drop;
+    
+    if(!empty($groupIds)) {
+      $members = array();
+      
+      foreach($groupIds as $gid) {
+        // Find the people in the group
+        $args = array();
+        $args['conditions']['CoGroupMember.co_group_id'] = $gid;
+        $args['contain']['CoPerson'] = 'PrimaryName';
+        
+        $members = array_merge($members, $this->CoGroupMember->find('all', $args));
+      }
+      
+      // Sort the results by last name
+      $sorted = Hash::sort($members, '{n}.CoPerson.PrimaryName.family', 'asc');
+      
+      // And finally key the results. This will also eliminate dupes (by overwriting the same key).
+      foreach($sorted as $s) {
+        $ret[ $s['CoPerson']['id'] ] = generateCn($s['CoPerson']['PrimaryName']);
+      }
+    }
+    
+    return $ret;
   }
   
   /**

@@ -251,11 +251,24 @@ $(function() {
             </td>
             <td>
               <?php
-                if(isset($sponsors)) {
+                if(!empty($vv_sponsors)) {
+                  if(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])
+                     && !isset($vv_sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ])) {
+                    print $this->Html->link(generateCn($co_person_roles[0]['SponsorCoPerson']['PrimaryName']),
+                                            array('controller' => 'co_people',
+                                                  'action' => 'canvas',
+                                                  $co_person_roles[0]['SponsorCoPerson']['id']));
+                    
+                    print '<div>
+                      <span class="ui-icon ui-icon-info co-info"></span>
+                      <em>' . _txt('fd.sponsor.inel') . '</em>
+                    </div>';
+                  }
+                  
                   if($e && !$es) {
-                    print $this->Form->select('sponsor_co_person_id', $sponsors);
+                    print $this->Form->select('sponsor_co_person_id', $vv_sponsors);
                   } elseif(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) {
-                    print Sanitize::html($sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ]);
+                    print Sanitize::html($vv_sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ]);
                   }
                 }
               ?>

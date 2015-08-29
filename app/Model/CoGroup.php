@@ -58,6 +58,10 @@ class CoGroup extends AppModel {
       'foreignKey' => 'subject_co_group_id'
     ),
     "CoProvisioningExport" => array('dependent' => true),
+    "CoSettingSponsorCoGroup" => array(
+      'className' => 'CoSetting',
+      'foreignKey' => 'sponsor_co_group_id'
+    ),
     "HistoryRecord"
   );
 
