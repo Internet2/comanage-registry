@@ -24,31 +24,34 @@
 
 // Add buttons
 if($this->action != "add") {
-  // History button
-  $params['topLinks'][] = $this->Html->link(
-    _txt('op.history'),
-    array(
-      'controller'    => 'history_records',
-      'action'        => 'index',
-      'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-      'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
-    ),
-    array('class' => 'notebutton')
-  );
-
-  // Petitions
-  $params['topLinks'][] = $this->Html->link(
-    _txt('ct.co_petitions.pl'),
-    array(
-      'controller' => 'co_petitions',
-      'action' => 'index',
-      // Since this is an index view, we still need the CO ID. paginationConditions
-      // will restrict searching to eligible enrollments.
-      'co' => ($pool_org_identities ? false : $cur_co['Co']['id']),
-      'sort' => 'modified',
-      'search.orgidentityid' => $org_identities[0]['OrgIdentity']['id']
-    ),
-    array('class' => 'petitionbutton')
-  );
-
+  if($permissions['history']) {
+    // History button
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.history'),
+      array(
+        'controller'    => 'history_records',
+        'action'        => 'index',
+        'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+        'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
+      ),
+      array('class' => 'notebutton')
+    );
+  }
+  
+  if($permissions['petitions']) {
+    // Petitions
+    $params['topLinks'][] = $this->Html->link(
+      _txt('ct.co_petitions.pl'),
+      array(
+        'controller' => 'co_petitions',
+        'action' => 'index',
+        // Since this is an index view, we still need the CO ID. paginationConditions
+        // will restrict searching to eligible enrollments.
+        'co' => ($pool_org_identities ? false : $cur_co['Co']['id']),
+        'sort' => 'modified',
+        'search.orgidentityid' => $org_identities[0]['OrgIdentity']['id']
+      ),
+      array('class' => 'petitionbutton')
+    );
+  }
 }

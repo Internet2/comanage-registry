@@ -230,6 +230,26 @@ $(function() {
             </td>
           </tr>
           <?php else: // add ?>
+          <?php if($e): ?>
+          <div class="orgIdNameAdd">
+            <div>
+              <?php print _txt('fd.name'); ?>
+            </div>
+            <div>
+              <?php
+                $linktarget = array('controller'    => 'names',
+                                    'action'        => 'add',
+                                    'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                                    'co'            => ($pool_org_identities ? false : $cur_co['Co']['id']));
+                $linkparams = array('class'  => 'addbutton');
+                
+                print $this->Html->link(_txt('op.add'),
+                                        $linktarget,
+                                        $linkparams);
+              ?>
+            </div>
+          </div>
+          <?php endif; // e ?>
           <?php foreach($org_identities[0]['Name'] as $n): ?>
           <div>
             <div>
@@ -294,26 +314,6 @@ $(function() {
             </div>
           </div>
           <?php endforeach; ?>
-          <?php if($e): ?>
-          <div class="orgIdNameAdd">
-            <div>
-              <?php print _txt('fd.name'); ?>
-            </div>
-            <div>
-              <?php
-                $linktarget = array('controller'    => 'names',
-                                    'action'        => 'add',
-                                    'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                                    'co'            => ($pool_org_identities ? false : $cur_co['Co']['id']));
-                $linkparams = array('class'  => 'addbutton');
-                
-                print $this->Html->link(_txt('op.add'),
-                                        $linktarget,
-                                        $linkparams);
-              ?>
-            </div>
-          </div>
-          <?php endif; // e ?>
           <?php endif; // add ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>

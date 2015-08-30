@@ -423,12 +423,18 @@ class OrgIdentitiesController extends StandardController {
       // Find an Org Person to add to a CO?
       $p['find'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
+      // View history? This correlates with HistoryRecordsController
+      $p['history'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
+      
       // View all existing Org People?
       $p['index'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       $p['search'] = $p['index'];
       
       // Explicit linking of an Org Identity to a CO Person?
       $p['link'] = ($roles['cmadmin'] || $roles['admin']);
+      
+      // View petitions?
+      $p['petitions'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
       // View an existing Org Person?
       $p['view'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin'] || $self);
@@ -451,6 +457,10 @@ class OrgIdentitiesController extends StandardController {
       // Find an Org Person to add to a CO?
       $p['find'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       
+      // View history? This correlates with HistoryRecordsController
+      $p['history'] = ($roles['cmadmin']
+                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+      
       // View all existing Org People?
       $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       $p['search'] = $p['index'];
@@ -466,6 +476,10 @@ class OrgIdentitiesController extends StandardController {
       
       // Explicit linking of an Org Identity to a CO Person?
       $p['link'] = ($roles['cmadmin'] || $roles['admin']);
+      
+      // View petitions?
+      $p['petitions'] = ($roles['cmadmin']
+                         || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
       
       // View an existing Org Person?
       $p['view'] = ($roles['cmadmin']
