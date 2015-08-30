@@ -387,7 +387,7 @@
         global $cm_lang, $cm_texts;
         $attrs['value'] = (isset($co_enrollment_attributes)
           ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['required']
-          : RequiredEnum::Optional);
+          : RequiredEnum::Required);
         $attrs['empty'] = false;
 
         if($e) {
