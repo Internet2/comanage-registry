@@ -31,13 +31,13 @@ body {
   margin: auto;
   min-width: 620px;
 }
-/* XXX These can likely go, but keep temporarily
-  html {
-  overflow-y: scroll;
-  overflow: -moz-scrollbars-vertical;
-}*/
 .innerContent {
   clear: both;
+}
+#coSpinner {
+  position: fixed;
+  left: 50%;
+  top: 40%;
 }
 
 /* General */
