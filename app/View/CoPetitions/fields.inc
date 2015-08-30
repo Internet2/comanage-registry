@@ -23,26 +23,6 @@
  */
 ?>
 
-<script type="text/javascript">
-  $(function() {
-      // Enumeration for tabs
-      var tabid = new Object();
-      tabid["petition"]  = 0;
-      tabid["attributes"]    = 1;
-      tabid["history"] = 2;
-
-      // Turn on Tabs
-      var $tabs = $( "#tabs" ).tabs();
-
-      // If returning to this page via redirect, open last used tab
-      <?php if(isset($this->request->params['named']['tab'])): ?>
-        var selectedtab = "<?php print($this->request->params['named']['tab']); ?>";
-
-        $tabs.tabs('option', 'active', tabid[selectedtab] );
-      <?php endif; ?>
-  });
-</script>
-
 <?php
   // Determine if fields are editable
   $e = false;
@@ -83,143 +63,144 @@
   // lot of logic to embed in a view file, and plausibly this code should be
   // refactored at some point.
 ?>
-<div id="petition">
-  <?php if($this->action != 'add'): // Enable tabs only if we're viewing an existing petition ?>
-  <div id="tabs">
-    <ul>
-      <li>
-        <a href="#tabs-petition">
-          <?php print _txt('ct.co_petitions.1'); ?>
-        </a>
-      </li>
-      <li>
-        <a href="#tabs-attributes">
-          <?php print _txt('fd.attrs.pet'); ?>
-        </a>
-      </li>
-      <li>
-        <a href="#tabs-history">
-          <?php print _txt('fd.history.pt'); ?>
-        </a>
-      </li>
-    </ul>
-  <?php endif; // action = add ?>
-    <div id="tabs-petition">
-      <?php if($this->action != 'add'): ?>
-        <div>
-          <table id="<?php print $this->action; ?>_co_petition" class="ui-widget">
-            <tbody>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th><?php print _txt('fd.status'); ?></th>
-                <td>
-                  <?php
-                    print '<span class="status">';
-                    print _txt('en.status.pt', null, $co_petitions[0]['CoPetition']['status']);
-                    print '</span>';
 
-                    if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval) {
-                      if($permissions['approve']) {
-                        print $this->Html->link(
-                          _txt('op.approve'),
-                          array('controller' => 'co_petitions',
-                                'action' => 'approve',
-                                $co_petitions[0]['CoPetition']['id'],
-                                'co' => $co_petitions[0]['CoPetition']['co_id'],
-                                'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
-                          array('class' => 'checkbutton approve-button')
-                        );
-                      }
-                    }
-                    
-                    if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
-                       || $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation) {
-                      if($permissions['deny']) {
-                        print $this->Html->link(
-                          _txt('op.deny'),
-                          array('controller' => 'co_petitions',
-                                'action' => 'deny',
-                                $co_petitions[0]['CoPetition']['id'],
-                                'co' => $co_petitions[0]['CoPetition']['co_id'],
-                                'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
-                          array('class' => 'cancelbutton deny-button')
-                        );
-                      }
-                    }
-                  ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th><?php print _txt('ct.co_enrollment_flows.1'); ?></th>
-                <td><?php print $co_petitions[0]['CoEnrollmentFlow']['name']; ?></td>
-              </tr>
-              <?php if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation
-                       && !empty($co_petitions[0]['CoInvite']['expires'])): ?>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th><?php print _txt('fd.inv.exp'); ?></th>
-                <td><?php print $this->Time->format($co_petitions[0]['CoInvite']['expires'], "%c $vv_tz", false, $vv_tz); ?></td>
-              </tr>
-              <?php endif; // Invitation expires ?>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th><?php print _txt('fd.petitioner'); ?></th>
-                <td>
-                  <?php
-                    if(isset($co_petitions[0]['PetitionerCoPerson']['PrimaryName'])) {
-                      print generateCn($co_petitions[0]['PetitionerCoPerson']['PrimaryName']);
-                    } else {
-                      print _txt('fd.actor.self');
-                    }
-                  ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th><?php print _txt('fd.sponsor'); ?></th>
-                <td>
-                  <?php
-                    if(isset($co_petitions[0]['SponsorCoPerson']['PrimaryName'])) {
-                      print generateCn($co_petitions[0]['SponsorCoPerson']['PrimaryName']);
-                    }
-                  ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th><?php print _txt('fd.approver'); ?></th>
-                <td>
-                  <?php
-                    if(isset($co_petitions[0]['ApproverCoPerson']['PrimaryName'])) {
-                      print generateCn($co_petitions[0]['ApproverCoPerson']['PrimaryName']);
-                    }
-                  ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th><?php print _txt('fd.identifier.identifier'); ?></th>
-                <td>
-                  <?php
-                    if(!empty($co_petitions[0]['CoPetition']['authenticated_identifier'])) {
-                      print Sanitize::html($co_petitions[0]['CoPetition']['authenticated_identifier']);
-                    }
-                  ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th><?php print _txt('fd.created'); ?></th>
-                <td><?php print $this->Time->format($co_petitions[0]['CoPetition']['created'], "%c $vv_tz", false, $vv_tz); ?></td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th><?php print _txt('fd.modified'); ?></th>
-                <td><?php print $this->Time->format($co_petitions[0]['CoPetition']['modified'], "%c $vv_tz", false, $vv_tz); ?></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      <?php endif; // action == add ?>
+<script type="text/javascript">
+  $(function() {
+    // Explorer menu toggles
+    $(".fieldGroupName").click(function(event) {
+      event.preventDefault();
+      $(this).next(".fields").slideToggle("fast");
+      // toggle the +/- icon:
+      if ($(this).find(".ui-icon").hasClass("ui-icon-circlesmall-minus")) {
+        $(this).find(".ui-icon").removeClass("ui-icon-circlesmall-minus").addClass("ui-icon-circlesmall-plus");
+      } else {
+        $(this).find(".ui-icon").removeClass("ui-icon-circlesmall-plus").addClass("ui-icon-circlesmall-minus");
+      }
+    });
+  });
+</script>
+
+<div id="petition" class="personExplorer">
+  <?php if($this->action != 'add'): ?>
+
+    <a href="#tabs-petition" class="fieldGroupName">
+      <span class="ui-icon ui-icon-circlesmall-minus"></span>
+      <?php print _txt('ct.co_petitions.1'); ?>
+    </a>
+
+    <table id="<?php print $this->action; ?>_co_petition" class="ui-widget fields">
+      <tbody>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th><?php print _txt('fd.status'); ?></th>
+          <td>
+            <?php
+              print '<span class="status">';
+              print _txt('en.status.pt', null, $co_petitions[0]['CoPetition']['status']);
+              print '</span>';
+
+              if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval) {
+                if($permissions['approve']) {
+                  print $this->Html->link(
+                    _txt('op.approve'),
+                    array('controller' => 'co_petitions',
+                          'action' => 'approve',
+                          $co_petitions[0]['CoPetition']['id'],
+                          'co' => $co_petitions[0]['CoPetition']['co_id'],
+                          'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
+                    array('class' => 'checkbutton approve-button')
+                  );
+                }
+              }
+
+              if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
+                 || $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation) {
+                if($permissions['deny']) {
+                  print $this->Html->link(
+                    _txt('op.deny'),
+                    array('controller' => 'co_petitions',
+                          'action' => 'deny',
+                          $co_petitions[0]['CoPetition']['id'],
+                          'co' => $co_petitions[0]['CoPetition']['co_id'],
+                          'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
+                    array('class' => 'cancelbutton deny-button')
+                  );
+                }
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th><?php print _txt('ct.co_enrollment_flows.1'); ?></th>
+          <td><?php print $co_petitions[0]['CoEnrollmentFlow']['name']; ?></td>
+        </tr>
+        <?php if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation
+                 && !empty($co_petitions[0]['CoInvite']['expires'])): ?>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th><?php print _txt('fd.inv.exp'); ?></th>
+          <td><?php print $this->Time->format($co_petitions[0]['CoInvite']['expires'], "%c $vv_tz", false, $vv_tz); ?></td>
+        </tr>
+        <?php endif; // Invitation expires ?>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th><?php print _txt('fd.petitioner'); ?></th>
+          <td>
+            <?php
+              if(isset($co_petitions[0]['PetitionerCoPerson']['PrimaryName'])) {
+                print generateCn($co_petitions[0]['PetitionerCoPerson']['PrimaryName']);
+              } else {
+                print _txt('fd.actor.self');
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th><?php print _txt('fd.sponsor'); ?></th>
+          <td>
+            <?php
+              if(isset($co_petitions[0]['SponsorCoPerson']['PrimaryName'])) {
+                print generateCn($co_petitions[0]['SponsorCoPerson']['PrimaryName']);
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th><?php print _txt('fd.approver'); ?></th>
+          <td>
+            <?php
+              if(isset($co_petitions[0]['ApproverCoPerson']['PrimaryName'])) {
+                print generateCn($co_petitions[0]['ApproverCoPerson']['PrimaryName']);
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th><?php print _txt('fd.identifier.identifier'); ?></th>
+          <td>
+            <?php
+              if(!empty($co_petitions[0]['CoPetition']['authenticated_identifier'])) {
+                print Sanitize::html($co_petitions[0]['CoPetition']['authenticated_identifier']);
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th><?php print _txt('fd.created'); ?></th>
+          <td><?php print $this->Time->format($co_petitions[0]['CoPetition']['created'], "%c $vv_tz", false, $vv_tz); ?></td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th><?php print _txt('fd.modified'); ?></th>
+          <td><?php print $this->Time->format($co_petitions[0]['CoPetition']['modified'], "%c $vv_tz", false, $vv_tz); ?></td>
+        </tr>
+      </tbody>
+    </table>
+  <?php endif; // action == add ?>
+
+  <div id="tabs-attributes">
+    <a href="#tabs-attributes" class="fieldGroupName">
+      <span class="ui-icon ui-icon-circlesmall-minus"></span>
+      <?php print _txt('fd.attrs.pet'); ?>
+    </a>
+    <div class="fields">
+      <?php include('petition-attributes.inc'); ?>
     </div>
-    <div id="tabs-attributes">
-      <?php
-        include('petition-attributes.inc');
-      ?>
-    </div>
-      <?php if($this->action != 'add'): ?>
   </div>
-      <?php endif; ?>
 </div>

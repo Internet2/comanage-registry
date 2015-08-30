@@ -25,11 +25,16 @@
 // Add breadcrumbs
 print $this->element("coCrumb");
 $this->Html->addCrumb($title_for_layout);
- 
-// XXX we need better spacing management (div vs p)
-print "<p>" . $vv_intro_text  . "</p>";
+
+// Add page title
+$params = array('title' => $title_for_layout);
+print $this->element("pageTitleAndButtons", $params);
+
+print '<div id="enrollmentFlowIntro">';
+print $vv_intro_text;
+print '</div>';
 
 print $this->Html->Link(_txt('op.begin'),
                         $vv_on_finish_url,
-                        array('class' => 'forwardbutton'));
+                        array('class' => 'forwardbutton enrollmentFlowStartButton'));
 

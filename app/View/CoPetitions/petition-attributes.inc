@@ -134,7 +134,7 @@
 <div id="petitionerMatchResults">
 </div>
 
-<div style = "overflow:hidden;">
+<div class="fields" style="overflow:hidden;">
   <?php
     // Render introductory text for new petitions
     
@@ -527,7 +527,11 @@
 </div>
 </div>
 <?php if($this->action == 'view'): ?>
-  <div id="tabs-history">
+  <a href="#tabs-history" class="fieldGroupName">
+    <span class="ui-icon ui-icon-circlesmall-minus"></span>
+    <?php print _txt('fd.history.pt'); ?>
+  </a>
+  <div id="tabs-history" class="fields">
     <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
       <tbody>
         <tr>

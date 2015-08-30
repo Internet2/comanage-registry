@@ -271,7 +271,7 @@
 </script>
 
 <div id="<?php print $this->action; ?>_co_person" class="explorerContainer">
-  <div id="personExplorer">
+  <div id="coPersonExplorer" class="personExplorer">
     <ul>
       <li id="fields-name" class="fieldGroup">
         <?php if($this->action != 'invite' && $this->Permission->selfService($permissions, $e, 'Name') == PermissionEnum::ReadWrite): ?>

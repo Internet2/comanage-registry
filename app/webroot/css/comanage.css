@@ -799,31 +799,31 @@ td.order {
 }
 
 /* Person Explorer */
-#personExplorer ul {
+.personExplorer ul {
   margin: 0 0 0 1em;
   padding: 0;
 }
-#personExplorer li {
+.personExplorer li {
   list-style: none;
   margin: 0 0 0.5em 0;
 }
-#personExplorer .fieldGroupName .ui-icon {
+.personExplorer .fieldGroupName .ui-icon {
   background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons-16px.png") !important;
   float: left;
   opacity: 0.6;
 }
-#personExplorer a {
+.personExplorer a {
   text-decoration: none;
 }
 .explorerHead {
   height: 20px;
 }
-#personExplorer li.fieldGroup {
+.personExplorer li.fieldGroup {
   clear: left;
   margin: 0 0 1em 0;
 }
-#personExplorer ul.fields {
-  margin-bottom: 2em;
+.personExplorer ul.fields {
+  margin-bottom: 1em;
 }
 .fieldGroupName {
   display: block;
@@ -832,10 +832,15 @@ td.order {
   font-size: 1.1em;
   font-weight: bold;
   padding: 0.3em 0;
+  margin: 1em 0 0 0;
 }
-#personExplorer .coAddEditButtons .ui-state-default,
-#personExplorer .coAddEditButtons .ui-widget-content .ui-state-default,
-#personExplorer .coAddEditButtons .ui-widget-header .ui-state-default {
+body.co_petitions.view #titleNavContainer,
+body.co_people.canvas #titleNavContainer {
+  padding-bottom: 0;
+}
+.personExplorer .coAddEditButtons .ui-state-default,
+.personExplorer .coAddEditButtons .ui-widget-content .ui-state-default,
+.personExplorer .coAddEditButtons .ui-widget-header .ui-state-default {
   background: none;
   border: none;
 }
@@ -1004,6 +1009,12 @@ body.co_petitions .deny-button:hover {
   background-color: #d44;
 }
 /* Enrollment Flow Steps */
+#enrollmentFlowIntro {
+  margin-left: 2em;
+}
+.enrollmentFlowStartButton {
+  margin: 1em 0 3em 2em;
+}
 #enrollmentFlowSteps h3 {
   margin: 0.5em;
 }
