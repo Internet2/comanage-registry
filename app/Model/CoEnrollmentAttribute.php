@@ -125,7 +125,11 @@ class CoEnrollmentAttribute extends AppModel {
     
     // (1) Single valued CO Person Role attributes (code=r)
     
-    $ret['r:cou_id'] = _txt('fd.cou') . " (" . _txt('ct.co_person_roles.1') . ")";
+    // COU ID is only available if at least one COU is defined
+    $cous = $this->CoEnrollmentFlow->Co->Cou->allCous($coid);
+    if(!empty($cous)) {
+      $ret['r:cou_id'] = _txt('fd.cou') . " (" . _txt('ct.co_person_roles.1') . ")";
+    }
     $ret['r:affiliation'] = _txt('fd.affiliation') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['r:sponsor_co_person_id'] = _txt('fd.sponsor') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['r:title'] = _txt('fd.title') . " (" . _txt('ct.co_person_roles.1') . ")";
