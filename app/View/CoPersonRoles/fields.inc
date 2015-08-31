@@ -358,7 +358,7 @@ $(function() {
                                           array('controller' => 'telephone_numbers',
                                                 'action' => 'edit',
                                                 $t['id']))
-                        . " (" . $vv_copr_telephonenumber_types[ $t['type'] ] . ")<br />\n";
+                        . ' <span class="dataDesc">('. $vv_copr_telephonenumber_types[ $t['type'] ] . ")</span>\n";
                 print '</div>';
                 print '<div>';
                   print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
@@ -386,7 +386,7 @@ $(function() {
                 print '</div>';
               print '</div>';
             } elseif($perm == PermissionEnum::ReadOnly) {
-              print '<div><div>' . Sanitize::html(formatTelephone($t)) . " (" . $vv_copr_telephonenumber_types[ $t['type'] ] . ")</div><div></div></div>\n";
+              print '<div><div>' . Sanitize::html(formatTelephone($t)) . ' <span class="dataDesc">(' . $vv_copr_telephonenumber_types[ $t['type'] ] . ")</span></div><div></div></div>\n";
             }
           }
         }
@@ -414,7 +414,7 @@ $(function() {
                                           array('controller' => 'addresses',
                                                 'action' => 'edit',
                                                 $addr['id']))
-                        . " (" . $vv_copr_address_types[ $addr['type'] ]. ")<br />\n";
+                        . ' <span class="dataDesc">(' . $vv_copr_address_types[ $addr['type'] ]. ")</span>\n";
                 print '</div>';
                 print '<div>';
                   print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
@@ -443,7 +443,7 @@ $(function() {
                 print '</div>';
               print '</div>';
             } elseif($perm == PermissionEnum::ReadOnly) {
-              print '<div><div>' . Sanitize::html($addr['street']) . " (" . $vv_copr_address_types[ $addr['type'] ] . ")</div><div></div></div>\n";
+              print '<div><div>' . Sanitize::html($addr['street']) . ' <span class="dataDesc">(' . $vv_copr_address_types[ $addr['type'] ] . ")</span></div><div></div></div>\n";
             }
           }
         }

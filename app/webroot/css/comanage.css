@@ -47,7 +47,11 @@ body {
 
 /* Text */
 .descr {
-  font-style: italic;
+  font-style: italic; /* used for long descriptions of fields */
+}
+.dataDesc {
+  margin-left: 0.5em; /* used for short, often parenthesized descriptions of data */
+  font-size: 0.9em;
 }
 .largefont {
   font: 200% "Trebuchet MS", sans-serif;

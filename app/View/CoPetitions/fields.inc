@@ -55,7 +55,30 @@
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
   print $this->Form->hidden('co_enrollment_flow_id', array('default' => Sanitize::html($co_enrollment_flow_id)));
-  
+
+  if($this->action == 'view') {
+    // Add enrollment flow information to sidebar
+    $enrollmentFlowSteps = $this->get('enrollmentFlowSteps');
+    $enrollmentFlowStepComplete = 'complete';
+
+    foreach (array_keys($vv_configured_steps) as $step) {
+      if ($vv_configured_steps[$step]['enabled'] != RequiredEnum::NotPermitted
+        // We specifically don't want "deny" to render, so we'll skip it here
+        && $step != 'deny'
+      ) {
+        $enrollmentFlowSteps[] = array(
+          'title' => $vv_configured_steps[$step]['label'],
+          'state' => $step == $vv_current_step ? 'selected' : $enrollmentFlowStepComplete
+        );
+        if ($step == $vv_current_step) {
+          $enrollmentFlowStepComplete = 'incomplete';
+        }
+      }
+    }
+
+    $this->set('enrollmentFlowSteps', $enrollmentFlowSteps);
+  }
+
   $l = 0;
   
   // Unlike most other views, CO Petitions dynamically generates attributes to be
@@ -192,7 +215,7 @@
         </tr>
       </tbody>
     </table>
-  <?php endif; // action == add ?>
+  <?php endif; // action != add ?>
 
   <div id="tabs-attributes">
     <a href="#tabs-attributes" class="fieldGroupName">
