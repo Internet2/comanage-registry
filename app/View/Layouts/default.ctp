@@ -161,108 +161,19 @@
 
     <div id="main" class="contentWidth">
       <?php
-        // insert the sidebar when it exists
+        // insert the sidebar buttons if they exist
         $sidebarButtons = $this->get('sidebarButtons');
+        if(!empty($sidebarButtons)) {
+          print $this->element('sidebarButtons');
+        }
+
+        // display enrollment flow steps when they exist
         $enrollmentFlowSteps = $this->get('enrollmentFlowSteps');
-        if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)):
-      ?>
-          <!-- Display sidebar menu for content -->
-          <div id="sidebar">
+        if(!empty($enrollmentFlowSteps)) {
+          print $this->element('enrollmentFlowSteps');
+        }
 
-            <?php if(!empty($sidebarButtons)): ?>
-              <ul id="menu">
-              <?php
-                foreach($sidebarButtons as $button => $link){
-                  print '<li>';
-                    // Clean data
-                    $icontitle = '<span class="ui-icon ui-icon-'
-                                 . $link['icon']
-                                 . '"></span>'
-                                 . $link['title'];
-
-                    $url = $link['url'];
-
-                    $options = array();
-
-                    if(isset($link['options'])) {
-                      $options = (array)$link['options'];
-                    }
-
-                    $options['escape'] = FALSE;
-
-                    if(!empty($link['confirm'])) {
-                      // There is a built in Cake popup, which can be accessed by putting the confirmation text
-                      // as the fourth parameter to link. However, that uses a javascript popup rather than a
-                      // jquery popup, which is inconsistent with our look and feel.
-
-                      $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt($link['confirm']) . "', '" . Router::url($url) . "'";
-
-                      if(!empty($link['confirmbtxt'])) {
-                        // Set the text for the confirmation button
-                        $options['onclick'] .= ", '" . $link['confirmbtxt'] . "'";
-                      }
-
-                      $options['onclick'] .= ");return false";
-                    }
-
-                    print $this->Html->link(
-                      $icontitle,
-                      $url,
-                      $options
-                    );
-                  print '</li>';
-                }
-              ?>
-              </ul>
-
-              <?php // Advanced Search (CO-139)
-                // skip on the index pages, where we've moved searching to the top, but keep on the others
-                if ($this->action != 'index') {
-                  if(isset($permissions['search']) && $permissions['search'] ) {
-                    // Get a pointer to our model
-                    $model = $this->name;
-                    if(!empty($this->plugin)) {
-                      $fileLocation = APP . "Plugin/" . $this->plugin . "/View/" . $model . "/search-side.inc";
-                      if(file_exists($fileLocation))
-                        include($fileLocation);
-                    } else {
-                      $fileLocation = APP . "View/" . $model . "/search-side.inc";
-                      if(file_exists($fileLocation))
-                        include($fileLocation);
-                    }
-                  }
-                }
-              ?>
-            <?php endif; // sidebarButtons ?>
-
-            <?php if(!empty($enrollmentFlowSteps)): ?>
-              <div id="enrollmentFlowSteps">
-                <h3><?php print _txt('ct.co_enrollment_flows.1') ?></h3>
-                <ul>
-                  <?php
-                    foreach($enrollmentFlowSteps as $flow => $step) {
-                      print '<li class="' . $step['state'] . '">';
-                      switch ($step['state']) {
-                        case 'complete':
-                          print '<span class="ui-icon ui-icon-check"> </span>';
-                          break;
-                        case 'selected':
-                          print '<span class="ui-icon ui-icon-arrowthick-1-e"> </span>';
-                          break;
-                      }
-                      print '<span class="stepText">' . $step['title'] . '</span>';
-                      print '</li>';
-                    }
-                  ?>
-                </ul>
-              </div>
-            <?php endif; // enrollmentFlowSteps ?>
-
-          </div>
-      <?php endif; ?>
-
-      <?php
-        /* display the view content */
+        // display the view content
         if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
           print '<div id="content" class="contentWithSidebar">';
         } else {
@@ -278,13 +189,14 @@
 
         // insert the page internal content
         print $this->fetch('content');
+
+        // close the view content div
         print "</div>";
       ?>
 
     </div>
 
     <!-- Common UI components -->
-
     <?php if($this->here != '/registry/pages/eds/index'):
       // Don't load the following UI component when loading the Shib EDS. ?>
       <div id="dialog" title="Confirm">

@@ -789,7 +789,7 @@ td.order {
 }
 
 /* Sidebar (right) */
-#sidebar {
+.sidebar {
   background-color: #F5F5F5;
   margin: 1em 0 0 0;
   padding: 10px;
