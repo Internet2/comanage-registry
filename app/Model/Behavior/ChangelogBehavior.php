@@ -216,6 +216,11 @@ class ChangelogBehavior extends ModelBehavior {
           
           $jmodel = ClassRegistry::init($j['alias'], true);
           
+          if(!$jmodel) {
+            // Try to inflect the table name to get the model
+            $jmodel = ClassRegistry::init(Inflector::classify($j['table']), true);
+          }
+          
           if($jmodel) {
             if($jmodel->Behaviors->enabled('Changelog')) {
               // If the model being joined has changelog behavior add conditions
@@ -225,11 +230,11 @@ class ChangelogBehavior extends ModelBehavior {
               
               // Add condition to the join condition that the joined model
               // model_id column is null.
-              $ret['joins'][$i]['conditions'][] = $jmodel->name.'.'.$cparentfk.' IS NULL';
+              $ret['joins'][$i]['conditions'][] = $j['alias'].'.'.$cparentfk.' IS NULL';
               
               // Add condition to the join condition that the joined model
               // deleted column is not true.
-              $ret['joins'][$i]['conditions'][] = $jmodel->name.'.deleted IS NOT true';
+              $ret['joins'][$i]['conditions'][] = $j['alias'].'.deleted IS NOT true';
             }
           } else {
             throw new RuntimeException(_txt('er.changelog.model.load', array($j['alias'])));
@@ -470,6 +475,8 @@ class ChangelogBehavior extends ModelBehavior {
    * modifyContain will walk the array of $query['contain'] and append
    * conditions to constrain the contain to eliminate deleted or archived
    * attributes.
+   *
+   * @todo Could this be rewritten to mimic (eg) LinkableBehavior's iterator?
    */
   
   protected function modifyContain($model, $contain) {

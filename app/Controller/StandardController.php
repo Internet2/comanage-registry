@@ -874,13 +874,24 @@ class StandardController extends AppController {
           $this->paginate['joins'] = $local['joins'];
         }
         
-        if(isset($this->view_contains)) {
+        if(isset($local['contain'])) {
+          $this->paginate['contain'] = $local['contain'];
+        } elseif(isset($this->view_contains)) {
           $this->paginate['contain'] = $this->view_contains;
+        }
+        
+        // Used either to whitelist which fields can be used for sorting, or
+        // explicitly naming sortable fields for complex relations (ie: using
+        // linkable behavior).
+        $sortlist = array();
+        
+        if(!empty($local['sortlist'])) {
+          $sortlist = $local['sortlist'];
         }
         
         $this->Paginator->settings = $this->paginate;
         
-        $this->set($modelpl, $this->Paginator->paginate($req));
+        $this->set($modelpl, $this->Paginator->paginate($req, array(), $sortlist));
       }
     }
   }

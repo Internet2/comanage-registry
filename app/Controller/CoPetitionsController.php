@@ -34,17 +34,52 @@ class CoPetitionsController extends StandardController {
   
   public $paginate = array(
     'limit' => 25,
+    'link' => array(
+      'ApproverCoPerson' => array(
+        'class' => 'CoPerson',
+        'ApproverPrimaryName' => array(
+          'class' => 'Name',
+          'conditions' => array(
+            // Linkable behavior doesn't seem to be able to handle multiple joins
+            // against the same table, so we manually specify the join condition for
+            // each name. We then have to explicitly filter on primary name so as
+            // not to produce multiple rows in the join for alternate names the
+            // CO Person might have.
+            'exactly' => 'ApproverPrimaryName.co_person_id = ApproverCoPerson.id AND ApproverPrimaryName.primary_name = true'
+          )
+        )
+      ),
+      'CoEnrollmentFlow',
+      'Cou',
+      'EnrolleeCoPerson' => array(
+        'EnrolleePrimaryName' => array(
+          'class' => 'Name',
+          'conditions' => array(
+            'exactly' => 'EnrolleePrimaryName.co_person_id = EnrolleeCoPerson.id AND EnrolleePrimaryName.primary_name = true')
+        )
+      ),
+      'PetitionerCoPerson' => array(
+        'class' => 'CoPerson',
+        'PetitionerPrimaryName' => array(
+          'class' => 'Name',
+          'conditions' => array(
+            'exactly' => 'PetitionerPrimaryName.co_person_id = PetitionerCoPerson.id AND PetitionerPrimaryName.primary_name = true')
+        )
+      ),
+      'SponsorCoPerson' => array(
+        'class' => 'CoPerson',
+        'SponsorPrimaryName' => array(
+          'class' => 'Name',
+          'conditions' => array(
+            'exactly' => 'SponsorPrimaryName.co_person_id = SponsorCoPerson.id AND SponsorPrimaryName.primary_name = true')
+        )
+      )
+    ),
     'order' => array(
       'modified' => 'desc'
     ),
-    'contain' => array(
-      'ApproverCoPerson' => 'PrimaryName',
-      'CoEnrollmentFlow',
-      'Cou',
-      'EnrolleeCoPerson' => 'PrimaryName',
-      'PetitionerCoPerson' => 'PrimaryName',
-      'SponsorCoPerson' => 'PrimaryName'
-    )
+    // contain moved to linkable for CO-896, don't restore since it blanks out associations (breaking linkable)
+    'contain' => false
   );
   
   // This controller needs a CO to be set
@@ -1458,6 +1493,23 @@ class CoPetitionsController extends StandardController {
         $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = -1;
       }
     }
+    
+    // Because we're using Linkable behavior to join deeply nested models, we need to
+    // explicitly state which fields can be used for sorting.
+    
+    $pagcond['sortlist'] = array(
+      'ApproverPrimaryName.family',
+      'CoPetition.created',
+      'CoPetition.modified',
+      'CoPetition.status',
+      'Cou.name',
+      'EnrolleePrimaryName.family',
+      'PetitionerPrimaryName.family',
+      'SponsorPrimaryName.family'
+    );
+    
+    // Don't use contain
+    $pagcond['contain'] = false;
     
     return $pagcond;
   }

@@ -968,6 +968,12 @@
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_petition_id" type="I">
+      <constraint>REFERENCES cm_co_petitions(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_petitions_i1">
       <col>co_id</col>
@@ -983,6 +989,9 @@
     </index>
     <index name="co_petitions_i5">
       <col>co_invite_id</col>
+    </index>
+    <index name="co_petitions_i6">
+      <col>co_petition_id</col>
     </index>
   </table>
   
