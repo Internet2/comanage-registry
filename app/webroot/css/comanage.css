@@ -41,7 +41,8 @@ body {
 }
 
 /* General */
-.hidden {
+.hidden,
+.invisible {
   display: none;
 }
 
@@ -744,10 +745,9 @@ td.top {
   width: 230px;
 }
 .additionalinfo{
-  padding: 5px;
   margin: 0 0 5px 0;
 }
-.additionalinfo > div{
+.additionalinfo > div {
   margin: 0 0 2px;
   overflow: hidden;
   padding: 2px 0 3px 0;
@@ -773,11 +773,24 @@ td.top {
 .additionalinfo div .ui-button {
   float: right;
 }
+.additionalinfo li {
+  margin: 0 0 2px;
+  overflow: hidden;
+  padding: 2px 0 3px 0;
+  background-color: #F5F5F5;
+}
+.additionalinfo li .actionButtons {
+  float: right;
+}
+.additionalinfo .fieldData {
+  padding: 0.5em;
+}
 #OrgIdentityEditForm .addbutton,
 #view_org_identity .addbutton,
 #CoPersonEditForm .addbutton,
 #CoPersonRoleEditForm .addbutton{
   float: right;
+  clear: left;
 }
 
 /* Drag/drop ordering */
@@ -806,6 +819,9 @@ td.order {
 .personExplorer ul {
   margin: 0 0 0 1em;
   padding: 0;
+}
+.personExplorer ul.topList {
+  margin: 0;
 }
 .personExplorer li {
   list-style: none;
@@ -839,6 +855,7 @@ td.order {
   margin: 1em 0 0 0;
 }
 body.co_petitions.view #titleNavContainer,
+body.co_person_roles #titleNavContainer,
 body.co_people.canvas #titleNavContainer {
   padding-bottom: 0;
 }
@@ -929,7 +946,6 @@ body.co_people.canvas #titleNavContainer {
 }
 /* Petitions */
 #petition {
-  min-height: 350px;
 }
 #view_co_petition .status {
   margin-right: 1em;
