@@ -136,7 +136,7 @@
           <th><?php print _txt('fd.status'); ?></th>
           <td>
             <?php
-              print '<span class="status">';
+              print '<span class="status ' . $co_petitions[0]['CoPetition']['status'] . '">';
               print _txt('en.status.pt', null, $co_petitions[0]['CoPetition']['status']);
               print '</span>';
 

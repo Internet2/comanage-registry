@@ -948,7 +948,22 @@ body.co_people.canvas #titleNavContainer {
 #petition {
 }
 #view_co_petition .status {
-  margin-right: 1em;
+  margin: 0 1em 0 0;
+}
+#view_co_petition .status.N,
+#view_co_petition .status.Y,
+#view_co_petition .status.F {
+  margin: 0;
+  padding: 0.2em 1em;
+}
+#view_co_petition .status.Y,  /* approved */
+#view_co_petition .status.F { /* finalized */
+  background-color: #2a2;
+  color: white;
+}
+#view_co_petition .status.N { /* denied */
+  background-color: #c33;
+  color: white;
 }
 #view_co_petition .ui-button {
   margin: 0 0 0 0.25em;
@@ -1061,8 +1076,6 @@ body.co_petitions .deny-button:hover {
 }
 #enrollmentFlowSteps li.incomplete {
   font-style: italic;
-  list-style: disc;
-  margin-left: 1.25em;
   color: #888;
 }
 #enrollmentFlowSteps li.incomplete .stepText {
@@ -1070,6 +1083,9 @@ body.co_petitions .deny-button:hover {
 }
 #enrollmentFlowSteps li.complete .ui-icon {
   background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_6eac2c_256x240.png");
+}
+#enrollmentFlowSteps li.stopped .ui-icon {
+  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_cd0a0a_256x240.png");
 }
 /* Petition Attributes */
 .modelbox {

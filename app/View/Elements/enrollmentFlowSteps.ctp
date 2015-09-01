@@ -40,6 +40,9 @@
           case 'stopped':
             print '<span class="ui-icon ui-icon-closethick"> </span>';
             break;
+          case 'incomplete':
+            print '<span class="ui-icon ui-icon-bullet"> </span>';
+            break;
         }
         print '<span class="stepText">' . $step['title'] . '</span>';
         print '</li>';
