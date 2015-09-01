@@ -427,6 +427,13 @@ class CoInvitesController extends AppController {
       // We also want to pull the enrollment flow and petition attributes, if appropriate
       
       if(isset($invite['CoPetition']['id'])) {
+        // It turn out this is a bit complicated due to how ChangelogBehavior is
+        // applied to the relevant models. There is overlap here with code from
+        // CoPetitionsController.
+        
+        // Start by figuring out the enrollment flow and pulling all the attributes
+        // defined for that flow, including archived.
+        
         $args = array();
         $args['conditions']['CoEnrollmentFlow.id'] = $invite['CoPetition']['co_enrollment_flow_id'];
         $args['contain'][] = 'CoEnrollmentAttribute';
@@ -435,18 +442,49 @@ class CoInvitesController extends AppController {
         
         $this->set('co_enrollment_flow', $enrollmentFlow);
         
-        $this->set('co_enrollment_attributes',
-                   $this->CoInvite->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->enrollmentFlowAttributes($invite['CoPetition']['co_enrollment_flow_id']));
+        $enrollmentAttributes = $this->CoInvite
+                                     ->CoPetition
+                                     ->CoEnrollmentFlow
+                                     ->CoEnrollmentAttribute
+                                     ->enrollmentFlowAttributes($invite['CoPetition']['co_enrollment_flow_id'], array(), true);
+        
+        // Pull the petition metadata.
         
         $pArgs = array();
         $pArgs['conditions']['CoPetition.id'] = $invite['CoPetition']['id'];
         $pArgs['contain'][] = 'CoPetitionHistoryRecord';
-        $pArgs['contain']['CoPetitionHistoryRecord'][0] = 'ActorCoPerson';
         $pArgs['contain']['CoPetitionHistoryRecord']['ActorCoPerson'] = 'PrimaryName';
         
         $petition = $this->CoInvite->CoPetition->find('all', $pArgs);
         
         $this->set('co_petitions', $petition);
+        
+        // For viewing a petition, we want the attributes defined at the time the
+        // petition attributes were submitted. This turns out to be somewhat
+        // complicated to determine, so we hand it off for filtering.
+        
+        // We need a slightly different set of data here. Strictly speaking we
+        // should do a select distinct, but practically it won't matter since
+        // all petition attributes for a given enrollment attribute will have
+        // approximately the same created time.
+        
+        // This is duplicated from CoPetitionsController.
+        
+        // We pull the same attributes twice, because we need them in two different
+        // formats. (This could presumably be refactored at some point.) First, grab
+        // them so we can filter them historically.
+        
+        $vArgs = array();
+        $vArgs['conditions']['CoPetitionAttribute.co_petition_id'] = $invite['CoPetition']['id'];
+        $vArgs['fields'] = array(
+          'CoPetitionAttribute.co_enrollment_attribute_id',
+          'CoPetitionAttribute.created'
+        );
+        $vAttrs = $this->CoInvite->CoPetition->CoPetitionAttribute->find("list", $vArgs);
+        
+        $enrollmentAttributes = $this->CoInvite->CoPetition->filterHistoricalAttributes($enrollmentAttributes, $vAttrs);
+        
+        // Now pull the attributes again, but this time in the format used by the view.
         
         $vArgs = array();
         $vArgs['conditions']['CoPetitionAttribute.co_petition_id'] = $invite['CoPetition']['id'];
@@ -459,6 +497,8 @@ class CoInvitesController extends AppController {
         $vAttrs = $this->CoInvite->CoPetition->CoPetitionAttribute->find("list", $vArgs);
         
         $this->set('co_petition_attribute_values', $vAttrs);
+        
+        $this->set('co_enrollment_attributes', $enrollmentAttributes);
       }
     }
   }

@@ -201,6 +201,19 @@ class AppController extends Controller {
       $this->Security->validatePost = false;
       $this->Security->csrfCheck = false;
     } else { // restful
+      // Since we might be delivering unauthenticated views, set a timezone.
+      // See if we've collected it from the browser in a previous page load. Otherwise
+      // use the system default. If the user set a preferred timezone, we'll catch that below.
+      
+      if(!empty($_COOKIE['cm_registry_tz_auto'])) {
+        // We have an auto-detected timezone from a previous page render from the browser.
+        // Adjust the default timezone. Actually, don't we want to always record times in UTC.
+        //        date_default_timezone_set($_COOKIE['cm_registry_tz_auto']);
+        $this->set('vv_tz', $_COOKIE['cm_registry_tz_auto']);
+      } else {
+        $this->set('vv_tz', date_default_timezone_get());
+      }
+      
       // Before we do anything else, check to see if a CO was provided.
       // (It might impact our authz decisions.) Note that some models (eg: MVPAs)
       // might specify a CO, but might not. As of v0.6, we no longer redirect to
@@ -293,23 +306,13 @@ class AppController extends Controller {
             }
           }
           
-          // Figure out the preferred timezone. There might be a user setting, which
-          // would be attached to the CO Person in the current CO. Failing that, see
-          // if we've collected it from the browser in a previous page load. Otherwise
-          // use the system default.
+          // Check to see if the user set a preferred timezone.
           
           $cos = $this->Session->read('Auth.User.cos');
           $coName = $this->cur_co['Co']['name'];
           
           if(!empty($cos[$coName]['co_person']['timezone'])) {
             $this->set('vv_tz', $cos[$coName]['co_person']['timezone']);
-          } elseif(!empty($_COOKIE['cm_registry_tz_auto'])) {
-            // We have an auto-detected timezone from a previous page render from the browser.
-            // Adjust the default timezone. Actually, don't we want to always record times in UTC.
-            //        date_default_timezone_set($_COOKIE['cm_registry_tz_auto']);
-            $this->set('vv_tz', $_COOKIE['cm_registry_tz_auto']);
-          } else {
-            $this->set('vv_tz', date_default_timezone_get());
           }
         } else {
           $this->Flash->set(_txt('er.co.unk-a', array($coid)), array('key' => 'error'));

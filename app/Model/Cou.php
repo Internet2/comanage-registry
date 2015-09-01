@@ -146,7 +146,7 @@ class Cou extends AppModel {
    * @see Model::beforeDelete()
    */
   
-  public function beforeDelete($cascade) {
+  public function beforeDelete($cascade = true) {
     // Call AppModel parent beforeDelete first so that any
     // plugins that need to be consulted are so consulted
     // first.

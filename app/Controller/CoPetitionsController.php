@@ -366,6 +366,8 @@ class CoPetitionsController extends StandardController {
           // should do a select distinct, but practically it won't matter since
           // all petition attributes for a given enrollment attribute will have
           // approximately the same created time.
+          
+          // This is duplicated in CoInvitesController.
           $vArgs = array();
           $vArgs['conditions']['CoPetitionAttribute.co_petition_id'] = $this->CoPetition->id;
           $vArgs['fields'] = array(
@@ -433,6 +435,11 @@ class CoPetitionsController extends StandardController {
           
           $this->set('vv_tandc_mode', (!empty($tcmode) ? $tcmode : TAndCEnrollmentModeEnum::ExplicitConsent));
         }
+      }
+      
+      if($enrollmentFlowID > -1 && !isset($this->viewVars['vv_configured_steps'])) {
+        // This might have been set in dispatch()
+        $this->set('vv_configured_steps', $this->CoPetition->CoEnrollmentFlow->configuredSteps($enrollmentFlowID));
       }
     }
     
@@ -925,22 +932,30 @@ class CoPetitionsController extends StandardController {
     // At this point, the invitation will already have been processed and unlinked.
     // We just need to update petition status.
     
+    $newStatus = $this->request->params['named']['confirm'] == 'true'
+                 ? PetitionStatusEnum::Confirmed
+                 : PetitionStatusEnum::Declined;
+    
     if(!empty($this->request->params['named']['confirm'])) {
       $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
       
-      $this->CoPetition->updateStatus($id,
-                                      ($this->request->params['named']['confirm'] == 'true'
-                                       ? PetitionStatusEnum::Confirmed
-                                       : PetitionStatusEnum::Declined),
-                                      $coPersonId);
+      $this->CoPetition->updateStatus($id, $newStatus, $coPersonId);
     } else {
       // Throw an exception
       throw new InvalidArgumentException(_txt('er.reply.unk'));
     }
     
-    // The step is done
+    // The step is done. However, we only want to proceed if the invitation was
+    // confirmed. If it was declined, the flow ends.
     
-    $this->redirect($this->generateDoneRedirect('processConfirmation', $id));
+    if($newStatus == PetitionStatusEnum::Confirmed) {
+      $this->redirect($this->generateDoneRedirect('processConfirmation', $id));
+    } else {
+      // We don't really have a well defined place to redirect to on decline,
+      // so just go to root. We don't finalize here because in the future we
+      // could allow reactivation of a declined enrollment.
+      $this->redirect('/');
+    }
   }
   
   /**
@@ -1743,7 +1758,10 @@ class CoPetitionsController extends StandardController {
    * @param  Integer $id CO Petition ID
    */
   
-  function view($id) {    
+  function view($id) {
+    // The current step is determined by the status of the petition
+    $this->set('vv_current_step', $this->CoPetition->currentStep($id));
+    
     parent::view($id);
     
     // Set the title

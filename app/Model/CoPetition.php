@@ -341,6 +341,66 @@ class CoPetition extends AppModel {
   }
   
   /**
+   * Determine the current step for a CO Petition.
+   *
+   * @since  COmanage Registry v1.0.0
+   * @param  Integer $id CO Petition ID
+   * @return String Step label
+   * @throws InvalidArgumentException
+   */
+  
+  public function currentStep($id) {
+    // This is designed more for an administrator than an exact representation of the
+    // step. That is, collectIdentifier is usually the current step for a very brief
+    // moment, so we don't handle it here. But we could at some point.
+    
+    $status2step = array(
+      PetitionStatusEnum::Active              => 'done',
+      PetitionStatusEnum::Approved            => 'finalize',
+      PetitionStatusEnum::Confirmed           => 'waitForApproval',
+      PetitionStatusEnum::Created             => 'petitionerAttributes',  // or selectEnrollee
+      PetitionStatusEnum::Declined            => 'done',
+      PetitionStatusEnum::Denied              => 'done',
+      PetitionStatusEnum::Duplicate           => 'done',
+      PetitionStatusEnum::Finalized           => 'done',
+      PetitionStatusEnum::PendingApproval     => 'waitForApproval',
+      PetitionStatusEnum::PendingConfirmation => 'waitForConfirmation'
+    );
+    
+    // Pull the status of the petition
+    $status = $this->field('status', array('CoPetition.id' => $id));
+    
+    if(!$status) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
+    }
+    
+    // And the configured steps
+    $efId = $this->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
+    
+    $configuredSteps = $this->CoEnrollmentFlow->configuredSteps($efId);
+    
+    // $configuredSteps should be roughly in order, so walk through looking for what we
+    // think is the next step. Return it if configured, or keep going if not.
+    
+    $found = false;
+    
+    foreach($configuredSteps as $step => $settings) {
+      if($step == $status2step[$status]) {
+        if($settings['enabled'] != RequiredEnum::NotPermitted) {
+          return $status2step[$status];
+        }
+        
+        $found = true;
+      } elseif($found && $settings['enabled'] != RequiredEnum::NotPermitted) {
+        // This is the next configured step
+        return $step;
+      }
+    }
+    
+    return $status2step[$status];
+  }
+  
+  /**
    * Filter Enrollment Attributes for those that were in effect at the time a
    * set of Petition Attributes were created.
    * 

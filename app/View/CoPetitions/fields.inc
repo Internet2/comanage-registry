@@ -58,24 +58,43 @@
 
   if($this->action == 'view') {
     // Add enrollment flow information to sidebar
-    $enrollmentFlowSteps = $this->get('enrollmentFlowSteps');
-    $enrollmentFlowStepComplete = 'complete';
-
-    foreach (array_keys($vv_configured_steps) as $step) {
-      if ($vv_configured_steps[$step]['enabled'] != RequiredEnum::NotPermitted
+    
+    // This logic probably belongs in the Controller.
+    
+    $enrollmentFlowSteps = array();
+    $stopped = false; // Is the flow stopped?
+    $seen = false;    // Have we seen the current step?
+    
+    foreach(array_keys($vv_configured_steps) as $step) {
+      if($vv_configured_steps[$step]['enabled'] != RequiredEnum::NotPermitted
         // We specifically don't want "deny" to render, so we'll skip it here
-        && $step != 'deny'
-      ) {
+        && $step != 'deny') {
+        if($stopped) {
+          // Flow declined/denied, so all remaining steps are stopped
+          $state = 'stopped';
+        } elseif($seen) {
+          $state = 'incomplete';
+        } elseif($step == $vv_current_step) {
+          $seen = true;
+          $state = 'selected';
+        } else {
+          $state = 'complete';
+        }
+        
         $enrollmentFlowSteps[] = array(
           'title' => $vv_configured_steps[$step]['label'],
-          'state' => $step == $vv_current_step ? 'selected' : $enrollmentFlowStepComplete
+          'state' => $state
         );
-        if ($step == $vv_current_step) {
-          $enrollmentFlowStepComplete = 'incomplete';
+        
+        if(($step == 'waitForConfirmation' && $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::Declined)
+           ||
+           ($step == 'waitForApproval' && $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::Denied)) {
+          // No further steps will execute
+          $stopped = true;
         }
       }
     }
-
+    
     $this->set('enrollmentFlowSteps', $enrollmentFlowSteps);
   }
 
@@ -227,3 +246,5 @@
     </div>
   </div>
 </div>
+<?php
+  print $this->element("changelog");

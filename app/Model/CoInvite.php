@@ -279,7 +279,10 @@ class CoInvite extends AppModel {
     
     try {
       $this->deleteAll(array('CoInvite.co_person_id' => $coPersonId,
-                             'CoInvite.mail' => $toEmail));
+                             'CoInvite.mail' => $toEmail),
+                       false,
+                       // We need callbacks to fire for Changelog
+                       true);
     }
     catch(Exception $e) {
       throw new RuntimeException($e->getMessage());

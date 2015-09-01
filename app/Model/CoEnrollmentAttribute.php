@@ -235,10 +235,19 @@ class CoEnrollmentAttribute extends AppModel {
     $attrs = array();
     $permNameFields = array();
     
+    // CO Petitions get relinked to archived CO Enrollment Flows (ie: if the definition of
+    // the flow changes after the petition is created), but Enrollment Attributes stay
+    // with the current flow definition. So we need to check if there is a parent id.
+    $actualEfId = $this->CoEnrollmentFlow->field('co_enrollment_flow_id', array('CoEnrollmentFlow.id' => $coef));
+    
+    if(!$actualEfId) {
+      $actualEfId = $coef;
+    }
+    
     // First, retrieve the configured attributes
     
     $args = array();
-    $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = $coef;
+    $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = $actualEfId;
     $args['conditions']['CoEnrollmentAttribute.required !='] = RequiredEnum::NotPermitted;
     $args['order']['CoEnrollmentAttribute.ordr'] = 'asc';
     $args['contain'][] = 'CoEnrollmentAttributeDefault';
@@ -413,7 +422,7 @@ class CoEnrollmentAttribute extends AppModel {
             
             $args = array();
             $args['fields'] = array('Cou.id', 'Cou.name');
-            $args['conditions'] = array('CoEnrollmentFlow.id' => $coef);
+            $args['conditions'] = array('CoEnrollmentFlow.id' => $actualEfId);
             $args['joins'][0]['table'] = 'co_enrollment_flows';
             $args['joins'][0]['alias'] = 'CoEnrollmentFlow';
             $args['joins'][0]['type'] = 'INNER';

@@ -575,8 +575,9 @@ class CoPersonRolesController extends StandardController {
     // Relink a Role to a different CO Person?
     $p['relink'] = $roles['cmadmin'] || $roles['coadmin'];
     
-    if($self) {
-      // Pull self service permissions
+    if($self
+       && (!$roles['cmadmin'] && !$roles['coadmin'] && !$roles['couadmin'])) {
+      // Pull self service permissions if not an admin
       
       $p['selfsvc'] = $this->Co->CoSelfServicePermission->findPermissions($this->cur_co['Co']['id']);
     } else {

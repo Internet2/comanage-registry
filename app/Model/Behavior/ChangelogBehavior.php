@@ -552,7 +552,8 @@ class ChangelogBehavior extends ModelBehavior {
               $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
             } elseif(isset($model->$k->$k2)) {
               // Fifth example
-              $ret[$k][$k2] = $this->modifyContain($model->$k, array($k2 => $v2));
+              $m = $this->modifyContain($model->$k, array($k2 => $v2));
+              $ret[$k][$k2] = $m[$k2];
             } else {
               if($model->$k->$v2->Behaviors->enabled('Changelog')) {
                 $cparentfk = Inflector::underscore($model->$k->$v2->name) . "_id";

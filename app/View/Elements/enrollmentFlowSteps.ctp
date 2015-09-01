@@ -37,6 +37,9 @@
           case 'selected':
             print '<span class="ui-icon ui-icon-arrowthick-1-e"> </span>';
             break;
+          case 'stopped':
+            print '<span class="ui-icon ui-icon-closethick"> </span>';
+            break;
         }
         print '<span class="stepText">' . $step['title'] . '</span>';
         print '</li>';
