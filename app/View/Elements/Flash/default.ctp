@@ -23,5 +23,7 @@
  */
 
   if(!empty($message)) {
-    print "generateFlash('" . h($message) . "', '" . h($key) . "');";
+    // Strip tags then escape quotes before handing Flash message to noty.js
+    $filteredMessage = filter_var(filter_var($message,FILTER_SANITIZE_STRING,FILTER_FLAG_NO_ENCODE_QUOTES),FILTER_SANITIZE_MAGIC_QUOTES);
+    print "generateFlash('" . $filteredMessage . "', '" . h($key) . "');";
   }
