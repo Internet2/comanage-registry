@@ -122,12 +122,16 @@
             <?php
               // Profiles
               if(isset($permissions['menu']['coprofile']) && $permissions['menu']['coprofile']) {
-                // Link to identity for self service
+                // Link to identity for self service.
                 
                 foreach($menuContent['cos'] as $co) {
+                  // The person must have an Active/GracePeriod status and at least
+                  // one defined role.
+                  
                   if(isset($co['co_person']['status'])
                      && ($co['co_person']['status'] == StatusEnum::Active
-                         || $co['co_person']['status'] == StatusEnum::GracePeriod)) {
+                         || $co['co_person']['status'] == StatusEnum::GracePeriod)
+                     && !empty($co['co_person']['CoPersonRole'])) {
                     print "<li>";
                     $args = array(
                       'controller' => 'co_people',

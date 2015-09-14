@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Home Layout
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.4
@@ -108,7 +108,8 @@
 
           if((!isset($menuCoData['co_person']['status'])
               || ($menuCoData['co_person']['status'] != StatusEnum::Active
-                  && $menuCoData['co_person']['status'] != StatusEnum::GracePeriod))
+                  && $menuCoData['co_person']['status'] != StatusEnum::GracePeriod)
+              || empty($menuCoData['co_person']['CoPersonRole']))
             && !$permissions['menu']['admin']) {
             // Don't render this CO, the person is not an active member (or a CMP admin)
             continue;
@@ -138,10 +139,9 @@
       } else {
         print '<tr class="line1" colspan="2"><td>' . _txt('op.home.no.collabs') .  '</td></tr>';
       }
-
+      
       print '</tbody>';
       print '</table>';
-
     } elseif(!$userInfo) {
       // Please login
       print '<h2 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h2>';
