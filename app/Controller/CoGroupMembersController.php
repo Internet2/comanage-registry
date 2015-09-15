@@ -40,9 +40,16 @@ class CoGroupMembersController extends StandardController {
   // This controller needs a CO to be set
   public $requires_co = true;
 
-  // Edit and view need recursion so we get Name for rendering view
-  public $edit_recursion = 2;
-  public $view_recursion = 2;
+  // Edit and view need Name for rendering view
+  public $edit_contains = array(
+    'CoGroup',
+    'CoPerson' => 'PrimaryName'
+  );
+
+  public $view_contains = array(
+    'CoGroup',
+    'CoPerson' => 'PrimaryName'
+  );
   
   // We need to track the group ID under certain circumstances to enable performRedirect
   private $gid = null;
@@ -257,6 +264,25 @@ class CoGroupMembersController extends StandardController {
     // XXX We don't check that the CO Person is actually in the CO... should we?
     
     return true;
+  }
+  
+  /**
+   * Update a Standard Object.
+   *
+   * @since  COmanage Registry v1.0.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+  
+  function edit($id) {
+    // Call the parent then override the title
+    
+    parent::edit($id);
+    
+    $gm = $this->viewVars['co_group_members'][0];
+    
+    $this->set('title_for_layout', _txt('op.grm.title', array(_txt('op.edit'),
+                                                              $gm['CoGroup']['name'],
+                                                              generateCn($gm['CoPerson']['PrimaryName']))));
   }
   
   /**
@@ -609,5 +635,24 @@ class CoGroupMembersController extends StandardController {
                             $this->request->data['CoGroupMember']['co_group_id'],
                             'co'         => $this->cur_co['Co']['id']));
     }
+  }
+  
+  /**
+   * View a Standard Object.
+   *
+   * @since  COmanage Registry v1.0.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+  
+  function view($id) {
+    // Call the parent then override the title
+    
+    parent::view($id);
+    
+    $gm = $this->viewVars['co_group_members'][0];
+    
+    $this->set('title_for_layout', _txt('op.grm.title', array(_txt('op.view'),
+                                                              $gm['CoGroup']['name'],
+                                                              generateCn($gm['CoPerson']['PrimaryName']))));
   }
 }

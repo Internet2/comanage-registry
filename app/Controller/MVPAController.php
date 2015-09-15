@@ -28,11 +28,6 @@ class MVPAController extends StandardController {
   // MVPAs require a Person ID (CO or Org)
   public $requires_person = true;
   
-  // We need to increase recursion because CoPerson/OrgPerson doesn't
-  // define name, and we need it to render the columns.
-  public $edit_recursion = 2;
-  public $view_recursion = 2;
-  
   /**
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: requires_co possibly set

@@ -1195,6 +1195,7 @@ original notification at
   'op.grm.edit' =>    'Edit Members of %1$s Group %2$s',
   'op.grm.manage' =>  'Manage My Group Memberships',
   'op.grm.my.groups' => 'My Groups',
+  'op.grm.title' =>   '%1$s %2$s Membership For %3$s',
   'op.history' =>     'View History',
   'op.home.login' =>  'Welcome to %1$s. Please login.',
   'op.home.select' => 'Welcome to %1$s. Please select a collaboration.',

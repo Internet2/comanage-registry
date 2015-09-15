@@ -192,7 +192,7 @@
               array(
                 'controller' => 'co_group_members',
                 'action' => 'edit',
-                $g['CoGroupMember']['co_group_id']
+                $g['CoGroupMember']['id']
               ),
               array('class' => 'editbutton')
             );
@@ -204,7 +204,8 @@
                 . $this->Html->url(              // dialog confirm URL
                   array(
                     'controller' => 'co_group_members',
-                    'action' => 'delete', $g['CoGroupMember']['co_group_id'],
+                    'action' => 'delete',
+                    $g['CoGroupMember']['id'],
                     'copersonid' => $g['CoGroupMember']['co_person_id'],
                     'return' => 'group'
                   )

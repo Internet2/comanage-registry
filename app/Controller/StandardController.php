@@ -371,10 +371,7 @@ class StandardController extends AppController {
       
       $curdata = $model->find('first', $args);
     } else {
-      // Old style: use recursion (if set)
-      
-      if(isset($this->edit_recursion))
-        $model->recursive = $this->edit_recursion;
+      // Old style
       
       $curdata = $model->read();
     }
@@ -652,12 +649,10 @@ class StandardController extends AppController {
     $model = $this->$req;
     $modelpl = Inflector::tableize($req);
     $modelid = $this->modelKey . "_id";
-
-    if(isset($this->view_recursion))
-      $model->recursive = $this->view_recursion;
+    
     // XXX we explicitly support view_contains when processing paginationConditions,
     // even though we don't (currently) support it elsewhere in this function
-      
+    
     // XXX The various sub-filters here (eg: findByCoPersonId) should be merged into
     // the new paginationConditions method.
 
@@ -1114,10 +1109,7 @@ class StandardController extends AppController {
       
       $obj = $model->find('first', $args);
     } else {
-      // Old style: use recursion (if set)
-      
-      if(isset($this->view_recursion))
-        $model->recursive = $this->view_recursion;
+      // Old style
       
       $obj = $model->read();
     }

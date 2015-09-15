@@ -351,7 +351,7 @@
 
           <a href="#tabs-phone" class="fieldGroupName">
             <span class="ui-icon ui-icon-circlesmall-minus"></span>
-            <?php print _txt('fd.telephone_number.number'); ?>
+            <?php print _txt('ct.telephone_numbers.pl'); ?>
           </a>
 
           <ul id="tabs-phone" class="additionalinfo fields">
@@ -446,7 +446,7 @@
 
           <a href="#tabs-address" class="fieldGroupName">
             <span class="ui-icon ui-icon-circlesmall-minus"></span>
-            <?php print _txt('fd.address'); ?>
+            <?php print _txt('ct.addresses.pl'); ?>
           </a>
 
 
