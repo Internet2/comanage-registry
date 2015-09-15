@@ -927,6 +927,20 @@ class ProvisionerBehavior extends ModelBehavior {
                                                      $src,
                                                      true);
     }
+    
+    // Also record a history record while we're here
+    try {
+      $Co->CoPerson->HistoryRecord->record($targetCoPersonId,
+                                           null,
+                                           null,
+                                           CakeSession::read('Auth.User.co_person_id'),
+                                           ActionEnum::ProvisionerFailed,
+                                           _txt('er.prov.plugin', array($coProvisionerTarget['description'], $msg)),
+                                           $targetCoGroupId);
+    }
+    catch(Exception $e) {
+      // Unclear what we should be do here
+    }
   }
   
   /**
