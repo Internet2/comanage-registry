@@ -127,7 +127,8 @@ input.ui-button {
   text-decoration: none;
 }
 .ui-widget-header {
-  border: none;
+  border: 2px solid #fff;
+  border-top: none;
 }
 .ui-tabs .ui-tabs-nav {
   margin: -4px -3px;
