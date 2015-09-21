@@ -184,7 +184,7 @@ ul.sf-menu li.dropMenu li a:hover {
   margin: 1px 1px 0 0;
   height: 18px;
   width: 18px;
-  background-image: url("jquery/ui/css/comanage-theme/images/ui-icons_cccccc_256x240.png");
+  background-image: url("jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_cccccc_256x240.png");
 }
 
 /*** Custom Links in Row1 ***/
@@ -255,7 +255,8 @@ ul.sf-menu li.dropMenu li a:hover {
 #notification .ui-icon {
   width: 13px;
   height: 13px;
-  background-image: url("jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png");
+  background-image: url("jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png");
+  left: 3px;
 }
 #notification ul li ul {
   margin-left: -207px;
@@ -333,6 +334,7 @@ form#notificationStatus select {
   position: relative;
   background-color: #8FBCDB;
   padding: 5px 0;
+  border: none;
 }
 
 /*** dropdown menu ***/
@@ -452,16 +454,16 @@ a.linkbutton:last-child {
   top: 3px;
 }
 .warbg{
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_826262_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_826262_256x240.png") !important;
 }
 .sucbg{
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_006400_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_006400_256x240.png") !important;
 }
 .errbg{
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png") !important;
 }
 .notbg{
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_444444_256x240.png") !important;
 }
 
 /* Notification table */
@@ -655,7 +657,7 @@ td.top {
 }
 #topLinks .ui-icon {
   float: left;
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_217bc0_256x240.png");
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_217bc0_256x240.png");
 }
 #topLinks.ui-widget-content {
   border: none;
@@ -828,7 +830,7 @@ td.order {
   margin: 0 0 0.5em 0;
 }
 .personExplorer .fieldGroupName .ui-icon {
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons-16px.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons-16px.png") !important;
   float: left;
   opacity: 0.6;
 }
@@ -894,7 +896,7 @@ body.co_people.canvas #titleNavContainer {
   margin: 0 0 0.5em 0;
 }
 #changeLog .fieldGroupNameCl .ui-icon {
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons-16px.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons-16px.png") !important;
   float: left;
   opacity: 0.6;
 }
@@ -1021,7 +1023,7 @@ body.petitionerAttributes td {
 }
 body.co_petitions .approve-button .ui-icon,
 body.co_petitions .deny-button .ui-icon {
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_ffffff_256x240.png");
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png");
 }
 body.co_petitions .approve-button {
   background-color: #2a2;
@@ -1065,7 +1067,7 @@ body.co_petitions .deny-button:hover {
   float: left;
   clear: left;
   margin-right: 0.5em;
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_444444_256x240.png");
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_444444_256x240.png");
 }
 #enrollmentFlowSteps li.selected {
   background-color: #fff;
@@ -1082,10 +1084,10 @@ body.co_petitions .deny-button:hover {
   color: #222;
 }
 #enrollmentFlowSteps li.complete .ui-icon {
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_6eac2c_256x240.png");
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_6eac2c_256x240.png");
 }
 #enrollmentFlowSteps li.stopped .ui-icon {
-  background-image: url("../js/jquery/ui/css/comanage-theme/images/ui-icons_cd0a0a_256x240.png");
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_cd0a0a_256x240.png");
 }
 /* Petition Attributes */
 .modelbox {
@@ -1348,7 +1350,7 @@ body.co_people.index #pagination a {
 #co_people .ui-widget-content .ui-state-focus,
 #co_people .ui-widget-header .ui-state-focus {
   border: 1px solid #79b7e7;
-  background: #d0e5f5 url("/registry/css/jquery/ui/css/comanage-theme/images/ui-bg_glass_75_d0e5f5_1x400.png") 50% 50% repeat-x;
+  background: #d0e5f5 url("/registry/css/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-bg_glass_75_d0e5f5_1x400.png") 50% 50% repeat-x;
   color: #1d5987;
 }
 #co_people .ui-state-active,

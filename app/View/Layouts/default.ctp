@@ -43,7 +43,8 @@
 
     <!-- Include the comanage and jquery style sheets -->
     <?php
-      print $this->Html->css('jquery/ui/css/comanage-theme/jquery-ui-1.10.0.comanage');
+      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui.min');
+      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui-comanage-overrides');
       print $this->Html->css('jquery/superfish/css/superfish');
       print $this->Html->css('comanage');
       print $this->Html->css('comanage-responsive');
@@ -55,8 +56,8 @@
 
     <!-- Get jquery code -->
     <?php
-      print $this->Html->script('jquery/ui/js/jquery-1.9.0.js');
-      print $this->Html->script('jquery/ui/js/jquery-ui-1.10.0.custom.min.js');
+      print $this->Html->script('jquery/jquery-1.11.3.min.js');
+      print $this->Html->script('jquery/jquery-ui-1.11.4.custom/jquery-ui.min.js');
       print $this->Html->script('jquery/superfish/js/superfish.js');
       print $this->Html->script('jquery/spin.min.js');
       if ($this->controller = 'history_records') {
