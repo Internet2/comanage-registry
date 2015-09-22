@@ -87,12 +87,13 @@ class CoInvite extends AppModel {
    */
   
   public function processReply($inviteId, $confirm, $loginIdentifier=null) {
-    $args = array();
-    $args['conditions']['CoInvite.invitation'] = $inviteId;
-    
     // Start a transaction
     $dbc = $this->getDataSource();
     $dbc->begin();
+    
+    $args = array();
+    $args['conditions']['CoInvite.invitation'] = $inviteId;
+    $args['contain'] = array('CoPerson', 'CoPetition', 'EmailAddress');
     
     $invite = $this->find('first', $args);
     

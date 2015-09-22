@@ -35,6 +35,24 @@ class ChangelogBehavior extends ModelBehavior {
     $parentfk = Inflector::underscore($mname) . "_id";
     $dataSource = $model->getDataSource();
     
+    if(!$created
+       && !empty($options['fieldList'])
+       && !in_array('revision', $options['fieldList'])) {
+      // On edit, if a fieldList was specified an revision wasn't in it (which
+      // it usually won't be), we weren't able to increment it. Increment it here.
+      
+      // Get the current revision. We can't disable callbacks using field(), but
+      // that's OK since we should always be asking for the most recent (valid)
+      // value here.
+      
+      $curRevision = $model->field('revision');
+      
+      // Save the incremented revision
+      if(!$model->saveField('revision', $curRevision+1, array('callbacks' => false))) {
+        $dataSource->rollback();
+      }
+    }
+    
     if(!empty($model->relinkToArchive)) {
       foreach($model->relinkToArchive as $amodel) {
         if(isset($model->hasMany[$amodel]) || isset($model->hasOne[$amodel])) {
@@ -346,6 +364,7 @@ class ChangelogBehavior extends ModelBehavior {
       
         // Disable callbacks so we don't loop indefinitely. Also disable validation because
         // we're copying old data, which presumably validated once (though it might not now).
+        
         if(!$model->save($archiveData, array('callbacks' => false,
                                              'validate' => false))) {
           $dataSource->rollback();
@@ -424,7 +443,8 @@ class ChangelogBehavior extends ModelBehavior {
         // For use in afterSave
         $model->archiveId = $archiveId;
         
-        // Bump the revision number for the current attribute
+        // Bump the revision number for the current attribute. If we're doing a saveField
+        // or some other transaction
         $model->data[$malias]['revision'] = $curRevision + 1;
       }
       
@@ -465,10 +485,13 @@ class ChangelogBehavior extends ModelBehavior {
     if(empty($curRecord)) {
       throw new InvalidArgumentException(_txt('er.notfound', array($malias, $id)));
     }
-    
-    return ((isset($curRecord[$malias]['deleted']) && $curRecord[$malias]['deleted'])
+
+    return ((isset($curRecord[$malias]['deleted'])
+             && $curRecord[$malias]['deleted'])
             ||
-            ($archived && !empty($curRecord[$malias][$parentfk])));
+            ($archived
+             && !empty($curRecord[$malias][$parentfk])
+             && $curRecord[$malias][$parentfk] != 0));
   }
 
   /**

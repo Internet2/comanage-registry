@@ -275,8 +275,10 @@ class CoInvitesController extends AppController {
     // Request verification of an email address?
     // This needs to correlate with EmailAddressesController
     $p['verifyEmailAddress'] = (!empty($this->request->params['named']['email_address_id'])
-                                ? $this->Role->canRequestVerificationOfEmailAddress($roles['copersonid'],
-                                                                                    $this->request->params['named']['email_address_id'])
+                                ? ($roles['cmadmin']
+                                   ||
+                                   $this->Role->canRequestVerificationOfEmailAddress($roles['copersonid'],
+                                                                                     $this->request->params['named']['email_address_id']))
                                 : false);
     
     $this->set('permissions', $p);
@@ -298,7 +300,11 @@ class CoInvitesController extends AppController {
   
   protected function process_invite($inviteid, $confirm, $loginIdentifier=null) {
     // Grab the invite info in case we need it later (we're about to delete it)
-    $invite = $this->CoInvite->findByInvitation($inviteid);
+    $args = array();
+    $args['conditions']['CoInvite.invitation'] = $inviteid;
+    $args['contain'] = array('CoPetition');
+    
+    $invite = $this->CoInvite->find('first', $args);
     
     if(!$this->request->is('restful')) {
       // Set page title
@@ -400,7 +406,11 @@ class CoInvitesController extends AppController {
    */
   
   function reply($inviteid) {
-    $invite = $this->CoInvite->findByInvitation($inviteid);
+    $args = array();
+    $args['conditions']['CoInvite.invitation'] = $inviteid;
+    $args['contain'] = array('CoPetition', 'EmailAddress');
+    
+    $invite = $this->CoInvite->find('first', $args);
     
     if(!$invite) {
       $this->Flash->set(_txt('er.inv.nf'), array('key' => 'error'));
