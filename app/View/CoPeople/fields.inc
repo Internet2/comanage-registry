@@ -91,6 +91,53 @@
         );
       }
       
+      // Resend invitation button
+      // This is based on index.ctp
+      if($permissions['invite']
+         && ($co_people[0]['CoPerson']['status'] == StatusEnum::Pending
+             || $co_people[0]['CoPerson']['status'] == StatusEnum::Invited)) {
+        $sidebarButtons[] = array(
+          'icon'    => 'mail-closed',
+          'title'   => _txt('op.inv.resend'),
+          'url'     => 'javascript:js_confirm_generic(\''
+            . _txt('js.reinvite') . '\',\''    // dialog body text
+            . $this->Html->url(              // dialog confirm URL
+              array(
+                'controller' => 'co_invites',
+                'action'     => 'send',
+                'copersonid' => $co_people[0]['CoPerson']['id']
+              )
+            ) . '\',\''
+            . _txt('op.inv.resend') . '\',\''    // dialog confirm button
+            . _txt('op.cancel') . '\',\''    // dialog cancel button
+            . _txt('op.inv.resend') . '\',[\''   // dialog title
+            . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+            . '\'])'
+        );
+      } elseif($permissions['enroll']
+               && $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation) {
+        if(!empty($co_people[0]['CoInvite']['CoPetition']['id'])) {
+          $sidebarButtons[] = array(
+          'icon'    => 'mail-closed',
+          'title'   => _txt('op.inv.resend'),
+          'url'     => 'javascript:js_confirm_generic(\''
+            . _txt('js.reinvite') . '\',\''    // dialog body text
+            . $this->Html->url(              // dialog confirm URL
+              array(
+                'controller' => 'co_petitions',
+                'action'     => 'resend',
+                $co_people[0]['CoInvite']['CoPetition']['id']
+              )
+            ) . '\',\''
+            . _txt('op.inv.resend') . '\',\''    // dialog confirm button
+            . _txt('op.cancel') . '\',\''    // dialog cancel button
+            . _txt('op.inv.resend') . '\',[\''   // dialog title
+            . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+            . '\'])'
+          );
+        }
+      }
+      
       if($vv_enable_nsf_demo) {
         // Adjust the link to the NSF Demographics Controller according to whether or
         // not data has been set.

@@ -118,13 +118,16 @@ class CoPersonRolesController extends StandardController {
       elseif(!empty($this->request->params['pass'][0]))
         $copid = $this->CoPersonRole->field('co_person_id', array('id' => $this->request->params['pass'][0]));
       
-      $this->CoPersonRole->CoPerson->recursive = 2;
-      $cop = $this->CoPersonRole->CoPerson->findById($copid);
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $copid;
+      $args['contain'] = array('CoOrgIdentityLink' => array('OrgIdentity'),
+                               'PrimaryName');
       
-      if($cop)
-        $this->set('co_people', array(0 => $cop));
-      else
-      {
+      $cop = $this->CoPersonRole->CoPerson->find('all', $args);
+      
+      if($cop) {
+        $this->set('co_people', $cop);
+      } else {
         $this->Flash->set(_txt('er.cop.unk-a', array($copid)), array('key' => 'error'));
         $this->redirect(array('controller' => 'co_people', 'action' => 'index', 'co' => $this->cur_co['Co']['id']));
       }

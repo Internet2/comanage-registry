@@ -540,7 +540,11 @@ class CoPeopleController extends StandardController {
    */
   
   public function invite() {
-    $orgp = $this->CoPerson->CoOrgIdentityLink->OrgIdentity->findById($this->request->params['named']['orgidentityid']);
+    $args = array();
+    $args['conditions']['OrgIdentity.id'] = $this->request->params['named']['orgidentityid'];
+    $args['contain'] = array('PrimaryName');
+    
+    $orgp = $this->CoPerson->CoOrgIdentityLink->OrgIdentity->find('first', $args);
     
     if(!empty($orgp))
     {

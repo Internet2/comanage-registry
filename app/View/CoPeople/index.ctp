@@ -258,6 +258,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
               
               if($this->action == 'index') {
                 // Resend invitation button
+                // This is largely duplicated in fields.inc
                 if($permissions['invite']
                    && ($p['CoPerson']['status'] == StatusEnum::Pending
                        || $p['CoPerson']['status'] == StatusEnum::Invited)) {
@@ -268,8 +269,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                     . $this->Html->url(array(         // dialog confirm URL
                         'controller' => 'co_invites',
                         'action'     => 'send',
-                        'copersonid' => $p['CoPerson']['id'],
-                        'co'         => $cur_co['Co']['id'])
+                        'copersonid' => $p['CoPerson']['id'])
                      ) . '\',\''
                     . _txt('op.inv.resend') . '\',\''   // dialog confirm button
                     . _txt('op.cancel') . '\',\''       // dialog cancel button
@@ -289,8 +289,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                       . $this->Html->url(array(         // dialog confirm URL
                           'controller' => 'co_petitions',
                           'action'     => 'resend',
-                          $p['CoInvite']['CoPetition']['id'],
-                          'co'         => $cur_co['Co']['id'])
+                          $p['CoInvite']['CoPetition']['id'])
                       ) . '\',\''
                       . _txt('op.inv.resend') . '\',\''   // dialog confirm button
                       . _txt('op.cancel') . '\',\''       // dialog cancel button

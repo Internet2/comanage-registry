@@ -1038,7 +1038,7 @@ class AppController extends Controller {
       $args['conditions'][$req.'.id'] = $this->request->params['pass'][0];
       $args['contain'] = false;
       
-      $rec = $model->findById($this->request->params['pass'][0]);
+      $rec = $model->find('first', $args);
       
       if(isset($rec[$req]['co_person_id']))
         $copid = $rec[$req]['co_person_id'];

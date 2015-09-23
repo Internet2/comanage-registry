@@ -138,8 +138,7 @@ class CoInvitesController extends AppController {
       }
     }
     
-    if($this->action == "send"
-       && !empty($this->request->params['named']['copersonid'])) {
+    if($this->action == "send" && !empty($this->request->params['named']['copersonid'])) {
       $coId = $this->CoInvite->CoPerson->field('co_id',
                                                array('id' => $this->request->params['named']['copersonid']));
       
@@ -418,8 +417,11 @@ class CoInvitesController extends AppController {
     } else {
       // Database foreign key constraints should prevent inconsistencies here, so extra
       // error checking shouldn't be needed
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $invite['CoInvite']['co_person_id'];
+      $args['contain'] = array('Co', 'PrimaryName');
       
-      $invitee = $this->CoInvite->CoPerson->findById($invite['CoInvite']['co_person_id']);
+      $invitee = $this->CoInvite->CoPerson->find('first', $args);
       $coName = $this->CoInvite->CoPerson->Co->field('name', array('Co.id' => $invitee['CoPerson']['co_id']));
       
       $this->set('invite', $invite);
@@ -571,20 +573,34 @@ class CoInvitesController extends AppController {
     
     // Retrieve info about the Person
     
-    $cop = $this->CoInvite->CoPerson->findById($cpid);
+    $args = array();
+    $args['conditions']['CoPerson.id'] = $cpid;
+    $args['contain'] = array('PrimaryName');
+    
+    $cop = $this->CoInvite->CoPerson->find('first', $args);
 
     if($cop)
     {
       // Find the associated Org Identity to get an email address
       
 // XXX fix this getting link to get org identity
+// Use containable to pull attached org identities
       // This assumes one CO Person has exactly one CO Org Identity Link,
       // which might be true now but probably won't always be true
-
-      $lnk = $this->CoInvite->CoPerson->CoOrgIdentityLink->findByCoPersonId($cpid);
       
-      if(isset($lnk))
-        $orgp = $this->CoInvite->CoPerson->CoOrgIdentityLink->OrgIdentity->findById($lnk['CoOrgIdentityLink']['org_identity_id']);
+      $args = array();
+      $args['conditions']['CoOrgIdentityLink.co_person_id'] = $cpid;
+      $args['contain'] = false;
+      
+      $lnk = $this->CoInvite->CoPerson->CoOrgIdentityLink->find('first', $args);
+      
+      if(isset($lnk)) {
+        $args = array();
+        $args['conditions']['OrgIdentity.id'] = $lnk['CoOrgIdentityLink']['org_identity_id'];
+        $args['contain'] = array('EmailAddress', 'PrimaryName');
+        
+        $orgp = $this->CoInvite->CoPerson->CoOrgIdentityLink->OrgIdentity->find('first', $args);
+      }
       
       // XXX We only check org person. What if Org Identity has no address, but is officially
       // sourced (eg: via LDAP)?
