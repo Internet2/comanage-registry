@@ -102,7 +102,7 @@ class SshKey extends AppModel {
     $keyType = null;
     
     switch($bits[0]) {
-      case 'ssh-dsa':
+      case 'ssh-dss':
         $keyType = SshKeyTypeEnum::DSA;
         break;
       case 'ssh-rsa':

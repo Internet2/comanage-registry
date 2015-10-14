@@ -572,7 +572,7 @@ $name_ti = array(
 );
 
 $ssh_ti = array(
-  'DSA'  => 'ssh-dsa',
+  'DSA'  => 'ssh-dss',
   'RSA'  => 'ssh-rsa',
   'RSA1' => 'ssh-rsa1'
 );
