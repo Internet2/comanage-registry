@@ -35,7 +35,9 @@ class CoIdentifierAssignment extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array("Co");     // A CO Identifier Assignment is attached to a CO
   
-  public $hasMany = array("CoSequentialIdentifierAssignment");
+  public $hasMany = array(
+    "CoSequentialIdentifierAssignment" => array('dependent' => true)
+  );
   
   // Default display field for cake generated views
   public $displayField = "description";
