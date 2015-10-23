@@ -136,7 +136,7 @@ class ChangelogBehavior extends ModelBehavior {
            && $model->$rmodel->Behaviors->enabled('Changelog')
            && (!$model->relinkToArchive
                || !in_array($rmodel, $model->relinkToArchive))) {
-          if(!$model->$rmodel->deleteAll(array($rmodel . '.' . $parentfk => $model->id), true, true)) {
+          if(!$model->$rmodel->deleteAll(array($rmodel . '.' . $roptions['foreignKey'] => $model->id), true, true)) {
             $dataSource->rollback();
           }
         }

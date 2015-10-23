@@ -203,16 +203,34 @@ class Name extends AppModel {
       // Unset any existing primary name -- but only if this Name has primary name as true.
       
       if($this->data['Name']['primary_name']) {
+        // We can't use updateAll since no callbacks (ie: changelogbehavior) are fired.
+        // So instead, pull all relevant names and set them to primary_name = false if
+        // not already set.
+        
+        $args = array();
         if($orgIdentityId) {
-          // Unset any previous primary name
-          
-          $this->updateAll(array('Name.primary_name' => false),
-                           array('Name.org_identity_id' => $orgIdentityId));
+          $args['conditions']['Name.org_identity_id'] = $orgIdentityId;
         } elseif($coPersonId) {
-          // Unset any previous primary name
+          $args['conditions']['Name.co_person_id'] = $coPersonId;
+        }
+        $args['conditions']['Name.primary_name'] = true;
+        $args['contain'] = false;
+        
+        // Generally there should only be one result...
+        $names = $this->find('all', $args);
+        
+        if(!empty($names)) {
+          // We'll need to restore stuff when we're done
+          $curId = $this->id;
+          $curData = $this->data;
           
-          $this->updateAll(array('Name.primary_name' => false),
-                           array('Name.co_person_id' => $coPersonId));
+          foreach($names as $n) {
+            $this->id = $n['Name']['id'];
+            $this->saveField('primary_name', false);
+          }
+          
+          $this->id = $curId;
+          $this->data = $curData;
         }
       }
     }

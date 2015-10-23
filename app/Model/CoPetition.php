@@ -898,7 +898,7 @@ class CoPetition extends AppModel {
     $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $petitionOrgId;
     
     $lnks = $this->EnrolleeOrgIdentity->CoOrgIdentityLink->findForUpdate($args['conditions'],
-                                                                         array('co_person_id'));
+                                                                         array('id', 'co_person_id'));
     
     if(empty($lnks)
        || (count($lnks)==1
@@ -911,13 +911,12 @@ class CoPetition extends AppModel {
         throw new RuntimeException(_txt('er.db.save'));
       }
       
-      if(!empty($lnks)) {
+      if(!empty($lnks[0]['CoOrgIdentityLink']['id'])) {
         // This should only match the row retrieved above
         
-        if(!$this->EnrolleeOrgIdentity
-                 ->CoOrgIdentityLink
-                 ->updateAll(array('CoOrgIdentityLink.org_identity_id' => $targetOrgIdentityId),
-                             array('CoOrgIdentityLink.org_identity_id' => $petitionOrgId))) {
+        $this->EnrolleeOrgIdentity->CoOrgIdentityLink->id = $lnks[0]['CoOrgIdentityLink']['id'];
+        
+        if(!$this->EnrolleeOrgIdentity->CoOrgIdentityLink->saveField('org_identity_id', $petitionOrgId)) {
           throw new RuntimeException(_txt('er.db.save'));
         }
       }
@@ -1028,6 +1027,8 @@ class CoPetition extends AppModel {
       if(empty($lnks2)
          || (count($lnks2)==1
              && $lnks2[0]['CoOrgIdentityLink']['org_identity_id'] == $petitionOrgId)) {
+        $copr = null;
+        
         if($mode == EnrollmentDupeModeEnum::NewRoleCouCheck
            && $petitionCouId) {
           // If $targetCoPersonId already has an active role in $petitionCouId throw an error
@@ -1058,10 +1059,12 @@ class CoPetition extends AppModel {
         
         // Update the role to be attached to the target CO Person ID.
         
-        if(!$this->EnrolleeCoPersonRole
-                 ->updateAll(array('EnrolleeCoPersonRole.co_person_id' => $targetCoPersonId),
-                             array('EnrolleeCoPersonRole.co_person_id' => $petitionCoPId))) {
-          throw new RuntimeException(_txt('er.db.save'));
+        if($petitionRoleId) {
+          $this->EnrolleeCoPersonRole->id = $petitionRoleId;
+          
+          if(!$this->EnrolleeCoPersonRole->saveField('co_person_id', $targetCoPersonId)) {
+            throw new RuntimeException(_txt('er.db.save'));
+          }
         }
         
         // Delete the duplicate identities. This will trigger ChangelogBehavior,
@@ -1071,8 +1074,8 @@ class CoPetition extends AppModel {
           $this->EnrolleeOrgIdentity->delete($petitionOrgId);
           $this->EnrolleeCoPerson->delete($petitionCoPId);
           
-          // We also need to delete the link
-          $this->EnrolleeCoPerson->CoOrgIdentityLink->delete($lnks[0]['CoOrgIdentityLink']['id']);
+          // No need to delete the CoOrgIdentityLink since CoPerson cascading
+          // delete will catch that.
           
           // Create some history records and a petition history record
           
@@ -2512,9 +2515,12 @@ class CoPetition extends AppModel {
         // and (2) the identifier might subsequently be deleted from the identifiers table.
         // (Though with changelog behavior #2 is no longer an issue.)
         
-        if(!$this->saveField('authenticated_identifier', $loginIdentifier)) {
+        try {
+          $this->saveField('authenticated_identifier', $loginIdentifier);
+        }
+        catch(Exception $e) {
           $dbc->rollback();
-          throw new RuntimeException(_txt('er.db.save'));
+          throw new RuntimeException($e->getMessage());
         }
         
         // Create a petition history record

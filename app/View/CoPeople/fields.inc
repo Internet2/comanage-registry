@@ -559,8 +559,7 @@
                             array('controller' => 'names',
                               'action'     => 'primary',
                               $n['id'],
-                              'copersonid' => $co_people[0]['CoPerson']['id'],
-                              'co'         => $cur_co['Co']['id']),
+                              'copersonid' => $co_people[0]['CoPerson']['id']),
                             array('class' => 'primarybutton')) . "\n";
                       }
 

@@ -837,13 +837,23 @@ class CoPetitionsController extends StandardController {
       // Validate the identifier, even if null. (If null but authn was required, we'll
       // get an Exception, which will ultimately pass back up to a redirect.)
       
-      // Let any Exceptions pass through
+      // Let most Exceptions pass through
       
-      $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
-      
-      $this->CoPetition->validateIdentifier($id,
-                                            $loginIdentifier,
-                                            $coPersonId);
+      try {
+        $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+        
+        $this->CoPetition->validateIdentifier($id,
+                                              $loginIdentifier,
+                                              $coPersonId);
+      }
+      catch(OverflowException $e) {
+        // validateIdentifier flagged this as a dupe, so make sure that error message
+        // gets presented to the end user. We have to specifically send the user to /
+        // to make sure the error doesn't get replaced with "Permission Denied"
+        
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+        $this->redirect("/");
+      }
     }
     
     // The step is done
@@ -1578,6 +1588,15 @@ class CoPetitionsController extends StandardController {
         'controller' => 'co_people',
         'action' => 'index',
         'co' => $this->cur_co['Co']['id']
+      ));
+    } elseif(!empty($this->request->params['pass'][0])) {
+      // A petitien ID is set, redirect back to the same petition (since it has
+      // probably just been updated and this way we can provide the latest version)
+      
+      $this->redirect(array(
+        'controller'  => 'co_petitions',
+        'action'      => 'view',
+        $this->request->params['pass'][0]
       ));
     } else {
       // By default, return to the list of petitions pending approval. For admins,
