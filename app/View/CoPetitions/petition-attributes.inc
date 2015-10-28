@@ -141,6 +141,11 @@
     if($this->action == 'add' && !empty($vv_introduction_text)) {
       print '<div class="ui-widget modelbox">' . $vv_introduction_text . "</div>";
     }
+    
+    // If a token was passed in, submit it as part of the form
+    if(!empty($vv_petition_token)) {
+      print $this->Form->hidden('token', array('default' => $vv_petition_token)) . "\n";
+    }
   ?>
 
   <?php 
@@ -457,6 +462,8 @@
                 
                 $fieldName = "CoTermsAndConditions." . $t['CoTermsAndConditions']['id'];
                 $args = array();
+                // Note that if authorization is set to "None", this will be empty
+                // and the Controller will received the value "on" instead.
                 $args['value'] = $this->Session->read('Auth.User.username');
                 
                 if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent) {

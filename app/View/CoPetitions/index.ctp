@@ -41,7 +41,7 @@
     array('controller' => 'co_petitions',
           'action'     => 'index',
           'co'         => $cur_co['Co']['id'],
-          'sort'       => 'created',
+          'sort'       => 'CoPetition.created',
           'direction'  => 'desc'),
     array('class' => 'searchbutton')
   );
@@ -52,7 +52,7 @@
       'controller'    => 'co_petitions',
       'action'        => 'index',
       'co'            => $cur_co['Co']['id'],
-      'sort'          => 'created',
+      'sort'          => 'CoPetition.created',
       'direction'     => 'desc',
       'search.status' => array(
         StatusEnum::PendingApproval,

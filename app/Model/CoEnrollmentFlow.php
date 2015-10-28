@@ -87,7 +87,8 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'authz_level' => array(
       'rule' => array('inList',
-                      array(EnrollmentAuthzEnum::CoAdmin,
+                      array(EnrollmentAuthzEnum::AuthUser,
+                            EnrollmentAuthzEnum::CoAdmin,
                             EnrollmentAuthzEnum::CoGroupMember,
                             EnrollmentAuthzEnum::CoOrCouAdmin,
                             EnrollmentAuthzEnum::CoPerson,
@@ -283,11 +284,12 @@ class CoEnrollmentFlow extends AppModel {
    * @since  COmanage Registry v0.7
    * @param  Array CO Enrollment Flow, as returned by find
    * @param  Integer CO Person ID
+   * @param  String Current authenticated identifier
    * @param  RoleComponent
    * @return Boolean True if the CO Person is authorized, false otherwise
    */
   
-  public function authorize($coEF, $coPersonId, $Role) {
+  public function authorize($coEF, $coPersonId, $authIdentifier, $Role) {
     // If no authz is required, return true before we bother with any other checks
     
     if($coEF['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None) {
@@ -303,6 +305,9 @@ class CoEnrollmentFlow extends AppModel {
     }
     
     switch($coEF['CoEnrollmentFlow']['authz_level']) {
+      case EnrollmentAuthzEnum::AuthUser:
+        return !empty($authIdentifier);
+        break;
       case EnrollmentAuthzEnum::CoAdmin:
         // We effectively already handled this, above
         break;
@@ -351,11 +356,12 @@ class CoEnrollmentFlow extends AppModel {
    * @since  COmanage Registry v0.7
    * @param  Integer CO Enrollment Flow ID
    * @param  Integer CO Person ID
+   * @param  String Current authenticated identifier
    * @param  RoleComponent
    * @return Boolean True if the CO Person is authorized, false otherwise
    */
   
-  public function authorizeById($coEfId, $coPersonId, $Role) {
+  public function authorizeById($coEfId, $coPersonId, $authIdentifier, $Role) {
     // Retrieve the Enrollment Flow and pass it along
     
     $args = array();
@@ -369,7 +375,7 @@ class CoEnrollmentFlow extends AppModel {
       return false;
     }
     
-    return $this->authorize($ef, $coPersonId, $Role);
+    return $this->authorize($ef, $coPersonId, $authIdentifier, $Role);
   }
   
   /**

@@ -45,8 +45,10 @@ global $cm_lang, $cm_texts;
 
 <div id="orgIdSearch" class="topSearch">
   <?php
-  print $this->Form->create('OrgIdentity',array('action'=>'search'));
-  print $this->Form->hidden('OrgIdentity.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    print $this->Form->create('OrgIdentity',array('action'=>'search'));
+    if(!empty($cur_co['Co']['id'])) {
+      print $this->Form->hidden('OrgIdentity.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    }
   ?>
   <p><?php print _txt('op.search');?>:</p>
   <?php

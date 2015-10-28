@@ -219,7 +219,10 @@ class CoPetitionsController extends StandardController {
             $this->Flash->set(_txt('er.coef.unk'), array('key' => 'error'));
           } elseif($steps[$this->action]['role'] == EnrollmentRole::Petitioner
                    && isset($ef['CoEnrollmentFlow']['authz_level'])
-                   && $ef['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None
+                   && ($ef['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::None
+                       // We special case AuthUser as well since an authenticated but unregistered
+                       // user will not have a valid CO record yet
+                       || $ef['CoEnrollmentFlow']['authz_level'] == EnrollmentAuthzEnum::AuthUser)
                    // We need isAuthorized() to run to populate $permissions
                    && $this->isAuthorized()) {
             // This enrollment flow doesn't require authentication for the petitioner.
@@ -1012,7 +1015,12 @@ class CoPetitionsController extends StandardController {
     $authnReq = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
                                                            array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
     
-    if($authzLevel == EnrollmentAuthzEnum::None) {
+    if($authnReq && $matchPolicy == EnrollmentMatchPolicyEnum::Self) {
+      // Clear any session for account linking
+      $this->Flash->set(_txt('rs.pt.login'), array('key' => 'success'));
+      $this->redirect("/auth/logout");
+    } elseif($authzLevel == EnrollmentAuthzEnum::None
+             || $authzLevel == EnrollmentAuthzEnum::AuthUser) {
       // Figure out where to redirect the petitioner to
       $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_submit',
                                                               array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
@@ -1027,10 +1035,6 @@ class CoPetitionsController extends StandardController {
       // or may appear "randomly" (eg: if the targetUrl is outside the Cake framework)
       
       $this->redirect($targetUrl);
-    } elseif($authnReq && $matchPolicy == EnrollmentMatchPolicyEnum::Self) {
-      // Clear any session for account linking
-      $this->Flash->set(_txt('rs.pt.login'), array('key' => 'success'));
-      $this->redirect("/auth/logout");
     } else {
       // Standard redirect
       $this->Flash->set(_txt('rs.pt.create'), array('key' => 'success'));
@@ -1276,7 +1280,10 @@ class CoPetitionsController extends StandardController {
     
     if($this->enrollmentFlowID() != -1) {
       $canInitiate = $roles['cmadmin']
-                     || $this->CoPetition->CoEnrollmentFlow->authorizeById($this->enrollmentFlowID(), $roles['copersonid'], $this->Role);
+                     || $this->CoPetition->CoEnrollmentFlow->authorizeById($this->enrollmentFlowID(),
+                                                                           $roles['copersonid'],
+                                                                           $this->Session->read('Auth.User.username'),
+                                                                           $this->Role);
     }
     
     // If a petition was specified, check the authorizations for that petition
@@ -1590,7 +1597,7 @@ class CoPetitionsController extends StandardController {
         'co' => $this->cur_co['Co']['id']
       ));
     } elseif(!empty($this->request->params['pass'][0])) {
-      // A petitien ID is set, redirect back to the same petition (since it has
+      // A petition ID is set, redirect back to the same petition (since it has
       // probably just been updated and this way we can provide the latest version)
       
       $this->redirect(array(

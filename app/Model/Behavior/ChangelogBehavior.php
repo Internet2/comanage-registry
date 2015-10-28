@@ -240,10 +240,14 @@ class ChangelogBehavior extends ModelBehavior {
           }
           
           if($jmodel) {
-            if($jmodel->Behaviors->enabled('Changelog')) {
+            if($jmodel->Behaviors->enabled('Changelog')
+               && (!$jmodel->relinkToArchive
+                   || !in_array($mname, $jmodel->relinkToArchive))) {
               // If the model being joined has changelog behavior add conditions
               // on the join so that rows from earlier versions or soft deleted
-              // rows are not included after the join.
+              // rows are not included after the join. However we don't do this
+              // if the model is relinkToArchived... we want the archived record
+              // in that case.
               $cparentfk = Inflector::underscore($jmodel->name) . "_id";
               
               // Add condition to the join condition that the joined model
@@ -513,15 +517,22 @@ class ChangelogBehavior extends ModelBehavior {
         // statement to use a different format.
         
         if($model->$v->Behaviors->enabled('Changelog')) {
-          $cparentfk = Inflector::underscore($model->$v->name) . "_id";
+          // Check to see if the contain'd model is set to relinkToArchive the
+          // parent model. If so, we need to pull archived/deleted records.
+          // XXX We probably need to do this below, too.
           
-          $ret[$v]['conditions'] = array(
-            $v.'.'.$cparentfk => null,
-            $v.'.deleted IS NOT true'
-          );
-          
-          // Unset the original, which is keyed on an index number ($k)
-          unset($ret[$k]);
+          if(empty($model->$v->relinkToArchive)
+             || !in_array($model->name, $model->$v->relinkToArchive)) {
+            $cparentfk = Inflector::underscore($model->$v->name) . "_id";
+            
+            $ret[$v]['conditions'] = array(
+              $v.'.'.$cparentfk => null,
+              $v.'.deleted IS NOT true'
+            );
+            
+            // Unset the original, which is keyed on an index number ($k)
+            unset($ret[$k]);
+          }
         }
       } else {
         // eg: $query['contain'] = array('Model1' => array('Model2'));
