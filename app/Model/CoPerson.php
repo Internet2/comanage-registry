@@ -77,22 +77,24 @@ class CoPerson extends AppModel {
     "CoPersonRole" => array('dependent' => true),
     "CoPetitionApprover" => array(
       'className' => 'CoPetition',
-      'dependent' => true,
+      'dependent' => false,
       'foreignKey' => 'approver_co_person_id'
     ),
     "CoPetitionEnrollee" => array(
       'className' => 'CoPetition',
+      // The only time we want to delete a petition when deleting a CO Person
+      // is if person is the enrollee.
       'dependent' => true,
       'foreignKey' => 'enrollee_co_person_id'
     ),
     "CoPetitionPetitioner" => array(
       'className' => 'CoPetition',
-      'dependent' => true,
+      'dependent' => false,
       'foreignKey' => 'petitioner_co_person_id'
     ),
     "CoPetitionSponsor" => array(
       'className' => 'CoPetition',
-      'dependent' => true,
+      'dependent' => false,
       'foreignKey' => 'sponsor_co_person_id'
     ),
     // A person can be an actor on a petition and generate history

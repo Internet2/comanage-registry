@@ -51,7 +51,9 @@ class OrgIdentity extends AppModel {
     "CoOrgIdentityLink" => array('dependent' => false), 
     // A person can have various roles for a petition
     "CoPetition" => array(
-      'dependent' => true,
+      // Because a CO Petition is primarily designed to create a CO Person,
+      // we only allow CoPerson to cascade delete to a CO Petition.
+      'dependent' => false,
       'foreignKey' => 'enrollee_org_identity_id'
     ),
     "ArchivedCoPetition" => array(

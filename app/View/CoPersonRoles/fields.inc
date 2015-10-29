@@ -238,10 +238,12 @@
                   if(!empty($vv_sponsors)) {
                     if(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])
                       && !isset($vv_sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ])) {
-                      print $this->Html->link(generateCn($co_person_roles[0]['SponsorCoPerson']['PrimaryName']),
-                        array('controller' => 'co_people',
-                          'action' => 'canvas',
-                          $co_person_roles[0]['SponsorCoPerson']['id']));
+                      if(!empty($co_person_roles[0]['SponsorCoPerson']['PrimaryName'])) {
+                        print $this->Html->link(generateCn($co_person_roles[0]['SponsorCoPerson']['PrimaryName']),
+                          array('controller' => 'co_people',
+                            'action' => 'canvas',
+                            $co_person_roles[0]['SponsorCoPerson']['id']));
+                      }
 
                       print '<div>
                                 <span class="ui-icon ui-icon-info co-info"></span>
