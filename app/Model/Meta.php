@@ -61,8 +61,13 @@ class Meta extends AppModel {
       
       $v = $this->query("SELECT upgrade_version FROM " . $dbprefix . "meta");
       
+      // We appear to get results in a slightly different format for Postgres
+      // (first check) vs MySQL (second check).
+      
       if(!empty($v[0][0]['upgrade_version'])) {
         $ret = $v[0][0]['upgrade_version'];
+      } elseif(!empty($v[0]['cm_meta']['upgrade_version'])) {
+        $ret = $v[0]['cm_meta']['upgrade_version'];
       }
     }
     catch(MissingTableException $e) {
