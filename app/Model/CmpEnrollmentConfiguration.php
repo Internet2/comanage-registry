@@ -63,7 +63,9 @@ class CmpEnrollmentConfiguration extends AppModel {
       'rule' => array('boolean')
     ),
     'eds_help_url' => array(
-      'rule' => array('url', true),
+      // We can't set this to 'url' because url validation doesn't understand mailto:
+      //'rule' => array('url', true),
+      'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
@@ -83,18 +85,19 @@ class CmpEnrollmentConfiguration extends AppModel {
    * Create the default CMP Enrollment Configuration entry.
    *
    * @since  COmanage Registry v0.9.3
+   * @param Boolean $pool Whether to pool org identities
    * @return integer ID of new CMP Enrollment Configuration
    * @throws RuntimeException
    */
   
-  public function createDefault() {
+  public function createDefault($pool = false) {
     $ef['CmpEnrollmentConfiguration'] = array(
       'name'                => 'CMP Enrollment Configuration',
       'attrs_from_coef'     => true,
       'attrs_from_env'      => false,
       'attrs_from_ldap'     => false,
       'attrs_from_saml'     => false,
-      'pool_org_identities' => false,
+      'pool_org_identities' => $pool,
       'status'              => StatusEnum::Active
     );
     

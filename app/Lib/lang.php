@@ -871,7 +871,7 @@ original notification at
   'fd.ef.nop' =>      'Notify On Provisioning',
   'fd.ef.nop.desc' => 'Email address to notify upon execution of provisioning',
   'fd.ef.pool' =>     'Pool Organizational Identities',
-  'fd.ef.pool.desc' => 'If pooling is enabled, organizational identities -- as well as any attributes released by IdPs -- will be made available to all COs, regardless of which CO enrollment flows added them',
+  'fd.ef.pool.desc' => 'If <a href="https://spaces.internet2.edu/display/COmanage/Organizational+Identity+Pooling">pooling is enabled</a>, organizational identities -- as well as any attributes released by IdPs -- will be made available to all COs, regardless of which CO enrollment flows added them (This setting can no longer be changed)',
   'fd.ef.pool.on.warn' => 'Enabling pooling will delete any existing links between organizational identities and the COs which created them (when you click Save). This operation cannot be undone.',
   'fd.ef.pool.off.warn' => 'Disabling pooling will duplicate any organizational identities used by more than one CO (when you click Save). This operation cannot be undone.',
   'fd.ef.px' =>       'Provisioning Executable',
@@ -1371,6 +1371,7 @@ original notification at
   'se.cf.admin.given' =>  'Enter administrator\'s given name',
   'se.cf.admin.sn' =>     'Enter administrator\'s family name',
   'se.cf.admin.user' =>   'Enter administrator\'s login username',
+  'se.cf.pool' =>         'Enable organizational identity pooling?',
   'se.cmp.init' =>        'Setting initial platform configuration',
   'se.db.co' =>           'Creating COmanage CO',
   'se.db.cop' =>          'Adding Org Identity to CO',
@@ -1406,6 +1407,7 @@ original notification at
   'sh.ug.pre' =>          'Executing pre-database step (%1$s)',
   'sh.ug.target' =>       'Target version: %1$s',
   'sh.ug.094.address' =>  'Migrating address configurations',
+  'sh.ug.100.cmpdefault' => 'Verifying default CMP Enrollment Configuration',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

@@ -197,7 +197,8 @@
           </td>
           <td>
             <?php print ($e
-                         ? $this->Form->input('pool_org_identities', array('onClick' => 'confirm_pool_state_swap()'))
+                         ? $this->Form->input('pool_org_identities', array('onClick' => 'confirm_pool_state_swap()',
+                                                                           'disabled' => true))
                          : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['pool_org_identities'])); ?>
           </td>
         </tr>

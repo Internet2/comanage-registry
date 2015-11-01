@@ -23,7 +23,7 @@
  */
 
 class UpgradeVersionShell extends AppShell {
-  var $uses = array('Meta', 'Address');
+  var $uses = array('Meta', 'Address', 'CmpEnrollmentConfiguration');
   
   // A list of known versions, must be semantic versioning compliant. The value
   // is a "blocker" version that prevents an upgrade from happening. For example,
@@ -31,6 +31,14 @@ class UpgradeVersionShell extends AppShell {
   // a blocker, then the upgrade must be performed in two steps (1.0.0 -> 1.1.0,
   // then 1.1.0 -> 1.2.0). Without the blocker, an upgrade from 1.0.0 to 1.2.0
   // is permitted.
+  
+  // A typical scenario for blocking is when a pre### step must run after an
+  // earlier version's post### step. Because we don't (yet) have the capability
+  // to run database updates on a per-release basis, we run all relevant pre
+  // steps, then the database update, then all relevant post update steps.
+  // So if (eg) the admin us upgrading from 1.0.0 past 1.1.0 to 1.2.0 and there
+  // are no blockers, the order of operations is 1.1.0-pre, 1.2.0-pre, database,
+  // 1.1.0-post, 1.2.0-post.
 
   // Make sure to keep this list in order so we can walk the array rather than compare version strings.
   // If you flag a version as blocking, be sure to document why.
@@ -39,7 +47,7 @@ class UpgradeVersionShell extends AppShell {
     // 0.9.4 blocks because it's the first version to use UpgradeVersionShell.
     // Also, see notes in Address::_ug094().
     "0.9.4" => array('block' => true, /* 'pre' => 'pre094', */ 'post' => 'post094'),
-    "1.0.0" => array('block' => false)
+    "1.0.0" => array('block' => false, 'post' => 'post100')
   );
   
   public function getOptionParser() {
@@ -216,5 +224,17 @@ class UpgradeVersionShell extends AppShell {
     // 0.9.4 consolidates cm_addresses:line1 and line2 into street (CO-539)
     $this->out(_txt('sh.ug.094.address'));
     $this->Address->_ug094();
+  }
+  
+  public function post100() {
+    // 1.0.0 migrates org identity pooling to setup (CO-1160), so we check to make
+    // sure the default CMP enrollment configuration is set.
+    $this->out(_txt('sh.ug.100.cmpdefault'));
+    
+    if(!$this->CmpEnrollmentConfiguration->findDefault()) {
+      // If no default entry is found, create one. This will force org identities
+      // to be unpooled (which is the default).
+      $this->CmpEnrollmentConfiguration->createDefault();
+    }
   }
 }

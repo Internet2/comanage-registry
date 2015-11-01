@@ -284,6 +284,8 @@ class OrgIdentity extends AppModel {
   }
 
   /**
+   * As of v1.0.0, this operation is no longer supported.
+   *
    * Pool Organizational Identities. This will delete all links from Org Identities
    * to COs. No attempt is made to delete duplicate identities that may result from
    * this operation. This operation cannot be undone.
@@ -296,10 +298,17 @@ class OrgIdentity extends AppModel {
   
   public function pool()
   {
+    return false;
+    
+    // If we ever need to restore this code, we shouldn't use updateAll since it
+    // bypasses callbacks (including ChangelogBehavior).
+    
     return($this->updateAll(array('OrgIdentity.co_id' => null)));
   }
   
   /**
+   * As of v1.0.0, this operation is no longer supported.
+   *
    * Unpool Organizational Identities. This will link organizational identities
    * to the COs which use them. If an Org Identity is referenced by more than
    * one CO, it will be duplicated.
@@ -312,6 +321,8 @@ class OrgIdentity extends AppModel {
   
   function unpool()
   {
+    return false;
+    
     // Retrieve all CO/Org Identity Links.
     
     $links = $this->CoOrgIdentityLink->find('all');

@@ -171,6 +171,10 @@ class CmpEnrollmentConfigurationsController extends StandardController {
     // We currently only allow one CMP enrollment configuration per platform.
     // See if there is one, if not create it. Then redirect to edit.
     
+    // Note: As of v1.0.0, createDefault() should generally be called by setup()
+    // and upgradeVersion() will run createDefault for earlier versions, so
+    // we can probably toss the call to it here.
+    
     $ef = $this->CmpEnrollmentConfiguration->findDefault();
     
     if(empty($ef)) {

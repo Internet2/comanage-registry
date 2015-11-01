@@ -44,7 +44,10 @@
       $gn = $this->in(_txt('se.cf.admin.given'));
       $sn = $this->in(_txt('se.cf.admin.sn'));
       $user = $this->in(_txt('se.cf.admin.user'));
-
+      $pooling = $this->in(_txt('se.cf.pool'),
+                           array(_txt('fd.yes'), _txt('fd.no')),
+                           _txt('fd.no'));
+      
       // Since we'll be doing some direct DB manipulation, find the table prefix
       $prefix = "";
       $db =& ConnectionManager::getDataSource('default');
@@ -236,7 +239,7 @@ WHERE i.login=true;
       // Create platform defaults
       
       $this->out("- " . _txt('se.cmp.init'));
-      $this->CmpEnrollmentConfiguration->createDefault();
+      $this->CmpEnrollmentConfiguration->createDefault($pooling == _txt('fd.yes'));
       
       // Register the current version for future upgrade purposes
       // Read the current release from the VERSION file
