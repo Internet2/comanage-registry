@@ -90,13 +90,14 @@
         print $this->Html->script('comanage.js');
         print $this->element('javascript');
       ?>
-      <!-- Include external files and scripts -->
-      <?php
-        print $this->fetch('meta');
-        print $this->fetch('css');
-        print $this->fetch('script');
-      ?>
     <?php endif // !eds ?>
+
+    <!-- Include external files and scripts -->
+    <?php
+      print $this->fetch('meta');
+      print $this->fetch('css');
+      print $this->fetch('script');
+    ?>
   </head>
 
   <body class="<?php print $this->params->controller . ' ' . $this->params->action ?>"
