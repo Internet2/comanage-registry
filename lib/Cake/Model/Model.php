@@ -1190,12 +1190,12 @@ class Model extends Object implements CakeEventListener {
  *
  * @param string|array|SimpleXmlElement|DomNode $one Array or string of data
  * @param string $two Value string for the alternative indata method
- * @return array Data with all of $one's keys and values
+ * @return array|null Data with all of $one's keys and values, otherwise null.
  * @link http://book.cakephp.org/2.0/en/models/saving-your-data.html
  */
 	public function set($one, $two = null) {
 		if (!$one) {
-			return;
+			return null;
 		}
 
 		if (is_object($one)) {
@@ -1636,13 +1636,13 @@ class Model extends Object implements CakeEventListener {
 	}
 
 /**
- * Returns the contents of a single field given the supplied conditions, in the
- * supplied order.
+ * Returns the content of a single field given the supplied conditions,
+ * of the first record in the supplied order.
  *
- * @param string $name Name of field to get
- * @param array $conditions SQL conditions (defaults to NULL)
- * @param string $order SQL ORDER BY fragment
- * @return string field contents, or false if not found
+ * @param string $name The name of the field to get.
+ * @param array $conditions SQL conditions (defaults to NULL).
+ * @param string $order SQL ORDER BY fragment.
+ * @return string|false Field content, or false if not found.
  * @link http://book.cakephp.org/2.0/en/models/retrieving-your-data.html#model-field
  */
 	public function field($name, $conditions = null, $order = null) {
@@ -1835,7 +1835,12 @@ class Model extends Object implements CakeEventListener {
 		$now = time();
 
 		foreach ($dateFields as $updateCol) {
-			if (in_array($updateCol, $fields) || !$this->hasField($updateCol)) {
+			$fieldHasValue = in_array($updateCol, $fields);
+			$fieldInWhitelist = (
+				count($this->whitelist) === 0 ||
+				in_array($updateCol, $this->whitelist)
+			);
+			if (($fieldHasValue && $fieldInWhitelist) || !$this->hasField($updateCol)) {
 				continue;
 			}
 

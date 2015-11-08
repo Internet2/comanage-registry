@@ -29,8 +29,8 @@ class TestAuthentication {
 /**
  * authentication method
  *
- * @param HttpSocket $http
- * @param array $authInfo
+ * @param HttpSocket $http A HTTP socket.
+ * @param array &$authInfo Some auth info.
  * @return void
  */
 	public static function authentication(HttpSocket $http, &$authInfo) {
@@ -40,8 +40,8 @@ class TestAuthentication {
 /**
  * proxyAuthentication method
  *
- * @param HttpSocket $http
- * @param array $proxyInfo
+ * @param HttpSocket $http A HTTP socket.
+ * @param array &$proxyInfo Some proxy info.
  * @return void
  */
 	public static function proxyAuthentication(HttpSocket $http, &$proxyInfo) {
@@ -52,7 +52,6 @@ class TestAuthentication {
 
 /**
  * CustomResponse
- *
  */
 class CustomResponse {
 
@@ -66,6 +65,7 @@ class CustomResponse {
 /**
  * Constructor
  *
+ * @param string $message A message.
  */
 	public function __construct($message) {
 		$this->first10 = substr($message, 0, 10);
@@ -75,7 +75,6 @@ class CustomResponse {
 
 /**
  * TestHttpSocket
- *
  */
 class TestHttpSocket extends HttpSocket {
 
@@ -135,7 +134,6 @@ class TestHttpSocket extends HttpSocket {
  * Convenience method for testing protected method
  *
  * @param array $request Needs to contain a 'uri' key. Should also contain a 'method' key, otherwise defaults to GET.
- * @param string $versionToken The version token to use, defaults to HTTP/1.1
  * @return string Request line
  */
 	public function buildRequestLine($request = array()) {
@@ -316,23 +314,6 @@ class HttpSocketTest extends CakeTestCase {
 		$response = $this->Socket->request(true);
 		$this->assertFalse($response);
 
-		$context = array(
-			'ssl' => array(
-				'verify_peer' => true,
-				'allow_self_signed' => false,
-				'verify_depth' => 5,
-				'SNI_enabled' => true,
-				'CN_match' => 'www.cakephp.org',
-				'cafile' => CAKE . 'Config' . DS . 'cacert.pem'
-			)
-		);
-
-		if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
-			$context['ssl']['peer_name'] = 'www.cakephp.org';
-		} else {
-			$context['ssl']['SNI_server_name'] = 'www.cakephp.org';
-		}
-
 		$tests = array(
 			array(
 				'request' => 'http://www.cakephp.org/?foo=bar',
@@ -343,7 +324,10 @@ class HttpSocketTest extends CakeTestCase {
 						'protocol' => 'tcp',
 						'port' => 80,
 						'timeout' => 30,
-						'context' => $context,
+						'ssl_verify_peer' => true,
+						'ssl_allow_self_signed' => false,
+						'ssl_verify_depth' => 5,
+						'ssl_verify_host' => true,
 						'request' => array(
 							'uri' => array(
 								'scheme' => 'http',
@@ -583,7 +567,7 @@ class HttpSocketTest extends CakeTestCase {
 
 		$this->Socket->reset();
 		$request = array('method' => 'POST', 'uri' => 'http://www.cakephp.org/posts/add', 'body' => array('name' => 'HttpSocket-is-released', 'date' => 'today'));
-		$response = $this->Socket->request($request);
+		$this->Socket->request($request);
 		$this->assertEquals("name=HttpSocket-is-released&date=today", $this->Socket->request['body']);
 	}
 
@@ -1843,27 +1827,6 @@ class HttpSocketTest extends CakeTestCase {
 			}
 		}
 		$this->assertEquals(true, $return);
-	}
-
-/**
- * test configuring the context from the flat keys.
- *
- * @return void
- */
-	public function testConfigContext() {
-		$this->Socket->expects($this->any())
-			->method('read')->will($this->returnValue(false));
-
-		$this->Socket->reset();
-		$this->Socket->request('http://example.com');
-		$this->assertTrue($this->Socket->config['context']['ssl']['verify_peer']);
-		$this->assertFalse($this->Socket->config['context']['ssl']['allow_self_signed']);
-		$this->assertEquals(5, $this->Socket->config['context']['ssl']['verify_depth']);
-		$this->assertEquals('example.com', $this->Socket->config['context']['ssl']['CN_match']);
-		$this->assertArrayNotHasKey('ssl_verify_peer', $this->Socket->config);
-		$this->assertArrayNotHasKey('ssl_allow_self_signed', $this->Socket->config);
-		$this->assertArrayNotHasKey('ssl_verify_host', $this->Socket->config);
-		$this->assertArrayNotHasKey('ssl_verify_depth', $this->Socket->config);
 	}
 
 /**
