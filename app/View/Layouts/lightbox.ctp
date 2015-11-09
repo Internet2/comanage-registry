@@ -81,13 +81,14 @@
       print $this->Html->script('comanage.js');
       print $this->element('javascript');
       ?>
+    <?php endif // !eds ?>
+
       <!-- Include external files and scripts -->
       <?php
       print $this->fetch('meta');
       print $this->fetch('css');
       print $this->fetch('script');
       ?>
-    <?php endif // !eds ?>
   </head>
 
   <body class="<?php print $this->params->controller . ' ' . $this->params->action ?>"
@@ -100,17 +101,7 @@
       ?>
     </div>
 
-    <?php if($this->here != '/registry/pages/eds/index'):
-      // Don't load the following UI component when loading the Shib EDS. ?>
-      <div id="dialog" title="Confirm">
-        <p>
-          <span class="ui-icon ui-icon-alert co-alert"></span>
-          <span id="dialog-text"><?php print _txt('op.proceed.ok'); ?></span>
-        </p>
-      </div>
-    <?php endif; ?>
-
-    <?php if(Configure::read('debug') > 0): ?> 
+    <?php if(Configure::read('debug') > 0): ?>
       <div>
         <?php print $this->element('sql_dump'); ?>
       </div>
