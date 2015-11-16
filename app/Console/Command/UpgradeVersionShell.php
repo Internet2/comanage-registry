@@ -47,7 +47,8 @@ class UpgradeVersionShell extends AppShell {
     // 0.9.4 blocks because it's the first version to use UpgradeVersionShell.
     // Also, see notes in Address::_ug094().
     "0.9.4" => array('block' => true, /* 'pre' => 'pre094', */ 'post' => 'post094'),
-    "1.0.0" => array('block' => false, 'post' => 'post100')
+    // 1.0.0 blocks because of the introduction of /local
+    "1.0.0" => array('block' => true, 'post' => 'post100')
   );
   
   public function getOptionParser() {
