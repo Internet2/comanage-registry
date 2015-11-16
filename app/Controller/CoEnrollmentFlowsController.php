@@ -267,7 +267,10 @@ class CoEnrollmentFlowsController extends StandardController {
       // pass $role to model->authorize
       
       if($roles['cmadmin']
-         || $this->CoEnrollmentFlow->authorize($f, $this->Session->read('Auth.User.co_person_id'), $this->Role)) {
+         || $this->CoEnrollmentFlow->authorize($f,
+                                               $this->Session->read('Auth.User.co_person_id'),
+                                               $this->Session->read('Auth.User.username'),
+                                               $this->Role)) {
         $authedFlows[] = $f;
       }
     }

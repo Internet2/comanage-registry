@@ -136,6 +136,7 @@
   </tbody>
 </table>
 
+<?php if($this->action != 'add'): ?>
 <h3><?php print _txt('ct.co_group_members.pl'); ?></h3>
 <table id="groupMembers">
   <thead>
@@ -227,5 +228,6 @@
     ?>
   </tbody>
 </table>
+<?php endif; // add ?>
 <?php
   print $this->element("changelog");
