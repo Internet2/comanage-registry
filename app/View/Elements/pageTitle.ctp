@@ -23,8 +23,8 @@
 
 <div id="titleNavContainer">
   <div class="pageTitle">
-    <h2>
+    <h1>
       <?php print $title; ?>
-    </h2>
+    </h1>
   </div>
 </div>

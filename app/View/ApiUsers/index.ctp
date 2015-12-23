@@ -44,7 +44,7 @@
 
 ?>
 
-<table id="api_users" class="ui-widget">
+<table id="api_users" class="ui-widget" summary="<?php print $title_for_layout; ?>">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('username', _txt('fd.username.api')); ?></th>
@@ -104,12 +104,6 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="3">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
 </table>
+
+<?php print $this->element("pagination"); ?>

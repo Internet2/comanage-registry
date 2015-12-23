@@ -23,6 +23,6 @@
  */
 ?>
 
-<div id="firstPrompt">
+<h1 id="firstPrompt">
   <?php print _txt('op.dashboard.select', array($cur_co['Co']['name']));?>
-</div>
+</h1>

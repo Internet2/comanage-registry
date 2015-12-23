@@ -32,6 +32,9 @@ $cm_lang = "en_US";
 // a different order than they were passed.
 
 $cm_texts['en_US'] = array(
+  // Reference to generic lang (for html5)
+  'lang' => 'en',
+
   // Application name
   'coordinate' =>     'COmanage Registry',
   
@@ -1200,6 +1203,7 @@ original notification at
   'op.home.login' =>  'Welcome to %1$s. Please login.',
   'op.home.select' => 'Welcome to %1$s. Please select a collaboration.',
   'op.home.collabs' => 'Available Collaborations',
+  'op.home.collabs.summary' => 'All collaborations in which user may participate',
   'op.home.no.collabs' => 'No collaborations are currently available.',
   'op.dashboard.select' => 'Welcome to %1$s. Please select an action from the menus, above.',
   'op.id.auto' =>     'Autogenerate Identifiers',
@@ -1212,6 +1216,7 @@ original notification at
   'op.inv-t' =>       'Invite %1$s to %2$s',
   'op.inv.reply' =>   'Reply to Invitation',
   'op.inv.resend' =>  'Resend Invite',
+  'op.inv.resend.to' =>  'Resend Invite to %1$s',
   'op.inv.resend.confirm' => 'Are you sure you wish to resend an invitation to %1$s? Any previous invitation will be invalidated.',
   'op.inv.send' =>    'Send Invite',
   'op.manage.grm' =>  'Manage Group Memberships',

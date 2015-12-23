@@ -23,7 +23,7 @@
  */
 ?>
 
-<div id="pagination">
+<div id="pagination" class="ui-widget-header">
   <span class="paginationCounter">
     <?php
       // pagination information

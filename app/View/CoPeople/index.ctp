@@ -262,9 +262,10 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                 if($permissions['invite']
                    && ($p['CoPerson']['status'] == StatusEnum::Pending
                        || $p['CoPerson']['status'] == StatusEnum::Invited)) {
-                  print '<button class="invitebutton" title="' 
-                    . _txt('op.inv.resend') 
-                    . '" onclick="javascript:noprop(event);js_confirm_generic(\''
+                  print '<button class="invitebutton"'
+                    . 'title="' . _txt('op.inv.resend.to',array(generateCn($p['PrimaryName']))) . '" '
+                    . 'aria-label="' . _txt('op.inv.resend.to',array(generateCn($p['PrimaryName']))) . '" '
+                    . 'onclick="javascript:noprop(event);js_confirm_generic(\''
                     . _txt('js.reinvite') . '\',\''   // dialog body text
                     . $this->Html->url(array(         // dialog confirm URL
                         'controller' => 'co_invites',
@@ -282,9 +283,10 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                 } elseif($permissions['enroll']
                          && $p['CoPerson']['status'] == StatusEnum::PendingConfirmation) {
                   if(!empty($p['CoInvite']['CoPetition']['id'])) {
-                    print '<button class="invitebutton" title="' 
-                      . _txt('op.inv.resend') 
-                      . '" onclick="javascript:noprop(event);js_confirm_generic(\''
+                    print '<button class="invitebutton" '
+                      . 'title="' . _txt('op.inv.resend.to',array(generateCn($p['PrimaryName']))) . '" '
+                      . 'aria-label="' . _txt('op.inv.resend.to',array(generateCn($p['PrimaryName']))) . '" '
+                      . 'onclick="javascript:noprop(event);js_confirm_generic(\''
                       . _txt('js.reinvite') . '\',\''   // dialog body text
                       . $this->Html->url(array(         // dialog confirm URL
                           'controller' => 'co_petitions',
@@ -304,18 +306,25 @@ if(isset($permissions['search']) && $permissions['search'] ) {
               }
               
               // Edit button
-              if($permissions['edit'])
+              if($permissions['edit']) {
                 print $this->Html->link((($this->action == 'relink'
-                                          || $this->action == 'link'
-                                          || $this->action == 'select')
-                                         ? _txt('op.view')
-                                         : _txt('op.edit')),
-                    array('controller' => 'co_people',
-                      'action'     => 'canvas',
-                      $p['CoPerson']['id']),
-                    array('class'   => 'editbutton',
-                      'onclick' => 'noprop(event);'))
+                      || $this->action == 'link'
+                      || $this->action == 'select')
+                      ? _txt('op.view')
+                      : _txt('op.edit')),
+                    array(
+                      'controller' => 'co_people',
+                      'action' => 'canvas',
+                      $p['CoPerson']['id']
+                    ),
+                    array(
+                      'class' => 'editbutton',
+                      'onclick' => 'noprop(event);',
+                      'title' => _txt('op.edit-a',array(generateCn($p['PrimaryName']))),
+                      'aria-label' => _txt('op.edit-a',array(generateCn($p['PrimaryName'])))
+                    ))
                   . "\n";
+              }
               
               if($this->action == 'link') {
                 print $this->Html->link(_txt('op.link'),
@@ -404,14 +413,18 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                                                       'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']),
                                                 array('class' => 'petitionbutton'));
                         print '</span>';
-                        print '<span class="roleTitleText">';
-                        print $this->Html->link($pr['title'],
-                                                array('controller' => 'co_petitions',
-                                                      'action' => 'view',
-                                                      $pr['CoPetition'][0]['id'],
-                                                      'co' => $pr['CoPetition'][0]['co_id'],
-                                                      'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']));
-                        print '</span>';
+                        if(!empty($pr['title'])) {
+                          print '<span class="roleTitleText">';
+                          print $this->Html->link($pr['title'],
+                            array(
+                              'controller' => 'co_petitions',
+                              'action' => 'view',
+                              $pr['CoPetition'][0]['id'],
+                              'co' => $pr['CoPetition'][0]['co_id'],
+                              'coef' => $pr['CoPetition'][0]['co_enrollment_flow_id']
+                            ));
+                          print '</span>';
+                        }
                       } else {
                         print '<span class="roleTitleLinks">';
                         print $this->Html->link(($this->action == 'relink'
@@ -423,13 +436,17 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                                                       'co' => $cur_co['Co']['id']),
                                                 array('class' => 'editbutton'));
                         print '</span>';
-                        print '<span class="roleTitleText">';
-                        print $this->Html->link($pr['title'],
-                                                array('controller' => 'co_person_roles',
-                                                      'action' => ($permissions['edit'] ? "edit" : "view"),
-                                                      $pr['id'],
-                                                      'co' => $cur_co['Co']['id']));
-                        print '</span>';
+                        if(!empty($pr['title'])) {
+                          print '<span class="roleTitleText">';
+                          print $this->Html->link($pr['title'],
+                            array(
+                              'controller' => 'co_person_roles',
+                              'action' => ($permissions['edit'] ? "edit" : "view"),
+                              $pr['id'],
+                              'co' => $cur_co['Co']['id']
+                            ));
+                          print '</span>';
+                        }
                       }
                     } else{
                       print '<span class="roleTitleText">';
