@@ -50,7 +50,7 @@ global $cm_lang, $cm_texts;
       print $this->Form->hidden('OrgIdentity.co_id', array('default' => $cur_co['Co']['id'])). "\n";
     }
   ?>
-  <p><?php print _txt('op.search');?>:</p>
+  <legend><?php print _txt('op.search');?>:</legend>
   <?php
   $args = array();
   $args['label'] = _txt('fd.name.given');
