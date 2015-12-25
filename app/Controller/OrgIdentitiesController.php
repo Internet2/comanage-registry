@@ -29,7 +29,7 @@ class OrgIdentitiesController extends StandardController {
   public $name = "OrgIdentities";
   
   // When using additional models, we must also specify our own
-  public $uses = array('OrgIdentity', 'CmpEnrollmentConfiguration');
+  public $uses = array('OrgIdentity', 'OrgIdentitySource', 'CmpEnrollmentConfiguration');
   
   public $paginate = array(
     'limit' => 25,
@@ -105,8 +105,7 @@ class OrgIdentitiesController extends StandardController {
     
     $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
     
-    if(!$pool)
-    {
+    if(!$pool) {
       $this->requires_co = true;
       
       // Associate the CO model
@@ -117,6 +116,17 @@ class OrgIdentitiesController extends StandardController {
     $this->set('pool_org_identities', $pool);
     
     parent::beforeFilter();
+    
+    // Views may need to know if Org Identity Sources are defined and enabled.
+    
+    $args = array();
+    $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+    if(!$pool) {
+      $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];
+    }
+    $args['contain'] = false;
+    
+    $this->set('vv_org_id_sources', (bool)$this->OrgIdentitySource->find('count', $args));
   }
   
   /**

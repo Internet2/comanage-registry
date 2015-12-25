@@ -815,7 +815,16 @@ class AppController extends Controller {
     
     // View/Edit own Demographics profile?
     $p['menu']['nsfdemoprofile'] = $roles['user'];
-
+    
+    // Manage org identity sources? CO Admins can only do this if org identities are NOT pooled
+    $this->loadModel('CmpEnrollmentConfiguration');
+    
+    if(!$this->CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
+      $p['menu']['orgidsources'] = $roles['cmadmin'] || $roles['coadmin'];
+    } else {
+      $p['menu']['orgidsources'] = false;
+    }
+    
     $this->set('permissions', $p);
   }
 

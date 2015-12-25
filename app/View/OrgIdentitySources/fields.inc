@@ -1,8 +1,8 @@
 <?php
 /**
- * COmanage Registry CO Provisioning Target Fields
+ * COmanage Registry Organizational Identity Sources Fields
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,10 +14,10 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.8
+ * @since         COmanage Registry v1.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
@@ -37,32 +37,38 @@
   print $this->element("coCrumb");
   $args = array();
   $args['plugin'] = null;
-  $args['controller'] = 'co_provisioning_targets';
+  $args['controller'] = 'org_identity_sources';
   $args['action'] = 'index';
-  $args['co'] = $cur_co['Co']['id'];
-  $this->Html->addCrumb(_txt('ct.co_provisioning_targets.pl'), $args);
-  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_provisioning_targets.1')));
+  $this->Html->addCrumb(_txt('ct.org_identity_sources.pl'), $args);
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.org_identity_sources.1')));
   $this->Html->addCrumb($crumbTxt);
-
-  print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+  
+  if($e) {
+    // Populate CO ID if appropriate
+    
+    if(!$pool_org_identities) {
+      print $this->Form->hidden('OrgIdentitySource.co_id',
+                               array('default' => $cur_co['Co']['id'])). "\n";
+    }
+  }
 ?>
 <?php if(empty($plugins)): ?>
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
     <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?></strong>
+    <strong><?php print _txt('er.plugin.none', array(_txt('ct.org_identity_sources.pl'))); ?></strong>
   </p>
 </div>
 <br />
 <?php else: /* plugins */ ?>
-<table id="<?php print $this->action; ?>_co_provisioning_target" class="ui-widget">
+<table id="<?php print $this->action; ?>_org_identity_source" class="ui-widget">
   <tbody>
     <tr class="line1">
       <td>
         <?php print _txt('fd.desc'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['description'])); ?>
+        <?php print ($e ? $this->Form->input('description') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['description'])); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -80,26 +86,26 @@
               print $this->Form->input('plugin', array('disabled' => true));
               // We need to re-include the value as hidden since it can't be changed (but is required by the model)
               print $this->Form->hidden('plugin',
-                                        array('default' => Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']))) . "\n";
+                                        array('default' => Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']))) . "\n";
               break;
             default:
-              print Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']);
+              print Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
               break;
           }
           
           if($this->action == 'edit') {
             // And render a link to the plugin target
             
-            $pl = Inflector::underscore(Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']));
-            $plmodel = "Co" . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . "Target";
+            $pl = Inflector::underscore(Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']));
+            $plmodel = Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
+            $plm = Inflector::tableize($plmodel);
             
             print "<br />" . $this->Html->link(_txt('op.config'),
                                                array(
                                                  'plugin' => $pl,
-                                                 'controller' => 'co_' . $pl . '_targets',
+                                                 'controller' => $plm,
                                                  'action' => 'edit',
-                                                 $co_provisioning_targets[0][$plmodel]['id'],
-                                                 'co' => $cur_co['Co']['id']
+                                                 $org_identity_sources[0][$plmodel]['id']
                                                ),
                                                array('class' => 'configurebutton'));
           }
@@ -108,25 +114,26 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.status'); ?><br />
-        <span class="descr"><?php print _txt('en.status.prov.desc'); ?></span>
+        <?php print _txt('fd.status'); ?>
       </td>
       <td>
         <?php
           global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_provisioning_targets) ? $co_provisioning_targets[0]['CoProvisioningTarget']['status'] : ProvisionerStatusEnum::AutomaticMode);
+          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['status'])
+                             ? $org_identity_sources[0]['OrgIdentitySource']['status']
+                             : SuspendableStatusEnum::Active);
           $attrs['empty'] = false;
           
           if($e) {
             print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.prov'],
+                                      $cm_texts[ $cm_lang ]['en.status.susp'],
                                       $attrs);
             
             if($this->Form->isFieldError('status')) {
               print $this->Form->error('status');
             }
           } else {
-            print _txt('en.status', null, $co_provisioning_targets[0]['CoProvisioningTarget']['status']);
+            print _txt('en.status', null, $org_identity_sources[0]['OrgIdentitySource']['status']);
           }
         ?>
       </td>

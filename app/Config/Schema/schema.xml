@@ -2,9 +2,6 @@
 <!--
   COmanage Registry Database Schema
 
-  Version: $Revision$
-  Date: $Date$
-
   Copyright (C) 2010-2015 University Corporation for Advanced Internet Development, Inc.
    
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
@@ -75,20 +72,6 @@
     </index>
   </table>
   
-  <table name="organizations">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="name" type="C" size="256" />
-    <field name="domain" type="C" size="256" />
-    <field name="directory" type="C" size="256" />
-    <!-- searchbase probably doesn't belong here -->
-    <field name="search_base" type="C" size="256" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-  </table>
-  
   <table name="org_identities">
     <field name="id" type="I">
       <key />
@@ -98,9 +81,6 @@
     <field name="title" type="C" size="128" />
     <field name="o" type="C" size="128" />
     <field name="ou" type="C" size="128" />
-    <field name="organization_id" type="I">
-      <constraint>REFERENCES cm_organizations(id)</constraint>
-    </field>
     <field name="co_id" type="I">
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
@@ -1237,6 +1217,7 @@
     <field name="modified" type="T" />
     
     <!-- XXX almost certainly need to create some indexes here -->
+    <!-- also delete of co person or provisioning target should cascade here -->
   </table>
 
   <table name="co_navigation_links">
@@ -1432,6 +1413,31 @@
     <index name="co_settings_i1">
       <col>co_id</col>
       <unique />
+    </index>
+  </table>
+
+  <table name="org_identity_sources">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="org_identity_sources_i1">
+      <col>co_id</col>
     </index>
   </table>
 </schema>
