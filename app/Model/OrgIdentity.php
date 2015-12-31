@@ -34,6 +34,10 @@ class OrgIdentity extends AppModel {
   
   // Association rules from this model to other models
   public $hasOne = array(
+    // An Org Identity may have one related source record
+    "OrgIdentitySourceRecord" => array(
+      'dependent'  => true
+    ),
     // An Org Identity has one Primary Name, which is a pointer to a Name
     "PrimaryName" => array(
       'className'  => 'Name',
@@ -72,8 +76,6 @@ class OrgIdentity extends AppModel {
   );
 
   public $belongsTo = array(
-    // A person may belong to an organization (if pre-defined)
-    "Organization",
     // An Org Identity may belong to a CO, if not pooled
     "Co"
   );
@@ -88,6 +90,14 @@ class OrgIdentity extends AppModel {
   // Validation rules for table elements
   // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
+    'status' => array(
+      'content' => array(
+        'rule' => array('inList', array(OrgIdentityStatusEnum::Removed,
+                                        OrgIdentityStatusEnum::Synced)),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
     'affiliation' => array(
       'content' => array(
         'rule' => array('inList', array(AffiliationEnum::Faculty,

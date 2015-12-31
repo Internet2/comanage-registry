@@ -27,7 +27,7 @@ App::uses("StandardController", "Controller");
 class SOISController extends StandardController {
   // SOISs only need a CO to be set if org identities are NOT pooled
   public $requires_co = false;
-  
+
   /**
    * Callback before other controller methods are invoked or views are rendered.
    *
@@ -44,6 +44,9 @@ class SOISController extends StandardController {
     
     if(!$pool) {
       $this->requires_co = true;
+      
+      // Associate the CO model
+//      $this->OrgIdentitySource->bindModel(array('belongsTo' => array('Co')));
     }
     
     // The views will also need this

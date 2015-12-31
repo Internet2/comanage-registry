@@ -30,6 +30,17 @@ abstract class OrgIdentitySourceBackend extends AppModel {
   protected $pluginCfg = null;
   
   /**
+   * Obtain the configuration for this backend. This will correspond to FooSource.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @return Array Array of configuration information, as returned by find()
+   */
+  
+  public function getConfig() {
+    return $this->pluginCfg;
+  }
+  
+  /**
    * Retrieve a single record from the IdentitySource. The return array consists
    * of two entries: 'raw', a string containing the raw record as returned by the
    * IdentitySource backend, and 'orgidentity', the data in OrgIdentity format.

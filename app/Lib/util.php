@@ -61,6 +61,50 @@ function find_ef_attribute($attrs, $attr, $type=null)
 }
 
 /**
+ * Format an address into a single string.
+ *
+ * @since  COmanage Registry v1.1.0
+ * @param  Array $addr Array of Address attributes
+ * @return string The formatted address
+ * @todo This is an incredibly simplistic initial implementation that is not locale aware
+ */
+
+function formatAddress($addr) {
+  $a = "";
+  
+  if(!empty($addr['street'])) {
+    $a = $addr['street'];
+  }
+  
+  if(!empty($addr['room'])) {
+    if($a != "") { $a .= ", "; }
+    $a .= $addr['room'];
+  }
+  
+  if(!empty($addr['locality'])) {
+    if($a != "") { $a .= ", "; }
+    $a .= $addr['locality'];
+  }
+  
+  if(!empty($addr['state'])) {
+    if($a != "") { $a .= ", "; }
+    $a .= $addr['state'];
+  }
+  
+  if(!empty($addr['postal_code'])) {
+    if($a != "") { $a .= ", "; }
+    $a .= $addr['postal_code'];
+  }
+  
+  if(!empty($addr['country'])) {
+    if($a != "") { $a .= ", "; }
+    $a .= $addr['country'];
+  }
+  
+  return $a;
+}
+
+/**
  * Render a telephone number in E.123 format
  *
  * @since  COmanage Registry v0.9.4

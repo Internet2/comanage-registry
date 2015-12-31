@@ -41,12 +41,24 @@ if($permissions['add']) {
   $params['topLinks'][] = $this->Html->link(
     _txt('op.add.new', array(_txt('ct.org_identities.1'))),
     array(
-      'controller'    => 'org_identities',
+      'controller' => 'org_identities',
       'action' => 'add',
       'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
     ),
     array('class' => 'addbutton')
   );
+  
+  if(isset($vv_org_id_sources) && $vv_org_id_sources) {
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.orgid.add.ois'),
+      array(
+        'controller' => 'org_identity_sources',
+        'action' => 'select',
+        'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
+      ),
+      array('class' => 'addbutton')
+    );
+  }
 }
 
 print $this->element("pageTitleAndButtons", $params);

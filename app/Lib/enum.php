@@ -76,11 +76,14 @@ class ActionEnum
   const NotificationResolved            = 'NOTR';
   const OrgIdAddedManual                = 'AOIM';
   const OrgIdAddedPetition              = 'AOIP';
+  const OrgIdAddedSource                = 'AOIS';
   const OrgIdDeletedManual              = 'DOIM';
   const OrgIdDeletedPetition            = 'DOIP';
   const OrgIdEditedLoginEnv             = 'EOIE';
   const OrgIdEditedManual               = 'EOIM';
   const OrgIdEditedPetition             = 'EOIP';
+  const OrgIdEditedSource               = 'EOIS';
+  const OrgIdRemovedSource              = 'ROIS';
   const ProvisionerAction               = 'PRVA';
   const ProvisionerFailed               = 'PRVX';
   const SshKeyAdded                     = 'SSHA';
@@ -264,6 +267,12 @@ class NSFRaceEnum
   const Black            = 'B';
   const NativeHawaiian   = 'N';
   const White            = 'W';
+}
+
+class OrgIdentityStatusEnum
+{
+  const Removed          = 'RM';
+  const Synced           = 'SY';
 }
 
 class PermissionEnum

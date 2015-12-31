@@ -24,6 +24,20 @@
 
 // Add buttons
 if($this->action != "add") {
+  if($permissions['viewsource']
+     && !empty($org_identities[0]['OrgIdentitySourceRecord']['id'])) {
+    // View Source Record button
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.view-a', array(_txt('ct.org_identity_source_records.1'))),
+      array(
+        'controller' => 'org_identity_source_records',
+        'action'     => 'view',
+        $org_identities[0]['OrgIdentitySourceRecord']['id']
+      ),
+      array('class' => 'viewbutton')
+    );
+  }
+  
   if($permissions['history']) {
     // History button
     $params['topLinks'][] = $this->Html->link(

@@ -100,8 +100,7 @@ class OrgIdentitySourcesController extends StandardController {
         $this->performRedirect();
       }
       
-      $this->set('vv_ois_id', $ois['OrgIdentitySource']['id']);
-      $this->set('vv_ois_name', $ois['OrgIdentitySource']['description']);
+      $this->set('vv_org_identity_source', $ois['OrgIdentitySource']);
     }
   }
 
@@ -120,6 +119,8 @@ class OrgIdentitySourcesController extends StandardController {
     // Cake's Model, a find() is called as part of the delete() which also resets the associations.
     // So we have to manually delete any dependencies.
     
+    // This is basically the same logic as CoProvisioningTargetsController.php
+    
     // Use the previously obtained list of plugins as a guide
     $plugins = $this->viewVars['plugins'];
     
@@ -133,6 +134,55 @@ class OrgIdentitySourcesController extends StandardController {
     }
     
     return true;
+  }
+  
+  /**
+   * Create an Org Identity from an Org Identity Source.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id OrgIdentitySource to search
+   */
+  
+  public function create($id) {
+    if(!empty($this->request->params['named']['key'])) {
+      try {
+        $key = Sanitize::html($this->request->params['named']['key']);
+        
+        $coId = null;
+        
+        if(!empty($this->cur_co['Co']['id'])) {
+          $coId = $this->cur_co['Co']['id'];
+        }
+        
+        $orgid = $this->OrgIdentitySource->createOrgIdentity($id,
+                                                             $key,
+                                                             $this->Session->read('Auth.User.co_person_id'),
+                                                             $coId);
+        
+        $this->Flash->set(_txt('rs.added-a2', array(_txt('ct.org_identity_sources.pl'),
+                                                    $key)),
+                          array('key' => 'success'));
+        
+        // Redirect to org identity
+        $args = array(
+          'controller' => 'org_identities',
+          // Identities from source can't be edited, so send to view
+          'action'     => 'view',
+          $orgid
+        );
+        
+        $this->redirect($args);
+      }
+      catch(Exception $e) {
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      }
+    } else {
+      $this->Flash->set(_txt('er.notprov.id', array(_txt('fd.sorid'))),
+                        array('key' => 'error'));
+    }
+    
+    // No create view, so always perform redirect
+    $this->performRedirect();
   }
   
   /**
@@ -162,6 +212,9 @@ class OrgIdentitySourcesController extends StandardController {
     // Add a new Org Identity Source?
     $p['add'] = $roles['cmadmin'] || $coadmin;
     
+    // Create a new Org Identity from a Source?
+    $p['create'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
+    
     // Delete an existing Org Identity Source?
     $p['delete'] = $roles['cmadmin'] || $coadmin;
     
@@ -179,6 +232,9 @@ class OrgIdentitySourcesController extends StandardController {
     
     // Select an Org Identity Source (in order to create an Org Identity)?
     $p['select'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
+    
+    // (Re)sync an Org Identity from its Source?
+    $p['sync'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
     
     // View an existing Org Identity Source?
     $p['view'] = $roles['cmadmin'] || $coadmin;
@@ -227,7 +283,7 @@ class OrgIdentitySourcesController extends StandardController {
         $r = $this->OrgIdentitySource->retrieve($id, $this->request->params['named']['key']);
         
         $this->set('title_for_layout',
-                   _txt('op.view-a', array($this->request->params['named']['key'])));
+                   _txt('op.view-a', array(Sanitize::html($this->request->params['named']['key']))));
         
         if(!empty($r['orgidentity'])) {
           $this->set('vv_org_source_record', $r['orgidentity']);
@@ -236,11 +292,24 @@ class OrgIdentitySourcesController extends StandardController {
         if(!empty($r['raw'])) {
           $this->set('vv_raw_source_record', $r['raw']);
         }
+        
+        // See if there is an associated Org Identity
+        $args = array();
+        $args['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $id;
+        $args['conditions']['OrgIdentitySourceRecord.sorid'] = $this->request->params['named']['key'];
+        $args['contain'] = false;
+        
+        $rec = $this->OrgIdentitySource->OrgIdentitySourceRecord->find('first', $args);
+        
+        $this->set('vv_ois_record', $rec);
       }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
         $this->performRedirect();
       }
+    } else {
+      $this->Flash->set(_txt('er.notprov.id', array(_txt('fd.sorid'))),
+                        array('key' => 'error'));
     }
   }
   
@@ -258,7 +327,6 @@ class OrgIdentitySourcesController extends StandardController {
       
       $url = array();
       $url['action'] = 'search/' . $id;
-      $url['op'] = $this->request->data['OrgIdentitySource']['op'];
       
       foreach($this->request->data['Search'] as $field => $value) {
         if(!empty($value)) {
@@ -270,11 +338,20 @@ class OrgIdentitySourcesController extends StandardController {
       $this->redirect($url, null, true);
     }
     
+    if(isset($this->viewVars['vv_org_identity_source']['status'])
+       && $this->viewVars['vv_org_identity_source']['status'] != SuspendableStatusEnum::Active) {
+      $this->Flash->set(_txt('er.perm.status',
+                             array(_txt('en.status.susp', null, $this->viewVars['vv_org_identity_source']['status']))),
+                        array('key' => 'error'));
+      $this->performRedirect();
+    }
+    
+    $this->set('title_for_layout',
+               _txt('op.search-a', array($this->viewVars['vv_org_identity_source']['description'])));
+    
     // Obtain the searchable attributes and pass to the view
     
     $this->set('vv_search_attrs', $this->OrgIdentitySource->searchableAttributes($id));
-
-    $this->set('vv_ois_op', $this->request->params['named']['op']);
     
     // See if any search parameters were passed
     
@@ -293,7 +370,13 @@ class OrgIdentitySourcesController extends StandardController {
       // We have a search query, pass it to the backend
       
       $this->set('vv_search_query', $searchQuery);
-      $this->set('vv_search_results', $this->OrgIdentitySource->search($id, $searchQuery));
+      
+      try {
+        $this->set('vv_search_results', $this->OrgIdentitySource->search($id, $searchQuery));
+      }
+      catch(Exception $e) {
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      }
     }
   }
   
@@ -318,5 +401,45 @@ class OrgIdentitySourcesController extends StandardController {
     $args['contain'] = false;
     
     $this->set('vv_org_id_sources', $this->OrgIdentitySource->find('list', $args));
+  }
+  
+  /**
+   * Sync an Org Identity from an Org Identity Source.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id OrgIdentitySource to search
+   */
+  
+  public function sync($id) {
+    if(!empty($this->request->params['named']['key'])) {
+      try {
+        $key = Sanitize::html($this->request->params['named']['key']);
+        
+        $ret = $this->OrgIdentitySource->syncOrgIdentity($id,
+                                                         $key,
+                                                         $this->Session->read('Auth.User.co_person_id'));
+        
+        $this->Flash->set(_txt('rs.org.src.'.$ret['status']), array('key' => 'success'));
+        
+        // Redirect to org identity
+        $args = array(
+          'controller' => 'org_identities',
+          // Identities from source can't be edited, so send to view
+          'action'     => 'view',
+          $ret['id']
+        );
+        
+        $this->redirect($args);
+      }
+      catch(Exception $e) {
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      }
+    } else {
+      $this->Flash->set(_txt('er.notprov.id', array(_txt('fd.sorid'))),
+                        array('key' => 'error'));
+    }
+    
+    // No sync view, so always perform redirect
+    $this->performRedirect();
   }
 }

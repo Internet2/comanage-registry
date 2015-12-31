@@ -52,6 +52,7 @@ class OrgIdentitiesController extends StandardController {
     'EmailAddress',
     'Identifier',
     'Name',
+    'OrgIdentitySourceRecord',
     'PrimaryName',
     'TelephoneNumber'
   );
@@ -63,33 +64,10 @@ class OrgIdentitiesController extends StandardController {
     'EmailAddress',
     'Identifier',
     'Name',
+    'OrgIdentitySourceRecord',
     'PrimaryName',
     'TelephoneNumber'
   );
-  
-  function addvialdap()
-  {
-    // Add a new Organizational Person by querying LDAP.
-    //
-    // Parameters:
-    //   None
-    //
-    // Preconditions:
-    // (1) Organizations (and their LDAP servers) must be defined
-    //
-    // Postconditions:
-    // (1) $organizations is set
-    //
-    // Returns:
-    //   Nothing
-   
-    // We render the view which returns to selectvialdap()
-    
-    // Set page title
-    $this->set('title_for_layout', _txt('op.add.new', array(_txt('ct.' . $modelpl . '.1'))));
-
-    $this->set('organizations', $this->OrgIdentity->Organization->find('all'));
-  }
   
   /**
    * Callback before other controller methods are invoked or views are rendered.
@@ -409,6 +387,30 @@ class OrgIdentitiesController extends StandardController {
       }
     }
     
+    // Is this a read only record? True if it has an OrgIdentity Source Record.
+    // As of the initial implementation, not even CMP admins can edit such a record.
+    $readOnly = false;
+    
+    if(!empty($this->request->params['pass'][0])) {
+      $args = array();
+      $args['conditions']['OrgIdentitySourceRecord.org_identity_id'] = $this->request->params['pass'][0];
+      $args['contain'] = false;
+      
+      $readOnly = (bool)$this->OrgIdentity->OrgIdentitySourceRecord->find('count', $args);
+      
+      if($readOnly && $this->action == 'edit') {
+        // Proactively redirect to view. This will also prevent (eg) the REST API
+        // from editing a read only record.
+        $args = array(
+          'controller' => 'org_identities',
+          'action'     => 'view',
+          Sanitize::html($this->request->params['pass'][0])
+        );
+        
+        $this->redirect($args);
+      }
+    }
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
@@ -417,26 +419,22 @@ class OrgIdentitiesController extends StandardController {
     // to restrict access to only org identities in the same CO.
     
     if($this->CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
-      // Add a new Org Person?
+      // Add a new Org Identity?
       $p['add'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
-      // Via LDAP query?
-      $p['addvialdap'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
-      $p['selectvialdap'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
-      
-      // Delete an existing Org Person?
+      // Delete an existing Org Identity?
       $p['delete'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
-      // Edit an existing Org Person?
-      $p['edit'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
+      // Edit an existing Org Identity?
+      $p['edit'] = !$readOnly && ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
-      // Find an Org Person to add to a CO?
+      // Find an Org Identity to add to a CO?
       $p['find'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
       // View history? This correlates with HistoryRecordsController
       $p['history'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
-      // View all existing Org People?
+      // View all existing Org Identity?
       $p['index'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       $p['search'] = $p['index'];
       
@@ -446,32 +444,32 @@ class OrgIdentitiesController extends StandardController {
       // View petitions?
       $p['petitions'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
-      // View an existing Org Person?
+      // View an existing Org Identity?
       $p['view'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin'] || $self);
+      
+      // View a Org Identity Source Record? (Matches OrgIdentitySourceRecordsController)
+      $p['viewsource'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
     } else {
-      // Add a new Org Person?
+      // Add a new Org Identity?
       $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       
-      // Via LDAP query?
-      $p['addvialdap'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
-      $p['selectvialdap'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
-      
-      // Delete an existing Org Person?
+      // Delete an existing Org Identity?
       $p['delete'] = ($roles['cmadmin']
                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
       
-      // Edit an existing Org Person?
-      $p['edit'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+      // Edit an existing Org Identity?
+      $p['edit'] = !$readOnly
+                   && ($roles['cmadmin']
+                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
       
-      // Find an Org Person to add to a CO?
+      // Find an Org Identity to add to a CO?
       $p['find'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       
       // View history? This correlates with HistoryRecordsController
       $p['history'] = ($roles['cmadmin']
                        || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
       
-      // View all existing Org People?
+      // View all existing Org Identity?
       $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       $p['search'] = $p['index'];
 
@@ -491,10 +489,14 @@ class OrgIdentitiesController extends StandardController {
       $p['petitions'] = ($roles['cmadmin']
                          || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
       
-      // View an existing Org Person?
+      // View an existing Org Identity?
       $p['view'] = ($roles['cmadmin']
                     || ($managed && ($roles['coadmin'] || $roles['couadmin']))
                     || $self);
+      
+      // View a Org Identity Source Record? (Matches OrgIdentitySourceRecordsController)
+      $p['viewsource'] = ($roles['cmadmin']
+                          || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     }
     
     $this->set('permissions', $p);
@@ -612,6 +614,7 @@ class OrgIdentitiesController extends StandardController {
    *
    * @since  COmanage Registry v0.8
    */
+  
   function search() {
     // the page we will redirect to
     $url['action'] = 'index';
@@ -631,60 +634,5 @@ class OrgIdentitiesController extends StandardController {
     
     // redirect the user to the url
     $this->redirect($url, null, true);
-  }
-
-  function selectvialdap()
-  {
-    // XXX need to
-    //  Sanitize::html
-    //  I18N
-    //  Set title_for_layout
-    // or just clean this out (along with add via ldap)
-    
-    // Query LDAP according to the args received and present possible matches to add as new organizational people.
-    
-    print_r($this->data);
-    
-    $org = $this->OrgIdentity->Organization->findById($this->data['OrgIdentity']['organization']);
-    print_r($org['Organization']['directory']);
-    
-    // query ldap
-    // collate results
-    // pass to view (caching so no query required on return)
-    
-    if($org['Organization']['directory'] != "")
-    {
-      $ds = ldap_connect($org['Organization']['directory']);
-      
-      if($ds)
-      {
-        $r = ldap_bind($ds);
-        
-        if($r)
-        {
-          $sr = ldap_search($ds, $org['Organization']['searchbase'], "sn=" . $this->data['OrgIdentity']['sn']);
-          
-          if($sr)
-          {
-            $c = ldap_count_entries($ds, $sr);
-            echo "Entries: " . $c . "<br />";
-            
-            $info = ldap_get_entries($ds, $sr);
-            
-            for($i = 0; $i < $info['count'];$i++)
-            {
-              echo "dn is: " . $info[$i]["dn"] . "<br />";
-              echo "first cn entry is: " . $info[$i]["cn"][0] . "<br />";
-              echo "first email entry is: " . $info[$i]["mail"][0] . "<br /><hr />";                
-            }
-          }
-        }
-        // else error check XXX
-        
-        ldap_close($ds);
-      }
-      // else error check XXX
-    }
-    // else warn XXX
   }
 }

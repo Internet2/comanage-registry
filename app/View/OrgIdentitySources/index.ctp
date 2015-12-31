@@ -104,14 +104,14 @@
       </td>
       <td>
         <?php
-          if($permissions['search']) {
+          if($o['OrgIdentitySource']['status'] == SuspendableStatusEnum::Active
+             && $permissions['search']) {
             print $this->Html->link(
               _txt('op.search'),
               array(
                 'controller' => 'org_identity_sources',
                 'action' => 'search',
-                $o['OrgIdentitySource']['id'],
-                'op' => 'search'
+                $o['OrgIdentitySource']['id']
               ),
               array('class' => 'searchbutton')
             ) . "\n";

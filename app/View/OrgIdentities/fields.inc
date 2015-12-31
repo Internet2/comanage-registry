@@ -96,6 +96,16 @@ $(function() {
 
   $l = 1;
 ?>
+<?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['id'])): ?>
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
+  <p>
+    <span class="ui-icon ui-icon-info co-info"></span>
+    <strong><?php print _txt('op.orgid.edit.ois'); ?></strong>
+  </p>
+</div>
+<br />
+<?php endif; // view ?>
+
 <div id="<?php print $this->action; ?>_org_identity" class="coTabsContainer">
   <div id="tabs" class="coTabs">
     <ul>
@@ -317,6 +327,34 @@ $(function() {
           <?php endif; // add ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
+              <?php print _txt('fd.status'); ?>
+            </td>
+            <td>
+              <?php
+                global $cm_lang, $cm_texts;
+                $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['status'])
+                                   ? $org_identities[0]['OrgIdentity']['status']
+                                   : "M");
+                $attrs['empty'] = true;
+
+                if($e) {
+                  print $this->Form->select('status',
+                                            $cm_texts[ $cm_lang ]['en.status.org'],
+                                            $attrs);
+
+                  if($this->Form->isFieldError('status')) {
+                    print $this->Form->error('status');
+                  }
+                } else {
+                  if(!empty($org_identities[0]['OrgIdentity']['status'])) {
+                    print $cm_texts[ $cm_lang ]['en.status.org'][ $org_identities[0]['OrgIdentity']['status'] ];
+                  }
+                }
+              ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td>
               <?php print _txt('fd.affiliation'); ?>
             </td>
             <td>
@@ -332,8 +370,8 @@ $(function() {
                                             $cm_texts[ $cm_lang ]['en.org_identity.affiliation'],
                                             $attrs);
 
-                  if($this->Form->isFieldError('status')) {
-                    print $this->Form->error('status');
+                  if($this->Form->isFieldError('affiliation')) {
+                    print $this->Form->error('affiliation');
                   }
                 } else {
                   if(!empty($org_identities[0]['OrgIdentity']['affiliation'])) {

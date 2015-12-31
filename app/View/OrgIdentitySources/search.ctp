@@ -40,18 +40,36 @@
 </script>
 
 <?php
-  $params = array('title' => _txt('fd.people', array($cur_co['Co']['name'])));
+  // Set page title
+  $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
+  
+  // Add breadcrumbs
+  if(!$pool_org_identities) {
+    print $this->element("coCrumb");
+  }
+
+  $args = array(
+    'controller' => 'org_identity_sources',
+    'plugin'     => null,
+    'action'     => 'index'
+  );
+  
+  if(!$pool_org_identities) {
+    $args['co'] = $cur_co['Co']['id'];
+  }
+  
+  $this->Html->addCrumb(_txt('ct.org_identity_sources.pl'), $args);
+  $this->Html->addCrumb($title_for_layout);
 ?>
 
 <div id="sourceSearch" class="topSearch">
   <p><?php print _txt('op.search');?>:</p>
   <fieldset>
     <?php
-      $action = "search/" . $vv_ois_id;
+      $action = "search/" . $vv_org_identity_source['id'];
       
       print $this->Form->create('OrgIdentitySource', array('action' => $action));
-      print $this->Form->hidden('OrgIdentitySource.op', array('default' => $vv_ois_op)). "\n";
       
       $index = 1;
       
@@ -61,7 +79,7 @@
         $args['placeholder'] = $label;
         $args['tabindex'] = $index++;
         $args['value'] = (!empty($this->request->params['named']['Search.' . $field])
-                          ? $this->request->params['named']['Search.' . $field] : '');
+                          ? Sanitize::html($this->request->params['named']['Search.' . $field]) : '');
         
         print $this->Form->input('Search.' . $field, $args);
       }
@@ -103,7 +121,7 @@
           $retreveUrl = array(
             'controller' => 'org_identity_sources',
             'action' => 'retrieve',
-            $vv_ois_id,
+            $vv_org_identity_source['id'],
             'key' => $k
           );
           
@@ -148,7 +166,7 @@
   <tbody>
     <tr>
       <td>
-        <?php print _txt('ct.co_people.se.no_results'); ?>
+        <?php print _txt('rs.search.none'); ?>
       </td>
     </tr>
   </tbody>
