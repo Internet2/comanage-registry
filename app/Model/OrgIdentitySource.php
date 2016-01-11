@@ -136,15 +136,32 @@ class OrgIdentitySource extends AppModel {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.org_identity_sources.1'), $id)));
     }
     
+    $pmodel = $ois['OrgIdentitySource']['plugin'];
+    
     // Store for possible later use
     $this->cdata = $ois;
     
-    // Bind the backend model
-    $bmodel = $ois['OrgIdentitySource']['plugin'] . '.' . $ois['OrgIdentitySource']['plugin'] . 'Backend';
+    // Load the backend model
+    $bmodel = $pmodel . '.' . $pmodel . 'Backend';
     $Backend = ClassRegistry::init($bmodel);
     
     // And give it its configuration
-    $Backend->setConfig($ois[ $ois['OrgIdentitySource']['plugin'] ]);
+    if(!isset($ois[ $pmodel ])) {
+      // The related model isn't set, bind it
+      
+      $this->bindModel(array('hasOne' => array($pmodel)), false);
+      
+      $args = array();
+      $args['conditions'][$pmodel.'.org_identity_source_id'] = $id;
+      $args['contain'] = false;
+      
+      $pl = $this->$pmodel->find('first', $args);
+      
+      $Backend->setConfig($pl[ $pmodel ]);
+      // XXX need to find
+    } else {
+      $Backend->setConfig($ois[ $pmodel ]);
+    }
     
     return $Backend;
   }
@@ -255,6 +272,61 @@ class OrgIdentitySource extends AppModel {
     $Backend = $this->bindPluginBackendModel($id);
     
     return $Backend->search($attributes);
+  }
+  
+  /**
+   * Search all available backends for records matching the specified email address.
+   *
+   * @since  COmanange Registry v1.1.0
+   * @param  String $email Email address to use as a search key
+   * @param  Integer $coId CO ID, if org identities not pooled
+   * @return Array Array of search results and (if available) associated Org Identities, sorted by backend
+   * @throws InvalidArgumentException
+   */
+  
+  public function searchAllByEmail($email, $coId=null) {
+    $ret = array();
+    
+    // First we need to figure out what plugins we have available.
+    
+    $args = array();
+    $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+    if($coId) {
+      $args['conditions']['OrgIdentitySource.co_id'] = $coId;
+    }
+    $args['contain'] = false;
+    
+    $sources = $this->find('all', $args);
+    
+    if(empty($sources)) {
+      throw new InvalidArgumentException(_txt('er.ois.search.none'));
+    }
+    
+    foreach($sources as $s) {
+      $candidates = $this->search($s['OrgIdentitySource']['id'], array('mail' => $email));
+      
+      foreach($candidates as $key => $c) {
+        // Key results by source ID in case different sources return the same keys
+        
+        // See if there is an associated org identity for the candidate
+        
+        $args = array();
+        $args['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $s['OrgIdentitySource']['id'];
+        $args['conditions']['OrgIdentitySourceRecord.sorid'] = $key;
+        $args['contain'] = array('OrgIdentity');
+        
+        $ret[ $s['OrgIdentitySource']['id'] ][$key] =
+          $this->OrgIdentitySourceRecord->find('first', $args);
+        
+        // Append the source record retrieved from the backend
+        $ret[ $s['OrgIdentitySource']['id'] ][$key]['OrgIdentitySourceData'] = $c;
+        
+        // And the source info itself
+        $ret[ $s['OrgIdentitySource']['id'] ][$key]['OrgIdentitySource'] = $s['OrgIdentitySource'];
+      }
+    }
+    
+    return $ret;
   }
 
   /**

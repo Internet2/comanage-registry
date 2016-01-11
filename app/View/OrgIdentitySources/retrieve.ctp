@@ -62,16 +62,26 @@
 
   if(empty($vv_ois_record)) {
     if(!empty($permissions['create']) && $permissions['create']) {
-      // Create a new Org Identity from this record
+      // Create a new Org Identity from this record. We might be in the middle
+      // of an enrollment flow, in which case we change the text label.
+      
+      $label = _txt('op.orgid.add.ois');
+      
+      $args = array(
+        'controller' => 'org_identity_sources',
+        'action'     => 'create',
+        $vv_org_identity_source['id'],
+        'key'        => $key
+      );
+      
+      if(!empty($this->request->params['named']['copetitionid'])) {
+        $label = _txt('op.orgid.petition.ois');
+        $args['copetitionid'] = Sanitize::html($this->request->params['named']['copetitionid']);
+      }
       
       $params['topLinks'][] = $this->Html->link(
-        _txt('op.orgid.add.ois'),
-        array(
-          'controller' => 'org_identity_sources',
-          'action'     => 'create',
-          $vv_org_identity_source['id'],
-          'key'        => $key
-        ),
+        $label,
+        $args,
         array('class' => 'addbutton')
       );
     }
@@ -122,6 +132,15 @@
  
   $l = 1;
 ?>
+<?php if(!empty($vv_ois_record)
+         && !empty($this->request->params['named']['copetitionid'])): ?>
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
+  <p>
+    <span class="ui-icon ui-icon-info co-info"></span>
+    <strong><?php print _txt('er.ois.pt.linked'); ?></strong>
+  </p>
+</div>
+<?php endif; ?>
 <div class="innerContent">
   <table id="view_org_identity_source_record" class="ui-widget">
     <tbody>

@@ -103,7 +103,36 @@ class OrgIdentitySourcesController extends StandardController {
       $this->set('vv_org_identity_source', $ois['OrgIdentitySource']);
     }
   }
-
+  
+  /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId() {
+    if($this->action == "select"
+       && !empty($this->request->params['named']['copetitionid'])) {
+      // Pull the CO from the Petition
+      
+      $coId = $this->OrgIdentitySource->Co->CoPetition->field('co_id',
+                                                              array('id' => $this->request->params['named']['copetitionid']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_petitions.1'),
+                                                      Sanitize::html($this->request->params['named']['copetitionid']))));
+      }
+    }
+    
+    return parent::calculateImpliedCoId();
+  }
+  
   /**
    * Perform any dependency checks required prior to a delete operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
@@ -159,17 +188,28 @@ class OrgIdentitySourcesController extends StandardController {
                                                              $this->Session->read('Auth.User.co_person_id'),
                                                              $coId);
         
-        $this->Flash->set(_txt('rs.added-a2', array(_txt('ct.org_identity_sources.pl'),
-                                                    $key)),
-                          array('key' => 'success'));
-        
-        // Redirect to org identity
-        $args = array(
-          'controller' => 'org_identities',
-          // Identities from source can't be edited, so send to view
-          'action'     => 'view',
-          $orgid
-        );
+        if(!empty($this->request->params['named']['copetitionid'])) {
+          // Redirect back into the enrollment flow to link the identity
+          
+          $args = array(
+            'controller'    => 'co_petitions',
+            'action'        => 'selectOrgIdentity',
+            Sanitize::html($this->request->params['named']['copetitionid']),
+            'orgidentityid' => $orgid
+          );
+        } else {
+          $this->Flash->set(_txt('rs.added-a2', array(_txt('ct.org_identity_sources.pl'),
+                                                      $key)),
+                            array('key' => 'success'));
+          
+          // Redirect to org identity
+          $args = array(
+            'controller' => 'org_identities',
+            // Identities from source can't be edited, so send to view
+            'action'     => 'view',
+            $orgid
+          );
+        }
         
         $this->redirect($args);
       }
@@ -332,6 +372,10 @@ class OrgIdentitySourcesController extends StandardController {
         if(!empty($value)) {
           $url['Search.'.$field] = $value; 
         }
+      }
+      
+      if(!empty($this->request->data['OrgIdentitySource']['copetitionid'])) {
+        $url['copetitionid'] = $this->request->data['OrgIdentitySource']['copetitionid'];
       }
       
       // redirect to the new url

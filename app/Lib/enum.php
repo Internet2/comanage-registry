@@ -173,6 +173,11 @@ class EnrollmentMatchPolicyEnum {
   const Self      = "S";
 }
 
+class EnrollmentOrgIdentityModeEnum {
+  const OrgIdentitySource = "OS";
+  const None              = "N";
+}
+
 class EnrollmentRole
 {
   const Approver   = 'A';

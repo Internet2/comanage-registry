@@ -873,6 +873,40 @@ class CoPetition extends AppModel {
     return true;
   }
   
+  
+  /**
+   * Link an existing Org Identity to a CO Petition.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer CO Petition ID
+   * @param  Integer Org Identity ID to link
+   * @param  Integer CO Person ID of the petitioner
+   * @return Boolean True on success
+   * @throws RunTimeException
+   */
+  
+  public function linkOrgIdentity($coPetitionId, $orgIdentityId, $petitionerId) {
+    $this->id = $coPetitionId;
+    
+    if(!$this->saveField('enrollee_org_identity_id', $orgIdentityId)) {
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+    
+    // Create a Petition History Record
+    
+    try {
+      $this->CoPetitionHistoryRecord->record($coPetitionId,
+                                             $petitionerId,
+                                             PetitionActionEnum::IdentityLinked,
+                                             _txt('rs.pt.link.org', array($orgIdentityId)));
+    }
+    catch(Exception $e) {
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+    
+    return true;
+  }
+  
   /**
    * Relink a Petition and the associated CO Person to an already existing Org Identity.
    * This function should be called from within a transaction.

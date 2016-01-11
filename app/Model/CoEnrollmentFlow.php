@@ -106,13 +106,22 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'org_identity_mode' => array(
+      'rule' => array('inList',
+                      array(EnrollmentOrgIdentityModeEnum::OrgIdentitySource,
+                            EnrollmentOrgIdentityModeEnum::None)),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'match_policy' => array(
       'rule' => array('inList',
                       array(EnrollmentMatchPolicyEnum::Advisory,
                             EnrollmentMatchPolicyEnum::Automatic,
                             EnrollmentMatchPolicyEnum::None,
                             EnrollmentMatchPolicyEnum::Select,
-                            EnrollmentMatchPolicyEnum::Self))
+                            EnrollmentMatchPolicyEnum::Self)),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'approval_required' => array(
       'rule' => array('boolean')
@@ -217,6 +226,12 @@ class CoEnrollmentFlow extends AppModel {
       'rule' => array('boolean'),
       'required' => false,
       'allowEmpty' => true
+    ),
+    'duplicate_mode' => array(
+      'rule' => array('inList',
+                      array(EnrollmentDupeModeEnum::Duplicate,
+                            EnrollmentDupeModeEnum::NewRole,
+                            EnrollmentDupeModeEnum::NewRoleCouCheck))
     ),
     'status' => array(
       'rule' => array('inList', array(EnrollmentFlowStatusEnum::Active,
@@ -413,7 +428,17 @@ class CoEnrollmentFlow extends AppModel {
     }
     $ret['start']['role'] = EnrollmentRole::Petitioner;
     
-    // If match policy is self we run the selectPerson step.
+    // If Org Identity mode is appropriately set we run the selectOrgIdentity step.
+    
+    if(!empty($ef['CoEnrollmentFlow']['org_identity_mode'])
+       && $ef['CoEnrollmentFlow']['org_identity_mode'] != EnrollmentOrgIdentityModeEnum::None) {
+      $ret['selectOrgIdentity']['enabled'] = RequiredEnum::Required;
+    } else {
+      $ret['selectOrgIdentity']['enabled'] = RequiredEnum::NotPermitted;
+    }
+    $ret['selectOrgIdentity']['role'] = EnrollmentRole::Petitioner;
+    
+    // If match policy is appropriately set we run the selectEnrollee step.
     
     if(!empty($ef['CoEnrollmentFlow']['match_policy'])
        && ($ef['CoEnrollmentFlow']['match_policy'] == EnrollmentMatchPolicyEnum::Select

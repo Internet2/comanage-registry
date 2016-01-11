@@ -71,6 +71,10 @@
       
       print $this->Form->create('OrgIdentitySource', array('action' => $action));
       
+      if(!empty($this->request->params['named']['copetitionid'])) {
+        print $this->Form->hidden('copetitionid', array('default' => Sanitize::html($this->request->params['named']['copetitionid'])));
+      }
+      
       $index = 1;
       
       foreach($vv_search_attrs as $field => $label) {
@@ -118,16 +122,20 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          $retreveUrl = array(
+          $retrieveUrl = array(
             'controller' => 'org_identity_sources',
             'action' => 'retrieve',
             $vv_org_identity_source['id'],
             'key' => $k
           );
           
+          if(!empty($this->request->params['named']['copetitionid'])) {
+            $retrieveUrl['copetitionid'] = Sanitize::html($this->request->params['named']['copetitionid']);
+          }
+          
           print $this->Html->link(
             generateCn($o['PrimaryName']),
-            $retreveUrl
+            $retrieveUrl
           );
         ?>
       </td>
@@ -143,7 +151,7 @@
           if($permissions['retrieve']) {
             print $this->Html->link(
               _txt('op.view'),
-              $retreveUrl,
+              $retrieveUrl,
               array('class' => 'viewbutton')
             ). "\n";
           }

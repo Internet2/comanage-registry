@@ -762,6 +762,74 @@
     </index>
   </table>
   
+
+  <table name="org_identity_sources">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="status" type="C" size="2" />
+    <!--
+    <field name="load_interval" type="I" />
+    <field name="update_interval" type="I" />
+    <field name="last_load" type="T" />
+    <field name="last_update" type="T" />
+    -->
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="org_identity_sources_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="org_identity_source_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
+    </field>
+    <field name="sorid" type="C" size="40" />
+    <field name="source_record" type="XL" />
+    <field name="last_update" type="T" />
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="org_identity_source_record_id" type="I">
+      <constraint>REFERENCES cm_org_identity_source_records(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="org_identity_source_records_i1">
+      <col>org_identity_source_id</col>
+      <col>sorid</col>
+<!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
+      <unique />
+-->
+    </index>
+    
+    <index name="org_identity_source_records_i2">
+      <col>org_identity_id</col>
+    </index>
+  </table>
+  
   <table name="co_enrollment_flows">
     <field name="id" type="I">
       <key />
@@ -779,6 +847,7 @@
     <field name="authz_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <field name="org_identity_mode" type="C" size="2" />
     <field name="match_policy" type="C" size="2" />
     <field name="approval_required" type="L" />
     <field name="approver_co_group_id" type="I">
@@ -1414,73 +1483,6 @@
     <index name="co_settings_i1">
       <col>co_id</col>
       <unique />
-    </index>
-  </table>
-
-  <table name="org_identity_sources">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="description" type="C" size="256" />
-    <field name="plugin" type="C" size="32" />
-    <field name="status" type="C" size="2" />
-    <!--
-    <field name="load_interval" type="I" />
-    <field name="update_interval" type="I" />
-    <field name="last_load" type="T" />
-    <field name="last_update" type="T" />
-    -->
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="org_identity_sources_i1">
-      <col>co_id</col>
-    </index>
-  </table>
-  
-  <table name="org_identity_source_records">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
-    </field>
-    <field name="sorid" type="C" size="40" />
-    <field name="source_record" type="XL" />
-    <field name="last_update" type="T" />
-    <field name="org_identity_id" type="I">
-      <constraint>REFERENCES cm_org_identities(id)</constraint>
-    </field>
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="org_identity_source_record_id" type="I">
-      <constraint>REFERENCES cm_org_identity_source_records(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="org_identity_source_records_i1">
-      <col>org_identity_source_id</col>
-      <col>sorid</col>
-<!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
-      <unique />
--->
-    </index>
-    
-    <index name="org_identity_source_records_i2">
-      <col>org_identity_id</col>
     </index>
   </table>
 </schema>

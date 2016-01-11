@@ -24,7 +24,7 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  $crumbTxt = _txt('op.select-a',array(_txt('ct.enrollment_flows.1')));
+  $crumbTxt = _txt('op.select-a',array(_txt('ct.org_identity_sources.1')));
   $this->Html->addCrumb($crumbTxt);
 
   // Add page title
@@ -54,12 +54,18 @@
       <td>
         <?php
           if($permissions['select']) {
+            $args = array(
+              'controller' => 'org_identity_sources',
+              'action' => 'search',
+              $id
+            );
+            
+            if(!empty($this->request->params['named']['copetitionid'])) {
+              $args['copetitionid'] = Sanitize::html($this->request->params['named']['copetitionid']);
+            }
+            
             print $this->Html->link(_txt('op.select'),
-                                    array(
-                                      'controller' => 'org_identity_sources',
-                                      'action' => 'search',
-                                      $id
-                                    ),
+                                    $args,
                                     array('class' => 'forwardbutton')) . "\n";
           }
         ?>
