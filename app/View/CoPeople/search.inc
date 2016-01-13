@@ -55,6 +55,7 @@ global $cm_lang, $cm_texts;
     $args['label'] = _txt('fd.name.given');
     $args['placeholder'] = _txt('fd.name.given');
     $args['tabindex'] = '1';
+// XXX shouldn't these fields be sanitized?
     $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
     print $this->Form->input('Search.givenName',$args);
     ?>

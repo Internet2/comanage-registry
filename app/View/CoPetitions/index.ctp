@@ -249,7 +249,7 @@
     <?php endforeach; // $co_petitions ?>
     <?php
       if (count($co_petitions) == 0) {
-        print '<tr><td colspan="10">' . _txt('ct.co_petitions.0') . '</td></tr>';
+        print '<tr><td colspan="10">' . _txt('rs.search.none') . '</td></tr>';
       }
     ?>
   </tbody>

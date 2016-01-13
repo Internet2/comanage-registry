@@ -49,7 +49,7 @@ global $cm_lang, $cm_texts;
 </script>
 
 <div id="advancedSearch">
-  <h3><?php print _txt('ct.co_people.se');?></h3>
+  <h3><?php print _txt('fd.co_people.search');?></h3>
   <div>
     <?php 
       print $this->Form->create('CoPerson',array('action'=>'search'));

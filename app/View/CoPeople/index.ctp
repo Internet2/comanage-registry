@@ -467,14 +467,14 @@ if(isset($permissions['search']) && $permissions['search'] ) {
   <?php
     if(empty($co_people)) {
       // No search results, or there are no people in this CO
-      print('<div id="noResults">' . _txt('ct.co_people.se.no_results') . '</div>');
+      print('<div id="noResults">' . _txt('rs.search.none') . '</div>');
       print('<div id="restoreLink">');
       $args = array();
       $args['plugin'] = null;
       $args['controller'] = 'co_people';
       $args['action'] = 'index';
       $args['co'] = $cur_co['Co']['id'];
-      print $this->Html->link(_txt('ct.co_people.se.restore'), $args);
+      print $this->Html->link(_txt('op.search.restore'), $args);
       print('</div>');
     }
   ?>
