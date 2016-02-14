@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Model
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -231,7 +231,7 @@ class CoPetition extends AppModel {
     $coID = $this->field('co_id', array('CoPetition.id' => $id));
     
     if($coID && $coPersonID) {
-      $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID, $actorCoPersonId);
+      $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID, $actorCoPersonId, false);
       
       if(!empty($res)) {
         // See if any identifiers were assigned, and if so create a history record
@@ -1363,7 +1363,9 @@ class CoPetition extends AppModel {
       
       // Save the Org Identity. All the data is validated, so don't re-validate it.
       
-      if($this->EnrolleeOrgIdentity->saveAssociated($orgData, array("validate" => false, "atomic" => true))) {
+      if($this->EnrolleeOrgIdentity->saveAssociated($orgData, array("validate" => false,
+                                                                    "atomic" => true,
+                                                                    "provision" => false))) {
         $orgIdentityId = $this->EnrolleeOrgIdentity->id;
         $createLink = true;
         
@@ -1419,7 +1421,9 @@ class CoPetition extends AppModel {
       
       // Save the CO Person Data
       
-      if($this->EnrolleeCoPerson->saveAssociated($coData, array("validate" => false, "atomic" => true))) {
+      if($this->EnrolleeCoPerson->saveAssociated($coData, array("validate" => false,
+                                                                "atomic" => true,
+                                                                "provision" => false))) {
         $coPersonId = $this->EnrolleeCoPerson->id;
         $createLink = true;
         
@@ -1492,7 +1496,9 @@ class CoPetition extends AppModel {
       
       // Save the CO Person Role data
       
-      if($this->EnrolleeCoPersonRole->saveAssociated($coRoleData, array("validate" => false, "atomic" => true))) {
+      if($this->EnrolleeCoPersonRole->saveAssociated($coRoleData, array("validate" => false,
+                                                                        "atomic" => true,
+                                                                        "provision" => false))) {
         $coPersonRoleId = $this->EnrolleeCoPersonRole->id;
         
         // Update the petition with the new identifier
@@ -1533,7 +1539,9 @@ class CoPetition extends AppModel {
       $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityId;
       $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonId;
       
-      if($this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink)) {
+      // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
+      // provisioning just in case that changes in the future.
+      if($this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
         // Create a history record
         try {
           $this->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
@@ -2149,7 +2157,7 @@ class CoPetition extends AppModel {
           $this->EnrolleeCoPersonRole->id = $coPersonRoleID;
           $curCoPersonRoleStatus = $this->EnrolleeCoPersonRole->field('status');
           
-          $this->EnrolleeCoPersonRole->saveField('status', $newCoPersonStatus);
+          $this->EnrolleeCoPersonRole->saveField('status', $newCoPersonStatus, array('provision' => false));
           
           try {
             // Create a history record
@@ -2321,7 +2329,7 @@ class CoPetition extends AppModel {
           if(!$identifier[0]['Identifier']['login']) {
             $this->EnrolleeOrgIdentity->Identifier->id = $identifier[0]['Identifier']['id'];
             
-            if(!$this->EnrolleeOrgIdentity->Identifier->saveField('login', true)) {
+            if(!$this->EnrolleeOrgIdentity->Identifier->saveField('login', true, array('provision' => false))) {
               $dbc->rollback();
               throw new RuntimeException(_txt('er.db.save'));
             }
@@ -2488,7 +2496,7 @@ class CoPetition extends AppModel {
             $identifier3['Identifier']['login'] = true;
             $identifier3['Identifier']['status'] = StatusEnum::Active;
             
-            if(!$this->EnrolleeOrgIdentity->Identifier->save($identifier3)) {
+            if(!$this->EnrolleeOrgIdentity->Identifier->save($identifier3, array('provision' => false))) {
               $dbc->rollback();
               throw new RuntimeException(_txt('er.db.save'));
             }

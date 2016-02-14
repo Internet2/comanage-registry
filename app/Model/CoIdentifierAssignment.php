@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Identifier Assignment Model
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -140,12 +140,13 @@ class CoIdentifierAssignment extends AppModel {
    * @param  Integer CO Person ID
    * @param  Integer Actor CO Person ID
    * @return Integer ID of newly created Identifier
+   * @return Boolean Whether or not to run provisioners on save
    * @throws InvalidArgumentException
    * @throws OverflowException (identifier already exists)
    * @throws RuntimeException
    */
   
-  public function assign($coIdentifierAssignment, $coPersonID, $actorCoPersonID) {
+  public function assign($coIdentifierAssignment, $coPersonID, $actorCoPersonID, $provision=true) {
     $ret = null;
     
     // Determine if we are actually assigning an email address instead of an identifier.
@@ -263,7 +264,7 @@ class CoIdentifierAssignment extends AppModel {
             // saves against the same model.
             $this->Co->CoPerson->EmailAddress->create($emailAddressData);
             
-            if($this->Co->CoPerson->EmailAddress->save($emailAddressData)) {
+            if($this->Co->CoPerson->EmailAddress->save($emailAddressData, array('provision' => $provision))) {
               $ret = $this->Co->CoPerson->EmailAddress->id;
             }
           } else {
@@ -281,7 +282,7 @@ class CoIdentifierAssignment extends AppModel {
             // saves against the same model.
             $this->Co->CoPerson->Identifier->create($identifierData);
             
-            if($this->Co->CoPerson->Identifier->save($identifierData)) {
+            if($this->Co->CoPerson->Identifier->save($identifierData, array('provision' => $provision))) {
               $ret = $this->Co->CoPerson->Identifier->id;
             }
           }
