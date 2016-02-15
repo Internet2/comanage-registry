@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Petition Fields (used to display both petitions and petition-based invitations)
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
@@ -184,6 +184,15 @@
     
     // Print the ones not hidden
     foreach($coea_model as $m => $coe_attributes):
+    
+    // Skip any attributes that were deleted before the creation of this petition.
+    // For multi-component attributes we just look at the first.
+    if(isset($coe_attributes[0]['CoEnrollmentAttribute']['deleted'])
+       && $coe_attributes[0]['CoEnrollmentAttribute']['deleted']
+       && ($coe_attributes[0]['CoEnrollmentAttribute']['modified']
+           < $co_petitions[0]['CoPetition']['created'])) {
+      continue;
+    }
     
     $mvpa = (count($coe_attributes) > 1);
   ?>
