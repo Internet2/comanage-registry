@@ -132,13 +132,15 @@ class Identifier extends AppModel {
     
     if(!empty($identifierAssignments)) {
       // Loop through each identifier and request assignment.
+      $cnt = 0;
       
       foreach($identifierAssignments as $ia) {
         // Assign will throw an error if an identifier of this type already exists.
         
         try {
-          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $coPersonId, $actorCoPersonId, $provision);
+          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $coPersonId, $actorCoPersonId);
           $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = 1;
+          $cnt++;
         }
         catch(OverflowException $e) {
           // An identifier already exists of this type for this CO Person
@@ -147,6 +149,13 @@ class Identifier extends AppModel {
         catch(Exception $e) {
           $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = $e->getMessage();
         }
+      }
+      
+      if($cnt > 0 && $provision) {
+        // At least one identifier was assigned, so fire provisioning
+        
+        $this->CoPerson->Behaviors->load('Provisioner');
+        $this->CoPerson->manualProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonUpdated);
       }
     }
     

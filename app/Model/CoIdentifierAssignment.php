@@ -134,19 +134,19 @@ class CoIdentifierAssignment extends AppModel {
   /**
    * Auto-assign an identifier to a CO Person if one does not already exist.
    * Note: This method is atomic. Multiple concurrent runs will not result in multiple assignments.
+   * Note: This method will not trigger provisioning. Manually trigger provisioning if required.
    *
    * @since  COmanage Registry v0.6
    * @param  Array CoIdentifierAssignment data, as returned by find
    * @param  Integer CO Person ID
    * @param  Integer Actor CO Person ID
    * @return Integer ID of newly created Identifier
-   * @return Boolean Whether or not to run provisioners on save
    * @throws InvalidArgumentException
    * @throws OverflowException (identifier already exists)
    * @throws RuntimeException
    */
   
-  public function assign($coIdentifierAssignment, $coPersonID, $actorCoPersonID, $provision=true) {
+  public function assign($coIdentifierAssignment, $coPersonID, $actorCoPersonID) {
     $ret = null;
     
     // Determine if we are actually assigning an email address instead of an identifier.
@@ -264,7 +264,7 @@ class CoIdentifierAssignment extends AppModel {
             // saves against the same model.
             $this->Co->CoPerson->EmailAddress->create($emailAddressData);
             
-            if($this->Co->CoPerson->EmailAddress->save($emailAddressData, array('provision' => $provision))) {
+            if($this->Co->CoPerson->EmailAddress->save($emailAddressData, array('provision' => false))) {
               $ret = $this->Co->CoPerson->EmailAddress->id;
             }
           } else {
@@ -282,7 +282,7 @@ class CoIdentifierAssignment extends AppModel {
             // saves against the same model.
             $this->Co->CoPerson->Identifier->create($identifierData);
             
-            if($this->Co->CoPerson->Identifier->save($identifierData, array('provision' => $provision))) {
+            if($this->Co->CoPerson->Identifier->save($identifierData, array('provision' => false))) {
               $ret = $this->Co->CoPerson->Identifier->id;
             }
           }
