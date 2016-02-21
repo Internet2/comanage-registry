@@ -192,7 +192,10 @@ class CoPetition extends AppModel {
             $xfield->getRule('content')->allowEmpty = !$xreq;
             
             if($xreq) {
-              $xfield->getRule('content')->message = _txt('er.field.req');
+              // Use model's existing message if there is one
+              if(empty($xfield->getRule('content')->message)) {
+                $xfield->getRule('content')->message = _txt('er.field.req');
+              }
             }
             
             if($model == 'EnrolleeCoPersonRole' && $efAttr['field'] == 'affiliation') {
@@ -2679,7 +2682,10 @@ class CoPetition extends AppModel {
                   $xfield->getRule('content')->allowEmpty = !$xreq;
                   
                   if($xreq) {
-                    $xfield->getRule('content')->message = _txt('er.field.req');
+                    // Use model's existing message if there is one
+                    if(empty($xfield->getRule('content')->message)) {
+                      $xfield->getRule('content')->message = _txt('er.field.req');
+                    }
                   }
                   
                   // Set the actual validation rule to be match the enrollment configuration.
