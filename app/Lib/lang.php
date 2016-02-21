@@ -1368,6 +1368,14 @@ original notification at
   
   // Setup
   
+  'se.already' =>         'Setup appears to have already run',
+  'se.already.override' => 'Override with --force if you know what you are doing',
+  'se.arg.admin.given' => 'Administrator\'s given name',
+  'se.arg.admin.sn' =>    'Administrator\'s family name',
+  'se.arg.admin.user' =>  'Administrator\'s login username',
+  'se.arg.desc' =>        'Execute initial setup',
+  'se.arg.force' =>       'Force setup to run even if security file already exists',
+  'se.arg.pool' =>        'Enable organizational identity pooling',
   'se.cache.done' =>      'Done clearing cache',
   'se.cf.admin.given' =>  'Enter administrator\'s given name',
   'se.cf.admin.sn' =>     'Enter administrator\'s family name',
