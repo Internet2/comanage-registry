@@ -825,9 +825,10 @@ class CoPerson extends AppModel {
       $members = array();
       
       foreach($groupIds as $gid) {
-        // Find the people in the group
+        // Find the Active people in the group
         $args = array();
         $args['conditions']['CoGroupMember.co_group_id'] = $gid;
+        $args['conditions']['CoPerson.status'] = StatusEnum::Active;
         $args['contain']['CoPerson'] = 'PrimaryName';
         
         $members = array_merge($members, $this->CoGroupMember->find('all', $args));

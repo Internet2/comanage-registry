@@ -1170,7 +1170,7 @@
 
                               if($permissions['canvas']) {
                                 print $this->Html->link(_txt('op.edit'),
-                                    array('controller' => 'co_person_roles', 'action' => 'edit', $r['id'], 'co' => $cur_co['Co']['id']),
+                                    array('controller' => 'co_person_roles', 'action' => 'edit', $r['id']),
                                     array('class' => 'editbutton')) . "\n";
                               }
 
@@ -1186,8 +1186,7 @@
                                     array(
                                       'controller' => 'co_person_roles',
                                       'action' => 'delete',
-                                      $r['id'],
-                                      'co' => $cur_co['Co']['id']
+                                      $r['id']
                                     )
                                   ) . '\',\''
                                   . _txt('op.remove') . '\',\''    // dialog confirm button
@@ -1200,7 +1199,7 @@
                               }
                             } elseif($permissions['view']) {
                               print $this->Html->link(_txt('op.view'),
-                                  array('controller' => 'co_person_roles', 'action' => 'view', $r['id'], 'co' => $cur_co['Co']['id']),
+                                  array('controller' => 'co_person_roles', 'action' => 'view', $r['id']),
                                   array('class' => 'viewbutton')) . "\n";
                             }
                             ?>
