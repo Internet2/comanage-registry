@@ -813,6 +813,9 @@ td.order {
 #menu li a {
   display: block;
 }
+.ui-menu-item {
+  border: 1px solid transparent; /* provide space for the hover effect border */
+}
 #advancedSearch {
   clear: both;
 }
