@@ -44,86 +44,89 @@ global $cm_lang, $cm_texts;
 </script>
 
 <div id="coPeopleSearch" class="topSearch">
-  <p><?php print _txt('op.search');?>:</p>
+  <?php
+  print $this->Form->create('CoPerson',array('action'=>'search'));
+  print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+  ?>
   <fieldset>
-    <?php
-    print $this->Form->create('CoPerson',array('action'=>'search'));
-    print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
-    ?>
+    <legend><?php print _txt('op.search');?>:</legend>
+
     <?php
     $args = array();
     $args['label'] = _txt('fd.name.given');
     $args['placeholder'] = _txt('fd.name.given');
+    $args['aria-label'] = _txt('fd.name.given');
     $args['tabindex'] = '1';
 // XXX shouldn't these fields be sanitized?
     $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
     print $this->Form->input('Search.givenName',$args);
-    ?>
-    <?php
+
     $args = array();
     $args['label'] = _txt('fd.name.family');
     $args['placeholder'] = _txt('fd.name.family');
+    $args['aria-label'] = _txt('fd.name.family');
     $args['tabindex'] = '2';
     $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
     print $this->Form->input('Search.familyName',$args);
-    ?>
-    <?php
+
     $args = array();
     $args['label'] = _txt('fd.email_address.mail');
     $args['placeholder'] = _txt('fd.email_address.mail');
+    $args['aria-label'] = _txt('fd.email_address.mail');
     $args['tabindex'] = '3';
     $args['value'] = !empty($this->request->params['named']['Search.mail']) ? $this->request->params['named']['Search.mail'] : '';
     print $this->Form->input('Search.mail', $args);
-    ?>
-    <?php
+
     $args = array();
     $args['label'] = _txt('fd.identifier.identifier');
     $args['placeholder'] = _txt('fd.identifier.identifier');
+    $args['aria-label'] = _txt('fd.identifier.identifier');
     $args['tabindex'] = '4';
     $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
     print $this->Form->input('Search.identifier', $args);
-    ?>
-    <?php
+
     $formParams = array('options' => $vv_statuses,
       'type'    => 'select',
       'empty'   => ' ',
       'label'   => _txt('fd.status'),
+      'aria-label'   => _txt('fd.status'),
       'empty'   => _txt('fd.status') . ' ' . _txt('op.select.empty'),
       'onchange' => 'this.form.submit()',
       'tabindex' => '5',
       'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
 
     print $this->Form->input('Search.status', $formParams);
-    ?>
-    <?php if(!empty($vv_cous)): ?>
-    <?php
+
+    if (!empty($vv_cous)) {
       $formParams = array('options' => $vv_cous,
-        'type'    => 'select',
-        'empty'   => ' ',
-        'label'   => _txt('fd.cou'),
-        'empty'   => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
+        'type' => 'select',
+        'empty' => ' ',
+        'label' => _txt('fd.cou'),
+        'aria-label' => _txt('fd.cou'),
+        'empty' => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
         'onchange' => 'this.form.submit()',
         'tabindex' => '6',
-        'value'   => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
+        'value' => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
 
       print $this->Form->input('Search.couid', $formParams);
+    }
     ?>
-    <?php endif; // cous ?>
 
     <div class="topSearchSubmit">
       <?php
       $args = array();
       $args['type'] = 'button';
       $args['class'] = 'clearButton spin';
+      $args['aria-label'] = _txt('op.clear.all');
       $args['onclick'] = 'clearSearch(this.form)';
       $args['tabindex'] = '8';
       print $this->Form->button(_txt('op.clear.all'),$args);
       $args = array();
       $args['tabindex'] = '7';
+      $args['aria-label'] = _txt('op.search');
       print $this->Form->submit(_txt('op.search'),$args);
       ?>
     </div>
-
-    <?php print $this->Form->end();?>
   </fieldset>
+  <?php print $this->Form->end();?>
 </div>

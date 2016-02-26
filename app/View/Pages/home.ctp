@@ -78,7 +78,7 @@
     // Render some text according to the user's current state
     if(!empty($userInfo['cos'])) {
       // Valid user
-      print '<h2>' . _txt('op.home.select', array(_txt('coordinate'))) . '</h2>';
+      print '<h1>' . _txt('op.home.select', array(_txt('coordinate'))) . '</h1>';
 
       // Load the list of COs
       if($menuContent['cos']) {
@@ -87,11 +87,9 @@
         $cos = array();
       }
 
-      print '<table id="fpCoList" class="ui-widget">';
+      print '<table id="fpCoList" class="ui-widget" summary="' . _txt('op.home.collabs.summary') . '">';
+      print '<caption>' . _txt('op.home.collabs') . '</caption>';
       print '<thead>';
-      print '  <tr class="tblTitle">';
-      print '    <th colspan="2">' . _txt('op.home.collabs') . '</th>';
-      print '  </tr>';
       print '  <tr class="ui-widget-header">';
       print '    <th>' . _txt('fd.name') . '</th>';
       print '    <th>' . _txt('fd.desc') . '</th>';
