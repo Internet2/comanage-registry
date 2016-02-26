@@ -85,6 +85,19 @@ class CoTermsAndConditionsController extends StandardController {
             $this->Session->write('Auth.User.tandc.pending.' . $this->cur_co['Co']['id'], $pending);
           } else {
             $this->Session->delete('Auth.User.tandc.pending.' . $this->cur_co['Co']['id']);
+            
+            if(!empty($this->request->params['named']['mode'])
+               && $this->request->params['named']['mode'] == 'login') {
+              // We're done with the required T&C at login, so redirect to dashboard
+              
+              $args = array(
+                'controller' => 'co_dashboards',
+                'action'     => 'dashboard',
+                'co'         => $this->cur_co['Co']['id']
+              );
+              
+              $this->redirect($args);
+            }
           }
         }
         

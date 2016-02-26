@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Language File
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -154,6 +154,7 @@ $cm_texts['en_US'] = array(
   'ef.step.finalize'                 => 'Finalize',
   'ef.step.petitionerAttributes'     => 'Collect Petitioner Attributes',
   'ef.step.processConfirmation'      => 'Confirm Email Address',
+  'ef.step.provision'                => 'Provision',
   'ef.step.redirectOnConfirm'        => 'Process Confirmation',
   'ef.step.selectEnrollee'           => 'Select Person',
   'ef.step.sendApprovalNotification' => 'Approval Notification',
@@ -843,7 +844,7 @@ original notification at
   'fd.ef.eds.hide' => 'IdPs to hide from the EDS',
   'fd.ef.eds.hide.desc' => 'List of entity IDs representing IdPs that should not be offered via the EDS, one per line',
   'fd.ef.eds.prefer' => 'IdPs to prefer for the EDS',
-  'fd.ef.eds.prefer.desc' => 'List of entity Ids to always show ("prefer") via the EDS, one per line',
+  'fd.ef.eds.prefer.desc' => 'List of entity Ids to always show ("prefer") via the EDS, one per line, maximum of 3',
   'fd.ef.efn'      => 'From Address For Notifications',
   'fd.ef.efn.desc' => 'Email address notifications will come from',
   'fd.ef.env'      => 'Enable Environment Attribute Retrieval',
@@ -1367,6 +1368,14 @@ original notification at
   
   // Setup
   
+  'se.already' =>         'Setup appears to have already run',
+  'se.already.override' => 'Override with --force if you know what you are doing',
+  'se.arg.admin.given' => 'Administrator\'s given name',
+  'se.arg.admin.sn' =>    'Administrator\'s family name',
+  'se.arg.admin.user' =>  'Administrator\'s login username',
+  'se.arg.desc' =>        'Execute initial setup',
+  'se.arg.force' =>       'Force setup to run even if security file already exists',
+  'se.arg.pool' =>        'Enable organizational identity pooling',
   'se.cache.done' =>      'Done clearing cache',
   'se.cf.admin.given' =>  'Enter administrator\'s given name',
   'se.cf.admin.sn' =>     'Enter administrator\'s family name',

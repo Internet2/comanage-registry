@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Notification Index View
  *
- * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.5
@@ -36,9 +36,25 @@
   if(!empty($this->request->query['status'])) {
     $curstatus = Sanitize::paranoid($this->request->query['status']);
   }
+  
+  // Construct an action URL, trying to preserve sort direction
+  $sorttype = "created";
+  $sortdir = "desc";
+  
+  if(!empty($this->request->query['sort'])) {
+    $sorttype = Sanitize::paranoid($this->request->query['sort']);
+  }
+  
+  if(!empty($this->request->query['direction'])) {
+    $sortdir = Sanitize::paranoid($this->request->query['direction']);
+  }
+  
+  $furl = "/registry/co_notifications/index/sort:" . $sorttype
+        . "/direction:" . $sortdir
+        . "/" . $vv_request_type . ":" . $vv_co_person_id;
 ?>
 
-<form method="get" id="notificationStatus" action="/registry/co_notifications/index/<?php print $vv_request_type; ?>:<?php print $vv_co_person_id; ?>">
+<form method="get" id="notificationStatus" action="<?php print $furl; ?>">
   <span class="select-name"><?php print _txt('op.filter.status'); ?></span>
   <select name="status" onchange="this.form.submit();">
     <option value=""><?php print _txt('fd.unresolved'); ?></option>

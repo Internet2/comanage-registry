@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Model
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -402,6 +402,9 @@ class CoEnrollmentFlow extends AppModel {
     // Optional: Step is not configured, but plugins may elect to execute
     // NotPermitted: Step is not configured and plugins may not run
     
+    // The order of the steps in the array will be the order used to generate the
+    // steps in the sidebar (enrollmentFlowSteps.ctp)
+    
     $ret = array();
     
     // If introductory text was specified, it should be rendered.
@@ -500,21 +503,26 @@ class CoEnrollmentFlow extends AppModel {
     $ret['deny']['role'] = EnrollmentRole::Approver;
     $ret['sendApprovalNotification']['role'] = EnrollmentRole::Approver;
     
-    // Finalize always runs
+    // Provision and Finalize always run, though by whom varies
     
     $ret['finalize']['enabled'] = RequiredEnum::Required;
+    $ret['provision']['enabled'] = RequiredEnum::Required;
     
     if($ret['sendConfirmation']['enabled'] == RequiredEnum::Required) {
       if($ret['sendApproverNotification']['enabled'] == RequiredEnum::Required) {
         $ret['finalize']['role'] = EnrollmentRole::Approver;
+        $ret['provision']['role'] = EnrollmentRole::Approver;
       } else {
         $ret['finalize']['role'] = EnrollmentRole::Enrollee;
+        $ret['provision']['role'] = EnrollmentRole::Enrollee;
       }
     } else {
       if($ret['sendApproverNotification']['enabled'] == RequiredEnum::Required) {
         $ret['finalize']['role'] = EnrollmentRole::Approver;
+        $ret['provision']['role'] = EnrollmentRole::Approver;
       } else {
         $ret['finalize']['role'] = EnrollmentRole::Petitioner;
+        $ret['provision']['role'] = EnrollmentRole::Petitioner;
       }
     }
     

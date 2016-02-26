@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Provisioner Behavior
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -86,6 +86,11 @@ class ProvisionerBehavior extends ModelBehavior {
    */
   
   public function afterSave(Model $model, $created, $options = array()) {
+    if(isset($options['provision']) && $options['provision'] === false) {
+      // The save requested we skip provisioning
+      return true;
+    }
+    
     $pmodel = null;
     $pdata = null;
     $paction = null;
@@ -533,46 +538,61 @@ class ProvisionerBehavior extends ModelBehavior {
    *
    * @since  COmanage Registry v0.8
    * @param  Model $model Model instance
-   * @param  integer $coProvisioningTargetId CO Provisioning Target to execute
+   * @param  integer $coProvisioningTargetId CO Provisioning Target to execute, or null for all
    * @param  integer $coPersonId CO Person to (re)provision (null if CO Group ID set)
-   * @param  integer $coPersonId CO Group to (re)provision (null if CO Person ID set)
+   * @param  integer $coGroupId CO Group to (re)provision (null if CO Person ID set)
+   * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
    * @return boolean true on success, false on failure
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function manualProvision(Model $model, $coProvisioningTargetId, $coPersonId, $coGroupId=null) {
-    // Find the associated Provisioning Target record
+  public function manualProvision(Model $model, $coProvisioningTargetId=null, $coPersonId, $coGroupId=null,
+                                  $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested) {
+    // First marshall the provisioning data
+    $provisioningData = array();
     
-    $args = array();
-    $args['conditions']['CoProvisioningTarget.id'] = $coProvisioningTargetId;
-    // beforeFilter may have bound all the plugins (depending on how we were called),
-    // so this find will pull the related models as well. However, to reduce the number
-    // of database queries should a large number of plugins be installed, we'll use
-    // containable behavior and make a second call for the plugin we want.
-    $args['contain'] = false;
+    if($coPersonId) {
+      // $model = CoPerson
+      $provisioningData = $this->marshallCoPersonData($model, $coPersonId);
+    } else {
+      // $model = CoGroup
+      $provisioningData = $this->marshallCoGroupData($model, $coGroupId);
+    }
     
-    // Currently, CoPerson and CoGroup are the only model that calls manualProvision, so we know
-    // how to find CoProvisioningTarget
-    $copt = $model->Co->CoProvisioningTarget->find('first', $args);
-    
-    if(!empty($copt)) {
-      try {
-        if($coPersonId) {
-          // $model = CoPerson
-          $provisioningData = $this->marshallCoPersonData($model, $coPersonId);
-          
+    if($coProvisioningTargetId) {
+      // Find the associated Provisioning Target record
+      
+      $args = array();
+      $args['conditions']['CoProvisioningTarget.id'] = $coProvisioningTargetId;
+      // beforeFilter may have bound all the plugins (depending on how we were called),
+      // so this find will pull the related models as well. However, to reduce the number
+      // of database queries should a large number of plugins be installed, we'll use
+      // containable behavior and make a second call for the plugin we want.
+      $args['contain'] = false;
+      
+      // Currently, CoPerson and CoGroup are the only models that calls manualProvision, so we know
+      // how to find CoProvisioningTarget
+      $copt = $model->Co->CoProvisioningTarget->find('first', $args);
+      
+      if(!empty($copt)) {
+        try {
           $this->invokePlugin($copt['CoProvisioningTarget'],
                               $provisioningData,
-                              ProvisioningActionEnum::CoPersonReprovisionRequested);
-        } else {
-          // $model = CoGroup
-          $provisioningData = $this->marshallCoGroupData($model, $coGroupId);
-          
-          $this->invokePlugin($copt['CoProvisioningTarget'],
-                              $provisioningData,
-                              ProvisioningActionEnum::CoGroupReprovisionRequested);
+                              $provisioningAction);
         }
+        catch(InvalidArgumentException $e) {
+          throw new InvalidArgumentException($e->getMessage());
+        }
+        catch(RuntimeException $e) {
+          throw new RuntimeException($e->getMessage());
+        }
+      } else {
+        throw new InvalidArgumentException(_txt('er.copt.unk'));
+      }
+    } else {
+      try {
+        $this->invokePlugins($model, $provisioningData, $provisioningAction);
       }
       catch(InvalidArgumentException $e) {
         throw new InvalidArgumentException($e->getMessage());
@@ -580,8 +600,6 @@ class ProvisionerBehavior extends ModelBehavior {
       catch(RuntimeException $e) {
         throw new RuntimeException($e->getMessage());
       }
-    } else {
-      throw new InvalidArgumentException(_txt('er.copt.unk'));
     }
     
     return true;
