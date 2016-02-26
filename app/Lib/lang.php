@@ -844,7 +844,7 @@ original notification at
   'fd.ef.eds.hide' => 'IdPs to hide from the EDS',
   'fd.ef.eds.hide.desc' => 'List of entity IDs representing IdPs that should not be offered via the EDS, one per line',
   'fd.ef.eds.prefer' => 'IdPs to prefer for the EDS',
-  'fd.ef.eds.prefer.desc' => 'List of entity Ids to always show ("prefer") via the EDS, one per line',
+  'fd.ef.eds.prefer.desc' => 'List of entity Ids to always show ("prefer") via the EDS, one per line, maximum of 3',
   'fd.ef.efn'      => 'From Address For Notifications',
   'fd.ef.efn.desc' => 'Email address notifications will come from',
   'fd.ef.env'      => 'Enable Environment Attribute Retrieval',
