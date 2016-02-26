@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Controller
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -112,6 +112,17 @@ class CoPetitionsController extends StandardController {
   
   // Be very careful before changing the order of these steps, or inserting new ones.
   
+  // Here are the required tasks when adding a new step:
+  // - Figure out the correct ordering of the step and insert it into $nextSteps
+  // - Update CoEnrollmentFlow::configuredSteps()
+  // - Add an appropriate STEP function (eg: approve()), and update isAuthorized()
+  // - Add an appropriate execute_STEP function (eg: execute_approve())
+  // -- Be sure to disable provisioning for each save if the new step runs before provision, see
+  //    https://spaces.internet2.edu/display/COmanage/Provisioning+From+Registry#ProvisioningFromRegistry-AutomaticProvisioning
+  // - Add a language key for 'ef.step.STEP' (eg: 'ef.step.approve')
+  // - Update the documentation at https://spaces.internet2.edu/pages/viewpage.action?pageId=87756108
+  // - Update the diagram at https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Diagram
+  
   protected $nextSteps = array(
     'start'                    => 'selectEnrollee',
     'selectEnrollee'           => 'petitionerAttributes',
@@ -131,7 +142,8 @@ class CoPetitionsController extends StandardController {
     'approve'                  => 'sendApprovalNotification',
     'sendApprovalNotification' => 'finalize',
     'deny'                     => 'finalize',
-    'finalize'                 => 'redirectOnConfirm'
+    'finalize'                 => 'provision',
+    'provision'                => 'redirectOnConfirm'
   );
   
   /**
@@ -707,10 +719,10 @@ class CoPetitionsController extends StandardController {
     
     // If we get here, redirect to the next step
     
-    if($step == 'finalize'
+    if($step == 'provision'
        && $steps['redirectOnConfirm']['enabled'] == RequiredEnum::NotPermitted) {
-      // If we've completed the finalize step, we're done, unless redirectOnConfirm
-      // is set. This is true when there is no approval step
+      // If we've completed the provision step, we're done, unless redirectOnConfirm
+      // is set. This is true when there is no approval step.
       
       $this->Flash->set(_txt('rs.pt.final'), array('key' => 'success'));
       $this->performRedirect();
@@ -907,7 +919,8 @@ class CoPetitionsController extends StandardController {
       // LDAP DN construction), which happens when the CO Person status goes to Active.
       
       $this->CoPetition->assignIdentifiers($id,
-                                           $this->Session->read('Auth.User.co_person_id'));
+                                           $this->Session->read('Auth.User.co_person_id'),
+                                           false);
       
       // This also updates the CO Person/Role to Active
       $this->CoPetition->updateStatus($id,
@@ -969,6 +982,36 @@ class CoPetitionsController extends StandardController {
       // could allow reactivation of a declined enrollment.
       $this->redirect('/');
     }
+  }
+  
+  /**
+   * Execute CO Petition 'provision' step
+   *
+   * @since  COmanage Registry v1.0.1
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_provision($id) {
+    // First pull the current status of the petition
+    
+    $status = $this->CoPetition->field('status', array('CoPetition.id' => $id));
+    
+    if($status == PetitionStatusEnum::Finalized) {
+      // We also need the enrollee
+      $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+      
+      if($coPersonId) {
+        // Get to CoPerson via Co so we don't get confused by 'Enrollee'CoPerson
+        $this->CoPetition->Co->CoPerson->Behaviors->load('Provisioner');
+        $this->CoPetition->Co->CoPerson->manualProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPetitionProvisioned);
+      }
+    }
+    // else petition is declined/denied, no need to fire provisioners
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('provision', $id));
   }
   
   /**
@@ -1426,21 +1469,23 @@ class CoPetitionsController extends StandardController {
       $p['approve'] = $isApprover;
       $p['deny'] = $isApprover;
       $p['sendApprovalNotification'] = $isApprover;
-      // Finalize could be reached by anyone, in theory
-      switch($steps['finalize']['role']) {
-        case EnrollmentRole::Approver:
-          $p['finalize'] = $isApprover;
-          break;
-        case EnrollmentRole::Enrollee:
-          $p['finalize'] = $isEnrollee;
-          break;
-        case EnrollmentRole::Petitioner:
-          $p['finalize'] = $isPetitioner;
-          break;
-        default:
-          // Shouldn't get here...
-          $p['finalize'] = false;
-          break;
+      // Finalize and finalize steps could be reached by anyone, in theory
+      foreach(array('finalize', 'provision') as $xstep) {
+        switch($steps[$xstep]['role']) {
+          case EnrollmentRole::Approver:
+            $p[$xstep] = $isApprover;
+            break;
+          case EnrollmentRole::Enrollee:
+            $p[$xstep] = $isEnrollee;
+            break;
+          case EnrollmentRole::Petitioner:
+            $p[$xstep] = $isPetitioner;
+            break;
+          default:
+            // Shouldn't get here...
+            $p[$xstep] = false;
+            break;
+        }
       }
       if($steps['redirectOnConfirm']['role'] == EnrollmentRole::Enrollee) {
         $p['redirectOnConfirm'] = $isEnrollee;
@@ -1672,6 +1717,17 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Provision following approval of a petition.
+   *
+   * @since  COmanage Registry v1.0.1
+   * @param  Integer Petition ID
+   */
+  
+  public function provision($id) {
+    $this->dispatch('provision', $id);
+  }
+  
+  /**
    * Redirect on confirmation of a CO Petition
    *
    * @since  COmanage Registry v0.9.4
@@ -1705,22 +1761,13 @@ class CoPetitionsController extends StandardController {
       $this->Flash->set(_txt('rs.inv.sent', array($recipient)), array('key' => 'success'));
     }
     
-    // Redirect back to index. We might have gotten here via co_petitions or co_people,
-    // so try to figure out the right place to go back to.
+    // Always redirect to the petition, regardless of how we got here.
     
-    if(strstr($this->request->referer(), 'co_petitions')) {
-      $this->redirect(array(
-        'controller' => 'co_petitions',
-        'action' => 'index',
-        'co' => $this->cur_co['Co']['id']
-      ));
-    } else {
-      $this->redirect(array(
-        'controller' => 'co_people',
-        'action' => 'index',
-        'co' => $this->cur_co['Co']['id']
-      ));
-    }
+    $this->redirect(array(
+      'controller' => 'co_petitions',
+      'action' => 'view',
+      $id
+    ));
   }
   
   /**

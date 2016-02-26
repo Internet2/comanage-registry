@@ -56,7 +56,8 @@
   }
   #menu li,
   #menu li a {
-    display: inline;
+    display: inline-block;
+    width: auto;
   }
   .modelbox table tr > *:first-child {
      min-width: 50px !important;
