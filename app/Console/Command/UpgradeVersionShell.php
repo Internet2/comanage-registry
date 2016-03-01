@@ -41,7 +41,7 @@ class UpgradeVersionShell extends AppShell {
   // 1.1.0-post, 1.2.0-post.
 
   // Make sure to keep this list in order so we can walk the array rather than compare version strings.
-  // If you flag a version as blocking, be sure to document why.
+  // You must specify the 'block' parameter. If you flag a version as blocking, be sure to document why.
   protected $versions = array(
     "0.9.3" => array('block' => false),
     // 0.9.4 blocks because it's the first version to use UpgradeVersionShell.
@@ -49,7 +49,7 @@ class UpgradeVersionShell extends AppShell {
     "0.9.4" => array('block' => true, /* 'pre' => 'pre094', */ 'post' => 'post094'),
     // 1.0.0 blocks because of the introduction of /local
     "1.0.0" => array('block' => true, 'post' => 'post100'),
-    "1.0.1" => array()
+    "1.0.1" => array('block' => false)
   );
   
   public function getOptionParser() {
