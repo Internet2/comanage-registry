@@ -89,6 +89,42 @@
     <field name="modified" type="T" />
   </table>
   
+  <table name="attribute_enumerations">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="attribute" type="C" size="80">
+      <notnull />
+    </field>
+    <!-- "option" is a reserved keyword in MySQL -->
+    <field name="optvalue" type="C" size="128" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="attribute_enumeration_id" type="I">
+      <constraint>REFERENCES cm_attribute_enumerations(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="attribute_enumerations_i1">
+      <col>co_id</col>
+    </index>
+    <index name="attribute_enumerations_i1">
+      <col>co_id</col>
+      <col>attribute</col>
+      <col>status</col>
+    </index>
+    <index name="attribute_enumerations_i2">
+      <col>attribute_enumeration_id</col>
+    </index>
+  </table>
+  
   <table name="org_identities">
     <field name="id" type="I">
       <key />

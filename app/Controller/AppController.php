@@ -320,6 +320,11 @@ class AppController extends Controller {
         }
       }
     }
+    
+    // Update validation rules in case (eg) attribute enumerations are defined
+    $model = $this->modelClass;
+    
+    $this->$model->updateValidationRules(isset($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : null);
   }
 
   /**
@@ -754,6 +759,9 @@ class AppController extends Controller {
     $p['menu']['cos'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
     // Which COUs?
     $p['menu']['admincous'] = $roles['admincous'];
+    
+    // Manage CO level attribute enumerations?
+    $p['menu']['coattrenums'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Manage any CO configuration?
     $p['menu']['coconfig'] = $roles['cmadmin'] || $roles['coadmin'];

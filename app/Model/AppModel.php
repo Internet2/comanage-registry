@@ -770,6 +770,39 @@ class AppModel extends Model {
   }
   
   /**
+   * Update the validation rules for the model based on dynamic configurations.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $coId Current CO ID, if known and applicable
+   * @return Boolean True on success
+   */
+  
+  public function updateValidationRules($coId = null) {
+    $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
+    
+    $enumAttrs = $AttributeEnumeration->supportedAttrs();
+    
+    // Walk through the list of attributes supported for enumeration to see if any
+    // belong to the current model
+    foreach($enumAttrs as $attr => $label) {
+      $a = explode('.', $attr, 2);
+      
+      if($a[0] == $this->name) {
+        // Model is a match. See if there are any defined enums.
+        
+        $enums = $AttributeEnumeration->active($coId, $attr, 'validation');
+        
+        if(!empty($enums)) {
+          // Enumerations defined, update the validation rule
+          $this->validate[ $a[1] ]['content']['rule'] = $enums;
+        }
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Determine if a string is a valid extended type.
    *
    * @since  COmanage Registry v0.6
@@ -876,10 +909,16 @@ class AppModel extends Model {
        && $this->validate[$field]['content']['rule'][0] == 'inList'
        && isset($this->validate[$field]['content']['rule'][1])) {
       // This is the list of valid values for this field. Map these to their
-      // translated names.
+      // translated names. Note as of v1.1.0 there may not be "translated"
+      // names (ie: for attribute enumerations), in which case we just want
+      // the original string.
       
       foreach($this->validate[$field]['content']['rule'][1] as $key) {
-        $ret[$key] = _txt($this->cm_enum_txt[$field], NULL, $key);
+        if(isset($this->cm_enum_txt[$field])) {
+          $ret[$key] = _txt($this->cm_enum_txt[$field], NULL, $key);
+        } else {
+          $ret[$key] = $key;
+        }
       }
     }
     

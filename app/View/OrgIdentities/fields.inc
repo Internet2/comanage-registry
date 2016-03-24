@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -322,6 +322,7 @@ $(function() {
             <td>
               <?php
                 global $cm_lang, $cm_texts;
+                $attrs = array();
                 $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['affiliation'])
                                    ? $org_identities[0]['OrgIdentity']['affiliation']
                                    : "M");
@@ -348,8 +349,37 @@ $(function() {
               <?php print _txt('fd.title'); ?>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('title', array('size' => 60,'class' => 'focusFirst'))
-                             : Sanitize::html($org_identities[0]['OrgIdentity']['title'])); ?>
+              <?php
+                if($e) {
+                  if(!empty($vv_enums_title)) {
+                    // Attribute enumerations defined
+                    
+                    if(!empty($org_identities[0]['OrgIdentity']['title'])
+                       && !array_search($org_identities[0]['OrgIdentity']['title'], $vv_enums_title)) {
+                      print $org_identities[0]['OrgIdentity']['title'];
+                      
+                      print '<div>
+                               <span class="ui-icon ui-icon-info co-info"></span>
+                               <em>' . _txt('er.ae.val.inv') . '</em>
+                             </div>';
+                    }
+                    
+                    $attrs = array();
+                    $attrs['empty'] = true;
+                    
+                    print $this->Form->select('title', $vv_enums_title, $attrs);
+                    
+                    if($this->Form->isFieldError('title')) {
+                      print $this->Form->error('title');
+                    }
+                  } else {
+                    // No attribute enumerations defined
+                    print $this->Form->input('title', array('size' => 60, 'class' => 'focusFirst'));
+                  }
+                } else {
+                  print Sanitize::html($org_identities[0]['OrgIdentity']['title']);
+                }
+              ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -357,8 +387,37 @@ $(function() {
               <?php print _txt('fd.o'); ?>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('o', array('size' => 60))
-                             : Sanitize::html($org_identities[0]['OrgIdentity']['o'])); ?>
+              <?php
+                if($e) {
+                  if(!empty($vv_enums_o)) {
+                    // Attribute enumerations defined
+                    
+                    if(!empty($org_identities[0]['OrgIdentity']['o'])
+                      && !array_search($org_identities[0]['OrgIdentity']['o'], $vv_enums_o)) {
+                      print $org_identities[0]['OrgIdentity']['o'];
+                      
+                      print '<div>
+                               <span class="ui-icon ui-icon-info co-info"></span>
+                               <em>' . _txt('er.ae.val.inv') . '</em>
+                             </div>';
+                    }
+                    
+                    $attrs = array();
+                    $attrs['empty'] = true;
+                    
+                    print $this->Form->select('o', $vv_enums_o, $attrs);
+                    
+                    if($this->Form->isFieldError('o')) {
+                      print $this->Form->error('o');
+                    }
+                  } else {
+                    // No attribute enumerations defined
+                    print $this->Form->input('o', array('size' => 60));
+                  }
+                } else {
+                  print Sanitize::html($org_identities[0]['OrgIdentity']['o']);
+                }
+              ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -366,8 +425,37 @@ $(function() {
               <?php print _txt('fd.ou'); ?>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('ou', array('size' => 60))
-                             : Sanitize::html($org_identities[0]['OrgIdentity']['ou'])); ?>
+              <?php
+                if($e) {
+                  if(!empty($vv_enums_ou)) {
+                    // Attribute enumerations defined
+                    
+                    if(!empty($org_identities[0]['OrgIdentity']['ou'])
+                      && !array_search($org_identities[0]['OrgIdentity']['ou'], $vv_enums_ou)) {
+                      print $org_identities[0]['OrgIdentity']['ou'];
+                      
+                      print '<div>
+                               <span class="ui-icon ui-icon-info co-info"></span>
+                               <em>' . _txt('er.ae.val.inv') . '</em>
+                             </div>';
+                    }
+                    
+                    $attrs = array();
+                    $attrs['empty'] = true;
+                    
+                    print $this->Form->select('ou', $vv_enums_ou, $attrs);
+                    
+                    if($this->Form->isFieldError('ou')) {
+                      print $this->Form->error('ou');
+                    }
+                  } else {
+                    // No attribute enumerations defined
+                    print $this->Form->input('ou', array('size' => 60));
+                  }
+                } else {
+                  print Sanitize::html($org_identities[0]['OrgIdentity']['ou']);
+                }
+              ?>
             </td>
           </tr>
           <tr>
