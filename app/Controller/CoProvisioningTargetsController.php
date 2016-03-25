@@ -307,7 +307,7 @@ class CoProvisioningTargetsController extends StandardController {
       try {
         if($copersonid) {
           $this->CoProvisioningTarget->Co->CoPerson->Behaviors->load('Provisioner');
-          $this->CoProvisioningTarget->Co->CoPerson->manualProvision($id, copersonid, null);
+          $this->CoProvisioningTarget->Co->CoPerson->manualProvision($id, $copersonid, null);
         } else {
           $this->CoProvisioningTarget->Co->CoGroup->Behaviors->load('Provisioner');
           $this->CoProvisioningTarget->Co->CoGroup->manualProvision($id, null, $cogroupid);
