@@ -78,6 +78,14 @@ class CoExpirationPoliciesController extends StandardController {
       $args['order'] = array('CoGroup.name ASC');
       
       $this->set('vv_co_groups', $this->CoExpirationPolicy->Co->CoGroup->find("list", $args));
+      
+      // Provide a list of message templates
+      $args = array();
+      $args['conditions']['co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['status'] = SuspendableStatusEnum::Active;
+      $args['conditions']['context'] = MessageTemplateEnum::ExpirationNotification;
+      $this->set('vv_message_templates',
+                 $this->CoExpirationPolicy->ActNotifyMessageTemplate->find('list', $args));
     }
     
     parent::beforeRender();

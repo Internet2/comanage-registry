@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Configuration Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -121,10 +121,35 @@
   
   function fields_update_gadgets() {
     // Hide or show gadgets according to current state
-    if(document.getElementById('CoEnrollmentFlowNotifyOnApproval').checked) {
-      $("#CoEnrollmentFlowApprovalSubject").closest("tr").show('fade');
-      $("#CoEnrollmentFlowApprovalBody").closest("tr").show('fade');
+    
+    // If a validation template is selected, hide the subject and body fields
+    var vtemplate = document.getElementById('CoEnrollmentFlowVerificationTemplateId').value;
+    
+    if(vtemplate) {
+      $("#CoEnrollmentFlowVerificationSubject").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowVerificationBody").closest("tr").hide('fade');
     } else {
+      $("#CoEnrollmentFlowVerificationSubject").closest("tr").show('fade');
+      $("#CoEnrollmentFlowVerificationBody").closest("tr").show('fade');
+    }
+    
+    // If notify on approval is enabled, show the relevant options
+    
+    if(document.getElementById('CoEnrollmentFlowNotifyOnApproval').checked) {
+      // Hide subject and body if a template is selected
+      var atemplate = document.getElementById('CoEnrollmentFlowApprovalTemplateId').value;
+      
+      $("#CoEnrollmentFlowApprovalTemplateId").closest("tr").show('fade');
+      
+      if(atemplate) {
+        $("#CoEnrollmentFlowApprovalSubject").closest("tr").hide('fade');
+        $("#CoEnrollmentFlowApprovalBody").closest("tr").hide('fade');
+      } else {
+        $("#CoEnrollmentFlowApprovalSubject").closest("tr").show('fade');
+        $("#CoEnrollmentFlowApprovalBody").closest("tr").show('fade');
+      }
+    } else {
+      $("#CoEnrollmentFlowApprovalTemplateId").closest("tr").hide('fade');
       $("#CoEnrollmentFlowApprovalSubject").closest("tr").hide('fade');
       $("#CoEnrollmentFlowApprovalBody").closest("tr").hide('fade');
     }
@@ -335,6 +360,34 @@
     </tr>
     <tr class="line<?php print ($ll % 2); $ll++; ?>">
       <td class="indented">
+        <strong class="fieldTitle"><?php print _txt('fd.ef.vmt'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.vmt.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id']
+                             : null);
+          $attrs['empty'] = true;
+          $attrs['onchange'] = "fields_update_gadgets();";
+          
+          if($e) {
+            print $this->Form->select('verification_template_id',
+                                      $vv_message_templates[MessageTemplateEnum::EnrollmentVerification],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('verification_template_id')) {
+              print $this->Form->error('verification_template_id');
+            }
+          } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])) {
+            print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentVerification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'] ]);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($ll % 2); $ll++; ?>">
+      <td class="indented">
         <strong class="fieldTitle"><?php print _txt('fd.ef.vsub'); ?></strong><br />
         <span class="descr"><?php print _txt('fd.ef.vsub.desc'); ?></span>
       </td>
@@ -444,6 +497,34 @@
                      ? $this->Form->input('notify_on_approval',
                                           array('onChange' => 'fields_update_gadgets();'))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($ll % 2); $ll++; ?>">
+      <td class="indented">
+        <strong class="fieldTitle"><?php print _txt('fd.ef.amt'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.amt.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id']
+                             : null);
+          $attrs['empty'] = true;
+          $attrs['onchange'] = "fields_update_gadgets();";
+          
+          if($e) {
+            print $this->Form->select('approval_template_id',
+                                      $vv_message_templates[MessageTemplateEnum::EnrollmentApproval],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('approval_template_id')) {
+              print $this->Form->error('approval_template_id');
+            }
+          } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])) {
+            print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentApproval][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'] ]);
+          }
+        ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">

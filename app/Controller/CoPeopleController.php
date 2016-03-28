@@ -733,6 +733,10 @@ class CoPeopleController extends StandardController {
       }
     }
     
+    // View notifications where CO person is subject?
+    $p['notifications-subject'] = ($roles['cmadmin']
+                                   || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
     // View petitions?
     $p['petitions'] = ($roles['cmadmin']
                        || ($managed && ($roles['coadmin'] || $roles['couadmin'])));

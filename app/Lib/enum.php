@@ -210,6 +210,13 @@ class LinkLocationEnum
   const topBar  = 'topbar';
 }
 
+class MessageTemplateEnum
+{
+  const EnrollmentApproval     = 'EA';
+  const EnrollmentVerification = 'EV';
+  const ExpirationNotification = 'XN';
+}
+
 class NameEnum
 {
   const Alternate = 'alternate';

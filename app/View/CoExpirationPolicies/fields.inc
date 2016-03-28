@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Expiration Policies Fields
  *
- * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.2
@@ -23,6 +23,27 @@
  */
 ?>
 <script type="text/javascript">
+  <!-- JS specific to these fields -->
+  
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+    
+    // If a notification template is selected, hide the subject and body fields
+    var ntemplate = document.getElementById('CoExpirationPolicyActNotificationTemplateId').value;
+    
+    if(ntemplate) {
+      $("#CoExpirationPolicyActNotificationSubject").closest("tr").hide('fade');
+      $("#CoExpirationPolicyActNotificationBody").closest("tr").hide('fade');
+    } else {
+      $("#CoExpirationPolicyActNotificationSubject").closest("tr").show('fade');
+      $("#CoExpirationPolicyActNotificationBody").closest("tr").show('fade');
+    }
+  }
+  
+  function js_local_onload() {
+    fields_update_gadgets();
+  }  
+  
   $(function() {
     // Turn on Tabs
     var $tabs = $( "#tabs" ).tabs();
@@ -420,6 +441,36 @@
             <?php print ($e ? $this->Form->input('act_notify_co_person')
                             : ($co_expiration_policies[0]['CoExpirationPolicy']['act_notify_co_person']
                                ? _txt('fd.yes') : _txt('fd.no'))); ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <td>
+            <strong class="fieldTitle"><?php print _txt('fd.xp.nmt'); ?></strong><br />
+            <span class="descr"><?php print _txt('fd.xp.nmt.desc'); ?></span>
+          </td>
+          <td>
+            <?php
+              $attrs = array();
+              $attrs['value'] = (!empty($co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'])
+                                 ? $co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id']
+                                 : 0);
+              $attrs['empty'] = true;
+              $attrs['onchange'] = "fields_update_gadgets();";
+              
+              if($e) {
+                print $this->Form->select('act_notification_template_id',
+                                          $vv_message_templates,
+                                          $attrs);
+                
+                if($this->Form->isFieldError('act_notification_template_id')) {
+                  print $this->Form->error('act_notification_template_id');
+                }
+              } else {
+                if(!empty($co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'])) {
+                  print Sanitize::html($vv_message_templates[ $co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'] ]);
+                }
+              }
+            ?>
           </td>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">

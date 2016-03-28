@@ -796,6 +796,9 @@ class AppController extends Controller {
     
     // Manage CO Localizations
     $p['menu']['colocalizations'] = $roles['cmadmin'] || $roles['coadmin'];
+    
+    // Manage CO Message Templates
+    $p['menu']['comessagetemplates'] = $roles['cmadmin'] || $roles['coadmin'];
   
     // Manage CO Links?
     $p['menu']['conavigationlinks'] = $roles['cmadmin'] || $roles['coadmin'];

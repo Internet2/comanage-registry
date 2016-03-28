@@ -189,6 +189,19 @@
         );
       }
       
+      // View Notifications (where person is subject)
+      if($permissions['notifications-subject']) {
+        $sidebarButtons[] = array(
+          'icon'    => 'mail-closed',
+          'title'   => _txt('ct.co_notifications.pl'),
+          'url'     => array(
+            'controller' => 'co_notifications',
+            'action' => 'index',
+            'subjectcopersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
+      
       // View Petitions
       if($permissions['petitions']) {
         $sidebarButtons[] = array(

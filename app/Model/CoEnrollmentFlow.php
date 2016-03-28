@@ -53,6 +53,15 @@ class CoEnrollmentFlow extends AppModel {
     "CoEnrollmentFlowNotificationCoGroup" => array(
       'className' => 'CoGroup',
       'foreignKey' => 'notification_co_group_id'
+    ),
+    "CoEnrollmentFlowApprovalMessageTemplate" => array(
+      'className' => 'CoMessageTemplate',
+      'foreignKey' => 'approval_template_id'
+    ),
+    "CoEnrollmentFlowVerMessageTemplate" => array(
+      // "Verification" makes the label too long
+      'className' => 'CoMessageTemplate',
+      'foreignKey' => 'verification_template_id'
     )
   );
   

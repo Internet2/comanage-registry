@@ -441,6 +441,38 @@
     </index>
   </table>
   
+  <table name="co_message_templates">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256">
+      <notnull />
+    </field>
+    <field name="context" type="C" size="2" />
+    <field name="cc" type="C" size="256" />
+    <field name="bcc" type="C" size="256" />
+    <field name="message_subject" type="C" size="256" />
+    <field name="message_body" type="X" size="4000" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_message_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_message_templates_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
   <table name="co_invites">
     <field name="id" type="I">
       <key />
@@ -688,6 +720,10 @@
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
     <field name="act_notify_co_person" type="L" />
+    <field name="act_notification_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
+    <!-- _subject and _body are deprecated (CO-1213) -->
     <field name="act_notification_subject" type="C" size="256" />
     <field name="act_notification_body" type="X" size="4000" />
     <field name="act_status" type="C" size="2" />
@@ -847,11 +883,19 @@
     </field>
     <field name="status" type="C" size="2" />
     <field name="notify_from" type="C" size="256" />
+    <!-- _subject and _body are deprecated (CO-1213) -->
     <field name="verification_subject" type="C" size="256" />
     <field name="verification_body" type="X" size="4000" />
+    <field name="verification_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
     <field name="notify_on_approval" type="L" />
+    <!-- _subject and _body are deprecated (CO-1213) -->
     <field name="approval_subject" type="C" size="256" />
     <field name="approval_body" type="X" size="4000" />
+    <field name="approval_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
     <field name="introduction_text" type="X" size="4000" />
     <field name="conclusion_text" type="X" size="4000" />
     <field name="t_and_c_mode" type="C" size="2" />

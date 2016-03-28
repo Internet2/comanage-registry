@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Notification Model
  *
- * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.4
@@ -499,6 +499,8 @@ class CoNotification extends AppModel {
    * @param  String  $fromAddress       Email Address to send the invite from (if null, use default)
    * @param  String  $subjectTemplate   Subject template for notification email (if null, default subject is sent)
    * @param  String  $bodyTemplate      Body template for notification email (if null, default body using $comment and $source is sent)
+   * @param  String  $cc                Comma separated list of addresses to cc
+   * @param  String  $bcc               Comma separated list of addresses to bcc
    * @return Array CO Notification ID(s)
    * @throws InvalidArgumentException
    * @throws RuntimeException
@@ -515,7 +517,9 @@ class CoNotification extends AppModel {
                            $mustResolve=false,
                            $fromAddress=null,
                            $subjectTemplate=null,
-                           $bodyTemplate=null) {
+                           $bodyTemplate=null,
+                           $cc=null,
+                           $bcc=null) {
     // Create the notification. Perhaps this should be embedded in a transaction.
     
     $n = array();
@@ -543,6 +547,8 @@ class CoNotification extends AppModel {
       $args = array();
       $args['conditions']['RecipientCoPerson.id'] = $recipientId;
       $args['contain'][] = 'EmailAddress';
+      // We'll use an org identity address if there is no CO Person address
+      $args['contain']['CoOrgIdentityLink']['OrgIdentity'][] = 'EmailAddress';
       
       $recipients[] = $this->RecipientCoPerson->find('first', $args);
     } elseif($recipientType == 'cogroup') {
@@ -598,7 +604,9 @@ class CoNotification extends AppModel {
                                $mustResolve,
                                $fromAddress,
                                $subjectTemplate,
-                               $bodyTemplate);
+                               $bodyTemplate,
+                               $cc,
+                               $bcc);
           
           // We get an array back but it should only have one entry
           $ids[] = $r[0];
@@ -680,7 +688,13 @@ class CoNotification extends AppModel {
           // Which email address do we use? for now, the first one (same as in processResolution())
           // (ultimately we probably want the first address of type delivery)
           $toaddr = $recipient['EmailAddress'][0]['mail'];
-          
+        } elseif(!empty($recipient['CoOrgIdentityLink'][0]['OrgIdentity']['EmailAddress'][0]['mail'])) {
+          // If we don't have a CO Person email address, we'll try one attached to an Org Identity
+          // (useful for initial enrollment approval notification)
+          $toaddr = $recipient['CoOrgIdentityLink'][0]['OrgIdentity']['EmailAddress'][0]['mail'];
+        }
+        
+        if($toaddr) {
           try {
             // Send email will update the record with the subject and body it constructs
             $this->sendEmail($notificationId,
@@ -692,7 +706,9 @@ class CoNotification extends AppModel {
                              $sourceurl,
                              null,
                              $fromAddress,
-                             false);
+                             false,
+                             $cc,
+                             $bcc);
           }
           catch(Exception $e) {
             throw new RuntimeException($e->getMessage());
@@ -832,6 +848,8 @@ class CoNotification extends AppModel {
    * @param  String  $actorName         Human readable name of Actor, for template substitution
    * @param  String  $fromAddress       Email Address to send the invite from (if null, use default)
    * @param  Boolean $resolution        If true, store a copy of the subject and email as the resolution message for the specified CO Notification (otherwise store as notification)
+   * @param  String  $cc                Comma separated list of addresses to cc
+   * @param  String  $bcc               Comma separated list of addresses to bcc
    * @throws RuntimeException
    */
   
@@ -844,7 +862,9 @@ class CoNotification extends AppModel {
                                $sourceUrl,
                                $actorName=null,
                                $fromAddress=null,
-                               $resolution=false) {
+                               $resolution=false,
+                               $cc=null,
+                               $bcc=null) {
     // Create the message subject and body based on the templates.
     
     $msgBody = "";
@@ -880,6 +900,15 @@ class CoNotification extends AppModel {
       
       if($fromAddress) {
         $email->from($fromAddress);
+      }
+      
+      // Add cc and bcc if specified
+      if($cc) {
+        $email->cc(explode(',', $cc));
+      }
+      
+      if($bcc) {
+        $email->bcc(explode(',', $bcc));
       }
       
       $email->emailFormat('text')

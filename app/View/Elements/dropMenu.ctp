@@ -341,6 +341,18 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           print "</li>";
         }
 
+        if (isset($permissions['menu']['comessagetemplates']) && $permissions['menu']['comessagetemplates']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_message_templates';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+
+          print $this->Html->link(_txt('ct.co_message_templates.pl'), $args);
+          print "</li>";
+        }
+
         if (isset($permissions['menu']['conavigationlinks']) && $permissions['menu']['conavigationlinks']) {
           print "<li>";
           $args = array();

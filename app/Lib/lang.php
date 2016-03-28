@@ -87,6 +87,8 @@ $cm_texts['en_US'] = array(
   'ct.co_invites.1' =>          'Invite',
   'ct.co_localizations.1' =>    'Localization',
   'ct.co_localizations.pl' =>   'Localizations',
+  'ct.co_message_templates.1' => 'Message Template',
+  'ct.co_message_templates.pl' => 'Message Templates',
   'ct.co_navigation_links.1' => 'CO Navigation Link',
   'ct.co_navigation_links.pl' => 'CO Navigation Links',
   'ct.co_notifications.1' =>    'Notification',
@@ -442,6 +444,11 @@ original notification at
     'ur'      => 'Urdu (اُردُو)'
   ),
 
+  // Message Template Contexts
+  'en.mt.context' =>       array(MessageTemplateEnum::EnrollmentApproval     => 'Enrollment Flow Approval',
+                                 MessageTemplateEnum::EnrollmentVerification => 'Enrollment Flow Verification',
+                                 MessageTemplateEnum::ExpirationNotification => 'Expiration Policy Notification'),
+  
   // Extended type, key must be en.model.attribute
   'en.name.type' =>        array(NameEnum::Alternate => 'Alternate',
                                  NameEnum::Author => 'Author',
@@ -778,6 +785,10 @@ original notification at
   'fd.attrs.copr' =>  'Role Attributes',
   'fd.attrs.org' =>   'Organizational Attributes',
   'fd.attrs.pet' =>   'Petition Attributes',
+  'fd.bcc' =>         'BCC',
+  'fd.bcc.desc' =>    'Comma separated list of valid email addresses to bcc',
+  'fd.cc' =>          'CC',
+  'fd.cc.desc' =>     'Comma separated list of valid email addresses to cc',
   'fd.changelog' =>   'Change Log',
   'fd.closed' =>      'Closed',
   // The next set must be named fd.model.validation-field
@@ -826,6 +837,8 @@ original notification at
   'fd.ef.aee.desc' => 'If administrator enrollment is enabled, require enrollees to confirm their email address in order to complete their enrollment',
   'fd.ef.abody' =>    'Approval Email Body',
   'fd.ef.abody.desc' => 'Body for email message sent after Petition is approved. Max 4000 characters.',
+  'fd.ef.amt' =>      'Approval Email Message Template',
+  'fd.ef.amt.desc' => 'Message template used for email sent as part of approval step',
   'fd.ef.asub' =>     'Subject For Approval Email',
   'fd.ef.asub.desc' => 'Subject line for email message sent after Petition is approved.',
   'fd.ef.appr' =>     'Require Approval For Enrollment',
@@ -893,6 +906,8 @@ original notification at
   'fd.ef.tandc.desc' => 'How to handle Terms and Conditions at enrollment, if any are defined. See <a href="https://spaces.internet2.edu/display/COmanage/Registry+Terms+and+Conditions">Terms and Conditions</a>',
   'fd.ef.vbody' =>    'Verification Email Body',
   'fd.ef.vbody.desc' => 'Body for email message sent as part of verification step. Max 4000 characters.',
+  'fd.ef.vmt' =>      'Verification Email Message Template',
+  'fd.ef.vmt.desc' => 'Message template used for email sent as part of verification step',
   'fd.ef.vsub' =>     'Subject For Verification Email',
   'fd.ef.vsub.desc' => 'Subject line for email message sent as part of verification step.',
   // (End enrollment configuration fields)
@@ -967,6 +982,11 @@ original notification at
   'fd.model' =>       'Model',
   'fd.modified' =>    'Modified',
   'fd.modified.tz' => 'Modified (%1$s)',
+  'fd.mt.body' =>     'Message Body',
+  'fd.mt.body.desc' => 'Body for message to be sent. Max 4000 characters, see <a href="https://spaces.internet2.edu/x/pAADAw">supported substitutions</a>.',
+  'fd.mt.context' =>  'Message Context',
+  'fd.mt.sub' =>      'Message Subject',
+  'fd.mt.sub.desc' => 'Subject line for message to be sent. See <a href="https://spaces.internet2.edu/x/pAADAw">supported substitutions</a>.',
   'fd.name' =>        'Name',
   'fd.name.affil'  => 'Name and Affiliation',
   'fd.name.d' =>      'Display Name',
@@ -1103,6 +1123,8 @@ original notification at
   'fd.xp.notify_coperson.act.desc' => 'The CO Person whose Role is affected will be notified when this Expiration Policy is applied',
   'fd.xp.nbody' =>    'Notification Email Body',
   'fd.xp.nbody.desc' => 'Body for email message sent for notification (max 4000 characters)',
+  'fd.xp.nmt' =>      'Notification Email Message Template',
+  'fd.xp.nmt.desc' => 'Message template used for email sent for notification',
   'fd.xp.nsubject' => 'Notification Email Subject',
   'fd.xp.nsubject.desc' => 'Subject for email message sent for notification',
   'fd.xp.sponsor.cond' => 'Invalid Sponsor',
