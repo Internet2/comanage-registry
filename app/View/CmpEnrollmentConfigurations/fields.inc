@@ -147,7 +147,7 @@
 <?php if(0): ?>
         <tr class="line1">
           <td>
-            <b><?php print _txt('fd.ef.ldap'); ?></b><br />
+            <strong class="fieldTitle"><?php print _txt('fd.ef.ldap'); ?></strong><br />
             <span class="descr"><?php print _txt('fd.ef.ldap.desc'); ?></span>
           </td>
           <td>
@@ -170,41 +170,55 @@
 <?php endif; ?>
         <tr class="line1">
           <td>
-            <b><?php print _txt('fd.ef.env'); ?></b><br />
+            <strong class="fieldTitle"><?php print _txt('fd.ef.env'); ?></strong><br />
             <span class="descr"><?php print _txt('fd.ef.env.desc'); ?></span>
           </td>
           <td>
             <?php print ($e
                          ? $this->Form->input('attrs_from_env', array('onClick' => 'fields_update_gadgets()'))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_env'])); ?>
+                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_env']));
+              if($e) {
+                print $this->Form->label('attrs_from_env', _txt('op.enable'));
+              }
+            ?>
           </td>
         </tr>
         <tr class="line2">
           <td>
-            <b><?php print _txt('fd.ef.coef'); ?></b><br />
+            <strong class="fieldTitle"><?php print _txt('fd.ef.coef'); ?></strong><br />
             <span class="descr"><?php print _txt('fd.ef.coef.desc'); ?></span>
           </td>
           <td>
             <?php print ($e
                          ? $this->Form->input('attrs_from_coef', array('onClick' => 'fields_update_gadgets()'))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_coef'])); ?>
+                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_coef']));
+              if($e) {
+                print $this->Form->label('attrs_from_coef', _txt('op.enable'));
+              }
+            ?>
           </td>
         </tr>
         <tr class="line1">
           <td>
-            <b><?php print _txt('fd.ef.pool'); ?></b><br />
+            <strong class="fieldTitle"><?php print _txt('fd.ef.pool'); ?></strong><br />
             <span class="descr"><?php print _txt('fd.ef.pool.desc'); ?></span>
           </td>
           <td>
             <?php print ($e
                          ? $this->Form->input('pool_org_identities', array('onClick' => 'confirm_pool_state_swap()',
                                                                            'disabled' => true))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['pool_org_identities'])); ?>
+                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['pool_org_identities']));
+              if($e) {
+                print $this->Form->label('pool_org_identities', _txt('op.pool'));
+              }
+            ?>
           </td>
         </tr>
         <tr class="line2">
           <td>
-            <b><?php print _txt('fd.ef.eds.help'); ?></b><br />
+            <?php print ($e
+              ? $this->Form->label('eds_help_url',_txt('fd.ef.eds.help'),array('class'=>'fieldTitle'))
+              : print '<strong class="fieldTitle">' . _txt('fd.ef.eds.help') . '</strong>'); ?><br/>
             <span class="descr"><?php print _txt('fd.ef.eds.help.desc'); ?></span>
           </td>
           <td>
@@ -215,7 +229,9 @@
         </tr>
         <tr class="line1">
           <td>
-            <b><?php print _txt('fd.ef.eds.prefer'); ?></b><br />
+            <?php print ($e
+              ? $this->Form->label('eds_preferred_idps',_txt('fd.ef.eds.prefer'),array('class'=>'fieldTitle'))
+              : print '<strong class="fieldTitle">' . _txt('fd.ef.eds.prefer') . '</strong>'); ?><br />
             <span class="descr"><?php print _txt('fd.ef.eds.prefer.desc'); ?></span>
           </td>
           <td>
@@ -226,7 +242,9 @@
         </tr>
         <tr class="line2">
           <td>
-            <b><?php print _txt('fd.ef.eds.hide'); ?></b><br />
+            <?php print ($e
+              ? $this->Form->label('eds_hidden_idps',_txt('fd.ef.eds.hide'),array('class'=>'fieldTitle'))
+              : print '<strong class="fieldTitle">' . _txt('fd.ef.eds.hide') . '</strong>'); ?><br />
             <span class="descr"><?php print _txt('fd.ef.eds.hide.desc'); ?></span>
           </td>
           <td>
@@ -255,27 +273,33 @@
           -->
         </tr>
         <?php foreach (array_keys($vv_availableAttributes) as $attr): ?>
-        <?php
-          $xprefix = 'CmpEnrollmentAttribute.' . $xindex;
-          $xindex++;
-          
-          print $this->Form->hidden($xprefix . '.cmp_enrollment_configuration_id',
-                                    array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'])));
-          print $this->Form->hidden($xprefix . '.attribute',
-                                    array('value' => $attr));
-          
-          if(!empty($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['type'])) {
-            print $this->Form->hidden($xprefix . '.type',
-                                      array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['type'])));
-          }
-          
-          if(isset($currentAttributes[$attr]['id'])) {
-            print $this->Form->hidden($xprefix . '.id',
-                                      array('value' => $currentAttributes[$attr]['id']));
-          }
-        ?>
         <tr class="line<?php print ($l % 2); $l++; ?>">
-          <td><?php print $vv_availableAttributes[$attr]['label']; ?></td>
+          <td>
+            <?php
+            $xprefix = 'CmpEnrollmentAttribute.' . $xindex;
+            $xindex++;
+
+            print $this->Form->hidden($xprefix . '.cmp_enrollment_configuration_id',
+              array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'])));
+            print $this->Form->hidden($xprefix . '.attribute',
+              array('value' => $attr));
+
+            if(!empty($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['type'])) {
+              print $this->Form->hidden($xprefix . '.type',
+                array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['type'])));
+            }
+
+            if(isset($currentAttributes[$attr]['id'])) {
+              print $this->Form->hidden($xprefix . '.id',
+                array('value' => $currentAttributes[$attr]['id']));
+            }
+            ?>
+            <?php
+              print ($e
+              ? $this->Form->label($xprefix . '.env_name', $vv_availableAttributes[$attr]['label'])
+              : $vv_availableAttributes[$attr]['label']);
+            ?>
+          </td>
           <td>
             <?php
               global $cm_lang, $cm_texts;
@@ -286,6 +310,7 @@
               $attrs['empty'] = false;
               
               if($e) {
+                print $this->Form->label($xprefix.'.required',_txt('fd.required') . ': ');
                 print $this->Form->select($xprefix.'.required',
                                           $cm_texts[ $cm_lang ]['en.required'],
                                           $attrs);

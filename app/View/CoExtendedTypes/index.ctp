@@ -73,12 +73,13 @@
 ?>
 <!-- Selector for which Extended Type to manage -->
 <form method="get" action="/registry/co_extended_types/index/co:<?php print $cur_co['Co']['id'] ?>">
-  <span class="select-name"><?php print _txt('fd.et.forattr'); ?></span>
-  <select name="attr" onchange="this.form.submit();">
+  <label class="select-name" for="attr"><?php print _txt('fd.et.forattr'); ?></label>
+  <select name="attr" id="attr" onchange="this.form.submit();">
     <?php foreach($vv_supported_attrs as $a => $label): ?>
     <option value="<?php print $a; ?>"<?php if($attr == $a) print " selected"; ?>><?php print $label; ?></option>
     <?php endforeach; ?>
   </select>
+  <input type="submit" value="<?php print _txt('op.filter')?>"/>
 </form>
 <br />
 

@@ -45,6 +45,9 @@ body {
 .invisible {
   display: none;
 }
+.fieldTitle {
+  font-weight: bold;
+}
 
 /* Text */
 .descr {
@@ -1315,8 +1318,6 @@ body.co_petitions .deny-button:hover {
 }
 /* Pagination */
 #pagination {
-  border-left: 1px solid white;
-  border-right: 1px solid white;
   margin: 0;
   min-height: 1.25em;
   padding: 0.5em;

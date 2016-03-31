@@ -121,7 +121,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
             ) . "\n";
         }
         if($permissions['delete']) {
-          print '<button type="button spin" class="deletebutton" title="' . _txt('op.delete')
+          print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
             . '" onclick="javascript:js_confirm_generic(\''
             . _txt('js.remove') . '\',\''    // dialog body text
             . $this->Html->url(              // dialog confirm URL

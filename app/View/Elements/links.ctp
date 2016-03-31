@@ -24,6 +24,7 @@
  */
 ?>
 
+<?php if(isset($vv_NavLinks) || isset($vv_CoNavLinks)): ?>
 <div id="links">
   <ul>
     <?php
@@ -43,4 +44,4 @@
     ?>
   </ul>
 </div>
-
+<?php endif; ?>

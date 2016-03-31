@@ -53,7 +53,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.name'); ?><span class="required">*</span>
+        <?php print $this->Form->label('name',_txt('fd.name')); ?><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cous[0]['Cou']['name'])); ?>
@@ -61,7 +61,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.desc'); ?>
+        <?php print $this->Form->label('description',_txt('fd.desc')); ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description') : Sanitize::html($cous[0]['Cou']['description'])); ?>
@@ -69,7 +69,15 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.parent'); ?>
+        <?php
+        if($e) {
+          if (!empty($this->viewVars['parent_options'] )) {
+            print $this->Form->label('parent_id', _txt('fd.parent'));
+          } else {
+            print _txt('fd.parent');
+          }
+        }
+        ?>
       </td>
       <td>
         <?php

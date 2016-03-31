@@ -87,12 +87,12 @@
         $cos = array();
       }
 
-      print '<table id="fpCoList" class="ui-widget" summary="' . _txt('op.home.collabs.summary') . '">';
+      print '<table id="fpCoList" class="ui-widget">';
       print '<caption>' . _txt('op.home.collabs') . '</caption>';
       print '<thead>';
       print '  <tr class="ui-widget-header">';
-      print '    <th>' . _txt('fd.name') . '</th>';
-      print '    <th>' . _txt('fd.desc') . '</th>';
+      print '    <th scope="col">' . _txt('fd.name') . '</th>';
+      print '    <th scope="col">' . _txt('fd.desc') . '</th>';
       print '  </tr>';
       print '</thead>';
 
@@ -142,7 +142,7 @@
       print '</table>';
     } elseif(!$userInfo) {
       // Please login
-      print '<h2 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h2>';
+      print '<h1 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h1>';
     }
   ?>
 </div>

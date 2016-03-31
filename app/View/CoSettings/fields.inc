@@ -76,6 +76,7 @@
                      : (isset($co_settings[0]['CoSetting']['disable_expiration'])
                         && $co_settings[0]['CoSetting']['disable_expiration']
                         ? _txt('fd.yes') : _txt('fd.no')));
+              print ' ' . $this->Form->label('disable_expiration',_txt('fd.xp.disable'));
         ?>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -88,6 +89,7 @@
                      : (isset($co_settings[0]['CoSetting']['enable_normalization'])
                         && $co_settings[0]['CoSetting']['enable_normalization']
                         ? _txt('fd.yes') : _txt('fd.no')));
+              print ' ' . $this->Form->label('enable_normalization',_txt('fd.nr.enable'));
         ?>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -100,11 +102,12 @@
                      : (isset($co_settings[0]['CoSetting']['enable_nsf_demo'])
                         && $co_settings[0]['CoSetting']['enable_nsf_demo']
                         ? _txt('fd.yes') : _txt('fd.no')));
+              print ' ' . $this->Form->label('enable_nsf_demo',_txt('fd.de.enable'));
         ?>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.invval'); ?></strong><br />
+        <?php print $this->Form->label('invitation_validity',_txt('fd.ef.invval'),array('class' => 'fieldTitle'));?><br />
         <span class="descr"><?php print _txt('fd.ef.invval.desc'); ?></span>
       </td>
       <td>
@@ -116,7 +119,7 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.required.addr'); ?></strong>
+        <?php print $this->Form->label('required_fields_addr',_txt('fd.required.addr'),array('class' => 'fieldTitle'));?><br />
       </td>
       <td>
         <?php
@@ -144,7 +147,7 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.required.name'); ?></strong>
+        <?php print $this->Form->label('required_fields_name',_txt('fd.required.name'),array('class' => 'fieldTitle'));?>
       </td>
       <td>
         <?php
@@ -172,7 +175,7 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.permitted.name'); ?></strong>
+        <?php print $this->Form->label('permitted_fields_name',_txt('fd.permitted.name'),array('class' => 'fieldTitle'));?>
       </td>
       <td>
         <?php
@@ -200,7 +203,7 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.tc.mode.login'); ?></strong><br />
+        <?php print $this->Form->label('t_and_c_login_mode',_txt('fd.tc.mode.login'),array('class' => 'fieldTitle'));?><br />
         <span class="descr"><?php print _txt('fd.tc.mode.login.desc'); ?></span>
       </td>
       <td>
@@ -229,7 +232,7 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.sponsor.mode'); ?></strong><br />
+        <?php print $this->Form->label('sponsor_eligibility',_txt('fd.sponsor.mode'),array('class' => 'fieldTitle'));?><br />
         <span class="descr"><?php print _txt('fd.sponsor.mode.desc'); ?></span>
       </td>
       <td>
@@ -256,6 +259,7 @@
           }
         ?>
         <div id="sponsorgroupdiv" style="display:none">
+          <?php print $this->Form->label('sponsor_co_group_id',_txt('ct.co_groups.1'));?>
           <?php
             if(!empty($vv_co_groups)) {
               $attrs = array();

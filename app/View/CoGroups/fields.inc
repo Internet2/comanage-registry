@@ -72,7 +72,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.name'); ?><span class="required">*</span>
+        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_groups[0]['CoGroup']['name'])); ?>
@@ -80,7 +80,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.desc'); ?>
+        <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_groups[0]['CoGroup']['description'])); ?>
@@ -92,11 +92,16 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php
+          if ($e) {
+            print $this->Form->label('open',_txt('fd.open'));
+          }
+        ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.status'); ?>
+        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
       </td>
       <td>
         <?php

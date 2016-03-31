@@ -344,7 +344,7 @@
         <?php endif; // invite+permission ?>
 
         <a href="#tabs-name" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+          <span class="ui-icon ui-icon-circlesmall-minus"></span>
           <?php print _txt('fd.name'); ?>
         </a>
 
@@ -610,78 +610,76 @@
                   print ' class="additionalinfo"';
                 print '>';
                 ?>
+                <?php if($this->action == "compare"): ?>
                 <table>
                   <tbody>
-                  <?php if($this->action == "compare"): ?>
                     <tr>
                       <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
                       <?php if($e && !$es): ?>
                         <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                       <?php endif; ?>
                     </tr>
-                  <?php endif; ?>
-
-                  <?php
-                  $l = 1;
-                  if($e && !$es)
-                  {
-                    if(isset($co_people[0]['Identifier']))
-                    {
-                      foreach($co_people[0]['Identifier'] as $id)
-                      {
-                        print '<div>';
-                        print '<div>';
-                        print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
-                        print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
-                        print '</div>';
-                        print '<div>';
-                        // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                        print '<a class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
-                            array(
-                              'controller' => 'identifiers',
-                              'action' => 'delete', $id['id'],
-                              'co' => $cur_co['Co']['id']
-                            )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</a>';
-                        print $this->Html->link(_txt('op.edit'),
-                          array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
-                          array('class' => 'editbutton'));
-                        print '</div>';
-                        print '</div>';
-                      }
-                    }
-                  }
-                  else
-                  {
-                    if(isset($co_people[0]['Identifier']))
-                    {
-                      foreach($co_people[0]['Identifier'] as $id)
-                      {
-
-                        print '<tr class="line';
-                        print ($l % 2);
-                        print '">';
-                        $l++;
-                        print '<td>';
-                        print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
-                        print '</td>';
-                        print '</tr>';
-                      }
-                    }
-                  }
-                  ?>
                   </tbody>
                 </table>
+                <?php endif; ?>
+
+                <?php
+                $l = 1;
+                if($e && !$es)
+                {
+                  if(isset($co_people[0]['Identifier']))
+                  {
+                    foreach($co_people[0]['Identifier'] as $id)
+                    {
+                      print '<div class="identifier-container">';
+                      print '<div class="action-buttons">';
+                      print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
+                      print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
+                      print '</div> <!-- action-buttons -->';
+                      print '<div class="identifier">';
+                      // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                      print '<a class="deletebutton" title="' . _txt('op.delete')
+                        . '" onclick="javascript:js_confirm_generic(\''
+                        . _txt('js.remove') . '\',\''    // dialog body text
+                        . $this->Html->url(              // dialog confirm URL
+                          array(
+                            'controller' => 'identifiers',
+                            'action' => 'delete', $id['id'],
+                            'co' => $cur_co['Co']['id']
+                          )
+                        ) . '\',\''
+                        . _txt('op.remove') . '\',\''    // dialog confirm button
+                        . _txt('op.cancel') . '\',\''    // dialog cancel button
+                        . _txt('op.remove') . '\',[\''   // dialog title
+                        . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                        . '\']);">'
+                        . _txt('op.delete')
+                        . '</a>';
+                      print $this->Html->link(_txt('op.edit'),
+                        array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
+                        array('class' => 'editbutton'));
+                      print '</div> <!-- identifier -->';
+                      print '</div> <!-- identifier-container -->';
+                    }
+                  }
+                }
+                else
+                {
+                  if(isset($co_people[0]['Identifier']))
+                  {
+                    foreach($co_people[0]['Identifier'] as $id)
+                    {
+
+                      print '<div class="line';
+                      print ($l % 2);
+                      print '">';
+                      $l++;
+                      print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
+                      print '</div>';
+                    }
+                  }
+                }
+                ?>
               </div>
               <?php if($this->action == "compare"): ?>
                 <div>
@@ -937,10 +935,10 @@
         </li>
         <li id="fields-coperson" class="fieldGroup">
           <?php
-            print $this->Form->end();
+            //print $this->Form->end();
             // Restart the form since the Form elements emitted above for add/invite cause blackholes for edit
-            print $this->Form->create('CoPerson', array('action'=>'edit'));
-            print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'])). "\n";
+            //print $this->Form->create('CoPerson', array('action'=>'edit','id'=>'CoPersonEditAttributesForm'));
+            print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
           ?>
           <a href="#tabs-coperson" class="fieldGroupName">
             <span class="ui-icon ui-icon-circlesmall-minus"></span>
@@ -965,6 +963,7 @@
                             $attrs = array();
                             $attrs['value'] = $co_people[0]['CoPerson']['status'];
                             $attrs['empty'] = false;
+                            $attrs['id'] = 'CoPersonStatusAgain';
                             
                             print $this->Form->select('CoPerson.status',
                                                       $cm_texts[ $cm_lang ]['en.status'],
@@ -1409,8 +1408,8 @@
         </li>
       <?php endif; ?>
     </ul>
-  </div>
-</div>
+  </div> <!-- personExplorer -->
+</div> <!-- explorerContainer -->
 
 <div id="autogenerate-dialog" title="<?php print _txt('op.id.auto'); ?>">
   <?php print _txt('op.id.auto.confirm'); ?>

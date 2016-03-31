@@ -44,7 +44,7 @@
 
 ?>
 
-<table id="api_users" class="ui-widget" summary="<?php print $title_for_layout; ?>">
+<table id="api_users" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('username', _txt('fd.username.api')); ?></th>

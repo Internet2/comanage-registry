@@ -39,7 +39,7 @@
     <title><?php print _txt('coordinate') . ': ' . $title_for_layout; ?></title>
     <?php print $this->Html->charset(); ?>
     <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Include the comanage and jquery style sheets -->
     <?php
@@ -102,14 +102,14 @@
 
   <body class="<?php print $this->params->controller . ' ' . $this->params->action ?>"
         onload="js_onload_call_hooks()">
-    <nav id="row1" role="navigation" aria-label="user and platform menus">
+    <nav id="row1" aria-label="user and platform menus">
       <div class="contentWidth">
         <?php print $this->element('secondaryMenu'); ?>
         <?php print $this->element('links'); ?>
       </div>
     </nav>
 
-    <header id="row2" class="ui-widget-header" role="banner">
+    <header id="row2" class="ui-widget-header">
       <div class="contentWidth">
 
         <div class="headerRight">
@@ -148,14 +148,14 @@
     </header>
 
     <?php if($this->Session->check('Auth.User')): ?>
-      <nav id="row3" role="navigation" aria-label="main menu">
+      <nav id="row3" aria-label="main menu">
         <div class="contentWidth">
           <?php print $this->element('dropMenu'); ?>
         </div>
       </nav>
     <?php endif ?>
 
-    <main id="main" class="contentWidth" role="main">
+    <main id="main" class="contentWidth">
       <?php
         // insert the sidebar buttons if they exist
         $sidebarButtons = $this->get('sidebarButtons');
@@ -179,7 +179,7 @@
         // insert breadcrumbs on all but the homepage if logged in
         if($this->Session->check('Auth.User')) {
           if ($this->request->here != $this->request->webroot) {
-            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', _txt('bc.home')) . "</div>";
+            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
           }
         }
 
@@ -203,7 +203,7 @@
       </div>
     <?php endif; ?>
 
-    <footer class="contentWidth" role="contentinfo">
+    <footer class="contentWidth">
       <?php print $this->element('footer'); ?>
     </footer>
 

@@ -135,7 +135,7 @@ $(function() {
     </ul>
 
     <div id="tabs-name" class="ui-helper-clearfix additionalinfo">
-      <table id="<?php print $this->action; ?>_org_identity" class="ui-widget">
+      <table id="<?php print $this->action; ?>_org_identity_names" class="ui-widget">
         <tbody>
           <?php $l = 1; ?>
           <?php if($this->action == 'add'): ?>
@@ -242,7 +242,7 @@ $(function() {
                                     'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
                                     'co'            => ($pool_org_identities ? false : $cur_co['Co']['id']));
                 $linkparams = array('class'  => 'addbutton');
-                
+
                 print $this->Html->link(_txt('op.add'),
                                         $linktarget,
                                         $linkparams);
@@ -263,7 +263,7 @@ $(function() {
                 } else {
                   print generateCn($n);
                 }
-                
+
                 print " ("
                       . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
                       . _txt('en.name.type', null, $n['type'])
@@ -302,7 +302,7 @@ $(function() {
                                                   'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])),
                                             array('class' => 'primarybutton')) . "\n";
                   }
-                  
+
                   print $this->Html->link(_txt('op.edit'),
                                           array('controller' => 'names',
                                                 'action' => 'edit',
