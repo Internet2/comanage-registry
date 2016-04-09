@@ -72,8 +72,7 @@
     
     if(confirm) {
       $("#CoEnrollmentFlowInvitationValidity").closest("tr").show('fade');
-      $("#CoEnrollmentFlowVerificationSubject").closest("tr").show('fade');
-      $("#CoEnrollmentFlowVerificationBody").closest("tr").show('fade');
+      fields_update_gadgets();
       $("#CoEnrollmentFlowRequireAuthn").closest("tr").show('fade');
       
       if(authn) {
@@ -83,6 +82,7 @@
       }
     } else {
       $("#CoEnrollmentFlowInvitationValidity").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowVerificationTemplateId").closest("tr").hide('fade');
       $("#CoEnrollmentFlowVerificationSubject").closest("tr").hide('fade');
       $("#CoEnrollmentFlowVerificationBody").closest("tr").hide('fade');
       $("#CoEnrollmentFlowRequireAuthn").closest("tr").hide('fade');
