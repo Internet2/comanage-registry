@@ -66,27 +66,65 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       'message' => 'Please enter a valid ldap or ldaps URL'
     ),
     'binddn' => array(
-      'rule' => 'notBlank'
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
     ),
     'password' => array(
-      'rule' => 'notBlank'
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
     ),
-    'dnattr' => array(
-      'rule' => 'notBlank'
+    'dn_attribute_name' => array(
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
+    ),
+    'dn_identifier_type' => array(
+      // XXX This should really use a dynamically generated inList
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
     ),
     'basedn' => array(
-      'rule' => 'notBlank'
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
     ),
-    'oc_person' => array(
+    'group_basedn' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'person_ocs' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'group_ocs' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'opt_lang' => array(
       'rule' => 'boolean'
     ),
-    'oc_orgperson' => array(
-      'rule' => 'boolean'
-    ),
-    'oc_inetorgperson' => array(
+    'opt_role' => array(
       'rule' => 'boolean'
     ),
     'oc_eduperson' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_edumember' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_groupofnames' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_posixaccount' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_ldappublickey' => array(
       'rule' => 'boolean'
     )
   );
@@ -518,6 +556,17 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           }
         }
       }
+    }
+    
+    // Add additionally configured objectclasses
+    if($group && !empty($coProvisioningTargetData['CoLdapProvisionerTarget']['group_ocs'])) {
+      $attributes['objectclass'] = array_merge($attributes['objectclass'],
+                                               explode(',', $coProvisioningTargetData['CoLdapProvisionerTarget']['group_ocs']));
+    }
+    
+    if($person && !empty($coProvisioningTargetData['CoLdapProvisionerTarget']['person_ocs'])) {
+      $attributes['objectclass'] = array_merge($attributes['objectclass'],
+                                               explode(',', $coProvisioningTargetData['CoLdapProvisionerTarget']['person_ocs']));
     }
     
     // Make sure the DN values are in the list (check case insensitively, in case
