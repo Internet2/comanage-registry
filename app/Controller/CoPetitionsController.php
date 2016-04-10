@@ -727,6 +727,15 @@ class CoPetitionsController extends StandardController {
       $this->Flash->set(_txt('rs.pt.final'), array('key' => 'success'));
       $this->performRedirect();
     } else {
+      // Firefox has a hardcoded redirect limit (default: 20) that we can actually
+      // run into, especially if there are plugins defined and certain steps are
+      // skipped (such as approval). To work around it, at the end of each step
+      // we'll redirect to the next step using a meta refresh on a page we actually
+      // deliver. As long as the number of plugins is less than the redirect limit,
+      // this should workaround the problem. (If we need to support > ~20 enroller
+      // plugins, we'll need to do this same workaround for all redirects.)
+      // http://kb.mozillazine.org/Network.http.redirection-limit
+      
       $redirect = array(
         'controller' => 'co_petitions',
         'action'     => $this->nextSteps[$step],
@@ -747,7 +756,12 @@ class CoPetitionsController extends StandardController {
         $redirect['token'] = $token;
       }
       
-      $this->redirect($redirect);
+      // Set the redirect target in a view var so the view can generate the redirect
+      $this->set('vv_meta_redirect_target', $redirect);
+      $this->set('vv_next_step', _txt('ef.step.' . $this->nextSteps[$step]));
+      
+      $this->layout = 'redirect';
+      $this->render('nextStep');
     }
   }
   
@@ -1411,7 +1425,7 @@ class CoPetitionsController extends StandardController {
     
     // Search all existing CO Petitions?
     $p['search'] = $p['index'];
-
+    
     // Resend invitations?
     $p['resend'] = ($roles['cmadmin']
                     || $roles['coadmin']
@@ -1496,6 +1510,17 @@ class CoPetitionsController extends StandardController {
     
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * Continue on to the next step of a petition.
+   *
+   * @since  COmanage Registry v1.0.3
+   */
+
+  protected function nextStep() {
+    // This is not actually called. dispatch() will render the next_step view
+    // when starting a new step... no need to explicitly route via this action.
   }
   
   /**
