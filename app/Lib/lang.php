@@ -1480,16 +1480,21 @@ function _bootstrap_plugin_txt()
   $plugins = App::objects('plugin');
   
   foreach($plugins as $plugin) {
-    $langfile = APP. '/Plugin/' . $plugin . '/Lib/lang.php';
-    
-    if(is_readable($langfile)) {
-      // Include the file
-      include $langfile;
+    // Plugin lang files could be under APP or LOCAL
+    foreach(array(APP, LOCAL) as $dir) {
+      $langfile = $dir . '/Plugin/' . $plugin . '/Lib/lang.php';
       
-      // And merge its texts for the current language
-      $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
-      
-      $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
+      if(is_readable($langfile)) {
+        // Include the file
+        include $langfile;
+        
+        // And merge its texts for the current language
+        $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
+        
+        $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
+        
+        break;
+      }
     }
   }
 }
