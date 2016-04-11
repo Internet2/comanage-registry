@@ -2,7 +2,7 @@
 /**
  * COmanage Cache Shell
  *
- * Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
@@ -28,9 +28,26 @@
       // Clear caches to account for any changes made to models/controllers that Cake
       // doesn't automagically pick up. (See CO-442.)
       
-      clearCache(null, 'models');
-      clearCache(null, 'persistent');
-      clearCache(null, 'views');
+      // Before we start, make sure debugging is set to 2. We do this for two reasons:
+      // (1) That level also clears out caches
+      // (2) At level 0, errors clearing the cache may not reported
+      // (We don't need to set it back to whatever it was before since we'll exit quickly.)
+      Configure::write('debug', 2);
+      
+      foreach(array('models', 'persistent', 'views') as $type) {
+        // There's no point in checking the return code since clearCache returns false
+        // if the cache is already empty.
+        clearCache(null, $type);
+        
+        // Check if the cache is in fact empty
+        $cacheDir = CACHE . $type . DS;
+        
+        $files = glob($cacheDir . '*');
+        
+        if(!empty($files)) {
+          $this->out(_txt('er.sh.cache', array($cacheDir)));
+        }
+      }
       
       $this->out(_txt('se.cache.done'));
     }

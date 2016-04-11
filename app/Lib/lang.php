@@ -727,6 +727,7 @@ original notification at
   'er.reply.unk' =>   'Unknown Reply',
   'er.setting' =>     'Invalid Setting',
   'er.setting.gr' =>  'Invalid Setting: No group specified',
+  'er.sh.cache' =>    'WARNING: Cache directory %1$s NOT empty, you may need to manually clear it',
   'er.ssh.format' =>  'File does not appear to be a valid ssh public key',
   'er.ssh.private' => 'Uploaded file appears to be a private key',
   'er.ssh.rfc4716' => 'RFC4716 format public keys are not currently supported',
