@@ -504,6 +504,7 @@ class ProvisionerBehavior extends ModelBehavior {
     } else {
       throw new RuntimeException(_txt('er.co.specify'));
     }
+    $args['order'] = array('CoProvisioningTarget.ordr ASC');
     $args['contain'] = false;
     
     $targets = $model->Co->CoProvisioningTarget->find('all', $args);
