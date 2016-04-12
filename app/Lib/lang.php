@@ -737,6 +737,7 @@ original notification at
   'er.reply.unk' =>   'Unknown Reply',
   'er.setting' =>     'Invalid Setting',
   'er.setting.gr' =>  'Invalid Setting: No group specified',
+  'er.sh.cache' =>    'WARNING: Cache directory %1$s NOT empty, you may need to manually clear it',
   'er.ssh.format' =>  'File does not appear to be a valid ssh public key',
   'er.ssh.private' => 'Uploaded file appears to be a private key',
   'er.ssh.rfc4716' => 'RFC4716 format public keys are not currently supported',
@@ -1013,6 +1014,8 @@ original notification at
   'fd.null' =>        'Null',
   'fd.o' =>           'Organization',
   'fd.open' =>        'Open',
+  'fd.order' =>       'Order',
+  'fd.order.prov.desc' => 'The order in which this provisioner will be run when automatic provisioning occurs (leave blank to run after all current provisioners)',
   'fd.organization_id' => 'Organization ID',
   'fd.ou' =>          'Department',
   'fd.parent' =>      'Parent COU',
@@ -1263,8 +1266,10 @@ original notification at
   'op.petition.create' => 'Create Petition',
   'op.petition.dupe' => 'Flag Petition as Duplicate',
   'op.petition.dupe.confirm' => 'Are you sure you wish to flag this petition as a duplicate?',
+  'op.petition.nextstep' => 'Initiating %1$s step, please wait...',
   'op.previous' =>    'Previous',
   'op.primary' =>     'Make Primary',
+  'op.processing' =>  'Processing request, please wait...',
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',
   'op.prov' =>        'Provision',
   'op.prov.all' =>    'Reprovision All',
@@ -1283,7 +1288,7 @@ original notification at
   'op.relink.select' => 'Please select the CO Person you would like to move the Organizational Identity "%1$s" (%2$s) to by clicking the associated relink button.',
   'op.remove' =>      'Remove',
   'op.reorder' =>     'Reorder',
-  'op.reorder-a' =>     'Reorder %1$s',
+  'op.reorder-a' =>   'Reorder %1$s',
   'op.reset' =>       'Reset Form',
   'op.restore.ef' =>  'Add/Restore Default Templates',
   'op.restore.types' => 'Add/Restore Default Types',
@@ -1507,16 +1512,21 @@ function _bootstrap_plugin_txt()
   $plugins = App::objects('plugin');
   
   foreach($plugins as $plugin) {
-    $langfile = APP. '/Plugin/' . $plugin . '/Lib/lang.php';
-    
-    if(is_readable($langfile)) {
-      // Include the file
-      include $langfile;
+    // Plugin lang files could be under APP or LOCAL
+    foreach(array(APP, LOCAL) as $dir) {
+      $langfile = $dir . '/Plugin/' . $plugin . '/Lib/lang.php';
       
-      // And merge its texts for the current language
-      $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
-      
-      $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
+      if(is_readable($langfile)) {
+        // Include the file
+        include $langfile;
+        
+        // And merge its texts for the current language
+        $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
+        
+        $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
+        
+        break;
+      }
     }
   }
 }

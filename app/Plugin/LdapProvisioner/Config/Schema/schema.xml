@@ -5,7 +5,7 @@
   Version: $Revision$
   Date: $Date$
 
-  Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
    
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
   the License. You may obtain a copy of the License at
@@ -37,6 +37,8 @@
     <field name="dn_attribute_name" type="C" size="32" />
     <field name="dn_identifier_type" type="C" size="32" />
     <field name="group_basedn" type="C" size="128" />
+    <field name="person_ocs" type="C" size="256" />
+    <field name="group_ocs" type="C" size="256" />
     <field name="opt_lang" type="L" />
     <field name="opt_role" type="L" />
     <field name="oc_eduperson" type="L" />
