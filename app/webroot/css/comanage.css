@@ -1108,6 +1108,22 @@ body.co_petitions .deny-button:hover {
 #enrollmentFlowSteps li.stopped .ui-icon {
   background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_cd0a0a_256x240.png");
 }
+
+/* Redirect Page */
+#redirect-box {
+  position: relative;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  margin: 4em auto;
+  padding: 2em;
+  text-align: center;
+  width: 320px;
+}
+#redirect-spinner {
+  padding: 1em 1em 2em;
+  position: relative;
+}
+
 /* Petition Attributes */
 .modelbox {
   border: 1px solid #8DBBDD;

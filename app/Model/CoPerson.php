@@ -195,7 +195,7 @@ class CoPerson extends AppModel {
    * @return none
    */
   
-  public function afterSave($created, $options) {
+  public function afterSave($created, $options = array()) {
     // Manage CO person membership in the CO members group.
       
     // Since the Provisioner Behavior will only provision group memberships

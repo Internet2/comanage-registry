@@ -61,11 +61,24 @@
           $schemaFile = APP . '/Config/Schema/schema.xml';
           
           if($schemaSource != ".") {
-            // Use the Plugin schema file instead.
-            $schemaFile = APP . '/Plugin/' . $schemaSource . '/Config/Schema/schema.xml';
+            // This is a plugin, look for a schema file
+            $found = false;
             
+            // Plugins can be under either APP or LOCAL
+            foreach(array(APP, LOCAL) as $dir) {
+              // Check to see if the file exists/is readable
+              $schemaFile = $dir . '/Plugin/' . $schemaSource . '/Config/Schema/schema.xml';
+              
+              if(is_readable($schemaFile)) {
+                $found = true;
+                break;
+              }
+            }
+            
+            // No schema file fonud
             // See if the file exists. If it doesn't, there's no schema to load.
-            if(!is_readable($schemaFile)) {
+            if(!$found) {
+              print "No schema found for " . $schemaSource . "\n";
               continue;
             }
           }
