@@ -32,7 +32,7 @@ class CoProvisioningTargetsController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'description' => 'asc'
+      'ordr' => 'asc'
     )
   );
   
@@ -210,6 +210,9 @@ class CoProvisioningTargetsController extends StandardController {
     // View all existing CO Provisioning Targets?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Edit an existing CO Provisioning Target's order?
+    $p['order'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']
                        || $roles['coadmin'] 
@@ -218,11 +221,33 @@ class CoProvisioningTargetsController extends StandardController {
     // (Re)provision all CO People?
     $p['provisionall'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Modify ordering for display via AJAX 
+    $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
     // View an existing CO Provisioning Target?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v1.0.3
+   * @return Integer The CO ID if found, or -1 if not
+   */
+  
+  public function parseCOID() {
+    if($this->action == 'order'
+       || $this->action == 'reorder') {
+      if(isset($this->request->params['named']['co'])) {
+        return $this->request->params['named']['co'];
+      }
+    }
+    
+    return parent::parseCOID();
   }
   
   /**
@@ -310,7 +335,7 @@ class CoProvisioningTargetsController extends StandardController {
           $this->CoProvisioningTarget->Co->CoPerson->manualProvision($id, $copersonid, null);
         } else {
           $this->CoProvisioningTarget->Co->CoGroup->Behaviors->load('Provisioner');
-          $this->CoProvisioningTarget->Co->CoGroup->manualProvision($id, null, $cogroupid);
+          $this->CoProvisioningTarget->Co->CoGroup->manualProvision($id, null, $cogroupid, ProvisioningActionEnum::CoGroupReprovisionRequested);
         }
       }
       catch(InvalidArgumentException $e) {

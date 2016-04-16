@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Provisioning Target Index View
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -45,6 +45,21 @@
     );
   }
 
+  if($permissions['order']) {
+    // Reorder button
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.reorder-a', array(_txt('ct.co_provisioning_targets.pl'))),
+      array(
+        'controller' => 'co_provisioning_targets',
+        'action'     => 'order',
+        'co' => $cur_co['Co']['id'],
+        'direction'  => 'asc',
+        'sort'       => 'ordr'
+      ),
+      array('class' => 'movebutton')
+    );
+  }
+  
   print $this->element("pageTitleAndButtons", $params);
 
 ?>
@@ -223,6 +238,7 @@
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
       <th><?php print $this->Paginator->sort('plugin', _txt('fd.plugin')); ?></th>
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+      <th><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
@@ -254,6 +270,7 @@
       <td>
         <?php print _txt('en.status.prov', null, $c['CoProvisioningTarget']['status']); ?>
       </td>
+      <td><?php print $c['CoProvisioningTarget']['ordr']; ?></td>
       <td>
         <?php
           if($permissions['edit']) {
@@ -320,7 +337,7 @@
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="4">
+      <th colspan="5">
         <?php print $this->element("pagination"); ?>
       </th>
     </tr>
