@@ -853,7 +853,7 @@ class CoPeopleController extends StandardController {
     $pagcond = array();
     
     // Set page title
-    $this->set('title_for_layout', _txt('ct.co_people.se'));
+    $this->set('title_for_layout', _txt('fd.co_people.search'));
 
     // Use server side pagination
     

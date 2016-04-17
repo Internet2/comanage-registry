@@ -30,7 +30,8 @@ global $cm_lang, $cm_texts;
 <script type="text/javascript">
   $(function() {
     $( "#advancedSearch" ).accordion({
-      collapsible: true
+      collapsible: true,
+      header: "div.accHeader"
     });
     // Collapse search accordian on small devices (on page load)
     if (window.innerWidth < 992) {
@@ -49,11 +50,11 @@ global $cm_lang, $cm_texts;
 </script>
 
 <div id="advancedSearch">
-  <h3><?php print _txt('ct.co_people.se');?></h3>
+  <div class="accHeader"><?php print _txt('fd.co_people.search');?></div>
   <div>
     <?php 
       print $this->Form->create('CoPerson',array('action'=>'search'));
-      print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+      print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'],'id'=>'SearchCoPersonCoId')). "\n";
     ?>
     <table>
       <tr>

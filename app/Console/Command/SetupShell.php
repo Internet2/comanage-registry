@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Setup Shell
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -36,17 +36,90 @@
                       'Meta',
                       'OrgIdentity');
     
-    function main()
-    {
-      // Prepare a new installation. Since there's a decent chance the user will
-      // ctrl-c before we get started, prompt for info first.
+    public function getOptionParser() {
+      $parser = parent::getOptionParser();
       
-      $gn = $this->in(_txt('se.cf.admin.given'));
-      $sn = $this->in(_txt('se.cf.admin.sn'));
-      $user = $this->in(_txt('se.cf.admin.user'));
-      $pooling = $this->in(_txt('se.cf.pool'),
-                           array(_txt('fd.yes'), _txt('fd.no')),
-                           _txt('fd.no'));
+      $parser->addOption(
+        'force',
+        array(
+          'short' => 'f',
+          'help' => _txt('se.arg.force'),
+          'boolean' => true,
+        )
+      )->addOption(
+        'admin-given-name',
+        array(
+          'help' => _txt('se.arg.admin.given')
+        )
+      )->addOption(
+        'admin-family-name',
+        array(
+          'help' => _txt('se.arg.admin.sn')
+        )
+      )->addOption(
+        'admin-username',
+        array(
+          'help' => _txt('se.arg.admin.user')
+        )
+      )->addOption(
+        'enable-pooling',
+        array(
+          'help' => _txt('se.arg.pool')
+        )
+      )->description(_txt('se.arg.desc'));
+      
+      return $parser;
+    }
+    
+    function main() {
+      // As of v1.0.1, by default we will abort if the security salt file
+      // already exists. This will facilitate packaging of COmanage.
+      
+      $securitySaltFilename = LOCAL . DS . "Config" . DS . "security.salt";
+      
+      if(file_exists($securitySaltFilename)) {
+        $this->out("- " . _txt('se.already'));
+        
+        if(!isset($this->params['force']) || !$this->params['force']) {
+          $this->out("- " . _txt('se.already.override'));
+          exit;
+        }
+      }
+      
+      // Prepare a new installation. Since there's a decent chance the user will
+      // ctrl-c before we get started, prompt for info first (or check to see
+      // if it was provided).
+      
+      $gn = "";
+      $sn = "";
+      $user = "";
+      $pooling = false;
+      
+      if(!empty($this->params['admin-given-name'])) {
+        $gn = $this->params['admin-given-name'];
+      } else {
+        $gn = $this->in(_txt('se.cf.admin.given'));        
+      }
+      
+      if(!empty($this->params['admin-family-name'])) {
+        $sn = $this->params['admin-family-name'];
+      } else {
+        $sn = $this->in(_txt('se.cf.admin.sn'));        
+      }
+      
+      if(!empty($this->params['admin-username'])) {
+        $user = $this->params['admin-username'];
+      } else {
+        $user = $this->in(_txt('se.cf.admin.user'));        
+      }
+      
+      if(!empty($this->params['enable-pooling'])) {
+        $pooling = $this->params['enable-pooling'];
+      } else {
+        $pooling = $this->in(_txt('se.cf.pool'),
+                             array(_txt('fd.yes'), _txt('fd.no')),
+                             _txt('fd.no'));
+      }
       
       // Since we'll be doing some direct DB manipulation, find the table prefix
       $prefix = "";
@@ -250,8 +323,6 @@ WHERE i.login=true;
       $this->Meta->setUpgradeVersion($targetVersion, true);
       
       // Generate security salt and seed files if they don't already exist
-      
-      $securitySaltFilename = LOCAL . DS . "Config" . DS . "security.salt";
       
       if(file_exists($securitySaltFilename)) {
         $this->out("- " . _txt('se.security.salt.exists'));

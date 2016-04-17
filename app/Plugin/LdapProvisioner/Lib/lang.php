@@ -2,7 +2,7 @@
 /**
  * COmanage Registry LDAP Provisioner Plugin Language File
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
@@ -59,9 +59,13 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'pl.ldapprovisioner.dntype'         => 'People DN Identifier Type',
   'pl.ldapprovisioner.dntype.desc'    => 'When constructing People DNs, use the value associated with this identifier type as the value for the unique component<br />(If multiple values are available for the attribute, the value selected is non-deterministic)',
   'pl.ldapprovisioner.fd.useorgval'   => 'Use value from Organizational Identity',
+  'pl.ldapprovisioner.group_ocs'      => 'Additional Group Object Classes',
+  'pl.ldapprovisioner.group_ocs.desc' => 'Additional externally managed object classes (comma separated) to define for the group record, see <a href="https://spaces.internet2.edu/x/ygYwAg">documentation</a>',
   'pl.ldapprovisioner.info'           => 'The LDAP server must be available and the specified credentials must be valid before this configuration can be saved.',
   'pl.ldapprovisioner.password'       => 'Password',
   'pl.ldapprovisioner.password.desc'  => 'Password to use for authentication',
+  'pl.ldapprovisioner.person_ocs'     => 'Additional Person Object Classes',
+  'pl.ldapprovisioner.person_ocs.desc' => 'Additional externally managed object classes (comma separated) to define for the person record, see <a href="https://spaces.internet2.edu/x/ygYwAg">documentation</a>',
   'pl.ldapprovisioner.oc.enable'      => 'Enable <font style="font-family:monospace">%1$s</font> objectclass',
   'pl.ldapprovisioner.opts'           => 'Attribute Options',
   'pl.ldapprovisioner.opts.desc'      => 'XXX link to documentation',

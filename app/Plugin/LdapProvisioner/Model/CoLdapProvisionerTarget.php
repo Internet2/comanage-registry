@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO LDAP Provisioner Target Model
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
@@ -66,27 +66,65 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       'message' => 'Please enter a valid ldap or ldaps URL'
     ),
     'binddn' => array(
-      'rule' => 'notBlank'
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
     ),
     'password' => array(
-      'rule' => 'notBlank'
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
     ),
-    'dnattr' => array(
-      'rule' => 'notBlank'
+    'dn_attribute_name' => array(
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
+    ),
+    'dn_identifier_type' => array(
+      // XXX This should really use a dynamically generated inList
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
     ),
     'basedn' => array(
-      'rule' => 'notBlank'
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
     ),
-    'oc_person' => array(
+    'group_basedn' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'person_ocs' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'group_ocs' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'opt_lang' => array(
       'rule' => 'boolean'
     ),
-    'oc_orgperson' => array(
-      'rule' => 'boolean'
-    ),
-    'oc_inetorgperson' => array(
+    'opt_role' => array(
       'rule' => 'boolean'
     ),
     'oc_eduperson' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_edumember' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_groupofnames' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_posixaccount' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_ldappublickey' => array(
       'rule' => 'boolean'
     )
   );
@@ -520,6 +558,17 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
     }
     
+    // Add additionally configured objectclasses
+    if($group && !empty($coProvisioningTargetData['CoLdapProvisionerTarget']['group_ocs'])) {
+      $attributes['objectclass'] = array_merge($attributes['objectclass'],
+                                               explode(',', $coProvisioningTargetData['CoLdapProvisionerTarget']['group_ocs']));
+    }
+    
+    if($person && !empty($coProvisioningTargetData['CoLdapProvisionerTarget']['person_ocs'])) {
+      $attributes['objectclass'] = array_merge($attributes['objectclass'],
+                                               explode(',', $coProvisioningTargetData['CoLdapProvisionerTarget']['person_ocs']));
+    }
+    
     // Make sure the DN values are in the list (check case insensitively, in case
     // the user-entered case used to build the DN doesn't match). First, map the
     // outbound attributes to lowercase.
@@ -619,6 +668,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     switch($op) {
       case ProvisioningActionEnum::CoPersonAdded:
+      case ProvisioningActionEnum::CoPersonPetitionProvisioned:
       case ProvisioningActionEnum::CoPersonUnexpired:
         // Currently, unexpiration is treated the same as add, but that is subject to change
         $assigndn = true;

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Fields
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -72,7 +72,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.name'); ?><span class="required">*</span>
+        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_groups[0]['CoGroup']['name'])); ?>
@@ -80,7 +80,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.desc'); ?>
+        <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_groups[0]['CoGroup']['description'])); ?>
@@ -92,11 +92,16 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php
+          if ($e) {
+            print $this->Form->label('open',_txt('fd.open'));
+          }
+        ?>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.status'); ?>
+        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
       </td>
       <td>
         <?php
@@ -155,7 +160,9 @@
         // Member name
         print '<td>';
         if($permissions['admin']) {
-          print $this->Html->link(generateCn($g['CoPerson']['PrimaryName']),
+          print $this->Html->link((!empty($g['CoPerson']['PrimaryName'])
+                                   ? generateCn($g['CoPerson']['PrimaryName'])
+                                   : "(?)"),
                                   array('controller' => 'co_people',
                                         'action' => 'canvas',
                                         $g['CoPerson']['id']));

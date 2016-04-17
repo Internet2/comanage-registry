@@ -39,7 +39,7 @@
     <div id="platform" class="row1-dropdown">
       <ul class="sf-menu">
         <li class="dropMenu">
-          <a href="#" class="menuTop">
+          <a href="#" class="menuTop" >
             <span class="ui-icon ui-icon-wrench"></span>
             <?php print _txt('me.platform');?>
           </a>

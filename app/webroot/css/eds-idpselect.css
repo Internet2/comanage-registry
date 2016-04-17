@@ -18,6 +18,11 @@
     height:138px; /* Force the height so that the  selector box
                    * goes below when there is only one preslect 
                    */
+    padding-bottom: 10px;
+}
+#idpSelectPreferredIdPTileNoImg
+{
+    height:60px;
 }
 
 /***
@@ -45,6 +50,7 @@ div.IdPSelectPreferredIdPButton a
 div.IdPSelectTextDiv{
     height: 3.5ex; /* Add some height to separate the text from the boxes */
     font-size: 15px;
+    clear: left;
 }
 
 div.IdPSelectPreferredIdPImg
@@ -52,6 +58,10 @@ div.IdPSelectPreferredIdPImg
 /*  max-width: 95%; */
     height: 69px; /* We need the absolute height to force all buttons to the same size */
     margin: 2px;
+}
+
+img.IdPSelectIdPImg {
+   width:auto;
 }
 
 div.IdPSelectPreferredIdPButton img
@@ -104,7 +114,7 @@ div.IdPSelectPreferredIdPButton div.IdPSelectTextDiv
 #idpSelectSelectButton
 {
     padding-left: 2px;
-    passing-right: 2px;
+    padding-right: 2px;
 }
 
 /*
@@ -148,7 +158,30 @@ a.IdPSelectHelpButton
 /**
  * Drop down (incremental search) stuff - see the associated javascript for reference
  */
+ul.IdPSelectDropDown {
+    -moz-box-sizing: border-box;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: small;
+    box-sizing: border-box;
+    list-style: none;
+    padding-left: 0px;
+    border: 1px solid black;
+    z-index: 6;
+    position: absolute;   
+}
 
+ul.IdPSelectDropDown li {
+    background-color: white;
+    cursor: default;
+    padding: 0px 3px;
+}
+
+ul.IdPSelectDropDown li.IdPSelectCurrent {
+    background-color: #3366cc;
+    color: white;
+}
+
+/* Legacy */
 div.IdPSelectDropDown {
     -moz-box-sizing: border-box;
     font-family: Verdana, Arial, Helvetica, sans-serif;

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Provisioning Target Controller
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -32,7 +32,7 @@ class CoProvisioningTargetsController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'description' => 'asc'
+      'ordr' => 'asc'
     )
   );
   
@@ -210,6 +210,9 @@ class CoProvisioningTargetsController extends StandardController {
     // View all existing CO Provisioning Targets?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Edit an existing CO Provisioning Target's order?
+    $p['order'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']
                        || $roles['coadmin'] 
@@ -218,11 +221,33 @@ class CoProvisioningTargetsController extends StandardController {
     // (Re)provision all CO People?
     $p['provisionall'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Modify ordering for display via AJAX 
+    $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
     // View an existing CO Provisioning Target?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v1.0.3
+   * @return Integer The CO ID if found, or -1 if not
+   */
+  
+  public function parseCOID() {
+    if($this->action == 'order'
+       || $this->action == 'reorder') {
+      if(isset($this->request->params['named']['co'])) {
+        return $this->request->params['named']['co'];
+      }
+    }
+    
+    return parent::parseCOID();
   }
   
   /**
@@ -307,10 +332,10 @@ class CoProvisioningTargetsController extends StandardController {
       try {
         if($copersonid) {
           $this->CoProvisioningTarget->Co->CoPerson->Behaviors->load('Provisioner');
-          $this->CoProvisioningTarget->Co->CoPerson->manualProvision($id, $copersonid);
+          $this->CoProvisioningTarget->Co->CoPerson->manualProvision($id, $copersonid, null);
         } else {
           $this->CoProvisioningTarget->Co->CoGroup->Behaviors->load('Provisioner');
-          $this->CoProvisioningTarget->Co->CoGroup->manualProvision($id, null, $cogroupid);
+          $this->CoProvisioningTarget->Co->CoGroup->manualProvision($id, null, $cogroupid, ProvisioningActionEnum::CoGroupReprovisionRequested);
         }
       }
       catch(InvalidArgumentException $e) {

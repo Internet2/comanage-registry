@@ -1229,6 +1229,7 @@
     <field name="description" type="C" size="256" />
     <field name="plugin" type="C" size="32" />
     <field name="status" type="C" size="2" />
+    <field name="ordr" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

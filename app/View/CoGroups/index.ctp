@@ -397,14 +397,14 @@
               $disabled = !($e || $permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $isMembersGroup;
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
                                           array('disabled' => $disabled,
-                                                'checked'    => $isMember))
-                    . _txt('fd.group.mem') . "\n";
+                                                'checked'    => $isMember));
+              print $this->Form->label('CoGroupMember.rows.'.$i.'.member',_txt('fd.group.mem'));
               
               $disabled = !($e || $permissions['selectany'] || $isOwner) || $isMembersGroup;
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
                                           array('disabled' => $disabled,
-                                                'checked'    => $isOwner))
-                    . _txt('fd.group.own') . "\n";
+                                                'checked'    => $isOwner));
+              print $this->Form->label('CoGroupMember.rows.'.$i.'.owner',_txt('fd.group.own'));
             }
           }
           else {
@@ -469,13 +469,17 @@
             print $this->Form->submit(_txt('op.save'));
             print $this->Form->button(_txt('op.reset'), array('type'=>'reset'));
           }
-          
-          print $this->Form->end();
         ?>
       </td>
     </tr>
   </tfoot>
 </table>
+
+<?php
+  if($this->action == 'select') {
+    print $this->Form->end();
+  }
+?>
 
 <div id="progressbar-dialog" title="<?php print _txt('op.gr.reconcile.all'); ?>">
   <p><?php print _txt('op.gr.reconcile.wait'); ?></p>

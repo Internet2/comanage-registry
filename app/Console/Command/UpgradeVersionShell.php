@@ -2,7 +2,7 @@
 /**
  * COmanage Upgrade Shell (not called "UpgradeShell" to avoid conflict with Cake's Upgrade shell)
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.4
@@ -41,14 +41,17 @@ class UpgradeVersionShell extends AppShell {
   // 1.1.0-post, 1.2.0-post.
 
   // Make sure to keep this list in order so we can walk the array rather than compare version strings.
-  // If you flag a version as blocking, be sure to document why.
+  // You must specify the 'block' parameter. If you flag a version as blocking, be sure to document why.
   protected $versions = array(
     "0.9.3" => array('block' => false),
     // 0.9.4 blocks because it's the first version to use UpgradeVersionShell.
     // Also, see notes in Address::_ug094().
     "0.9.4" => array('block' => true, /* 'pre' => 'pre094', */ 'post' => 'post094'),
     // 1.0.0 blocks because of the introduction of /local
-    "1.0.0" => array('block' => true, 'post' => 'post100')
+    "1.0.0" => array('block' => true, 'post' => 'post100'),
+    "1.0.1" => array('block' => false),
+    "1.0.2" => array('block' => false),
+    "1.0.3" => array('block' => false)
   );
   
   public function getOptionParser() {

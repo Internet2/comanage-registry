@@ -56,13 +56,14 @@
   }
   #menu li,
   #menu li a {
-    display: inline;
+    display: inline-block;
+    width: auto;
   }
   .modelbox table tr > *:first-child {
      min-width: 50px !important;
    }
   #coPeopleSearch .input {
-    width: 12.6%;
+    width: 11.5%;
   }
   #orgIdSearch .input {
     width: 8.5%;
@@ -97,7 +98,7 @@
     width: 910px;
   }
   #coPeopleSearch .input {
-    width: 14.1%;
+    width: 13.2%;
   }
   #orgIdSearch .input {
     width: 9.9%;
@@ -119,7 +120,7 @@
     width: 1150px;
   }
   #coPeopleSearch .input {
-    width: 14.6%;
+    width: 14%;
   }
   #orgIdSearch .input {
     width: 10.4%;

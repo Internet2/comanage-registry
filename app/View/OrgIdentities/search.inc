@@ -50,7 +50,8 @@ global $cm_lang, $cm_texts;
       print $this->Form->hidden('OrgIdentity.co_id', array('default' => $cur_co['Co']['id'])). "\n";
     }
   ?>
-  <p><?php print _txt('op.search');?>:</p>
+  <fieldset>
+  <legend><?php print _txt('op.search');?>:</legend>
   <?php
   $args = array();
   $args['label'] = _txt('fd.name.given');
@@ -132,6 +133,6 @@ global $cm_lang, $cm_texts;
     print $this->Form->submit(_txt('op.search'),$args);
     ?>
   </div>
-
+  </fieldset>
   <?php print $this->Form->end();?>
 </div>

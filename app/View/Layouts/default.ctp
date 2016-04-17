@@ -28,7 +28,7 @@
   header("Pragma: no-cache");
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="<?php print _txt('lang'); ?>">
   <head>
     <!-- <?php
       // Include version number, but only if logged in
@@ -36,10 +36,10 @@
         print chop(file_get_contents(APP . "Config/VERSION"));
       }
     ?> -->
-    <title><?php print _txt('coordinate') . ': ' . $title_for_layout?></title>
+    <title><?php print _txt('coordinate') . ': ' . $title_for_layout; ?></title>
     <?php print $this->Html->charset(); ?>
     <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Include the comanage and jquery style sheets -->
     <?php
@@ -102,66 +102,60 @@
 
   <body class="<?php print $this->params->controller . ' ' . $this->params->action ?>"
         onload="js_onload_call_hooks()">
-    <div class="header">
-      <div id="row1">
-        <div class="contentWidth">
-          <?php print $this->element('secondaryMenu'); ?>
-          <?php print $this->element('links'); ?>
+    <nav id="row1" aria-label="user and platform menus">
+      <div class="contentWidth">
+        <?php print $this->element('secondaryMenu'); ?>
+        <?php print $this->element('links'); ?>
+      </div>
+    </nav>
+
+    <header id="row2" class="ui-widget-header">
+      <div class="contentWidth">
+
+        <div class="headerRight">
+          <?php
+            $imgFile = 'comanage-logo.png';
+
+            if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
+              // A custom logo has been installed, so use that instead
+              $imgFile = 'logo.png';
+            }
+
+            // Clicking on the logo will take us to the front page
+            print $this->Html->link(
+              $this->Html->image(
+                $imgFile,
+                array(
+                  'alt' => 'COmanage Logo',
+                  'height' => 50
+                )
+              ),'/',
+              array('escape' => false)
+            );
+          ?>
+        </div>
+
+        <div class="headerLeft">
+          <?php
+            if(!empty($cur_co['Co']['name'])) {
+              print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
+            } else {
+              print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
+            }
+          ?>
         </div>
       </div>
+    </header>
 
-      <div id="row2" class="ui-widget-header">
+    <?php if($this->Session->check('Auth.User')): ?>
+      <nav id="row3" aria-label="main menu">
         <div class="contentWidth">
-
-          <div class="headerRight">
-            <?php
-              $imgFile = 'comanage-logo.png';
-              
-              if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
-                // A custom logo has been installed, so use that instead
-                $imgFile = 'logo.png';
-              }
-              
-              // Clicking on the logo will take us to the front page
-              print $this->Html->link(
-                $this->Html->image(
-                  $imgFile,
-                  array(
-                    'alt' => 'COmanage',
-                    'height' => 50
-                  )
-                ),'/',
-                array('escape' => false)
-              );
-            ?>
-          </div>
-
-          <div class="headerLeft">
-            <?php 
-              if(!empty($cur_co['Co']['name'])) {
-                print "<h1>" . Sanitize::html($cur_co['Co']['name']) . "</h1>"; // more to go here.
-              } else {
-                print "<h1>" . _txt('coordinate') . "</h1>";
-              }
-            ?>
-            <div id="coSelector">
-              
-            </div>
-          </div>
+          <?php print $this->element('dropMenu'); ?>
         </div>
-      </div>
-      
-      <?php if($this->Session->check('Auth.User')): ?>
-        <div id="row3">
-          <div class="contentWidth">
-            <?php print $this->element('dropMenu'); ?>
-          </div>
-        </div>
-      <?php endif ?>
-      
-    </div>
+      </nav>
+    <?php endif ?>
 
-    <div id="main" class="contentWidth">
+    <main id="main" class="contentWidth">
       <?php
         // insert the sidebar buttons if they exist
         $sidebarButtons = $this->get('sidebarButtons');
@@ -185,7 +179,7 @@
         // insert breadcrumbs on all but the homepage if logged in
         if($this->Session->check('Auth.User')) {
           if ($this->request->here != $this->request->webroot) {
-            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' > ', _txt('bc.home')) . "</div>";
+            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
           }
         }
 
@@ -196,12 +190,12 @@
         print "</div>";
       ?>
 
-    </div>
+    </main>
 
     <!-- Common UI components -->
     <?php if($this->here != '/registry/pages/eds/index'):
       // Don't load the following UI component when loading the Shib EDS. ?>
-      <div id="dialog" title="Confirm">
+      <div id="dialog" title="Confirm" role="alertdialog">
         <p>
           <span class="ui-icon ui-icon-alert co-alert"></span>
           <span id="dialog-text"><?php print _txt('op.proceed.ok'); ?></span>
@@ -209,9 +203,9 @@
       </div>
     <?php endif; ?>
 
-    <div class="contentWidth">
+    <footer class="contentWidth">
       <?php print $this->element('footer'); ?>
-    </div>
+    </footer>
 
     <?php if(Configure::read('debug') > 0): ?> 
       <div>

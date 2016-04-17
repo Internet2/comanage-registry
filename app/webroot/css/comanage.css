@@ -45,6 +45,9 @@ body {
 .invisible {
   display: none;
 }
+.fieldTitle {
+  font-weight: bold;
+}
 
 /* Text */
 .descr {
@@ -82,10 +85,18 @@ a.desc::before {
   float: right;
 }
 
-/* Header */
-.header {
+/* Header and Top Nav */
+#row1 {
   background-color: #333;
   color: white;
+  padding: 0 0 4px 0;
+  height: 26px;
+}
+#collaborationTitle {
+  margin: 0;
+  padding: 0;
+  font-size: 3.5em;
+  font-weight: normal;
 }
 .headerLeft {
   margin: 0;
@@ -96,10 +107,10 @@ a.desc::before {
   float: right;
   clear: both
 }
-.header span {
+nav span {
   float: left;
 }
-.header .ui-icon {
+nav .ui-icon {
   position: relative;
   top: -3px;
 }
@@ -322,9 +333,8 @@ form#notificationStatus select {
   text-decoration: none;
   height: 18px;
   padding: 3px 14px 1px 14px;
-  margin: 4px 5px 5px 5px;
+  margin: 4px 5px;
   background-color: #C33;
-  /*border-radius: 5px;*/
   cursor: pointer;
 }
 
@@ -400,20 +410,17 @@ a.menuTop > .sf-sub-indicator {
 h1 {
   margin: 0;
   padding: 0;
-  font-size: 3.5em;
+  font-size: 200%;
   font-weight: normal;
 }
 #titleNavContainer {
   padding: 16px 0;
 }
 h2 {
-  font-size: 200%;
+  font-size: 150%;
 }
 .pageTitle {
   display: inline-block;
-}
-.pageTitle h2 {
-  margin: 0;
 }
 #main.footerSpecial {
   margin-bottom: 150px;
@@ -442,6 +449,14 @@ a.linkbutton:last-child {
 #firstPrompt {
   font-size: 1.5em;
   margin: 2em 0 10em;
+}
+#fpCoList {
+  margin-top: 1em;
+}
+table caption {
+  font-weight: bold;
+  margin-left: 0.5em;
+  text-align: left;
 }
 
 /* Messages */
@@ -597,9 +612,10 @@ td.top {
   text-align: right;
   white-space: nowrap;
 }
-.topSearch p {
+.topSearch legend {
   float: left;
-  margin: 0.5em;
+  margin: 0;
+  padding: 5px 8px 0 4px;
   color: #666;
 }
 .topSearch fieldset {
@@ -628,7 +644,7 @@ td.top {
   display: none;
 }
 .topSearch select {
-  color: #888;
+  color: #777;
   background-color: #fff;
   width: 98%;
   height: 24px;
@@ -812,6 +828,9 @@ td.order {
 #menu li,
 #menu li a {
   display: block;
+}
+.ui-menu-item {
+  border: 1px solid transparent; /* provide space for the hover effect border */
 }
 #advancedSearch {
   clear: both;
@@ -1089,6 +1108,22 @@ body.co_petitions .deny-button:hover {
 #enrollmentFlowSteps li.stopped .ui-icon {
   background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_cd0a0a_256x240.png");
 }
+
+/* Redirect Page */
+#redirect-box {
+  position: relative;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  margin: 4em auto;
+  padding: 2em;
+  text-align: center;
+  width: 320px;
+}
+#redirect-spinner {
+  padding: 1em 1em 2em;
+  position: relative;
+}
+
 /* Petition Attributes */
 .modelbox {
   border: 1px solid #8DBBDD;
@@ -1265,7 +1300,7 @@ body.co_petitions .deny-button:hover {
   margin: 13px 0 0 0px;
   position: absolute;
   /*color: #7FB7DB;*/
-  color: #777;
+  color: #666;
 }
 .admin {
   float: right !important;
@@ -1300,8 +1335,8 @@ body.co_petitions .deny-button:hover {
 /* Pagination */
 #pagination {
   margin: 0;
-  padding: 0;
   min-height: 1.25em;
+  padding: 0.5em;
 }
 #pagination .paginationCounter {
   float: right;

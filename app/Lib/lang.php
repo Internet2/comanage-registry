@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Language File
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -32,6 +32,9 @@ $cm_lang = "en_US";
 // a different order than they were passed.
 
 $cm_texts['en_US'] = array(
+  // Reference to generic lang (for html5)
+  'lang' => 'en',
+
   // Application name
   'coordinate' =>     'COmanage Registry',
   
@@ -83,29 +86,25 @@ $cm_texts['en_US'] = array(
   'ct.co_groups.pl' =>          'Groups',
   'ct.co_all_groups' =>         'All Groups',
   'ct.co_invites.1' =>          'Invite',
+  'ct.co_invites.pl' =>         'Invites',
   'ct.co_localizations.1' =>    'Localization',
   'ct.co_localizations.pl' =>   'Localizations',
   'ct.co_navigation_links.1' => 'CO Navigation Link',
   'ct.co_navigation_links.pl' => 'CO Navigation Links',
   'ct.co_notifications.1' =>    'Notification',
   'ct.co_notifications.pl' =>   'Notifications',
-  'ct.co_invites.pl' =>         'Invites',
   'ct.co_nsf_demographics.1'  => 'NSF Demographic Record',
   'ct.co_nsf_demographics.pl' => 'NSF Demographic Records',
   'ct.co_org_identity_links.1' => 'CO Person / Org Identity Link',
   'ct.co_org_identity_links.pl' => 'CO Person / Org Identity Links',
   'ct.co_people.1' =>           'CO Person',
   'ct.co_people.pl' =>          'CO People',
-  'ct.co_people.se' =>          'CO People Search',
-  'ct.co_people.se.no_results' =>  'No results',
-  'ct.co_people.se.restore' =>  'Restore default listing',
   'ct.co_person_roles.1' =>     'CO Person Role',
   'ct.co_person_roles.pl' =>    'CO Person Roles',
   'ct.co_petition_history_records.1' => 'CO Petition History Record',
   'ct.co_petition_history_records.pl' => 'CO Petition History Records',
   'ct.co_petitions.1' =>        'CO Petition',
   'ct.co_petitions.pl' =>       'CO Petitions',
-  'ct.co_petitions.0' =>        'No petitions',
   'ct.co_provisioning_targets.1'  => 'Provisioning Target',
   'ct.co_provisioning_targets.pl' => 'Provisioning Targets',
   'ct.co_self_service_permissions.1'  => 'Self Service Permission',
@@ -158,6 +157,7 @@ $cm_texts['en_US'] = array(
   'ef.step.finalize'                 => 'Finalize',
   'ef.step.petitionerAttributes'     => 'Collect Petitioner Attributes',
   'ef.step.processConfirmation'      => 'Confirm Email Address',
+  'ef.step.provision'                => 'Provision',
   'ef.step.redirectOnConfirm'        => 'Process Confirmation',
   'ef.step.selectEnrollee'           => 'Select Person',
   'ef.step.selectOrgIdentity'        => 'Select Org Identity',
@@ -752,6 +752,7 @@ original notification at
   'er.reply.unk' =>   'Unknown Reply',
   'er.setting' =>     'Invalid Setting',
   'er.setting.gr' =>  'Invalid Setting: No group specified',
+  'er.sh.cache' =>    'WARNING: Cache directory %1$s NOT empty, you may need to manually clear it',
   'er.ssh.format' =>  'File does not appear to be a valid ssh public key',
   'er.ssh.private' => 'Uploaded file appears to be a private key',
   'er.ssh.rfc4716' => 'RFC4716 format public keys are not currently supported',
@@ -808,6 +809,7 @@ original notification at
   'fd.copy-a' =>      'Copy of %1$s',
   'fd.cou' =>         'COU',
   'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',  
+  'fd.co_people.search' => 'CO Person Search',
   'fd.co_people.status' => 'CO Person Status',
   'fd.created' =>     'Created',
   'fd.created.tz' =>  'Created (%1$s)',
@@ -869,7 +871,7 @@ original notification at
   'fd.ef.eds.hide' => 'IdPs to hide from the EDS',
   'fd.ef.eds.hide.desc' => 'List of entity IDs representing IdPs that should not be offered via the EDS, one per line',
   'fd.ef.eds.prefer' => 'IdPs to prefer for the EDS',
-  'fd.ef.eds.prefer.desc' => 'List of entity Ids to always show ("prefer") via the EDS, one per line',
+  'fd.ef.eds.prefer.desc' => 'List of entity Ids to always show ("prefer") via the EDS, one per line, maximum of 3',
   'fd.ef.efn'      => 'From Address For Notifications',
   'fd.ef.efn.desc' => 'Email address notifications will come from',
   'fd.ef.env'      => 'Enable Environment Attribute Retrieval',
@@ -1023,6 +1025,8 @@ original notification at
   'fd.ois.search.select.disabled' => 'Disabled options are already attached to an Org Identity and so cannot be selected',
   'fd.ois.search.token' => 'An email has been sent to "%1$s". Please check your mail and enter the token you received. (NOT IMPLEMENTED -- ENTER ANY TOKEN)',
   'fd.open' =>        'Open',
+  'fd.order' =>       'Order',
+  'fd.order.prov.desc' => 'The order in which this provisioner will be run when automatic provisioning occurs (leave blank to run after all current provisioners)',
   'fd.organization_id' => 'Organization ID',
   'fd.ou' =>          'Department',
   'fd.parent' =>      'Parent COU',
@@ -1206,6 +1210,7 @@ original notification at
   'op.edit.ea' =>     'Edit Enrollment Attributes',
   'op.edit-a' =>      'Edit %1$s',
   'op.edit-f' =>      'Edit %1$s for %2$s',
+  'op.enable' =>      'Enable',
   'op.enroll' =>      'Enroll',
   'op.expunge' =>     'Expunge',
   'op.expunge-a' =>   'Expunge %1$s',
@@ -1237,6 +1242,7 @@ original notification at
   'op.home.login' =>  'Welcome to %1$s. Please login.',
   'op.home.select' => 'Welcome to %1$s. Please select a collaboration.',
   'op.home.collabs' => 'Available Collaborations',
+  'op.home.collabs.summary' => 'All collaborations in which user may participate',
   'op.home.no.collabs' => 'No collaborations are currently available.',
   'op.dashboard.select' => 'Welcome to %1$s. Please select an action from the menus, above.',
   'op.id.auto' =>     'Autogenerate Identifiers',
@@ -1249,6 +1255,7 @@ original notification at
   'op.inv-t' =>       'Invite %1$s to %2$s',
   'op.inv.reply' =>   'Reply to Invitation',
   'op.inv.resend' =>  'Resend Invite',
+  'op.inv.resend.to' =>  'Resend Invite to %1$s',
   'op.inv.resend.confirm' => 'Are you sure you wish to resend an invitation to %1$s? Any previous invitation will be invalidated.',
   'op.inv.send' =>    'Send Invite',
   'op.manage.grm' =>  'Manage Group Memberships',
@@ -1274,8 +1281,11 @@ original notification at
   'op.petition.create' => 'Create Petition',
   'op.petition.dupe' => 'Flag Petition as Duplicate',
   'op.petition.dupe.confirm' => 'Are you sure you wish to flag this petition as a duplicate?',
+  'op.pool' =>        'Pool',
+  'op.petition.nextstep' => 'Initiating %1$s step, please wait...',
   'op.previous' =>    'Previous',
   'op.primary' =>     'Make Primary',
+  'op.processing' =>  'Processing request, please wait...',
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',
   'op.prov' =>        'Provision',
   'op.prov.all' =>    'Reprovision All',
@@ -1294,13 +1304,14 @@ original notification at
   'op.relink.select' => 'Please select the CO Person you would like to move the Organizational Identity "%1$s" (%2$s) to by clicking the associated relink button.',
   'op.remove' =>      'Remove',
   'op.reorder' =>     'Reorder',
-  'op.reorder-a' =>     'Reorder %1$s',
+  'op.reorder-a' =>   'Reorder %1$s',
   'op.reset' =>       'Reset Form',
   'op.restore.ef' =>  'Add/Restore Default Templates',
   'op.restore.types' => 'Add/Restore Default Types',
   'op.save' =>        'Save',
   'op.search' =>      'Search',
   'op.search-a' =>    'Search %1$s',
+  'op.search.restore' =>  'Restore default listing',
   'op.see.notifications' =>  'View full notifications list...',
   'op.select' =>      'Select',
   'op.select-a' =>    'Select %1$s',
@@ -1408,6 +1419,8 @@ original notification at
   'rs.tc.agree.behalf' => 'Terms and Conditions "%1$s" agreed to on behalf of',
   'rs.tc.agree.ok' => 'Agreement to Terms and Conditions recorded',
   'rs.types.defaults' => 'Default types added',
+  'rs.saved' =>       'Saved',
+  'rs.search.none' => 'No results found',
   'rs.updated' =>     '"%1$s" Updated',
   'rs.updated-a2' =>  '%1$s "%2$s" Updated',
   'rs.updated-a3' =>  '%1$s Updated',
@@ -1417,6 +1430,14 @@ original notification at
   
   // Setup
   
+  'se.already' =>         'Setup appears to have already run',
+  'se.already.override' => 'Override with --force if you know what you are doing',
+  'se.arg.admin.given' => 'Administrator\'s given name',
+  'se.arg.admin.sn' =>    'Administrator\'s family name',
+  'se.arg.admin.user' =>  'Administrator\'s login username',
+  'se.arg.desc' =>        'Execute initial setup',
+  'se.arg.force' =>       'Force setup to run even if security file already exists',
+  'se.arg.pool' =>        'Enable organizational identity pooling',
   'se.cache.done' =>      'Done clearing cache',
   'se.cf.admin.given' =>  'Enter administrator\'s given name',
   'se.cf.admin.sn' =>     'Enter administrator\'s family name',
@@ -1519,16 +1540,21 @@ function _bootstrap_plugin_txt()
   $plugins = App::objects('plugin');
   
   foreach($plugins as $plugin) {
-    $langfile = APP. '/Plugin/' . $plugin . '/Lib/lang.php';
-    
-    if(is_readable($langfile)) {
-      // Include the file
-      include $langfile;
+    // Plugin lang files could be under APP or LOCAL
+    foreach(array(APP, LOCAL) as $dir) {
+      $langfile = $dir . '/Plugin/' . $plugin . '/Lib/lang.php';
       
-      // And merge its texts for the current language
-      $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
-      
-      $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
+      if(is_readable($langfile)) {
+        // Include the file
+        include $langfile;
+        
+        // And merge its texts for the current language
+        $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
+        
+        $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
+        
+        break;
+      }
     }
   }
 }
