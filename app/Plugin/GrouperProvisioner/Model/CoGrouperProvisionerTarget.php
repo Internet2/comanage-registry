@@ -73,19 +73,19 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
     ),
     'login' => array(
       'rule' => 'notBlank',
-    	'required' => true,
+      'required' => true,
       'on' => null,
       'allowEmpty' => false,
     ),
     'password' => array(
       'rule' => 'notBlank',
-    	'required' => true,
+      'required' => true,
       'on' => null,
       'allowEmpty' => false,
     ),
     'stem' => array(
       'rule' => 'notBlank',
-    	'required' => true,
+      'required' => true,
       'allowEmpty' => false,
       'on' => null,
     ),
@@ -110,9 +110,9 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
     ),
     'subjectViewRule2' => array(
       'rule' => 'isUnique',
-      	'message' => 'The view name must be unique'
-      )  			
-    )	
+      'message' => 'The view name must be unique'
+      )
+    )
   );
   
   /**
@@ -124,7 +124,7 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
    * @param array $options Options passed from Model::save().
    * @return void
    */
-	public function afterSave($created, $options = array()) {
+  public function afterSave($created, $options = array()) {
     $prefix = "";
     $db =& ConnectionManager::getDataSource('default');
     $db_driver = split("/", $db->config['datasource'], 2);
@@ -141,10 +141,10 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
     $target = $this->CoProvisioningTarget->find('first', $args);
     $coId = $target['CoProvisioningTarget']['co_id'];
     
-   	$sqlTemplate = "
+    $sqlTemplate = "
 CREATE OR REPLACE VIEW $view (id, name, lfname, description, description_lower, loginid, email) AS
 SELECT
-	CONCAT('COMANAGE_', '$coId', '_', CAST(cm_co_people.id AS @CAST_TYPE@)),
+  CONCAT('COMANAGE_', '$coId', '_', CAST(cm_co_people.id AS @CAST_TYPE@)),
   CONCAT(COALESCE(cm_names.given,''), ' ', COALESCE(cm_names.family,'')),
   CONCAT(COALESCE(cm_names.family,''), ' ', COALESCE(cm_names.given,'')),
   CONCAT(COALESCE(cm_names.given,''), ' ', COALESCE(cm_names.family,''), ' (', cm_cos.name, ')'),
@@ -156,28 +156,28 @@ FROM
   LEFT JOIN cm_names ON cm_co_people.id = cm_names.co_person_id AND cm_names.primary_name is true
   JOIN cm_cos ON cm_co_people.co_id = cm_cos.id AND cm_cos.id = $coId
   LEFT JOIN cm_identifiers ON cm_co_people.id = cm_identifiers.co_person_id AND cm_identifiers.type = '@IDENTIFIER_TYPE@'
-  LEFT JOIN cm_email_addresses ON cm_co_people.id = cm_email_addresses.co_person_id AND cm_email_addresses.type = '@EMAIL_TYPE@'    			    			    			    			      			      			    			    			    			    			    			    			                  
+  LEFT JOIN cm_email_addresses ON cm_co_people.id = cm_email_addresses.co_person_id AND cm_email_addresses.type = '@EMAIL_TYPE@'                                                                                                                                              
   ";                  
         
     $replacements = array();
     $replacements['cm_'] = $prefix;
     $replacements['@IDENTIFIER_TYPE@'] = $this->data['CoGrouperProvisionerTarget']['login_identifier'];
-    $replacements['@EMAIL_TYPE@'] = $this->data['CoGrouperProvisionerTarget']['email_identifier'];	
+    $replacements['@EMAIL_TYPE@'] = $this->data['CoGrouperProvisionerTarget']['email_identifier'];  
     
     switch ($db_driver[1]) {
-    	case 'Mysql':
-    		$replacements['@CAST_TYPE@'] = 'char';
+      case 'Mysql':
+        $replacements['@CAST_TYPE@'] = 'char';
         break;
-    	case 'Postgres':
-    		$replacements['@CAST_TYPE@'] = 'text';
+      case 'Postgres':
+        $replacements['@CAST_TYPE@'] = 'text';
         break;
     }
     
-		$sql = strtr($sqlTemplate, $replacements);       
-      			
+    $sql = strtr($sqlTemplate, $replacements);       
+            
     $result = $this->query($sql);
     
-	}
+  }
 
   /**
    * Determine the provisioning status of this target.
@@ -242,7 +242,7 @@ FROM
         $groupName = $this->CoGrouperProvisionerGroup->getGroupName($provisionerGroup);
         $groupDescription = $this->CoGrouperProvisionerGroup->getGroupDescription($provisionerGroup);
         $groupDisplayExtension = $this->CoGrouperProvisionerGroup->getGroupDisplayExtension($provisionerGroup);
-				
+        
         try {
           $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
           
@@ -256,10 +256,10 @@ FROM
           $stem = $baseStem;
           foreach($stemComponents as $component) {
             $stem = $stem . ':' . $component;
-          	$exists = $grouper->stemExists($stem);
-          	if(!$exists) {
-          		$grouper->stemSave($stem, '', '');
-          	}
+            $exists = $grouper->stemExists($stem);
+            if(!$exists) {
+              $grouper->stemSave($stem, '', '');
+            }
           }
           
           // All stems exists so now save the group.
@@ -289,7 +289,7 @@ FROM
           if($this->CoGrouperProvisionerGroup->CoGroup->isCouAdminOrMembersGroup($provisioningData)) {
             $stem = $this->CoGrouperProvisionerGroup->getStem($provisionerGroup);
             try {
-		          $grouper->stemDelete($stem);
+              $grouper->stemDelete($stem);
             } catch (GrouperRestClientException $e) {
             }
           }
@@ -344,34 +344,34 @@ FROM
           // and if the COU has children we need to change the stems for all of the children also
           // in the mapping table.
           if($this->CoGrouperProvisionerGroup->CoGroup->isCouAdminOrMembersGroup($provisioningData)) {
-          	if($newProvisionerGroup['CoGrouperProvisionerGroup']['extension'] != $currentProvisionerGroup['CoGrouperProvisionerGroup']['extension']) {
+            if($newProvisionerGroup['CoGrouperProvisionerGroup']['extension'] != $currentProvisionerGroup['CoGrouperProvisionerGroup']['extension']) {
               // Find the COU for this COU admin or members group.
-		          $coId = $provisioningData['CoGroup']['co_id'];
-  		        $args = array();
+              $coId = $provisioningData['CoGroup']['co_id'];
+              $args = array();
               $args['conditions']['Cou.co_id'] = $coId;
               $args['conditions']['Cou.name'] = $this->CoGrouperProvisionerGroup->CoGroup->couNameFromAdminOrMembersGroup($provisioningData);
               $args['contain'] = false;
-    		      $cou = $this->CoProvisioningTarget->Co->Cou->find('first', $args);
+              $cou = $this->CoProvisioningTarget->Co->Cou->find('first', $args);
                   
-    		      // Find the children, if any of the COU.
-    		      $allChildCous = $this->CoProvisioningTarget->Co->Cou->children($cou['Cou']['id']);
-    		      foreach($allChildCous as $child) {
+              // Find the children, if any of the COU.
+              $allChildCous = $this->CoProvisioningTarget->Co->Cou->children($cou['Cou']['id']);
+              foreach($allChildCous as $child) {
                 $prefixes = array('admin:', 'members:');
                 foreach($prefixes as $prefix) {
-      		      	// Find the admin or members group for the COU.
-      		      	$group = $this->CoProvisioningTarget->Co->CoGroup->findByName($coId, $prefix . $child['Cou']['name']);
+                  // Find the admin or members group for the COU.
+                  $group = $this->CoProvisioningTarget->Co->CoGroup->findByName($coId, $prefix . $child['Cou']['name']);
                   // Find the provisioner group.
                   $args = array();
                   $args['conditions']['CoGrouperProvisionerGroup.co_group_id'] = $group['CoGroup']['id'];
                   $args['contain'] = false;
                   $current = $this->CoGrouperProvisionerGroup->find('first', $args);
                   if(!empty($current)) {
-                  	$new = $this->CoGrouperProvisionerGroup->computeProvisionerGroup($coProvisioningTargetData, $group);
-                  	$this->CoGrouperProvisionerGroup->updateProvisionerGroup($current, $new);
+                    $new = $this->CoGrouperProvisionerGroup->computeProvisionerGroup($coProvisioningTargetData, $group);
+                    $this->CoGrouperProvisionerGroup->updateProvisionerGroup($current, $new);
                   }
                 }
-    		      }
-          	}
+              }
+            }
           }
         }
 
@@ -397,36 +397,45 @@ FROM
             $stems = array_combine($currentStems, $newStems);
             $base = array_shift($stems);
             if(!empty($stems)) {
-	            $stem = $base;
-	            foreach($stems as $cur => $new) {
+              $stem = $base;
+              foreach($stems as $cur => $new) {
                     $old = $stem . ':' . $cur;
-                  	$stem = $stem . ':' . $new;
-	                if($new != $cur) {
-                  	$grouper->stemUpdate($old, $stem, '', '');	
-	                }
-	            }
+                    $stem = $stem . ':' . $new;
+                  if($new != $cur) {
+                    $grouper->stemUpdate($old, $stem, '', '');  
+                  }
+              }
             }
             
-          	// Now change the group itself.
+            // Now change the group itself.
             $grouper->groupUpdate($currentName, $newName, $groupDescription, $groupDisplayExtension);
           } elseif(!$exists) {
-          	// Loop over stems since we may need to create a COU hierarchy. Begin by
-          	// taking full group name and cutting off the group, and then the
-          	// first stem since that is the CO base stem which will already exist.
+            // Loop over stems since we may need to create a COU hierarchy. Begin by
+            // taking full group name and cutting off the group, and then the
+            // first stem since that is the CO base stem which will already exist.
           
-          	$stemComponents = explode(':', $newName, -1);
-          	$baseStem = array_shift($stemComponents);
+            $stemComponents = explode(':', $newName, -1);
+            $baseStem = array_shift($stemComponents);
           
-          	$stem = $baseStem;
-          	foreach($stemComponents as $component) {
-            	$stem = $stem . ':' . $component;
-          		$exists = $grouper->stemExists($stem);
-          		if(!$exists) {
-          			$grouper->stemSave($stem, '', '');
-          		}
-          	}
-	          // All stems exists so now save the group.
-            $grouper->groupSave($newName, $groupDescription, $groupDisplayExtension, 'group');
+            $stem = $baseStem;
+            foreach($stemComponents as $component) {
+              $stem = $stem . ':' . $component;
+              $exists = $grouper->stemExists($stem);
+              if(!$exists) {
+                $grouper->stemSave($stem, '', '');
+              }
+            }
+            // All stems exists so now save the group.
+            try {
+              $grouper->groupSave($newName, $groupDescription, $groupDisplayExtension, 'group');
+            } catch (GrouperRestClientException $e) {
+               // Since it is possible for the group to exist outside of the control
+               // of COmanage and then for COmanage to be asked to provision into
+               // the group it is not an error here for the group to exist.
+               if ($e->getMessage() != 'Group already existed') {
+                 throw new RuntimeException($e->getMessage());
+               }
+            }
           }
         } catch (GrouperRestClientException $e) {
         throw new RuntimeException($e->getMessage());
@@ -449,9 +458,9 @@ FROM
         // If a group is empty the provisioning data passed in may not
         // contain CoGroupMember.
         if(array_key_exists('CoGroupMember', $provisioningData)) {
-        	$membershipsPassedIn = $provisioningData['CoGroupMember'];
+          $membershipsPassedIn = $provisioningData['CoGroupMember'];
         } else {
-        	$membershipsPassedIn = array();
+          $membershipsPassedIn = array();
         }
         
         // Create an array of CO Person IDs for the memberships passed
