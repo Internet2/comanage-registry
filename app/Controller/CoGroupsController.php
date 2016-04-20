@@ -478,6 +478,27 @@ class CoGroupsController extends StandardController {
     $this->set('permissions', $p);
     return $p[$this->action];
   }
+
+  /**
+   * Find the provided CO ID from the query string for the reconcile action
+   * or invoke the parent method.
+   * - precondition: A coid should be provided in the query string
+   *
+   * @since  COmanage Registry v1.0.4
+   * @return Integer The CO ID if found, or -1 if not
+   */
+  
+  public function parseCOID() {
+    if($this->action == 'reconcile') {
+      // CakePHP safely sets to null if not found in query string.
+      $coId = $this->request->query('coid');
+      if ($coId) {
+        return $coId;
+      }
+    }
+    
+    return parent::parseCOID();
+  }
   
   /**
    * Obtain provisioning status for CO Group
