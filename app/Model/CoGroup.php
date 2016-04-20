@@ -573,7 +573,7 @@ class CoGroup extends AppModel {
     // COU members groups structure but that don't have
     // matching COU.
     foreach($co['CoGroup'] as $group) {
-      if(strncmp($group['name'], 'members:', 8) == 0) {
+      if((strncmp($group['name'], 'members:', 8) == 0) && ($group['status'] == StatusEnum::Active)) {
         $couExists = false;
         foreach($co['Cou'] as $cou) {
           $nameFromCou = 'members:' . $cou['name'];
@@ -583,7 +583,12 @@ class CoGroup extends AppModel {
           }
         }
         if(!$couExists) {
-          $this->delete($group['id']);
+          try {
+            // We need to avoid ChangelogBehavior->beforeDelete() throwing a RuntimeException
+            // that the record is already marked deleted.
+            $this->delete($group['id']);
+          } catch (RuntimeException $e) {
+          }
         }
       } 
     }
