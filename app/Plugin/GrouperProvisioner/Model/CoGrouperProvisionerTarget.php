@@ -157,6 +157,7 @@ FROM
   JOIN cm_cos ON cm_co_people.co_id = cm_cos.id AND cm_cos.id = $coId
   LEFT JOIN cm_identifiers ON cm_co_people.id = cm_identifiers.co_person_id AND cm_identifiers.type = '@IDENTIFIER_TYPE@'
   LEFT JOIN cm_email_addresses ON cm_co_people.id = cm_email_addresses.co_person_id AND cm_email_addresses.type = '@EMAIL_TYPE@'                                                                                                                                              
+  WHERE cm_co_people.status = 'A' AND cm_co_people.co_person_id IS NULL
   ";                  
         
     $replacements = array();
