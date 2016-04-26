@@ -181,6 +181,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] : EnrollmentFlowStatusEnum::Active);
           $attrs['empty'] = false;
           
@@ -281,6 +282,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy'] : EnrollmentMatchPolicyEnum::Advisory);
           $attrs['empty'] = false;
           
@@ -366,6 +368,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])
                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id']
                              : null);
@@ -374,7 +377,9 @@
           
           if($e) {
             print $this->Form->select('verification_template_id',
-                                      $vv_message_templates[MessageTemplateEnum::EnrollmentVerification],
+                                      (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentVerification])
+                                       ? $vv_message_templates[MessageTemplateEnum::EnrollmentVerification]
+                                       : array()),
                                       $attrs);
             
             if($this->Form->isFieldError('verification_template_id')) {
@@ -428,6 +433,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (isset($co_enrollment_flows)
                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']
                              : EnrollmentDupeModeEnum::Duplicate);
@@ -507,6 +513,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])
                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id']
                              : null);
@@ -515,7 +522,9 @@
           
           if($e) {
             print $this->Form->select('approval_template_id',
-                                      $vv_message_templates[MessageTemplateEnum::EnrollmentApproval],
+                                      (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentApproval])
+                                       ? $vv_message_templates[MessageTemplateEnum::EnrollmentApproval]
+                                       : array()),
                                       $attrs);
             
             if($this->Form->isFieldError('approval_template_id')) {
@@ -581,6 +590,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (isset($co_enrollment_flows)
                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']
                              : TAndCEnrollmentModeEnum::ExplicitConsent);
