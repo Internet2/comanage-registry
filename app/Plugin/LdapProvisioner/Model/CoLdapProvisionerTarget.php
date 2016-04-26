@@ -672,7 +672,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoPersonUnexpired:
         // Currently, unexpiration is treated the same as add, but that is subject to change
         $assigndn = true;
-        $delete = false;  // Arguably, this should be true to clear out any prior debris
+        $delete = true;  // Need to delete on provision in case of duplicate merge on enrollment
         $add = true;
         $person = true;
         break;
