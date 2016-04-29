@@ -169,12 +169,10 @@ class Cou extends AppModel {
     
     foreach($cou['Co']['CoGroup'] as $group) {
       $groupName = $group['name'];
-      $deleted = $group['deleted'];
-      $oldRecord = isset($group['co_group_id']);
-      if($groupName == ('admin:' . $couName) && !$deleted && !$oldRecord) {
+      if($groupName == ('admin:' . $couName)) {
         // Delete the admin group.
         $this->Co->CoGroup->delete($group['id']);
-      } elseif($groupName == ('members:' . $couName) && !$deleted && !$oldRecord) {
+      } elseif($groupName == 'members:' . $couName) {
         // Delete the members group.
         $this->Co->CoGroup->delete($group['id']);
       }
