@@ -102,6 +102,108 @@ class ProvisionerBehavior extends ModelBehavior {
       $model->data = $model->find('first', $args);
     }
     
+    return $this->determineProvisioning($model, $created);
+  }
+  
+  /**
+   * Handle provisioning following (before) delete of Model.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  Model $model Model instance.
+   * @return boolean true on success, false on failure
+   */
+  
+  public function beforeDelete(Model $model, $cascade = true) {
+    // Note that in most cases this is just an edit. ie: deleting a telephone number is
+    // CoPersonUpdated not CoPersonDeleted. However, in those cases we don't want to
+    // process anything until afterDelete().
+    
+    // We will generally cache the data prior to delete in case we want to do
+    // something interesting with it in afterDelete. This includes when a CoGroupMember
+    // is removed, we need to know which CoPerson and CoGroup to rewrite, and we have to
+    // do that in afterDelete (so the CoGroupMember doesn't show up anymore) (CO-663).
+    
+    // Always reread $model data to make sure we're handling delete of multiple
+    // instances of the same model. StandardController::delete will often call
+    // read(), so we might be doing some extra work in non-cascading deletes.
+    
+    $model->read();
+    
+    $model->cacheData = $model->data;
+    
+    if($model->name == 'CoGroup' || $model->name == 'CoPerson') {
+      // Deleting a CoPerson or CoGroup needs to be handled specially.
+      // We need to invoke the provisioners before the final model is deleted
+      // so provisioners can manually clean up any database associations before
+      // the delete of the final model.
+      
+      if(!empty($model->data[ $model->name ]['id'])) {
+        // Invoke all provisioning plugins
+        
+        try {
+          $this->invokePlugins($model,
+                               $model->data,
+                               $model->name == 'CoPerson'
+                               ? ProvisioningActionEnum::CoPersonDeleted
+                               : ProvisioningActionEnum::CoGroupDeleted);
+        }    
+        // What we really want to do here is catch the result (success or exception)
+        // and set the appropriate session flash message, but we don't have access to
+        // the current session, and anyway that doesn't cover RESTful interactions.
+        // So instead we syslog (which is better than nothing).
+        catch(InvalidArgumentException $e) {
+          syslog(LOG_ERR, $e->getMessage());
+          //throw new InvalidArgumentException($e->getMessage());
+        }
+        catch(RuntimeException $e) {
+          syslog(LOG_ERR, $e->getMessage());
+          //throw new RuntimeException($e->getMessage());
+        }
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Handle provisioning following (before) save of Model.
+   *
+   * @since  COmanage Registry v0.9
+   * @param  Model $model Model instance.
+   * @return boolean true on success, false on failure
+   */
+  
+  public function beforeSave(Model $model, $options = array()) {
+    // Cache a copy of the current data for comparison in afterSave. Currently only
+    // used to detect if a person or group goes to or from Active status.
+    
+    if(($model->name == 'CoGroup'
+        || $model->name == 'CoPerson'
+        || $model->name == 'Identifier')
+       // This will only be set on edit, not add
+       && !empty($model->data[ $model->alias ]['id'])) {
+      $args = array();
+      $args['conditions'][ $model->alias.'.id'] = $model->data[ $model->alias ]['id'];
+      $args['contain'] = false;
+      
+      $model->cacheData = $model->find('first', $args);
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Determine (and invoke) what processing is required based on the provisioning data
+   * provided.
+   *
+   * @param  Model $model Model instance
+   * @param  boolean $created indicates whether the node just saved was created or updated
+   * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
+   * @return $return boolean true on success
+   * @throws InvalidArgumentException
+   */
+  
+  protected function determineProvisioning(Model $model, $created, $provisioningAction=null) {
     $pmodel = null;
     $pdata = null;
     $paction = null;
@@ -282,108 +384,21 @@ class ProvisionerBehavior extends ModelBehavior {
     
     if($model->name == 'CoGroup') {
       if($gmodel) {
-        $this->provisionGroups($model, $gmodel, $coGroupIds, $created);
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction);
       }
       // else we could be CoGroupMember being promoted to afterSave in the middle of
       // a CoGroup being deleted. In that scenario, we don't actually need to try
       // to re-provision the CoGroup, so just move on to the person.
       if($pmodel) {
-        $this->provisionPeople($model, $pmodel, $coPersonIds, $created);
+        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction);
       }
     } else {
       if($pmodel) {
-        $this->provisionPeople($model, $pmodel, $coPersonIds, $created);
+        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction);
       }
       if($gmodel) {
-        $this->provisionGroups($model, $gmodel, $coGroupIds, $created);
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction);
       }
-    }
-    
-    return true;
-  }
-  
-  /**
-   * Handle provisioning following (before) delete of Model.
-   *
-   * @since  COmanage Registry v0.8
-   * @param  Model $model Model instance.
-   * @return boolean true on success, false on failure
-   */
-  
-  public function beforeDelete(Model $model, $cascade = true) {
-    // Note that in most cases this is just an edit. ie: deleting a telephone number is
-    // CoPersonUpdated not CoPersonDeleted. However, in those cases we don't want to
-    // process anything until afterDelete().
-    
-    // We will generally cache the data prior to delete in case we want to do
-    // something interesting with it in afterDelete. This includes when a CoGroupMember
-    // is removed, we need to know which CoPerson and CoGroup to rewrite, and we have to
-    // do that in afterDelete (so the CoGroupMember doesn't show up anymore) (CO-663).
-    
-    // Always reread $model data to make sure we're handling delete of multiple
-    // instances of the same model. StandardController::delete will often call
-    // read(), so we might be doing some extra work in non-cascading deletes.
-    
-    $model->read();
-    
-    $model->cacheData = $model->data;
-    
-    if($model->name == 'CoGroup' || $model->name == 'CoPerson') {
-      // Deleting a CoPerson or CoGroup needs to be handled specially.
-      // We need to invoke the provisioners before the final model is deleted
-      // so provisioners can manually clean up any database associations before
-      // the delete of the final model.
-      
-      if(!empty($model->data[ $model->name ]['id'])) {
-        // Invoke all provisioning plugins
-        
-        try {
-          $this->invokePlugins($model,
-                               $model->data,
-                               $model->name == 'CoPerson'
-                               ? ProvisioningActionEnum::CoPersonDeleted
-                               : ProvisioningActionEnum::CoGroupDeleted);
-        }    
-        // What we really want to do here is catch the result (success or exception)
-        // and set the appropriate session flash message, but we don't have access to
-        // the current session, and anyway that doesn't cover RESTful interactions.
-        // So instead we syslog (which is better than nothing).
-        catch(InvalidArgumentException $e) {
-          syslog(LOG_ERR, $e->getMessage());
-          //throw new InvalidArgumentException($e->getMessage());
-        }
-        catch(RuntimeException $e) {
-          syslog(LOG_ERR, $e->getMessage());
-          //throw new RuntimeException($e->getMessage());
-        }
-      }
-    }
-    
-    return true;
-  }
-  
-  /**
-   * Handle provisioning following (before) save of Model.
-   *
-   * @since  COmanage Registry v0.9
-   * @param  Model $model Model instance.
-   * @return boolean true on success, false on failure
-   */
-  
-  public function beforeSave(Model $model, $options = array()) {
-    // Cache a copy of the current data for comparison in afterSave. Currently only
-    // used to detect if a person or group goes to or from Active status.
-    
-    if(($model->name == 'CoGroup'
-        || $model->name == 'CoPerson'
-        || $model->name == 'Identifier')
-       // This will only be set on edit, not add
-       && !empty($model->data[ $model->alias ]['id'])) {
-      $args = array();
-      $args['conditions'][ $model->alias.'.id'] = $model->data[ $model->alias ]['id'];
-      $args['contain'] = false;
-      
-      $model->cacheData = $model->find('first', $args);
     }
     
     return true;
@@ -564,15 +579,19 @@ class ProvisionerBehavior extends ModelBehavior {
     // First marshall the provisioning data
     $provisioningData = array();
     
-    if($coPersonId) {
-      // $model = CoPerson
-      $provisioningData = $this->marshallCoPersonData($model, $coPersonId);
-    } else {
-      // $model = CoGroup
-      $provisioningData = $this->marshallCoGroupData($model, $coGroupId);
-    }
+    // We handle things a bit differently if a CO Provisioning Target was specified
+    // vs if not. In the former case, we perform a basic reprovision of exactly what
+    // was requested. In the latter case, we operate more like afterSave.
     
     if($coProvisioningTargetId) {
+      if($coPersonId) {
+        // $model = CoPerson
+        $provisioningData = $this->marshallCoPersonData($model, $coPersonId);
+      } else {
+        // $model = CoGroup
+        $provisioningData = $this->marshallCoGroupData($model, $coGroupId);
+      }
+      
       // Find the associated Provisioning Target record
       
       $args = array();
@@ -603,15 +622,7 @@ class ProvisionerBehavior extends ModelBehavior {
         throw new InvalidArgumentException(_txt('er.copt.unk'));
       }
     } else {
-      try {
-        $this->invokePlugins($model, $provisioningData, $provisioningAction);
-      }
-      catch(InvalidArgumentException $e) {
-        throw new InvalidArgumentException($e->getMessage());
-      }
-      catch(RuntimeException $e) {
-        throw new RuntimeException($e->getMessage());
-      }
+      return $this->determineProvisioning($model, false, $provisioningAction);
     }
     
     return true;
@@ -774,11 +785,12 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param Object $gmodel Group model
    * @param Array $coGroupIds Array of group IDs to provision
    * @param Boolean $created As passed to afterSave()
+   * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
    * @return Boolean
    * @throws InvalidArgumentException
    */
   
-  protected function provisionGroups($model, $gmodel, $coGroupIds, $created) {
+  protected function provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction) {
     foreach($coGroupIds as $coGroupId) {
       try {
         $pdata = $this->marshallCoGroupData($gmodel, $coGroupId);
@@ -787,7 +799,7 @@ class ProvisionerBehavior extends ModelBehavior {
         throw new InvalidArgumentException($e->getMessage());
       }
       
-      $paction = ProvisioningActionEnum::CoGroupUpdated;
+      $paction = $provisioningAction ? $provisioningAction : ProvisioningActionEnum::CoGroupUpdated;
       
       // It's only an add operation if the model is CoGroup
       if($created && $model->name == 'CoGroup') {
@@ -825,11 +837,12 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param Object $gmodel Person model
    * @param Array $coPersonIds Array of person IDs to provision
    * @param Boolean $created As passed to afterSave()
+   * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
    * @return Boolean
    * @throws InvalidArgumentException
    */
   
-  protected function provisionPeople($model, $pmodel, $coPersonIds, $created) {
+  protected function provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction) {
     foreach($coPersonIds as $cpid) {
       // $cpid could be null during a delete operation. If so, we're probably
       // in the process of removing a related model, so just skip it.
@@ -845,7 +858,7 @@ class ProvisionerBehavior extends ModelBehavior {
       }
       
       // Re-key $pdata when the person alias is EnrolleeCoPerson to make
-      // everything else work more smoothly
+      // everything else works more smoothly
       
       if($model->alias == 'EnrolleeCoPerson' && !empty($pdata['EnrolleeCoPerson'])) {
         $pdata['CoPerson'] = $pdata['EnrolleeCoPerson'];
@@ -861,7 +874,7 @@ class ProvisionerBehavior extends ModelBehavior {
       
       // Determine the provisioning action
       
-      $paction = ProvisioningActionEnum::CoPersonUpdated;
+      $paction = $provisioningAction ? $provisioningAction : ProvisioningActionEnum::CoPersonUpdated;
       
       if($model->name == 'CoPerson') {
         if($created) {
