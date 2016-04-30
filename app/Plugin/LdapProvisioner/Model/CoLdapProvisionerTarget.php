@@ -487,11 +487,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               case 'isMemberOf':
-                if($person && !empty($provisioningData['CoGroupMember'])) {
-                  foreach($provisioningData['CoGroupMember'] as $gm) {
-                    if(isset($gm['member']) && $gm['member']
-                       && !empty($gm['CoGroup']['name'])) {
-                      $attributes['isMemberOf'][] = $gm['CoGroup']['name'];
+                if($person) {
+                  if(!empty($provisioningData['CoGroupMember'])) {
+                    foreach($provisioningData['CoGroupMember'] as $gm) {
+                      if(isset($gm['member']) && $gm['member']
+                         && !empty($gm['CoGroup']['name'])) {
+                        $attributes['isMemberOf'][] = $gm['CoGroup']['name'];
+                      }
                     }
                   }
                   

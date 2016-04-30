@@ -91,6 +91,17 @@ class ProvisionerBehavior extends ModelBehavior {
       return true;
     }
     
+    // If we were called with saveField(), $model->data will be likely be empty.
+    // We need to load it.
+    
+    if(empty($model->data) && !empty($options['fieldList'])) {
+      $args = array();
+      $args['conditions'][$model->alias.'.id'] = $model->id;
+      $args['contain'] = false;
+      
+      $model->data = $model->find('first', $args);
+    }
+    
     $pmodel = null;
     $pdata = null;
     $paction = null;
