@@ -68,7 +68,7 @@
     // Open dialog
     $("#dialog-review").dialog("open");
     
-    <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
+    <?php if($tandc && $vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
     // Enable the checkbox
     document.getElementById('CoTermsAndConditions'+id).disabled = false;
     <?php endif; // explicit consent ?>
@@ -79,7 +79,7 @@
     
     var allagreed = 1;
     
-    <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
+    <?php if($tandc && $vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
     for(var i = 0;i < tandcids.length;i++) {
       if(!document.getElementById('CoTermsAndConditions'+tandcids[i]).checked) {
         allagreed = 0;
@@ -100,7 +100,7 @@
   {
     // Local (to this view) initializations
     
-    <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
+    <?php if($tandc && $vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
     // Disable checkboxes until individual T&C are reviewed
     for(var i = 0;i < tandcids.length;i++) {
       // If the box is already ticked (eg: if the form re-renders), make sure it remains enabled

@@ -50,7 +50,8 @@ class UpgradeVersionShell extends AppShell {
     // 1.0.0 blocks because of the introduction of /local
     "1.0.0" => array('block' => true, 'post' => 'post100'),
     "1.0.1" => array('block' => false),
-    "1.0.2" => array('block' => false)
+    "1.0.2" => array('block' => false),
+    "1.0.3" => array('block' => false)
   );
   
   public function getOptionParser() {

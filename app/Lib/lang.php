@@ -691,6 +691,7 @@ original notification at
   'er.grm.history.members' => 'Error creating history record when automatically adding CO Person ID %1$s to members group',
   'er.grm.nf' =>      'Group Member %1$s Not Found',
   'er.grm.none' =>    'No group memberships to add',
+  'er.history' =>     'Error creating history record (person=%1$s, role=%2$s, group=%3$s): %4$s',
   'er.ia' =>          'Identifier assignment failed: ',
   'er.ia.already' =>  'Identifier already assigned',
   'er.ia.exists' =>   'The identifier "%1$s" is already in use',
