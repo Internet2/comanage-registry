@@ -2,7 +2,7 @@
 /**
  * COmanage Registry COU Model
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -157,28 +157,32 @@ class Cou extends AppModel {
     // only call delete if there are no roles in the COU and the
     // COU is really being deleted so we do not have to worry about
     // that here.
-    $conditions = array();
-    $conditions['Cou.id'] = $this->id;
     
     $args = array();
-    $args['conditions'] = $conditions;
-    $args['contain']['Co'] = 'CoGroup';
+    $args['conditions']['Cou.id'] = $this->id;
     
     $cou = $this->find('first', $args);
     $couName = $cou['Cou']['name'];
     
-    foreach($cou['Co']['CoGroup'] as $group) {
-      $groupName = $group['name'];
-      if($groupName == ('admin:' . $couName)) {
-        // Delete the admin group.
-        $this->Co->CoGroup->delete($group['id']);
-      } elseif($groupName == 'members:' . $couName) {
-        // Delete the members group.
-        $this->Co->CoGroup->delete($group['id']);
-      }
+    // Find the associated admin and members groups and delete them.
+    // We should be able to deleteAll instead, but changelogbehavior is
+    // manipulating the query incorrectly and causing an error.
+    
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $cou['Cou']['co_id'];
+    $args['conditions']['CoGroup.name'] = array(
+      'admin:' . $couName,
+      'members:' . $couName
+    );
+    $args['contain'] = false;
+    
+    $groups = $this->Co->CoGroup->find('all', $args);
+    
+    foreach($groups as $g) {
+      $this->Co->CoGroup->delete($g['CoGroup']['id']);
     }
     
-    // Return true so that the delete actually happens.
+    // Return true so that the parent delete actually happens.
     return true;
   }
 
