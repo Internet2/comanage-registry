@@ -333,6 +333,11 @@
 
     // Turn on the sidebar menus
     $("#menu").menu();
+    
+    // Turn on tooltips for menuTop
+    $(".menuTop").tooltip({
+      position: { my: "right+15 top", at: "left bottom" }
+    });
 
     // Flash Messages
     <?php

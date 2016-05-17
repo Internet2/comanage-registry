@@ -109,12 +109,11 @@
     <div id="name" class="row1-dropdown">
       <ul class="sf-menu">
         <li class="dropMenu">
-          <a href="#" class="menuTop">
+          <a href="#" class="menuTop" title="<?php print $this->Session->read('Auth.User.username'); ?>">
             <span id="comanage-gear"></span>
             <?php
               // Print the user's name
               print generateCn($this->Session->read('Auth.User.name'));
-              print ' (' . $this->Session->read('Auth.User.username') . ')';
             ?>
           </a>
           <!-- Account Dropdown -->
