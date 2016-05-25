@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Identifier Fields
  *
- * Copyright (C) 2010-12 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -52,10 +52,18 @@
 
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+    
+  // Are we editing an org identity or a CO Person?
+  $isOrgIdentity = true;
+  
+  if(!empty($this->request->params['named']['copersonid'])
+     || !empty($this->request->data['Identifier']['co_person_id'])) {
+    $isOrgIdentity = false;
+  }
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  if(isset($this->request->params['named']['copersonid']) || isset($this->request->data['Identifier']['co_person_id'])) {
+  if(!$isOrgIdentity) {
     // CO Person History
     $args = array();
     $args['plugin'] = null;
@@ -69,8 +77,7 @@
       'action' => 'canvas',
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
-
-  } elseif(isset($this->request->params['named']['orgidentityid']) || isset($this->request->data['Identifier']['org_identity_id'])) {
+  } else {
     // Org ID History
     $args = array();
     $args['plugin'] = null;
@@ -86,15 +93,15 @@
       'action' => 'edit',
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
-
   }
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.identifiers.1')));
   $this->Html->addCrumb($crumbTxt);
-
+  
+  $l = 1;
 ?>
 <table id="<?php print $this->action; ?>_identifier" class="ui-widget">
   <tbody>
-    <tr class="line1">
+    <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php print _txt('fd.type'); ?>
       </td>
@@ -118,7 +125,7 @@
         ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php print _txt('fd.identifier.identifier'); ?>
       </td>
@@ -127,7 +134,8 @@
                        : Sanitize::html($identifiers[0]['Identifier']['identifier'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <?php if($isOrgIdentity): ?>
+    <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php print _txt('fd.identifier.login'); ?><br />
         <em><?php print _txt('fd.identifier.login.desc'); ?></em>
@@ -136,7 +144,10 @@
         <?php print ($e ? $this->Form->input('login') : Sanitize::html($identifiers[0]['Identifier']['login'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <?php else: // $isOrgIdentity ?>
+    <?php print $this->Form->hidden('login', array('default' => false)) . "\n"; ?>
+    <?php endif; // $isOrgIdentity ?>
+    <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php print _txt('fd.status'); ?>
       </td>
