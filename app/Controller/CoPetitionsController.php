@@ -1194,7 +1194,23 @@ class CoPetitionsController extends StandardController {
     
     // The step is done
     
-    $this->redirect($this->generateDoneRedirect('sendConfirmation', $id));
+    $debug = Configure::read('debug');
+    
+    if(!$debug) {
+      $this->redirect($this->generateDoneRedirect('sendConfirmation', $id));
+    } else {
+      // We need to populate the view var to render the debug link
+      $coInviteId = $this->CoPetition->field('co_invite_id',
+                                             array('CoPetition.id' => $id));
+      
+      if($coInviteId) {
+        $args = array();
+        $args['conditions']['CoInvite.id'] = $coInviteId;
+        $args['contain'] = false;
+        
+        $this->set('vv_co_invite', $this->CoPetition->CoInvite->find('first', $args));
+      }
+    }
   }
   
   /**
