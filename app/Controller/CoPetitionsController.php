@@ -470,7 +470,7 @@ class CoPetitionsController extends StandardController {
    * @throws InvalidArgumentException
    */
   
-  protected function calculateImpliedCoId() {
+  protected function calculateImpliedCoId($data = null) {
     if($this->enrollmentFlowID() != -1
        && ($this->action == 'add'  // Leave add for now since it redirects to start
            || in_array($this->action, array_keys($this->nextSteps)))) {
