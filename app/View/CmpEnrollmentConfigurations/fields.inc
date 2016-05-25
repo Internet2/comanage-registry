@@ -278,15 +278,15 @@
             <?php
             $xprefix = 'CmpEnrollmentAttribute.' . $xindex;
             $xindex++;
-
+            
             print $this->Form->hidden($xprefix . '.cmp_enrollment_configuration_id',
               array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'])));
             print $this->Form->hidden($xprefix . '.attribute',
               array('value' => $attr));
 
-            if(!empty($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['type'])) {
+            if(!empty($vv_availableAttributes[$attr]['type'])) {
               print $this->Form->hidden($xprefix . '.type',
-                array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['type'])));
+                array('value' => Sanitize::html($vv_availableAttributes[$attr]['type'])));
             }
 
             if(isset($currentAttributes[$attr]['id'])) {
