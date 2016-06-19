@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Model
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -34,12 +34,25 @@ class OrgIdentity extends AppModel {
   
   // Association rules from this model to other models
   public $hasOne = array(
+    // An Org Identity may have one related source record
+    "OrgIdentitySourceRecord" => array(
+      'dependent'  => true
+    ),
     // An Org Identity has one Primary Name, which is a pointer to a Name
     "PrimaryName" => array(
       'className'  => 'Name',
       'conditions' => array('PrimaryName.primary_name' => true),
       'dependent'  => false,
       'foreignKey' => 'org_identity_id'
+    ),
+    // A CO Person and associated models created from a Pipeline have Source Org Identities
+    "PipelineCoPersonRole" => array(
+      'className'  => 'CoPersonRole',
+      'foreignKey' => 'source_org_identity_id'
+    ),
+    "PipelineCoGroupMember" => array(
+      'className'  => 'CoGroupMember',
+      'foreignKey' => 'source_org_identity_id'
     )
   );
   
@@ -72,8 +85,6 @@ class OrgIdentity extends AppModel {
   );
 
   public $belongsTo = array(
-    // A person may belong to an organization (if pre-defined)
-    "Organization",
     // An Org Identity may belong to a CO, if not pooled
     "Co"
   );
@@ -88,6 +99,14 @@ class OrgIdentity extends AppModel {
   // Validation rules for table elements
   // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
+    'status' => array(
+      'content' => array(
+        'rule' => array('inList', array(OrgIdentityStatusEnum::Removed,
+                                        OrgIdentityStatusEnum::Synced)),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
     'affiliation' => array(
       'content' => array(
         'rule' => array('inList', array(AffiliationEnum::Faculty,
@@ -283,6 +302,60 @@ class OrgIdentity extends AppModel {
     return $cos;
   }
 
+  /**
+   * Determine the Pipeline this OrgIdentity should be processed using, if any.
+   * The priority for selecting a Pipeline when multiple are available is the Pipeline
+   *  (1) Attached to the Enrollment Flow that created the OrgIdentity
+   *  (2) Attached to the Org Identity Source the OrgIdentity was created from
+   *  (3) The CO Setting
+   * Note this implies the Pipeline an OrgIdentity is processed by can change over time.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer Org Identity ID
+   * @return Integer CO Pipeline ID, or null
+   */
+  
+  public function pipeline($id) {
+    $args = array();
+    $args['conditions']['CoPetition.enrollee_org_identity_id'] = $id;
+    $args['conditions']['CoPetition.status'] = PetitionStatusEnum::Finalized;
+    $args['order'][] = 'CoPetition.created ASC';
+    $args['contain'][] = 'CoEnrollmentFlow';
+    
+    // First see if this Org Identity is attached to a Petition, and if so if that
+    // Petition's Enrollment Flow in turn has a pipeline. Since an Org Identity
+    // can be attached to multiple Petitions (eg: account linking), we pick the
+    // oldest with a pipeline attached. (eg: Account linking enrollment flows
+    // shouldn't have pipelines attached.)
+    
+    // XXX implement and test when pipelines are attached to EFs
+    // $this->Co->CoPetition->find('all', $args);
+    // return id if found;
+    
+    // Next check for an org identity source
+    $args = array();
+    $args['conditions']['OrgIdentitySourceRecord.org_identity_id'] = $id;
+    $args['contain'][] = 'OrgIdentitySource';
+    
+    $oisRecord = $this->OrgIdentitySourceRecord->find('first', $args);
+    
+    if(!empty($oisRecord['OrgIdentitySource']['co_pipeline_id']))
+      return $oisRecord['OrgIdentitySource']['co_pipeline_id'];
+    
+    // If none found, check CO Settings.
+    $coId = $this->field('co_id', array('OrgIdentity.id' => $id));
+    
+    if($coId) {
+      $pipelineId = $this->Co->CoSetting->field('default_co_pipeline_id', array('CoSetting.co_id' => $coId));
+      
+      if($pipelineId) {
+        return $pipelineId;
+      }
+    }
+    
+    return null;
+  }
+  
   /**
    * As of v1.0.0, this operation is no longer supported.
    *

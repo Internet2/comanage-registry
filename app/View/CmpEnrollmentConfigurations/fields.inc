@@ -302,6 +302,32 @@
           </td>
           <td>
             <?php
+            $xprefix = 'CmpEnrollmentAttribute.' . $xindex;
+            $xindex++;
+            
+            print $this->Form->hidden($xprefix . '.cmp_enrollment_configuration_id',
+              array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'])));
+            print $this->Form->hidden($xprefix . '.attribute',
+              array('value' => $attr));
+
+            if(!empty($vv_availableAttributes[$attr]['type'])) {
+              print $this->Form->hidden($xprefix . '.type',
+                array('value' => Sanitize::html($vv_availableAttributes[$attr]['type'])));
+            }
+
+            if(isset($currentAttributes[$attr]['id'])) {
+              print $this->Form->hidden($xprefix . '.id',
+                array('value' => $currentAttributes[$attr]['id']));
+            }
+            ?>
+            <?php
+              print ($e
+              ? $this->Form->label($xprefix . '.env_name', $vv_availableAttributes[$attr]['label'])
+              : $vv_availableAttributes[$attr]['label']);
+            ?>
+          </td>
+          <td>
+            <?php
               global $cm_lang, $cm_texts;
               $attrs = array();
               $attrs['value'] = (isset($currentAttributes[$attr]['required'])

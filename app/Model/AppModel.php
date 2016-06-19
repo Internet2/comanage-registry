@@ -94,7 +94,9 @@ class AppModel extends Model {
          || $attr == 'revision'
          || $attr == 'deleted'
          || $attr == 'actor_identifier'
-         || $attr == Inflector::underscore($model).'_id') {
+         || $attr == Inflector::underscore($model).'_id'
+         // And pipeline metadata
+         || $attr == 'source_'.Inflector::underscore($model).'_id') {
         continue;
       }
       
@@ -623,6 +625,18 @@ class AppModel extends Model {
       
       if(!empty($copt['CoProvisioningTarget']['co_id'])) {
         return $copt['CoProvisioningTarget']['co_id'];
+      }
+    } elseif(isset($this->validate['org_identity_source_id'])) {
+      // Org Identity Source plugins will refer to an org identity source
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'OrgIdentitySource';
+    
+      $copt = $this->find('first', $args);
+      
+      if(!empty($copt['OrgIdentitySource']['co_id'])) {
+        return $copt['OrgIdentitySource']['co_id'];
       }
     } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $this->alias)) {
       // Extended attributes need to be handled specially, as usual, since there

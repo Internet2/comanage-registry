@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -96,6 +96,16 @@ $(function() {
 
   $l = 1;
 ?>
+<?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['id'])): ?>
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
+  <p>
+    <span class="ui-icon ui-icon-info co-info"></span>
+    <strong><?php print _txt('op.orgid.edit.ois'); ?></strong>
+  </p>
+</div>
+<br />
+<?php endif; // view ?>
+
 <div id="<?php print $this->action; ?>_org_identity" class="coTabsContainer">
   <div id="tabs" class="coTabs">
     <ul>
@@ -317,6 +327,34 @@ $(function() {
           <?php endif; // add ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
+              <?php print _txt('fd.status'); ?>
+            </td>
+            <td>
+              <?php
+                global $cm_lang, $cm_texts;
+                $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['status'])
+                                   ? $org_identities[0]['OrgIdentity']['status']
+                                   : "M");
+                $attrs['empty'] = true;
+
+                if($e) {
+                  print $this->Form->select('status',
+                                            $cm_texts[ $cm_lang ]['en.status.org'],
+                                            $attrs);
+
+                  if($this->Form->isFieldError('status')) {
+                    print $this->Form->error('status');
+                  }
+                } else {
+                  if(!empty($org_identities[0]['OrgIdentity']['status'])) {
+                    print $cm_texts[ $cm_lang ]['en.status.org'][ $org_identities[0]['OrgIdentity']['status'] ];
+                  }
+                }
+              ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td>
               <?php print _txt('fd.affiliation'); ?>
             </td>
             <td>
@@ -332,8 +370,8 @@ $(function() {
                                             $cm_texts[ $cm_lang ]['en.org_identity.affiliation'],
                                             $attrs);
 
-                  if($this->Form->isFieldError('status')) {
-                    print $this->Form->error('status');
+                  if($this->Form->isFieldError('affiliation')) {
+                    print $this->Form->error('affiliation');
                   }
                 } else {
                   if(!empty($org_identities[0]['OrgIdentity']['affiliation'])) {
@@ -692,33 +730,33 @@ $(function() {
       
       <div id="tabs-copeople" class="additionalinfo">
         <?php
-          if($e) {
-            if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
-              foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
+          if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
+            foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
+              print '<div>';
                 print '<div>';
-                  print '<div>';
-                    print $this->Html->link(generateCn($o['CoPerson']['PrimaryName']),
-                                            array('controller' => 'co_people',
-                                                  'action'     => 'canvas',
-                                                  $o['CoPerson']['id']));
-                    
-                    print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
-                  print '</div>';
-                  print '<div>';
-                  
-                  // We don't currently offer an unlink button here, that can only (currently)
-                  // be done from CO Person Canvas, which places some restrictions on that action.
-                  
-                  print $this->Html->link(_txt('op.view'),
+                  print $this->Html->link(generateCn($o['CoPerson']['PrimaryName']),
                                           array('controller' => 'co_people',
                                                 'action'     => 'canvas',
-                                                $o['CoPerson']['id']),
-                                          array('class' => 'editbutton')) . "\n";
-                  print '</div>';
+                                                $o['CoPerson']['id']));
+                  
+                  print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
                 print '</div>';
-              }
+                print '<div>';
+                
+                // We don't currently offer an unlink button here, that can only (currently)
+                // be done from CO Person Canvas, which places some restrictions on that action.
+                
+                print $this->Html->link(_txt('op.view'),
+                                        array('controller' => 'co_people',
+                                              'action'     => 'canvas',
+                                              $o['CoPerson']['id']),
+                                        array('class' => 'editbutton')) . "\n";
+                print '</div>';
+              print '</div>';
             }
-            
+          }
+          
+          if($e) {
             if($permissions['link']) {
               foreach($vv_linkable_cos as $lcoid => $lconame) {
                 print $this->Html->link(_txt('op.link.to.co', array($lconame)),
@@ -728,14 +766,6 @@ $(function() {
                                               'co'            => $lcoid),
                                         array('class'  => 'addbutton'));
                                           
-              }
-            }
-          } else {
-            if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
-              foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
-                print '<div>';
-                  print Sanitize::html(generateCn($o['CoPerson']['PrimaryName'])) . "\n";
-                print '</div>';
               }
             }
           }

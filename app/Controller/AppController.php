@@ -786,12 +786,15 @@ class AppController extends Controller {
     // Manage CO enrollment flow definitions?
     $p['menu']['coef'] = $roles['cmadmin'] || $roles['coadmin'];
     
-    // Manage CO Localizations
+    // Manage CO Localizations?
     $p['menu']['colocalizations'] = $roles['cmadmin'] || $roles['coadmin'];
   
     // Manage CO Links?
     $p['menu']['conavigationlinks'] = $roles['cmadmin'] || $roles['coadmin'];
 
+    // Manage CO Permissions?
+    $p['menu']['copipelines'] = $roles['cmadmin'] || $roles['coadmin'];
+  
     // Manage CO provisioning targets?
     $p['menu']['coprovtargets'] = $roles['cmadmin'] || $roles['coadmin'];
     
@@ -815,7 +818,16 @@ class AppController extends Controller {
     
     // View/Edit own Demographics profile?
     $p['menu']['nsfdemoprofile'] = $roles['user'];
-
+    
+    // Manage org identity sources? CO Admins can only do this if org identities are NOT pooled
+    $this->loadModel('CmpEnrollmentConfiguration');
+    
+    if(!$this->CmpEnrollmentConfiguration->orgIdentitiesPooled()) {
+      $p['menu']['orgidsources'] = $roles['cmadmin'] || $roles['coadmin'];
+    } else {
+      $p['menu']['orgidsources'] = false;
+    }
+    
     $this->set('permissions', $p);
   }
 

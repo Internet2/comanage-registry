@@ -30,7 +30,7 @@ class CoPetitionsController extends StandardController {
   public $helpers = array('Time');
   
   // When using additional models, we must also specify our own
-  public $uses = array('CoPetition', 'CmpEnrollmentConfiguration');
+  public $uses = array('CoPetition', 'CmpEnrollmentConfiguration', 'OrgIdentitySource');
   
   public $paginate = array(
     'limit' => 25,
@@ -124,12 +124,14 @@ class CoPetitionsController extends StandardController {
   // - Update the diagram at https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Diagram
   
   protected $nextSteps = array(
-    'start'                    => 'selectEnrollee',
+    'start'                    => 'selectOrgIdentity',
+    'selectOrgIdentity'        => 'selectEnrollee',
     'selectEnrollee'           => 'petitionerAttributes',
     'petitionerAttributes'     => 'sendConfirmation',
     'sendConfirmation'         => 'waitForConfirmation',
     // execution continues here if confirmation not required
-    'waitForConfirmation'      => 'sendApproverNotification',
+    'waitForConfirmation'      => 'checkEligibility',
+    'checkEligibility'         => 'sendApproverNotification',
     // We have both redirectOnConfirm and waitForApproval because depending on the
     // confirmation we might have different paths to completing the processConfirmation step
     'sendApproverNotification' => 'waitForApproval',
@@ -137,7 +139,7 @@ class CoPetitionsController extends StandardController {
     // execution continues at finalize if approval not required
     // processConfirmation is re-entry point following confirmation
     'processConfirmation'      => 'collectIdentifier',
-    'collectIdentifier'        => 'sendApproverNotification',
+    'collectIdentifier'        => 'checkEligibility',
     // approve is re-entry point following approval
     'approve'                  => 'sendApprovalNotification',
     'sendApprovalNotification' => 'finalize',
@@ -491,6 +493,17 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Check eligibility prior to approval
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function checkEligibility($id) {
+    $this->dispatch('checkEligibility', $id);
+  }
+  
+  /**
    * Collect identifiers following email confirmation
    *
    * @since  COmanage Registry v0.9.4
@@ -643,7 +656,7 @@ class CoPetitionsController extends StandardController {
         if($curPlugin) {
           // We're executing on behalf of a plugin. (We require the format
           // execute_plugin_STEP so we can distinguish from core workflow steps,
-          // since plugins extend CoPetitiosController.)
+          // since plugins extend CoPetitionsController.)
           $fname = "execute_plugin_" . $step;
           
           if(!is_callable(array($this,$fname))) {
@@ -847,6 +860,22 @@ class CoPetitionsController extends StandardController {
     // The step is done
     
     $this->redirect($this->generateDoneRedirect('approve', $id));    
+  }
+  
+  /**
+   * Execute CO Petition 'checkEligibility' step
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_checkEligibility($id) {
+    $this->CoPetition->checkEligibility($id, $this->Session->read('Auth.User.co_person_id'));
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('checkEligibility', $id));    
   }
   
   /**
@@ -1098,7 +1127,7 @@ class CoPetitionsController extends StandardController {
       $this->performRedirect();
     }
   }
-    
+  
   /**
    * Execute CO Petition 'selectEnrollee' step
    *
@@ -1114,16 +1143,16 @@ class CoPetitionsController extends StandardController {
     if($matchPolicy == EnrollmentMatchPolicyEnum::Self) {
       // Grab the current CO Person ID and store it in the petition
       
-      $ptid = $this->CoPetition->linkCoPerson($id,
-                                              $this->Session->read('Auth.User.co_person_id'),
-                                              $this->Session->read('Auth.User.co_person_id'));
+      $this->CoPetition->linkCoPerson($id,
+                                      $this->Session->read('Auth.User.co_person_id'),
+                                      $this->Session->read('Auth.User.co_person_id'));
     } elseif($matchPolicy == EnrollmentMatchPolicyEnum::Select) {
       if(!empty($this->request->params['named']['copersonid'])) {
-        // We're back from the people picker. Grap the requested CO Person ID and store it
+        // We're back from the people picker. Grab the requested CO Person ID and store it
         
-        $ptid = $this->CoPetition->linkCoPerson($id,
-                                                $this->request->params['named']['copersonid'],
-                                                $this->Session->read('Auth.User.co_person_id'));
+        $this->CoPetition->linkCoPerson($id,
+                                        $this->request->params['named']['copersonid'],
+                                        $this->Session->read('Auth.User.co_person_id'));
       } else {
         // Redirect into the CO Person picker
         
@@ -1135,6 +1164,116 @@ class CoPetitionsController extends StandardController {
         );
         
         $this->redirect($r);
+      }
+    }
+    
+    $this->redirect($this->generateDoneRedirect('selectEnrollee', $id));
+  }
+  
+  /**
+   * Execute CO Petition 'selectOrgIdentity' step
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_selectOrgIdentity($id) {
+    $orgIdentityMode = $this->CoPetition->CoEnrollmentFlow->field('org_identity_mode',
+                                                                  array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    
+    if($orgIdentityMode == EnrollmentOrgIdentityModeEnum::OISClaim) {
+      // We need the authz level to know how to handle this
+      $authzLevel = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
+                                                               array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+        
+      if($authzLevel == EnrollmentAuthzEnum::CoAdmin
+         || $authzLevel == EnrollmentAuthzEnum::CoOrCouAdmin
+         || $authzLevel == EnrollmentAuthzEnum::CouAdmin) {
+        if(!empty($this->request->params['named']['orgidentityid'])) {
+          // We're back from the org identity (source) selector.
+          // Grab the requested Org Identity ID and store it.
+          
+          $this->CoPetition->linkOrgIdentity($id,
+                                             $this->request->params['named']['orgidentityid'],
+                                             $this->Session->read('Auth.User.co_person_id'));
+        } else {
+          // Redirect into the OIS Selector
+          
+          $r = array(
+            'plugin'       => null,
+            'controller'   => 'org_identity_sources',
+            'action'       => 'select',
+            'copetitionid' => $id
+          );
+          
+          $this->redirect($r);
+        }
+      } else {
+        // For self service "claiming" of an org identity, we need to verify control
+        // of the identity somehow. There are two plausible ways to do this:
+        // (1) Authenticate the user and check the authenticated identifier against
+        //     an identifier in the org identity record. This option is not currently
+        //     supported
+        // (2) Send a confirmation to an email address provided by the enrollee,
+        //     then search for Org Identities that match.
+        // Either way, we don't want to create the org identity until the appropriate
+        // process has been completed.
+        
+        // Since we only support (2), that's our mode
+        $this->set('vv_ois_mode', 'email');
+        
+        if(!empty($this->request->data['OrgIdentitySource']['mail'])) {
+          $this->set('vv_ois_mail', Sanitize::html($this->request->data['OrgIdentitySource']['mail']));
+          
+          if(!empty($this->request->data['OrgIdentitySource']['token'])) {
+            // We're back from the form with a token. Verify it, then search for
+            // matching Org Identity Source records. (Note OrgIdentitySource.token
+            // is what the user entered, while CoPetition.token is used to link
+            // unauthenticated steps across petitions.)
+            
+            $this->set('vv_ois_mode', 'email-select');
+            
+            $sourceRecords = $this->OrgIdentitySource->searchAllByEmail($this->request->data['OrgIdentitySource']['mail'],
+                                                                        (!empty($this->cur_co['Co']['id'])
+                                                                         ? $this->cur_co['Co']['id']
+                                                                         : null));
+            
+            $this->set('vv_ois_candidates', $sourceRecords);
+          } elseif(!empty($this->request->data['OrgIdentitySource']['selection'])) {
+            // We're back from the selector with a record to use. selection is of the
+            // form #/key, where # is the relevant OrgIdentitySource:id.
+            
+            $s = explode('/', $this->request->data['OrgIdentitySource']['selection'], 2);
+            
+            try {
+              $orgId = $this->OrgIdentitySource->createOrgIdentity($s[0], $s[1], null, (!empty($this->cur_co['Co']['id'])
+                                                                                        ? $this->cur_co['Co']['id']
+                                                                                        : null));
+              
+              $this->CoPetition->linkOrgIdentity($id,
+                                                 $orgId,
+                                                 // XXX this probably isn't set yet
+                                                 $this->Session->read('Auth.User.co_person_id'));
+              
+              $this->redirect($this->generateDoneRedirect('selectEnrollee', $id));
+            }
+            catch(OverflowException $e) {
+              $this->Flash->set($e->getMessage(), array('key' => 'error'));
+            }
+          } else {
+            // We're back from the form with an email address. Generate a token and
+            // send a confirmation email to that address.
+            
+            // XXX not yet implemented, as we want to base this on a refactored
+            // replacement for CoInvites.
+            
+            $this->set('vv_ois_mode', 'email-token');
+          }
+        }
+        
+        // Don't generate redirect, we want the view to render
+        return;
       }
     }
     
@@ -1478,6 +1617,7 @@ class CoPetitionsController extends StandardController {
       // Initiating a Petition gets us to the point of collecting petitioner attributes
       $p['start'] = $canInitiate;
       // Once there is a petitioner attached, we restrict who can run the associated steps
+      $p['selectOrgIdentity'] = $isPetitioner;
       $p['selectEnrollee'] = $isPetitioner;
       $p['petitionerAttributes'] = $isPetitioner;
       $p['sendConfirmation'] = $isPetitioner;
@@ -1485,6 +1625,14 @@ class CoPetitionsController extends StandardController {
       // The petition then gets handed off to the enrollee
       $p['processConfirmation'] = $isEnrollee;
       $p['collectIdentifier'] = $isEnrollee;
+      // Eligibility steps could be triggered by petitioner or enrollee, according to configuration
+      if($steps['checkEligibility']['role'] == EnrollmentRole::Enrollee) {
+        // Confirmation required, so eligibility steps get triggered by enrollee
+        $p['checkEligibility'] = $isEnrollee;
+      } else {
+        // Eligibility triggered by petitioner
+        $p['checkEligibility'] = $isPetitioner;
+      }
       // Approval steps could be triggered by petitioner or enrollee, according to configuration
       if($steps['sendApproverNotification']['role'] == EnrollmentRole::Enrollee) {
         // Confirmation required, so approval steps get triggered by enrollee
@@ -1820,6 +1968,17 @@ class CoPetitionsController extends StandardController {
   
   public function selectEnrollee($id) {
     $this->dispatch('selectEnrollee', $id);
+  }
+  
+  /**
+   * Select the org identity for a new CO Petition
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function selectOrgIdentity($id) {
+    $this->dispatch('selectOrgIdentity', $id);
   }
   
   /**

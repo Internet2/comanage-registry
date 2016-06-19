@@ -84,16 +84,19 @@
                 print $this->Html->link(_txt('ct.navigation_links.pl'), $args);
               ?>
             </li>
+            <?php if($pool_org_identities): ?>
             <li>
               <?php
+                // If org identities are pooled, only CMP admins can define sources
                 $args = array();
                 $args['plugin'] = null;
-                $args['controller'] = 'organizations';
+                $args['controller'] = 'org_identity_sources';
                 $args['action'] = 'index';
                 
-                print $this->Html->link(_txt('ct.organizations.pl'), $args);
+                print $this->Html->link(_txt('ct.org_identity_sources.pl'), $args);
               ?>
             </li>
+            <?php endif; // pool_org_identities ?>
             <?php
               if(!empty($menuContent['plugins'])) {
                 render_plugin_menus($this->Html, $menuContent['plugins'], 'cmp');

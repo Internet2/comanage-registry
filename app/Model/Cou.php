@@ -59,6 +59,14 @@ class Cou extends AppModel {
     "CoExpirationPolicyCondCou" => array(
       'className' => 'CoExpirationPolicy',
       'foreignKey' => 'cond_cou_id'
+    ),
+    "CoPipelineSyncCou" => array(
+      'className' => 'CoPipeline',
+      'foreignKey' => 'sync_cou_id'
+    ),
+    "CoPipelineReplaceCou" => array(
+      'className' => 'CoPipeline',
+      'foreignKey' => 'sync_replace_cou_id'
     )
   );
 
@@ -117,6 +125,7 @@ class Cou extends AppModel {
   
   public function allCous($coId, $format="hash") {
     $args['conditions']['Cou.co_id'] = $coId;
+    $args['order'] = 'Cou.name ASC';
     
     $cous = $this->find("list", $args);
     

@@ -122,9 +122,10 @@ class ChangelogBehavior extends ModelBehavior {
     
     if($cascade) {
       // By returning false, we appear to interrupt a cascade from happening.
-      // We need to manually cascade the delete. It's not clear what we should
-      // do for related models that don't implement changelog behavior, so for
-      // now we just ignore them.
+      // We need to manually cascade the delete. For related models that don't
+      // implement changelog behavior, we still cascade the delete. An example
+      // would be a plugin that doesn't implement changelog even though the
+      // parent model does.
       
       // For dependent related models that do implement changelog, we call delete on them
       // as well, unless they are set for $relinkToArchive, in which case we leave
@@ -133,7 +134,6 @@ class ChangelogBehavior extends ModelBehavior {
       foreach(array_merge($model->hasOne, $model->hasMany) as $rmodel => $roptions) {
         if(isset($roptions['dependent'])
            && $roptions['dependent']
-           && $model->$rmodel->Behaviors->enabled('Changelog')
            && (!$model->relinkToArchive
                || !in_array($rmodel, $model->relinkToArchive))) {
           if(!$model->$rmodel->deleteAll(array($rmodel . '.' . $roptions['foreignKey'] => $model->id), true, true)) {
@@ -507,6 +507,11 @@ class ChangelogBehavior extends ModelBehavior {
    */
   
   protected function modifyContain($model, $contain) {
+    // If we get a simple string, convert it to a simple array
+    if(is_string($contain)) {
+      $contain = array(0 => $contain);
+    }
+    
     $ret = $contain;
     
     foreach($contain as $k => $v) {

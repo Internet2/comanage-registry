@@ -24,6 +24,30 @@
 
 // Add buttons
 if($this->action != "add") {
+  if($permissions['viewsource']
+     && !empty($org_identities[0]['OrgIdentitySourceRecord']['id'])) {
+    // View Source Record button
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.view-a', array(_txt('ct.org_identity_source_records.1'))),
+      array(
+        'controller' => 'org_identity_source_records',
+        'action'     => 'view',
+        $org_identities[0]['OrgIdentitySourceRecord']['id']
+      ),
+      array('class' => 'viewbutton')
+    );
+  }
+  
+  if($permissions['pipeline']
+     && !empty($vv_pipeline['CoPipeline'])) {
+    // Re-execute Pipeline button
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.pipeline.rerun'),
+      'javascript:js_confirm_pipeline()',
+      array('class' => 'runbutton')
+    );
+  }
+  
   if($permissions['history']) {
     // History button
     $params['topLinks'][] = $this->Html->link(
@@ -55,3 +79,93 @@ if($this->action != "add") {
     );
   }
 }
+?>
+<script>
+  function js_confirm_pipeline() {
+    pipelinedialog.dialog("open");
+    document.getElementById("CoPipelineAction").focus();
+  }
+  
+  $(function() {
+    pipelinedialog = $("#pipeline-form").dialog({
+      autoOpen: false,
+      modal: true
+    });
+  });
+</script>
+<div id="pipeline-form" title="<?php print _txt('op.pipeline.rerun'); ?>">
+  <?php
+    // SecurityComponent form tampering token checking doesn't like this as a POST,
+    // so the easiest thing is to send it as a GET (which is nominally more correct anyway).
+    print $this->Form->create('CoPipeline', array('action' => 'execute/'.$vv_pipeline['CoPipeline']['id'],
+                                                  'type' => 'get'));
+    print $this->Form->hidden('CoPipeline.org_identity_id', array('default' => $org_identities[0]['OrgIdentity']['id']));
+  ?>
+  <p>
+    <?php print _txt('op.pipeline.rerun.form'); ?>
+  </p>
+  <table class="ui-widget">
+    <tbody>
+      <tr>
+        <th class="ui-widget-header">
+          <?php print _txt('ct.co_pipelines.1'); ?>
+        </th>
+        <td class="line1">
+          <?php
+            if(!empty($vv_pipeline['CoPipeline'])) {
+              print $this->Html->link(
+                $vv_pipeline['CoPipeline']['name'],
+                array(
+                  'controller' => 'co_pipelines',
+                  'action'     => 'edit',
+                  $vv_pipeline['CoPipeline']['id']
+                )
+              );
+            }
+          ?>
+        </td>
+      </tr>
+      <tr>
+        <th class="ui-widget-header">
+          <?php print _txt('op.action'); ?>
+        </th>
+        <td class="line1">
+          <?php
+            global $cm_lang, $cm_texts;
+            
+            $attrs = array();
+            // Most of the time we want the default value to be update
+            $attrs['value'] = SyncActionEnum::Update;
+            $attrs['empty'] = false;
+            
+            // Build a list of actions enabled for the pipeline
+            $actions = array();
+            
+            foreach(
+              array('add' => SyncActionEnum::Add,
+                    'update' => SyncActionEnum::Update,
+                    'delete' => SyncActionEnum::Delete)
+              as $k => $e
+            ) {
+              if(isset($vv_pipeline['CoPipeline']['sync_on_'.$k])
+                 && $vv_pipeline['CoPipeline']['sync_on_'.$k]) {
+                $actions[$e] = _txt('en.sync.action', null, $e);
+              }
+            }
+            
+            print $this->Form->select('CoPipeline.action',
+                                      $actions,
+                                      $attrs);
+          ?>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>
+          <?php print $this->Form->submit(_txt('op.run'),
+                                          array('onClick' => 'pipelinedialog.dialog("close");')); ?>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

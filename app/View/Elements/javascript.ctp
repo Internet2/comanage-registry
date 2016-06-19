@@ -225,6 +225,13 @@
       text: true
     });
 
+    $(".runbutton").button({
+      icons: {
+        primary: 'ui-icon-gear'
+      },
+      text: true
+    });
+    
     $("button:reset").button();
     $("button:reset").css('float', 'left');
 

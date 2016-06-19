@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Setting Model
  *
- * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.1
@@ -35,6 +35,9 @@ class CoSetting extends AppModel {
     "SponsorCoGroup" => array(
       'className' => 'CoGroup',
       'foreignKey' => 'sponsor_co_group_id'
+    ),
+    "CoPipeline" => array(
+      'foreignKey' => 'default_co_pipeline_id'
     )
   );
   
@@ -106,6 +109,18 @@ class CoSetting extends AppModel {
     ),
     'sponsor_co_group_id' => array(
       'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'default_co_pipeline_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'elect_strategy_primary_name' => array(
+      'rule' => array('inList',
+                      array(ElectStrategyEnum::FIFO,
+                            ElectStrategyEnum::Manual)),
       'required' => false,
       'allowEmpty' => true
     )

@@ -47,7 +47,12 @@ class CoPersonRole extends AppModel {
     "SponsorCoPerson" => array(
       'className' => 'CoPerson',
       'foreignKey' => 'sponsor_co_person_id'
-    )        // foreign key to sponsor
+    ),        // foreign key to sponsor
+    // A CO Person created from a Pipeline has a Source Org Identity
+    "SourceOrgIdentity" => array(
+      'className' => 'OrgIdentity',
+      'foreignKey' => 'source_org_identity_id'
+    )
   );
   
   public $hasMany = array(
@@ -140,6 +145,13 @@ class CoPersonRole extends AppModel {
       )
     ),
     'sponsor_co_person_id' => array(
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'source_org_identity_id' => array(
       'content' => array(
         'rule' => array('numeric'),
         'required' => false,
@@ -325,25 +337,16 @@ class CoPersonRole extends AppModel {
             $membership['CoGroup']['id']
           );
           $msg = _txt('rs.grm.deleted', $msgData);
-          try {
-            $this->CoPerson->HistoryRecord->record(
-              $coPersonId,
-              null,
-              null, 
-              null, 
-              ActionEnum::CoGroupMemberDeleted, 
-              $msg
-            );
-          }
-          catch (Exception $e) {
-            $coPersonId = $copersonrole['CoPerson']['id'];
-            $coPersonRoleId = $copersonrole['CoPersonRole']['id'];
-            $group = $membership['CoGroup']['name'];
-            
-            $msg = _txt('er.history', array($coPersonId, $coPersonRoleId, $group, $e->getMessage()));
-            $this->log($msg);
-            throw new RuntimeException($e->getMessage());
-          }                  
+          
+          // Let exceptions pop back up the stack
+          $this->CoPerson->HistoryRecord->record(
+            $coPersonId,
+            null,
+            null, 
+            null, 
+            ActionEnum::CoGroupMemberDeleted, 
+            $msg
+          );
     	}	
       }
     }

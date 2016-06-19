@@ -28,6 +28,8 @@ class CoSettingsController extends StandardController {
   // Class name, used by Cake
   public $name = "CoSettings";
   
+  public $uses = array('CoSetting', 'CmpEnrollmentConfiguration');
+  
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 25,
@@ -86,11 +88,24 @@ class CoSettingsController extends StandardController {
   
   function beforeRender() {
     if(!$this->request->is('restful')) {
+      $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
+      
       $args = array();
       $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
       $args['order'] = array('CoGroup.name ASC');
       
       $this->set('vv_co_groups', $this->Co->CoGroup->find("list", $args));
+      
+      if(!$pool) {
+        // Pull the set of available pipelines. This is only possible for unpooled.
+        $args = array();
+        $args['conditions']['CoPipeline.status'] = SuspendableStatusEnum::Active;
+        $args['conditions']['CoPipeline.co_id'] = $this->cur_co['Co']['id'];
+        $args['fields'] = array('CoPipeline.id', 'CoPipeline.name');
+        $args['contain'] = false;
+        
+        $this->set('vv_co_pipelines', $this->CoSetting->Co->CoPipeline->find('list', $args));
+      }
     }
     
     parent::beforeRender();

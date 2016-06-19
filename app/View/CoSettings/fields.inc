@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Settings Fields
  *
- * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.1
@@ -282,6 +282,63 @@
             }
           ?>
         </div>
+      </td>
+    </tr>
+    <?php if(!empty($vv_co_pipelines)): ?>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print $this->Form->label('default_co_pipeline_id',_txt('fd.pi.default'),array('class' => 'fieldTitle'));?><br />
+        <span class="descr"><?php print _txt('fd.pi.default.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['default_co_pipeline_id'])
+                             ? $co_settings[0]['CoSetting']['default_co_pipeline_id']
+                             : "");
+          $attrs['empty'] = true;
+          
+          if($e) {
+            print $this->Form->select('default_co_pipeline_id',
+                                      $vv_co_pipelines,
+                                      $attrs);
+            
+            if($this->Form->isFieldError('default_co_pipeline_id')) {
+              print $this->Form->error('default_co_pipeline_id');
+            }
+          } else {
+            print $vv_co_pipelines[ $co_settings[0]['CoSetting']['default_co_pipeline_id'] ];
+          }
+        ?>
+      </td>
+    </tr>
+    <?php endif; // co_pipelines ?>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print $this->Form->label('elect_strategy_primary_name',_txt('fd.pi.elect.name.p'),array('class' => 'fieldTitle'));?><br />
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['elect_strategy_primary_name'])
+                             ? $co_settings[0]['CoSetting']['elect_strategy_primary_name']
+                             : ElectStrategyEnum::Manual);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('elect_strategy_primary_name',
+                                      $cm_texts[ $cm_lang ]['en.elect.strategy'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('elect_strategy_primary_name')) {
+              print $this->Form->error('elect_strategy_primary_name');
+            }
+          } else {
+            print _txt('en.elect.strategy', null, $co_settings[0]['CoSetting']['elect_strategy_primary_name']);
+          }
+        ?>
       </td>
     </tr>
     <tr>

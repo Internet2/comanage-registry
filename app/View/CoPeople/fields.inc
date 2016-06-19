@@ -1351,13 +1351,13 @@
                       </td>
                       <td>
                         <?php
-                        if(isset($link['OrgIdentity']['o']))
+                        if(!empty($link['OrgIdentity']['o']))
                           print Sanitize::html($link['OrgIdentity']['o']);
                         ?>
                       </td>
                       <td>
                         <?php
-                        if(isset($link['OrgIdentity']['affiliation']))
+                        if(!empty($link['OrgIdentity']['affiliation']))
                           print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $link['OrgIdentity']['affiliation'] ];
                         ?>
                       </td>

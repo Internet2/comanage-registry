@@ -50,7 +50,7 @@
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
     <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('er.plugin.prov.none'); ?></strong>
+    <strong><?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?></strong>
   </p>
 </div>
 <br />
@@ -68,7 +68,7 @@
     <tr class="line2">
       <td>
         <?php print _txt('fd.plugin'); ?><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.plugin.ptwarn'); ?></span>
+        <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.org_identity_sources.1'))); ?></span>
       </td>
       <td>
         <?php

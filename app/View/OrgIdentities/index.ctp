@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Index View
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -41,12 +41,24 @@ if($permissions['add']) {
   $params['topLinks'][] = $this->Html->link(
     _txt('op.add.new', array(_txt('ct.org_identities.1'))),
     array(
-      'controller'    => 'org_identities',
+      'controller' => 'org_identities',
       'action' => 'add',
       'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
     ),
     array('class' => 'addbutton')
   );
+  
+  if(!empty($vv_org_id_sources)) {
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.orgid.add.ois'),
+      array(
+        'controller' => 'org_identity_sources',
+        'action' => 'select',
+        'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
+      ),
+      array('class' => 'addbutton')
+    );
+  }
 }
 
 print $this->element("pageTitleAndButtons", $params);

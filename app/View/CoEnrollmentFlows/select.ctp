@@ -35,7 +35,7 @@
 
 ?>
 
-<table id="cous" class="ui-widget">
+<table id="co_enrollment_flows" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print _txt('fd.name'); ?></th>
