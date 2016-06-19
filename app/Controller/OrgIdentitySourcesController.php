@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Organizational Identity Sources Controller
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v1.1.0
@@ -71,20 +71,34 @@ class OrgIdentitySourcesController extends StandardController {
     
     $plugins = $this->loadAvailablePlugins('orgidsource');
     
+    $pluginGroupAttrs = array();
+    
     // Bind the models so Cake can magically pull associated data. Note this will
     // create associations with *all* orgid source plugins, not just the one that
     // is actually associated with this Org Identity Source. Given that most installations
     // will only have a handful of source plugins, that seems OK (vs parsing the request
-    // data to figure out which type of Plugin we should bind).
+    // data to figure out which type of Plugin we should bind). Also, it turns out
+    // we need to load the plugins anyway so we can see if they want us to manage
+    // their group mappings.
     
     foreach(array_values($plugins) as $plugin) {
       $relation = array('hasOne' => array($plugin => array('dependent' => true)));
       
       // Set reset to false so the bindings don't disappear after the first find
       $this->OrgIdentitySource->bindModel($relation, false);
+      
+      // Look for group attributes
+      $bmodel = $plugin . 'Backend';
+      $this->loadModel($plugin . '.' . $bmodel);
+      $pluginGroupAttrs[ $plugin ] = $this->$bmodel->groupableAttributes();
     }
     
     $this->set('plugins', $plugins);
+    
+    if(!$pool) {
+      // Group mappings only fire via pipelines, which only work when not pooled
+      $this->set('vv_plugin_group_attrs', $pluginGroupAttrs);
+    }
     
     if(!empty($this->request->params['pass'][0])
        && is_numeric($this->request->params['pass'][0])) {
@@ -101,6 +115,18 @@ class OrgIdentitySourcesController extends StandardController {
       }
       
       $this->set('vv_org_identity_source', $ois['OrgIdentitySource']);
+    }
+    
+    if(!$pool) {
+      // Pull the set of available pipelines. This is only possible for unpooled.
+      $args = array();
+      $args['conditions']['CoPipeline.status'] = SuspendableStatusEnum::Active;
+      $args['conditions']['CoPipeline.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('CoPipeline.id', 'CoPipeline.name');
+      $args['order'] = 'CoPipeline.name ASC';
+      $args['contain'] = false;
+      
+      $this->set('vv_co_pipelines', $this->OrgIdentitySource->CoPipeline->find('list', $args));
     }
   }
   
@@ -331,6 +357,19 @@ class OrgIdentitySourcesController extends StandardController {
         
         if(!empty($r['raw'])) {
           $this->set('vv_raw_source_record', $r['raw']);
+          
+          // Also generate a group mapping
+          $groupAttrs = $this->OrgIdentitySource->resultToGroups($id, $r['raw']);
+          $mappedGroups = $this->OrgIdentitySource->CoGroupOisMapping->mapGroups($id, $groupAttrs);
+          
+          if(!empty($mappedGroups)) {
+            // Pull the Group Names
+            $args = array();
+            $args['conditions']['CoGroup.id'] = array_keys($mappedGroups);
+            $args['contain'] = false;
+            
+            $this->set('vv_mapped_groups', $this->OrgIdentitySource->Co->CoGroup->find('all', $args));
+          }
         }
         
         // See if there is an associated Org Identity

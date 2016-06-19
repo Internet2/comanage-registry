@@ -786,12 +786,15 @@ class AppController extends Controller {
     // Manage CO enrollment flow definitions?
     $p['menu']['coef'] = $roles['cmadmin'] || $roles['coadmin'];
     
-    // Manage CO Localizations
+    // Manage CO Localizations?
     $p['menu']['colocalizations'] = $roles['cmadmin'] || $roles['coadmin'];
   
     // Manage CO Links?
     $p['menu']['conavigationlinks'] = $roles['cmadmin'] || $roles['coadmin'];
 
+    // Manage CO Permissions?
+    $p['menu']['copipelines'] = $roles['cmadmin'] || $roles['coadmin'];
+  
     // Manage CO provisioning targets?
     $p['menu']['coprovtargets'] = $roles['cmadmin'] || $roles['coadmin'];
     

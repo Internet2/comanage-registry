@@ -353,6 +353,18 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           print "</li>";
         }
 
+        if (isset($permissions['menu']['copipelines']) && $permissions['menu']['copipelines']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_pipelines';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+
+          print $this->Html->link(_txt('ct.co_pipelines.pl'), $args);
+          print "</li>";
+        }
+
         if (isset($permissions['menu']['coprovtargets']) && $permissions['menu']['coprovtargets']) {
           print "<li>";
           $args = array();

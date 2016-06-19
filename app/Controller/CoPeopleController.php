@@ -139,11 +139,7 @@ class CoPeopleController extends StandardController {
       $this->set('vv_copr_affiliation_types', $this->CoPerson->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
       
       // List of current COUs
-      $args = array();
-      $args['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
-      $args['fields'] = array('Cou.id', 'Cou.name');
-      $args['contain'] = false;
-      $this->set('vv_cous', $this->CoPerson->Co->Cou->find('list', $args));
+      $this->set('vv_cous', $this->CoPerson->Co->Cou->allCous($this->cur_co['Co']['id']));
     }
     
     parent::beforeRender();

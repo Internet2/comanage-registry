@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Role Model
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -47,7 +47,12 @@ class CoPersonRole extends AppModel {
     "SponsorCoPerson" => array(
       'className' => 'CoPerson',
       'foreignKey' => 'sponsor_co_person_id'
-    )        // foreign key to sponsor
+    ),        // foreign key to sponsor
+    // A CO Person created from a Pipeline has a Source Org Identity
+    "SourceOrgIdentity" => array(
+      'className' => 'OrgIdentity',
+      'foreignKey' => 'source_org_identity_id'
+    )
   );
   
   public $hasMany = array(
@@ -140,6 +145,13 @@ class CoPersonRole extends AppModel {
       )
     ),
     'sponsor_co_person_id' => array(
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'source_org_identity_id' => array(
       'content' => array(
         'rule' => array('numeric'),
         'required' => false,
@@ -308,7 +320,7 @@ class CoPersonRole extends AppModel {
     
     // Add memberships and cut history records.
     foreach($membershipsToAdd as $groupName) {
-  		$this->CoPerson->CoGroupMember->addByGroupName($coPersonId, $groupName, false);
+      $this->CoPerson->CoGroupMember->addByGroupName($coPersonId, $groupName, false);
     }
     
     // Loop over group memberships, pick out those for COU members groups, and
@@ -325,25 +337,16 @@ class CoPersonRole extends AppModel {
             $membership['CoGroup']['id']
 	  );
           $msg = _txt('rs.grm.deleted', $msgData);
-          try {
-          	$this->CoPerson->HistoryRecord->record(
-          		$coPersonId,
-                        null,
-          		null, 
-          		null, 
-          		ActionEnum::CoGroupMemberDeleted, 
-          		$msg
-          		);
-          }
-          catch (Exception $e) {
-            $coPersonId = $copersonrole['CoPerson']['id'];
-            $coPersonRoleId = $copersonrole['CoPersonRole']['id'];
-            $group = $membership['CoGroup']['name'];
-            $msg = "Error creating history record when automatically deleting " .
-            	"CO Person ID $coPersonId with CO Person Role ID $coPersonRoleId " .
-            	"from group $group: " . $e->getMessage();
-            $this->log($msg);
-          }                  
+          
+          // Let exceptions pop back up the stack
+          $this->CoPerson->HistoryRecord->record(
+            $coPersonId,
+            null,
+            null, 
+            null, 
+            ActionEnum::CoGroupMemberDeleted, 
+            $msg
+          );
     	}	
       }
     }

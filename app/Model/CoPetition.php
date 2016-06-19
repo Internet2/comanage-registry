@@ -344,6 +344,119 @@ class CoPetition extends AppModel {
   }
   
   /**
+   * Check the eligibility for a CO Petition.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id CO Petition ID
+   * @param  Integer $actorCoPersonId CO Person ID of the person triggering the relink
+   * @throws InvalidArgumentException
+   */
+  
+  public function checkEligibility($id, $actorCoPersonId) {
+    // The initial implementation only uses email address to query the OIS backends.
+    // Pull the enrollee Org Identity and look for a verified email address.
+    
+    $orgIdentityMode = $this->CoEnrollmentFlow->field('org_identity_mode', array('CoEnrollmentFlow.id' => $efId));
+    
+    // Make sure we're configured with an OISSearch mode, the only currently supported option
+    
+    if($orgIdentityMode != EnrollmentOrgIdentityModeEnum::OISSearch
+       && $orgIdentityMode != EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
+      // Nothing to do
+      return;
+    }
+    
+    // Start a transaction
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+    
+    $orgIdentityId = $this->field('enrollee_org_identity_id', array('CoPetition.id' => $id));
+    $coPersonId = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    $coId = $this->field('co_id', array('CoPetition.id' => $id));
+    $efId = $this->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
+    
+    if(!$orgIdentityId) {
+      $dbc->rollback();
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.org_identities.1'))));
+    }
+    
+    if(!$coPersonId) {
+      $dbc->rollback();
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_people.1'))));
+    }
+    
+    // For each verified email address we find associated with the Org Identity in the
+    // petition (typically only zero or one), query all configured OIS backends.
+    // If a match is required, the petition will automatically transition to a denied state.
+    
+    $found = false;
+    
+    // It's plausible we could look for email addresses attached to the CO Person
+    // record, but we don't have a use case for that yet.
+    
+    $args = array();
+    $args['conditions']['EmailAddress.org_identity_id'] = $orgIdentityId;
+    $args['conditions']['EmailAddress.verified'] = true;
+    $args['contain'] = false;
+    
+    $emailAddresses = $this->EnrolleeOrgIdentity->EmailAddress->find('all', $args);
+    
+    foreach($emailAddresses as $ea) {
+      if(!empty($ea['EmailAddress']['mail'])) {
+        $oisResults = $this->Co->OrgIdentitySource->searchAllByEmail($ea['EmailAddress']['mail'], $coId);
+        
+        foreach($oisResults as $oisId => $oisResult) {
+          foreach($oisResult as $sourceKey => $oisRecord) {
+            if(!isset($oisRecord['OrgIdentity']['id']) || !$oisRecord['OrgIdentity']['id']) {
+              // createOrgIdentity will also create the link to the CO Person. It may also
+              // run a pipeline (if configured). Which Pipeline we want to run is a bit confusing,
+              // since the Enrollment Flow, the OIS, and the CO can all have a pipeline configured.
+              // The normal priority is EF > OIS > CO (as per OrgIdentity.php. However, since a
+              // given EF can only create a single Org Identity, Org Identities created here aren't
+              // attached to the Petition and therefore aren't considered to have been created
+              // by an Enrollment Flow. So the Pipeline that will execute is either the one
+              // attached to the OIS, or if none the one attached to the CO.
+              
+              $orgIdentityId = $this->Co->OrgIdentitySource->createOrgIdentity($oisId,
+                                                                               $sourceKey,
+                                                                               $actorCoPersonId,
+                                                                               $coId,
+                                                                               $coPersonId);
+              
+              $found = true;
+            } else {
+              // If there's already an org identity associated with the OIS, we definitely don't
+              // link it, but should we throw an error of some sort? It's a bit complicated...
+              // it could be a duplicate enrollment... or there's already an org identity linked
+              // to the same CO Person that this enrollment is linked to, which might be OK in
+              // some circumstances. For now, we won't do anything, just continue.
+            }
+          }
+        }
+      }
+    }
+    
+    if($orgIdentityMode == EnrollmentOrgIdentityModeEnum::OISSearchRequired
+       && !$found) {
+      // No eligible records were found, so automatically deny this petition.
+      
+      $this->updateStatus($id,
+                          PetitionStatusEnum::Denied,
+                          $actorCoPersonId);
+      
+      // Add petition history
+      
+      $this->CoPetitionHistoryRecord->record($id,
+                                             $actorCoPersonId,
+                                             PetitionActionEnum::EligibilityFailed);
+    }
+    
+    $dbc->commit();
+    
+    return;
+  }
+  
+  /**
    * Determine the current step for a CO Petition.
    *
    * @since  COmanage Registry v1.0.0
@@ -1423,7 +1536,7 @@ class CoPetition extends AppModel {
         }
       } else {
         $dbc->rollback();
-        throw new RuntimeException(_txt('er.db.save'));
+        throw new RuntimeException(_txt('er.db.save-a', array('OrgIdentity')));
       }
       
       // Loop through all EmailAddresses, Identifiers, and Names to see if there are any
@@ -1508,7 +1621,7 @@ class CoPetition extends AppModel {
         }
       } else {
         $dbc->rollback();
-        throw new RuntimeException(_txt('er.db.save'));
+        throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
       }
     }
     
@@ -1565,11 +1678,11 @@ class CoPetition extends AppModel {
         }
       } else {
         $dbc->rollback();
-        throw new RuntimeException(_txt('er.db.save'));
+        throw new RuntimeException(_txt('er.db.save-a', array('CoPersonRole')));
       }
     }
     
-    if($createLink) {
+    if($createLink && $orgIdentityId && $coPersonId) {
       // Create a CO Org Identity Link
       
       $coOrgLink = array();
@@ -1593,7 +1706,7 @@ class CoPetition extends AppModel {
         }
       } else {
         $dbc->rollback();
-        throw new RuntimeException(_txt('er.db.save'));
+        throw new RuntimeException(_txt('er.db.save-a', array('CoOrgIdentityLink')));
       }      
     }
     
@@ -1612,7 +1725,7 @@ class CoPetition extends AppModel {
     
     if(!$this->CoPetitionAttribute->saveMany($petitionAttrs['CoPetitionAttribute'])) {
       $dbc->rollback();
-      throw new RuntimeException(_txt('er.db.save'));
+      throw new RuntimeException(_txt('er.db.save-a', array('CoPetition')));
     }
     
     // Add a co_petition_history_record
@@ -1625,7 +1738,7 @@ class CoPetition extends AppModel {
     }
     catch(Exception $e) {
       $dbc->rollback();
-      throw new RuntimeException(_txt('er.db.save'));
+      throw new RuntimeException(_txt('er.db.save-a', array('CoPetitionHistoryRecord')));
     }
     
     // Record agreements to Terms and Conditions, if any
@@ -1673,7 +1786,7 @@ class CoPetition extends AppModel {
         }
         catch(Exception $e) {
           $dbc->rollback();
-          throw new RuntimeException(_txt('er.db.save'));
+          throw new RuntimeException(_txt('er.db.save-a', array('CoTermsAndConditions')));
         }
       }
     }
@@ -2015,7 +2128,7 @@ class CoPetition extends AppModel {
     }
     catch(Exception $e) {
       $dbc->rollback();
-      throw new RuntimeException(_txt('er.db.save'));
+      throw new RuntimeException(_txt('er.db.save-a', array('CoPetitionHistoryRecord')));
     }
     
     return $toEmail;

@@ -29,24 +29,31 @@ class ActionEnum
   const CoGroupDeleted                  = 'DCGR';
   const CoGroupEdited                   = 'ECGR';
   const CoGroupMemberAdded              = 'ACGM';
+  const CoGroupMemberAddedPipeline      = 'ACGL';
   const CoGroupMemberDeleted            = 'DCGM';
+  const CoGroupMemberDeletedPipeline    = 'DCGL';
   const CoGroupMemberEdited             = 'ECGM';
   const CoPersonAddedManual             = 'ACPM';
   const CoPersonAddedPetition           = 'ACPP';
+  const CoPersonAddedPipeline           = 'ACPL';
   const CoPersonDeletedManual           = 'DCPM';
   const CoPersonDeletedPetition         = 'DCPP';
   const CoPersonEditedManual            = 'ECPM';
   const CoPersonEditedPetition          = 'ECPP';
+  const CoPersonEditedPipeline          = 'ECPL';
   const CoPersonManuallyProvisioned     = 'PCPM';
   const CoPersonMatchedPetition         = 'MCPP';
+  const CoPersonMatchedPipelne          = 'MCPL';
   const CoPersonProvisioned             = 'PCPA';
   const CoPersonStatusRecalculated      = 'RCPS';
   const CoPersonRoleAddedManual         = 'ACRM';
   const CoPersonRoleAddedPetition       = 'ACRP';
+  const CoPersonRoleAddedPipeline       = 'ACRL';
   const CoPersonRoleDeletedManual       = 'DCRM';
   const CoPersonRoleEditedExpiration    = 'ECRX';
   const CoPersonRoleEditedManual        = 'ECRM';
   const CoPersonRoleEditedPetition      = 'ECRP';
+  const CoPersonRoleEditedPipeline      = 'ECRL';
   const CoPersonRoleRelinked            = 'LCRM';
   const CoPersonOrgIdLinked             = 'LOCP';
   const CoPersonOrgIdUnlinked           = 'UOCP';
@@ -123,6 +130,19 @@ class AffiliationEnum
   );
 }
 
+class ComparisonEnum
+{
+  const Contains               = 'CTS'; // Substr
+  const ContainsInsensitive    = 'CTI';
+  const Equals                 = 'EQS';
+  const EqualsInsensitive      = 'EQI';
+  const NotContains            = 'NCT';
+  const NotContainsInsensitive = 'NCTI';
+  const NotEquals              = 'NEQ';
+  const NotEqualsInsensitive   = 'NEQI';
+  const Regex                  = 'REGX';
+}
+
 class ContactEnum
 {
   const Fax         = 'fax';
@@ -131,6 +151,11 @@ class ContactEnum
   const Office      = 'office';
   const Postal      = 'postal';
   const Forwarding  = 'forwarding';
+}
+
+class ElectStrategyEnum {
+  const FIFO        = 'FI';
+  const Manual      = 'M';
 }
 
 class EmailAddressEnum {
@@ -174,7 +199,9 @@ class EnrollmentMatchPolicyEnum {
 }
 
 class EnrollmentOrgIdentityModeEnum {
-  const OrgIdentitySource = "OS";
+  const OISClaim          = "OC";
+  const OISSearch         = "OS";
+  const OISSearchRequired = "OR";
   const None              = "N";
 }
 
@@ -216,6 +243,14 @@ class IdentifierEnum
 class LinkLocationEnum
 {
   const topBar  = 'topbar';
+}
+
+class MatchStrategyEnum
+{
+  const EmailAddress = 'EA';
+  const External     = 'EX';
+  const Identifier   = 'ID';
+  const NoMatching   = 'NO';
 }
 
 class NameEnum
@@ -317,6 +352,7 @@ class PetitionActionEnum
   const Created                 = 'PC';
   const Declined                = 'PX';
   const Denied                  = 'PN';
+  const EligibilityFailed       = 'EX';
   const Finalized               = 'PF';
   const FlaggedDuplicate        = 'FD';
   const IdentifierAuthenticated = 'ID';
@@ -483,6 +519,13 @@ class SuspendableStatusEnum
     SuspendableStatusEnum::Active    => 'Active',
     SuspendableStatusEnum::Suspended => 'Suspended'
   );
+}
+
+class SyncActionEnum
+{
+  const Add    = 'A';
+  const Delete = 'D';
+  const Update = 'U';
 }
 
 class TAndCEnrollmentModeEnum

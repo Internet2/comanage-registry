@@ -64,6 +64,15 @@
   $this->Html->addCrumb($org_identity_source_records[0]['OrgIdentitySource']['description'], $args);
   $this->Html->addCrumb($org_identity_source_records[0]['OrgIdentitySourceRecord']['sorid']);
 ?>
+<?php if($this->action == 'view' && !empty($org_identity_source_records[0]['OrgIdentitySourceRecord']['id'])): ?>
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
+  <p>
+    <span class="ui-icon ui-icon-info co-info"></span>
+    <strong><?php print _txt('in.orgid.oisr'); ?></strong>
+  </p>
+</div>
+<br />
+<?php endif; // view ?>
 
 <table id="<?php print $this->action; ?>_org_identity_source" class="ui-widget">
   <tbody>

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Organizational Identity Source Model
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v1.1.0
@@ -36,12 +36,16 @@ class OrgIdentitySource extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array(
     // An Org Identity Source belongs to a CO, if org identities not pooled
-    'Co'
+    'Co',
+    'CoPipeline'
   );
   
   public $hasMany = array(
+    "CoGroupOisMapping" => array(
+      'dependent' => true
+    ),
     "OrgIdentitySourceRecord" => array(
-      'dependent'  => true
+      'dependent' => true
     )
   );
   
@@ -78,6 +82,13 @@ class OrgIdentitySource extends AppModel {
       ),
       'required' => true,
       'message' => 'A valid status must be selected'
+    ),
+    'co_pipeline_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   
@@ -174,12 +185,14 @@ class OrgIdentitySource extends AppModel {
    * @param  String $sourceKey Record key to retrieve as basis of new Org Identity
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
    * @param  Integer $coId CO ID, if org identities are not pooled
+   * @param  Integer $targetCoPersonId CO Person ID to link new Org Identity to, if already known
    * @return Integer ID of new Org Identity
    * @throws InvalidArgumentException
    * @throws OverflowException
+   * @throws RuntimeException
    */
   
-  public function createOrgIdentity($id, $sourceKey, $actorCoPersonId = null, $coId = null) {
+  public function createOrgIdentity($id, $sourceKey, $actorCoPersonId=null, $coId=null, $targetCoPersonId=null) {
     // First make sure we don't already have a record for id+sourceKey
     
     $args = array();
@@ -226,20 +239,92 @@ class OrgIdentitySource extends AppModel {
     
     $this->OrgIdentitySourceRecord->OrgIdentity->saveAssociated($orgid);
     
+    $orgIdentityId = $this->OrgIdentitySourceRecord->OrgIdentity->id;
+    
     // Cut a history record
     $this->OrgIdentitySourceRecord->OrgIdentity->HistoryRecord->record(null,
                                                                        null,
-                                                                       $this->OrgIdentitySourceRecord->OrgIdentity->id,
+                                                                       $orgIdentityId,
                                                                        $actorCoPersonId,
                                                                        ActionEnum::OrgIdAddedSource,
                                                                        _txt('rs.org.src.new',
                                                                             array($this->cdata['OrgIdentitySource']['description'],
                                                                                   $this->cdata['OrgIdentitySource']['id'])));
     
+    if($targetCoPersonId) {
+      // Create an Org Identity Link, since we already know the OrgIdentity ID and
+      // CoPerson ID. This will also ensure the pipeline finds the correct CO Person
+      // record to act on.
+      
+      $coOrgLink = array();
+      $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityId;
+      $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $targetCoPersonId;
+      
+      // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
+      // provisioning just in case that changes in the future.
+      if($this->Co->CoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
+        // Create a history record
+        try {
+          $this->Co->CoPerson->HistoryRecord->record($targetCoPersonId,
+                                                     null,
+                                                     $orgIdentityId,
+                                                     $actorCoPersonId,
+                                                     ActionEnum::CoPersonOrgIdLinked);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException($e->getMessage());
+        }
+      } else {
+        $dbc->rollback();
+        throw new RuntimeException(_txt('er.db.save-a', array('CoOrgIdentityLink')));
+      }
+    }
+    
+    // Invoke pipeline, if configured
+    $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId);
+    
     // Commit
     $dbc->commit();
     
     return $this->OrgIdentitySourceRecord->OrgIdentity->id;
+  }
+  
+  /**
+   * Execute the appropriate pipeline for the specified Org Identity.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id OrgIdentitySource
+   * @param  Integer $orgIdentityId OrgIdentity ID
+   * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
+   * @param  String $syncAction "add", "update", or "delete"
+   */
+  
+  protected function executePipeline($id, $orgIdentityId, $action, $actorCoPersonId) {
+    $pipelineId = $this->OrgIdentitySourceRecord->OrgIdentity->pipeline($orgIdentityId);
+    
+    if($pipelineId) {
+      return $this->CoPipeline->execute($pipelineId, $orgIdentityId, $action, $actorCoPersonId);
+    }
+    // Otherwise, no pipeline to run, so just return success.
+    
+    return true;
+  }
+  
+  /**
+   * Map a raw result into a list of group attributes suitable for mapping.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id OrgIdentitySource ID
+   * @param  String $raw Raw result record
+   * @return Array Attributes configured for group processing
+   * @throws InvalidArgumentException
+   */
+  
+  public function resultToGroups($id, $raw) {
+    $Backend = $this->bindPluginBackendModel($id);
+    
+    return $Backend->resultToGroups($raw);
   }
   
   /**
@@ -547,6 +632,20 @@ class OrgIdentitySource extends AppModel {
                                                                          $cstr);
       
       $status = 'synced';
+    }
+    
+    // Invoked pipeline, if configured
+    if($status != 'unknown') {
+      // For now, we rerun the pipeline even if the org identity did not change.
+      // This should allow more obvious behavior if (eg) the pipeline definition
+      // is updated.
+      
+      $this->executePipeline($id,
+                             $curorgid['OrgIdentity']['id'],
+                             ($status == 'removed')
+                             ? SyncActionEnum::Delete
+                             : SyncActionEnum::Update,
+                             $actorCoPersonId);
     }
     
     // Commit

@@ -77,6 +77,8 @@ class CoEnrollmentFlowsController extends StandardController {
   
   function beforeRender() {
     if(!$this->request->is('restful')) {
+      $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
+      
       $this->set('cous', $this->Co->Cou->allCous($this->cur_co['Co']['id'], "hash"));
       
       $args = array();
@@ -88,6 +90,17 @@ class CoEnrollmentFlowsController extends StandardController {
       if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()
          && $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv()) {
         $this->set('vv_attributes_from_env', true);
+      }
+      
+      if(!$pool) {
+        // Pull the set of available pipelines. This is only possible for unpooled.
+        $args = array();
+        $args['conditions']['CoPipeline.status'] = SuspendableStatusEnum::Active;
+        $args['conditions']['CoPipeline.co_id'] = $this->cur_co['Co']['id'];
+        $args['fields'] = array('CoPipeline.id', 'CoPipeline.name');
+        $args['contain'] = false;
+        
+        $this->set('vv_co_pipelines', $this->CoEnrollmentFlow->CoPipeline->find('list', $args));
       }
     }
     

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -730,33 +730,33 @@ $(function() {
       
       <div id="tabs-copeople" class="additionalinfo">
         <?php
-          if($e) {
-            if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
-              foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
+          if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
+            foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
+              print '<div>';
                 print '<div>';
-                  print '<div>';
-                    print $this->Html->link(generateCn($o['CoPerson']['PrimaryName']),
-                                            array('controller' => 'co_people',
-                                                  'action'     => 'canvas',
-                                                  $o['CoPerson']['id']));
-                    
-                    print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
-                  print '</div>';
-                  print '<div>';
-                  
-                  // We don't currently offer an unlink button here, that can only (currently)
-                  // be done from CO Person Canvas, which places some restrictions on that action.
-                  
-                  print $this->Html->link(_txt('op.view'),
+                  print $this->Html->link(generateCn($o['CoPerson']['PrimaryName']),
                                           array('controller' => 'co_people',
                                                 'action'     => 'canvas',
-                                                $o['CoPerson']['id']),
-                                          array('class' => 'editbutton')) . "\n";
-                  print '</div>';
+                                                $o['CoPerson']['id']));
+                  
+                  print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
                 print '</div>';
-              }
+                print '<div>';
+                
+                // We don't currently offer an unlink button here, that can only (currently)
+                // be done from CO Person Canvas, which places some restrictions on that action.
+                
+                print $this->Html->link(_txt('op.view'),
+                                        array('controller' => 'co_people',
+                                              'action'     => 'canvas',
+                                              $o['CoPerson']['id']),
+                                        array('class' => 'editbutton')) . "\n";
+                print '</div>';
+              print '</div>';
             }
-            
+          }
+          
+          if($e) {
             if($permissions['link']) {
               foreach($vv_linkable_cos as $lcoid => $lconame) {
                 print $this->Html->link(_txt('op.link.to.co', array($lconame)),
@@ -766,14 +766,6 @@ $(function() {
                                               'co'            => $lcoid),
                                         array('class'  => 'addbutton'));
                                           
-              }
-            }
-          } else {
-            if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
-              foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
-                print '<div>';
-                  print Sanitize::html(generateCn($o['CoPerson']['PrimaryName'])) . "\n";
-                print '</div>';
               }
             }
           }

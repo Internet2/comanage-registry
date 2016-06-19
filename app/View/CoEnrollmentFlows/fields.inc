@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Configuration Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -271,6 +271,33 @@
             }
           } else {
             print _txt('en.enrollment.orgid', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['org_identity_mode']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('fd.pipeline'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.pipeline.desc.ef'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id']
+                             : '');
+          $attrs['empty'] = true;
+          
+          if($e) {
+            print $this->Form->select('co_pipeline_id',
+                                      $vv_co_pipelines,
+                                      $attrs);
+            
+            if($this->Form->isFieldError('co_pipeline_id')) {
+              print $this->Form->error('co_pipeline_id');
+            }
+          } else {
+            print $vv_co_pipelines[ $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'] ];
           }
         ?>
       </td>

@@ -41,6 +41,20 @@ abstract class OrgIdentitySourceBackend extends AppModel {
   }
   
   /**
+   * Generate the set of attributes for the IdentitySource that can be used to map
+   * to group memberships. The returned array should be of the form key => label,
+   * where key is meaningful to the IdentitySource (eg: a number or a field name)
+   * and label is the localized string to be displayed to the user. Backends should
+   * only return a non-empty array if they wish to take advantage of the automatic
+   * group mapping service.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @return Array As specified
+   */
+  
+  abstract public function groupableAttributes();
+  
+  /**
    * Retrieve a single record from the IdentitySource. The return array consists
    * of two entries: 'raw', a string containing the raw record as returned by the
    * IdentitySource backend, and 'orgidentity', the data in OrgIdentity format.
@@ -55,13 +69,24 @@ abstract class OrgIdentitySourceBackend extends AppModel {
   abstract public function retrieve($id);
   
   /**
+   * Convert a raw result, as from eg retrieve(), into an array of attributes that
+   * can be used for group mapping.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  String $raw Raw record, as obtained via retrieve()
+   * @return Array Array, where keys are attribute names and values are lists (arrays) of attributes
+   */
+  
+  abstract public function resultToGroups($raw);
+  
+  /**
    * Perform a search against the IdentitySource. The returned array should be of
    * the form uniqueId => attributes, where uniqueId is a persistent identifier
    * to obtain the same record and attributes represent an OrgIdentity, including
    * related models.
    *
    * @since  COmanage Registry v1.1.0
-   * @param  Array $attributes Array in key/value format, where key is the same as returned by searchAttributes()
+   * @param  Array $attributes Array in key/value format, where key is the same as returned by searchableAttributes()
    * @return Array Array of search results, as specified
    */
   

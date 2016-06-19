@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Organizational Identity Sources Index View
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v1.1.0
@@ -54,6 +54,7 @@
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
       <th><?php print $this->Paginator->sort('plugin', _txt('fd.plugin')); ?></th>
+      <th><?php print $this->Paginator->sort('co_pipeline_id', _txt('fd.pipeline')); ?></th>
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <th><?php print $this->Paginator->sort('last_load', _txt('fd.load.last')); ?></th>
       <th><?php print $this->Paginator->sort('last_update', _txt('fd.update.last')); ?></th>
@@ -85,6 +86,13 @@
         ?>
       </td>
       <td><?php print $plugin; ?></td>
+      <td>
+        <?php
+          if(!empty($o['OrgIdentitySource']['co_pipeline_id'])) {
+            print $vv_co_pipelines[ $o['OrgIdentitySource']['co_pipeline_id'] ];
+          }
+        ?>
+      </td>
       <td>
         <?php print _txt('en.status.susp', null, $o['OrgIdentitySource']['status']); ?>
       </td>
@@ -138,6 +146,16 @@
               ),
               array('class' => 'configurebutton')
             ) . "\n";
+            
+            if(!empty($vv_plugin_group_attrs[$plmodel])) {
+              print $this->Html->link(_txt('op.ois.conf.gr'),
+                                      array(
+                                        'controller' => 'co_group_ois_mappings',
+                                        'action' => 'index',
+                                        'org_identity_source' => $o['OrgIdentitySource']['id']
+                                      ),
+                                      array('class' => 'configurebutton')) . "\n";
+            }
           }
           
           if($permissions['delete']) {
@@ -168,7 +186,7 @@
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="6">
+      <th colspan="7">
         <?php print $this->element("pagination"); ?>
       </th>
     </tr>

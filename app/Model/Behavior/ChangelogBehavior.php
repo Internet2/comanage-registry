@@ -507,6 +507,11 @@ class ChangelogBehavior extends ModelBehavior {
    */
   
   protected function modifyContain($model, $contain) {
+    // If we get a simple string, convert it to a simple array
+    if(is_string($contain)) {
+      $contain = array(0 => $contain);
+    }
+    
     $ret = $contain;
     
     foreach($contain as $k => $v) {

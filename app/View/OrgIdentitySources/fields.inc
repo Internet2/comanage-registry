@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Organizational Identity Sources Fields
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v1.1.0
@@ -39,6 +39,7 @@
   $args['plugin'] = null;
   $args['controller'] = 'org_identity_sources';
   $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('ct.org_identity_sources.pl'), $args);
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.org_identity_sources.1')));
   $this->Html->addCrumb($crumbTxt);
@@ -96,29 +97,41 @@
           if($this->action == 'edit') {
             // And render a link to the plugin target
             
-            $pl = Inflector::underscore(Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']));
             $plmodel = Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
+            $pl = Inflector::underscore($plmodel);
             $plm = Inflector::tableize($plmodel);
             
-            print "<br />" . $this->Html->link(_txt('op.config'),
-                                               array(
-                                                 'plugin' => $pl,
-                                                 'controller' => $plm,
-                                                 'action' => 'edit',
-                                                 $org_identity_sources[0][$plmodel]['id']
-                                               ),
-                                               array('class' => 'configurebutton'));
+            print "<br />";
+            print $this->Html->link(_txt('op.config'),
+                                    array(
+                                      'plugin' => $pl,
+                                      'controller' => $plm,
+                                      'action' => 'edit',
+                                      $org_identity_sources[0][$plmodel]['id']
+                                    ),
+                                    array('class' => 'configurebutton'));
+            
+            if(!empty($vv_plugin_group_attrs[$plmodel])) {
+              print $this->Html->link(_txt('op.ois.conf.gr'),
+                                      array(
+                                        'controller' => 'co_group_ois_mappings',
+                                        'action' => 'index',
+                                        'org_identity_source' => $org_identity_sources[0]['OrgIdentitySource']['id']
+                                      ),
+                                      array('class' => 'configurebutton'));
+            }
           }
         ?>
       </td>
     </tr>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.status'); ?>
+        <?php print _txt('fd.status'); ?><span class="required">*</span>
       </td>
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['status'])
                              ? $org_identity_sources[0]['OrgIdentitySource']['status']
                              : SuspendableStatusEnum::Active);
@@ -138,6 +151,37 @@
         ?>
       </td>
     </tr>
+    <?php if(!empty($vv_co_pipelines)): ?>
+    <tr class="line2">
+      <td>
+        <?php print _txt('fd.pipeline'); ?><br />
+        <span class="descr"><?php print _txt('fd.pipeline.desc.ois'); ?></span>
+      </td>
+      <td>
+        <?php
+          $attrs = array();
+          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id'])
+                             ? $org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id']
+                             : '');
+          $attrs['empty'] = true;
+          
+          if($e) {
+            print $this->Form->select('co_pipeline_id',
+                                      $vv_co_pipelines,
+                                      $attrs);
+            
+            if($this->Form->isFieldError('co_pipeline_id')) {
+              print $this->Form->error('co_pipeline_id');
+            }
+          } else {
+            if(!empty($org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id'])) {
+              print $vv_co_pipelines[ $org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id'] ];
+            }
+          }
+        ?>
+      </td>
+    </tr>
+    <?php endif; // vv_co_pipelines ?>
     <tr>
       <td>
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />

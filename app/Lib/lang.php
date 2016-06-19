@@ -82,6 +82,8 @@ $cm_texts['en_US'] = array(
   'ct.co_group_members.1' =>    'Group Member',
   'ct.co_group_members.pl' =>   'Group Members',
   'ct.co_group_members.0' =>    'No members',
+  'ct.co_group_ois_mappings.1' => 'OIS Attribute to CO Group Mapping',
+  'ct.co_group_ois_mappings.pl' => 'OIS Attribute to CO Group Mappings',
   'ct.co_groups.1' =>           'Group',
   'ct.co_groups.pl' =>          'Groups',
   'ct.co_all_groups' =>         'All Groups',
@@ -105,12 +107,16 @@ $cm_texts['en_US'] = array(
   'ct.co_petition_history_records.pl' => 'CO Petition History Records',
   'ct.co_petitions.1' =>        'CO Petition',
   'ct.co_petitions.pl' =>       'CO Petitions',
+  'ct.co_pipelines.1' =>        'Pipeline',
+  'ct.co_pipelines.pl' =>       'Pipelines',
   'ct.co_provisioning_targets.1'  => 'Provisioning Target',
   'ct.co_provisioning_targets.pl' => 'Provisioning Targets',
   'ct.co_self_service_permissions.1'  => 'Self Service Permission',
   'ct.co_self_service_permissions.pl' => 'Self Service Permissions',
   'ct.co_settings.1' =>         'CO Setting',
   'ct.co_settings.pl' =>        'CO Settings',
+  'ct.co_sync_strategies.1' =>  'Sync Strategy',
+  'ct.co_sync_strategies.pl' => 'Sync Strategies',
   'ct.co_terms_and_conditions.1'  => 'Terms and Conditions',
   'ct.co_terms_and_conditions.pl' => 'Terms and Conditions',
   'ct.cos.1' =>                 'CO',
@@ -152,6 +158,7 @@ $cm_texts['en_US'] = array(
   
   // Enrollment Flow Steps
   'ef.step.approve'                  => 'Approval',
+  'ef.step.checkEligibility'         => 'Check Eligibility',
   'ef.step.collectIdentifier'        => 'Record Identifier',
   'ef.step.deny'                     => 'Denial',
   'ef.step.finalize'                 => 'Finalize',
@@ -214,24 +221,31 @@ original notification at
     ActionEnum::CoGroupDeleted              => 'CO Group Deleted',
     ActionEnum::CoGroupEdited               => 'CO Group Edited',
     ActionEnum::CoGroupMemberAdded          => 'CO Group Member Added',
+    ActionEnum::CoGroupMemberAddedPipeline  => 'CO Group Member Added (Pipeline)',
     ActionEnum::CoGroupMemberEdited         => 'CO Group Member Edited',
     ActionEnum::CoGroupMemberDeleted        => 'CO Group Member Deleted',
+    ActionEnum::CoGroupMemberDeletedPipeline => 'CO Group Member Deleted (Pipeline)',
     ActionEnum::CoPersonAddedManual         => 'CO Person Created (Manual)',
     ActionEnum::CoPersonAddedPetition       => 'CO Person Created (Petition)',
+    ActionEnum::CoPersonAddedPipeline       => 'CO Person Created (Pipeline)',
     ActionEnum::CoPersonDeletedManual       => 'CO Person Deleted (Manual)',
     ActionEnum::CoPersonDeletedPetition     => 'CO Person Deleted (Petition)',
     ActionEnum::CoPersonEditedManual        => 'CO Person Edited',
     ActionEnum::CoPersonEditedPetition      => 'CO Person Edited (Petition)',
+    ActionEnum::CoPersonEditedPipeline      => 'CO Person Edited (Pipeline)',
     ActionEnum::CoPersonManuallyProvisioned => 'CO Person Provisioned (Manual)',
     ActionEnum::CoPersonMatchedPetition     => 'CO Person Matched (Petition)',
+    ActionEnum::CoPersonMatchedPipelne      => 'CO Person Matched (Pipeline)',
     ActionEnum::CoPersonProvisioned         => 'CO Person Provisioned',
     ActionEnum::CoPersonStatusRecalculated  => 'CO Person Status Recalculated',
     ActionEnum::CoPersonRoleAddedManual     => 'CO Person Role Created (Manual)',
     ActionEnum::CoPersonRoleAddedPetition   => 'CO Person Role Created (Petition)',
+    ActionEnum::CoPersonRoleAddedPipeline   => 'CO Person Role Created (Pipeline)',
     ActionEnum::CoPersonRoleDeletedManual   => 'CO Person Role Deleted (Manual)',
     ActionEnum::CoPersonRoleEditedExpiration => 'CO Person Role Edited (Expiration)',
     ActionEnum::CoPersonRoleEditedManual    => 'CO Person Role Edited',
     ActionEnum::CoPersonRoleEditedPetition  => 'CO Person Role Edited (Petition)',
+    ActionEnum::CoPersonRoleEditedPipeline  => 'CO Person Role Edited (Pipeline)',
     ActionEnum::CoPersonRoleRelinked        => 'CO Person Role Relinked',
     ActionEnum::CoPersonOrgIdLinked         => 'CO Person and Org Identity Linked',
     ActionEnum::CoPersonOrgIdUnlinked       => 'CO Person and Org Identity Unlinked',
@@ -276,6 +290,7 @@ original notification at
     PetitionActionEnum::Created             => 'Petition Created',
     PetitionActionEnum::Declined            => 'Petition Declined',
     PetitionActionEnum::Denied              => 'Petition Denied',
+    PetitionActionEnum::EligibilityFailed   => 'Eligibility Check Failed',
     PetitionActionEnum::Finalized           => 'Petition Finalized',
     PetitionActionEnum::FlaggedDuplicate    => 'Petition Flagged as Duplicate',
     PetitionActionEnum::IdentifiersAssigned => 'Identifiers Assigned',
@@ -327,6 +342,18 @@ original notification at
                             ContactEnum::Postal => 'Postal',
                             ContactEnum::Forwarding => 'Forwarding'),
   
+  'en.comparison' => array(
+    ComparisonEnum::Contains               => 'Contains',
+    ComparisonEnum::ContainsInsensitive    => 'Contains (case insensitive)',
+    ComparisonEnum::Equals                 => 'Is Exactly',
+    ComparisonEnum::EqualsInsensitive      => 'Is Exactly (case insensitive)',
+    ComparisonEnum::NotContains            => 'Does Not Contain',
+    ComparisonEnum::NotContainsInsensitive => 'Does Not Contain (case insensitive)',
+    ComparisonEnum::NotEquals              => 'Is Not Exactly',
+    ComparisonEnum::NotEqualsInsensitive   => 'Is Not Exactly (case insensitive)',
+    ComparisonEnum::Regex                  => 'Matches Regular Expression'
+  ),
+  
   // Extended type, key must be en.model.attribute. This means we end up having affiliations
   // defined twice, once for CO Person Role and once for Org Identity. (Note the latter does
   // not currently support Extended Types, but it doesn't seem right for org identity to
@@ -351,6 +378,11 @@ original notification at
                                          AffiliationEnum::Affiliate     => 'Affiliate',
                                          AffiliationEnum::Employee      => 'Employee',
                                          AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
+  
+  'en.elect.strategy' => array(
+    ElectStrategyEnum::FIFO   => 'FIFO',
+    ElectStrategyEnum::Manual => 'Manual'
+  ),
   
   // Extended type, key must be en.model.attribute
   'en.email_address.type' => array(
@@ -386,7 +418,9 @@ original notification at
   ),
   
   'en.enrollment.orgid' => array(
-    EnrollmentOrgIdentityModeEnum::OrgIdentitySource  => 'Org Identity Source',
+    EnrollmentOrgIdentityModeEnum::OISClaim           => 'Org Identity Source (Claim)',
+    EnrollmentOrgIdentityModeEnum::OISSearch          => 'Org Identity Source (Search)',
+    EnrollmentOrgIdentityModeEnum::OISSearchRequired  => 'Org Identity Source (Search, Required)',
     EnrollmentOrgIdentityModeEnum::None               => 'None'
   ),
   
@@ -450,6 +484,14 @@ original notification at
     'sv'      => 'Swedish (Svenska)',
     'tr'      => 'Turkish (Türkçe)',
     'ur'      => 'Urdu (اُردُو)'
+  ),
+  
+  'en.match.strategy' => array(
+    MatchStrategyEnum::EmailAddress => 'EmailAddress',
+    // Not yet implemented (CO-298)
+//    MatchStrategyEnum::External   => 'External',
+    MatchStrategyEnum::Identifier   => 'Identifier',
+    MatchStrategyEnum::NoMatching   => 'Do Not Match'
   ),
 
   // Extended type, key must be en.model.attribute
@@ -598,6 +640,12 @@ original notification at
     SuspendableStatusEnum::Suspended           => 'Suspended'
   ),
   
+  'en.sync.action' => array(
+    SyncActionEnum::Add                     => 'Add',
+    SyncActionEnum::Delete                  => 'Delete',
+    SyncActionEnum::Update                  => 'Update'
+  ),
+  
   'en.tandc.mode.enroll' => array(
     TAndCEnrollmentModeEnum::ExplicitConsent => 'Explicit Consent',
     TAndCEnrollmentModeEnum::ImpliedConsent  => 'Implied Consent',
@@ -736,6 +784,7 @@ original notification at
   'er.permission' =>  'Permission Denied',
   'er.person.noex' => 'Person does not exist',
   'er.person.none' => 'No CO Person, CO Person Role, or Org Identity specified',
+  'er.pi.match.multi' => 'Canonical %1$s match type found more than one matching record',
   'er.plugin.fail' => 'Failed to load plugin "%1$s"',
   'er.plugin.none' => 'There are no suitable plugins available. No %1$s can be added.',
   // er.prov is a javascript string and so cannot take a parameter
@@ -805,6 +854,7 @@ original notification at
   // The next set must be named fd.model.validation-field
   'fd.co_group.description' => 'Description',
   'fd.comment' =>     'Comment',
+  'fd.comparison' =>  'Comparison',
   'fd.conditions' =>  'Conditions',
   'fd.copy-a' =>      'Copy of %1$s',
   'fd.cou' =>         'COU',
@@ -944,6 +994,7 @@ original notification at
   'fd.group.grmem' => 'Group Member',
   'fd.group.grmemown' => 'Group Member and Owner',
   'fd.group.mem' =>   'Member',
+  'fd.group.mem.map' => 'Mapped Group Memberships',
   'fd.group.memin' => 'membership in "%1$s"',
   'fd.group.own' =>   'Owner',
   'fd.group.own.only' => 'Owner (only)',
@@ -1018,6 +1069,8 @@ original notification at
   'fd.nr.enable' =>   'Enable Normalizations',
   'fd.null' =>        'Null',
   'fd.o' =>           'Organization',
+  'fd.ois.gr.map' =>  'Target Group',
+  'fd.ois.gr.map.desc' => 'When the above conditions are matched, a membership will be created in this group',
   'fd.ois.record' =>  'Source Record',
   'fd.ois.record.desc' => 'If the source record is empty, it likely indicates this record is no longer available from the datasource',
   'fd.ois.search.mail' => 'Please enter the email address associated with the Organizational Identity you would like to use to enroll',
@@ -1031,11 +1084,29 @@ original notification at
   'fd.ou' =>          'Department',
   'fd.parent' =>      'Parent COU',
   'fd.password' =>    'Password',
+  'fd.pattern' =>     'Pattern',
   'fd.people' =>      '%1$s People',
   'fd.perm' =>        'Permission',
   'fd.perms' =>       'Permissions',
   'fd.permitted.name' => 'Name Permitted Fields',
   'fd.petitioner' =>  'Petitioner',
+  'fd.pi.default' =>  'Pipeline For Default Enrollment',
+  'fd.pi.default.desc' => 'If specified, Org Identities added via default enrollment will be processed using this Pipeline',
+  'fd.pi.elect.name.p' => 'Primary Name Election Strategy',
+  'fd.pi.match.str' => 'Match Strategy',
+  'fd.pi.match.type' => 'Match Field Type',
+  'fd.pi.sync.add' => 'Sync on Add',
+  'fd.pi.sync.cou' => 'Sync to COU',
+  'fd.pi.sync.cou.repl' => 'Replace Record in COU',
+  'fd.pi.sync.cou.repl.desc' => 'If the CO Person has an existing role in the specified COU, that role will be deleted/expired',
+  'fd.pi.sync.del' => 'Sync on Delete',
+  'fd.pi.sync.del.stat' => 'Role Status on Delete',
+  'fd.pi.sync.del.stat.desc' => 'When the source record is no longer valid, the corresponding CO Person Role will be set to this status',
+  'fd.pi.sync.str' => 'Sync Strategy',
+  'fd.pi.sync.upd' => 'Sync on Update',
+  'fd.pipeline' =>    'Pipeline',
+  'fd.pipeline.desc.ef' => 'Enrollment Flows created from this Source will be processed using the specified Pipeline',
+  'fd.pipeline.desc.ois' => 'Org Identities created from this Source will be processed using the specified Pipeline',
   'fd.plugin' =>      'Plugin',
   'fd.plugin.warn' => 'Once a new %1$s has been created, the Plugin cannot be changed',
   'fd.prov.status' => 'Provisioning Status',
@@ -1149,6 +1220,8 @@ original notification at
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
   'in.orgid.co'        => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
+  'in.orgid.ois'       => 'This is the current record available directly from the source. To view the latest record retrieved and cached by Registry, click <i>View Organizational Identity Source Record</i>.',
+  'in.orgid.oisr'      => 'This is the latest record retrieved from the source, as cached by Registry. To view the current record directly from the source, click <i>View Organizational Identity Source</i>.',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
 
   // Menu
@@ -1184,6 +1257,7 @@ original notification at
   // Operations
   'op.accept' =>      'Accept',
   'op.ack' =>         'Acknowledge',
+  'op.action' =>      'Action',
   'op.add' =>         'Add',
   'op.add-a' =>       'Add %1$s',
   'op.add.new' =>     'Add a New %1$s',
@@ -1269,6 +1343,7 @@ original notification at
   'op.login' =>       'Login',
   'op.logout' =>      'Logout',
   'op.next' =>        'Next',
+  'op.ois.conf.gr' => 'Configure Group Mapping',
   'op.ok' =>          'OK',
   'op.order.attr' =>  'Reorder Attributes',
   'op.order.link' =>  'Reorder Links',
@@ -1281,8 +1356,10 @@ original notification at
   'op.petition.create' => 'Create Petition',
   'op.petition.dupe' => 'Flag Petition as Duplicate',
   'op.petition.dupe.confirm' => 'Are you sure you wish to flag this petition as a duplicate?',
-  'op.pool' =>        'Pool',
   'op.petition.nextstep' => 'Initiating %1$s step, please wait...',
+  'op.pipeline.rerun' => 'Rerun Pipeline',
+  'op.pipeline.rerun.form' => 'Select the sync action to run the pipeline for. Note the corresponding sync strategy action must be enabled for the pipeline.',
+  'op.pool' =>        'Pool',
   'op.previous' =>    'Previous',
   'op.primary' =>     'Make Primary',
   'op.processing' =>  'Processing request, please wait...',
@@ -1308,6 +1385,7 @@ original notification at
   'op.reset' =>       'Reset Form',
   'op.restore.ef' =>  'Add/Restore Default Templates',
   'op.restore.types' => 'Add/Restore Default Types',
+  'op.run' =>         'Run',
   'op.save' =>        'Save',
   'op.search' =>      'Search',
   'op.search-a' =>    'Search %1$s',
@@ -1346,6 +1424,7 @@ original notification at
   'rs.deleted-a3' =>  '%1$s Deleted',
   'rs.edited-a2' =>   '%1$s "%2$s" Edited',
   'rs.edited-a3' =>   '%1$s Edited',
+  'rs.edited-a4' =>   '%1$s Edited: %2$s',
   'rs.ef.defaults' => 'Default enrollment flow templates added',
   'rs.ev.cxl' =>      'Verification of Email Address canceled',
   'rs.ev.cxl-a' =>    'Verification of Email Address %1$s canceled',
@@ -1387,6 +1466,9 @@ original notification at
   'rs.org.src.sync' => 'Org Identity synced from Source "%1$s" (%2$s)',
   'rs.org.src.synced' => 'Org Identity updated based on new source record',
   'rs.org.src.unchanged' => 'Source record is unchanged, no changes were processed',
+  'rs.pi.match' =>    'Org Identity matched to CO Person via Pipeline %1$s (%2$s) match strategy %3$s',
+  'rs.pi.ok' =>       'Pipeline executed successfully',
+  'rs.pi.sync-a' =>   '%1$s synced from Org Identity via Pipeline %2$s (%3$s)',
   'rs.prov-a' =>      'Provisioned %1$s',
   'rs.prov.ok' =>     'Provisioning completed successfully',
   'rs.pt.approve' =>  'Petition Approved',

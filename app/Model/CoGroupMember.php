@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Member Model
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -34,7 +34,13 @@ class CoGroupMember extends AppModel {
     // A CoGroupMember is attached to one CoGroup
     "CoGroup",
     // A CoGroupMember is attached to one CoPerson
-    "CoPerson");
+    "CoPerson",
+    // A CoGroupMember created from a Pipeline has a Source Org Identity
+    "SourceOrgIdentity" => array(
+      'className' => 'OrgIdentity',
+      'foreignKey' => 'source_org_identity_id'
+    )
+  );
   
   // Default display field for cake generated views
   public $displayField = "co_person_id";
@@ -63,6 +69,13 @@ class CoGroupMember extends AppModel {
     'owner' => array(
       'content' => array(
         'rule' => array('boolean')
+      )
+    ),
+    'source_org_identity_id' => array(
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true
       )
     )
   );

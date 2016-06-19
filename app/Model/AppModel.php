@@ -94,7 +94,9 @@ class AppModel extends Model {
          || $attr == 'revision'
          || $attr == 'deleted'
          || $attr == 'actor_identifier'
-         || $attr == Inflector::underscore($model).'_id') {
+         || $attr == Inflector::underscore($model).'_id'
+         // And pipeline metadata
+         || $attr == 'source_'.Inflector::underscore($model).'_id') {
         continue;
       }
       

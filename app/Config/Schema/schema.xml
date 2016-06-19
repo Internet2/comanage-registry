@@ -192,6 +192,9 @@
     <field name="valid_from" type="T" />
     <field name="valid_through" type="T" />
     <field name="status" type="C" size="2" />
+    <field name="source_org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_person_role_id" type="I">
@@ -212,6 +215,9 @@
     </index>
     <index name="co_person_roles_i4">
       <col>co_person_role_id</col>
+    </index>
+    <index name="co_person_roles_i5">
+      <col>source_org_identity_id</col>
     </index>
   </table>
 
@@ -234,6 +240,9 @@
       <constraint>REFERENCES cm_org_identities(id)</constraint>
     </field>
     <field name="primary_name" type="L" />
+    <field name="source_name_id" type="I">
+      <constraint>REFERENCES cm_names(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="name_id" type="I">
@@ -360,6 +369,9 @@
     <field name="org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
     </field>
+    <field name="source_email_address_id" type="I">
+      <constraint>REFERENCES cm_email_addresses(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="email_address_id" type="I">
@@ -372,17 +384,17 @@
     <index name="email_addresses_i1">
       <col>co_person_id</col>
     </index>
-    
     <index name="email_addresses_i2">
       <col>org_identity_id</col>
     </index>
-    
     <index name="email_addresses_i3">
       <col>mail</col>
     </index>
-    
     <index name="email_addresses_i4">
       <col>email_address_id</col>
+    </index>
+    <index name="email_addresses_i5">
+      <col>source_email_address_id</col>
     </index>
   </table>
   
@@ -577,6 +589,9 @@
     </field>
     <field name="member" type="L" />
     <field name="owner" type="L" />
+    <field name="source_org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_group_member_id" type="I">
@@ -762,7 +777,46 @@
     </index>
   </table>
   
-
+  <table name="co_pipelines">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="status" type="C" size="2" />
+    <field name="match_strategy" type="C" size="2" />
+    <field name="match_type" type="C" size="32" />
+    <field name="sync_on_add" type="L" />
+    <field name="sync_on_update" type="L" />
+    <field name="sync_on_delete" type="L" />
+    <field name="sync_cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="sync_replace_cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="sync_status_on_delete" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_pipeline_id" type="I">
+      <constraint>REFERENCES cm_co_pipelines(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_pipelines_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_pipelines_i2">
+      <col>co_pipeline_id</col>
+    </index>
+  </table>
+  
   <table name="org_identity_sources">
     <field name="id" type="I">
       <key />
@@ -773,6 +827,9 @@
     </field>
     <field name="description" type="C" size="256" />
     <field name="plugin" type="C" size="32" />
+    <field name="co_pipeline_id" type="I">
+      <constraint>REFERENCES cm_co_pipelines(id)</constraint>
+    </field>
     <field name="status" type="C" size="2" />
     <!--
     <field name="load_interval" type="I" />
@@ -830,6 +887,43 @@
     </index>
   </table>
   
+  <table name="co_group_ois_mappings">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
+    </field>
+    <field name="attribute" type="C" size="80">
+      <notnull />
+    </field>
+    <field name="comparison" type="C" size="4">
+      <notnull />
+    </field>
+    <field name="pattern" type="C" size="80">
+      <notnull />
+    </field>
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_group_ois_mapping_id" type="I">
+      <constraint>REFERENCES cm_co_group_ois_mappings(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_group_ois_mappings_i1">
+      <col>co_group_ois_mapping_id</col>
+    </index>
+    <index name="co_group_ois_mappings_i2">
+      <col>org_identity_source_id</col>
+    </index>
+  </table>
+  
   <table name="co_enrollment_flows">
     <field name="id" type="I">
       <key />
@@ -848,6 +942,9 @@
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
     <field name="org_identity_mode" type="C" size="2" />
+    <field name="co_pipeline_id" type="I">
+      <constraint>REFERENCES cm_co_pipelines(id)</constraint>
+    </field>
     <field name="match_policy" type="C" size="2" />
     <field name="approval_required" type="L" />
     <field name="approver_co_group_id" type="I">
@@ -1478,6 +1575,10 @@
     <field name="t_and_c_login_mode" type="C" size="2" />
     <field name="sponsor_eligibility" type="C" size="2" />
     <field name="sponsor_co_group_id" type="I" />
+    <field name="default_co_pipeline_id" type="I">
+      <constraint>REFERENCES cm_co_pipelines(id)</constraint>
+    </field>
+    <field name="elect_strategy_primary_name" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

@@ -532,9 +532,10 @@ class CoEnrollmentAttribute extends AppModel {
           // Skip fields that are autopopulated
           if($k != 'co_person_id'
              && $k != 'co_person_role_id'
-             && $k != 'org_identity_id') {
+             && $k != 'org_identity_id'
+             && $k != 'source_' . $attrName . '_id') {
             $attr = array();
-            
+              
             // The attribute ID and attribute key will be the same for all components
             // of a multi-valued attribute
             $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];

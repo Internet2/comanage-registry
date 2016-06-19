@@ -141,6 +141,15 @@
   </p>
 </div>
 <?php endif; ?>
+<?php if(!empty($vv_ois_record['OrgIdentitySourceRecord']['org_identity_id'])): ?>
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
+  <p>
+    <span class="ui-icon ui-icon-info co-info"></span>
+    <strong><?php print _txt('in.orgid.ois'); ?></strong>
+  </p>
+</div>
+<br />
+<?php endif; // view ?>
 <div class="innerContent">
   <table id="view_org_identity_source_record" class="ui-widget">
     <tbody>
@@ -272,6 +281,22 @@
         </td>
       </tr>
       <?php endforeach; // telephone ?>
+      <?php if(!empty($vv_mapped_groups)): ?>
+      <tr class="line<?php print $l++ % 2; ?>">
+        <td>
+          <?php print _txt('fd.group.mem.map'); ?>
+        </td>
+        <td>
+          <ul>
+            <?php
+              foreach($vv_mapped_groups as $g) {
+                print "<li>" . $g['CoGroup']['name'] . "</li>\n";
+              }
+            ?>
+          </ul>
+        </td>
+      </tr>
+      <?php endif; // mapped groups ?>
       <tr class="line<?php print $l++ % 2; ?>">
         <td>
           <?php print _txt('fd.ois.record'); ?><br />
@@ -281,7 +306,7 @@
           <pre>
             <?php
               if(!empty($vv_raw_source_record)) {
-                print $vv_raw_source_record;
+                print htmlspecialchars($vv_raw_source_record);
               }
             ?>
           </pre>

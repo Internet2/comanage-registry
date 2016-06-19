@@ -94,18 +94,46 @@ class OrgIdentitiesController extends StandardController {
     $this->set('pool_org_identities', $pool);
     
     parent::beforeFilter();
-    
+  }
+  
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   * - precondition: Request Handler component has set $this->request->params
+   * - postcondition: If a CO must be specifed, a named parameter may be set.
+   * - postcondition: $co_enrollment_attributes may be set.
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+  
+  function beforeRender() {
     // Views may need to know if Org Identity Sources are defined and enabled.
     
     $args = array();
     $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
-    if(!$pool) {
+    if(!$this->viewVars['pool_org_identities']) {
       $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];
     }
     $args['fields'] = array('id', 'description');
     $args['contain'] = false;
     
     $this->set('vv_org_id_sources', $this->OrgIdentitySource->find('list', $args));
+    
+    // If an OrgIdentity was specified, see if there's an associated pipeline
+    
+    if(($this->action == 'edit' || $this->action == 'view')
+       && isset($this->request->params['pass'][0])) {
+      $pipeline = $this->OrgIdentity->pipeline($this->request->params['pass'][0]);
+      
+      if($pipeline) {
+        $args = array();
+        $args['conditions']['CoPipeline.id'] = $pipeline;
+        $args['contain'] = false;
+        
+        $this->set('vv_pipeline', $this->OrgIdentity->Co->CoPipeline->find('first', $args));
+      }
+    }
+    
+    parent::beforeRender();
   }
   
   /**
@@ -445,6 +473,9 @@ class OrgIdentitiesController extends StandardController {
       // View petitions?
       $p['petitions'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       
+      // Run a pipeline? Pipelines are not available with pooled org identities
+      $p['pipeline'] = false;
+      
       // View an existing Org Identity?
       $p['view'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin'] || $self);
       
@@ -489,6 +520,10 @@ class OrgIdentitiesController extends StandardController {
       // View petitions?
       $p['petitions'] = ($roles['cmadmin']
                          || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+      
+      // Run a pipeline? This correlates with CoPipelinesController
+      // For now, this is only available to CMP and CO admins
+      $p['pipeline'] = ($roles['cmadmin'] || $roles['coadmin']);
       
       // View an existing Org Identity?
       $p['view'] = ($roles['cmadmin']

@@ -130,7 +130,8 @@ class CoPetitionsController extends StandardController {
     'petitionerAttributes'     => 'sendConfirmation',
     'sendConfirmation'         => 'waitForConfirmation',
     // execution continues here if confirmation not required
-    'waitForConfirmation'      => 'sendApproverNotification',
+    'waitForConfirmation'      => 'checkEligibility',
+    'checkEligibility'         => 'sendApproverNotification',
     // We have both redirectOnConfirm and waitForApproval because depending on the
     // confirmation we might have different paths to completing the processConfirmation step
     'sendApproverNotification' => 'waitForApproval',
@@ -138,7 +139,7 @@ class CoPetitionsController extends StandardController {
     // execution continues at finalize if approval not required
     // processConfirmation is re-entry point following confirmation
     'processConfirmation'      => 'collectIdentifier',
-    'collectIdentifier'        => 'sendApproverNotification',
+    'collectIdentifier'        => 'checkEligibility',
     // approve is re-entry point following approval
     'approve'                  => 'sendApprovalNotification',
     'sendApprovalNotification' => 'finalize',
@@ -489,6 +490,17 @@ class CoPetitionsController extends StandardController {
     
     // Or try the default behavior
     return parent::calculateImpliedCoId();
+  }
+  
+  /**
+   * Check eligibility prior to approval
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function checkEligibility($id) {
+    $this->dispatch('checkEligibility', $id);
   }
   
   /**
@@ -851,6 +863,22 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Execute CO Petition 'checkEligibility' step
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_checkEligibility($id) {
+    $this->CoPetition->checkEligibility($id, $this->Session->read('Auth.User.co_person_id'));
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('checkEligibility', $id));    
+  }
+  
+  /**
    * Execute CO Petition 'collectIdentifier' step
    *
    * @since  COmanage Registry v0.9.4
@@ -1154,7 +1182,7 @@ class CoPetitionsController extends StandardController {
     $orgIdentityMode = $this->CoPetition->CoEnrollmentFlow->field('org_identity_mode',
                                                                   array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
     
-    if($orgIdentityMode == EnrollmentOrgIdentityModeEnum::OrgIdentitySource) {
+    if($orgIdentityMode == EnrollmentOrgIdentityModeEnum::OISClaim) {
       // We need the authz level to know how to handle this
       $authzLevel = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
                                                                array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
@@ -1581,6 +1609,14 @@ class CoPetitionsController extends StandardController {
       // The petition then gets handed off to the enrollee
       $p['processConfirmation'] = $isEnrollee;
       $p['collectIdentifier'] = $isEnrollee;
+      // Eligibility steps could be triggered by petitioner or enrollee, according to configuration
+      if($steps['checkEligibility']['role'] == EnrollmentRole::Enrollee) {
+        // Confirmation required, so eligibility steps get triggered by enrollee
+        $p['checkEligibility'] = $isEnrollee;
+      } else {
+        // Eligibility triggered by petitioner
+        $p['checkEligibility'] = $isPetitioner;
+      }
       // Approval steps could be triggered by petitioner or enrollee, according to configuration
       if($steps['sendApproverNotification']['role'] == EnrollmentRole::Enrollee) {
         // Confirmation required, so approval steps get triggered by enrollee
