@@ -512,24 +512,16 @@ class CoGroup extends AppModel {
    * @param Integer CO Id
    * @return true for success or false for failure
    */
+  
   public function reconcileMembersGroupsExistence($coId) {
-    // Find the CO, COUs, and groups.
-    $args = array();
-    $args['conditions']['Co.id'] = $coId;
-    $args['contain'][] = 'Cou';
-    $args['contain'][] = 'CoGroup';
-    $co = $this->Co->find('first', $args);
-    
     // Loop over groups looking for CO members group.
-    $membersGroupExists = false;
-    foreach($co['CoGroup'] as $group) {
-      if($group['name'] == 'members') {
-        $membersGroupExists = true;
-        break;
-      } 
-    }
     
-    if(!$membersGroupExists) {
+    $args = array();
+    $args['conditions']['CoGroup.name'] = 'members';
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['contain'] = false;
+    
+    if($this->find('count', $args) == 0) {
       // Create the CO members group.
       $this->clear();
       $data = array();
@@ -544,26 +536,31 @@ class CoGroup extends AppModel {
     }
     
     // Loop over the COUs looking for COU members groups.
-    foreach($co['Cou'] as $cou) {
-      $membersGroupName = 'members:' . $cou['name'];
-      $membersGroupExists = false;
-      foreach($co['CoGroup'] as $group) {
-        if($group['name'] == $membersGroupName) {
-          $membersGroupExists = true;
-          break;
-        } 
-      }
-      if(!$membersGroupExists) {
+    $args = array();
+    $args['conditions']['Cou.co_id'] = $coId;
+    $args['fields'] = array('Cou.name', 'Cou.id');
+    $args['contain'] = false;
+    
+    $cous = $this->Co->Cou->find('list', $args);
+    
+    foreach($cous as $couName => $couId) {
+      $membersGroupName = 'members:' . $couName;
+      
+      $args = array();
+      $args['conditions']['CoGroup.name'] = $membersGroupName;
+      $args['conditions']['CoGroup.co_id'] = $coId;
+      $args['contain'] = false;
+      
+      if($this->find('count', $args) == 0) {
         // Create the CO members group.
         $this->clear();
         $data = array();
         $data['CoGroup']['co_id'] = $coId;
         $data['CoGroup']['name'] = $membersGroupName;
-        $data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($cou['name']));
+        $data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($couName));
         $data['CoGroup']['open'] = false;
         $data['CoGroup']['status'] = StatusEnum::Active;
         if(!$this->save($data)) {
-          $couId = $cou['id'];
           return false;
         }
       }
@@ -572,20 +569,21 @@ class CoGroup extends AppModel {
     // Loop over groups looking for groups that match the
     // COU members groups structure but that don't have
     // matching COU.
-    foreach($co['CoGroup'] as $group) {
-      if(strncmp($group['name'], 'members:', 8) == 0) {
-        $couExists = false;
-        foreach($co['Cou'] as $cou) {
-          $nameFromCou = 'members:' . $cou['name'];
-          if($group['name'] == $nameFromCou) {
-            $couExists = true;
-            break;
-          }
-        }
-        if(!$couExists) {
-          $this->delete($group['id']);
-        }
-      } 
+    $args = array();
+    $args['conditions']['CoGroup.name LIKE'] = 'members:%';
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['fields'] = array('CoGroup.name', 'CoGroup.id');
+    $args['contain'] = false;
+    
+    $groups = $this->find('list', $args);
+    
+    foreach($groups as $group => $gid) {
+      $cou = substr($group, 8);
+      
+      if(!isset($cous[$cou])) {
+        // COU does not exist
+        $this->delete($gid);
+      }
     }
     
     return true;    

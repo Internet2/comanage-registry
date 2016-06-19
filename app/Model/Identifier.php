@@ -53,9 +53,11 @@ class Identifier extends AppModel {
     // Don't require any element since $belongsTo saves won't validate if they're empty
     'identifier' => array(
       'content' => array(
-        'rule' => array('maxLength', 256),
+        // Identifier must have at least one non-space character in order to avoid
+        // errors (eg: with provisioning ldap)
+        'rule' => 'notBlank',
         'required' => false,
-        'allowEmpty' => false
+        'allowEmpty' => true
       )
     ),
     'type' => array(

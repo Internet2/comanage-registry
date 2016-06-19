@@ -158,7 +158,7 @@ class ChangelogBehavior extends ModelBehavior {
    * @return Array Modified query conditions
    */
   
-  public function beforeFind(Model $model, array $query) {
+  public function beforeFind(Model $model, $query) {
     $mname = $model->name;
     $malias = $model->alias;
     $parentfk = Inflector::underscore($mname) . "_id";

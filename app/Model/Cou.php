@@ -166,28 +166,32 @@ class Cou extends AppModel {
     // only call delete if there are no roles in the COU and the
     // COU is really being deleted so we do not have to worry about
     // that here.
-    $conditions = array();
-    $conditions['Cou.id'] = $this->id;
     
     $args = array();
-    $args['conditions'] = $conditions;
-    $args['contain']['Co'] = 'CoGroup';
+    $args['conditions']['Cou.id'] = $this->id;
     
     $cou = $this->find('first', $args);
     $couName = $cou['Cou']['name'];
     
-    foreach($cou['Co']['CoGroup'] as $group) {
-      $groupName = $group['name'];
-      if($groupName == ('admin:' . $couName)) {
-        // Delete the admin group.
-        $this->Co->CoGroup->delete($group['id']);
-      } elseif($groupName == 'members:' . $couName) {
-        // Delete the members group.
-        $this->Co->CoGroup->delete($group['id']);
-      }
+    // Find the associated admin and members groups and delete them.
+    // We should be able to deleteAll instead, but changelogbehavior is
+    // manipulating the query incorrectly and causing an error.
+    
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $cou['Cou']['co_id'];
+    $args['conditions']['CoGroup.name'] = array(
+      'admin:' . $couName,
+      'members:' . $couName
+    );
+    $args['contain'] = false;
+    
+    $groups = $this->Co->CoGroup->find('all', $args);
+    
+    foreach($groups as $g) {
+      $this->Co->CoGroup->delete($g['CoGroup']['id']);
     }
     
-    // Return true so that the delete actually happens.
+    // Return true so that the parent delete actually happens.
     return true;
   }
 

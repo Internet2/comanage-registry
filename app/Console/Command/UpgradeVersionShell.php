@@ -26,17 +26,17 @@ class UpgradeVersionShell extends AppShell {
   var $uses = array('Meta', 'Address', 'CmpEnrollmentConfiguration');
   
   // A list of known versions, must be semantic versioning compliant. The value
-  // is a "blocker" version that prevents an upgrade from happening. For example,
-  // if a user attempts to upgrade from 1.0.0 to 1.2.0, and 1.1.0 is flagged as
-  // a blocker, then the upgrade must be performed in two steps (1.0.0 -> 1.1.0,
-  // then 1.1.0 -> 1.2.0). Without the blocker, an upgrade from 1.0.0 to 1.2.0
-  // is permitted.
+  // is a "blocker" if it is a version that prevents an upgrade from happening.
+  // For example, if a user attempts to upgrade from 1.0.0 to 1.2.0, and 1.1.0
+  // is flagged as a blocker, then the upgrade must be performed in two steps
+  // (1.0.0 -> 1.1.0, then 1.1.0 -> 1.2.0). Without the blocker, an upgrade from
+  // 1.0.0 to 1.2.0 is permitted.
   
   // A typical scenario for blocking is when a pre### step must run after an
   // earlier version's post### step. Because we don't (yet) have the capability
   // to run database updates on a per-release basis, we run all relevant pre
   // steps, then the database update, then all relevant post update steps.
-  // So if (eg) the admin us upgrading from 1.0.0 past 1.1.0 to 1.2.0 and there
+  // So if (eg) the admin is upgrading from 1.0.0 past 1.1.0 to 1.2.0 and there
   // are no blockers, the order of operations is 1.1.0-pre, 1.2.0-pre, database,
   // 1.1.0-post, 1.2.0-post.
 
@@ -51,7 +51,8 @@ class UpgradeVersionShell extends AppShell {
     "1.0.0" => array('block' => true, 'post' => 'post100'),
     "1.0.1" => array('block' => false),
     "1.0.2" => array('block' => false),
-    "1.0.3" => array('block' => false)
+    "1.0.3" => array('block' => false),
+    "1.0.4" => array('block' => false)
   );
   
   public function getOptionParser() {

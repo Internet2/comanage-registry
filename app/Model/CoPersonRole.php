@@ -196,7 +196,7 @@ class CoPersonRole extends AppModel {
   
   public function afterDelete() {
     // Manage CO person membership in the COU members group.
-    $this->reconcileCouMembersGroupMemberships($this->data, $this->alias);
+    $this->reconcileCouMembersGroupMemberships($this->id, $this->alias);
   }
   
   /**
@@ -211,7 +211,7 @@ class CoPersonRole extends AppModel {
   
   public function afterSave($created, $options = array()) {
     // Manage CO person membership in the COU members group.
-    $this->reconcileCouMembersGroupMemberships($this->data, $this->alias);
+    $this->reconcileCouMembersGroupMemberships($this->id, $this->alias);
   }
   
   /**
@@ -252,16 +252,17 @@ class CoPersonRole extends AppModel {
 
   /**
    * Reconcile memberships in COU members groups based on the 
-   * CoPersonRole(s) for a CoPerson and the Cou(s) for those
-   * roles.
+   * CoPersonRole(s) for a CoPerson and the Cou(s) for those roles.
    *
    * @since  COmanage Registry v0.9.3
-   * @param data for the CoPersonRole model that was added or deleted
+   * @param CoPersonRole ID
    * @param alias for the CoPersonRole model
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
    * @return none
    */
   
-  public function reconcileCouMembersGroupMemberships($data, $alias = null) {
+  public function reconcileCouMembersGroupMemberships($id, $alias = null) {
     // Since the Provisioner Behavior will only provision group memberships
     // for CO People with an Active status we do not need to manage 
     // membership in the members group based on status here.  
@@ -269,53 +270,51 @@ class CoPersonRole extends AppModel {
     // Find the CO Person and retrieve at the same time all roles
     // and all group memberships.
     if(isset($alias)) {
-    	$modelName = $alias;
+      $modelName = $alias;
     } else {
-    	$modelName = 'CoPersonRole';
+      $modelName = 'CoPersonRole';
     }
+    
+    // Map the CO Person Role ID to a CO Person ID. Because CoPersonRole is
+    // changelog enabled, this will work even on a delete or expunge.
+    
+    $coPersonId = $this->field('co_person_id');
+    
+    if(!$coPersonId) {
+      throw new InvalidArgumentException(_txt('er.unknown', $id));
+    }
+    
     $args = array();
-    if(isset($data[$modelName]['co_person_id'])) {
-	    $args['conditions']['CoPerson.id'] = $data[$modelName]['co_person_id'];
-    } elseif(isset($data[$modelName]['id'])) {
-      // We have to fetch the role record again in order to get the
-      // CO Person ID.
-      $xargs = array();
-      $xargs['conditions'][$modelName . '.id'] = $data[$modelName]['id'];
-      $xargs['contain'] = false;
-			$coRole = $this->find('first', $xargs);   	
-      $args['conditions']['CoPerson.id'] = $coRole[$modelName]['co_person_id'];
-    } else {
-    	// Bail out since we have been invoked with no way to find
-    	// the role being managed.
-    	return;
-    }
+    $args['conditions']['CoPerson.id'] = $coPersonId;
     $args['contain']['CoPersonRole'] = 'Cou';
     $args['contain']['CoGroupMember'] = 'CoGroup';
     $coPerson = $this->CoPerson->find('first', $args);
-    $coPersonId = $coPerson['CoPerson']['id'];
     
     // Loop over roles and find those with a COU. 
     $couMembersGroupNames = array();
     $membershipsToAdd = array();
     foreach($coPerson['CoPersonRole'] as $role) {
-    	if(isset($role['cou_id'])) {
+      if(isset($role['cou_id'])) {
         // Use name of the COU to construct name of the COU members group.
-    		$couMembersGroupName = 'members:' . $role['Cou']['name'];
-    		$couMembersGroupNames[] = $couMembersGroupName;
+        $couMembersGroupName = 'members:' . $role['Cou']['name'];
+        $couMembersGroupNames[] = $couMembersGroupName;
+        
         // Loop over memberships to see if a member of this members group.
         $isMember = false;
+        
         foreach($coPerson['CoGroupMember'] as $membership) {
-        	if($membership['CoGroup']['name'] == $couMembersGroupName && $membership['member']) {
-        		$isMember = true;
+          if($membership['CoGroup']['name'] == $couMembersGroupName && $membership['member']) {
+            $isMember = true;
             break;
-        	}	
-        }
-        if(!$isMember) {
-          if(!in_array($couMembersGroupName, $membershipsToAdd)) {
-          	$membershipsToAdd[] = $couMembersGroupName;
           }
         }
-    	}
+        
+        if(!$isMember) {
+          if(!in_array($couMembersGroupName, $membershipsToAdd)) {
+            $membershipsToAdd[] = $couMembersGroupName;
+          }
+        }
+      }
     }
     
     // Add memberships and cut history records.
@@ -327,15 +326,16 @@ class CoPersonRole extends AppModel {
     // reconcile with the list of COU members group names.
     foreach($coPerson['CoGroupMember'] as $membership) {
       $groupName = $membership['CoGroup']['name'];
-    	if(strncmp($groupName, 'members:', 8) == 0 && $membership['member']) {
-    	  if(!in_array($groupName, $couMembersGroupNames)) {
+      
+      if(strncmp($groupName, 'members:', 8) == 0 && $membership['member']) {
+        if(!in_array($groupName, $couMembersGroupNames)) {
           // Delete CO person from COU members group and cut a history record.
           $this->CoPerson->CoGroupMember->delete($membership['id']);
           // Cut history record.
           $msgData = array(
             $groupName,
             $membership['CoGroup']['id']
-	  );
+          );
           $msg = _txt('rs.grm.deleted', $msgData);
           
           // Let exceptions pop back up the stack
