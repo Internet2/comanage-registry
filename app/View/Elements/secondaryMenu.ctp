@@ -134,6 +134,7 @@
                      && !empty($co['co_person']['CoPersonRole'])) {
                     print "<li>";
                     $args = array(
+                      'plugin' => '',
                       'controller' => 'co_people',
                       'action' => 'canvas',
                       $co['co_person_id']
