@@ -102,20 +102,30 @@
     // We set the values they way they're done below (as opposed to blanking them
     // out first, like for the divs) so that changing between UA and UP does not
     // blank out the selected COU.
-    
+
     if(authz == '<?php print EnrollmentAuthzEnum::CoGroupMember ?>') {
       document.getElementById('authzgroupdiv').style.display = "block";
-      document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
+      if (document.getElementById('CoEnrollmentFlowAuthzCouId')) {
+        document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
+      }
     } else if(authz == '<?php print EnrollmentAuthzEnum::CouAdmin ?>' || authz == '<?php print EnrollmentAuthzEnum::CouPerson ?>') {
       document.getElementById('authzcoudiv').style.display = "block";
-      document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
+      if (document.getElementById('CoEnrollmentFlowAuthzCoGroupId')) {
+        document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
+      }
     } else {
       if(authz == '<?php print EnrollmentAuthzEnum::None ?>') {
         // If no authz is required, then T&C must be ignored
-        document.getElementById('CoEnrollmentFlowTAndCMode').value = "<?php print TAndCEnrollmentModeEnum::Ignore ?>";
+        if (document.getElementById('CoEnrollmentFlowTAndCMode')) {
+          document.getElementById('CoEnrollmentFlowTAndCMode').value = "<?php print TAndCEnrollmentModeEnum::Ignore ?>";
+        }
       }
-      document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
-      document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
+      if (document.getElementById('CoEnrollmentFlowAuthzCoGroupId')) {
+        document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
+      }
+      if (document.getElementById('CoEnrollmentFlowAuthzCouId')) {
+        document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
+      }
     }
   }
   
