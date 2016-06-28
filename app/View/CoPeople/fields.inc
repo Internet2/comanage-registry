@@ -351,161 +351,164 @@
         <ul class="fields">
           <li>
             <div id="tabs-name" class="additionalinfo">
-            <table>
             <?php if($this->action == 'invite'): ?>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th>
-                  <?php
-                  print _txt('fd.name.honorific');
+              <table>
+                <tr class="line<?php print ($l % 2); $l++; ?>">
+                  <th>
+                    <?php
+                    print _txt('fd.name.honorific');
 
-                  if($e)
-                    print " " . _txt('fd.name.h.desc');
-                  ?>
-                </th>
-                <td>
-                  <?php
-                  print $this->Form->hidden('PrimaryName.id');
-                  print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
-                  print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
-                  print ($e ? $this->Form->input('PrimaryName.honorific',
-                    array('default' => $co_people[0]['PrimaryName']['honorific']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['honorific']));
-                  ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th>
-                  <?php print _txt('fd.name.given'); ?><span class="required">*</span>
-                </th>
-                <td>
-                  <?php print ($e ? $this->Form->input('PrimaryName.given',
-                    array('default' => $co_people[0]['PrimaryName']['given']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['given'])); ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th>
-                  <?php print _txt('fd.name.middle'); ?>
-                </th>
-                <td>
-                  <?php print ($e ? $this->Form->input('PrimaryName.middle',
-                    array('default' => $co_people[0]['PrimaryName']['middle']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['middle'])); ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th>
-                  <?php print _txt('fd.name.family'); ?>
-                </th>
-                <td>
-                  <?php print ($e ? $this->Form->input('PrimaryName.family',
-                    array('default' => $co_people[0]['PrimaryName']['family']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['family'])); ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th>
-                  <?php
-                  print _txt('fd.name.suffix');
-                  if($e)
-                    print " " . _txt('fd.name.s.desc');
-                  ?>
-                </th>
-                <td>
-                  <?php print ($e ? $this->Form->input('PrimaryName.suffix',
-                    array('default' => $co_people[0]['PrimaryName']['suffix']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['suffix'])); ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th>
-                  <?php print _txt('fd.type'); ?>
-                </th>
-                <td>
-                  <?php // CO-955 nametype official needs to exist, but probably should be configurable ?>
-                  <?php print _txt('en.name.type', null, NameEnum::Official); ?>
-                </td>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <th>
-                  <?php print _txt('fd.language'); ?>
-                </th>
-                <td>
-                  <?php
-                  global $cm_lang, $cm_texts;
+                    if($e)
+                      print " " . _txt('fd.name.h.desc');
+                    ?>
+                  </th>
+                  <td>
+                    <?php
+                    print $this->Form->hidden('PrimaryName.id');
+                    print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
+                    print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
+                    print ($e ? $this->Form->input('PrimaryName.honorific',
+                      array('default' => $co_people[0]['PrimaryName']['honorific']))
+                      : Sanitize::html($co_people[0]['PrimaryName']['honorific']));
+                    ?>
+                  </td>
+                </tr>
+                <tr class="line<?php print ($l % 2); $l++; ?>">
+                  <th>
+                    <?php print _txt('fd.name.given'); ?><span class="required">*</span>
+                  </th>
+                  <td>
+                    <?php print ($e ? $this->Form->input('PrimaryName.given',
+                      array('default' => $co_people[0]['PrimaryName']['given']))
+                      : Sanitize::html($co_people[0]['PrimaryName']['given'])); ?>
+                  </td>
+                </tr>
+                <tr class="line<?php print ($l % 2); $l++; ?>">
+                  <th>
+                    <?php print _txt('fd.name.middle'); ?>
+                  </th>
+                  <td>
+                    <?php print ($e ? $this->Form->input('PrimaryName.middle',
+                      array('default' => $co_people[0]['PrimaryName']['middle']))
+                      : Sanitize::html($co_people[0]['PrimaryName']['middle'])); ?>
+                  </td>
+                </tr>
+                <tr class="line<?php print ($l % 2); $l++; ?>">
+                  <th>
+                    <?php print _txt('fd.name.family'); ?>
+                  </th>
+                  <td>
+                    <?php print ($e ? $this->Form->input('PrimaryName.family',
+                      array('default' => $co_people[0]['PrimaryName']['family']))
+                      : Sanitize::html($co_people[0]['PrimaryName']['family'])); ?>
+                  </td>
+                </tr>
+                <tr class="line<?php print ($l % 2); $l++; ?>">
+                  <th>
+                    <?php
+                    print _txt('fd.name.suffix');
+                    if($e)
+                      print " " . _txt('fd.name.s.desc');
+                    ?>
+                  </th>
+                  <td>
+                    <?php print ($e ? $this->Form->input('PrimaryName.suffix',
+                      array('default' => $co_people[0]['PrimaryName']['suffix']))
+                      : Sanitize::html($co_people[0]['PrimaryName']['suffix'])); ?>
+                  </td>
+                </tr>
+                <tr class="line<?php print ($l % 2); $l++; ?>">
+                  <th>
+                    <?php print _txt('fd.type'); ?>
+                  </th>
+                  <td>
+                    <?php // CO-955 nametype official needs to exist, but probably should be configurable ?>
+                    <?php print _txt('en.name.type', null, NameEnum::Official); ?>
+                  </td>
+                </tr>
+                <tr class="line<?php print ($l % 2); $l++; ?>">
+                  <th>
+                    <?php print _txt('fd.language'); ?>
+                  </th>
+                  <td>
+                    <?php
+                    global $cm_lang, $cm_texts;
 
-                  $attrs = array();
-                  $attrs['value'] = (isset($co_people[0]['PrimaryName']['language'])
-                    ? $co_people[0]['PrimaryName']['language']
-                    : getPreferredLanguage());
-                  $attrs['empty'] = true;
+                    $attrs = array();
+                    $attrs['value'] = (isset($co_people[0]['PrimaryName']['language'])
+                      ? $co_people[0]['PrimaryName']['language']
+                      : getPreferredLanguage());
+                    $attrs['empty'] = true;
 
-                  if($e) {
-                    print $this->Form->select('PrimaryName.language',
-                      $cm_texts[ $cm_lang ]['en.language'],
-                      $attrs);
+                    if($e) {
+                      print $this->Form->select('PrimaryName.language',
+                        $cm_texts[ $cm_lang ]['en.language'],
+                        $attrs);
 
-                    if($this->Form->isFieldError('PrimaryName.language')) {
-                      print $this->Form->error('PrimaryName.language');
+                      if($this->Form->isFieldError('PrimaryName.language')) {
+                        print $this->Form->error('PrimaryName.language');
+                      }
+                    } else {
+                      if(!empty($co_people[0]['PrimaryName']['language'])) {
+                        print _txt('en.language', null, $co_people[0]['PrimaryName']['language']);
+                      }
                     }
-                  } else {
-                    if(!empty($co_people[0]['PrimaryName']['language'])) {
-                      print _txt('en.language', null, $co_people[0]['PrimaryName']['language']);
+                    ?>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+                  </th>
+                  <td>
+                    <?php
+                    if($e) {
+                      print $this->Form->submit($submit_label);
+                      print $this->Form->button(_txt('op.reset'),
+                        array('type'=>'reset'));
                     }
-                  }
-                  ?>
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-                </th>
-                <td>
-                  <?php
-                  if($e) {
-                    print $this->Form->submit($submit_label);
-                    print $this->Form->button(_txt('op.reset'),
-                      array('type'=>'reset'));
-                  }
-                  ?>
-                </td>
-              </tr>
+                    ?>
+                  </td>
+                </tr>
+              </table>
             <?php elseif($this->action == "compare"): ?>
-              <!-- Simply list the org names and then the CO names -->
-              <tr>
-                <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-              </tr>
-              <?php foreach($co_people[0]['Name'] as $n): ?>
+              <table>
+                <!-- Simply list the org names and then the CO names -->
                 <tr>
-                  <td>
-                    <?php
-                    print generateCn($n)
-                      . " ("
-                      . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                      . $vv_cop_name_types[ $n['type'] ]
-                      . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
-                      . ")";
-                    ?>
-                  </td>
+                  <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
                 </tr>
-              <?php endforeach; ?>
-              <tr>
-                <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
-              </tr>
-              <?php foreach($org_identities[0]['Name'] as $n): ?>
+                <?php foreach($co_people[0]['Name'] as $n): ?>
+                  <tr>
+                    <td>
+                      <?php
+                      print generateCn($n)
+                        . " ("
+                        . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
+                        . $vv_cop_name_types[ $n['type'] ]
+                        . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
+                        . ")";
+                      ?>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
                 <tr>
-                  <td>
-                    <?php
-                    print generateCn($n)
-                      . " ("
-                      . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                      . $vv_cop_name_types[ $n['type'] ]
-                      . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
-                      . ")";
-                    ?>
-                  </td>
+                  <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
                 </tr>
-              <?php endforeach; ?>
+                <?php foreach($org_identities[0]['Name'] as $n): ?>
+                  <tr>
+                    <td>
+                      <?php
+                      print generateCn($n)
+                        . " ("
+                        . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
+                        . $vv_cop_name_types[ $n['type'] ]
+                        . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
+                        . ")";
+                      ?>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </table>
             <?php else: // invite/compare ?>
               <?php foreach($co_people[0]['Name'] as $n): ?>
                 <div>
@@ -575,7 +578,6 @@
                 </div>
               <?php endforeach; ?>
             <?php endif; // invite ?>
-            </table>
             </div> <!-- tabs-name -->
           </li>
         </ul>
@@ -869,14 +871,15 @@
             <li>
               <div id="tabs-group">
                 <div class="additionalinfo">
-                  <table>
                     <?php if($this->action == "compare"): ?>
-                      <tr>
-                        <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-                        <?php if($e && !$es): ?>
-                          <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
-                        <?php endif; ?>
-                      </tr>
+                      <table>
+                        <tr>
+                          <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                          <?php if($e && !$es): ?>
+                            <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+                          <?php endif; ?>
+                        </tr>
+                      </table>
                     <?php endif; ?>
                     <?php
                     if(isset($co_people[0]['CoGroupMember'])) {
@@ -912,6 +915,7 @@
                             print '</div>';
                           }
                       	} else {
+                          print '<table>';
                           print '<tr class="line';
                           print ($l % 2);
                           print '">';
@@ -923,11 +927,11 @@
                             print Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")<br />\n";
                           print '</td>';
                           print '</tr>';
+                          print '</table>';
                       	}      
 	              }
                     }
                     ?>
-                  </table>
                 </div>
               </div> <!-- tabs-group -->
             </li>
@@ -952,7 +956,7 @@
                   <tbody>
                     <tr class="line1">
                       <th class="ui-widget-header">
-                        <?php print _txt('fd.status'); ?>
+                        <label for="CoPersonStatusAgain"><?php print _txt('fd.status'); ?></label>
                       </th>
                       <td>
                         <?php
@@ -997,7 +1001,7 @@
                     </tr>
                     <tr class="line2">
                       <th class="ui-widget-header">
-                        <?php print _txt('fd.timezone'); ?>
+                        <?php print $this->Form->label('CoPerson.timezone', _txt('fd.timezone')); ?>
                       </th>
                       <td>
                         <?php
