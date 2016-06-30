@@ -103,7 +103,13 @@
   <tbody>
     <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
-        <?php print _txt('fd.type'); ?>
+        <?php
+          if($e) {
+            print $this->Form->label('type', _txt('fd.type'));
+          } else {
+            print _txt('fd.type');
+          }
+        ?>
       </td>
       <td>
         <?php
@@ -127,7 +133,13 @@
     </tr>
     <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
-        <?php print _txt('fd.identifier.identifier'); ?>
+        <?php
+          if($e) {
+            print $this->Form->label('identifier', _txt('fd.identifier.identifier'));
+          } else {
+            print _txt('fd.identifier.identifier');
+          }
+        ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('identifier', array('type' => 'text','class' => 'focusFirst'))
@@ -138,10 +150,10 @@
     <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php print _txt('fd.identifier.login'); ?><br />
-        <em><?php print _txt('fd.identifier.login.desc'); ?></em>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('login') : Sanitize::html($identifiers[0]['Identifier']['login'])); ?>
+        <em><?php print $this->Form->label('login', _txt('fd.identifier.login.desc')); ?></em>
       </td>
     </tr>
     <?php else: // $isOrgIdentity ?>
@@ -149,7 +161,13 @@
     <?php endif; // $isOrgIdentity ?>
     <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
-        <?php print _txt('fd.status'); ?>
+        <?php
+          if($e) {
+            print $this->Form->label('status', _txt('fd.status'));
+          } else {
+            print _txt('fd.status');
+          }
+        ?>
       </td>
       <td>
         <?php

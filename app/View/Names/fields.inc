@@ -99,10 +99,12 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php
-        print _txt('fd.name.honorific');
-        
-        if($e)
+        if($e) {
+          print $this->Form->label('Name.honorific', _txt('fd.name.honorific'));
           print " " . _txt('fd.name.h.desc');
+        } else {
+          print _txt('fd.name.honorific');
+        }
         ?>
       </td>
       <td>
@@ -117,10 +119,16 @@
     <?php if(in_array('given', $vv_permitted_fields)): ?>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.name.given'); ?>
-        <?php if(in_array('given', $vv_required_fields)): ?>
-        <span class="required">*</span>
-        <?php endif; // required_fields ?>
+        <?php
+          if($e) {
+            print $this->Form->label('Name.given', _txt('fd.name.given'));
+            if(in_array('given', $vv_required_fields)) {
+              print ' <span class="required">*</span>';
+            }
+          } else {
+            print _txt('fd.name.given');
+          }
+        ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('Name.given', array('class' => 'focusFirst')) : Sanitize::html($names[0]['Name']['given'])); ?>
@@ -130,10 +138,16 @@
     <?php if(in_array('middle', $vv_permitted_fields)): ?>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.name.middle'); ?>
-        <?php if(in_array('middle', $vv_required_fields)): ?>
-        <span class="required">*</span>
-        <?php endif; // required_fields ?>
+        <?php
+        if($e) {
+          print $this->Form->label('Name.middle', _txt('fd.name.middle'));
+          if(in_array('middle', $vv_required_fields)) {
+            print ' <span class="required">*</span>';
+          }
+        } else {
+          print _txt('fd.name.middle');
+        }
+        ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('Name.middle') : Sanitize::html($names[0]['Name']['middle'])); ?>
@@ -143,10 +157,16 @@
     <?php if(in_array('family', $vv_permitted_fields)): ?>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.name.family'); ?>
-        <?php if(in_array('family', $vv_required_fields)): ?>
-        <span class="required">*</span>
-        <?php endif; // required_fields ?>
+        <?php
+        if($e) {
+          print $this->Form->label('Name.family', _txt('fd.name.family'));
+          if(in_array('family', $vv_required_fields)) {
+            print ' <span class="required">*</span>';
+          }
+        } else {
+          print _txt('fd.name.family');
+        }
+        ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('Name.family') : Sanitize::html($names[0]['Name']['family'])); ?>
@@ -157,10 +177,12 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php
-          print _txt('fd.name.suffix');
-          
-          if($e)
+          if($e) {
+            print $this->Form->label('Name.suffix',_txt('fd.name.suffix'));
             print " " . _txt('fd.name.s.desc');
+          } else {
+            print _txt('fd.name.suffix');
+          }
         ?>
       </td>
       <td>
@@ -170,7 +192,13 @@
     <?php endif; // permitted fields ?>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.type'); ?>
+        <?php
+        if($e) {
+          print $this->Form->label('Name.type',_txt('fd.type'));
+        } else {
+          print _txt('fd.type');
+        }
+        ?>
       </td>
       <td>
         <?php
@@ -196,7 +224,13 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.language'); ?>
+        <?php
+          if($e) {
+            print $this->Form->label('Name.language', _txt('fd.language'));
+          } else {
+            print _txt('fd.language');
+          }
+        ?>
       </td>
       <td>
         <?php

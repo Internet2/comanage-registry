@@ -104,35 +104,49 @@
           <table id="<?php print $this->action; ?>_co_person_role" class="ui-widget fields">
             <tbody>
               <?php if(!empty($permissions['cous'])): ?>
+                <tr class="line<?php print ($l % 2); $l++; ?>">
+                  <td>
+                    <?php
+                      if($e && !$es) {
+                        print $this->Form->label('cou_id',Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'));
+                        print ' <span class="required">*</span>';
+                      } else {
+                        print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou');
+                      }
+                    ?>
+                  </td>
+                  <td>
+                    <?php
+                    $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['cou_id'])
+                      ? $co_person_roles[0]['CoPersonRole']['cou_id']
+                      : 0);
+                    $attrs['empty'] = false;
+
+                    if($e && !$es) {
+                      print $this->Form->select('cou_id',
+                        $permissions['cous'],
+                        $attrs);
+
+                      if($this->Form->isFieldError('cou_id')) {
+                        print $this->Form->error('cou_id');
+                      }
+                    } else {
+                      print Sanitize::html($co_person_roles[0]['Cou']['name']);
+                    }
+                    ?>
+                  </td>
+                </tr>
+              <?php endif; ?>
               <tr class="line<?php print ($l % 2); $l++; ?>">
-                <td>
-                  <?php print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'); ?><span class="required">*</span>
-                </td>
                 <td>
                   <?php
-                  $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['cou_id'])
-                    ? $co_person_roles[0]['CoPersonRole']['cou_id']
-                    : 0);
-                  $attrs['empty'] = false;
-
-                  if($e && !$es) {
-                    print $this->Form->select('cou_id',
-                      $permissions['cous'],
-                      $attrs);
-
-                    if($this->Form->isFieldError('cou_id')) {
-                      print $this->Form->error('cou_id');
+                    if($e && !$es) {
+                      print $this->Form->label('affiliation', Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'));
+                      print ' <span class="required">*</span>';
+                    } else {
+                      print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation');
                     }
-                  } else {
-                    print Sanitize::html($co_person_roles[0]['Cou']['name']);
-                  }
                   ?>
-                </td>
-                <?php endif; ?>
-              </tr>
-              <tr class="line<?php print ($l % 2); $l++; ?>">
-                <td>
-                  <?php print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'); ?><span class="required">*</span>
                 </td>
                 <td>
                   <?php
@@ -159,7 +173,14 @@
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
-                  <?php print _txt('fd.status'); ?><span class="required">*</span>
+                  <?php
+                    if($e && !$es) {
+                      print $this->Form->label('status', _txt('fd.status'));
+                      print '<span class="required">*</span>';
+                    } else {
+                      print _txt('fd.status');
+                    }
+                  ?>
                 </td>
                 <td>
                   <?php
@@ -197,7 +218,13 @@
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
-                  <?php print $cur_co['Co']['name'] . " " . _txt('fd.title'); ?>
+                  <?php
+                    if ($e && !$es) {
+                      print $this->Form->label('title', $cur_co['Co']['name'] . " " . _txt('fd.title'));
+                    } else {
+                      print $cur_co['Co']['name'] . " " . _txt('fd.title');
+                    }
+                  ?>
                 </td>
                 <td>
                   <?php print (($e && !$es) ? $this->Form->input('title', array('class' => 'focusFirst','default' =>
@@ -209,7 +236,13 @@
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
-                  <?php print _txt('fd.o'); ?>
+                  <?php
+                    if ($e && !$es) {
+                      print $this->Form->label('o', _txt('fd.o'));
+                    } else {
+                      print _txt('fd.o');
+                    }
+                  ?>
                 </td>
                 <td>
                   <?php print (($e && !$es) ? $this->Form->input('o',
@@ -221,7 +254,13 @@
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
-                  <?php print _txt('fd.ou'); ?>
+                  <?php
+                    if ($e && !$es) {
+                      print $this->Form->label('ou', _txt('fd.ou'));
+                    } else {
+                      print _txt('fd.ou');
+                    }
+                  ?>
                 </td>
                 <td>
                   <?php print (($e && !$es) ? $this->Form->input('ou') : Sanitize::html($co_person_roles[0]['CoPersonRole']['ou'])); ?>
@@ -229,8 +268,12 @@
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
-                  <?php print _txt('fd.sponsor') . " ";
-                  print _txt('fd.sponsor.desc');
+                  <?php
+                    if($e && !$es) {
+                      print $this->Form->label('sponsor_co_person_id', _txt('fd.sponsor') . " " . _txt('fd.sponsor.desc'));
+                    } else {
+                      print _txt('fd.sponsor') . " " . _txt('fd.sponsor.desc');
+                    }
                   ?>
                 </td>
                 <td>
@@ -262,7 +305,13 @@
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
-                  <?php print _txt('fd.valid_from'); if($e && !$es) print " " . _txt('fd.valid_from.desc'); ?>
+                  <?php
+                    if($e && !$es) {
+                      print $this->Form->label('valid_from', _txt('fd.valid_from') . " " . _txt('fd.valid_from.desc'));
+                    } else {
+                      print _txt('fd.valid_from');
+                    }
+                  ?>
                 </td>
                 <td>
                   <?php print (($e && !$es)
@@ -272,7 +321,13 @@
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
-                  <?php print _txt('fd.valid_through'); if($e && !$es) print " " . _txt('fd.valid_through.desc'); ?>
+                  <?php
+                    if($e && !$es) {
+                      print $this->Form->label('valid_through', _txt('fd.valid_through') . " " . _txt('fd.valid_through.desc'));
+                    } else {
+                      print _txt('fd.valid_through');
+                    }
+                  ?>
                 </td>
                 <td>
                   <?php print (($e && !$es)
@@ -286,18 +341,23 @@
               if(!empty($vv_extended_attributes)) {
                 $cl = 'Co' . $cur_co['Co']['id'] . 'PersonExtendedAttribute';
 
-                print $this->Form->hidden($cl . '.id');
+                print '<tr class="hidden"><td colspan="2">' .  $this->Form->hidden($cl . '.id') . '</td></tr>';
 
                 foreach($vv_extended_attributes as $c):
+                  $attr = strtolower($c['CoExtendedAttribute']['name']);
                   ?>
                   <tr class="line<?php print ($l % 2); $l++; ?>">
                     <td>
-                      <?php print $c['CoExtendedAttribute']['display_name']; ?>
+                      <?php
+                        if($e && !$es) {
+                          print $this->Form->label($cl.'.'.$attr, $c['CoExtendedAttribute']['display_name']);
+                        } else {
+                          print $c['CoExtendedAttribute']['display_name'];
+                        }
+                      ?>
                     </td>
                     <td>
                       <?php
-                      $attr = strtolower($c['CoExtendedAttribute']['name']);
-
                       if($c['CoExtendedAttribute']['type'] == 'TIMESTAMP') {
                         print ($e && !$es ? $this->Form->text($cl.'.'.$attr, array('class' => 'datepicker'))
                           : (($co_person_roles[0][$cl][$attr] > 0) ? strftime("%F", strtotime($co_person_roles[0][$cl][$attr])) : ""));

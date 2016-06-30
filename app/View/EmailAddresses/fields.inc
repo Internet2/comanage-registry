@@ -100,7 +100,13 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.email_address.mail'); ?>
+        <?php
+          if($e) {
+            print $this->Form->label('mail', _txt('fd.email_address.mail'));
+          } else {
+            print _txt('fd.email_address.mail');
+          }
+        ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
@@ -114,7 +120,13 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.type'); ?>
+        <?php
+          if($e) {
+            print $this->Form->label('type', _txt('fd.type'));
+          } else {
+            print _txt('fd.type');
+          }
+        ?>
       </td>
       <td>
         <?php
