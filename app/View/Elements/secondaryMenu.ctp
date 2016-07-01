@@ -30,6 +30,15 @@
       autoArrows:  false,                           // disable generation of arrow mark-up
       dropShadows: true                             // disable drop shadows
     });
+
+    $('#co-top-username').hover(
+      function() {
+        $('#co-top-id').show();
+      },
+      function() {
+        $('#co-top-id').hide();
+      }
+    );
   });
 </script>
 
@@ -112,7 +121,11 @@
     <div id="name" class="row1-dropdown">
       <ul class="sf-menu">
         <li class="dropMenu">
-          <a href="#" class="menuTop" title="<?php print $this->Session->read('Auth.User.username'); ?>">
+          <a href="#" class="menuTop" id="co-top-username">
+            <span id="co-top-id">
+              <span id="co-top-id-name"><?php print $this->Session->read('Auth.User.username'); ?></span>
+              <span id="co-top-id-arrow"></span>
+            </span>
             <span id="comanage-gear"></span>
             <?php
               // Print the user's name
