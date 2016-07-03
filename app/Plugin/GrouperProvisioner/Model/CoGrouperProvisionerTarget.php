@@ -153,11 +153,11 @@ SELECT
   cm_email_addresses.mail
 FROM
   cm_co_people
-  LEFT JOIN cm_names ON cm_co_people.id = cm_names.co_person_id AND cm_names.primary_name is true
+  LEFT JOIN cm_names ON cm_co_people.id = cm_names.co_person_id AND cm_names.primary_name IS TRUE AND cm_names.name_id IS NULL AND cm_names.deleted IS FALSE
   JOIN cm_cos ON cm_co_people.co_id = cm_cos.id AND cm_cos.id = $coId
-  LEFT JOIN cm_identifiers ON cm_co_people.id = cm_identifiers.co_person_id AND cm_identifiers.type = '@IDENTIFIER_TYPE@'
-  LEFT JOIN cm_email_addresses ON cm_co_people.id = cm_email_addresses.co_person_id AND cm_email_addresses.type = '@EMAIL_TYPE@'                                                                                                                                              
-  WHERE cm_co_people.status = 'A' AND cm_co_people.co_person_id IS NULL
+  LEFT JOIN cm_identifiers ON cm_co_people.id = cm_identifiers.co_person_id AND cm_identifiers.type = '@IDENTIFIER_TYPE@' AND cm_identifiers.identifier_id IS NULL AND cm_identifiers.deleted IS FALSE AND cm_identifiers.status = 'A'
+  LEFT JOIN cm_email_addresses ON cm_co_people.id = cm_email_addresses.co_person_id AND cm_email_addresses.type = '@EMAIL_TYPE@' AND cm_email_addresses.email_address_id IS NULL AND cm_email_addresses.deleted IS FALSE
+  WHERE cm_co_people.status = 'A' AND cm_co_people.co_person_id IS NULL AND cm_co_people.deleted IS FALSE
   ";                  
         
     $replacements = array();
