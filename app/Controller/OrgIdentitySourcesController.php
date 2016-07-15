@@ -139,7 +139,7 @@ class OrgIdentitySourcesController extends StandardController {
    * @throws InvalidArgumentException
    */
   
-  protected function calculateImpliedCoId() {
+  protected function calculateImpliedCoId($data = null) {
     if($this->action == "select"
        && !empty($this->request->params['named']['copetitionid'])) {
       // Pull the CO from the Petition

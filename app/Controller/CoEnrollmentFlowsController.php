@@ -221,7 +221,7 @@ class CoEnrollmentFlowsController extends StandardController {
    * @return Integer The CO ID if found, or -1 if not
    */
   
-  public function parseCOID() {
+  public function parseCOID($data = null) {
     if($this->action == 'addDefaults') {
       if(isset($this->request->params['named']['co'])) {
         return $this->request->params['named']['co'];
