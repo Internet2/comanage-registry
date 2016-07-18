@@ -2175,7 +2175,7 @@ class CoPetition extends AppModel {
             
             // Recalculate the overall CO Person status
             if($coPersonID) {
-              $this->EnrolleeCoPerson->recalculateStatus($coPersonID);
+              $this->EnrolleeCoPerson->recalculateStatus($coPersonID, false);
             }
           }
           catch(Exception $e) {
