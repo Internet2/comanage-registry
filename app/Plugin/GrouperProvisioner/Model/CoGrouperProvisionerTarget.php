@@ -181,6 +181,18 @@ FROM
   }
 
   /**
+   * Compute the subject used by Grouper for the CoPerson.
+   *
+   * @since COmanage Registry v1.0.5
+   * @param Integer CO ID
+   * @param Integer CO Person ID
+   * @return String
+  */
+  public function computeSubject($coId, $coPersonId) {
+    return 'COMANAGE_' . $coId . '_' . $coPersonId;
+  }
+
+  /**
    * Determine the provisioning status of this target.
    *
    * @since  COmanage Registry v0.8.3
@@ -235,7 +247,7 @@ FROM
     $contextPath = $coProvisioningTargetData['CoGrouperProvisionerTarget']['contextpath'];
     $login = $coProvisioningTargetData['CoGrouperProvisionerTarget']['login'];
     $password = $coProvisioningTargetData['CoGrouperProvisionerTarget']['password'];
-    
+
     switch($op) {
       case ProvisioningActionEnum::CoGroupAdded:
 
@@ -470,7 +482,7 @@ FROM
         foreach ($membershipsPassedIn as $coGroupMember) {
           if($coGroupMember['member']) {
             $coId = $provisioningData['CoGroup']['co_id'];
-            $provisioningDataCoPersonIds[] = 'COMANAGE_' . $coId . '_' . $coGroupMember['co_person_id'];
+            $provisioningDataCoPersonIds[] = $this->computeSubject($coId, $coGroupMember['co_person_id']);
           }
         }
 
@@ -510,6 +522,31 @@ FROM
           $this->CoGrouperProvisionerGroup->updateProvisionerGroup($currentProvisionerGroup, $newProvisionerGroup);     
         }
         
+        break;
+
+      // A petition is finalized and so we need to provision any group
+      // memberships for the new enrollee. We can assume that the groups
+      // already have themselves been provisioned.
+      case ProvisioningActionEnum::CoPersonPetitionProvisioned:
+        if(isset($provisioningData['CoGroupMember'])) {
+          foreach($provisioningData['CoGroupMember'] as $membership) {
+            if($membership['member']) {
+              $coId = $membership['CoGroup']['co_id'];
+              $coPersonId = $membership['co_person_id'];
+              $subject = $this->computeSubject($coId, $coPersonId);
+
+              try {
+                $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
+                $provisionerGroup = $this->CoGrouperProvisionerGroup->findProvisionerGroup($coProvisioningTargetData, $membership);
+                $groupName = $this->CoGrouperProvisionerGroup->getGroupName($provisionerGroup);
+                $grouper->addManyMember($groupName, array($subject));
+              } catch (GrouperRestClientException $e) {
+                throw new RuntimeException($e->getMessage());
+              }
+            }
+          }
+        }
+
         break;
 
       default:
