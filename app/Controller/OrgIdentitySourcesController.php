@@ -417,6 +417,13 @@ class OrgIdentitySourcesController extends StandardController {
         $url['copetitionid'] = $this->request->data['OrgIdentitySource']['copetitionid'];
       }
       
+      // We don't really need this, except that if the last parameter has a dot in it
+      // (eg: an email address), Cake will parse the new URL as having an extension.
+      // eg: /search/23/Search.email=foo@bar.com => request with extension type "com"
+      // By ensuring the last parameter is this, the search parameter will not be munged.
+      // eg: /search/23/Search.email=foo@bar.com/op=search
+      $url['op'] = 'search';
+      
       // redirect to the new url
       $this->redirect($url, null, true);
     }

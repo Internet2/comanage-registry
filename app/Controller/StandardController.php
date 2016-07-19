@@ -1071,9 +1071,12 @@ class StandardController extends AppController {
       }
     }
     
-    // Insert CO into URL
     if(isset($this->cur_co['Co']['id'])) {
+      // Insert CO into URL
       $url['co'] = $this->cur_co['Co']['id'];
+    } else {
+      // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
+      $url['op'] = 'search';
     }
     
     // redirect the user to the url

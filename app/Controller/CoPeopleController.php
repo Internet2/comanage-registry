@@ -1097,7 +1097,7 @@ class CoPeopleController extends StandardController {
       if(!empty($value))
         $url['Search.'.$field] = $value; 
     }
-    // Insert CO into URL
+    // Insert CO into URL. Note this also prevents truncation of email address searches (CO-1271).
     $url['co'] = $this->cur_co['Co']['id'];
 
     // redirect the user to the url
