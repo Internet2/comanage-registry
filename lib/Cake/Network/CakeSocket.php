@@ -129,12 +129,24 @@ class CakeSocket {
 			$this->disconnect();
 		}
 
+		$hasProtocol = strpos($this->config['host'], '://') !== false;
+		if ($hasProtocol) {
+			list($this->config['protocol'], $this->config['host']) = explode('://', $this->config['host']);
+		}
 		$scheme = null;
-		if (!empty($this->config['protocol']) && strpos($this->config['host'], '://') === false && empty($this->config['proxy'])) {
+		if (!empty($this->config['protocol'])) {
 			$scheme = $this->config['protocol'] . '://';
 		}
+		if (!empty($this->config['proxy'])) {
+			$scheme = 'tcp://';
+		}
 
-		$this->_setSslContext($this->config['host']);
+		$host = $this->config['host'];
+		if (isset($this->config['request']['uri']['host'])) {
+			$host = $this->config['request']['uri']['host'];
+		}
+		$this->_setSslContext($host);
+
 		if (!empty($this->config['context'])) {
 			$context = stream_context_create($this->config['context']);
 		} else {
@@ -180,6 +192,9 @@ class CakeSocket {
 					$this->config['request']['uri']['port'] . ' HTTP/1.1';
 				$req[] = 'Host: ' . $this->config['host'];
 				$req[] = 'User-Agent: php proxy';
+				if (!empty($this->config['proxyauth'])) {
+					$req[] = 'Proxy-Authorization: ' . $this->config['proxyauth'];
+				}
 
 				fwrite($this->connection, implode("\r\n", $req) . "\r\n\r\n");
 
