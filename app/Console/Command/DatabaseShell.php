@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Database Shell
  *
- * Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -26,8 +26,8 @@
   App::import('Model', 'ConnectionManager');
 
   // App::import doesn't handle this correctly
-  require(APP . '/Vendor/adodb/adodb.inc.php');
-  require(APP . '/Vendor/adodb/adodb-xmlschema03.inc.php');
+  require(APP . '/Vendor/adodb5/adodb.inc.php');
+  require(APP . '/Vendor/adodb5/adodb-xmlschema03.inc.php');
   
   // On some installs, AppController isn't loaded by App::import
   require(APP . '/Controller/AppController.php');
@@ -42,7 +42,7 @@
       // Use the ConnectionManager to get the database config to pass to adodb.
       $db = ConnectionManager::getDataSource('default');
       
-      $db_driver = split("/", $db->config['datasource'], 2);
+      $db_driver = explode("/", $db->config['datasource'], 2);
       
       if($db_driver[0] != 'Database') {
         throw new RuntimeException("Unsupported db_method: " . $db_driver[0]);

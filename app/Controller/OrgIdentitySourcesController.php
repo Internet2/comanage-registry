@@ -293,8 +293,8 @@ class OrgIdentitySourcesController extends StandardController {
     // Retrieve a record from an Org Identity Source?
     $p['retrieve'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
     
-    // Search an Org Identity Source?
-    $p['search'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
+    // Query an Org Identity Source?
+    $p['query'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
     
     // Select an Org Identity Source (in order to create an Org Identity)?
     $p['select'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
@@ -333,6 +333,85 @@ class OrgIdentitySourcesController extends StandardController {
       $this->redirect($target);
     } else {
       parent::performRedirect();
+    }
+  }
+  
+  /**
+   * Query an Org Identity Source. This is not called "search" because it
+   * would conflict with the function signature for StandardController::search.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id OrgIdentitySource to search
+   */
+  
+  public function query($id) {
+    if($this->request->is('post')) {
+      // Convert the request to use named parameters to be consistent with every
+      // other form, eg search/#/field:value
+      
+      $url = array();
+      $url['action'] = 'query/' . $id;
+      
+      foreach($this->request->data['Search'] as $field => $value) {
+        if(!empty($value)) {
+          $url['Search.'.$field] = $value; 
+        }
+      }
+      
+      if(!empty($this->request->data['OrgIdentitySource']['copetitionid'])) {
+        $url['copetitionid'] = $this->request->data['OrgIdentitySource']['copetitionid'];
+      }
+      
+      // We don't really need this, except that if the last parameter has a dot in it
+      // (eg: an email address), Cake will parse the new URL as having an extension.
+      // eg: /query/23/Search.email=foo@bar.com => request with extension type "com"
+      // By ensuring the last parameter is this, the search parameter will not be munged.
+      // eg: /query/23/Search.email=foo@bar.com/op=search
+      $url['op'] = 'search';
+      
+      // redirect to the new url
+      $this->redirect($url, null, true);
+    }
+    
+    if(isset($this->viewVars['vv_org_identity_source']['status'])
+       && $this->viewVars['vv_org_identity_source']['status'] != SuspendableStatusEnum::Active) {
+      $this->Flash->set(_txt('er.perm.status',
+                             array(_txt('en.status.susp', null, $this->viewVars['vv_org_identity_source']['status']))),
+                        array('key' => 'error'));
+      $this->performRedirect();
+    }
+    
+    $this->set('title_for_layout',
+               _txt('op.search-a', array($this->viewVars['vv_org_identity_source']['description'])));
+    
+    // Obtain the searchable attributes and pass to the view
+    
+    $this->set('vv_search_attrs', $this->OrgIdentitySource->searchableAttributes($id));
+    
+    // See if any search parameters were passed
+    
+    $searchQuery = array();
+    
+    foreach($this->request->params['named'] as $k => $v) {
+      // Search terms are of the form Search.field, we want "field"
+      if(strncmp($k, "Search.", 7)==0) {
+        $qk = explode('.', $k, 2);
+        
+        $searchQuery[ $qk[1] ] = $v;
+      }
+    }
+    
+    if(!empty($searchQuery)) {
+      // We have a search query, pass it to the backend
+      
+      $this->set('vv_search_query', $searchQuery);
+      
+      try {
+        $this->set('vv_search_results', $this->OrgIdentitySource->search($id, $searchQuery));
+      }
+      catch(Exception $e) {
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      }
     }
   }
   
@@ -389,84 +468,6 @@ class OrgIdentitySourcesController extends StandardController {
     } else {
       $this->Flash->set(_txt('er.notprov.id', array(_txt('fd.sorid'))),
                         array('key' => 'error'));
-    }
-  }
-  
-  /**
-   * Search an Org Identity Source.
-   *
-   * @since  COmanage Registry v1.1.0
-   * @param  Integer $id OrgIdentitySource to search
-   */
-  
-  public function search($id) {
-    if($this->request->is('post')) {
-      // Convert the request to use named parameters to be consistent with every
-      // other form, eg search/#/field:value
-      
-      $url = array();
-      $url['action'] = 'search/' . $id;
-      
-      foreach($this->request->data['Search'] as $field => $value) {
-        if(!empty($value)) {
-          $url['Search.'.$field] = $value; 
-        }
-      }
-      
-      if(!empty($this->request->data['OrgIdentitySource']['copetitionid'])) {
-        $url['copetitionid'] = $this->request->data['OrgIdentitySource']['copetitionid'];
-      }
-      
-      // We don't really need this, except that if the last parameter has a dot in it
-      // (eg: an email address), Cake will parse the new URL as having an extension.
-      // eg: /search/23/Search.email=foo@bar.com => request with extension type "com"
-      // By ensuring the last parameter is this, the search parameter will not be munged.
-      // eg: /search/23/Search.email=foo@bar.com/op=search
-      $url['op'] = 'search';
-      
-      // redirect to the new url
-      $this->redirect($url, null, true);
-    }
-    
-    if(isset($this->viewVars['vv_org_identity_source']['status'])
-       && $this->viewVars['vv_org_identity_source']['status'] != SuspendableStatusEnum::Active) {
-      $this->Flash->set(_txt('er.perm.status',
-                             array(_txt('en.status.susp', null, $this->viewVars['vv_org_identity_source']['status']))),
-                        array('key' => 'error'));
-      $this->performRedirect();
-    }
-    
-    $this->set('title_for_layout',
-               _txt('op.search-a', array($this->viewVars['vv_org_identity_source']['description'])));
-    
-    // Obtain the searchable attributes and pass to the view
-    
-    $this->set('vv_search_attrs', $this->OrgIdentitySource->searchableAttributes($id));
-    
-    // See if any search parameters were passed
-    
-    $searchQuery = array();
-    
-    foreach($this->request->params['named'] as $k => $v) {
-      // Search terms are of the form Search.field, we want "field"
-      if(strncmp($k, "Search.", 7)==0) {
-        $qk = explode('.', $k, 2);
-        
-        $searchQuery[ $qk[1] ] = $v;
-      }
-    }
-    
-    if(!empty($searchQuery)) {
-      // We have a search query, pass it to the backend
-      
-      $this->set('vv_search_query', $searchQuery);
-      
-      try {
-        $this->set('vv_search_results', $this->OrgIdentitySource->search($id, $searchQuery));
-      }
-      catch(Exception $e) {
-        $this->Flash->set($e->getMessage(), array('key' => 'error'));
-      }
     }
   }
   

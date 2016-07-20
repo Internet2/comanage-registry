@@ -44,8 +44,8 @@
 
   $submit_label = _txt('op.save');
   print $this->Form->create($req,
-                           array('action' => 'edit',
-                                 'inputDefaults' => array('label' => false, 'div' => false)));
+                            // CO-1274
+                            array('inputDefaults' => array('label' => false, 'div' => false)));
   if(!empty($this->plugin)) {
     if(file_exists(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/fields.inc")) {
       include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/fields.inc");

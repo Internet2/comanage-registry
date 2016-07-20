@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Search
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -47,7 +47,7 @@ $tabIndex = 1;
 
 <div id="orgIdSearch" class="topSearch">
   <?php
-    print $this->Form->create('OrgIdentity',array('action'=>'search'));
+    print $this->Form->create('OrgIdentity',array('url' => array('action'=>'search')));
     if(!empty($cur_co['Co']['id'])) {
       print $this->Form->hidden('OrgIdentity.co_id', array('default' => $cur_co['Co']['id'])). "\n";
     }

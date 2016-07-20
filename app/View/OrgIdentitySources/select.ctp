@@ -56,7 +56,7 @@
           if($permissions['select']) {
             $args = array(
               'controller' => 'org_identity_sources',
-              'action' => 'search',
+              'action' => 'query',
               $id
             );
             

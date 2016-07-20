@@ -67,9 +67,14 @@
   <p><?php print _txt('op.search');?>:</p>
   <fieldset>
     <?php
-      $action = "search/" . $vv_org_identity_source['id'];
+      $options = array(
+        'url' => array(
+          'action' => 'query',
+          $vv_org_identity_source['id']
+        )
+      );
       
-      print $this->Form->create('OrgIdentitySource', array('action' => $action));
+      print $this->Form->create('OrgIdentitySource', $options);
       
       if(!empty($this->request->params['named']['copetitionid'])) {
         print $this->Form->hidden('copetitionid', array('default' => Sanitize::html($this->request->params['named']['copetitionid'])));
