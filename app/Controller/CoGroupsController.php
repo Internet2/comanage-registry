@@ -488,7 +488,7 @@ class CoGroupsController extends StandardController {
    * @return Integer The CO ID if found, or -1 if not
    */
   
-  public function parseCOID() {
+  public function parseCOID($data = null) {
     if($this->action == 'reconcile') {
       // CakePHP safely sets to null if not found in query string.
       $coId = $this->request->query('coid');

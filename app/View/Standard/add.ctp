@@ -39,7 +39,6 @@
   print $this->Form->create(
     $req,
     array(
-      'action' => 'add',
       'inputDefaults' => array(
         'label' => false,
         'div' => false

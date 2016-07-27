@@ -669,9 +669,12 @@ class OrgIdentitiesController extends StandardController {
         $url['Search.'.$field] = $value; 
     }
 
-    // Include CO
     if($this->requires_co) {
+      // Include CO
       $url['co'] = $this->cur_co['Co']['id'];
+    } else {
+      // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
+      $url['op'] = 'search';
     }
     
     // redirect the user to the url

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO People Controller
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -154,7 +154,7 @@ class CoPeopleController extends StandardController {
    * @throws InvalidArgumentException
    */
   
-  protected function calculateImpliedCoId() {
+  protected function calculateImpliedCoId($data = null) {
     if(($this->action == "invite"
         // The first pass through link will not include a CO Person ID, but the second will
         || ($this->action == "link" && empty($this->request->params['passed'][0])))
@@ -1097,7 +1097,7 @@ class CoPeopleController extends StandardController {
       if(!empty($value))
         $url['Search.'.$field] = $value; 
     }
-    // Insert CO into URL
+    // Insert CO into URL. Note this also prevents truncation of email address searches (CO-1271).
     $url['co'] = $this->cur_co['Co']['id'];
 
     // redirect the user to the url

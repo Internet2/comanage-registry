@@ -15,7 +15,7 @@
  * @since         CakePHP(tm) v 2.0.0
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-
+App::uses('AbstractTransport', 'Network/Email');
 App::uses('CakeSocket', 'Network');
 
 /**
@@ -340,9 +340,9 @@ class SmtpTransport extends AbstractTransport {
 /**
  * Protected method for sending data to SMTP connection
  *
- * @param string $data data to be sent to SMTP server
- * @param string|bool $checkCode code to check for in server response, false to skip
- * @return void
+ * @param string|null $data Data to be sent to SMTP server
+ * @param string|bool $checkCode Code to check for in server response, false to skip
+ * @return string|null The matched code, or null if nothing matched
  * @throws SocketException
  */
 	protected function _smtpSend($data, $checkCode = '250') {

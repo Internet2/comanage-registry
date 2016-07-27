@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Settings Controller
  *
- * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.1
@@ -112,6 +112,20 @@ class CoSettingsController extends StandardController {
   }
   
   /**
+   * Determine the CO ID based on some attribute of the request.
+   *
+   * @since  COmanage Registry v0.9.1
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+  
+  protected function calculateImpliedCoId($data = null) {
+    // if add(), accept what's in the URL
+    
+    return parent::calculateImpliedCoId();
+  }
+  
+  /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
@@ -152,20 +166,6 @@ class CoSettingsController extends StandardController {
     $this->set('title_for_layout', _txt('op.edit-f',
                                         array(_txt('ct.co_settings.pl'),
                                               $this->viewVars['co_settings'][0]['Co']['name'])));
-  }
-  
-  /**
-   * Determine the CO ID based on some attribute of the request.
-   *
-   * @since  COmanage Registry v0.9.1
-   * @return Integer CO ID, or null if not implemented or not applicable.
-   * @throws InvalidArgumentException
-   */
-  
-  protected function calculateImpliedCoId() {
-    // if add(), accept what's in the URL
-    
-    return parent::calculateImpliedCoId();
   }
   
   /**

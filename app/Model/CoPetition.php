@@ -356,16 +356,6 @@ class CoPetition extends AppModel {
     // The initial implementation only uses email address to query the OIS backends.
     // Pull the enrollee Org Identity and look for a verified email address.
     
-    $orgIdentityMode = $this->CoEnrollmentFlow->field('org_identity_mode', array('CoEnrollmentFlow.id' => $efId));
-    
-    // Make sure we're configured with an OISSearch mode, the only currently supported option
-    
-    if($orgIdentityMode != EnrollmentOrgIdentityModeEnum::OISSearch
-       && $orgIdentityMode != EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
-      // Nothing to do
-      return;
-    }
-    
     // Start a transaction
     $dbc = $this->getDataSource();
     $dbc->begin();
@@ -374,6 +364,17 @@ class CoPetition extends AppModel {
     $coPersonId = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
     $coId = $this->field('co_id', array('CoPetition.id' => $id));
     $efId = $this->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
+    
+    $orgIdentityMode = $this->CoEnrollmentFlow->field('org_identity_mode', array('CoEnrollmentFlow.id' => $efId));
+    
+    // Make sure we're configured with an OISSearch mode, the only currently supported option
+    
+    if($orgIdentityMode != EnrollmentOrgIdentityModeEnum::OISSearch
+       && $orgIdentityMode != EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
+      // Nothing to do
+      $dbc->rollback();
+      return;
+    }
     
     if(!$orgIdentityId) {
       $dbc->rollback();

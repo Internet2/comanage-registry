@@ -239,7 +239,7 @@ class CoProvisioningTargetsController extends StandardController {
    * @return Integer The CO ID if found, or -1 if not
    */
   
-  public function parseCOID() {
+  public function parseCOID($data = NULL) {
     if($this->action == 'order'
        || $this->action == 'reorder') {
       if(isset($this->request->params['named']['co'])) {
