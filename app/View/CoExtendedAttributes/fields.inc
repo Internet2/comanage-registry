@@ -51,7 +51,7 @@
     <tr class="line1">
       <td>
         <?php print _txt('fd.name'); ?><span class="required">*</span><br />
-        <em><?php print _txt('fd.lan.desc'); ?></em>
+        <span class="desc"><?php print _txt('fd.lan.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
@@ -93,7 +93,7 @@
         ?>
         <p>
           <span class="ui-icon ui-icon-info co-info"></span>
-          <em><?php print _txt('fd.type.warn'); ?></em>
+          <span class="desc"><?php print _txt('fd.type.warn'); ?></span>
         </p>
       </td>
     </tr>
@@ -107,7 +107,7 @@
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+        <span class="desc"><span class="required"><?php print _txt('fd.req'); ?></span></span><br />
       </td>
       <td>
         <?php

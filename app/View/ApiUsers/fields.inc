@@ -58,7 +58,7 @@
       </td>
       <td>
         <span class="ui-icon ui-icon-info co-info"></span>
-        <em><?php print _txt('ap.note.username'); ?></em>
+        <span class="desc"><?php print _txt('ap.note.username'); ?></span>
       </td>
     </tr>
     <tr class="line2">
