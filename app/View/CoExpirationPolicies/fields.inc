@@ -59,7 +59,9 @@
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.desc'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
@@ -68,7 +70,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.status'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -120,7 +124,9 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.cou'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('cond_cou_id', _txt('fd.cou')) : _txt('fd.cou')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.cou.cond.desc'); ?></span>
           </td>
           <td>
@@ -150,7 +156,9 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.affiliation'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('cond_affiliation', _txt('fd.affiliation')) : _txt('fd.affiliation')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.affil.cond.desc'); ?></span>
           </td>
           <td>
@@ -179,7 +187,9 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.xp.before_expiry.cond'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('cond_before_expiry', _txt('fd.xp.before_expiry.cond')) : _txt('fd.xp.before_expiry.cond')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.before_expiry.cond.desc'); ?></span>
           </td>
           <td>
@@ -195,7 +205,9 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.xp.after_expiry.cond'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('cond_after_expiry', _txt('fd.xp.after_expiry.cond')) : _txt('fd.xp.after_expiry.cond')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.after_expiry.cond.desc'); ?></span>
           </td>
           <td>
@@ -211,7 +223,9 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.status'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('cond_status', _txt('fd.status')) : _txt('fd.status')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.status.cond.desc'); ?></span>
           </td>
           <td>
@@ -241,11 +255,13 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.xp.sponsor.cond'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print _txt('fd.xp.sponsor.cond'); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.sponsor.cond.desc'); ?></span>
           </td>
           <td>
-            <?php print ($e ? $this->Form->input('cond_sponsor_invalid')
+            <?php print ($e ? $this->Form->input('cond_sponsor_invalid') . ' ' . $this->Form->label('cond_sponsor_invalid', _txt('fd.xp.sponsor.cond'))
                             : ($co_expiration_policies[0]['CoExpirationPolicy']['cond_sponsor_invalid']
                                ? _txt('fd.yes') : _txt('fd.no'))); ?>
           </td>
@@ -262,7 +278,9 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.cou'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('act_cou_id', _txt('fd.cou')) : _txt('fd.cou')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.cou.act.desc'); ?></span>
           </td>
           <td>
@@ -292,7 +310,9 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.affiliation'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('act_affiliation', _txt('fd.affiliation')) : _txt('fd.affiliation')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.affil.act.desc'); ?></span>
           </td>
           <td>
@@ -321,7 +341,9 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.status'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('act_status', _txt('fd.status')) : _txt('fd.status')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.status.act.desc'); ?></span>
           </td>
           <td>
@@ -351,40 +373,47 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.xp.clear_expiry.act'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print _txt('fd.xp.clear_expiry.act'); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.clear_expiry.act.desc'); ?></span>
           </td>
           <td>
-            <?php print ($e ? $this->Form->input('act_clear_expiry')
-                            : ($co_expiration_policies[0]['CoExpirationPolicy']['act_clear_expiry']
-                               ? _txt('fd.yes') : _txt('fd.no'))); ?>
+            <?php print ($e ? $this->Form->input('act_clear_expiry') . ' ' . $this->Form->label('act_clear_expiry', _txt('fd.xp.clear_expiry.act'))
+                            : ($co_expiration_policies[0]['CoExpirationPolicy']['act_clear_expiry'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
           </td>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.xp.notify_coadmin.act'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print _txt('fd.xp.notify_coadmin.act'); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.notify_coadmin.act.desc'); ?></span>
           </td>
           <td>
-            <?php print ($e ? $this->Form->input('act_notify_co_admin')
+            <?php print ($e ? $this->Form->input('act_notify_co_admin') . ' ' . $this->Form->label('act_notify_co_admin', _txt('fd.xp.notify_coadmin.act'))
                             : ($co_expiration_policies[0]['CoExpirationPolicy']['act_notify_co_admin']
                                ? _txt('fd.yes') : _txt('fd.no'))); ?>
           </td>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.xp.notify_couadmin.act'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print _txt('fd.xp.notify_couadmin.act'); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.notify_couadmin.act.desc'); ?></span>
           </td>
           <td>
-            <?php print ($e ? $this->Form->input('act_notify_cou_admin')
+            <?php print ($e ? $this->Form->input('act_notify_cou_admin') . ' ' . $this->Form->label('act_notify_cou_admin', _txt('fd.xp.notify_couadmin.act'))
                             : ($co_expiration_policies[0]['CoExpirationPolicy']['act_notify_cou_admin']
                                ? _txt('fd.yes') : _txt('fd.no'))); ?>
           </td>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.xp.notify_cogroup.act'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('act_notify_co_group_id', _txt('fd.xp.notify_cogroup.act')) : _txt('fd.xp.notify_cogroup.act')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.notify_cogroup.act.desc'); ?></span>
           </td>
           <td>
@@ -413,18 +442,22 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <b><?php print _txt('fd.xp.notify_coperson.act'); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print _txt('fd.xp.notify_coperson.act'); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.notify_coperson.act.desc'); ?></span>
           </td>
           <td>
-            <?php print ($e ? $this->Form->input('act_notify_co_person')
+            <?php print ($e ? $this->Form->input('act_notify_co_person') . ' ' . $this->Form->label('act_notify_co_person', _txt('fd.xp.notify_coperson.act'))
                             : ($co_expiration_policies[0]['CoExpirationPolicy']['act_notify_co_person']
                                ? _txt('fd.yes') : _txt('fd.no'))); ?>
           </td>
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <strong class="fieldTitle"><?php print _txt('fd.xp.nsubject'); ?></strong><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('act_notification_subject', _txt('fd.xp.nsubject')) : _txt('fd.xp.nsubject')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.nsubject.desc'); ?></span>
           </td>
           <td>
@@ -436,7 +469,9 @@
         </tr>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
-            <strong class="fieldTitle"><?php print _txt('fd.xp.nbody'); ?></strong><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('act_notification_body', _txt('fd.xp.nbody')) : _txt('fd.xp.nbody')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.xp.nbody.desc'); ?></span>
           </td>
           <td>

@@ -144,7 +144,9 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.name'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php print ($e
@@ -154,7 +156,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.status'); ?></b>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+        </strong>
       </td>
       <td>
         <?php
@@ -200,7 +204,9 @@
       <tbody>
         <tr class="line1">
           <td>
-            <b><?php print $this->Form->label('CoPipeline.match_strategy', _txt('fd.pi.match.str')); ?></b><span class="required">*</span>
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('CoPipeline.match_strategy', _txt('fd.pi.match.str')) : _txt('fd.pi.match.str')); ?>
+            </strong><span class="required">*</span>
           </td>
           <td>
             <?php
@@ -229,7 +235,9 @@
         </tr>
         <tr class="line2">
           <td>
-            <b><?php print $this->Form->label('CoPipeline.match_type', _txt('fd.pi.match.type')); ?></b><span class="required">*</span>
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('CoPipeline.match_type', _txt('fd.pi.match.type')) : _txt('fd.pi.match.type')); ?>
+            </strong><span class="required">*</span>
           </td>
           <td>
             <?php
@@ -262,40 +270,48 @@
       <tbody>
         <tr class="line1">
           <td>
-            <b><?php print $this->Form->label('sync_on_add', _txt('fd.pi.sync.add')); ?></b>
+            <strong class="fieldTitle">
+              <?php print _txt('fd.pi.sync.add'); ?>
+            </strong>
           </td>
           <td>
             <?php print ($e
-                         ? $this->Form->input('sync_on_add',
-                                              array('onChange' => 'fields_update_gadgets()'))
+                         ? $this->Form->input('sync_on_add', array('onChange' => 'fields_update_gadgets()')) . ' ' .
+                           $this->Form->label('sync_on_add', _txt('fd.pi.sync.add'))
                          : (isset($co_pipelines[0]['CoPipeline']['sync_on_add']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
           </td>
         </tr>
         <tr class="line2">
           <td>
-            <b><?php print $this->Form->label('sync_on_update', _txt('fd.pi.sync.upd')); ?></b>
+            <strong class="fieldTitle">
+              <?php print _txt('fd.pi.sync.upd'); ?>
+            </strong>
           </td>
           <td>
             <?php print ($e
-                         ? $this->Form->input('sync_on_update',
-                                              array('onChange' => 'fields_update_gadgets()'))
+                         ? $this->Form->input('sync_on_update', array('onChange' => 'fields_update_gadgets()')) . ' ' .
+                           $this->Form->label('sync_on_update', _txt('fd.pi.sync.upd'))
                          : (isset($co_pipelines[0]['CoPipeline']['sync_on_update']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
           </td>
         </tr>
         <tr class="line1">
           <td>
-            <b><?php print $this->Form->label('sync_on_delete', _txt('fd.pi.sync.del')); ?></b>
+            <strong class="fieldTitle">
+              <?php print _txt('fd.pi.sync.del'); ?>
+            </strong>
           </td>
           <td>
             <?php print ($e
-                         ? $this->Form->input('sync_on_delete',
-                                              array('onChange' => 'fields_update_gadgets()'))
+                         ? $this->Form->input('sync_on_delete', array('onChange' => 'fields_update_gadgets()')) . ' ' .
+                           $this->Form->label('sync_on_delete', _txt('fd.pi.sync.del'))
                          : (isset($co_pipelines[0]['CoPipeline']['sync_on_del']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
           </td>
         </tr>
         <tr class="line2">
           <td>
-            <b><?php print $this->Form->label('CoPipeline.sync_cou_id', _txt('fd.pi.sync.cou')); ?></b>
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('CoPipeline.sync_cou_id', _txt('fd.pi.sync.cou')) : _txt('fd.pi.sync.cou')); ?>
+            </strong>
           </td>
           <td>
             <?php
@@ -321,7 +337,9 @@
         </tr>
         <tr class="line1">
           <td>
-            <b><?php print $this->Form->label('CoPipeline.sync_replace_cou_id', _txt('fd.pi.sync.cou.repl')); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('CoPipeline.sync_replace_cou_id', _txt('fd.pi.sync.cou.repl')) : _txt('fd.pi.sync.cou.repl')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.pi.sync.cou.repl.desc'); ?></span>
           </td>
           <td>
@@ -348,7 +366,9 @@
         </tr>
         <tr class="line2">
           <td>
-            <b><?php print $this->Form->label('CoPipeline.status_on_delete', _txt('fd.pi.sync.del.stat')); ?></b><br />
+            <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('CoPipeline.status_on_delete', _txt('fd.pi.sync.del.stat')) : _txt('fd.pi.sync.del.stat')); ?>
+            </strong><br />
             <span class="descr"><?php print _txt('fd.pi.sync.del.stat.desc'); ?></span>
           </td>
           <td>

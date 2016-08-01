@@ -151,12 +151,7 @@ $(function() {
           <?php if($this->action == 'add'): ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php
-              print _txt('fd.name.honorific');
-              
-              if($e)
-                print " " . _txt('fd.name.h.desc');
-              ?>
+              <?php print ($e ? $this->Form->label('PrimaryName.honorific', _txt('fd.name.honorific') .  " " . _txt('fd.name.h.desc')) : _txt('fd.name.honorific')); ?>
             </td>
             <td>
               <?php
@@ -169,7 +164,7 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-                <?php print _txt('fd.name.given'); ?><span class="required">*</span>
+                <?php print ($e ? $this->Form->label('PrimaryName.given', _txt('fd.name.given')) : _txt('fd.name.given')); ?><span class="required">*</span>
             </td>
             <td>
               <?php print ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
@@ -177,14 +172,14 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php print _txt('fd.name.middle'); ?>
+              <?php print ($e ? $this->Form->label('PrimaryName.middle', _txt('fd.name.middle')) : _txt('fd.name.middle')); ?>
             </td>
             <td>
               <?php print ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
             </td>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php print _txt('fd.name.family'); ?>
+              <?php print ($e ? $this->Form->label('PrimaryName.family', _txt('fd.name.family')) :  _txt('fd.name.family')); ?>
             </td>
             <td>
               <?php print ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
@@ -192,12 +187,7 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php
-                print _txt('fd.name.suffix');
-                
-                if($e)
-                  print " " . _txt('fd.name.s.desc');
-              ?>
+              <?php print ($e ? $this->Form->label('PrimaryName.suffix', _txt('fd.name.suffix') . " " . _txt('fd.name.s.desc')) :  _txt('fd.name.suffix')); ?>
             </td>
             <td>
               <?php print ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
@@ -213,7 +203,7 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php print _txt('fd.language'); ?>
+              <?php print ($e ? $this->Form->label('PrimaryName.language', _txt('fd.language')) : _txt('fd.language')); ?>
             </td>
             <td>
               <?php
@@ -241,11 +231,11 @@ $(function() {
           </tr>
           <?php else: // add ?>
           <?php if($e): ?>
-          <div class="orgIdNameAdd">
-            <div>
+          <tr class="line1 noborder">
+            <td>
               <?php print _txt('fd.name'); ?>
-            </div>
-            <div>
+            </td>
+            <td>
               <?php
                 $linktarget = array('controller'    => 'names',
                                     'action'        => 'add',
@@ -257,12 +247,12 @@ $(function() {
                                         $linktarget,
                                         $linkparams);
               ?>
-            </div>
-          </div>
+            </td>
+          </tr>
           <?php endif; // e ?>
           <?php foreach($org_identities[0]['Name'] as $n): ?>
-          <div>
-            <div>
+          <tr class="noborder">
+            <td>
               <?php
                 if($e) {
                   print $this->Html->link(generateCn($n),
@@ -280,8 +270,8 @@ $(function() {
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";
               ?>
-            </div>
-            <div>
+            </td>
+            <td>
               <?php
                 if($e) {
                   if(!$n['primary_name']) {
@@ -321,13 +311,13 @@ $(function() {
                                           array('class' => 'editbutton')) . "\n";
                 }
               ?>
-            </div>
-          </div>
+            </td>
+          </tr>
           <?php endforeach; ?>
           <?php endif; // add ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php print _txt('fd.status'); ?>
+              <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
             </td>
             <td>
               <?php
@@ -355,7 +345,7 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php print _txt('fd.affiliation'); ?>
+              <?php print ($e ? $this->Form->label('affiliation', _txt('fd.affiliation')) : _txt('fd.affiliation')); ?>
             </td>
             <td>
               <?php
@@ -383,7 +373,7 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php print _txt('fd.title'); ?>
+              <?php print ($e ? $this->Form->label('title', _txt('fd.title')) : _txt('fd.title')); ?>
             </td>
             <td>
               <?php print ($e ? $this->Form->input('title', array('size' => 60,'class' => 'focusFirst'))
@@ -392,7 +382,7 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php print _txt('fd.o'); ?>
+              <?php print ($e ? $this->Form->label('o', _txt('fd.o')) : _txt('fd.o')); ?>
             </td>
             <td>
               <?php print ($e ? $this->Form->input('o', array('size' => 60))
@@ -401,7 +391,7 @@ $(function() {
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
-              <?php print _txt('fd.ou'); ?>
+              <?php print ($e ? $this->Form->label('ou', _txt('fd.ou')) : _txt('fd.ou')); ?>
             </td>
             <td>
               <?php print ($e ? $this->Form->input('ou', array('size' => 60))

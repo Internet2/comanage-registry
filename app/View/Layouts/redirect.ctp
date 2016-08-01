@@ -80,19 +80,18 @@
   </head>
   <body  class="<?php print $this->params->controller . ' ' . $this->params->action ?>">
 
-    <div class="header">
-      <div id="row1">
-        <div class="contentWidth">
-          <?php print $this->element('secondaryMenu'); ?>
-          <?php print $this->element('links'); ?>
-        </div>
+    <nav id="row1" aria-label="user and platform menus">
+      <div class="contentWidth">
+        <?php print $this->element('secondaryMenu'); ?>
+        <?php print $this->element('links'); ?>
       </div>
+    </nav>
 
-      <div id="row2" class="ui-widget-header">
-        <div class="contentWidth">
+    <header id="row2" class="ui-widget-header">
+      <div class="contentWidth">
 
-          <div class="headerRight">
-            <?php
+        <div class="headerRight">
+          <?php
             $imgFile = 'comanage-logo.png';
 
             if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
@@ -105,41 +104,36 @@
               $this->Html->image(
                 $imgFile,
                 array(
-                  'alt' => 'COmanage',
+                  'alt' => 'COmanage Logo',
                   'height' => 50
                 )
               ),'/',
               array('escape' => false)
             );
-            ?>
-          </div>
+          ?>
+        </div>
 
-          <div class="headerLeft">
-            <?php
+        <div class="headerLeft">
+          <?php
             if(!empty($cur_co['Co']['name'])) {
-              print "<h1>" . Sanitize::html($cur_co['Co']['name']) . "</h1>"; // more to go here.
+              print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
             } else {
-              print "<h1>" . _txt('coordinate') . "</h1>";
+              print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
             }
-            ?>
-            <div id="coSelector">
-
-            </div>
-          </div>
+          ?>
         </div>
       </div>
+    </header>
 
-      <?php if($this->Session->check('Auth.User')): ?>
-        <div id="row3">
-          <div class="contentWidth">
-            <?php print $this->element('dropMenu'); ?>
-          </div>
+    <?php if($this->Session->check('Auth.User')): ?>
+      <nav id="row3" aria-label="main menu">
+        <div class="contentWidth">
+          <?php print $this->element('dropMenu'); ?>
         </div>
-      <?php endif ?>
+      </nav>
+    <?php endif ?>
 
-    </div>
-
-    <div id="main" class="contentWidth">
+    <main id="main" class="contentWidth">
       <div id="content">
         <div id="redirect-box">
           <div id="redirect-box-content">
@@ -148,10 +142,10 @@
           <div id="redirect-spinner"></div>
         </div>
       </div>
-    </div>
+    </main>
 
-    <div class="contentWidth">
+    <footer class="contentWidth">
       <?php print $this->element('footer'); ?>
-    </div>
+    </footer>
   </body>
 </html>

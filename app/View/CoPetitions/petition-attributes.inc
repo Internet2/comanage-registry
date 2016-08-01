@@ -250,7 +250,7 @@
           }
         ?>
       </div>
-      <table id="<?php print $this->action; ?>_co_petition_attrs_<?php print $m?>" class="ui-widget">
+      <table class="ui-widget">
         <tbody>
           <?php 
             $l = 0; // Reset zebra stripes for each box
@@ -522,7 +522,7 @@
     }
   ?>
   
-  <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
+  <table id="<?php print $this->action; ?>_co_petition_attrs_submit" class="ui-widget">
     <tbody>
       <tr>
         <td>
@@ -540,7 +540,6 @@
       </tr>
     </tbody>
   </table>
-</div>
 </div>
 <?php if($this->action == 'view'): ?>
   <a href="#tabs-history" class="fieldGroupName">
@@ -571,7 +570,7 @@
 <?php endif; // action == view ?>
 
 <div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
-  <iframe id="tandc_content" height="600" width="700">
+  <iframe id="tandc_content" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>" height="600" width="700">
   </iframe>
 </div>
 

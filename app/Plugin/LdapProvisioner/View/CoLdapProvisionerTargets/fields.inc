@@ -141,8 +141,8 @@
   <tbody>
     <tr class="line1">
       <td style="width:50%">
-        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.serverurl'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.serverurl.desc'); ?></font>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.serverurl'); ?></strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.serverurl.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['serverurl'])); ?>
@@ -150,8 +150,8 @@
     </tr>
     <tr class="line2">
       <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.binddn'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.binddn.desc'); ?></font>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.binddn'); ?></strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.binddn.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['binddn'])); ?>
@@ -159,8 +159,8 @@
     </tr>
     <tr class="line1">
       <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.password'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.password.desc'); ?></font>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.password'); ?></strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.password.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['password'])); ?>
@@ -168,8 +168,8 @@
     </tr>
     <tr class="line2">
       <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.dntype'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.dntype.desc'); ?></font>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.dntype'); ?></strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.dntype.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -190,8 +190,8 @@
     </tr>
     <tr class="line1">
       <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.dnattr'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.dnattr.desc'); ?></font>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.dnattr'); ?></strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.dnattr.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('dn_attribute_name',
@@ -201,8 +201,8 @@
     </tr>
     <tr class="line2">
       <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.basedn'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.basedn.desc'); ?></font>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.basedn'); ?></strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.basedn.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['basedn'])); ?>
@@ -211,7 +211,7 @@
     <tr class="line1">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.basedn.gr'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.basedn.gr.desc'); ?></font>
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.basedn.gr.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('group_basedn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_basedn'])); ?>
@@ -220,7 +220,7 @@
     <tr class="line2">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.opts'); ?></strong><br />
-        <font class="desc"><?php /* print _txt('pl.ldapprovisioner.opts.desc'); */ ?></font>
+        <span class="desc"><?php /* print _txt('pl.ldapprovisioner.opts.desc'); */ ?></span>
       </td>
       <td>
         <?php
@@ -238,8 +238,8 @@
     </tr>
     <tr class="line1">
       <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.attrs'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.attrs.desc'); ?></font>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.attrs'); ?></strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.attrs.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -362,7 +362,7 @@
                 // Set up for the checkbox
                 
                 $xname = 'CoLdapProvisionerAttribute.' . $xindex . '.export';
-                $xlabel = '<font style="font-family:monospace">' . $attr . '</font>';
+                $xlabel = '<code>' . $attr . '</code>';
                 // Default to checked if this is a new entry, or if previously set
                 $xchecked = (!isset($currentAttributes[$attr]['export'])
                              || $currentAttributes[$attr]['export']);
@@ -450,7 +450,7 @@
     <tr class="line2">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.person_ocs'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.person_ocs.desc'); ?></font>
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.person_ocs.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -461,7 +461,7 @@
     <tr class="line1">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.group_ocs'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapprovisioner.group_ocs.desc'); ?></font>
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.group_ocs.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
@@ -471,7 +471,7 @@
     </tr>
     <tr>
       <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
+        <i><span class="required"><?php print _txt('fd.req'); ?></span></i><br />
       </td>
       <td>
         <?php

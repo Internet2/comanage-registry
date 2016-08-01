@@ -51,7 +51,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.desc'); ?></b><br />
+        <b><?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?></b><br />
       </td>
       <td>
         <?php print ($e
@@ -61,7 +61,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.link.title'); ?></b><br />
+        <b><?php print ($e ? $this->Form->label('title', _txt('fd.link.title')) : _txt('fd.link.title')); ?></b><br />
       </td>
       <td>
         <?php print ($e
@@ -71,7 +71,7 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.link.url'); ?></b><br />
+        <b><?php print ($e ? $this->Form->label('url', _txt('fd.link.url')) : _txt('fd.link.url')); ?></b><br />
       </td>
       <td>
         <?php print ($e
@@ -79,10 +79,9 @@
                      : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['url'])); ?>
       </td>
     </tr>
-    </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.link.order'); ?></b><br />
+        <b><?php print ($e ? $this->Form->label('ordr', _txt('fd.link.order')) : _txt('fd.link.order')); ?></b><br />
       </td>
       <td>
         <?php print ($e
@@ -92,7 +91,7 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.link.location'); ?></b><br />
+        <b><?php print ($e ? $this->Form->label('location', _txt('fd.link.location')) : _txt('fd.link.location')); ?></b><br />
       </td>
       <td>
         <?php

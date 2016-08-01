@@ -151,7 +151,9 @@
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.name'); ?></strong>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('name',_txt('fd.name')) : _txt('fd.name')); ?>
+        </strong>
       </td>
       <td>
         <?php print ($e
@@ -161,7 +163,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.status'); ?></strong><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('status',_txt('fd.status')) : _txt('fd.status')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -185,7 +189,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.authz'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('authz_level', _txt('fd.ef.authz')) : _txt('fd.ef.authz')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.authz.desc'); ?></span>
       </td>
       <td>
@@ -220,6 +226,7 @@
               $attrs['empty'] = true;
               
               if($e) {
+                print $this->Form->label('authz_co_group_id', _txt('fd.ef.authz.group')) . ': ';
                 print $this->Form->select('authz_co_group_id',
                                           $co_groups,
                                           $attrs);
@@ -243,6 +250,7 @@
               $attrs['empty'] = true;
               
               if($e) {
+                print $this->Form->label('authz_cou_id', _txt('fd.ef.authz.cou')) . ': ';
                 print $this->Form->select('authz_cou_id',
                                           $cous,
                                           $attrs);
@@ -260,7 +268,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.orgid'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('org_identity_mode', _txt('fd.ef.orgid')) : _txt('fd.ef.orgid')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.orgid.desc'); ?></span>
       </td>
       <td>
@@ -287,7 +297,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.pipeline'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('co_pipeline_id',_txt('fd.pipeline')) : _txt('fd.pipeline')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.pipeline.desc.ef'); ?></span>
       </td>
       <td>
@@ -314,7 +326,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.match'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('match_policy', _txt('fd.ef.match')) : _txt('fd.ef.match')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.match.desc'); ?></span>
       </td>
       <td>
@@ -339,12 +353,15 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.appr'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print _txt('fd.ef.appr'); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.appr.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('approval_required', array('onClick' => 'approver_update_gadgets()'))
+                     ? $this->Form->input('approval_required', array('onClick' => 'approver_update_gadgets()')) . ' ' .
+                       $this->Form->label('approval_required', _txt('fd.ef.appr'))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_required'])); ?>
         <div id="approvergroupdiv" style="display:none">
           <?php
@@ -356,6 +373,7 @@
               $attrs['empty'] = true;
               
               if($e) {
+                print $this->Form->label('approver_co_group_id', _txt('fd.ef.appr.pl')) . ': ';
                 print $this->Form->select('approver_co_group_id',
                                           $co_groups,
                                           $attrs);
@@ -375,19 +393,24 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.ce'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print _txt('fd.ef.ce'); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.ce.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('verify_email', array('onClick' => 'authn_update_gadgets()'))
+                     ? $this->Form->input('verify_email', array('onClick' => 'authn_update_gadgets()')) . ' ' .
+                       $this->Form->label('verify_email', _txt('fd.ef.ce'))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verify_email'])); ?>
       </td>
     </tr>
     <?php $ll = $l; // use an alternate index for indented rows ?>
     <tr class="line<?php print ($ll % 2); $ll++; ?>">
       <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.invval'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('invitation_validity', _txt('fd.ef.invval')) :_txt('fd.ef.invval')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.invval.desc'); ?></span>
       </td>
       <td>
@@ -399,7 +422,9 @@
     </tr>
     <tr class="line<?php print ($ll % 2); $ll++; ?>">
       <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.vsub'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('verification_subject', _txt('fd.ef.vsub')) : _txt('fd.ef.vsub')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.vsub.desc'); ?></span>
       </td>
       <td>
@@ -411,7 +436,9 @@
     </tr>
     <tr class="line<?php print ($ll % 2); $ll++; ?>">
       <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.vbody'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('verification_body', _txt('fd.ef.vbody')) : _txt('fd.ef.vbody')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.vbody.desc'); ?></span>
       </td>
       <td>
@@ -422,18 +449,23 @@
       </td>
     </tr>    <tr class="line<?php print ($ll % 2); $ll++; ?>">
       <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.authn'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print _txt('fd.ef.authn'); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.authn.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('require_authn', array('onClick' => 'authn_update_gadgets()'))
+                     ? $this->Form->input('require_authn', array('onClick' => 'authn_update_gadgets()')) . ' ' .
+                       $this->Form->label('require_authn', _txt('fd.ef.authn'))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($ll % 2); $ll++; ?>" style="display:none">
       <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.dupe'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('duplicate_mode', _txt('fd.ef.dupe')) : _txt('fd.ef.dupe')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.dupe.desc'); ?></span>
       </td>
       <td>
@@ -460,7 +492,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.efn'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('notify_from', _txt('fd.ef.efn')) : _txt('fd.ef.efn')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.efn.desc'); ?></span>
       </td>
       <td>
@@ -471,7 +505,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.nogr'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('notification_co_group_id', _txt('fd.ef.nogr')) : _txt('fd.ef.nogr')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.nogr.desc'); ?></span>
       </td>
       <td>
@@ -500,19 +536,23 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.noap'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print _txt('fd.ef.noap'); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.noap.desc'); ?></span>
       </td>
       <td>
         <?php print ($e
-                     ? $this->Form->input('notify_on_approval',
-                                          array('onChange' => 'fields_update_gadgets();'))
+                     ? $this->Form->input('notify_on_approval', array('onChange' => 'fields_update_gadgets();')) . ' ' .
+                       $this->Form->label('notify_on_approval', _txt('fd.ef.noap'))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'])); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">
       <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.asub'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('approval_subject',_txt('fd.ef.asub')) : _txt('fd.ef.asub')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.asub.desc'); ?></span>
       </td>
       <td>
@@ -524,7 +564,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">
       <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.abody'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('approval_body', _txt('fd.ef.abody')) : _txt('fd.ef.abody')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.abody.desc'); ?></span>
       </td>
       <td>
@@ -536,7 +578,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.intro'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('introduction_text', _txt('fd.ef.intro')) : _txt('fd.ef.intro')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.intro.desc'); ?></span>
       </td>
       <td>
@@ -547,7 +591,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.concl'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('conclusion_text', _txt('fd.ef.concl')) : _txt('fd.ef.concl')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.concl.desc'); ?></span>
       </td>
       <td>
@@ -558,7 +604,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.tandc'); ?></strong><span class="required">*</span><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('t_and_c_mode', _txt('fd.ef.tandc')) : _txt('fd.ef.tandc')); ?>
+        </strong><span class="required">*</span><br />
         <span class="descr"><?php print _txt('fd.ef.tandc.desc'); ?></span>
       </td>
       <td>
@@ -585,7 +633,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.rd.submit'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('redirect_on_submit', _txt('fd.ef.rd.submit')) : _txt('fd.ef.rd.submit')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.rd.submit.desc'); ?></span>
       </td>
       <td>
@@ -596,7 +646,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ef.rd.confirm'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('redirect_on_confirm', _txt('fd.ef.rd.confirm')) : _txt('fd.ef.rd.confirm')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ef.rd.confirm.desc'); ?></span>
       </td>
       <td>
@@ -608,7 +660,9 @@
     <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <strong class="fieldTitle"><?php print _txt('fd.ea.ignauth'); ?></strong><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('ignore_authoritative', _txt('fd.ea.ignauth')) : _txt('fd.ea.ignauth')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ea.ignauth.desc'); ?></span>
       </td>
       <td>

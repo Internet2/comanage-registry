@@ -69,7 +69,9 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.key'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('lkey', _txt('fd.key')) : _txt('fd.key')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -99,7 +101,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.language'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('language', _txt('fd.language')) : _txt('fd.language')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php print ($e
@@ -109,7 +113,9 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.text'); ?></b><span class="required">*</span><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('text', _txt('fd.text')) : _txt('fd.text')); ?>
+        </strong><span class="required">*</span><br />
       </td>
       <td>
         <?php print ($e
@@ -119,7 +125,9 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.text.original'); ?></b>
+        <strong class="fieldTitle">
+          <?php print _txt('fd.text.original'); ?>
+        </strong>
       </td>
       <td>
         <div id="original">
