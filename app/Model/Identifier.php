@@ -34,14 +34,19 @@ class Identifier extends AppModel {
     // An identifier may be attached to a CO Person
     "CoPerson",
     // An identifier may be attached to an Org Identity
-    "OrgIdentity"
+    "OrgIdentity",
+    // An identifier created from a Pipeline has a Source Identifier
+    "SourceIdentifier" => array(
+      'className' => 'Identifier',
+      'foreignKey' => 'source_identifier_id'
+    )
   );
   
   // Default display field for cake generated views
-  public $displayField = "identifier";
+  public $displayField = "Identifier.identifier";
   
   // Default ordering for find operations
-  public $order = array("identifier");
+  public $order = array("Identifier.identifier");
   
   public $actsAs = array('Containable',
                          'Provisioner',
@@ -68,6 +73,7 @@ class Identifier extends AppModel {
                                                  IdentifierEnum::ePTID,
                                                  IdentifierEnum::Mail,
                                                  IdentifierEnum::OpenID,
+                                                 IdentifierEnum::ORCID,
                                                  IdentifierEnum::UID))),
         'required' => false,
         'allowEmpty' => false

@@ -107,6 +107,11 @@ class CoPipeline extends AppModel {
       'required'   => false,
       'allowEmpty' => true
     ),
+    'create_role' => array(
+      'rule'       => 'boolean',
+      'required'   => false,
+      'allowEmpty' => true
+    ),
     'sync_cou_id' => array(
       'rule' => 'numeric',
       'required' => false,
@@ -429,192 +434,228 @@ class CoPipeline extends AppModel {
                                                  ActionEnum::CoPersonOrgIdLinked);
     }
     
-    // Construct a CO Person Role and compare against existing.
-    
-    $newCoPersonRole = array(
-      'CoPersonRole' => array(
-        // Affiliation is required by CoPersonRole, so if not provided set default
-        'affiliation' => (!empty($orgIdentity['OrgIdentity']['affiliation'])
-                          ? $orgIdentity['OrgIdentity']['affiliation']
-                          : AffiliationEnum::Member),
-        // Set the cou_id even if null so the diff operates correctly
-        'cou_id'      => $coPipeline['CoPipeline']['sync_cou_id'],
-        'o'           => $orgIdentity['OrgIdentity']['o'],
-        'ou'          => $orgIdentity['OrgIdentity']['ou'],
-        'title'       => $orgIdentity['OrgIdentity']['title'],
-        'status'      => StatusEnum::Active
-      )
-    );
-    
-    // Next see if there is a role associated with this OrgIdentity.
-    
-    if(!empty($orgIdentity['PipelineCoPersonRole']['id'])) {
-      $newCoPersonRole['CoPersonRole']['id'] = $orgIdentity['PipelineCoPersonRole']['id'];
+    if($coPipeline['CoPipeline']['create_role']) {
+      // Construct a CO Person Role and compare against existing.
       
-      $curCoPersonRole = array();
+      $newCoPersonRole = array(
+        'CoPersonRole' => array(
+          // Affiliation is required by CoPersonRole, so if not provided set default
+          'affiliation' => (!empty($orgIdentity['OrgIdentity']['affiliation'])
+                            ? $orgIdentity['OrgIdentity']['affiliation']
+                            : AffiliationEnum::Member),
+          // Set the cou_id even if null so the diff operates correctly
+          'cou_id'      => $coPipeline['CoPipeline']['sync_cou_id'],
+          'o'           => $orgIdentity['OrgIdentity']['o'],
+          'ou'          => $orgIdentity['OrgIdentity']['ou'],
+          'title'       => $orgIdentity['OrgIdentity']['title'],
+          'status'      => StatusEnum::Active
+        )
+      );
       
-      // Note there are a bunch of unsupported attributes at the moment (valid_from, etc)
-      foreach(array('id', 'affiliation', 'cou_id', 'o', 'ou', 'title', 'status') as $attr) {
-        $curCoPersonRole['CoPersonRole'][$attr] = $orgIdentity['PipelineCoPersonRole'][$attr];
-      }
+      // Next see if there is a role associated with this OrgIdentity.
       
-      // Diff array to see if we should save
-      $cstr = $this->Co->CoPerson->CoPersonRole->changesToString($newCoPersonRole,
-                                                                 $curCoPersonRole);
-      
-      if(!empty($cstr)) {
-        // Cut the history diff here, since we don't want this on an add
-        // (If the save fails later the parent transaction will roll this back)
+      if(!empty($orgIdentity['PipelineCoPersonRole']['id'])) {
+        $newCoPersonRole['CoPersonRole']['id'] = $orgIdentity['PipelineCoPersonRole']['id'];
         
-        $this->Co->OrgIdentity->HistoryRecord->record($coPersonId,
-                                                      $orgIdentity['PipelineCoPersonRole']['id'],
-                                                      null,
-                                                      $actorCoPersonId,
-                                                      ActionEnum::CoPersonRoleEditedPipeline,
-                                                      _txt('rs.edited-a4', array(_txt('ct.co_person_roles.1'),
-                                                                                 $cstr)));
-      } else {
-        // No change, unset $newCoPersonRole to indicate not to bother saving
-        $newCoPersonRole = array();
-      }
-    } else {
-      // No current person role, so just save as is
-    }
-    
-    if(!empty($newCoPersonRole)) {
-      // Save the updated record and cut history
-      
-      // Link the role before saving
-      $newCoPersonRole['CoPersonRole']['co_person_id'] = $coPersonId;
-      $newCoPersonRole['CoPersonRole']['source_org_identity_id'] = $orgIdentity['OrgIdentity']['id'];
-      
-      if(!$this->Co->CoPerson->CoPersonRole->save($newCoPersonRole, array("provision" => false))) {
-        throw new RuntimeException(_txt('er.db.save-a', array('CoPersonRole')));
-      }
-      
-      // Cut history
-      $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                 $this->Co->CoPerson->CoPersonRole->id,
-                                                 $orgIdentity['OrgIdentity']['id'],
-                                                 $actorCoPersonId,
-                                                 ActionEnum::CoPersonRoleAddedPipeline,
-                                                 _txt('rs.pi.sync-a', array(_txt('ct.co_person_roles.1'),
-                                                                            $coPipeline['CoPipeline']['name'],
-                                                                            $coPipeline['CoPipeline']['id'])));
-    }
-    
-    // Next handle associated models
-    
-    $newEmailAddresses = array();
-    $curEmailAddresses = array();
-    
-    // Map each org email address into a "new" CO Person email address,
-    // keyed on the org email address' id
-    
-    foreach($orgIdentity['EmailAddress'] as $orgEmailAddress) {
-      // Construct the new email address
-      $newEmailAddress = $orgEmailAddress;
-      
-      // Get rid of metadata keys
-      foreach(array('id',
-                    'org_identity_id',
-                    'created',
-                    'modified',
-                    'email_address_id',
-                    'revision',
-                    'deleted',
-                    'actor_identifier') as $k) {
-        unset($newEmailAddress[$k]);
-      }
-      
-      // And link the record
-      $newEmailAddress['co_person_id'] = $coPersonId;
-      $newEmailAddress['source_email_address_id'] = $orgEmailAddress['id'];
-      
-      $newEmailAddresses[ $orgEmailAddress['id'] ] = $newEmailAddress;
-    }
-    
-    // Get the set of current CO Person email addresses and prepare them for comparison
-    
-    $args = array();
-    $args['conditions']['EmailAddress.co_person_id'] = $coPersonId;
-    $args['contain'] = false;
-    
-    $addrs = $this->Co->CoPerson->EmailAddress->find('all', $args);
-    
-    foreach($addrs as $a) {
-      $curEmailAddress = $a['EmailAddress'];
-      
-      // Get rid of metadata keys
-      foreach(array('org_identity_id',
-                    'created',
-                    'modified',
-                    'email_address_id',
-                    'revision',
-                    'deleted',
-                    'actor_identifier') as $k) {
-        unset($curEmailAddress[$k]);
-      }
-      
-      $curEmailAddresses[ $curEmailAddress['source_email_address_id'] ] = $curEmailAddress;
-    }
-    
-    // Now that the lists are ready, walk through them and process any changes
-    
-    foreach($newEmailAddresses as $id => $ea) {
-      if(isset($curEmailAddresses[$id])) {
-        // This is an update, not an add, so perform a comparison. Inject the record ID.
+        $curCoPersonRole = array();
         
-        $newEmailAddresses[$id]['id'] = $curEmailAddresses[$id]['id'];
+        // Note there are a bunch of unsupported attributes at the moment (valid_from, etc)
+        foreach(array('id', 'affiliation', 'cou_id', 'o', 'ou', 'title', 'status') as $attr) {
+          $curCoPersonRole['CoPersonRole'][$attr] = $orgIdentity['PipelineCoPersonRole'][$attr];
+        }
         
-        $cstr = $this->Co->CoPerson->EmailAddress->changesToString(array('EmailAddress' => $newEmailAddresses[$id]),
-                                                                   array('EmailAddress' => $curEmailAddresses[$id]));
+        // Diff array to see if we should save
+        $cstr = $this->Co->CoPerson->CoPersonRole->changesToString($newCoPersonRole,
+                                                                   $curCoPersonRole);
         
         if(!empty($cstr)) {
           // Cut the history diff here, since we don't want this on an add
           // (If the save fails later the parent transaction will roll this back)
           
           $this->Co->OrgIdentity->HistoryRecord->record($coPersonId,
-                                                        null,
+                                                        $orgIdentity['PipelineCoPersonRole']['id'],
                                                         null,
                                                         $actorCoPersonId,
-                                                        ActionEnum::CoPersonEditedPipeline,
-                                                        _txt('rs.edited-a4', array(_txt('ct.email_addresses.1'),
+                                                        ActionEnum::CoPersonRoleEditedPipeline,
+                                                        _txt('rs.edited-a4', array(_txt('ct.co_person_roles.1'),
                                                                                    $cstr)));
         } else {
-          // No change, unset $newEmailAddress to indicate not to bother saving
-          unset($newEmailAddresses[$id]);
-          // And unset $curEmailAddress so we don't see it as a delete
-          unset($curEmailAddresses[$id]);
+          // No change, unset $newCoPersonRole to indicate not to bother saving
+          $newCoPersonRole = array();
         }
+      } else {
+        // No current person role, so just save as is
       }
       
-      // If the record is still valid record history (do this here since it's easier, we'll rollback on save failure)
-      if(isset($curEmailAddresses[$id])) {
+      if(!empty($newCoPersonRole)) {
+        // Save the updated record and cut history
+        
+        // Link the role before saving
+        $newCoPersonRole['CoPersonRole']['co_person_id'] = $coPersonId;
+        $newCoPersonRole['CoPersonRole']['source_org_identity_id'] = $orgIdentity['OrgIdentity']['id'];
+        
+        if(!$this->Co->CoPerson->CoPersonRole->save($newCoPersonRole, array("provision" => false))) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoPersonRole')));
+        }
+        
+        $coPersonRoleId = $this->Co->CoPerson->CoPersonRole->id;
+        
+        // Cut history
         $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                   null,
+                                                   $coPersonRoleId,
                                                    $orgIdentity['OrgIdentity']['id'],
                                                    $actorCoPersonId,
-                                                   ActionEnum::CoPersonEditedPipeline,
-                                                   _txt('rs.pi.sync-a', array(_txt('ct.email_addresses.1'),
+                                                   ActionEnum::CoPersonRoleAddedPipeline,
+                                                   _txt('rs.pi.sync-a', array(_txt('ct.co_person_roles.1'),
                                                                               $coPipeline['CoPipeline']['name'],
                                                                               $coPipeline['CoPipeline']['id'])));
       }
     }
     
-    // And finally process the save for any remaining addresses
-    if(!empty($newEmailAddresses)) {
-      // Save the email addresses
-      
-      if(!$this->Co->CoPerson->EmailAddress->saveMany($newEmailAddresses, array("provision" => false))) {
-        throw new RuntimeException(_txt('er.db.save-a', array('EmailAddress')));
-      }
-    }
+    // Next handle associated models
+// XXX Implement Name
+// XXX TelephoneNumber and Address should be done only if(create_role)
+// XXX Make sure source_model_id is defined in each model and add appropriate associations (and indexes)
     
-    foreach($curEmailAddresses as $id => $ea) {
-      if(!isset($newEmailAddresses[$id])) {
-        // This is a delete
-        // XXX handle
+    // Supported associated models and their parent relation
+    $models = array(
+      //'Address'      => 'co_person_role_id',
+      'EmailAddress' => 'co_person_id',
+      'Identifier'   => 'co_person_id',
+      //'Name'         => 'co_person_id', // XXX Handle primary name specially?
+      //'TelephoneNumber' => 'co_person_role_id'
+    );
+    
+    foreach($models as $m => $pkey) {
+      // Model key used by changelog, eg identifier_id
+      $mkey = Inflector::underscore($m) . '_id';
+      // Model in pluralized format, eg email_addresses
+      $mpl = Inflector::tableize($m);
+      // Parent value ($coPersonId or $coPersonRoleId)
+      $pval = null;
+      // Pointer to model $m describes (eg $Identifier)
+      $model = null;
+      
+      if($pkey == 'co_person_id') {
+        $pval = $coPersonId;
+        $model = $this->Co->CoPerson->$m;
+      } elseif($pkey == 'co_person_role_id') {
+        $pval = $coPersonRoleId;
+        $model = $this->Co->CoPerson->CoPersonRole->$m;
+      }
+      
+      // Records attached to the Org Identity
+      $newRecords = array();
+      // Records attached to the CO Person/Role
+      $curRecords = array();
+      
+      // Map each org record into a "new" CO Person record, keyed on the org record's id
+      
+      foreach($orgIdentity[$m] as $orgRecord) {
+        // Construct the new record
+        $newRecord = $orgRecord;
+        
+        // Get rid of metadata keys
+        foreach(array('id',
+                      'org_identity_id',
+                      'created',
+                      'modified',
+                      $mkey,
+                      'revision',
+                      'deleted',
+                      'actor_identifier') as $k) {
+          unset($newRecord[$k]);
+        }
+        
+        // And link the record
+        $newRecord[$pkey] = $pval;
+        $newRecord['source_' . $mkey] = $orgRecord['id'];
+        
+        $newRecords[ $orgRecord['id'] ] = $newRecord;
+      }
+      
+      // Get the set of current CO Person records and prepare them for comparison
+      
+      $args = array();
+      $args['conditions'][$m.'.'.$pkey] = $pval;
+      $args['contain'] = false;
+      
+      $recs = $model->find('all', $args);
+      
+      foreach($recs as $a) {
+        $curRecord = $a[$m];
+        
+        // Get rid of metadata keys
+        foreach(array('org_identity_id',
+                      'created',
+                      'modified',
+                      $mkey,
+                      'revision',
+                      'deleted',
+                      'actor_identifier') as $k) {
+          unset($curRecord[$k]);
+        }
+        
+        $curRecords[ $curRecord['source_' . $mkey] ] = $curRecord;
+      }
+      
+      // Now that the lists are ready, walk through them and process any changes
+      
+      foreach($newRecords as $id => $nr) {
+        if(isset($curRecords[$id])) {
+          // This is an update, not an add, so perform a comparison. Inject the record ID.
+          
+          $newRecords[$id]['id'] = $curRecords[$id]['id'];
+          
+          $cstr = $model->changesToString(array($m => $newRecords[$id]),
+                                          array($m => $curRecords[$id]));
+          
+          if(!empty($cstr)) {
+            // Cut the history diff here, since we don't want this on an add
+            // (If the save fails later the parent transaction will roll this back)
+            
+            $this->Co->OrgIdentity->HistoryRecord->record($coPersonId,
+                                                          null,
+                                                          null,
+                                                          $actorCoPersonId,
+                                                          ActionEnum::CoPersonEditedPipeline,
+                                                          _txt('rs.edited-a4', array(_txt('ct.'.$mpl.'.1'),
+                                                                                     $cstr)));
+          } else {
+            // No change, unset record to indicate not to bother saving
+            unset($newRecords[$id]);
+            // And unset current record so we don't see it as a delete
+            unset($curRecords[$id]);
+          }
+        }
+        
+        // If the record is still valid record history (do this here since it's easier, we'll rollback on save failure)
+        if(isset($curRecords[$id])) {
+          $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                     null,
+                                                     $orgIdentity['OrgIdentity']['id'],
+                                                     $actorCoPersonId,
+                                                     ActionEnum::CoPersonEditedPipeline,
+                                                     _txt('rs.pi.sync-a', array(_txt('ct.'.$mpl.'.1'),
+                                                                                $coPipeline['CoPipeline']['name'],
+                                                                                $coPipeline['CoPipeline']['id'])));
+        }
+      }
+      
+      // And finally process the save for any remaining records
+      if(!empty($newRecords)) {
+        // Save the records
+        
+        if(!$model->saveMany($newRecords, array("provision" => false))) {
+          throw new RuntimeException(_txt('er.db.save-a', array($m)));
+        }
+      }
+      
+      foreach($curRecords as $id => $cr) {
+        if(!isset($newRecords[$id])) {
+          // This is a delete
+// XXX handle
+        }
       }
     }
     

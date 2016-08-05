@@ -29,7 +29,9 @@ class OrgIdentitySourcesController extends StandardController {
   public $name = "OrgIdentitySources";
   
   // When using additional models, we must also specify our own
-  public $uses = array('OrgIdentitySource', 'CmpEnrollmentConfiguration');
+  public $uses = array('OrgIdentitySource',
+                       'CmpEnrollmentConfiguration',
+                       'CoPetition');
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
@@ -481,17 +483,40 @@ class OrgIdentitySourcesController extends StandardController {
     // Set page title
     $this->set('title_for_layout', _txt('ct.org_identity_sources.pl'));
     
-    // Obtain a list of available sources
+    // Obtain a list of available sources, as configured for the enrollment flow
+    // to which the current petition is attached.
     
-    $args = array();
-    $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
-    if(!empty($this->cur_co['Co']['id'])) {
-      $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];
+    // Note that this filtering of available sources is advisory, and not intended
+    // to (eg) restrict COU admins from seeing other sources. As of the current
+    // implementation, and CO/U admin can query and OIS backend manually, so
+    // enforcing a restriction here would not actually prevent a COU admin from
+    // being able to see data.
+    
+    if(!empty($this->request->params['named']['copetitionid'])) {
+      // Map the petition ID to an enrollment flow to Enrollment Sources to Org Identity Sources
+      $args = array();
+      $args['joins'][0]['table'] = 'co_enrollment_sources';
+      $args['joins'][0]['alias'] = 'CoEnrollmentSource';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoEnrollmentSource.org_identity_source_id=OrgIdentitySource.id';
+      $args['joins'][1]['table'] = 'co_enrollment_flows';
+      $args['joins'][1]['alias'] = 'CoEnrollmentFlow';
+      $args['joins'][1]['type'] = 'INNER';
+      $args['joins'][1]['conditions'][0] = 'CoEnrollmentSource.co_enrollment_flow_id=CoEnrollmentFlow.id';
+      $args['joins'][2]['table'] = 'co_petitions';
+      $args['joins'][2]['alias'] = 'CoPetition';
+      $args['joins'][2]['type'] = 'INNER';
+      $args['joins'][2]['conditions'][0] = 'CoPetition.co_enrollment_flow_id=CoEnrollmentFlow.id';
+      $args['conditions']['CoPetition.id'] = $this->request->params['named']['copetitionid'];
+      $args['conditions']['CoEnrollmentSource.org_identity_mode'] = EnrollmentOrgIdentityModeEnum::OISSelect;
+      $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+      $args['fields'] = array('OrgIdentitySource.id', 'OrgIdentitySource.description');
+      $args['contain'] = false;
+
+      $this->set('vv_org_id_sources', $this->OrgIdentitySource->find('list', $args));     
+    } else {
+      $this->Flash->set(_txt('er.notprov.id', array(_txt('ct.petitions.1'))), array('key' => 'error'));
     }
-    $args['fields'] = array('id', 'description');
-    $args['contain'] = false;
-    
-    $this->set('vv_org_id_sources', $this->OrgIdentitySource->find('list', $args));
   }
   
   /**

@@ -68,8 +68,9 @@
     var syncadd = document.getElementById('CoPipelineSyncOnAdd').checked;
     var syncdel = document.getElementById('CoPipelineSyncOnDelete').checked;
     var syncupd = document.getElementById('CoPipelineSyncOnUpdate').checked;
+    var createrole = document.getElementById('CoPipelineCreateRole').checked;
     
-    if(syncadd || syncupd) {
+    if(createrole && (syncadd || syncupd)) {
       $("#CoPipelineSyncCouId").closest('tr').show('fade');
       $("#CoPipelineSyncReplaceCouId").closest('tr').show('fade');
     } else {
@@ -77,7 +78,7 @@
       $("#CoPipelineSyncReplaceCouId").closest('tr').hide('fade');
     }
     
-    if(syncdel) {
+    if(createrole && syncdel) {
       $("#CoPipelineStatusOnDelete").closest('tr').show('fade');
     } else {
       $("#CoPipelineStatusOnDelete").closest('tr').hide('fade');
@@ -88,7 +89,7 @@
     var match = document.getElementById('CoPipelineMatchStrategy').value;
     var curmodel = '';
     
-    var options = new Array();
+    var options = [];
     
     if(match == '<?php print MatchStrategyEnum::EmailAddress; ?>') {
       curmodel = 'EmailAddress';
@@ -117,10 +118,12 @@
     $('#CoPipelineMatchType').empty();
     
     // And replace with the key/value pairs for the current model
-    $.each(options[curmodel], function(key, value) {
-      $('#CoPipelineMatchType').append($("<option></option>")
-        .attr("value", value).text(key));
-    });
+    if(curmodel !== '') {
+      $.each(options[curmodel], function(key, value) {
+        $('#CoPipelineMatchType').append($("<option></option>")
+          .attr("value", value).text(key));
+      });
+    }
   }
   
   function js_local_onload() {
@@ -295,6 +298,17 @@
         </tr>
         <tr class="line2">
           <td>
+            <b><?php print $this->Form->label('create_role', _txt('fd.pi.sync.role')); ?></b>
+          </td>
+          <td>
+            <?php print ($e
+                         ? $this->Form->input('create_role',
+                                              array('onChange' => 'fields_update_gadgets()'))
+                         : (isset($co_pipelines[0]['CoPipeline']['create_role']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
+          </td>
+        </tr>
+        <tr class="line1">
+          <td>
             <b><?php print $this->Form->label('CoPipeline.sync_cou_id', _txt('fd.pi.sync.cou')); ?></b>
           </td>
           <td>
@@ -319,7 +333,7 @@
             ?>
           </td>
         </tr>
-        <tr class="line1">
+        <tr class="line2">
           <td>
             <b><?php print $this->Form->label('CoPipeline.sync_replace_cou_id', _txt('fd.pi.sync.cou.repl')); ?></b><br />
             <span class="descr"><?php print _txt('fd.pi.sync.cou.repl.desc'); ?></span>
@@ -346,7 +360,7 @@
             ?>
           </td>
         </tr>
-        <tr class="line2">
+        <tr class="line1">
           <td>
             <b><?php print $this->Form->label('CoPipeline.status_on_delete', _txt('fd.pi.sync.del.stat')); ?></b><br />
             <span class="descr"><?php print _txt('fd.pi.sync.del.stat.desc'); ?></span>

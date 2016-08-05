@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Configuration Fields
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -34,7 +34,7 @@ if(!$e && !$permissions['view'])
 
 if($e)
 {
-// Edit button
+  // Edit attributes button
   if($this->action == "edit" && $permissions['edit']){
     $params['topLinks'][] = $this->Html->link(
       _txt('op.edit.ea'),
@@ -45,9 +45,22 @@ if($e)
       ),
       array('class' => 'editbutton')
     );
+    
+    // Attach enrollment sources
+    if(!empty($co_enrollment_flows[0]['CoEnrollmentSource'])) {
+      $params['topLinks'][] = $this->Html->link(
+        _txt('op.ef.ois'),
+        array(
+          'controller' => 'co_enrollment_sources',
+          'action'     => 'index',
+          'coef'       => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
+        ),
+        array('class' => 'relinkbutton')
+      );
+    }
   }
 
-// Duplicate button
+  // Duplicate button
   if($this->action != "add" && $permissions['duplicate']) {
     $params['topLinks'][] = $this->Html->link(
       _txt('op.dupe'),

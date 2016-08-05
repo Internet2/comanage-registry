@@ -199,9 +199,11 @@ class EnrollmentMatchPolicyEnum {
 }
 
 class EnrollmentOrgIdentityModeEnum {
+  const OISAuthenticate   = "OA";
   const OISClaim          = "OC";
   const OISSearch         = "OS";
-  const OISSearchRequired = "OR";
+  const OISSearchRequired = "SR";
+  const OISSelect         = "SL";
   const None              = "N";
 }
 
@@ -237,6 +239,7 @@ class IdentifierEnum
   const ePTID   = 'eptid';
   const Mail    = 'mail';
   const OpenID  = 'openid';
+  const ORCID   = 'orcid';
   const UID     = 'uid';
 }
 

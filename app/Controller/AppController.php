@@ -81,8 +81,7 @@ class AppController extends Controller {
     foreach(App::objects('plugin') as $p) {
       $this->loadModel($p . "." . $p);
       
-      if($pluginType == 'all'
-         || (isset($this->$p->cmPluginType) && $this->$p->cmPluginType == $pluginType)) {
+      if($this->$p->isPlugin($pluginType != 'all' ? $pluginType : null)) {
         // We do this so that formhelper returns the plugin name instead of a useless index position
         
         switch($format) {

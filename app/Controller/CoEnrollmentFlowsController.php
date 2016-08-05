@@ -41,6 +41,12 @@ class CoEnrollmentFlowsController extends StandardController {
   
   public $uses = array('CoEnrollmentFlow', 'CmpEnrollmentConfiguration');
   
+  public $edit_contains = array(
+    'CoEnrollmentFlowAuthzCoGroup',
+    'CoEnrollmentFlowAuthzCou',
+    'CoEnrollmentSource'
+  );
+  
   public $view_contains = array(
     'CoEnrollmentFlowAuthzCoGroup',
     'CoEnrollmentFlowAuthzCou'

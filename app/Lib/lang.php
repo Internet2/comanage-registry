@@ -71,6 +71,8 @@ $cm_texts['en_US'] = array(
   'ct.co_enrollment_attributes.pl' => 'Enrollment Attributes',
   'ct.co_enrollment_flows.1'  => 'Enrollment Flow',
   'ct.co_enrollment_flows.pl' => 'Enrollment Flows',
+  'ct.co_enrollment_sources.1'  => 'Enrollment Source',
+  'ct.co_enrollment_sources.pl' => 'Enrollment Sources',
   'ct.co_expiration_policies.1'  => 'Expiration Policy',
   'ct.co_expiration_policies.pl' => 'Expiration Policies',
   'ct.co_extended_attributes.1'  => 'Extended Attribute',
@@ -418,9 +420,11 @@ original notification at
   ),
   
   'en.enrollment.orgid' => array(
-    EnrollmentOrgIdentityModeEnum::OISClaim           => 'Org Identity Source (Claim)',
-    EnrollmentOrgIdentityModeEnum::OISSearch          => 'Org Identity Source (Search)',
-    EnrollmentOrgIdentityModeEnum::OISSearchRequired  => 'Org Identity Source (Search, Required)',
+    EnrollmentOrgIdentityModeEnum::OISAuthenticate    => 'Authenticate',
+    EnrollmentOrgIdentityModeEnum::OISClaim           => 'Claim',
+    EnrollmentOrgIdentityModeEnum::OISSearch          => 'Search',
+    EnrollmentOrgIdentityModeEnum::OISSearchRequired  => 'Search, Required',
+    EnrollmentOrgIdentityModeEnum::OISSelect          => 'Select',
     EnrollmentOrgIdentityModeEnum::None               => 'None'
   ),
   
@@ -436,6 +440,7 @@ original notification at
                                  IdentifierEnum::ePTID => 'ePTID',
                                  IdentifierEnum::Mail => 'Mail',
                                  IdentifierEnum::OpenID => 'OpenID',
+                                 IdentifierEnum::ORCID => 'ORCID ID',
                                  IdentifierEnum::UID => 'UID'),
   
   // As a moderately arbitrary decision, the languages listed here those with at least
@@ -722,6 +727,7 @@ original notification at
   'er.ef.authz.cou' => 'A COU must be specified for authorization type "%1$s"',
   'er.ef.authz.gr' => 'A group must be specified for authorization type "%1$s"',
   'er.efcf.init' =>   'Failed to set up initial CMP Enrollment Configuration',
+  'er.es.exists'=>    'An Enrollment Source already exists using that Org Identity Source in that mode',
   'er.et.default' =>  'Failed to add default types',
   'er.et.exists' =>   'An extended type named "%1$s" already exists',
   'er.et.inuse' =>    'The extended type "%1$s" is in use by at least one CO Person record within this CO and cannot be removed.',
@@ -1080,6 +1086,7 @@ original notification at
   'fd.ois.search.token' => 'An email has been sent to "%1$s". Please check your mail and enter the token you received. (NOT IMPLEMENTED -- ENTER ANY TOKEN)',
   'fd.open' =>        'Open',
   'fd.order' =>       'Order',
+  'fd.order.es.desc' => 'The order in which this source will be queried, among all sources configured for this enrollment flow with this mode',
   'fd.order.prov.desc' => 'The order in which this provisioner will be run when automatic provisioning occurs (leave blank to run after all current provisioners)',
   'fd.organization_id' => 'Organization ID',
   'fd.ou' =>          'Department',
@@ -1103,10 +1110,11 @@ original notification at
   'fd.pi.sync.del' => 'Sync on Delete',
   'fd.pi.sync.del.stat' => 'Role Status on Delete',
   'fd.pi.sync.del.stat.desc' => 'When the source record is no longer valid, the corresponding CO Person Role will be set to this status',
+  'fd.pi.sync.role' => 'Create CO Person Role Record',
   'fd.pi.sync.str' => 'Sync Strategy',
   'fd.pi.sync.upd' => 'Sync on Update',
   'fd.pipeline' =>    'Pipeline',
-  'fd.pipeline.desc.ef' => 'Enrollment Flows created from this Source will be processed using the specified Pipeline',
+  'fd.pipeline.desc.ef' => 'Org Identities created directly (not via an Org Identity Source) from this Enrollment Flow will be processed using the specified Pipeline',
   'fd.pipeline.desc.ois' => 'Org Identities created from this Source will be processed using the specified Pipeline',
   'fd.plugin' =>      'Plugin',
   'fd.plugin.warn' => 'Once a new %1$s has been created, the Plugin cannot be changed',
@@ -1285,6 +1293,7 @@ original notification at
   'op.edit.ea' =>     'Edit Enrollment Attributes',
   'op.edit-a' =>      'Edit %1$s',
   'op.edit-f' =>      'Edit %1$s for %2$s',
+  'op.ef.ois' =>      'Attach Org Identity Sources',
   'op.enable' =>      'Enable',
   'op.enroll' =>      'Enroll',
   'op.expunge' =>     'Expunge',

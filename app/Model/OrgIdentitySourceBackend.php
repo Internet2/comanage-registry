@@ -55,6 +55,17 @@ abstract class OrgIdentitySourceBackend extends AppModel {
   abstract public function groupableAttributes();
   
   /**
+   * Convert a raw result, as from eg retrieve(), into an array of attributes that
+   * can be used for group mapping.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  String $raw Raw record, as obtained via retrieve()
+   * @return Array Array, where keys are attribute names and values are lists (arrays) of attributes
+   */
+  
+  abstract public function resultToGroups($raw);
+  
+  /**
    * Retrieve a single record from the IdentitySource. The return array consists
    * of two entries: 'raw', a string containing the raw record as returned by the
    * IdentitySource backend, and 'orgidentity', the data in OrgIdentity format.
@@ -67,17 +78,6 @@ abstract class OrgIdentitySourceBackend extends AppModel {
    */
   
   abstract public function retrieve($id);
-  
-  /**
-   * Convert a raw result, as from eg retrieve(), into an array of attributes that
-   * can be used for group mapping.
-   *
-   * @since  COmanage Registry v1.1.0
-   * @param  String $raw Raw record, as obtained via retrieve()
-   * @return Array Array, where keys are attribute names and values are lists (arrays) of attributes
-   */
-  
-  abstract public function resultToGroups($raw);
   
   /**
    * Perform a search against the IdentitySource. The returned array should be of

@@ -705,6 +705,33 @@ class AppModel extends Model {
   }
   
   /**
+   * Determine if the current model represents a plugin of the specified type.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  String $type Plugin type (eg: "provisioner"), or null for any type
+   * @return True if the model is a plugin of the requested type, false otherwise
+   */
+  
+  public function isPlugin($type = null) {
+    if(isset($this->cmPluginType)) {
+      // cmPluginType can either be an array or a string
+      if(is_array($this->cmPluginType)) {
+        if(!$type)
+          return true;
+        
+        return in_array($type, $this->cmPluginType);
+      } elseif(is_string($this->cmPluginType)) {
+        if(!$type)
+          return true;
+        
+        return $this->cmPluginType == $type;
+      }
+    }
+    
+    return false;
+  }
+  
+  /**
    * Recursively reload a behavior for a model and it's dependent=true related models.
    *
    * @since  COmanage Registry v0.9.4

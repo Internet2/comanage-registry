@@ -2,7 +2,7 @@
 <!--
   COmanage Registry Database Schema
 
-  Copyright (C) 2010-2015 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2010-2016 University Corporation for Advanced Internet Development, Inc.
    
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
   the License. You may obtain a copy of the License at
@@ -329,6 +329,9 @@
     <field name="org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
     </field>
+    <field name="source_identifier_id" type="I">
+      <constraint>REFERENCES cm_identifiers(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="identifier_id" type="I">
@@ -343,15 +346,16 @@
       <col>type</col>
       <col>co_person_id</col>
     </index>
-    
     <index name="identifiers_i2">
       <col>identifier</col>
       <col>type</col>
       <col>org_identity_id</col>
     </index>
-    
     <index name="identifiers_i3">
       <col>identifier_id</col>
+    </index>
+    <index name="identifiers_i4">
+      <col>source_identifier_id</col>
     </index>
   </table>
 
@@ -793,6 +797,7 @@
     <field name="sync_on_add" type="L" />
     <field name="sync_on_update" type="L" />
     <field name="sync_on_delete" type="L" />
+    <field name="create_role" type="L" />
     <field name="sync_cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
@@ -941,7 +946,6 @@
     <field name="authz_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
-    <field name="org_identity_mode" type="C" size="2" />
     <field name="co_pipeline_id" type="I">
       <constraint>REFERENCES cm_co_pipelines(id)</constraint>
     </field>
@@ -1066,6 +1070,38 @@
     
     <index name="co_enrollment_attribute_defaults_i2">
       <col>co_enrollment_attribute_default_id</col>
+    </index>
+  </table>
+
+  <table name="co_enrollment_sources">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="org_identity_source_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
+    </field>
+    <field name="org_identity_mode" type="C" size="2" />
+    <field name="ordr" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_enrollment_source_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_sources(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_enrollment_sources_i1">
+      <col>co_enrollment_flow_id</col>
+    </index>
+    <index name="co_enrollment_sources_i2">
+      <col>co_enrollment_source_id</col>
     </index>
   </table>
   

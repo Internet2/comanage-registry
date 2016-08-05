@@ -60,6 +60,7 @@ class CoEnrollmentFlow extends AppModel {
   public $hasMany = array(
     // A CO Enrollment Flow has many CO Enrollment Attributes
     "CoEnrollmentAttribute" => array('dependent' => true),
+    "CoEnrollmentSource" => array('dependent' => true),
     // A CO Enrollment Flow may have zero or more CO Petitions
     "CoPetition" => array('dependent' => true)
   );
@@ -104,15 +105,6 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'authz_co_group_id' => array(
       'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'org_identity_mode' => array(
-      'rule' => array('inList',
-                      array(EnrollmentOrgIdentityModeEnum::OISClaim,
-                            EnrollmentOrgIdentityModeEnum::OISSearch,
-                            EnrollmentOrgIdentityModeEnum::OISSearchRequired,
-                            EnrollmentOrgIdentityModeEnum::None)),
       'required' => false,
       'allowEmpty' => true
     ),
@@ -412,7 +404,7 @@ class CoEnrollmentFlow extends AppModel {
   public function configuredSteps($id) {
     $args = array();
     $args['conditions']['CoEnrollmentFlow.id'] = $id;
-    $args['contain'] = false;
+    $args['contain'] = array('CoEnrollmentAttribute', 'CoEnrollmentSource');
     
     $ef = $this->find('first', $args);
     
@@ -439,15 +431,37 @@ class CoEnrollmentFlow extends AppModel {
     }
     $ret['start']['role'] = EnrollmentRole::Petitioner;
     
-    // If Org Identity mode is appropriately set we run the selectOrgIdentity step.
-    
-    if(!empty($ef['CoEnrollmentFlow']['org_identity_mode'])
-       && $ef['CoEnrollmentFlow']['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISClaim) {
-      $ret['selectOrgIdentity']['enabled'] = RequiredEnum::Required;
-    } else {
-      $ret['selectOrgIdentity']['enabled'] = RequiredEnum::NotPermitted;
-    }
+    // selectOrgIdentity is dependent on the attached CoEnrollmentSources.
+    // checkEligibility is as well, so we'll set it while we're here.
+    // Assume NotPermitted until otherwise determined.
+    $ret['selectOrgIdentity']['enabled'] = RequiredEnum::NotPermitted;
     $ret['selectOrgIdentity']['role'] = EnrollmentRole::Petitioner;
+    
+    $ret['checkEligibility']['enabled'] = RequiredEnum::NotPermitted;
+    // Who runs this step depends on whether email confirmation is set, so we'll
+    // set the role below
+    
+    if(!empty($ef['CoEnrollmentSource'])) {
+      // Walk the list of sources and look for at least one in Authenticate,
+      // Claim, or Select mode. This might not be the most efficient model if lots
+      // of sources in Search mode are attached, but that should be a fairly
+      // rare configuration.
+      
+      foreach($ef['CoEnrollmentSource'] as $es) {
+        if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISAuthenticate
+           || $es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISClaim
+           || $es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSelect) {
+          $ret['selectOrgIdentity']['enabled'] = RequiredEnum::Required;
+        } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch
+                 || $es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
+          $ret['checkEligibility']['enabled'] = RequiredEnum::Required;
+        }
+        
+        // We don't bother breaking the loop here because it'll be rare (though not
+        // impossible) that both will be enabled, so we need to walk the full loop
+        // even though most of the time it'll be a (trivial) waste of effort.
+      }
+    }
     
     // If match policy is appropriately set we run the selectEnrollee step.
     
@@ -460,23 +474,15 @@ class CoEnrollmentFlow extends AppModel {
     }
     $ret['selectEnrollee']['role'] = EnrollmentRole::Petitioner;
     
-    // For now, petitionerAttributes is always required.
+    // If there are no attributes defined, petitionerAttributes becomes optional.
     
-    $ret['petitionerAttributes']['enabled'] = RequiredEnum::Required;
-    $ret['petitionerAttributes']['role'] = EnrollmentRole::Petitioner;
-    
-    // If Org Identity mode is appropriately set we run the checkEligibility step.
-    
-    if(!empty($ef['CoEnrollmentFlow']['org_identity_mode'])
-       && ($ef['CoEnrollmentFlow']['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch
-           || $ef['CoEnrollmentFlow']['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired)) {
-      $ret['checkEligibility']['enabled'] = RequiredEnum::Required;
+    if(!empty($ef['CoEnrollmentAttribute'])) {
+      $ret['petitionerAttributes']['enabled'] = RequiredEnum::Required;
     } else {
-      $ret['checkEligibility']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['petitionerAttributes']['enabled'] = RequiredEnum::Optional;
     }
-    // Who runs this step depends on whether email confirmation is set, so we'll
-    // set the role below
-    
+    $ret['petitionerAttributes']['role'] = EnrollmentRole::Petitioner;
+        
     // If email confirmation is requested, run sendConfirmation and its helper waitForConfirmation.
     // We can only collect identifiers if email confirmation and authentication are both set.
     // Also enable the re-entry point following email delivery.
