@@ -35,7 +35,7 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   
   // Error messages
   'er.ldapprovisioner.basedn'         => 'Base DN not found',
-  'er.ldapprovisioner.basedn.gr.none' => 'When the <font style="font-family:monospace">groupOfNames</font> object class is enabled, the Group Base DN must be defined.',
+  'er.ldapprovisioner.basedn.gr.none' => 'When the <code>groupOfNames</code> object class is enabled, the Group Base DN must be defined.',
   'er.ldapprovisioner.connect'        => 'Failed to connect to LDAP server',
   'er.ldapprovisioner.dn.component'   => 'DN component %1$s not available',
   'er.ldapprovisioner.dn.config'      => 'DN configuration invalid',
@@ -51,7 +51,7 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'pl.ldapprovisioner.basedn'         => 'People Base DN',
   'pl.ldapprovisioner.basedn.desc'    => 'Base DN to provision People entries under',
   'pl.ldapprovisioner.basedn.gr'      => 'Group Base DN',
-  'pl.ldapprovisioner.basedn.gr.desc' => 'Base DN to provision Group entries under (requires <font style="font-family:monospace">groupOfNames</font> objectclass)',
+  'pl.ldapprovisioner.basedn.gr.desc' => 'Base DN to provision Group entries under (requires <code>groupOfNames</code> objectclass)',
   'pl.ldapprovisioner.binddn'         => 'Bind DN',
   'pl.ldapprovisioner.binddn.desc'    => 'DN to authenticate as to manage entries',
   'pl.ldapprovisioner.dnattr'         => 'People DN Attribute Name',
@@ -66,12 +66,12 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'pl.ldapprovisioner.password.desc'  => 'Password to use for authentication',
   'pl.ldapprovisioner.person_ocs'     => 'Additional Person Object Classes',
   'pl.ldapprovisioner.person_ocs.desc' => 'Additional externally managed object classes (comma separated) to define for the person record, see <a href="https://spaces.internet2.edu/x/ygYwAg">documentation</a>',
-  'pl.ldapprovisioner.oc.enable'      => 'Enable <font style="font-family:monospace">%1$s</font> objectclass',
+  'pl.ldapprovisioner.oc.enable'      => 'Enable <code>%1$s</code> objectclass',
   'pl.ldapprovisioner.opts'           => 'Attribute Options',
   'pl.ldapprovisioner.opts.desc'      => 'XXX link to documentation',
   'pl.ldapprovisioner.opt.lang'       => 'Enable attribute options for languages',
   'pl.ldapprovisioner.opt.role'       => 'Enable attribute options for roles',
   'pl.ldapprovisioner.serverurl'      => 'Server URL',
-  'pl.ldapprovisioner.serverurl.desc' => 'URL to connect to (<font style="font-family:monospace">ldap[s]://hostname[:port]</font>)',
+  'pl.ldapprovisioner.serverurl.desc' => 'URL to connect to (<code>ldap[s]://hostname[:port]</code>)',
   'pl.ldapprovisioner.types.all'      => 'All Types'
 );

@@ -50,7 +50,9 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.desc'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php print ($e
@@ -60,7 +62,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.status'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -86,7 +90,9 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.url'); ?></b></b><span class="required">*</span><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('url', _txt('fd.url')) : _txt('fd.url')); ?>
+        </strong><span class="required">*</span><br />
         <span class="descr"><?php print _txt('fd.tc.url.desc'); ?></span>
       </td>
       <td>
@@ -97,7 +103,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.cou'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('cou_id', _txt('fd.cou')) : _txt('fd.cou')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.tc.cou.desc'); ?></span>
       </td>
       <td>

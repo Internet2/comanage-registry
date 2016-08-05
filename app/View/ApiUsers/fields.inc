@@ -49,7 +49,7 @@
   <tbody>
     <tr class="line1">
       <th>
-        <?php print _txt('fd.username.api'); ?><span class="required">*</span>
+        <?php print ($e ? $this->Form->label('username', _txt('fd.username.api')) : _txt('fd.username.api')); ?><span class="required">*</span>
       </th>
       <td>
         <?php print ($e
@@ -58,12 +58,12 @@
       </td>
       <td>
         <span class="ui-icon ui-icon-info co-info"></span>
-        <em><?php print _txt('ap.note.username'); ?></em>
+        <span class="desc"><?php print _txt('ap.note.username'); ?></span>
       </td>
     </tr>
     <tr class="line2">
       <th>
-        <?php print _txt('fd.password'); ?><span class="required">*</span>
+        <?php print ($e ? $this->Form->label('password', _txt('fd.password')) : _txt('fd.password')); ?><span class="required">*</span>
       </th>
       <td>
         <?php print ($e

@@ -48,6 +48,9 @@ body {
 .fieldTitle {
   font-weight: bold;
 }
+tr.noborder td {
+  border: none;
+}
 
 /* Text */
 .descr {
@@ -760,7 +763,6 @@ td.top {
 #edit_co_enrollment_configuration input[type=text] {
   width: 522px;
 }
-
 #org_attributes {
   margin-top: 1.5em;
 }
@@ -828,7 +830,9 @@ td.top {
 #OrgIdentityEditForm .addbutton,
 #view_org_identity .addbutton,
 #CoPersonEditForm .addbutton,
-#CoPersonRoleEditForm .addbutton{
+#CoPersonRoleEditForm .addbutton,
+.noborder .addbutton,
+.noborder .editbutton {
   float: right;
   clear: left;
 }

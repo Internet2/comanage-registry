@@ -98,7 +98,9 @@
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.model'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('model', _txt('fd.model')) : _txt('fd.model')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -127,7 +129,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.type'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('type', _txt('fd.type')) : _txt('fd.type')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ssp.type.desc'); ?></span>
       </td>
       <td>
@@ -156,7 +160,9 @@
     </tr>    
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.perm'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('permission', _txt('fd.perm')) : _txt('fd.perm')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php

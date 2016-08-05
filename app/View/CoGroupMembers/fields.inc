@@ -59,7 +59,9 @@
         <?php print _txt('fd.group.mem'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('member') : ($co_group_members[0]['CoGroupMember']['member'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php print ($e
+                     ? $this->Form->input('member') . ' ' .  $this->Form->label('member', _txt('fd.group.mem'))
+                     : ($co_group_members[0]['CoGroupMember']['member'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -67,7 +69,9 @@
         <?php print _txt('fd.group.own'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('owner') : ($co_group_members[0]['CoGroupMember']['owner'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php print ($e
+                     ? $this->Form->input('owner') . ' ' . $this->Form->label('owner', _txt('fd.group.own'))
+                     : ($co_group_members[0]['CoGroupMember']['owner'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
     <tr>

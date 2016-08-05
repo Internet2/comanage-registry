@@ -60,7 +60,7 @@
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.attribute'); ?>
+        <strong class="fieldTitle"><?php print _txt('fd.attribute'); ?></strong>
       </td>
       <td>
         <?php
@@ -74,8 +74,10 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.name'); ?><span class="required">*</span><br />
-        <em><?php print _txt('fd.an.desc'); ?></em>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
+        </strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('fd.an.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_types[0]['CoExtendedType']['name'])); ?>
@@ -83,7 +85,9 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.name.d'); ?><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('display_name', _txt('fd.name.d')) : _txt('fd.name.d')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_types[0]['CoExtendedType']['display_name'])); ?>
@@ -91,8 +95,10 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.status'); ?><span class="required">*</span><br />
-        <em><?php print _txt('fd.status.et.desc'); ?></em>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+        </strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('fd.status.et.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -124,8 +130,10 @@
     <?php if($attr == 'CoPersonRole.affiliation'): // Affiliations can map to eduPersonAffiliations ?>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <?php print _txt('fd.affiliation.ep'); ?><br />
-        <em><?php print _txt('fd.affiliation.ep.map.desc'); ?></em>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('edupersonaffiliation', _txt('fd.affiliation.ep')) : _txt('fd.affiliation.ep')); ?>
+        </strong><br />
+        <span class="desc"><?php print _txt('fd.affiliation.ep.map.desc'); ?></span>
       </td>
       <td>
         <?php
@@ -151,7 +159,7 @@
     <?php endif; // affiliation ?>
     <tr>
       <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+        <span class="desc"><span class="required"><?php print _txt('fd.req'); ?></span></span><br />
       </td>
       <td>
         <?php

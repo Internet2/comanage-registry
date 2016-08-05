@@ -59,7 +59,9 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.desc'); ?><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['description'])); ?>
@@ -67,7 +69,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.plugin'); ?><span class="required">*</span><br />
+        <strong class="fieldTitle">
+          <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
+        </strong><span class="required">*</span><br />
         <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.org_identity_sources.1'))); ?></span>
       </td>
       <td>
@@ -77,10 +81,9 @@
               print $this->Form->input('plugin');
               break;
             case 'edit':
-              print $this->Form->input('plugin', array('disabled' => true));
-              // We need to re-include the value as hidden since it can't be changed (but is required by the model)
-              print $this->Form->hidden('plugin',
-                                        array('default' => Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']))) . "\n";
+              print '<strong>' . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . '</strong>';
+              // Send the value as hidden since it can't be changed (but is required by the model)
+              print $this->Form->hidden('plugin', array('default' => Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']))) . "\n";
               break;
             default:
               print Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']);
@@ -93,7 +96,7 @@
             $pl = Inflector::underscore(Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']));
             $plmodel = "Co" . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . "Target";
             
-            print "<br />" . $this->Html->link(_txt('op.config'),
+            print ' ' . $this->Html->link(_txt('op.config'),
                                                array(
                                                  'plugin' => $pl,
                                                  'controller' => 'co_' . $pl . '_targets',
@@ -108,7 +111,9 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.status'); ?><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('en.status.prov.desc'); ?></span>
       </td>
       <td>
@@ -133,7 +138,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.order'); ?><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('ordr', _txt('fd.order')) : _txt('fd.order')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.order.prov.desc'); ?></span>
       </td>
       <td>

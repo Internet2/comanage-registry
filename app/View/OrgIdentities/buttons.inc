@@ -127,7 +127,7 @@ if($this->action != "add") {
       </tr>
       <tr>
         <th class="ui-widget-header">
-          <?php print _txt('op.action'); ?>
+          <?php print $this->Form->label('CoPipeline.action', _txt('op.action')); ?>
         </th>
         <td class="line1">
           <?php
@@ -168,4 +168,5 @@ if($this->action != "add") {
       </tr>
     </tbody>
   </table>
+  <?php print $this->Form->end(); ?>
 </div>

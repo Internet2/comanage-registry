@@ -50,8 +50,10 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.name'); ?><span class="required">*</span><br />
-        <em><?php print _txt('fd.lan.desc'); ?></em>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
+        </strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('fd.lan.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
@@ -59,7 +61,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.name.d'); ?><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('display_name', _txt('fd.name.d')) : _txt('fd.name.d')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['display_name'])); ?>
@@ -67,7 +71,9 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.type'); ?><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e && $this->action=='add' ? $this->Form->label('type', _txt('fd.type')) : _txt('fd.type')); ?>
+        </strong><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -93,21 +99,23 @@
         ?>
         <p>
           <span class="ui-icon ui-icon-info co-info"></span>
-          <em><?php print _txt('fd.type.warn'); ?></em>
+          <span class="desc"><?php print _txt('fd.type.warn'); ?></span>
         </p>
       </td>
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.index'); ?>
+        <strong class="fieldTitle"><?php print _txt('fd.index'); ?></strong>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('indx') : ($co_extended_attributes[0]['CoExtendedAttribute']['type'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        <?php print ($e
+                     ? $this->Form->input('indx') . ' ' . $this->Form->label('indx', _txt('fd.index'))
+                     : ($co_extended_attributes[0]['CoExtendedAttribute']['type'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
       </td>
     </tr>
     <tr>
       <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+        <span class="desc"><span class="required"><?php print _txt('fd.req'); ?></span></span><br />
       </td>
       <td>
         <?php

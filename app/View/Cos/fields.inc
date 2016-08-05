@@ -43,7 +43,7 @@
   <tbody>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.name'); ?><span class="required">*</span>
+        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cos[0]['Co']['name'])); ?>
@@ -51,7 +51,7 @@
     </tr>
     <tr class="line2">
       <td>
-        <?php print _txt('fd.desc'); ?>
+        <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description') : Sanitize::html($cos[0]['Co']['description'])); ?>
@@ -59,7 +59,7 @@
     </tr>
     <tr class="line1">
       <td>
-        <?php print _txt('fd.status'); ?>
+        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
       </td>
       <td>
         <?php

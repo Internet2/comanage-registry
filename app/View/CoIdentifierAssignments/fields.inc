@@ -83,7 +83,9 @@
   <tbody>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.desc'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+        </strong><br />
       </td>
       <td>
         <?php print ($e
@@ -93,7 +95,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.type'); ?></b>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('identifier_type', _txt('fd.type')) :  _txt('fd.type')); ?>
+        </strong>
       </td>
       <td>
         <?php
@@ -118,7 +122,9 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.ia.type.email'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('email_type', _txt('fd.ia.type.email')) : _txt('fd.ia.type.email')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ia.type.email.desc'); ?></span>
       </td>
       <td>
@@ -147,16 +153,22 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.identifier.login'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print _txt('fd.identifier.login'); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.identifier.login.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('login') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['login'])); ?>
+        <?php print ($e
+                     ? $this->Form->input('login') . ' ' . $this->Form->label('login', _txt('fd.identifier.login'))
+                     : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['login'])); ?>
       </td>
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.ia.algorithm'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('algorithm', _txt('fd.ia.algorithm')) : _txt('fd.ia.algorithm')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ia.algorithm.desc'); ?></span>
       </td>
       <td>
@@ -184,12 +196,15 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.ia.format'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('format', _txt('fd.ia.format')) : _txt('fd.ia.format')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ia.format.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('format') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['format'])); ?>
         <?php if($e): ?>
+        <br/><label for="CoIdentifierAssignmentPrefabricatedFormats"><?php print  _txt('fd.ia.format.pattern') . ': '; ?></label>
         <select
           id="CoIdentifierAssignmentPrefabricatedFormats"
           onchange="javascript:document.getElementById('CoIdentifierAssignmentFormat').value=this.value">
@@ -204,7 +219,9 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.ia.permitted'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('permitted', _txt('fd.ia.permitted')) : _txt('fd.ia.permitted')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ia.permitted.desc'); ?></span>
       </td>
       <td>
@@ -231,7 +248,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.ia.minimum'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('minimum', _txt('fd.ia.minimum')) : _txt('fd.ia.minimum')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ia.minimum.desc'); ?></span>
       </td>
       <td>
@@ -240,7 +259,9 @@
     </tr>
     <tr class="line1">
       <td>
-        <b><?php print _txt('fd.ia.maximum'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('maximum', _txt('fd.ia.maximum')) : _txt('fd.ia.maximum')); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ia.maximum.desc'); ?></span>
       </td>
       <td>
@@ -249,7 +270,9 @@
     </tr>
     <tr class="line2">
       <td>
-        <b><?php print _txt('fd.ia.exclusions'); ?></b><br />
+        <strong class="fieldTitle">
+          <?php print _txt('fd.ia.exclusions'); ?>
+        </strong><br />
         <span class="descr"><?php print _txt('fd.ia.exclusions.desc'); ?></span>
       </td>
       <td></td>
