@@ -97,7 +97,7 @@ if($this->action != "add") {
   <?php
     // SecurityComponent form tampering token checking doesn't like this as a POST,
     // so the easiest thing is to send it as a GET (which is nominally more correct anyway).
-    print $this->Form->create('CoPipeline', array('action' => 'execute/'.$vv_pipeline['CoPipeline']['id'],
+    print $this->Form->create('CoPipeline', array('url' => array('action' => 'execute/'.$vv_pipeline['CoPipeline']['id']),
                                                   'type' => 'get'));
     print $this->Form->hidden('CoPipeline.org_identity_id', array('default' => $org_identities[0]['OrgIdentity']['id']));
   ?>
