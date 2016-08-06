@@ -256,6 +256,13 @@ class MatchStrategyEnum
   const NoMatching   = 'NO';
 }
 
+class MessageTemplateEnum
+{
+  const EnrollmentApproval     = 'EA';
+  const EnrollmentVerification = 'EV';
+  const ExpirationNotification = 'XN';
+}
+
 class NameEnum
 {
   const Alternate = 'alternate';

@@ -245,6 +245,18 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           print "</li>";
         }
 
+        if (isset($permissions['menu']['coattrenums']) && $permissions['menu']['coattrenums']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'attribute_enumerations';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+
+          print $this->Html->link(_txt('ct.attribute_enumerations.pl'), $args);
+          print "</li>";
+        }
+
         if (isset($permissions['menu']['cous']) && $permissions['menu']['cous']) {
           print "<li>";
           $args = array();
@@ -326,6 +338,18 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           $args['co'] = $menuCoId;
 
           print $this->Html->link(_txt('ct.co_localizations.pl'), $args);
+          print "</li>";
+        }
+
+        if (isset($permissions['menu']['comessagetemplates']) && $permissions['menu']['comessagetemplates']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_message_templates';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+
+          print $this->Html->link(_txt('ct.co_message_templates.pl'), $args);
           print "</li>";
         }
 

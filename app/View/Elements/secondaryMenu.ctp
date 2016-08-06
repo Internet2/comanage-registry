@@ -63,6 +63,18 @@
                 print $this->Html->link(_txt('ct.api_users.pl'), $args);
               ?>
             </li>
+            <?php if($pool_org_identities): ?>
+            <li>
+              <?php
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'attribute_enumerations';
+                $args['action'] = 'index';
+                
+                print $this->Html->link(_txt('ct.attribute_enumerations.pl'), $args);
+              ?>
+            </li>
+            <?php endif; // pool_org_identities ?>
             <li>
               <?php
                 $args = array();

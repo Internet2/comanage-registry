@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Roles Controller
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -29,6 +29,8 @@ class CoPersonRolesController extends StandardController {
   
   public $helpers = array('Time', 'Permission');
   
+  public $uses = array('CoPersonRole', 'AttributeEnumeration');
+
   public $paginate = array(
     'limit' => 25,
     'order' => array(
@@ -208,6 +210,19 @@ class CoPersonRolesController extends StandardController {
     $vrule[1]['coid'] = $this->cur_co['Co']['id'];
     
     $this->CoPersonRole->validator()->getField('affiliation')->getRule('content')->rule = $vrule;
+    
+    // Pull attribute enumerations and adjust validation rules, if needed
+    
+    $coId = $this->cur_co['Co']['id'];
+    
+    $enums_o = $this->AttributeEnumeration->active($coId, "CoPersonRole.o");
+    $this->set('vv_enums_o', $enums_o);
+    
+    $enums_ou = $this->AttributeEnumeration->active($coId, "CoPersonRole.ou");
+    $this->set('vv_enums_ou', $enums_ou);
+    
+    $enums_title = $this->AttributeEnumeration->active($coId, "CoPersonRole.title");
+    $this->set('vv_enums_title', $enums_title);
   }
 
   /**

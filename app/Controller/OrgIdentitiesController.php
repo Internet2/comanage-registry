@@ -29,7 +29,10 @@ class OrgIdentitiesController extends StandardController {
   public $name = "OrgIdentities";
   
   // When using additional models, we must also specify our own
-  public $uses = array('OrgIdentity', 'OrgIdentitySource', 'CmpEnrollmentConfiguration');
+  public $uses = array('OrgIdentity',
+                       'OrgIdentitySource',
+                       'AttributeEnumeration',
+                       'CmpEnrollmentConfiguration');
   
   public $paginate = array(
     'limit' => 25,
@@ -94,6 +97,23 @@ class OrgIdentitiesController extends StandardController {
     $this->set('pool_org_identities', $pool);
     
     parent::beforeFilter();
+    
+    // Pull attribute enumerations and adjust validation rules, if needed
+    
+    $coId = null;
+    
+    if($this->requires_co) {
+      $coId = $this->cur_co['Co']['id'];
+    }
+    
+    $enums_o = $this->AttributeEnumeration->active($coId, "OrgIdentity.o");
+    $this->set('vv_enums_o', $enums_o);
+    
+    $enums_ou = $this->AttributeEnumeration->active($coId, "OrgIdentity.ou");
+    $this->set('vv_enums_ou', $enums_ou);
+    
+    $enums_title = $this->AttributeEnumeration->active($coId, "OrgIdentity.title");
+    $this->set('vv_enums_title', $enums_title);
   }
   
   /**

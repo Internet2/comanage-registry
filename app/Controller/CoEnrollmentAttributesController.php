@@ -40,6 +40,7 @@ class CoEnrollmentAttributesController extends StandardController {
   );
   
   public $uses = array('CoEnrollmentAttribute',
+                       'AttributeEnumeration',
                        'CmpEnrollmentConfiguration',
                        'CoPersonRole');
   
@@ -196,6 +197,39 @@ class CoEnrollmentAttributesController extends StandardController {
       $this->set('title_for_layout', $this->viewVars['title_for_layout'] . " (" . $efname . ")");
       $this->set('vv_ef_name', $efname);
       $this->set('vv_ef_id', $this->CoEnrollmentAttribute->CoEnrollmentFlow->id);
+      
+      // Determine attribute enumerations
+      $enums = $this->AttributeEnumeration->active($this->viewVars['vv_coid'],
+                                                   null,
+                                                   'list',
+                                                   $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
+      
+      // We need to rekey $enums from general format (eg) "OrgIdentity.o" to
+      // Enrollment Attribute format (eg) "o:o"
+      
+      if(!empty($enums)) {
+        foreach($enums as $attr => $enum) {
+          $a = explode('.', $attr, 2);
+          $code = "";
+          
+          switch($a[0]) {
+            case 'CoPersonRole':
+              $code = 'r';
+              break;
+            case 'OrgIdentity':
+              $code = 'o';
+              break;
+            default:
+              throw new LogicException(_txt('er.notimpl'));
+              break;
+          }
+          
+          $enums[ $code.":".$a[1] ] = $enum;
+          unset($enums[$attr]);
+        }
+      }
+      
+      $this->set('vv_enums', $enums);
     }
   }
   

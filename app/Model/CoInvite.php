@@ -262,8 +262,12 @@ class CoInvite extends AppModel {
    * @param  String Template text (for configured templates stored in the database)
    * @param  Integer Email Address ID to verify
    * @param  Integer Time, in minutes, the invitation is valid for (default = 1440 = 1 day)
+   * @param  String Comma separated list of addresses to cc
+   * @param  String Comma separated list of addresses to bcc
+   * @param  Array Substitutions for message template (to supplement those handled natively)
    * @return Integer CO Invitation ID
    * @throws RuntimeException
+   * @todo The function signature has evolved organically and is a bit of a mess, clean up as part of CO-753
    */
   
   public function send($coPersonId,
@@ -275,7 +279,10 @@ class CoInvite extends AppModel {
                        $subject=null,
                        $template=null,
                        $emailAddressID=null,
-                       $expiry=null) {
+                       $expiry=null,
+                       $cc=null,
+                       $bcc=null,
+                       $subs=array()) {
     // Toss any prior invitations for $coPersonId to $toEmail
     
     try {
@@ -307,7 +314,7 @@ class CoInvite extends AppModel {
       // Set up and send the invitation via email
       $email = new CakeEmail('default');
       
-      $substitutions = array(
+      $substitutions = array_merge($subs, array(
         'CO_NAME'   => $coName,
         'INVITE_URL' => Router::url(array(
                                     'controller' => 'co_invites',
@@ -315,7 +322,7 @@ class CoInvite extends AppModel {
                                     $invite['CoInvite']['invitation']
                                    ),
                                    true)
-      );
+      ));
       
       try {
         if($template) {
@@ -326,10 +333,19 @@ class CoInvite extends AppModel {
           }
           
           $msgBody = processTemplate($template, $substitutions);
-
+          
           // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
           if($fromEmail) {
             $email->from($fromEmail);
+          }
+          
+          // If cc's or bcc's were set, convert to an array
+          if($cc) {
+            $email->cc(explode(',', $cc));
+          }
+          
+          if($bcc) {
+            $email->bcc(explode(',', $bcc));
           }
           
           $email->emailFormat('text')

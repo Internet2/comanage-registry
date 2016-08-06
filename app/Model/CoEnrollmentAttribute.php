@@ -249,6 +249,8 @@ class CoEnrollmentAttribute extends AppModel {
       $actualEfId = $coef;
     }
     
+    $coId = $this->CoEnrollmentFlow->field('co_id', array("CoEnrollmentFlow.id" => $coef));
+    
     // First, retrieve the configured attributes
     
     $args = array();
@@ -299,6 +301,10 @@ class CoEnrollmentAttribute extends AppModel {
           $attrModel = $this->CoEnrollmentFlow->CoPetition->Co->CoExtendedAttribute;
           break;
         }
+        
+        // Make sure the model has updated its validation rules to account for
+        // (eg) attribute enumerations.
+        $attrModel->updateValidationRules($coId);
         
         // XXX We could rewrite a bunch of stuff to reference this link to the parent
         // model rather than manually copy fields like 'id' and others that won't
@@ -417,7 +423,7 @@ class CoEnrollmentAttribute extends AppModel {
           }
         } elseif($attrCode == 'r') {
           if($attrName == 'affiliation') {
-            // Affiliation need a select based on available affiliations
+            // Affiliation needs a select based on available affiliations
             
             $attr['select'] = $attrModel->types($efAttr['CoEnrollmentFlow']['co_id'], 'affiliation');
             $attr['validate']['content']['rule'][0] = 'inList';

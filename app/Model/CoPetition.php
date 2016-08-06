@@ -1325,31 +1325,15 @@ class CoPetition extends AppModel {
    * @return String Address the invitation was resent to
    */
   
-  function resend($coPetitionId, $actorCoPersonId) {
-    // We don't set up a transaction because once the invite goes out we've basically
-    // committed (and it doesn't make sense to execute a rollback), and we're mostly
-    // doing reads before that.
+  public function resend($id, $actorCoPersonId) {
+    // We basically hand off to sendConfirmation(), but first unlink any existing invite.
     
     // Petition status must be Pending Confirmation
     
-    $this->id = $coPetitionId;
+    $this->id = $id;
     
     if($this->field('status') != StatusEnum::PendingConfirmation) {
       throw new InvalidArgumentException(_txt('er.pt.resend.status'));
-    }
-    
-    // There must be an email address associated with the org identity associated with this petition
-    
-    $args = array();
-    $args['conditions']['EnrolleeOrgIdentity.id'] = $this->field('enrollee_org_identity_id');
-    $args['contain'] = array('EmailAddress', 'PrimaryName');
-    
-    $org = $this->EnrolleeOrgIdentity->find('first', $args);
-    
-    if(empty($org['EmailAddress'])) {
-      throw new InvalidArgumentException(_txt('er.orgp.nomail',
-                                              array(generateCn($org['PrimaryName']),
-                                                    $args['conditions']['EnrolleeOrgIdentity.id'])));
     }
     
     // Unlink any existing invite
@@ -1358,56 +1342,7 @@ class CoPetition extends AppModel {
       throw new RuntimeException(_txt('er.db.save'));
     }
     
-    // Find enrollment flow
-    
-    $args = array();
-    $args['conditions']['CoEnrollmentFlow.id'] = $this->field('co_enrollment_flow_id');
-    $args['contain'] = false;
-    
-    $enrollmentFlow = $this->CoEnrollmentFlow->find('first', $args);
-    
-    if(empty($enrollmentFlow)) {
-      throw new InvalidArgumentException(_txt('er.notfound',
-                                              array('ct.co_enrollment_flows.1',
-                                                    $args['conditions']['CoEnrollmentFlow.id'])));
-    }
-    
-    // Resend invite
-    
-    $coInviteId = $this->CoInvite->send($this->field('enrollee_co_person_id'),
-                                        $this->field('enrollee_org_identity_id'),
-                                        $actorCoPersonId,
-                                        $org['EmailAddress'][0]['mail'],
-                                        $enrollmentFlow['CoEnrollmentFlow']['notify_from'],
-                                        $this->Co->field('name',
-                                                         array('Co.id' => $enrollmentFlow['CoEnrollmentFlow']['co_id'])),
-                                        !empty($enrollmentFlow['CoEnrollmentFlow']['verification_subject'])
-                                        ? $enrollmentFlow['CoEnrollmentFlow']['verification_subject'] : null,
-                                        !empty($enrollmentFlow['CoEnrollmentFlow']['verification_body'])
-                                        ? $enrollmentFlow['CoEnrollmentFlow']['verification_body'] : null,
-                                        null,
-                                        !empty($enrollmentFlow['CoEnrollmentFlow']['invitation_validity'])
-                                        ? $enrollmentFlow['CoEnrollmentFlow']['invitation_validity'] : null);
-    
-    // Update the CO Petition with the new invite ID
-    
-    if(!$this->saveField('co_invite_id', $coInviteId)) {
-      throw new RuntimeException(_txt('er.db.save'));
-    }
-    
-    // Add petition history record
-    
-    try {
-      $this->CoPetitionHistoryRecord->record($coPetitionId,
-                                             $this->field('petitioner_co_person_id'),
-                                             PetitionActionEnum::InviteSent,
-                                             _txt('rs.inv.sent', array($org['EmailAddress'][0]['mail'])));
-    }
-    catch(Exception $e) {
-      throw new RuntimeException(_txt('er.db.save'));
-    }
-    
-    return $org['EmailAddress'][0]['mail'];
+    return $this->sendConfirmation($id, $actorCoPersonId);
   }
 
   /**
@@ -1869,10 +1804,11 @@ class CoPetition extends AppModel {
     
     $args = array();
     $args['conditions']['CoPetition.id'] = $id;
-    $args['contain'][] = 'CoEnrollmentFlow';
-    $args['contain'][] = 'Co';
+    $args['contain']['CoEnrollmentFlow'] = 'CoEnrollmentFlowApprovalMessageTemplate';
+    $args['contain']['EnrolleeCoPerson'][] = 'PrimaryName';
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole'][] = 'Cou';
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole']['SponsorCoPerson'][] = 'PrimaryName';
     $args['contain']['EnrolleeOrgIdentity'] = array('EmailAddress', 'PrimaryName');
-    $args['contain']['EnrolleeCoPerson'] = array('EmailAddress', 'PrimaryName');
     
     $pt = $this->find('first', $args);
     
@@ -1882,100 +1818,83 @@ class CoPetition extends AppModel {
     
     if(isset($pt['CoEnrollmentFlow']['notify_on_approval'])
        && $pt['CoEnrollmentFlow']['notify_on_approval']) {
-      // We'll embed some email logic here (similar to that in CoInvite), since we don't
-      // have a notification infrastructure yet. This should get refactored when CO-207
-      // is addressed. (Be sure to remove the reference to App::uses('CakeEmail'), above.)
+      // As of v1.1.0, this uses the notification infrastructure instead of its own
+      // email code. A side effect is that all new users will have one notification
+      // pending acknowledgment when they login... it might be better for it to
+      // automatically expire shortly after being sent (CO-852).
       
-      // Which address should we send to? How about the one we sent the invitation to...
-      // but we can't guarantee access to that since the invitation will have been
-      // discarded. So we use the same logic as resend() above and sendConfirmation() below.
-      // Unlike those cases, though, we'll look at a CO Person record for an address
-      // if there is no attached Org Identity (eg: additional role enrollment).
+      $enrolleeName = "?";
       
-      $toEmail = null;
-      $toName = null;
-      
-      // Which email do we pick? Ultimately we could look at type and/or verified,
-      // but for now we'll just pick the first one. Note array_shift will muck with $pt,
-      // but we don't need it anymore.
-      
-      if(!empty($pt['EnrolleeOrgIdentity']['EmailAddress'])) {
-        $ea = array_shift($pt['EnrolleeOrgIdentity']['EmailAddress']);
-        $toName = generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']);
-        
-        if(empty($ea['mail'])) {
-          throw new RuntimeException(_txt('er.orgp.nomail',
-                                          array($toName,
-                                                $pt['EnrolleeOrgIdentity']['id'])));
-        }
-        
-        $toEmail = $ea['mail'];
-      } elseif(!empty($pt['EnrolleeCoPerson']['EmailAddress'])) {
-        $ea = array_shift($pt['EnrolleeCoPerson']['EmailAddress']);
-        $toName = generateCn($pt['EnrolleeCoPerson']['PrimaryName']);
-        
-        if(empty($ea['mail'])) {
-          throw new RuntimeException(_txt('er.cop.nomail',
-                                          array($toName,
-                                                $pt['EnrolleeCoPerson']['id'])));
-        }
-        
-        $toEmail = $ea['mail'];
+      if(!empty($pt['EnrolleeCoPerson']['PrimaryName'])) {
+        $enrolleeName = generateCn($pt['EnrolleeCoPerson']['PrimaryName']);
+      } elseif(!empty($pt['EnrolleeOrgIdentity']['PrimaryName'])) {
+        $enrolleeName = generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']);
       }
       
-      if($toEmail) {  
-        $notifyFrom = $pt['CoEnrollmentFlow']['notify_from'];
-        $subjectTemplate = $pt['CoEnrollmentFlow']['approval_subject'];
-        $bodyTemplate = $pt['CoEnrollmentFlow']['approval_body'];
-        $coName = $pt['Co']['name'];
-        
-        // Try to send the notification
-        
-        $email = new CakeEmail('default');
-        
-        $substitutions = array(
-          'CO_NAME' => $coName
-        );
-        
-        try {
-          $msgSubject = processTemplate($subjectTemplate, $substitutions);
-          $msgBody = processTemplate($bodyTemplate, $substitutions);
-          
-          $email->emailFormat('text')
-                ->to($toEmail)
-                ->subject($msgSubject);
-          
-          // If this enrollment has a default email address set, use it, otherwise leave in the default for the site.
-          if(!empty($notifyFrom)) {
-            $email->from($notifyFrom);
-          }
-          
-          // Send the email
-          $email->send($msgBody);
-          
-          // And cut a history record
-          
-          $this->CoPetitionHistoryRecord->record($id,
-                                                 $actorCoPersonId,
-                                                 PetitionActionEnum::NotificationSent,
-                                                 _txt('rs.nt.sent', array($toEmail)));
-        }
-        catch(Exception $e) {
-          // We don't want to fail, but we will at least record that something went wrong
-          
-          $this->CoPetitionHistoryRecord->record($id,
-                                                 $actorCoPersonId,
-                                                 PetitionActionEnum::NotificationSent,
-                                                 _txt('er.nt.send', array($toEmail, $e->getMessage())));
-        }
+      // Pull the message components from the template (as of v1.1.0) or configuration
+      // (now deprecated), if either is set.
+      
+      $subject = null;
+      $body = null;
+      $cc = null;
+      $bcc = null;
+      
+      $subs = array(
+        'CO_PERSON' => generateCn($pt['EnrolleeCoPerson']['PrimaryName']),
+        'NEW_COU'   => $pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'] ?: null,
+        'SPONSOR'   => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName'])
+                        ? generateCn($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName']) : null)
+      );
+      
+      if(!empty($pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['id'])) {
+        $subject = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['message_subject'];
+        $body = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['message_body'];
+        $cc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['cc'];
+        $bcc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['bcc'];
       } else {
-        // We don't want to fail, but we will at least record that something went wrong
+        if(!empty($ef['CoEnrollmentFlow']['approval_subject'])) {
+          $subject = $ef['CoEnrollmentFlow']['approval_subject'];
+        }
         
-        $this->CoPetitionHistoryRecord->record($id,
-                                               $actorCoPersonId,
-                                               PetitionActionEnum::NotificationSent,
-                                               _txt('er.nt.email'));
+        if(!empty($ef['CoEnrollmentFlow']['approval_body'])) {
+          $body = $ef['CoEnrollmentFlow']['approval_body'];
+        }
       }
+      
+      $subject = processTemplate($subject, $subs);
+      $body = processTemplate($body, $subs);
+      
+      $this->Co
+           ->CoPerson
+           ->CoNotificationRecipient
+           ->register($pt['CoPetition']['enrollee_co_person_id'],
+                      null,
+                      $actorCoPersonId,
+                      'coperson',
+                      $pt['CoPetition']['enrollee_co_person_id'],
+                      ActionEnum::CoPetitionUpdated,
+                      _txt('rs.pt.status', array($enrolleeName,
+                                                 _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
+                                                 _txt('en.status.pt', null, $pt['CoPetition']['status']),
+                                                 $pt['CoEnrollmentFlow']['name'])),
+                      array(
+                        'controller' => 'co_petitions',
+                        'action'     => 'view',
+                        'id'         => $id
+                      ),
+                      false,
+                      $pt['CoEnrollmentFlow']['notify_from'],
+                      $subject,
+                      $body,
+                      $cc,
+                      $bcc);
+      
+      // And cut a history record
+      
+      $this->CoPetitionHistoryRecord->record($id,
+                                             $actorCoPersonId,
+                                             PetitionActionEnum::NotificationSent,
+                                             _txt('rs.nt.sent', array($enrolleeName)));
     }
     
     return true;
@@ -2089,6 +2008,9 @@ class CoPetition extends AppModel {
     
     $args = array();
     $args['conditions']['CoPetition.id'] = $id;
+    $args['contain']['EnrolleeCoPerson'][] = 'PrimaryName';
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole'][] = 'Cou';
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole']['SponsorCoPerson'][] = 'PrimaryName';
     $args['contain']['EnrolleeOrgIdentity'] = array('EmailAddress', 'PrimaryName');
     
     $pt = $this->find('first', $args);
@@ -2106,8 +2028,7 @@ class CoPetition extends AppModel {
     $toEmail = null;
     
     // Which email do we pick? Ultimately we could look at type and/or verified,
-    // but for now we'll just pick the first one. If this logic changes, resend()
-    // will also need to be updated.
+    // but for now we'll just pick the first one. sendApprovalNotification does similar.
     // Note array_shift will muck with $pt, but we don't need it anymore.
     
     $ea = array_shift($pt['EnrolleeOrgIdentity']['EmailAddress']);
@@ -2124,13 +2045,45 @@ class CoPetition extends AppModel {
     
     $args = array();
     $args['conditions']['CoEnrollmentFlow.id'] = $pt['CoPetition']['co_enrollment_flow_id'];
-    $args['contain'][] = 'Co';
+    $args['contain'] = array('Co', 'CoEnrollmentFlowVerMessageTemplate');
     
     $ef = $this->CoEnrollmentFlow->find('first', $args);
     
     if(!$ef) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_flows.1'),
                                                                    $pt['CoPetition']['co_enrollment_flow_id'])));
+    }
+    
+    // Pull the message components from the template (as of v1.1.0) or configuration
+    // (now deprecated), if either is set.
+    
+    $subject = null;
+    $body = null;
+    $cc = null;
+    $bcc = null;
+    
+    // Generate additional substitutions to supplement those handled by CoInvites.
+    // This is separate from the substitutions managed by CoNotification.
+    $subs = array(
+      'CO_PERSON' => generateCn($pt['EnrolleeCoPerson']['PrimaryName']),
+      'NEW_COU'   => $pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'] ?: null,
+      'SPONSOR'   => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName'])
+                      ? generateCn($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName']) : null)
+    );
+    
+    if(!empty($ef['CoEnrollmentFlowVerMessageTemplate']['id'])) {
+      $subject = $ef['CoEnrollmentFlowVerMessageTemplate']['message_subject'];
+      $body = $ef['CoEnrollmentFlowVerMessageTemplate']['message_body'];
+      $cc = $ef['CoEnrollmentFlowVerMessageTemplate']['cc'];
+      $bcc = $ef['CoEnrollmentFlowVerMessageTemplate']['bcc'];
+    } else {
+      if(!empty($ef['CoEnrollmentFlow']['verification_subject'])) {
+        $subject = $ef['CoEnrollmentFlow']['verification_subject'];
+      }
+      
+      if(!empty($ef['CoEnrollmentFlow']['verification_body'])) {
+        $body = $ef['CoEnrollmentFlow']['verification_body'];
+      }
     }
     
     // We can now send the invitation
@@ -2140,10 +2093,13 @@ class CoPetition extends AppModel {
                                         $toEmail,
                                         $ef['CoEnrollmentFlow']['notify_from'],
                                         $ef['Co']['name'],
-                                        $ef['CoEnrollmentFlow']['verification_subject'],
-                                        $ef['CoEnrollmentFlow']['verification_body'],
+                                        $subject,
+                                        $body,
                                         null,
-                                        $ef['CoEnrollmentFlow']['invitation_validity']);
+                                        $ef['CoEnrollmentFlow']['invitation_validity'],
+                                        $cc,
+                                        $bcc,
+                                        $subs);
     
     // Add the invite ID to the petition record
     
