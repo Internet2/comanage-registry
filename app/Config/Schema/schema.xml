@@ -1024,6 +1024,7 @@
     <field name="hidden" type="L" />
     <field name="copy_to_coperson" type="L" />
     <field name="ignore_authoritative" type="L" />
+    <field name="login" type="L" />
     <field name="language" type="C" size="16" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

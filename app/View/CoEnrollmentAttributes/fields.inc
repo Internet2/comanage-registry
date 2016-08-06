@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -142,7 +142,7 @@
   }
   
   function toggle_attr_type_div() {
-    // Show or hide language selectors and required fields selectors
+    // Show or hide language selectors, required fields, and login selectors
     
     var curattr = document.getElementById('CoEnrollmentAttributeAttribute').value;
     
@@ -156,6 +156,7 @@
     if(curattrname == "address") {
       $("#type_div").show("fade");
       $("#address_required_fields_div").show("fade");
+      $("#login_div").hide("fade");
       $("#name_required_fields_div").hide("fade");
       
       // Synchronize the popup and the actual field that holds the value
@@ -172,6 +173,7 @@
     } else if(curattrname == "name") {
       $("#type_div").show("fade");
       $("#address_required_fields_div").hide("fade");
+      $("#login_div").hide("fade");
       $("#name_required_fields_div").show("fade");
       // Make sure the popup matches the current required_fields value
       document.getElementById('CoEnrollmentAttributeNameFields').value=
@@ -188,9 +190,15 @@
         // Set popup to current field value
         document.getElementById('CoEnrollmentAttributeNameFields').value = curreqfields;
       }
+    } else if(curattrname == "identifier") {
+      $("#type_div").hide("fade");
+      $("#address_required_fields_div").hide("fade");
+      $("#login_div").show("fade");
+      $("#name_required_fields_div").hide("fade");
     } else {
       $("#type_div").hide("fade");
       $("#address_required_fields_div").hide("fade");
+      $("#login_div").hide("fade");
       $("#name_required_fields_div").hide("fade");
       
       // Blank the current required fields
@@ -374,6 +382,14 @@
             : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['copy_to_coperson']
               ? _txt('fd.yes') : _txt('fd.no')));
           print _txt('fd.ea.attr.copy2cop');
+          ?>
+        </div>
+        <div id="login_div" style="display: none">
+          <?php print ($e
+            ? $this->Form->input('login', array('default' => false))
+            : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['login']
+              ? _txt('fd.yes') : _txt('fd.no')));
+          print _txt('fd.identifier.login.desc');
           ?>
         </div>
       </td>
