@@ -44,6 +44,11 @@ class CoMessageTemplate extends AppModel {
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'approval_template_id'
     ),
+    "CoEnrollmentFlowFinMessageTemplate" => array(
+      // "Finalization" makes the label too long
+      'className' => 'CoEnrollmentFlow',
+      'foreignKey' => 'finalization_template_id'
+    ),
     "CoEnrollmentFlowVerMessageTemplate" => array(
       // "Verification" makes the label too long
       'className' => 'CoEnrollmentFlow',
@@ -71,6 +76,7 @@ class CoMessageTemplate extends AppModel {
     ),
     'context' => array(
       'rule' => array('inList', array(MessageTemplateEnum::EnrollmentApproval,
+                                      MessageTemplateEnum::EnrollmentFinalization,
                                       MessageTemplateEnum::EnrollmentVerification,
                                       MessageTemplateEnum::ExpirationNotification)),
       'required' => true

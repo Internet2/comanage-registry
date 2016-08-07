@@ -259,6 +259,7 @@ class MatchStrategyEnum
 class MessageTemplateEnum
 {
   const EnrollmentApproval     = 'EA';
+  const EnrollmentFinalization = 'EF';
   const EnrollmentVerification = 'EV';
   const ExpirationNotification = 'XN';
 }

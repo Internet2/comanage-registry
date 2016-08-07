@@ -58,6 +58,11 @@ class CoEnrollmentFlow extends AppModel {
       'className' => 'CoMessageTemplate',
       'foreignKey' => 'approval_template_id'
     ),
+    "CoEnrollmentFlowFinMessageTemplate" => array(
+      // "Finalization" makes the label too long
+      'className' => 'CoMessageTemplate',
+      'foreignKey' => 'finalization_template_id'
+    ),
     "CoEnrollmentFlowVerMessageTemplate" => array(
       // "Verification" makes the label too long
       'className' => 'CoMessageTemplate',
@@ -160,22 +165,6 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
-    /*
-    'notify_on_early_provision' => array(
-      'rule' => 'email',
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'notify_on_provision' => array(
-      'rule' => 'email',
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'notify_on_active' => array(
-      'rule' => 'email',
-      'required' => false,
-      'allowEmpty' => true
-    ),*/
     'notify_from' => array(
       'rule' => 'email',
       'required' => false,
@@ -191,8 +180,18 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'verification_template_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'notify_on_approval' => array(
       'rule' => array('boolean')
+    ),
+    'approval_template_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     ),
     'approval_subject' => array(
       'rule' => 'notBlank',
@@ -201,6 +200,14 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'approval_body' => array(
       'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'notify_on_finalize' => array(
+      'rule' => array('boolean')
+    ),
+    'finalization_template_id' => array(
+      'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
     ),
@@ -594,6 +601,13 @@ class CoEnrollmentFlow extends AppModel {
     
     foreach(array_keys($ret) as $step) {
       $ret[$step]['label'] = _txt('ef.step.' . $step);
+    }
+    
+    if(isset($ef['CoEnrollmentFlow']['notify_on_finalize'])
+       && $ef['CoEnrollmentFlow']['notify_on_finalize']) {
+      // Change the text for the provision step to make it clearer
+      // that a notification will also go out
+      $ret['provision']['label'] = _txt('ef.step.provision.notify');
     }
     
     return $ret;

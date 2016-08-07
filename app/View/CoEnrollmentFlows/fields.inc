@@ -163,6 +163,14 @@
       $("#CoEnrollmentFlowApprovalSubject").closest("tr").hide('fade');
       $("#CoEnrollmentFlowApprovalBody").closest("tr").hide('fade');
     }
+    
+    // If notify on finalize is enabled, show the template selector
+    
+    if(document.getElementById('CoEnrollmentFlowNotifyOnFinalize').checked) {
+      $("#CoEnrollmentFlowFinalizationTemplateId").closest("tr").show('fade');
+    } else {
+      $("#CoEnrollmentFlowFinalizationTemplateId").closest("tr").hide('fade');
+    }
   }
   
   function js_local_onload() {
@@ -664,6 +672,50 @@
                      ? $this->Form->input('approval_body',
                                           array('default' => _txt('em.approval.body.ef')))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle">
+          <?php print _txt('fd.ef.nof'); ?>
+        </strong><br />
+        <span class="descr"><?php print _txt('fd.ef.nof.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('notify_on_finalize', array('onChange' => 'fields_update_gadgets();')) . ' ' .
+                       $this->Form->label('notify_on_finalize', _txt('fd.ef.nof'))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_finalize'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($ll % 2); $ll++; ?>" style="display:none">
+      <td class="indented">
+        <strong class="fieldTitle"><?php print _txt('fd.ef.fmt'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.fmt.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id']
+                             : null);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('finalization_template_id',
+                                      (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization])
+                                       ? $vv_message_templates[MessageTemplateEnum::EnrollmentFinalization]
+                                       : array()),
+                                      $attrs);
+            
+            if($this->Form->isFieldError('finalization_template_id')) {
+              print $this->Form->error('finalization_template_id');
+            }
+          } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'])) {
+            print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization][ $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'] ]);
+          }
+        ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

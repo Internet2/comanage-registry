@@ -1047,6 +1047,10 @@
     <field name="approval_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
+    <field name="notify_on_finalize" type="L" />
+    <field name="finalization_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
     <field name="introduction_text" type="X" size="4000" />
     <field name="conclusion_text" type="X" size="4000" />
     <field name="t_and_c_mode" type="C" size="2" />

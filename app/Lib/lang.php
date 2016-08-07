@@ -171,6 +171,8 @@ $cm_texts['en_US'] = array(
   'ef.step.petitionerAttributes'     => 'Collect Petitioner Attributes',
   'ef.step.processConfirmation'      => 'Confirm Email Address',
   'ef.step.provision'                => 'Provision',
+  // This one isn't really a step
+  'ef.step.provision.notify'         => 'Provision & Notify',
   'ef.step.redirectOnConfirm'        => 'Process Confirmation',
   'ef.step.selectEnrollee'           => 'Select Person',
   'ef.step.selectOrgIdentity'        => 'Select Org Identity',
@@ -505,6 +507,7 @@ original notification at
 
   // Message Template Contexts
   'en.mt.context' =>       array(MessageTemplateEnum::EnrollmentApproval     => 'Enrollment Flow Approval',
+                                 MessageTemplateEnum::EnrollmentFinalization => 'Enrollment Flow Finalization',
                                  MessageTemplateEnum::EnrollmentVerification => 'Enrollment Flow Verification',
                                  MessageTemplateEnum::ExpirationNotification => 'Expiration Policy Notification'),
   
@@ -736,6 +739,7 @@ original notification at
   'er.ef.active' =>   'The requested Enrollment Flow is not active',
   'er.ef.authz.cou' => 'A COU must be specified for authorization type "%1$s"',
   'er.ef.authz.gr' => 'A group must be specified for authorization type "%1$s"',
+  'er.ef.template' => 'A %1$s must be selected for use with %2$s',
   'er.efcf.init' =>   'Failed to set up initial CMP Enrollment Configuration',
   'er.es.exists'=>    'An Enrollment Source already exists using that Org Identity Source in that mode',
   'er.et.default' =>  'Failed to add default types',
@@ -955,6 +959,8 @@ original notification at
   'fd.ef.env.desc' => 'Examine the server environment for authoritative organizational identity attributes',
   'fd.ef.epx' =>      'Early Provisioning Executable',
   'fd.ef.epx.desc' => '(Need for this TBD)',
+  'fd.ef.fmt' =>      'Finalization Email Message Template',
+  'fd.ef.fmt.desc' => 'Message template used for email sent after finalization step',
   'fd.ef.ignauth' =>  'Ignore Authoritative Values',
   'fd.ef.ignauth.desc' => 'Ignore authoritative values for all attributes for this enrollment flow, such as those provided via environment variables, SAML, or LDAP',
   'fd.ef.intro' =>    'Introduction',
@@ -969,12 +975,10 @@ original notification at
   'fd.ef.noa.desc' => 'Email address to notify upon status being set to active',
   'fd.ef.noap' =>     'Notify On Approved Status',
   'fd.ef.noap.desc' => 'Notify enrollee when Petition is approved',
-  'fd.ef.noep' =>     'Notify On Early Provisioning',
-  'fd.ef.noep.desc' => 'Email address to notify upon execution of early provisioning',
+  'fd.ef.nof' =>      'Notify on Finalization',
+  'fd.ef.nof.desc' => 'Notify enrollee when Petition is finalized',
   'fd.ef.nogr' =>     'Notification Group',
   'fd.ef.nogr.desc' => 'Group to notify on new petitions and changes of petition status. (This is an informational notification. Separate notifications will be sent to approvers and enrollees, as appropriate.)',
-  'fd.ef.nop' =>      'Notify On Provisioning',
-  'fd.ef.nop.desc' => 'Email address to notify upon execution of provisioning',
   'fd.ef.orgid' =>    'Org Identity Mode',
   'fd.ef.orgid.desc' => 'Org Identity mode for this enrollment flow, see <a href="https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Configuration#RegistryEnrollmentFlowConfiguration-OrganizationalIdentitySources">Organizational Identity Sources</a> for details',
   'fd.ef.pool' =>     'Pool Organizational Identities',
