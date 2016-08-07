@@ -1789,23 +1789,25 @@ class CoPetition extends AppModel {
   }
   
   /**
-   * Send enrollee approval notification for a Petition.
+   * Send enrollee approval (or finalization) notification for a Petition.
    * - postcondition: Notification sent
    *
    * @since  COmanage Registry v0.9.4
-   * @param  Integer CO Petition ID
-   * @param  Integer CO Person ID of actor sending the notification
+   * @param  Integer $id CO Petition ID
+   * @param  Integer $actorCoPersonId CO Person ID of actor sending the notification
+   * @param  String $action 'approval' or 'finalize'
    * @return True on success
    * @throws InvalidArgumentException
    */
   
-  public function sendApprovalNotification($id, $actorCoPersonId) {
+  public function sendApprovalNotification($id, $actorCoPersonId, $action='approval') {
     // First we need some info from the petition and enrollment flow
     
     $args = array();
     $args['conditions']['CoPetition.id'] = $id;
     $args['contain']['CoEnrollmentFlow'] = 'CoEnrollmentFlowApprovalMessageTemplate';
-    $args['contain']['EnrolleeCoPerson'][] = 'PrimaryName';
+    $args['contain']['CoEnrollmentFlow'] = 'CoEnrollmentFlowFinMessageTemplate';
+    $args['contain']['EnrolleeCoPerson'] = array('PrimaryName', 'Identifier');
     $args['contain']['EnrolleeCoPerson']['CoPersonRole'][] = 'Cou';
     $args['contain']['EnrolleeCoPerson']['CoPersonRole']['SponsorCoPerson'][] = 'PrimaryName';
     $args['contain']['EnrolleeOrgIdentity'] = array('EmailAddress', 'PrimaryName');
@@ -1816,8 +1818,8 @@ class CoPetition extends AppModel {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
     }
     
-    if(isset($pt['CoEnrollmentFlow']['notify_on_approval'])
-       && $pt['CoEnrollmentFlow']['notify_on_approval']) {
+    if(isset($pt['CoEnrollmentFlow']['notify_on_' . $action])
+       && $pt['CoEnrollmentFlow']['notify_on_' . $action]) {
       // As of v1.1.0, this uses the notification infrastructure instead of its own
       // email code. A side effect is that all new users will have one notification
       // pending acknowledgment when they login... it might be better for it to
@@ -1832,12 +1834,13 @@ class CoPetition extends AppModel {
       }
       
       // Pull the message components from the template (as of v1.1.0) or configuration
-      // (now deprecated), if either is set.
+      // (now deprecated), if either is set. (Finalize only supports templates.)
       
       $subject = null;
       $body = null;
       $cc = null;
       $bcc = null;
+      $comment = null;
       
       $subs = array(
         'CO_PERSON' => generateCn($pt['EnrolleeCoPerson']['PrimaryName']),
@@ -1846,19 +1849,51 @@ class CoPetition extends AppModel {
                         ? generateCn($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName']) : null)
       );
       
-      if(!empty($pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['id'])) {
-        $subject = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['message_subject'];
-        $body = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['message_body'];
-        $cc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['cc'];
-        $bcc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['bcc'];
-      } else {
-        if(!empty($ef['CoEnrollmentFlow']['approval_subject'])) {
-          $subject = $ef['CoEnrollmentFlow']['approval_subject'];
+      // Create substitution rules for any defined identifiers.
+      // Note if multiple identifiers of a given type are found,
+      // we'll concatenate them.
+      
+      foreach($pt['EnrolleeCoPerson']['Identifier'] as $i) {
+        if($i['status'] == SuspendableStatusEnum::Active) {
+          $t = 'IDENTIFIER:'.$i['type'];
+          
+          if(!empty($subs[$t])) {
+            $subs[$t] .= "," . $i['identifier'];
+          } else {
+            $subs[$t] = $i['identifier'];
+          }
+        }
+      }
+      
+      if($action == 'approval') {
+        if(!empty($pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['id'])) {
+          $subject = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['message_subject'];
+          $body = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['message_body'];
+          $cc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['cc'];
+          $bcc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['bcc'];
+        } else {
+          if(!empty($ef['CoEnrollmentFlow']['approval_subject'])) {
+            $subject = $ef['CoEnrollmentFlow']['approval_subject'];
+          }
+          
+          if(!empty($ef['CoEnrollmentFlow']['approval_body'])) {
+            $body = $ef['CoEnrollmentFlow']['approval_body'];
+          }
         }
         
-        if(!empty($ef['CoEnrollmentFlow']['approval_body'])) {
-          $body = $ef['CoEnrollmentFlow']['approval_body'];
+        $comment = _txt('rs.pt.status', array($enrolleeName,
+                                              _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
+                                              _txt('en.status.pt', null, $pt['CoPetition']['status']),
+                                              $pt['CoEnrollmentFlow']['name']));
+      } else {
+        if(!empty($pt['CoEnrollmentFlow']['CoEnrollmentFlowFinMessageTemplate']['id'])) {
+          $subject = $pt['CoEnrollmentFlow']['CoEnrollmentFlowFinMessageTemplate']['message_subject'];
+          $body = $pt['CoEnrollmentFlow']['CoEnrollmentFlowFinMessageTemplate']['message_body'];
+          $cc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowFinMessageTemplate']['cc'];
+          $bcc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowFinMessageTemplate']['bcc'];
+          $comment = _txt('rs.pt.final');
         }
+        // else should probably throw an error
       }
       
       $subject = processTemplate($subject, $subs);
@@ -1873,10 +1908,7 @@ class CoPetition extends AppModel {
                       'coperson',
                       $pt['CoPetition']['enrollee_co_person_id'],
                       ActionEnum::CoPetitionUpdated,
-                      _txt('rs.pt.status', array($enrolleeName,
-                                                 _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
-                                                 _txt('en.status.pt', null, $pt['CoPetition']['status']),
-                                                 $pt['CoEnrollmentFlow']['name'])),
+                      $comment,
                       array(
                         'controller' => 'co_petitions',
                         'action'     => 'view',
