@@ -425,8 +425,19 @@ class CoPetition extends AppModel {
             // more than one result back from a source, if (eg) there are multiple records
             // with the same email address. It's not exactly clear what to do in that situation,
             // so for now we just add each record.
-            $oisResults = $this->Co->OrgIdentitySource->search($es['org_identity_source_id'],
-                                                               array('mail' => $ea['EmailAddress']['mail']));
+            
+            try {
+              $oisResults = $this->Co->OrgIdentitySource->search($es['org_identity_source_id'],
+                                                                 array('mail' => $ea['EmailAddress']['mail']));
+            }
+            catch(Exception $e) {
+              // It's not really clear what to do on a failure, other than than we want to
+              // keep going. For now we'll record the failure in the log, but we need a better
+              // way to handle this. Also, this isn't I18n'd.
+              
+              $this->log("ERROR: OrgIdentitySource " . $es['org_identity_source_id'] . " : " . $e->getMessage());
+              continue;
+            }
             
             foreach($oisResults as $sourceKey => $oisRecord) {
               if(!isset($oisRecord['OrgIdentity']['id']) || !$oisRecord['OrgIdentity']['id']) {

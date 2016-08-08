@@ -370,7 +370,7 @@ class OrgIdentitySource extends AppModel {
    * @param  Integer $coId CO ID, if org identities not pooled
    * @return Array Array of search results and (if available) associated Org Identities, sorted by backend
    * @throws InvalidArgumentException
-   * @deprecated since v1.1.0 CoEnrollmentSources make this funcion no longer useful
+   * @deprecated since v1.1.0 CoEnrollmentSources make this function no longer useful
    */
   
   public function searchAllByEmail($email, $coId=null) {

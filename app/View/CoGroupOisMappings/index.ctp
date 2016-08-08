@@ -24,6 +24,14 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
+  
+  $args = array(
+    'controller' => 'org_identity_sources',
+    'action'     => 'edit',
+    $vv_ois_id
+  );
+  $this->Html->addCrumb(_txt('ct.org_identity_sources.1'), $args);
+  
   $this->Html->addCrumb(_txt('ct.co_group_ois_mappings.pl'));
 
   // Add page title
@@ -39,14 +47,13 @@
       array(
         'controller' => 'co_group_ois_mappings',
         'action' => 'add',
-        'org_identity_source' => $this->request->params['named']['org_identity_source']
+        'org_identity_source' => $vv_ois_id
       ),
       array('class' => 'addbutton')
     );
   }
 
   print $this->element("pageTitleAndButtons", $params);
-
 ?>
 
 <table id="co_group_ois_mappings" class="ui-widget">
