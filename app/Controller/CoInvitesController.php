@@ -414,7 +414,7 @@ class CoInvitesController extends AppController {
     if(!$invite) {
       $this->Flash->set(_txt('er.inv.nf'), array('key' => 'error'));
       // XXX what if this->restful?
-    } else {  
+    } else {
       // Database foreign key constraints should prevent inconsistencies here, so extra
       // error checking shouldn't be needed
       $args = array();
@@ -451,6 +451,23 @@ class CoInvitesController extends AppController {
         $args['contain'][] = 'CoEnrollmentAttribute';
         
         $enrollmentFlow = $this->CoInvite->CoPetition->CoEnrollmentFlow->find('first', $args);
+        
+        // Before we do anything else, check the verification mode. If it's Automatic,
+        // we simply redirect into confirm or authconfirm as appropriate. Otherwise,
+        // we want to render the confirmation page. (If the mode is now None, ie: the
+        // admin changed the mode for this enrollment flow, we could probably act like
+        // Automatic mode, but for now we'll leave it as Review.)
+        
+        if(isset($enrollmentFlow['CoEnrollmentFlow']['email_verification_mode'])
+           && $enrollmentFlow['CoEnrollmentFlow']['email_verification_mode'] == VerificationModeEnum::Automatic) {
+          $this->redirect(array(
+            'controller' => 'co_invites',
+            'action'     => $enrollmentFlow['CoEnrollmentFlow']['require_authn'] ? 'authconfirm' : 'confirm',
+            $inviteid
+          ));
+        }
+        
+        // Not in Automatic mode, so prep for the view to render
         
         $this->set('co_enrollment_flow', $enrollmentFlow);
         

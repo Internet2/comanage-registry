@@ -434,6 +434,12 @@ original notification at
     EnrollmentOrgIdentityModeEnum::None               => 'None'
   ),
   
+  'en.enrollment.verification' => array(
+    VerificationModeEnum::Automatic => 'Automatic',
+    VerificationModeEnum::None      => 'None',
+    VerificationModeEnum::Review    => 'Review'
+  ),
+  
   'en.extattr' =>     array(ExtendedAttributeEnum::Integer => 'Integer',
                             ExtendedAttributeEnum::Timestamp => 'Timestamp',
                             ExtendedAttributeEnum::Varchar32 => 'String (32)'),
@@ -681,7 +687,7 @@ original notification at
                                       ContactEnum::Home => 'Home',
                                       ContactEnum::Mobile => 'Mobile',
                                       ContactEnum::Office => 'Office'),
-
+  
   // Errors
   'er.ae.val.inv' =>  'The current value is not a valid selection. Any change to this record will remove the current value.',
   'er.archived' =>    'This record is already archived and cannot be edited',
@@ -939,8 +945,8 @@ original notification at
   'fd.ef.authz.desc' => 'Authorization required to execute this enrollment flow, see <a href="https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Configuration#RegistryEnrollmentFlowConfiguration-EnrollmentAuthorization">Enrollment Authorization</a> for details',
   'fd.ef.authz.group' => 'Group',
   'fd.ef.authz.cou' => 'COU',
-  'fd.ef.ce' =>       'Require Confirmation of Email',
-  'fd.ef.ce.desc' =>  'Confirm email addresses provided by sending a confirmation URL to the address',
+  'fd.ef.ce' =>       'Email Confirmation Mode',
+  'fd.ef.ce.desc' =>  'See <a href="https://spaces.internet2.edu/x/RAGnAQ#RegistryEnrollmentFlowConfiguration-EmailVerification(Confirmation)andAuthentication">Email Verification</a> for mode definitions',
   'fd.ef.coef' =>     'Enable Organizational Attributes Via CO Enrollment Flow',
   'fd.ef.coef.desc' => 'If enabled, allow organizational identity attributes to be collected via forms during CO enrollment flows (these attributes will be less authoritative than those obtained via LDAP or SAML, however those options are not currently supported)',
   'fd.ef.concl' =>    'Conclusion',
@@ -1602,6 +1608,9 @@ original notification at
   'sh.nt.arg.source' =>   'Source of notification, either as a URL or a comma separated list of controller,action,id,arg0,val0 (arg0/val0 are optional)',
   'sh.nt.arg.subjectidentifier' => 'Identifier associated with CO Person notification is about',
   'sh.ug.arg.desc' =>     'Perform upgrade steps',
+  'sh.ug.arg.forcecurrent' => 'Force the specified current version -- ADVANCED USERS ONLY',
+  'sh.ug.arg.skipdatabase' => 'Skip database schema update -- ADVANCED USERS ONLY',
+  'sh.ug.arg.skipvalidation' => 'Skip version validation -- ADVANCED USERS ONLY',
   'sh.ug.arg.version' =>  'Version to upgrade to (default: current RELEASE)',
   'sh.ug.current' =>      'Current version: %1$s',
   'sh.ug.post' =>         'Executing post-database step (%1$s)',
@@ -1609,6 +1618,7 @@ original notification at
   'sh.ug.target' =>       'Target version: %1$s',
   'sh.ug.094.address' =>  'Migrating address configurations',
   'sh.ug.100.cmpdefault' => 'Verifying default CMP Enrollment Configuration',
+  'sh.ug.110.ef' =>       'Migrating enrollment flow configurations',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

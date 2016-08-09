@@ -67,10 +67,10 @@
   function authn_update_gadgets() {
     // Hide and show accordingly.
     
-    var confirm = document.getElementById('CoEnrollmentFlowVerifyEmail').checked;
+    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode').value;
     var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
     
-    if(confirm) {
+    if(confirm != '<?php print VerificationModeEnum::None; ?>') {
       $("#CoEnrollmentFlowInvitationValidity").closest("tr").show('fade');
       fields_update_gadgets();
       $("#CoEnrollmentFlowRequireAuthn").closest("tr").show('fade');
@@ -103,7 +103,7 @@
     // out first, like for the divs) so that changing between UA and UP does not
     // blank out the selected COU.
 
-    if(authz == '<?php print EnrollmentAuthzEnum::CoGroupMember ?>') {
+    if(authz == '<?php print EnrollmentAuthzEnum::CoGroupMember; ?>') {
       document.getElementById('authzgroupdiv').style.display = "block";
       if (document.getElementById('CoEnrollmentFlowAuthzCouId')) {
         document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
@@ -175,9 +175,9 @@
   
   function js_local_onload() {
     approver_update_gadgets();
+    fields_update_gadgets();
     authn_update_gadgets();
     authz_update_gadgets();
-    fields_update_gadgets();
   }
 </script>
 <table id="<?php print $this->action; ?>_co_enrollment_configuration" class="ui-widget">
@@ -434,10 +434,27 @@
         <span class="descr"><?php print _txt('fd.ef.ce.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e
-                     ? $this->Form->input('verify_email', array('onClick' => 'authn_update_gadgets()')) . ' ' .
-                       $this->Form->label('verify_email', _txt('fd.ef.ce'))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verify_email'])); ?>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode']
+                             : VerificationModeEnum::None);
+          $attrs['empty'] = false;
+          $attrs['onchange'] = "authn_update_gadgets();";
+          
+          if($e) {
+            print $this->Form->select('email_verification_mode',
+                                      $cm_texts[ $cm_lang ]['en.enrollment.verification'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('email_verification_mode')) {
+              print $this->Form->error('email_verification_mode');
+            }
+          } else {
+            print _txt('en.enrollment.verification', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode']);
+          }
+        ?>
       </td>
     </tr>
     <?php $ll = $l; // use an alternate index for indented rows ?>
@@ -538,7 +555,7 @@
         <?php
           global $cm_lang, $cm_texts;
           $attrs = array();
-          $attrs['value'] = (isset($co_enrollment_flows)
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode'])
                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']
                              : EnrollmentDupeModeEnum::Duplicate);
           $attrs['empty'] = false;

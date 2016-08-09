@@ -1026,7 +1026,10 @@
     <field name="approver_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <!-- verify_email is no longer used (as of v1.1.0), but we can't
+         drop the column since that would break changelog history -->
     <field name="verify_email" type="L" />
+    <field name="email_verification_mode" type="C" size="2" />
     <field name="invitation_validity" type="I" />
     <field name="require_authn" type="L" />
     <field name="notification_co_group_id" type="I">

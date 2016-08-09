@@ -554,6 +554,13 @@ class TAndCLoginModeEnum
   const DisableAllServices = 'D';
 }
 
+class VerificationModeEnum
+{
+  const Automatic = 'A';
+  const Review    = 'R';
+  const None      = 'X';
+}
+
 // Old style enums below, deprecated
 // We're mostly ready to drop these, but there are still a few places that
 // reference them and need to be cleaned up.

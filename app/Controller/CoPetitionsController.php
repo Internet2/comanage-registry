@@ -1500,7 +1500,7 @@ class CoPetitionsController extends StandardController {
    */
   
   protected function execute_waitForConfirmation($id) {
-    // If verify_email is false, this step is skipped.
+    // If email_confirmation_mode is None, this step is skipped.
     // If true, we've sent the confirmation already, so we just need to issue a suitable redirect.
     
     $this->execute_redirectOnSubmit($id);
