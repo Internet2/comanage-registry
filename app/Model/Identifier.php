@@ -57,7 +57,7 @@ class Identifier extends AppModel {
         // errors (eg: with provisioning ldap)
         'rule' => 'notBlank',
         'required' => false,
-        'allowEmpty' => true
+        'allowEmpty' => false
       )
     ),
     'type' => array(
