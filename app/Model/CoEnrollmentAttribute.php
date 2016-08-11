@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Model
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -584,6 +584,7 @@ class CoEnrollmentAttribute extends AppModel {
             
             // We hide language, primary_name, type, status, and verified
             $attr['hidden'] = ($k == 'language'
+                               || $k == 'login'
                                || $k == 'primary_name'
                                || $k == 'type'
                                || $k == 'status'
@@ -599,6 +600,12 @@ class CoEnrollmentAttribute extends AppModel {
                   } else {
                     $attr['default'] = "";
                   }
+                  break;
+                case 'login':
+                  // Identifier login is always false. It's unused for CO Person identifiers,
+                  // and for Org Identities it's better to let the enrollment flow collect the identifier
+                  // from an authentication event.
+                  $attr['default'] = false;
                   break;
                 case 'primary_name':
                   // Official names are considered primary names, at least for now
