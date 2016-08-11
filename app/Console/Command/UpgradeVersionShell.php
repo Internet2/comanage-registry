@@ -129,9 +129,6 @@ class UpgradeVersionShell extends AppShell {
   }
   
   function main() {
-    $this->post105();
-exit;
-    
     // Pull current (PHP code) version
     $targetVersion = null;
     
