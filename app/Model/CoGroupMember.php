@@ -87,11 +87,12 @@ class CoGroupMember extends AppModel {
    * COU members group management.
    * 
    * @since COmanage Registry v0.9.3
-   * @param Integer CO Person ID
-   * @param String name of CO Group
-   * @param Boolean owner 
+   * @param Integer $coPersonId CO Person ID
+   * @param String $groupName Name of CO Group
+   * @param Boolean $owner True if owner
+   * @param Boolean $provision Whether to run provisioners
    */
-  function addByGroupName($coPersonId, $groupName, $owner = false) {
+  function addByGroupName($coPersonId, $groupName, $owner = false, $provision = true) {
     // Find the CO using CO person.
     $args = array();
     $args['conditions']['CoPerson.id'] = $coPersonId;
@@ -106,6 +107,7 @@ class CoGroupMember extends AppModel {
     $args['contain'] = false;
     $group = $this->CoPerson->Co->CoGroup->find('first', $args);
     if(empty($group)) {
+      // XXX shouldn't this throw an InvalidArgumentException?
       return;
     }
     
@@ -116,7 +118,13 @@ class CoGroupMember extends AppModel {
     $data['CoGroupMember']['co_person_id'] = $coPersonId;
     $data['CoGroupMember']['member'] = true;
     $data['CoGroupMember']['owner'] = $owner;
-    $this->save($data);
+    
+    $options = array();
+    if(!$provision) {
+      $options['provision'] = false;
+    }
+    
+    $this->save($data, $options);
     
     // Cut a history record.
     try {

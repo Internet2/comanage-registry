@@ -25,8 +25,9 @@
 class UpgradeVersionShell extends AppShell {
   var $uses = array('Meta',
                     'Address',
-                    'CoEnrollmentFlow',
-                    'CmpEnrollmentConfiguration');
+                    'CmpEnrollmentConfiguration',
+                    'CoEnrollmentAttributeDefault',
+                    'CoEnrollmentFlow');
   
   // A list of known versions, must be semantic versioning compliant. The value
   // is a "blocker" if it is a version that prevents an upgrade from happening.
@@ -56,6 +57,7 @@ class UpgradeVersionShell extends AppShell {
     "1.0.2" => array('block' => false),
     "1.0.3" => array('block' => false),
     "1.0.4" => array('block' => false),
+    "1.0.5" => array('block' => false, 'post' => 'post105'),
     "1.1.0" => array('block' => false, 'post' => 'post110')
   );
   
@@ -153,6 +155,9 @@ class UpgradeVersionShell extends AppShell {
   }
   
   function main() {
+    $this->post105();
+exit;
+    
     // Pull current (PHP code) version
     $targetVersion = null;
     
@@ -281,6 +286,15 @@ class UpgradeVersionShell extends AppShell {
       // to be unpooled (which is the default).
       $this->CmpEnrollmentConfiguration->createDefault();
     }
+  }
+
+  public function post105() {
+    // 1.0.5 fixes a bug (CO-1287) that created superfluous attribute default entries.
+    // This will clean them out.
+    // 1.0.0 migrates org identity pooling to setup (CO-1160), so we check to make
+    // sure the default CMP enrollment configuration is set.
+    $this->out(_txt('sh.ug.105.attrdefault'));
+    $this->CoEnrollmentAttributeDefault->_ug105();
   }
   
   public function post110() {

@@ -225,8 +225,10 @@ class CoPerson extends AppModel {
         $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
         $data['CoGroupMember']['co_person_id'] = $coPersonId;
         $data['CoGroupMember']['member'] = true;
-            
-        $this->CoGroupMember->save($data);
+        
+        // Make sure to pass $options in case we're in an enrollment flow
+        // and don't want to trigger provisioning
+        $this->CoGroupMember->save($data, $options);
         
         // Cut a history record.
         try {

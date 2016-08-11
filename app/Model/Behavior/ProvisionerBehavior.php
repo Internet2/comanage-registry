@@ -91,17 +91,6 @@ class ProvisionerBehavior extends ModelBehavior {
       return true;
     }
     
-    // If we were called with saveField(), $model->data will be likely be empty.
-    // We need to load it.
-    
-    if(empty($model->data) && !empty($options['fieldList'])) {
-      $args = array();
-      $args['conditions'][$model->alias.'.id'] = $model->id;
-      $args['contain'] = false;
-      
-      $model->data = $model->find('first', $args);
-    }
-    
     return $this->determineProvisioning($model, $created);
   }
   
@@ -241,6 +230,24 @@ class ProvisionerBehavior extends ModelBehavior {
     // find all the groups with which that person has an association and rewrite them.
     
     if($model->name == 'CoPerson') {
+      // If we were called with saveField() or via manualProvisioning, $model->data will be likely be empty.
+      // We need to load it.
+      
+      if(empty($model->data)
+         && $provisioningAction != ProvisioningActionEnum::CoPersonDeleted) {
+        $args = array();
+        $args['conditions'][$model->alias.'.id'] = $model->id;
+        $args['contain'] = false;
+
+        try {
+          $model->data = $model->find('first', $args);
+        }
+        catch(Exception $e) {
+          // XXX We should really report this somehow
+          return;
+        }
+      }
+
       if(isset($model->cacheData[ $model->alias ]['status'])
          && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
          && (in_array($model->cacheData[ $model->alias ]['status'], $this->groupStatuses)
@@ -622,6 +629,14 @@ class ProvisionerBehavior extends ModelBehavior {
         throw new InvalidArgumentException(_txt('er.copt.unk'));
       }
     } else {
+      // Set the appropriate ID
+      
+      if($model->name == 'CoPerson' && $coPersonId) {
+        $model->id = $coPersonId;
+      } elseif($model->name == 'CoGroup' && $coGroupId) {
+        $model->id = $coGroupId;
+      }
+      
       return $this->determineProvisioning($model, false, $provisioningAction);
     }
     
