@@ -1425,6 +1425,7 @@ original notification at
   'sh.ug.target' =>       'Target version: %1$s',
   'sh.ug.094.address' =>  'Migrating address configurations',
   'sh.ug.100.cmpdefault' => 'Verifying default CMP Enrollment Configuration',
+  'sh.ug.105.attrdefault' => 'Clearing extraneous CO Enrollment Attribute defaults',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

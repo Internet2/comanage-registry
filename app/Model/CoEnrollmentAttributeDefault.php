@@ -64,4 +64,45 @@ class CoEnrollmentAttributeDefault extends AppModel {
       'allowEmpty' => false
     )
   );
+  
+  /**
+   * Perform CoEnrollmentAttributeDefault model upgrade steps for version 1.0.5.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v1.0.5
+   */
+  
+  public function _ug105() {
+    // 1.0.5 fixes a bug (CO-1287) that created superfluous attribute default entries.
+    // We clear out residual entries, those that are attached to enrollment attributes
+    // of types that don't support default values.
+    
+    // Note these calls will honor changelog. That's probably OK, it means our deletes
+    // aren't physical deletes, so if there's a bug here we can presumably recover,
+    // but to the application the records will have just disappeared.
+    
+    // First pull the relevant CO Enrollment Attributes.
+    $args = array();
+    $args['conditions']['NOT'] = array(
+      array('CoEnrollmentAttribute.attribute LIKE' => 'g:%'),
+      array('CoEnrollmentAttribute.attribute LIKE' => 'k:%'),
+      array('CoEnrollmentAttribute.attribute LIKE' => 'o:%'),
+      array('CoEnrollmentAttribute.attribute LIKE' => 'r:%'),
+    );
+    $args['fields'] = array('id', 'attribute');
+    $args['contain'] = false;
+    
+    $attrs = $this->CoEnrollmentAttribute->find('list', $args);
+    
+    // Now use the list of $attrs to delete extraneous defaults.
+    
+    $args = array();
+    $args['conditions']['CoEnrollmentAttributeDefault.co_enrollment_attribute_id'] = array_keys($attrs);
+    $args['fields'] = array('id', 'value');
+    $args['contain'] = false;
+
+    $attrDefs = $this->find('list', $args);
+    
+    $this->deleteAll(array('CoEnrollmentAttributeDefault.id' => array_keys($attrDefs)));
+  }
 }
