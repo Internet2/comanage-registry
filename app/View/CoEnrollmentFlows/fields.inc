@@ -303,35 +303,6 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('org_identity_mode', _txt('fd.ef.orgid')) : _txt('fd.ef.orgid')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.orgid.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['org_identity_mode'])
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['org_identity_mode']
-                             : EnrollmentOrgIdentityModeEnum::None);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('org_identity_mode',
-                                      $cm_texts[ $cm_lang ]['en.enrollment.orgid'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('org_identity_mode')) {
-              print $this->Form->error('org_identity_mode');
-            }
-          } else {
-            print _txt('en.enrollment.orgid', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['org_identity_mode']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
           <?php print ($e ? $this->Form->label('co_pipeline_id',_txt('fd.pipeline')) : _txt('fd.pipeline')); ?>
         </strong><br />
         <span class="descr"><?php print _txt('fd.pipeline.desc.ef'); ?></span>
