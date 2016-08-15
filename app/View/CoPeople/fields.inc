@@ -939,9 +939,9 @@
         </li>
         <li id="fields-coperson" class="fieldGroup">
           <?php
-            //print $this->Form->end();
+            print $this->Form->end();
             // Restart the form since the Form elements emitted above for add/invite cause blackholes for edit
-            //print $this->Form->create('CoPerson', array('action'=>'edit','id'=>'CoPersonEditAttributesForm'));
+            print $this->Form->create('CoPerson', array('action'=>'edit','id'=>'CoPersonEditAttributesForm'));
             print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
           ?>
           <a href="#tabs-coperson" class="fieldGroupName">
