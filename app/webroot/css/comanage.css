@@ -831,6 +831,7 @@ td.top {
 #view_org_identity .addbutton,
 #CoPersonEditForm .addbutton,
 #CoPersonRoleEditForm .addbutton,
+#CoPersonCanvasForm .addbutton,
 .noborder .addbutton,
 .noborder .editbutton {
   float: right;
