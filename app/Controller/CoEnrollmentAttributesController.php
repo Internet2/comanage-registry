@@ -40,6 +40,7 @@ class CoEnrollmentAttributesController extends StandardController {
   );
   
   public $uses = array('CoEnrollmentAttribute',
+                       'AttributeEnumeration',
                        'CmpEnrollmentConfiguration',
                        'CoPersonRole');
   
@@ -57,22 +58,25 @@ class CoEnrollmentAttributesController extends StandardController {
    */
   
   function add() {
-    if(!empty($this->request->data) &&
-       (!isset($this->request->data['CoEnrollmentAttribute']['ordr'])
-        || $this->request->data['CoEnrollmentAttribute']['ordr'] == '')) {
-      $args['fields'][] = "MAX(ordr) as m";
-      $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = Sanitize::paranoid($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id']);
-      $args['order'][] = "m";
+    if(!empty($this->request->data)) {
+      $this->clearUnassociatedRequestData();
       
-      $o = $this->CoEnrollmentAttribute->find('first', $args);
-      $n = 1;
-      
-      if(!empty($o)) {
-        $n = $o[0]['m'] + 1;
+      if(!isset($this->request->data['CoEnrollmentAttribute']['ordr'])
+         || $this->request->data['CoEnrollmentAttribute']['ordr'] == '') {
+        $args['fields'][] = "MAX(ordr) as m";
+        $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = Sanitize::paranoid($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id']);
+        $args['order'][] = "m";
+        
+        $o = $this->CoEnrollmentAttribute->find('first', $args);
+        $n = 1;
+        
+        if(!empty($o)) {
+          $n = $o[0]['m'] + 1;
+        }
+        
+        if(!empty($o))
+          $this->request->data['CoEnrollmentAttribute']['ordr'] = $n;
       }
-      
-      if(!empty($o))
-        $this->request->data['CoEnrollmentAttribute']['ordr'] = $n;
     }
     
     parent::add();
@@ -196,6 +200,39 @@ class CoEnrollmentAttributesController extends StandardController {
       $this->set('title_for_layout', $this->viewVars['title_for_layout'] . " (" . $efname . ")");
       $this->set('vv_ef_name', $efname);
       $this->set('vv_ef_id', $this->CoEnrollmentAttribute->CoEnrollmentFlow->id);
+      
+      // Determine attribute enumerations
+      $enums = $this->AttributeEnumeration->active($this->viewVars['vv_coid'],
+                                                   null,
+                                                   'list',
+                                                   $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
+      
+      // We need to rekey $enums from general format (eg) "OrgIdentity.o" to
+      // Enrollment Attribute format (eg) "o:o"
+      
+      if(!empty($enums)) {
+        foreach($enums as $attr => $enum) {
+          $a = explode('.', $attr, 2);
+          $code = "";
+          
+          switch($a[0]) {
+            case 'CoPersonRole':
+              $code = 'r';
+              break;
+            case 'OrgIdentity':
+              $code = 'o';
+              break;
+            default:
+              throw new LogicException(_txt('er.notimpl'));
+              break;
+          }
+          
+          $enums[ $code.":".$a[1] ] = $enum;
+          unset($enums[$attr]);
+        }
+      }
+      
+      $this->set('vv_enums', $enums);
     }
   }
   
@@ -258,6 +295,7 @@ class CoEnrollmentAttributesController extends StandardController {
       
       $attrinfo = explode(':', $reqdata['CoEnrollmentAttribute']['attribute']);
       
+      // This list is also in clearUnassociatedRequestData()
       if($attrinfo[0] != 'g' && $attrinfo[0] != 'o' && $attrinfo[0] != 'r' && $attrinfo[0] != 'x') {
         // Ignore return code
         $this->CoEnrollmentAttribute->CoEnrollmentAttributeDefault->delete($curdata['CoEnrollmentAttributeDefault'][0]['id'],
@@ -268,6 +306,59 @@ class CoEnrollmentAttributesController extends StandardController {
     return true;      
   }
   
+  /**
+   * Clear unnecessary data from a form submission.
+   * - postcondition: $this->request->data updated
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+  
+  protected function clearUnassociatedRequestData() {
+    // Because of the mechanics of how the the form is set up, we may
+    // get potentially unrelated data (values used for form rendering),
+    // AttributeDefaults even when the object doesn't support attribute
+    // defaults, etc. We clear out unrelated objects to avoid problems
+    // with checkWriteFollowups trying to delete already deleted (ie: empty)
+    // records.
+    
+    // It's easier to rebuild than to remove keys we don't want
+    $requestData = array();
+    
+    // Always copy the core attribute
+    $requestData['CoEnrollmentAttribute'] = $this->request->data['CoEnrollmentAttribute'];
+    
+    // If the attribute is of the right type, copy the attribute default
+    $attrinfo = explode(':', $this->request->data['CoEnrollmentAttribute']['attribute']);
+    
+    // This list is also in checkWriteFollowups?
+    if($attrinfo[0] == 'g' || $attrinfo[0] == 'o' || $attrinfo[0] == 'r' || $attrinfo[0] == 'x') {
+      $requestData['CoEnrollmentAttributeDefault'] = $this->request->data['CoEnrollmentAttributeDefault'];
+    }
+    
+    $this->request->data = $requestData;
+  }
+  
+  /**
+   * Update an Enrollment Attribute.
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - precondition: <id> must exist
+   * - postcondition: On GET, $<object>s set (HTML)
+   * - postcondition: On POST success, object updated
+   * - postcondition: On POST, session flash message updated (HTML) or HTTP status returned (REST)
+   * - postcondition: On POST error, $invalid_fields set (REST)
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+  
+  function edit($id) {
+    if(!empty($this->request->data)) {
+      $this->clearUnassociatedRequestData();
+    }
+    
+    parent::edit($id);
+  }
+    
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions

@@ -137,7 +137,7 @@ class CoGithubProvisionerTargetsController extends SPTController {
     
     // Determine if the 'GitHub' type has been configured
     
-    $types = $this->CoGithubProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Identifier->types($this->cur_co['Co']['id']);
+    $types = $this->CoGithubProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type');
     
     // Pass a hint to the view regarding the github type
     $this->set('vv_github_type', in_array('GitHub', array_keys($types)));

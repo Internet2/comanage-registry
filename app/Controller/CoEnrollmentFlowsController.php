@@ -108,6 +108,24 @@ class CoEnrollmentFlowsController extends StandardController {
         
         $this->set('vv_co_pipelines', $this->CoEnrollmentFlow->CoPipeline->find('list', $args));
       }
+      
+      // Provide a list of message templates
+      $args = array();
+      $args['conditions']['co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['status'] = SuspendableStatusEnum::Active;
+      $args['conditions']['context'] = array(
+        MessageTemplateEnum::EnrollmentApproval,
+        MessageTemplateEnum::EnrollmentFinalization,
+        MessageTemplateEnum::EnrollmentVerification
+      );
+      $args['fields'] = array(
+        'CoEnrollmentFlowApprovalMessageTemplate.id',
+        'CoEnrollmentFlowApprovalMessageTemplate.description',
+        'CoEnrollmentFlowApprovalMessageTemplate.context'
+      );
+      
+      $this->set('vv_message_templates',
+                 $this->CoEnrollmentFlow->CoEnrollmentFlowApprovalMessageTemplate->find('list', $args));
     }
     
     parent::beforeRender();

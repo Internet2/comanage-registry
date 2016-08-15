@@ -95,6 +95,11 @@ class CoEnrollmentAttribute extends AppModel {
       'required'   => false,
       'allowEmpty' => true
     ),
+    'login' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'co_enrollment_attribute_id' => array(
       'rule' => array('numeric'),
       'required' => false,
@@ -244,6 +249,8 @@ class CoEnrollmentAttribute extends AppModel {
       $actualEfId = $coef;
     }
     
+    $coId = $this->CoEnrollmentFlow->field('co_id', array("CoEnrollmentFlow.id" => $coef));
+    
     // First, retrieve the configured attributes
     
     $args = array();
@@ -294,6 +301,10 @@ class CoEnrollmentAttribute extends AppModel {
           $attrModel = $this->CoEnrollmentFlow->CoPetition->Co->CoExtendedAttribute;
           break;
         }
+        
+        // Make sure the model has updated its validation rules to account for
+        // (eg) attribute enumerations.
+        $attrModel->updateValidationRules($coId);
         
         // XXX We could rewrite a bunch of stuff to reference this link to the parent
         // model rather than manually copy fields like 'id' and others that won't
@@ -412,7 +423,7 @@ class CoEnrollmentAttribute extends AppModel {
           }
         } elseif($attrCode == 'r') {
           if($attrName == 'affiliation') {
-            // Affiliation need a select based on available affiliations
+            // Affiliation needs a select based on available affiliations
             
             $attr['select'] = $attrModel->types($efAttr['CoEnrollmentFlow']['co_id'], 'affiliation');
             $attr['validate']['content']['rule'][0] = 'inList';
@@ -603,10 +614,9 @@ class CoEnrollmentAttribute extends AppModel {
                   }
                   break;
                 case 'login':
-                  // Identifier login is always false. It's unused for CO Person identifiers,
-                  // and for Org Identities it's better to let the enrollment flow collect the identifier
-                  // from an authentication event.
-                  $attr['default'] = false;
+                  // For Identifiers, set the default value based on the Enrollment Attribute configuration
+                  $attr['default'] = isset($efAttr['CoEnrollmentAttribute']['login'])
+                                     && $efAttr['CoEnrollmentAttribute']['login'];
                   break;
                 case 'primary_name':
                   // Official names are considered primary names, at least for now

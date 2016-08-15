@@ -34,6 +34,7 @@ class Co extends AppModel {
   
   // Association rules from this model to other models
   public $hasMany = array(
+    "AttributeEnumeration" => array('dependent' => true),
     // A CO has zero or more enrollment flows
     "CoEnrollmentFlow" => array('dependent' => true),
     // A CO has zero or more extended attributes

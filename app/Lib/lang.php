@@ -65,6 +65,8 @@ $cm_texts['en_US'] = array(
   'ct.addresses.pl' =>          'Addresses',
   'ct.api_users.1' =>           'API User',
   'ct.api_users.pl' =>          'API Users',
+  'ct.attribute_enumerations.1'  => 'Attribute Enumeration',
+  'ct.attribute_enumerations.pl' => 'Attribute Enumerations',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
   'ct.co_enrollment_attributes.1'  => 'Enrollment Attribute',
@@ -93,6 +95,8 @@ $cm_texts['en_US'] = array(
   'ct.co_invites.pl' =>         'Invites',
   'ct.co_localizations.1' =>    'Localization',
   'ct.co_localizations.pl' =>   'Localizations',
+  'ct.co_message_templates.1' => 'Message Template',
+  'ct.co_message_templates.pl' => 'Message Templates',
   'ct.co_navigation_links.1' => 'CO Navigation Link',
   'ct.co_navigation_links.pl' => 'CO Navigation Links',
   'ct.co_notifications.1' =>    'Notification',
@@ -167,6 +171,8 @@ $cm_texts['en_US'] = array(
   'ef.step.petitionerAttributes'     => 'Collect Petitioner Attributes',
   'ef.step.processConfirmation'      => 'Confirm Email Address',
   'ef.step.provision'                => 'Provision',
+  // This one isn't really a step
+  'ef.step.provision.notify'         => 'Provision & Notify',
   'ef.step.redirectOnConfirm'        => 'Process Confirmation',
   'ef.step.selectEnrollee'           => 'Select Person',
   'ef.step.selectOrgIdentity'        => 'Select Org Identity',
@@ -428,6 +434,12 @@ original notification at
     EnrollmentOrgIdentityModeEnum::None               => 'None'
   ),
   
+  'en.enrollment.verification' => array(
+    VerificationModeEnum::Automatic => 'Automatic',
+    VerificationModeEnum::None      => 'None',
+    VerificationModeEnum::Review    => 'Review'
+  ),
+  
   'en.extattr' =>     array(ExtendedAttributeEnum::Integer => 'Integer',
                             ExtendedAttributeEnum::Timestamp => 'Timestamp',
                             ExtendedAttributeEnum::Varchar32 => 'String (32)'),
@@ -499,6 +511,12 @@ original notification at
     MatchStrategyEnum::NoMatching   => 'Do Not Match'
   ),
 
+  // Message Template Contexts
+  'en.mt.context' =>       array(MessageTemplateEnum::EnrollmentApproval     => 'Enrollment Flow Approval',
+                                 MessageTemplateEnum::EnrollmentFinalization => 'Enrollment Flow Finalization',
+                                 MessageTemplateEnum::EnrollmentVerification => 'Enrollment Flow Verification',
+                                 MessageTemplateEnum::ExpirationNotification => 'Expiration Policy Notification'),
+  
   // Extended type, key must be en.model.attribute
   'en.name.type' =>        array(NameEnum::Alternate => 'Alternate',
                                  NameEnum::Author => 'Author',
@@ -669,8 +687,9 @@ original notification at
                                       ContactEnum::Home => 'Home',
                                       ContactEnum::Mobile => 'Mobile',
                                       ContactEnum::Office => 'Office'),
-
+  
   // Errors
+  'er.ae.val.inv' =>  'The current value is not a valid selection. Any change to this record will remove the current value.',
   'er.archived' =>    'This record is already archived and cannot be edited',
   'er.auth' =>        'Not authenticated',
   'er.auth.co' =>     'You are not a member of any COs. Please contact an administrator for assistance.',
@@ -726,6 +745,7 @@ original notification at
   'er.ef.active' =>   'The requested Enrollment Flow is not active',
   'er.ef.authz.cou' => 'A COU must be specified for authorization type "%1$s"',
   'er.ef.authz.gr' => 'A group must be specified for authorization type "%1$s"',
+  'er.ef.template' => 'A %1$s must be selected for use with %2$s',
   'er.efcf.init' =>   'Failed to set up initial CMP Enrollment Configuration',
   'er.es.exists'=>    'An Enrollment Source already exists using that Org Identity Source in that mode',
   'er.et.default' =>  'Failed to add default types',
@@ -842,6 +862,7 @@ original notification at
   'fd.address.state' => 'State',
   'fd.address.fields.req' => 'An address must consist of at least these fields:',
   'fd.admin' =>       'Administrator',
+  'fd.ae.optvalue.desc' => 'Permitted value for this attribute',
   'fd.affiliation' => 'Affiliation',
   'fd.affiliation.ep' => 'eduPersonAffiliation',
   'fd.affiliation.ep.map.desc' => 'Map the extended affiliation to this eduPersonAffiliation, see <a href="https://spaces.internet2.edu/display/COmanage/Extending+the+Registry+Data+Model#ExtendingtheRegistryDataModel-%7B%7BeduPersonAffiliation%7D%7DandExtendedAffiliations">eduPersonAffiliation and Extended Affiliations</a>',
@@ -856,6 +877,10 @@ original notification at
   'fd.attrs.copr' =>  'Role Attributes',
   'fd.attrs.org' =>   'Organizational Attributes',
   'fd.attrs.pet' =>   'Petition Attributes',
+  'fd.bcc' =>         'BCC',
+  'fd.bcc.desc' =>    'Comma separated list of valid email addresses to bcc',
+  'fd.cc' =>          'CC',
+  'fd.cc.desc' =>     'Comma separated list of valid email addresses to cc',
   'fd.changelog' =>   'Change Log',
   'fd.closed' =>      'Closed',
   // The next set must be named fd.model.validation-field
@@ -906,6 +931,8 @@ original notification at
   'fd.ef.aee.desc' => 'If administrator enrollment is enabled, require enrollees to confirm their email address in order to complete their enrollment',
   'fd.ef.abody' =>    'Approval Email Body',
   'fd.ef.abody.desc' => 'Body for email message sent after Petition is approved. Max 4000 characters.',
+  'fd.ef.amt' =>      'Approval Email Message Template',
+  'fd.ef.amt.desc' => 'Message template used for email sent as part of approval step',
   'fd.ef.asub' =>     'Subject For Approval Email',
   'fd.ef.asub.desc' => 'Subject line for email message sent after Petition is approved.',
   'fd.ef.appr' =>     'Require Approval For Enrollment',
@@ -918,8 +945,8 @@ original notification at
   'fd.ef.authz.desc' => 'Authorization required to execute this enrollment flow, see <a href="https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Configuration#RegistryEnrollmentFlowConfiguration-EnrollmentAuthorization">Enrollment Authorization</a> for details',
   'fd.ef.authz.group' => 'Group',
   'fd.ef.authz.cou' => 'COU',
-  'fd.ef.ce' =>       'Require Confirmation of Email',
-  'fd.ef.ce.desc' =>  'Confirm email addresses provided by sending a confirmation URL to the address',
+  'fd.ef.ce' =>       'Email Confirmation Mode',
+  'fd.ef.ce.desc' =>  'See <a href="https://spaces.internet2.edu/x/RAGnAQ#RegistryEnrollmentFlowConfiguration-EmailVerification(Confirmation)andAuthentication">Email Verification</a> for mode definitions',
   'fd.ef.coef' =>     'Enable Organizational Attributes Via CO Enrollment Flow',
   'fd.ef.coef.desc' => 'If enabled, allow organizational identity attributes to be collected via forms during CO enrollment flows (these attributes will be less authoritative than those obtained via LDAP or SAML, however those options are not currently supported)',
   'fd.ef.concl' =>    'Conclusion',
@@ -938,6 +965,8 @@ original notification at
   'fd.ef.env.desc' => 'Examine the server environment for authoritative organizational identity attributes',
   'fd.ef.epx' =>      'Early Provisioning Executable',
   'fd.ef.epx.desc' => '(Need for this TBD)',
+  'fd.ef.fmt' =>      'Finalization Email Message Template',
+  'fd.ef.fmt.desc' => 'Message template used for email sent after finalization step',
   'fd.ef.ignauth' =>  'Ignore Authoritative Values',
   'fd.ef.ignauth.desc' => 'Ignore authoritative values for all attributes for this enrollment flow, such as those provided via environment variables, SAML, or LDAP',
   'fd.ef.intro' =>    'Introduction',
@@ -952,12 +981,10 @@ original notification at
   'fd.ef.noa.desc' => 'Email address to notify upon status being set to active',
   'fd.ef.noap' =>     'Notify On Approved Status',
   'fd.ef.noap.desc' => 'Notify enrollee when Petition is approved',
-  'fd.ef.noep' =>     'Notify On Early Provisioning',
-  'fd.ef.noep.desc' => 'Email address to notify upon execution of early provisioning',
+  'fd.ef.nof' =>      'Notify on Finalization',
+  'fd.ef.nof.desc' => 'Notify enrollee when Petition is finalized',
   'fd.ef.nogr' =>     'Notification Group',
   'fd.ef.nogr.desc' => 'Group to notify on new petitions and changes of petition status. (This is an informational notification. Separate notifications will be sent to approvers and enrollees, as appropriate.)',
-  'fd.ef.nop' =>      'Notify On Provisioning',
-  'fd.ef.nop.desc' => 'Email address to notify upon execution of provisioning',
   'fd.ef.orgid' =>    'Org Identity Mode',
   'fd.ef.orgid.desc' => 'Org Identity mode for this enrollment flow, see <a href="https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Configuration#RegistryEnrollmentFlowConfiguration-OrganizationalIdentitySources">Organizational Identity Sources</a> for details',
   'fd.ef.pool' =>     'Pool Organizational Identities',
@@ -978,6 +1005,8 @@ original notification at
   'fd.ef.tandc.desc' => 'How to handle Terms and Conditions at enrollment, if any are defined. See <a href="https://spaces.internet2.edu/display/COmanage/Registry+Terms+and+Conditions">Terms and Conditions</a>',
   'fd.ef.vbody' =>    'Verification Email Body',
   'fd.ef.vbody.desc' => 'Body for email message sent as part of verification step. Max 4000 characters.',
+  'fd.ef.vmt' =>      'Verification Email Message Template',
+  'fd.ef.vmt.desc' => 'Message template used for email sent as part of verification step',
   'fd.ef.vsub' =>     'Subject For Verification Email',
   'fd.ef.vsub.desc' => 'Subject line for email message sent as part of verification step.',
   // (End enrollment configuration fields)
@@ -1033,6 +1062,8 @@ original notification at
   'fd.ia.permitted.desc' => 'When substituting parameters in a format, only permit these characters to be used',
   'fd.ia.type.email' => 'Email Type',
   'fd.ia.type.email.desc' => 'For Identifier Assignments applied to Type <i>Mail</i>, an Email Address (instead of an Identifier) will be created with this type (if not blank)',
+  // fd.id.seq should be used only for database internal column IDs
+  'fd.id.seq' =>      'ID',
   // The next set must be named fd.model.validation-field
   'fd.identifier.identifier' => 'Identifier',
   'fd.identifier.login' => 'Login',
@@ -1055,6 +1086,11 @@ original notification at
   'fd.model' =>       'Model',
   'fd.modified' =>    'Modified',
   'fd.modified.tz' => 'Modified (%1$s)',
+  'fd.mt.body' =>     'Message Body',
+  'fd.mt.body.desc' => 'Body for message to be sent. Max 4000 characters, see <a href="https://spaces.internet2.edu/x/pAADAw">supported substitutions</a>.',
+  'fd.mt.context' =>  'Message Context',
+  'fd.mt.sub' =>      'Message Subject',
+  'fd.mt.sub.desc' => 'Subject line for message to be sent. See <a href="https://spaces.internet2.edu/x/pAADAw">supported substitutions</a>.',
   'fd.name' =>        'Name',
   'fd.name.affil'  => 'Name and Affiliation',
   'fd.name.d' =>      'Display Name',
@@ -1154,6 +1190,7 @@ original notification at
   'fd.ssp.default' => 'If permission is not explicitly granted here for a supported model, then self service updates are not permitted for that model. The permission will be Read Only. Default Read Write permission is required to add new values.',
   'fd.ssp.type.desc' => '"Default" applies this permission to all types not otherwise specified',
   'fd.status' =>      'Status',
+  'fd.status.ae.desc' => 'Making an Attribute Enumeration inactive will not affect existing records using it',
   'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petiton',
   'fd.status.et.desc' => 'An Extended Type that is in use cannot be made inactive',
   'fd.subject' =>     'Subject',
@@ -1180,6 +1217,7 @@ original notification at
   'fd.timestamp' =>   'Timestamp',
   'fd.timestamp.tz' => 'Timestamp (%1$s)',
   'fd.title' =>       'Title',
+  'fd.title-a' =>     '%1$s Title',
   'fd.title.none' =>  'No Title',
   'fd.toggle.all' =>  'Toggle All',
   'fd.true' =>        'True',
@@ -1196,6 +1234,7 @@ original notification at
   'fd.valid_from.desc' => '(leave blank for immediate validity)',
   'fd.valid_through' => 'Valid Through',
   'fd.valid_through.desc' => '(leave blank for indefinite validity)',
+  'fd.value' =>       'Value',
   'fd.xp.actions' =>  'All of the following <b>actions</b> will be taken when the specified conditions match:',
   'fd.xp.conditions' => 'All of the following <b>conditions</b> must be met for this Expiration Policy to take effect:',
   'fd.xp.affil.act.desc' => 'CO Person Roles matching this Expiration Policy will be given this affiliation',
@@ -1220,6 +1259,8 @@ original notification at
   'fd.xp.notify_coperson.act.desc' => 'The CO Person whose Role is affected will be notified when this Expiration Policy is applied',
   'fd.xp.nbody' =>    'Notification Email Body',
   'fd.xp.nbody.desc' => 'Body for email message sent for notification (max 4000 characters)',
+  'fd.xp.nmt' =>      'Notification Email Message Template',
+  'fd.xp.nmt.desc' => 'Message template used for email sent for notification',
   'fd.xp.nsubject' => 'Notification Email Subject',
   'fd.xp.nsubject.desc' => 'Subject for email message sent for notification',
   'fd.xp.sponsor.cond' => 'Invalid Sponsor',
@@ -1569,6 +1610,9 @@ original notification at
   'sh.nt.arg.source' =>   'Source of notification, either as a URL or a comma separated list of controller,action,id,arg0,val0 (arg0/val0 are optional)',
   'sh.nt.arg.subjectidentifier' => 'Identifier associated with CO Person notification is about',
   'sh.ug.arg.desc' =>     'Perform upgrade steps',
+  'sh.ug.arg.forcecurrent' => 'Force the specified current version -- ADVANCED USERS ONLY',
+  'sh.ug.arg.skipdatabase' => 'Skip database schema update -- ADVANCED USERS ONLY',
+  'sh.ug.arg.skipvalidation' => 'Skip version validation -- ADVANCED USERS ONLY',
   'sh.ug.arg.version' =>  'Version to upgrade to (default: current RELEASE)',
   'sh.ug.current' =>      'Current version: %1$s',
   'sh.ug.post' =>         'Executing post-database step (%1$s)',
@@ -1576,6 +1620,8 @@ original notification at
   'sh.ug.target' =>       'Target version: %1$s',
   'sh.ug.094.address' =>  'Migrating address configurations',
   'sh.ug.100.cmpdefault' => 'Verifying default CMP Enrollment Configuration',
+  'sh.ug.105.attrdefault' => 'Clearing extraneous CO Enrollment Attribute defaults',
+  'sh.ug.110.ef' =>       'Migrating enrollment flow configurations',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

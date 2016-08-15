@@ -23,7 +23,11 @@
  */
 
 class UpgradeVersionShell extends AppShell {
-  var $uses = array('Meta', 'Address', 'CmpEnrollmentConfiguration');
+  var $uses = array('Meta',
+                    'Address',
+                    'CmpEnrollmentConfiguration',
+                    'CoEnrollmentAttributeDefault',
+                    'CoEnrollmentFlow');
   
   // A list of known versions, must be semantic versioning compliant. The value
   // is a "blocker" if it is a version that prevents an upgrade from happening.
@@ -52,7 +56,9 @@ class UpgradeVersionShell extends AppShell {
     "1.0.1" => array('block' => false),
     "1.0.2" => array('block' => false),
     "1.0.3" => array('block' => false),
-    "1.0.4" => array('block' => false)
+    "1.0.4" => array('block' => false),
+    "1.0.5" => array('block' => false, 'post' => 'post105'),
+    "1.1.0" => array('block' => false, 'post' => 'post110')
   );
   
   public function getOptionParser() {
@@ -63,6 +69,30 @@ class UpgradeVersionShell extends AppShell {
       array(
         'help'     => _txt('sh.ug.arg.version'),
         'required' => false
+      )
+    )->addOption(
+      'forcecurrent',
+      array(
+        'short' => 'f',
+        'help' => _txt('sh.ug.arg.forcecurrent'),
+        'boolean' => false,
+        'default' => false
+      )
+    )->addOption(
+      'skipdatabase',
+      array(
+        'short' => 'D',
+        'help' => _txt('sh.ug.arg.skipdatabase'),
+        'boolean' => true,
+        'default' => false
+      )
+    )->addOption(
+      'skipvalidation',
+      array(
+        'short' => 'X',
+        'help' => _txt('sh.ug.arg.skipvalidation'),
+        'boolean' => true,
+        'default' => false
       )
     )->description(_txt('sh.ug.arg.desc'));
     
@@ -140,19 +170,27 @@ class UpgradeVersionShell extends AppShell {
     
     // Pull current database version
     
-    $currentVersion = $this->Meta->getUpgradeVersion();
+    $currentVersion = $this->params['forcecurrent'];
+    
+    if(!$currentVersion) {
+      $currentVersion = $this->Meta->getUpgradeVersion();
+    }
     
     $this->out(_txt('sh.ug.current', array($currentVersion)));
     $this->out(_txt('sh.ug.target', array($targetVersion)));
     
-    // Validate the version path
-    try {
-      $this->validateVersions($currentVersion, $targetVersion);
-    }
-    catch(Exception $e) {
-      $this->out($e->getMessage());
-      $this->out(_txt('er.ug.fail'));
-      exit;
+    $skipValidation = $this->params['skipvalidation'];
+    
+    if(!$skipValidation) {
+      // Validate the version path
+      try {
+        $this->validateVersions($currentVersion, $targetVersion);
+      }
+      catch(Exception $e) {
+        $this->out($e->getMessage());
+        $this->out(_txt('er.ug.fail'));
+        exit;
+      }
     }
     
     // Run appropriate pre-database steps
@@ -184,8 +222,12 @@ class UpgradeVersionShell extends AppShell {
       }
     }
     
-    // Call database shell
-    $this->dispatchShell('database');
+    $skipDatabase = $this->params['skipdatabase'];
+    
+    if(!$skipDatabase) {
+      // Call database shell
+      $this->dispatchShell('database');
+    }
     
     // Run appropriate post-database steps
     
@@ -241,5 +283,20 @@ class UpgradeVersionShell extends AppShell {
       // to be unpooled (which is the default).
       $this->CmpEnrollmentConfiguration->createDefault();
     }
+  }
+
+  public function post105() {
+    // 1.0.5 fixes a bug (CO-1287) that created superfluous attribute default entries.
+    // This will clean them out.
+    // 1.0.0 migrates org identity pooling to setup (CO-1160), so we check to make
+    // sure the default CMP enrollment configuration is set.
+    $this->out(_txt('sh.ug.105.attrdefault'));
+    $this->CoEnrollmentAttributeDefault->_ug105();
+  }
+  
+  public function post110() {
+    // 1.1.0 replaces CoEnrollmentFlow::verify_email with email_verification_mode
+    $this->out(_txt('sh.ug.110.ef'));
+    $this->CoEnrollmentFlow->_ug110();
   }
 }

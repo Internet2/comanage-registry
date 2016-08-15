@@ -674,6 +674,17 @@ class StandardController extends AppController {
         $t = $model->find('all', $args);
         
         $this->set($modelpl, $this->Api->convertRestResponse($t));
+      } elseif(!empty($this->request->query['attribute'])) {
+        // XXX another hack (this time for AttributeEnumerations) that should be rewritten
+        // as part of CO-1053
+        $args = array();
+        $args['conditions']['AttributeEnumeration.attribute'] = $this->request->query['attribute'];
+        
+        if(!empty($this->request->params['url']['coid'])) {
+          $args['conditions'][$model->name . '.co_id'] = $this->request->params['url']['coid'];
+        }
+        
+        $this->set($modelpl, $this->Api->convertRestResponse($model->find('all', $args)));
       } elseif($this->requires_person
                // This is a bit of a hack, we should really refactor this
                || $req == 'CoOrgIdentityLink') {

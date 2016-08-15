@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Expiration Policy Model
  *
- * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.2
@@ -41,6 +41,10 @@ class CoExpirationPolicy extends AppModel {
     "ActNotifyCoGroup" => array(
       'className' => 'CoGroup',
       'foreignKey' => 'act_notify_co_group_id'
+    ),
+    "ActNotifyMessageTemplate" => array(
+      'className' => 'CoMessageTemplate',
+      'foreignKey' => 'act_notification_template_id'
     ),
     "Co",
     "CondCou" => array(
@@ -175,6 +179,11 @@ class CoExpirationPolicy extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'act_notification_template_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'act_status' => array(
       'content' => array(
         'rule' => array('inList', array(StatusEnum::Active,
@@ -217,7 +226,7 @@ class CoExpirationPolicy extends AppModel {
     $args = array();
     $args['conditions']['CoExpirationPolicy.co_id'] = $coId;
     $args['conditions']['CoExpirationPolicy.status'] = SuspendableStatusEnum::Active;
-    $args['contain'][] = 'ActCou';
+    $args['contain'] = array('ActCou', 'ActNotifyMessageTemplate');
     
     $policies = $this->find('all', $args);
     
@@ -436,8 +445,16 @@ class CoExpirationPolicy extends AppModel {
               'VALID_THROUGH'     => $role['CoPersonRole']['valid_through'],
             );
             
-            $subject = processTemplate($p['CoExpirationPolicy']['act_notification_subject'], $substitutions);
-            $body = processTemplate($p['CoExpirationPolicy']['act_notification_body'], $substitutions);
+            $subject = null;
+            $body = null;
+            
+            if(!empty($p['ActNotifyMessageTemplate']['id'])) {
+              $subject = processTemplate($p['ActNotifyMessageTemplate']['message_subject'], $substitutions);
+              $body = processTemplate($p['ActNotifyMessageTemplate']['message_body'], $substitutions);
+            } else {
+              $subject = processTemplate($p['CoExpirationPolicy']['act_notification_subject'], $substitutions);
+              $body = processTemplate($p['CoExpirationPolicy']['act_notification_body'], $substitutions);
+            }
             
             if(isset($p['CoExpirationPolicy']['act_notify_co_admin'])
                && $p['CoExpirationPolicy']['act_notify_co_admin']) {

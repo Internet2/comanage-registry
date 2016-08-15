@@ -256,6 +256,14 @@ class MatchStrategyEnum
   const NoMatching   = 'NO';
 }
 
+class MessageTemplateEnum
+{
+  const EnrollmentApproval     = 'EA';
+  const EnrollmentFinalization = 'EF';
+  const EnrollmentVerification = 'EV';
+  const ExpirationNotification = 'XN';
+}
+
 class NameEnum
 {
   const Alternate = 'alternate';
@@ -544,6 +552,13 @@ class TAndCLoginModeEnum
   const NotEnforced        = 'X';
   const RegistryLogin      = 'R';
   const DisableAllServices = 'D';
+}
+
+class VerificationModeEnum
+{
+  const Automatic = 'A';
+  const Review    = 'R';
+  const None      = 'X';
 }
 
 // Old style enums below, deprecated

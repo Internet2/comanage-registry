@@ -67,13 +67,12 @@
   function authn_update_gadgets() {
     // Hide and show accordingly.
     
-    var confirm = document.getElementById('CoEnrollmentFlowVerifyEmail').checked;
+    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode').value;
     var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
     
-    if(confirm) {
+    if(confirm != '<?php print VerificationModeEnum::None; ?>') {
       $("#CoEnrollmentFlowInvitationValidity").closest("tr").show('fade');
-      $("#CoEnrollmentFlowVerificationSubject").closest("tr").show('fade');
-      $("#CoEnrollmentFlowVerificationBody").closest("tr").show('fade');
+      fields_update_gadgets();
       $("#CoEnrollmentFlowRequireAuthn").closest("tr").show('fade');
       
       if(authn) {
@@ -83,6 +82,7 @@
       }
     } else {
       $("#CoEnrollmentFlowInvitationValidity").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowVerificationTemplateId").closest("tr").hide('fade');
       $("#CoEnrollmentFlowVerificationSubject").closest("tr").hide('fade');
       $("#CoEnrollmentFlowVerificationBody").closest("tr").hide('fade');
       $("#CoEnrollmentFlowRequireAuthn").closest("tr").hide('fade');
@@ -103,7 +103,7 @@
     // out first, like for the divs) so that changing between UA and UP does not
     // blank out the selected COU.
 
-    if(authz == '<?php print EnrollmentAuthzEnum::CoGroupMember ?>') {
+    if(authz == '<?php print EnrollmentAuthzEnum::CoGroupMember; ?>') {
       document.getElementById('authzgroupdiv').style.display = "block";
       if (document.getElementById('CoEnrollmentFlowAuthzCouId')) {
         document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
@@ -131,20 +131,53 @@
   
   function fields_update_gadgets() {
     // Hide or show gadgets according to current state
-    if(document.getElementById('CoEnrollmentFlowNotifyOnApproval').checked) {
-      $("#CoEnrollmentFlowApprovalSubject").closest("tr").show('fade');
-      $("#CoEnrollmentFlowApprovalBody").closest("tr").show('fade');
+    
+    // If a validation template is selected, hide the subject and body fields
+    var vtemplate = document.getElementById('CoEnrollmentFlowVerificationTemplateId').value;
+    
+    if(vtemplate) {
+      $("#CoEnrollmentFlowVerificationSubject").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowVerificationBody").closest("tr").hide('fade');
     } else {
+      $("#CoEnrollmentFlowVerificationSubject").closest("tr").show('fade');
+      $("#CoEnrollmentFlowVerificationBody").closest("tr").show('fade');
+    }
+    
+    // If notify on approval is enabled, show the relevant options
+    
+    if(document.getElementById('CoEnrollmentFlowNotifyOnApproval').checked) {
+      // Hide subject and body if a template is selected
+      var atemplate = document.getElementById('CoEnrollmentFlowApprovalTemplateId').value;
+      
+      $("#CoEnrollmentFlowApprovalTemplateId").closest("tr").show('fade');
+      
+      if(atemplate) {
+        $("#CoEnrollmentFlowApprovalSubject").closest("tr").hide('fade');
+        $("#CoEnrollmentFlowApprovalBody").closest("tr").hide('fade');
+      } else {
+        $("#CoEnrollmentFlowApprovalSubject").closest("tr").show('fade');
+        $("#CoEnrollmentFlowApprovalBody").closest("tr").show('fade');
+      }
+    } else {
+      $("#CoEnrollmentFlowApprovalTemplateId").closest("tr").hide('fade');
       $("#CoEnrollmentFlowApprovalSubject").closest("tr").hide('fade');
       $("#CoEnrollmentFlowApprovalBody").closest("tr").hide('fade');
+    }
+    
+    // If notify on finalize is enabled, show the template selector
+    
+    if(document.getElementById('CoEnrollmentFlowNotifyOnFinalize').checked) {
+      $("#CoEnrollmentFlowFinalizationTemplateId").closest("tr").show('fade');
+    } else {
+      $("#CoEnrollmentFlowFinalizationTemplateId").closest("tr").hide('fade');
     }
   }
   
   function js_local_onload() {
     approver_update_gadgets();
+    fields_update_gadgets();
     authn_update_gadgets();
     authz_update_gadgets();
-    fields_update_gadgets();
   }
 </script>
 <table id="<?php print $this->action; ?>_co_enrollment_configuration" class="ui-widget">
@@ -170,6 +203,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] : EnrollmentFlowStatusEnum::Active);
           $attrs['empty'] = false;
           
@@ -269,35 +303,6 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('org_identity_mode', _txt('fd.ef.orgid')) : _txt('fd.ef.orgid')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.orgid.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['org_identity_mode'])
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['org_identity_mode']
-                             : EnrollmentOrgIdentityModeEnum::None);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('org_identity_mode',
-                                      $cm_texts[ $cm_lang ]['en.enrollment.orgid'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('org_identity_mode')) {
-              print $this->Form->error('org_identity_mode');
-            }
-          } else {
-            print _txt('en.enrollment.orgid', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['org_identity_mode']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
           <?php print ($e ? $this->Form->label('co_pipeline_id',_txt('fd.pipeline')) : _txt('fd.pipeline')); ?>
         </strong><br />
         <span class="descr"><?php print _txt('fd.pipeline.desc.ef'); ?></span>
@@ -334,6 +339,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy'] : EnrollmentMatchPolicyEnum::Advisory);
           $attrs['empty'] = false;
           
@@ -399,10 +405,27 @@
         <span class="descr"><?php print _txt('fd.ef.ce.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e
-                     ? $this->Form->input('verify_email', array('onClick' => 'authn_update_gadgets()')) . ' ' .
-                       $this->Form->label('verify_email', _txt('fd.ef.ce'))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verify_email'])); ?>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode']
+                             : VerificationModeEnum::None);
+          $attrs['empty'] = false;
+          $attrs['onchange'] = "authn_update_gadgets();";
+          
+          if($e) {
+            print $this->Form->select('email_verification_mode',
+                                      $cm_texts[ $cm_lang ]['en.enrollment.verification'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('email_verification_mode')) {
+              print $this->Form->error('email_verification_mode');
+            }
+          } else {
+            print _txt('en.enrollment.verification', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode']);
+          }
+        ?>
       </td>
     </tr>
     <?php $ll = $l; // use an alternate index for indented rows ?>
@@ -418,6 +441,37 @@
                      ? $this->Form->input('invitation_validity',
                                           array('default' => DEF_INV_VALIDITY))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['invitation_validity'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($ll % 2); $ll++; ?>">
+      <td class="indented">
+        <strong class="fieldTitle"><?php print _txt('fd.ef.vmt'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.vmt.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id']
+                             : null);
+          $attrs['empty'] = true;
+          $attrs['onchange'] = "fields_update_gadgets();";
+          
+          if($e) {
+            print $this->Form->select('verification_template_id',
+                                      (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentVerification])
+                                       ? $vv_message_templates[MessageTemplateEnum::EnrollmentVerification]
+                                       : array()),
+                                      $attrs);
+            
+            if($this->Form->isFieldError('verification_template_id')) {
+              print $this->Form->error('verification_template_id');
+            }
+          } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])) {
+            print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentVerification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'] ]);
+          }
+        ?>
       </td>
     </tr>
     <tr class="line<?php print ($ll % 2); $ll++; ?>">
@@ -471,7 +525,8 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_enrollment_flows)
+          $attrs = array();
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode'])
                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']
                              : EnrollmentDupeModeEnum::Duplicate);
           $attrs['empty'] = false;
@@ -548,6 +603,37 @@
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'])); ?>
       </td>
     </tr>
+    <tr class="line<?php print ($ll % 2); $ll++; ?>">
+      <td class="indented">
+        <strong class="fieldTitle"><?php print _txt('fd.ef.amt'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.amt.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id']
+                             : null);
+          $attrs['empty'] = true;
+          $attrs['onchange'] = "fields_update_gadgets();";
+          
+          if($e) {
+            print $this->Form->select('approval_template_id',
+                                      (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentApproval])
+                                       ? $vv_message_templates[MessageTemplateEnum::EnrollmentApproval]
+                                       : array()),
+                                      $attrs);
+            
+            if($this->Form->isFieldError('approval_template_id')) {
+              print $this->Form->error('approval_template_id');
+            }
+          } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])) {
+            print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentApproval][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'] ]);
+          }
+        ?>
+      </td>
+    </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">
       <td class="indented">
         <strong class="fieldTitle">
@@ -574,6 +660,50 @@
                      ? $this->Form->input('approval_body',
                                           array('default' => _txt('em.approval.body.ef')))
                      : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle">
+          <?php print _txt('fd.ef.nof'); ?>
+        </strong><br />
+        <span class="descr"><?php print _txt('fd.ef.nof.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('notify_on_finalize', array('onChange' => 'fields_update_gadgets();')) . ' ' .
+                       $this->Form->label('notify_on_finalize', _txt('fd.ef.nof'))
+                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_finalize'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($ll % 2); $ll++; ?>" style="display:none">
+      <td class="indented">
+        <strong class="fieldTitle"><?php print _txt('fd.ef.fmt'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ef.fmt.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id']
+                             : null);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('finalization_template_id',
+                                      (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization])
+                                       ? $vv_message_templates[MessageTemplateEnum::EnrollmentFinalization]
+                                       : array()),
+                                      $attrs);
+            
+            if($this->Form->isFieldError('finalization_template_id')) {
+              print $this->Form->error('finalization_template_id');
+            }
+          } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'])) {
+            print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization][ $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'] ]);
+          }
+        ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -612,6 +742,7 @@
       <td>
         <?php
           global $cm_lang, $cm_texts;
+          $attrs = array();
           $attrs['value'] = (isset($co_enrollment_flows)
                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']
                              : TAndCEnrollmentModeEnum::ExplicitConsent);

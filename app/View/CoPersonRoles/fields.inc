@@ -220,18 +220,44 @@
                 <td>
                   <?php
                     if ($e && !$es) {
-                      print $this->Form->label('title', $cur_co['Co']['name'] . " " . _txt('fd.title'));
+                      print $this->Form->label('title', _txt('fd.title-a', array($cur_co['Co']['name'])));
                     } else {
                       print $cur_co['Co']['name'] . " " . _txt('fd.title');
                     }
                   ?>
                 </td>
                 <td>
-                  <?php print (($e && !$es) ? $this->Form->input('title', array('class' => 'focusFirst','default' =>
-                    isset($co_person_roles[0]['CoPersonRole']['title'])
-                      ? $co_person_roles[0]['CoPersonRole']['title']
-                      : ""))
-                    : Sanitize::html($co_person_roles[0]['CoPersonRole']['title'])); ?>
+                  <?php
+                    if($e && !$es) {
+                      if(!empty($vv_enums_title)) {
+                        // Attribute enumerations defined
+                        
+                        if(!empty($co_person_roles[0]['CoPersonRole']['title'])
+                          && !array_search($co_person_roles[0]['CoPersonRole']['title'], $vv_enums_title)) {
+                          print $co_person_roles[0]['CoPersonRole']['title'];
+                          
+                          print '<div>
+                                   <span class="ui-icon ui-icon-info co-info"></span>
+                                   <em>' . _txt('er.ae.val.inv') . '</em>
+                                 </div>';
+                        }
+                        
+                        $attrs = array();
+                        $attrs['empty'] = true;
+                        
+                        print $this->Form->select('title', $vv_enums_title, $attrs);
+                        
+                        if($this->Form->isFieldError('title')) {
+                          print $this->Form->error('title');
+                        }
+                      } else {
+                        // No attribute enumerations defined
+                        print $this->Form->input('title', array('size' => 60, 'class' => 'focusFirst'));
+                      }
+                    } else {
+                      print Sanitize::html($co_person_roles[0]['CoPersonRole']['title']);
+                    }
+                  ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -245,11 +271,45 @@
                   ?>
                 </td>
                 <td>
-                  <?php print (($e && !$es) ? $this->Form->input('o',
-                    ($this->action == 'add'
-                      ? array('default' => $cur_co['Co']['name'])
-                      : array()))
-                    : Sanitize::html($co_person_roles[0]['CoPersonRole']['o'])); ?>
+                  <?php
+                    if($e && !$es) {
+                      if(!empty($vv_enums_o)) {
+                        // Attribute enumerations defined
+                        
+                        if(!empty($co_person_roles[0]['CoPersonRole']['o'])
+                          && !array_search($co_person_roles[0]['CoPersonRole']['o'], $vv_enums_o)) {
+                          print $co_person_roles[0]['CoPersonRole']['o'];
+                          
+                          print '<div>
+                                   <span class="ui-icon ui-icon-info co-info"></span>
+                                   <em>' . _txt('er.ae.val.inv') . '</em>
+                                 </div>';
+                        }
+                        
+                        $attrs = array();
+                        $attrs['empty'] = true;
+                        
+                        print $this->Form->select('o', $vv_enums_o, $attrs);
+                        
+                        if($this->Form->isFieldError('o')) {
+                          print $this->Form->error('o');
+                        }
+                      } else {
+                        // No attribute enumerations defined
+                        $args = array(
+                          'size' => 60
+                        );
+                        
+                        if($this->action == 'add') {
+                          $args['default'] = $cur_co['Co']['name'];
+                        }
+                        
+                        print $this->Form->input('o', $args);
+                      }
+                    } else {
+                      print Sanitize::html($co_person_roles[0]['CoPersonRole']['o']);
+                    }
+                  ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -263,7 +323,37 @@
                   ?>
                 </td>
                 <td>
-                  <?php print (($e && !$es) ? $this->Form->input('ou') : Sanitize::html($co_person_roles[0]['CoPersonRole']['ou'])); ?>
+                  <?php
+                    if($e && !$es) {
+                      if(!empty($vv_enums_ou)) {
+                        // Attribute enumerations defined
+                        
+                        if(!empty($co_person_roles[0]['CoPersonRole']['ou'])
+                           && !array_search($co_person_roles[0]['CoPersonRole']['ou'], $vv_enums_ou)) {
+                          print $co_person_roles[0]['CoPersonRole']['ou'];
+                          
+                          print '<div>
+                                   <span class="ui-icon ui-icon-info co-info"></span>
+                                   <em>' . _txt('er.ae.val.inv') . '</em>
+                                 </div>';
+                        }
+                        
+                        $attrs = array();
+                        $attrs['empty'] = true;
+                        
+                        print $this->Form->select('ou', $vv_enums_ou, $attrs);
+                        
+                        if($this->Form->isFieldError('ou')) {
+                          print $this->Form->error('ou');
+                        }
+                      } else {
+                        // No attribute enumerations defined
+                        print $this->Form->input('ou', array('size' => 60));
+                      }
+                    } else {
+                      print Sanitize::html($co_person_roles[0]['CoPersonRole']['ou']);
+                    }
+                  ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">

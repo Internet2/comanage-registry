@@ -124,28 +124,29 @@ class CoPetitionsController extends StandardController {
   // - Update the diagram at https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Diagram
   
   protected $nextSteps = array(
-    'start'                    => 'selectOrgIdentity',
-    'selectOrgIdentity'        => 'selectEnrollee',
-    'selectEnrollee'           => 'petitionerAttributes',
-    'petitionerAttributes'     => 'sendConfirmation',
-    'sendConfirmation'         => 'waitForConfirmation',
+    'start'                        => 'selectOrgIdentity',
+    'selectOrgIdentity'            => 'selectEnrollee',
+    'selectEnrollee'               => 'petitionerAttributes',
+    'petitionerAttributes'         => 'sendConfirmation',
+    'sendConfirmation'             => 'waitForConfirmation',
     // execution continues here if confirmation not required
-    'waitForConfirmation'      => 'checkEligibility',
-    'checkEligibility'         => 'sendApproverNotification',
+    'waitForConfirmation'          => 'checkEligibility',
+    'checkEligibility'             => 'sendApproverNotification',
     // We have both redirectOnConfirm and waitForApproval because depending on the
     // confirmation we might have different paths to completing the processConfirmation step
-    'sendApproverNotification' => 'waitForApproval',
-    'waitForApproval'          => 'finalize',
+    'sendApproverNotification'     => 'waitForApproval',
+    // If approval is not required, then we'll continue here
+    'waitForApproval'              => 'finalize',
     // execution continues at finalize if approval not required
     // processConfirmation is re-entry point following confirmation
-    'processConfirmation'      => 'collectIdentifier',
-    'collectIdentifier'        => 'checkEligibility',
+    'processConfirmation'          => 'collectIdentifier',
+    'collectIdentifier'            => 'checkEligibility',
     // approve is re-entry point following approval
-    'approve'                  => 'sendApprovalNotification',
-    'sendApprovalNotification' => 'finalize',
-    'deny'                     => 'finalize',
-    'finalize'                 => 'provision',
-    'provision'                => 'redirectOnConfirm'
+    'approve'                      => 'sendApprovalNotification',
+    'sendApprovalNotification'     => 'finalize',
+    'deny'                         => 'finalize',
+    'finalize'                     => 'provision',
+    'provision'                    => 'redirectOnConfirm'
   );
   
   /**
@@ -1044,8 +1045,14 @@ class CoPetitionsController extends StandardController {
         $this->CoPetition->Co->CoPerson->Behaviors->load('Provisioner');
         $this->CoPetition->Co->CoPerson->manualProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPetitionProvisioned);
       }
+      
+      // Send finalization notification, if configured. We do this here rather
+      // than in execute_finalize so the provisioners have a chance to run
+      // before the notification goes out.
+        
+      $this->CoPetition->sendApprovalNotification($id, $this->Session->read('Auth.User.co_person_id'), 'finalize');
     }
-    // else petition is declined/denied, no need to fire provisioners
+    // else petition is declined/denied, no need to fire provisioners or send finalization message
     
     // The step is done
     
@@ -1493,7 +1500,7 @@ class CoPetitionsController extends StandardController {
    */
   
   protected function execute_waitForConfirmation($id) {
-    // If verify_email is false, this step is skipped.
+    // If email_confirmation_mode is None, this step is skipped.
     // If true, we've sent the confirmation already, so we just need to issue a suitable redirect.
     
     $this->execute_redirectOnSubmit($id);

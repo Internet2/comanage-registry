@@ -24,38 +24,56 @@
 
 class NormalizationBehavior extends ModelBehavior {
   /**
-   * Handle provisioning following (before) save of Model.
+   * Handle normalization following (before) save of Model.
    *
    * @since  COmanage Registry v0.9.2
-   * @param  Model $model Model instance.
-   * @return boolean true on success, false on failure
+   * @param  Model $model Model instance
+   * @return boolean true on success
    * @throws RuntimeException
    */
   
   public function beforeSave(Model $model, $options = array()) {
+    $model->data = $this->normalize($model, $model->data);
+    
+    return true;
+  }
+  
+  /* Run normalizations on requested data. The data can be any supported data for
+   * normalization, it need not correlate to $model (unless $coId is false).
+   * 
+   * @since  COmanage Registry v1.1.0
+   * @param  Model $model Model instance
+   * @param  Array $data Data to normalize in usual format; need not belong to $model
+   * @param  Integer $coId CO ID data belongs to, or null for Org Identity data, or false to determine from $data ($data must then belong to $model)
+   * @return boolean true on success
+   * @throws RuntimeException
+   */
+  
+  public function normalize(Model $model, $data, $coId = false) {
     $mname = $model->name;
     
-    // First look for a CO ID. If we don't find one, we're probably dealing with
-    // org identity data, which normalizations don't currently support.
-    $coId = null;
+    // If $coId is false, look for a CO ID. If we don't find one or if $coId is null,
+    // we're dealing with org identity data, which normalizations don't currently support.
     
-    try {
-      if(!empty($model->data[$mname]['id'])) {
-        // Edit operation, we can use the model's ID
-        $coId = $model->findCoForRecord($model->data[$mname]['id']);
-      } else {
-        // Add operation, we need to find the CO via the appropriate belongsTo model
-        
-        if(!empty($model->data[$mname]['co_person_id'])) {
-          $coId = $model->CoPerson->findCoForRecord($model->data[$mname]['co_person_id']);
-        } elseif(!empty($model->data[$mname]['co_person_role_id'])) {
-          $coId = $model->CoPersonRole->findCoForRecord($model->data[$mname]['co_person_role_id']);
+    if($coId === false) {
+      try {
+        if(!empty($model->data[$mname]['id'])) {
+          // Edit operation, we can use the model's ID
+          $coId = $model->findCoForRecord($model->data[$mname]['id']);
+        } else {
+          // Add operation, we need to find the CO via the appropriate belongsTo model
+          
+          if(!empty($model->data[$mname]['co_person_id'])) {
+            $coId = $model->CoPerson->findCoForRecord($model->data[$mname]['co_person_id']);
+          } elseif(!empty($model->data[$mname]['co_person_role_id'])) {
+            $coId = $model->CoPersonRole->findCoForRecord($model->data[$mname]['co_person_role_id']);
+          }
         }
       }
-    }
-    catch(Exception $e) {
-      // Ignore any error, which is probably about being unable to find a CO
-      return true;
+      catch(Exception $e) {
+        // Ignore any error, which is probably about being unable to find a CO
+        return $data;
+      }
     }
     
     if($coId) {
@@ -67,14 +85,20 @@ class NormalizationBehavior extends ModelBehavior {
         $CoSetting = $model->CoPerson->Co->CoSetting;
       } elseif(isset($model->CoPersonRole->CoPerson->Co->CoSetting)) {
         $CoSetting = $model->CoPersonRole->CoPerson->Co->CoSetting;
+      } elseif(isset($model->Co->CoSetting)) {
+        $CoSetting = $model->Co->CoSetting;
       }
       
       // Check to see if normalizations are enabled
       if(!$CoSetting
          || !$CoSetting->normalizationsEnabled($coId)) {
-        // Not enabled, just return true
-        return true;
+        // Not enabled, just return
+        return $data;
       }
+    } else {
+      // We currently don't support normalizations on OrgIdentity data
+      
+      return $data;
     }
     
     // Load any plugins and figure out which (if any) have foreign keys to belongTo this model
@@ -84,7 +108,7 @@ class NormalizationBehavior extends ModelBehavior {
       
       if($pluginModel->isPlugin('normalizer')) {
         try {
-          $model->data = $pluginModel->normalize($model->data);
+          $data = $pluginModel->normalize($data);
         }
         catch(Exception $e) {
           throw new RuntimeException($e->getMessage());
@@ -92,6 +116,6 @@ class NormalizationBehavior extends ModelBehavior {
       }
     }
     
-    return true;
+    return $data;
   }
 }

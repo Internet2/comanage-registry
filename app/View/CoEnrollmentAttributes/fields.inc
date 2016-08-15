@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Enrollment Attribute Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -28,6 +28,23 @@
     toggle_attr_def_div();
     toggle_attr_type_div();
     toggle_copy_to_coperson_div();
+  }
+  
+  function enum_for_attr(attrname) {
+    // Determine if an attribute has defined enumerations. We use PHP code to
+    // generate javascript based on the view variable $vv_enums.
+    
+    var ret = undefined;
+    
+    switch(attrname) {
+    <?php foreach(array_keys($vv_enums) as $k): ?>
+      case "<?php print $k; ?>":
+        ret = new Array(<?php print '"' . join('","', array_values($vv_enums[$k])) . '"'; ?>);
+        break;
+    <?php endforeach; ?>
+    }
+    
+    return ret;
   }
   
   function ext_attr_type(attrname) {
@@ -81,6 +98,7 @@
       $("#attr_def_val_affil_div").hide();
       $("#attr_def_val_cou_div").hide();
       $("#attr_def_val_date_div").hide();
+      $("#attr_def_val_enum_div").hide();
       $("#attr_def_val_group_div").hide();
       $("#attr_def_val_sponsor_div").hide();
       
@@ -93,7 +111,19 @@
       // if x:foo then pull foo and lookup in $vv_ext_attr_types to find type
       // (write javascript array based on $vv_ext contents?)
       
-      if((curattrcode == "o" || curattrcode == "r")
+      var enums = enum_for_attr(curattr);
+      
+      if(enums != undefined) {
+        // Enumerations are defined for the attribute, so generate an appropriate select
+        var options = "<option value=''></option>";
+        for(var i=0;i < enums.length;i++) {
+          options += "<option value='" + enums[i] + "'>" + enums[i] + "</option>";
+        }
+        $("#def_enum_val").find('option').remove().end().append($(options));
+        
+        document.getElementById('def_enum_val').value = curval;
+        $("#attr_def_val_enum_div").show("fade");
+      } else if((curattrcode == "o" || curattrcode == "r")
          && curattrname == "affiliation") {
         // Set current value before showing
         document.getElementById('def_affil_val').value = curval;
@@ -142,7 +172,7 @@
   }
   
   function toggle_attr_type_div() {
-    // Show or hide language selectors and required fields selectors
+    // Show or hide language selectors, required fields, and login selectors
     
     var curattr = document.getElementById('CoEnrollmentAttributeAttribute').value;
     
@@ -156,6 +186,7 @@
     if(curattrname == "address") {
       $("#type_div").show("fade");
       $("#address_required_fields_div").show("fade");
+      $("#login_div").hide("fade");
       $("#name_required_fields_div").hide("fade");
       
       // Synchronize the popup and the actual field that holds the value
@@ -172,6 +203,7 @@
     } else if(curattrname == "name") {
       $("#type_div").show("fade");
       $("#address_required_fields_div").hide("fade");
+      $("#login_div").hide("fade");
       $("#name_required_fields_div").show("fade");
       // Make sure the popup matches the current required_fields value
       document.getElementById('CoEnrollmentAttributeNameFields').value=
@@ -188,9 +220,15 @@
         // Set popup to current field value
         document.getElementById('CoEnrollmentAttributeNameFields').value = curreqfields;
       }
+    } else if(curattrname == "identifier") {
+      $("#type_div").hide("fade");
+      $("#address_required_fields_div").hide("fade");
+      $("#login_div").show("fade");
+      $("#name_required_fields_div").hide("fade");
     } else {
       $("#type_div").hide("fade");
       $("#address_required_fields_div").hide("fade");
+      $("#login_div").hide("fade");
       $("#name_required_fields_div").hide("fade");
       
       // Blank the current required fields
@@ -376,6 +414,14 @@
           print _txt('fd.ea.attr.copy2cop');
           ?>
         </div>
+        <div id="login_div" style="display: none">
+          <?php print ($e
+            ? $this->Form->input('login', array('default' => false))
+            : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['login']
+              ? _txt('fd.yes') : _txt('fd.no')));
+          print _txt('fd.identifier.login.desc');
+          ?>
+        </div>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -515,6 +561,15 @@
               />
             <?php print _txt('fd.ed.date.offset'); ?>
             <br />
+          <?php endif; ?>
+        </div>
+        <div id="attr_def_val_enum_div">
+          <?php if($e): ?>
+            <select name="def_enum_val"
+                    id="def_enum_val"
+                    onchange="set_attr_def_value('def_enum_val')">
+              <option value=""></option>
+            </select>
           <?php endif; ?>
         </div>
         <div id="attr_def_val_group_div">

@@ -211,7 +211,15 @@ class CoPersonRole extends AppModel {
   
   public function afterSave($created, $options = array()) {
     // Manage CO person membership in the COU members group.
-    $this->reconcileCouMembersGroupMemberships($this->id, $this->alias);
+    
+    // Pass through provision setting in case we're being run via an enrollment flow
+    $provision = true;
+    
+    if(isset($options['provision'])) {
+      $provision = $options['provision'];
+    }
+    
+    $this->reconcileCouMembersGroupMemberships($this->id, $this->alias, $provision);
   }
   
   /**
@@ -255,14 +263,15 @@ class CoPersonRole extends AppModel {
    * CoPersonRole(s) for a CoPerson and the Cou(s) for those roles.
    *
    * @since  COmanage Registry v0.9.3
-   * @param CoPersonRole ID
-   * @param alias for the CoPersonRole model
+   * @param  Integer $id CoPersonRole ID
+   * @param  String $alias Alias for the CoPersonRole model
+   * @param  Boolean $provision Whether to run provisioners
    * @throws InvalidArgumentException
    * @throws RuntimeException
    * @return none
    */
   
-  public function reconcileCouMembersGroupMemberships($id, $alias = null) {
+  public function reconcileCouMembersGroupMemberships($id, $alias = null, $provision = true) {
     // Since the Provisioner Behavior will only provision group memberships
     // for CO People with an Active status we do not need to manage 
     // membership in the members group based on status here.  
@@ -319,7 +328,7 @@ class CoPersonRole extends AppModel {
     
     // Add memberships and cut history records.
     foreach($membershipsToAdd as $groupName) {
-      $this->CoPerson->CoGroupMember->addByGroupName($coPersonId, $groupName, false);
+      $this->CoPerson->CoGroupMember->addByGroupName($coPersonId, $groupName, false, $provision);
     }
     
     // Loop over group memberships, pick out those for COU members groups, and
@@ -347,7 +356,7 @@ class CoPersonRole extends AppModel {
             ActionEnum::CoGroupMemberDeleted, 
             $msg
           );
-    	}	
+      	}	
       }
     }
   }

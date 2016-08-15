@@ -62,6 +62,7 @@ Router::connect(
 
 Router::mapResources(array(
   'addresses',
+  'attribute_enumerations',
   'co_extended_attributes',
   'co_extended_types',
   'co_invites',
