@@ -183,6 +183,7 @@
     }
     
     // Print the ones not hidden
+    $coe_attribute_index = 0;
     foreach($coea_model as $m => $coe_attributes):
     
     // Skip any attributes that were deleted before the creation of this petition.
@@ -198,16 +199,19 @@
   ?>
     <div class="ui-widget modelbox">
       <div class = "boxtitle">
-        <b><?php
-          if(isset($permissions['viewEA']) && $permissions['viewEA']) {
-            print $this->Html->link($m,
-                                    array('controller' => 'co_enrollment_attributes',
-                                          'action' => 'view',
-                                          $coe_attributes[0]['CoEnrollmentAttribute']['id']));
-          } else {
-            print $m;
-          }
-        ?></b>
+        <strong>
+          <?php
+            if(isset($permissions['viewEA']) && $permissions['viewEA']) {
+              print $this->Html->link($m,
+                                      array('controller' => 'co_enrollment_attributes',
+                                            'action' => 'view',
+                                            $coe_attributes[0]['CoEnrollmentAttribute']['id']),
+                                            array('class' => 'boxtitle-link', 'tabindex' => '-1'));
+            } else {
+              print $m;
+            }
+          ?>
+        </strong>
         <?php
           // Is the MVPA required? We'll just check the first attribute since they
           // should all be the same.
@@ -312,6 +316,11 @@
                         $args['disabled'] = !$ea['modifiable'];
                       }
                       $args['empty'] = !$ea['required'];
+
+                      // Add focusFirst class if the first field
+                      if ($coe_attribute_index == 0) {
+                        $args['class'] = 'focusFirst';
+                      }
                       
                       print $this->Form->select($fieldName,
                                                 $ea['select'],
@@ -331,13 +340,19 @@
                         $c = 'datepicker-c';
                       
                       $args = array();
+
+                      // Add focusFirst class if the first field
+                      if ($coe_attribute_index == 0) {
+                        $c = $c . ' focus-first';
+                      }
+
                       $args['class'] = $c;
                       
                       if(isset($ea['default'])) {
                         $args['default'] = $ea['default'];
                         $args['disabled'] = !$ea['modifiable'];
                       }
-                      
+
                       print $this->Form->text($fieldName, $args);
                       
                       if($this->Form->isFieldError($fieldName)) {
@@ -365,7 +380,12 @@
                         $args['default'] = $ea['default'];
                         $args['disabled'] = !$ea['modifiable'];
                       }
-                      
+
+                      // Add focusFirst class if the first field
+                      if ($coe_attribute_index == 0) {
+                        $args['class'] = 'focusFirst';
+                      }
+
                       if($permissions['match']
                          // We can only have one name field match because of how the
                          // javascript keyup triggered code works. It's a bit tricky
@@ -381,8 +401,12 @@
                          && ($ea['field'] == 'given' || $ea['field'] == 'family')) {
                         # XXX Temp hack to enable real-time query. This should
                         # instead be enabled for fields with an appropriate flag.
-                        $args['class'] = 'matchable';
-                        
+                        if ($coe_attribute_index == 0) {
+                          $args['class'] = 'matchable focusFirst';
+                        } else {
+                          $args['class'] = 'matchable';
+                        }
+
                         if($ea['field'] == 'given') {
                           $givenNameAttr = preg_replace('/\./', '', $ea['model']) . "Given";
                         } elseif($ea['field'] == 'family') {
@@ -422,8 +446,9 @@
                 ?>
               </td>
             </tr>
-          <?php 
-            endforeach; 
+          <?php
+            $coe_attribute_index++;
+            endforeach;
           ?>
         </tbody>
       </table>
