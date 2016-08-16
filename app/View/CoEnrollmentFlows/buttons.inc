@@ -47,7 +47,7 @@ if($e)
     );
     
     // Attach enrollment sources
-    if(!empty($co_enrollment_flows[0]['CoEnrollmentSource'])) {
+    if(!empty($vv_avail_ois)) {
       $params['topLinks'][] = $this->Html->link(
         _txt('op.ef.ois'),
         array(

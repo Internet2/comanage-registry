@@ -109,6 +109,14 @@ class CoEnrollmentFlowsController extends StandardController {
         $this->set('vv_co_pipelines', $this->CoEnrollmentFlow->CoPipeline->find('list', $args));
       }
       
+      // Provide a list of org identity sources
+      $args = array();
+      $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = false;
+      
+      $this->set('vv_avail_ois', $this->CoEnrollmentFlow->Co->OrgIdentitySource->find('all', $args));
+      
       // Provide a list of message templates
       $args = array();
       $args['conditions']['co_id'] = $this->cur_co['Co']['id'];
