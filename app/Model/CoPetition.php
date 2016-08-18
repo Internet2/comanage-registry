@@ -363,7 +363,7 @@ class CoPetition extends AppModel {
     // Pull the petition and enrollment flow configuration
     $args = array();
     $args['conditions']['CoPetition.id'] = $id;
-    $args['contain']['CoEnrollmentFlow'][] = 'CoEnrollmentSource';
+    $args['contain']['CoEnrollmentFlow']['CoEnrollmentSource'][] = 'OrgIdentitySource';
     
     $pt = $this->find('first', $args);
     
@@ -392,30 +392,48 @@ class CoPetition extends AppModel {
       return;
     }
     
-    if(empty($pt['CoPetition']['enrollee_org_identity_id'])) {
-      $dbc->rollback();
-      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.org_identities.1'))));
-    }
-    
     if(empty($pt['CoPetition']['enrollee_co_person_id'])) {
       $dbc->rollback();
       throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_people.1'))));
     }
-
-    // For each verified email address we find associated with the Org Identity in the
-    // petition (typically only zero or one), query all configured OIS backends.
-    // If a match is required, the petition will automatically transition to a denied state.
     
-    // It's plausible we could look for email addresses attached to the CO Person
-    // record, but we don't have a use case for that yet.
+    $emailAddresses = array();
     
-    $args = array();
-    $args['conditions']['EmailAddress.org_identity_id'] = $pt['CoPetition']['enrollee_org_identity_id'];
-    $args['conditions']['EmailAddress.verified'] = true;
-    $args['contain'] = false;
+    if(empty($pt['CoPetition']['enrollee_org_identity_id'])) {
+      // If no Org Identity is attached to the petition, we may be attempting to
+      // refresh eligibility (ie: recheck Enrollment Sources for updated matches
+      // since the initial enrollment). Pull all verified addresses associated with the CO Person.
+      
+      $args = array();
+      $args['joins'][0]['table'] = 'co_org_identity_links';
+      $args['joins'][0]['alias'] = 'CoOrgIdentityLink';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoOrgIdentityLink.org_identity_id=EmailAddress.org_identity_id';
+      $args['joins'][1]['table'] = 'co_people';
+      $args['joins'][1]['alias'] = 'CoPerson';
+      $args['joins'][1]['type'] = 'INNER';
+      $args['joins'][1]['conditions'][0] = 'CoOrgIdentityLink.co_person_id=CoPerson.id';
+      $args['conditions']['CoPerson.id'] = $pt['CoPetition']['enrollee_co_person_id'];
+      $args['conditions']['EmailAddress.verified'] = true;
+      $args['contain'] = false;
+      
+      $emailAddresses = $this->EnrolleeOrgIdentity->EmailAddress->find('all', $args);
+    } else {
+      // For each verified email address we find associated with the Org Identity in the
+      // petition (typically only zero or one), query all configured OIS backends.
+      // If a match is required, the petition will automatically transition to a denied state.
+      
+      // It's plausible we could look for email addresses attached to the CO Person
+      // record, but we don't have a use case for that yet.
+      
+      $args = array();
+      $args['conditions']['EmailAddress.org_identity_id'] = $pt['CoPetition']['enrollee_org_identity_id'];
+      $args['conditions']['EmailAddress.verified'] = true;
+      $args['contain'] = false;
+      
+      $emailAddresses = $this->EnrolleeOrgIdentity->EmailAddress->find('all', $args);
+    }
     
-    $emailAddresses = $this->EnrolleeOrgIdentity->EmailAddress->find('all', $args);
-
     foreach($emailAddresses as $ea) {
       if(!empty($ea['EmailAddress']['mail'])) {
         foreach($pt['CoEnrollmentFlow']['CoEnrollmentSource'] as $es) {
@@ -440,16 +458,16 @@ class CoPetition extends AppModel {
             }
             
             foreach($oisResults as $sourceKey => $oisRecord) {
-              if(!isset($oisRecord['OrgIdentity']['id']) || !$oisRecord['OrgIdentity']['id']) {
-                // createOrgIdentity will also create the link to the CO Person. It may also
-                // run a pipeline (if configured). Which Pipeline we want to run is a bit confusing,
-                // since the Enrollment Flow, the OIS, and the CO can all have a pipeline configured.
-                // The normal priority is EF > OIS > CO (as per OrgIdentity.php. However, since a
-                // given EF can only create a single Org Identity, Org Identities created here aren't
-                // attached to the Petition and therefore aren't considered to have been created
-                // by an Enrollment Flow. So the Pipeline that will execute is either the one
-                // attached to the OIS, or if none the one attached to the CO.
-                
+              // createOrgIdentity will also create the link to the CO Person. It may also
+              // run a pipeline (if configured). Which Pipeline we want to run is a bit confusing,
+              // since the Enrollment Flow, the OIS, and the CO can all have a pipeline configured.
+              // The normal priority is EF > OIS > CO (as per OrgIdentity.php. However, since a
+              // given EF can only create a single Org Identity, Org Identities created here aren't
+              // attached to the Petition and therefore aren't considered to have been created
+              // by an Enrollment Flow. So the Pipeline that will execute is either the one
+              // attached to the OIS, or if none the one attached to the CO.
+              
+              try {
                 $newOrgIdentityId = $this->Co->OrgIdentitySource->createOrgIdentity($es['org_identity_source_id'],
                                                                                     $sourceKey,
                                                                                     $actorCoPersonId,
@@ -462,13 +480,24 @@ class CoPetition extends AppModel {
                 } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISRequired) {
                   $requiredSources[ $es['id'] ] = true;
                 }
-              } else {
-                // If there's already an org identity associated with the OIS, we definitely don't
-                // link it, but should we throw an error of some sort? It's a bit complicated...
-                // it could be a duplicate enrollment... or there's already an org identity linked
-                // to the same CO Person that this enrollment is linked to, which might be OK in
-                // some circumstances. For now, we won't do anything, just continue.
-              }              
+                
+                $this->CoPetitionHistoryRecord->record($id,
+                                                       $actorCoPersonId,
+                                                       PetitionActionEnum::IdentityLinked,
+                                                       _txt('rs.pt.ois.link', array($newOrgIdentityId,
+                                                                                    $es['OrgIdentitySource']['description'],
+                                                                                    $es['org_identity_source_id'])));
+              } 
+              catch(OverflowException $e) {
+                // If there's already an org identity associated with the OIS, we
+                // definitely don't link it, but should we throw an error of some
+                // sort? It's a bit complicated... it could be a duplicate
+                // enrollment... or we're rechecking eligibility... or there's already
+                // an org identity linked to the same CO Person that this enrollment
+                // is linked to, which might be OK in some circumstances. For now, we
+                // won't do anything, just continue.
+              }
+              // else let the exception pass back up the stack
             }
           }
         }
@@ -1107,17 +1136,79 @@ class CoPetition extends AppModel {
       if(!empty($lnks[0]['CoOrgIdentityLink']['id'])) {
         // This should only match the row retrieved above
         
-        $this->EnrolleeOrgIdentity->CoOrgIdentityLink->id = $lnks[0]['CoOrgIdentityLink']['id'];
+        // If there is already a link between $targetOrgIdentityId and $enrolleeCoPId,
+        // then we just want to delete this (new) link, rather than rewrite it to
+        // create a duplicate link.
         
-        if(!$this->EnrolleeOrgIdentity->CoOrgIdentityLink->saveField('org_identity_id', $petitionOrgId)) {
-          throw new RuntimeException(_txt('er.db.save'));
+        $args = array();
+        $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $targetOrgIdentityId;
+        $args['conditions']['CoOrgIdentityLink.co_person_id'] = $enrolleeCoPId;
+        
+        if($this->EnrolleeOrgIdentity->CoOrgIdentityLink->find('count', $args) > 0) {
+          // Should really only ever be 0 or 1... but anyway, we have an existing link
+          // so just toss this link
+          
+          $this->EnrolleeOrgIdentity->CoOrgIdentityLink->delete($lnks[0]['CoOrgIdentityLink']['id']);
+        } else {
+          $this->EnrolleeOrgIdentity->CoOrgIdentityLink->id = $lnks[0]['CoOrgIdentityLink']['id'];
+          
+          if(!$this->EnrolleeOrgIdentity->CoOrgIdentityLink->saveField('org_identity_id', $targetOrgIdentityId /*$petitionOrgId*/)) {
+            throw new RuntimeException(_txt('er.db.save'));
+          }
         }
       }
       
       if($mode == 'merge') {
         // Merge values/related models before deleting the duplicate identity
         
-        throw new RuntimeException("NOT IMPLEMENTED");
+        // Pull the OrgIdentities and related data
+        $args = array();
+        $args['conditions']['EnrolleeOrgIdentity.id'] = $petitionOrgId;
+        $args['contain'] = array(
+          'Address',
+          'EmailAddress',
+          'Identifier',
+          'Name',
+          'TelephoneNumber'
+        );
+        
+        $newOrgId = $this->EnrolleeOrgIdentity->find('first', $args);
+        
+        $args['conditions']['EnrolleeOrgIdentity.id'] = $targetOrgIdentityId;
+        
+        $curOrgId = $this->EnrolleeOrgIdentity->find('first', $args);
+        
+        foreach($args['contain'] as $m) {
+          if(!empty($newOrgId[$m])) {
+            foreach($newOrgId[$m] as $newm) {
+              // Check to see if this record already exists in the target Org Identity.
+              // If so, we don't want to copy it.
+              $found = false;
+              
+              foreach($curOrgId[$m] as $curm) {
+                $diff = $this->EnrolleeOrgIdentity->$m->compareChanges($m, $newm, $curm);
+                
+                if(empty($diff)) {
+                  // We found a matching record, so don't copy this one over
+                  $found = true;
+                  break;
+                }
+              }
+              
+              if(!$found) {
+                // Rekey this record by updating the foreign key
+                $this->EnrolleeOrgIdentity->$m->id = $newm['id'];
+                $this->EnrolleeOrgIdentity->$m->saveField('org_identity_id', $targetOrgIdentityId);
+              
+                if($m == 'Name' && $newm['primary_name']) {
+                  // Make sure we're not creating a new primary name.
+                  // (The existing record should already have one.)
+                  $this->EnrolleeOrgIdentity->$m->saveField('primary_name', false);
+                }
+              }
+            }
+          }
+        }
       }
       
       // Delete the duplicate org identity. This will trigger ChangelogBehavior,
@@ -1672,6 +1763,7 @@ class CoPetition extends AppModel {
       if($this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
         // Create a history record
         try {
+          // XXX This history record gets deleted shortly after it's written (CO-1295)
           $this->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
                                                          $coPersonRoleId,
                                                          $orgIdentityId,
@@ -2108,7 +2200,8 @@ class CoPetition extends AppModel {
     // Generate additional substitutions to supplement those handled by CoInvites.
     // This is separate from the substitutions managed by CoNotification.
     $subs = array(
-      'CO_PERSON' => generateCn($pt['EnrolleeCoPerson']['PrimaryName']),
+      'CO_PERSON' => (!empty($pt['EnrolleeCoPerson']['PrimaryName'])
+                      ? generateCn($pt['EnrolleeCoPerson']['PrimaryName']) : _txt('fd.enrollee.new')),
       'NEW_COU'   => $pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'] ?: null,
       'SPONSOR'   => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName'])
                       ? generateCn($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName']) : null)
@@ -2613,11 +2706,20 @@ class CoPetition extends AppModel {
                 // Maybe merge...
                 
                 try {
-                  $this->relinkRole($id,
-                                    $identifier2[0]['Identifier']['org_identity_id'],
-                                    $cop[0]['CoOrgIdentityLink']['co_person_id'],
-                                    $actorCoPersonId,
-                                    $enrollmentFlow['CoEnrollmentFlow']['duplicate_mode']);
+                  if($enrollmentFlow['CoEnrollmentFlow']['duplicate_mode'] == EnrollmentDupeModeEnum::Merge) {
+                    // relinkOrgIdentity will delete the extra org identity
+                    $this->relinkOrgIdentity($id,
+                                             $identifier2[0]['Identifier']['org_identity_id'],
+                                             $actorCoPersonId,
+                                             'merge');
+                  } else {
+                    // relinkRole() will delete extra co person and org identity
+                    $this->relinkRole($id,
+                                      $identifier2[0]['Identifier']['org_identity_id'],
+                                      $cop[0]['CoOrgIdentityLink']['co_person_id'],
+                                      $actorCoPersonId,
+                                      $enrollmentFlow['CoEnrollmentFlow']['duplicate_mode']);
+                  }
                 }
                 catch(OverflowException $e) {
                   // Mode is NewRoleCouCheck and an existing role in the same COU was found.

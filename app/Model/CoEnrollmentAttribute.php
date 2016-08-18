@@ -438,6 +438,7 @@ class CoEnrollmentAttribute extends AppModel {
             $args['joins'][0]['alias'] = 'CoEnrollmentFlow';
             $args['joins'][0]['type'] = 'INNER';
             $args['joins'][0]['conditions'][0] = 'Cou.co_id=CoEnrollmentFlow.co_id';
+            $args['order'] = 'Cou.name ASC';
             
             $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Cou->find('list', $args);
             $attr['validate']['content']['rule'][0] = 'inList';

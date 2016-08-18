@@ -272,7 +272,9 @@ class OrgIdentitySource extends AppModel {
                                                      null,
                                                      $orgIdentityId,
                                                      $actorCoPersonId,
-                                                     ActionEnum::CoPersonOrgIdLinked);
+                                                     ActionEnum::CoPersonOrgIdLinked,
+                                                     _txt('rs.org.src.link', array($this->cdata['OrgIdentitySource']['description'],
+                                                                                   $this->cdata['OrgIdentitySource']['id'])));
         }
         catch(Exception $e) {
           $dbc->rollback();

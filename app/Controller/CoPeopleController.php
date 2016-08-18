@@ -51,7 +51,6 @@ class CoPeopleController extends StandardController {
   );
   
   // Use edit_contains to select the associated models we need for canvas.
-  // Should also migrate view_ and delete_ (though delete_ is not yet supported.) (CO-195)
   public $edit_contains = array(
     'CoGroupMember' => array('CoGroup'),
     'CoNsfDemographic',

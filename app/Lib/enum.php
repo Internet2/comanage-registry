@@ -179,6 +179,7 @@ class EnrollmentAuthzEnum {
 class EnrollmentDupeModeEnum
 {
   const Duplicate       = 'D';
+  const Merge           = 'M';
   const NewRole         = 'R';
   const NewRoleCouCheck = 'C';
 }

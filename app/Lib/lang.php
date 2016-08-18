@@ -413,6 +413,7 @@ original notification at
   
   'en.enrollment.dupe' => array(
     EnrollmentDupeModeEnum::Duplicate       => 'Flag as Duplicate',
+    EnrollmentDupeModeEnum::Merge           => 'Merge',
     EnrollmentDupeModeEnum::NewRole         => 'Create New Role',
     EnrollmentDupeModeEnum::NewRoleCouCheck => 'Create New Role If Different COU'
   ),
@@ -1515,6 +1516,7 @@ original notification at
   'rs.nt.expunge' =>  'Notification %1$s %2$s removed as part of CO Person expunge',
   'rs.nt.resd-a' =>   'Notification resolved: "%1$s"',
   'rs.nt.sent' =>     'Approval notification sent to %1$s',
+  'rs.org.src.link' => 'CO Person and Org Identity Linked via Org Identity Source "%1$s" (%2$s)',
   'rs.org.src.new' => 'Org Identity created from Source "%1$s" (%2$s)',
   'rs.org.src.removed' => 'Source record is no longer available, Org Identity has been flagged as removed',
   'rs.org.src.rm'  => 'Org Identity removed from Source "%1$s" (%2$s)',
@@ -1543,6 +1545,7 @@ original notification at
   'rs.pt.link.cop' => 'Linked existing CO Person (%1$s) to Petition',
   'rs.pt.link.org' => 'Linked existing Org Identity (%1$s) to Petition',
   'rs.pt.login' =>    'Petition Created. You have been logged out, and an activation URL has been sent to your email address. Please click the link in that email to continue.',
+  'rs.pt.ois.link' => 'Linked Org Identity (%1$s) from Org Identity Source "%2$s" (%3$s)',
   'rs.pt.org.del' =>  'Deleted duplicate Org Identity',
   'rs.pt.relink.org' => 'Relinked CO Person to existing Org Identity (%1$s)',
   'rs.pt.relink.role' => 'Relinked CO Person Role to existing CO Person (%1$s)',

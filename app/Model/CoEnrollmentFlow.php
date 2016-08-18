@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Enrollment Attribute Model
+ * COmanage Registry CO Enrollment Flow Model
  *
  * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -255,6 +255,7 @@ class CoEnrollmentFlow extends AppModel {
     'duplicate_mode' => array(
       'rule' => array('inList',
                       array(EnrollmentDupeModeEnum::Duplicate,
+                            EnrollmentDupeModeEnum::Merge,
                             EnrollmentDupeModeEnum::NewRole,
                             EnrollmentDupeModeEnum::NewRoleCouCheck))
     ),
@@ -661,6 +662,7 @@ class CoEnrollmentFlow extends AppModel {
     $args = array();
     $args['conditions']['CoEnrollmentFlow.id'] = $id;
     $args['contain']['CoEnrollmentAttribute'][] = 'CoEnrollmentAttributeDefault';
+    $args['contain'][] = 'CoEnrollmentSource';
     
     // This find will not pull archived or deleted attributes (as managed via
     // Changelog behavior), which seems about right. However, we'll want to clear
@@ -701,6 +703,17 @@ class CoEnrollmentFlow extends AppModel {
         unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['co_enrollment_attribute_id']);
         unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['actor_identifier']);
       }
+    }
+    
+    for($i < 0;$i < count($ef['CoEnrollmentSource']);$i++) {
+      unset($ef['CoEnrollmentSource'][$i]['id']);
+      unset($ef['CoEnrollmentSource'][$i]['co_enrollment_flow_id']);
+      unset($ef['CoEnrollmentSource'][$i]['created']);
+      unset($ef['CoEnrollmentSource'][$i]['modified']);
+      // For changelog behavior
+      unset($ef['CoEnrollmentSource'][$i]['revision']);
+      unset($ef['CoEnrollmentSource'][$i]['co_enrollment_source_id']);
+      unset($ef['CoEnrollmentSource'][$i]['actor_identifier']);
     }
     
     // We explicitly disable validation here for a couple of reasons. First, we're
