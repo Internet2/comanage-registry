@@ -591,7 +591,7 @@ class ChangelogBehavior extends ModelBehavior {
               $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
               
               if(is_string($k2) && !is_integer($k2)) {
-                $cparentfk = Inflector::underscore($k2) . "_id";
+                $cparentfk = Inflector::underscore($model->$k->$k2->name) . "_id";
                 
                 $ret[$k][$k2]['conditions'] = array(
                   $k2.'.'.$cparentfk => null,
