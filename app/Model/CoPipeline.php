@@ -378,6 +378,9 @@ class CoPipeline extends AppModel {
         )
       );
       
+      // Clear here and below in case we're run in a loop
+      $this->Co->CoPerson->clear();
+      
       if(!$this->Co->CoPerson->save($coPerson, array("provision" => false))) {
         throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
       }
@@ -392,6 +395,8 @@ class CoPipeline extends AppModel {
           'org_identity_id' => $orgIdentity['OrgIdentity']['id']
         )
       );
+      
+      $this->Co->CoPerson->CoOrgIdentityLink->clear();
       
       if(!$this->Co->CoPerson->CoOrgIdentityLink->save($orgLink, array("provision" => false))) {
         throw new RuntimeException(_txt('er.db.save-a', array('CoOrgIdentityLink')));
@@ -412,6 +417,8 @@ class CoPipeline extends AppModel {
           'source_name_id' => $orgIdentity['PrimaryName']['id'],
         )
       );
+      
+      $this->Co->CoPerson->Name->clear();
       
       if(!$this->Co->CoPerson->Name->save($name, array("provision" => false))) {
         throw new RuntimeException(_txt('er.db.save-a', array('Name')));
@@ -493,6 +500,8 @@ class CoPipeline extends AppModel {
         // Link the role before saving
         $newCoPersonRole['CoPersonRole']['co_person_id'] = $coPersonId;
         $newCoPersonRole['CoPersonRole']['source_org_identity_id'] = $orgIdentity['OrgIdentity']['id'];
+        
+        $this->Co->CoPerson->CoPersonRole->clear();
         
         if(!$this->Co->CoPerson->CoPersonRole->save($newCoPersonRole, array("provision" => false))) {
           throw new RuntimeException(_txt('er.db.save-a', array('CoPersonRole')));
@@ -712,6 +721,8 @@ class CoPipeline extends AppModel {
               'source_org_identity_id' => $orgIdentity['OrgIdentity']['id']
             )
           );
+          
+          $this->Co->CoPerson->CoGroupMember->clear();
           
           if(!$this->Co->CoPerson->CoGroupMember->save($newGroupMember, array("provision" => false))) {
             throw new RuntimeException(_txt('er.db.save-a', array('CoGroupMember')));

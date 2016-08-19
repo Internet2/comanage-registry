@@ -164,7 +164,7 @@ class ChangelogBehavior extends ModelBehavior {
     $parentfk = Inflector::underscore($mname) . "_id";
     
     $ret = $query;
-    
+
     // Inspect query conditions to see if we need to modify the query
     
     if((isset($query['changelog']['archived'])
@@ -589,6 +589,15 @@ class ChangelogBehavior extends ModelBehavior {
               $ret[$k]['conditions'] = array_merge($ret[$k]['conditions'], $v2);
             } elseif(is_array($v2)) {
               $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
+              
+              if(is_string($k2) && !is_integer($k2)) {
+                $cparentfk = Inflector::underscore($k2) . "_id";
+                
+                $ret[$k][$k2]['conditions'] = array(
+                  $k2.'.'.$cparentfk => null,
+                  $k2.'.deleted IS NOT true'
+                );
+              }
             } elseif(isset($model->$k->$k2)) {
               // Fifth example
               $m = $this->modifyContain($model->$k, array($k2 => $v2));

@@ -263,6 +263,9 @@ class OrgIdentitySource extends AppModel {
       $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityId;
       $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $targetCoPersonId;
       
+      // Clear the link in case we're called in loop
+      $this->Co->CoPerson->CoOrgIdentityLink->clear();
+      
       // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
       // provisioning just in case that changes in the future.
       if($this->Co->CoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
