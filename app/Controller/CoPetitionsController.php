@@ -124,9 +124,11 @@ class CoPetitionsController extends StandardController {
   // - Update the diagram at https://spaces.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Diagram
   
   protected $nextSteps = array(
-    'start'                        => 'selectOrgIdentity',
-    'selectOrgIdentity'            => 'selectEnrollee',
-    'selectEnrollee'               => 'petitionerAttributes',
+    // We run selectEnrollee before selectOrgIdentity so that OIS pipelines
+    // can be forced to match an already selected CO Person (CO-1299).
+    'start'                        => 'selectEnrollee',
+    'selectEnrollee'               => 'selectOrgIdentity',
+    'selectOrgIdentity'            => 'petitionerAttributes',
     'petitionerAttributes'         => 'sendConfirmation',
     'sendConfirmation'             => 'waitForConfirmation',
     // execution continues here if confirmation not required
