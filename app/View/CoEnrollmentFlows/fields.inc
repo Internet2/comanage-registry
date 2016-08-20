@@ -300,6 +300,7 @@
         </div>
       </td>
     </tr>
+    <?php if(!empty($vv_co_pipelines)): ?>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle">
@@ -329,6 +330,7 @@
         ?>
       </td>
     </tr>
+    <?php endif; // vv_co_pipelines ?>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle">
