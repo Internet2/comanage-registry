@@ -129,6 +129,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     )
   );
   
+  // Cache of schema plugins, populated by supportedAttributes
+  protected $plugins = array();
+  
   /**
    * Assemble attributes for an LDAP record.
    *
@@ -153,12 +156,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     $cAttrs = $this->CoLdapProvisionerAttribute->find('all', $args);
     
-    // Rekey the attributes array on attribute name
+    // Rekey the attributes array on object class and attribute name
     $configuredAttributes = array();
     
     foreach($cAttrs as $a) {
-      if(!empty($a['CoLdapProvisionerAttribute']['attribute'])) {
-        $configuredAttributes[ $a['CoLdapProvisionerAttribute']['attribute'] ] = $a['CoLdapProvisionerAttribute'];
+      if(!empty($a['CoLdapProvisionerAttribute']['attribute'])
+         && !empty($a['CoLdapProvisionerAttribute']['objectclass'])) {
+        $configuredAttributes[ $a['CoLdapProvisionerAttribute']['objectclass'] ][ $a['CoLdapProvisionerAttribute']['attribute'] ] = $a['CoLdapProvisionerAttribute'];
       }
     }
     
@@ -188,6 +192,26 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // ProvisionerBehavior will remove those from the data we get.
     
     foreach(array_keys($supportedAttributes) as $oc) {
+      // First see if this objectclass is handled by a plugin
+      if(!empty($supportedAttributes[$oc]['plugin'])) {
+        // Ask the plugin to assemble the attributes for this objectclass for us.
+        // First, get a pointer to the plugin model.
+        $pmodel = $this->plugins[ $supportedAttributes[$oc]['plugin'] ];
+        
+        $pattrs = $pmodel->assemblePluginAttributes($configuredAttributes[$oc], $provisioningData);
+        
+        // Filter out any attributes in $pattrs that are not defined in $configuredAttributes
+        // and merge the results into the marshalled attributes
+        
+        $attributes = array_merge($attributes, array_intersect_key($pattrs, $configuredAttributes[$oc]));
+        
+        // Insert an objectclass
+        $attributes['objectclass'][] = $oc;
+        
+        // Continue the loop (skip the standard processing)
+        continue;
+      }
+      
       // Skip objectclasses that aren't relevant for the sort of data we're working with
       if(($person && $oc == 'groupOfNames')
          || ($group && !in_array($oc, array('groupOfNames','eduMember')))) {
@@ -206,8 +230,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         
         foreach(array_keys($supportedAttributes[$oc]['attributes']) as $attr) {
           if($supportedAttributes[$oc]['attributes'][$attr]['required']
-             || (isset($configuredAttributes[$attr]['export'])
-                 && $configuredAttributes[$attr]['export'])) {
+             || (isset($configuredAttributes[$oc][$attr]['export'])
+                 && $configuredAttributes[$oc][$attr]['export'])) {
             // Does this attribute support multiple values?
             $multiple = (isset($supportedAttributes[$oc]['attributes'][$attr]['multiple'])
                          && $supportedAttributes[$oc]['attributes'][$attr]['multiple']);
@@ -224,8 +248,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             }
             
             // Or explicitly?
-            if(!$targetType && !empty($configuredAttributes[$attr]['type'])) {
-              $targetType = $configuredAttributes[$attr]['type'];
+            if(!$targetType && !empty($configuredAttributes[$oc][$attr]['type'])) {
+              $targetType = $configuredAttributes[$oc][$attr]['type'];
             }
             
             switch($attr) {
@@ -313,8 +337,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 
                 $modelList = null;
                 
-                if(isset($configuredAttributes[$attr]['use_org_value'])
-                   && $configuredAttributes[$attr]['use_org_value']) {
+                if(isset($configuredAttributes[$oc][$attr]['use_org_value'])
+                   && $configuredAttributes[$oc][$attr]['use_org_value']) {
                   // Use organizational identity value for this attribute
                   
                   // If there is more than one CoOrgIdentityLink, for attributes
@@ -1309,6 +1333,26 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         )
       )
     );
+    
+    // Now check for any schema plugins, and add them to the attribute array.
+    // We don't have a concept of ordering these plugins (especially since unlike
+    // eg provisioners these plugins aren't explicitly instantiated), so we'll
+    // sort them alphabetically for now.
+    
+    $this->plugins = $this->loadAvailablePlugins('ldapschema');
+    
+    foreach($this->plugins as $name => $p) {
+      // Inject the plugin name into the attribute array so that we know
+      // which plugin to call during attribute assembly
+      
+      $pattrs = $p->attributes;
+      
+      foreach(array_keys($pattrs) as $pschema) {
+        $pattrs[$pschema]['plugin'] = $name;
+      }
+      
+      $attributes = array_merge($attributes, $pattrs);
+    }
     
     return $attributes;
   }

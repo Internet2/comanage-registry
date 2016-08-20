@@ -73,6 +73,7 @@ class AppController extends Controller {
    * @param  String Format to return in: 'list' for list format (suitable for formhelper selects) or 'simple' for a simple list
    * @since  COmanage Registry v0.8
    * @return Array Available plugins
+   * @todo   Merge with AppModel::loadAvailablePlugins
    */
   
   public function loadAvailablePlugins($pluginType, $format='list') {

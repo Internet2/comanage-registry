@@ -33,7 +33,17 @@ App::uses('Model', 'Model');
  *
  * @package       registry
  */
+
 class AppModel extends Model {
+  /**
+   * Actions before deleting a model.
+   *
+   * @since  COmanage Registry v0.8
+   * @param  boolean Whether this is a cascading delete
+   * @return true for the actual delete to happen
+   * @todo   Rewrite to use loadAvailablePlugins
+   */
+  
   public function beforeDelete($cascade = true) {
     if($cascade) {
       // Load any plugins and figure out which (if any) have foreign keys to belongTo this model
@@ -400,6 +410,25 @@ class AppModel extends Model {
   }
   
   /**
+   * Compare changes in a two arrays worth of a model's data.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  String  $model   Model being examined
+   * @param  Array   $newdata New data, in Cake single instance format
+   * @param  Array   $olddata Old data, in Cake single instance format
+   * @param  Integer $coId    CO ID, if known
+   * @return Array Array of changes, empty if none
+   */
+  
+  public function compareChanges($model, $newdata, $olddata, $coId=null) {
+    // We'll use changesForModel since it already does a lot of the work we need
+    
+    $attrs = array_unique(array_merge(array_keys($newdata), array_keys($olddata)));
+    
+    return $this->changesForModel($model, $newdata, $olddata, $coId, $attrs);
+  }
+  
+  /**
    * For models that support Extended Types, obtain the default types for the specified attribute.
    *
    * @since  COmanage Registry v0.6
@@ -729,6 +758,30 @@ class AppModel extends Model {
     }
     
     return false;
+  }
+  
+  /**
+   * Determine which plugins of a given type are available, and load them if not already loaded.
+   *
+   * @param  String Plugin type, or 'all' for all available plugins
+   * @since  COmanage Registry v1.1.0
+   * @return Array Available plugins, ModelName => ModelPointer format
+   * @todo   Merge with AppController::loadAvailablePlugins
+   */
+  
+  public function loadAvailablePlugins($pluginType = 'all') {
+    $ret = array();
+    
+    foreach(App::objects('plugin') as $p) {
+      $pluginModelName = $p . "." . $p;
+      $pluginModel = ClassRegistry::init($pluginModelName);
+        
+      if($pluginModel->isPlugin($pluginType != 'all' ? $pluginType : null)) {
+        $ret[ $pluginModelName ] = $pluginModel;
+      }
+    }
+    
+    return $ret;
   }
   
   /**
