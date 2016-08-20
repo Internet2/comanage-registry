@@ -43,7 +43,7 @@
   print $this->Form->Create(
     'CoPerson',
     array(
-      'action' => 'expunge/' . $vv_co_person['CoPerson']['id'],
+      'url' => array('action' => 'expunge/' . $vv_co_person['CoPerson']['id']),
       'type'   => 'post',
       'inputDefaults' => array(
         'label' => false,
