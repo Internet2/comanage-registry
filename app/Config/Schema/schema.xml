@@ -908,12 +908,7 @@
       <constraint>REFERENCES cm_co_pipelines(id)</constraint>
     </field>
     <field name="status" type="C" size="2" />
-    <!--
-    <field name="load_interval" type="I" />
-    <field name="update_interval" type="I" />
-    <field name="last_load" type="T" />
-    <field name="last_update" type="T" />
-    -->
+    <field name="sync_mode" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="org_identity_source_id" type="I">
@@ -961,6 +956,10 @@
     
     <index name="org_identity_source_records_i2">
       <col>org_identity_id</col>
+    </index>
+    
+    <index name="org_identity_source_records_i3">
+      <col>org_identity_source_id</col>
     </index>
   </table>
   
@@ -1399,6 +1398,72 @@
     </index>
   </table>
   
+  <table name="co_jobs">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="job_type" type="C" size="2" />
+    <field name="job_type_fk" type="I" />
+    <field name="job_mode" type="C" size="16" />
+    <field name="status" type="C" size="2" />
+    <field name="register_summary" type="C" size="256" />
+    <field name="start_summary" type="C" size="256" />
+    <field name="finish_summary" type="C" size="256" />
+    <field name="queue_time" type="T" />
+    <field name="start_time" type="T" />
+    <field name="complete_time" type="T" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_jobs_i1">
+      <col>co_id</col>
+    </index>
+    
+    <index name="co_jobs_i2">
+      <col>job_type</col>
+      <col>job_type_fk</col>
+    </index>
+  </table>
+  
+  <table name="co_job_history_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_job_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_jobs(id)</constraint>
+    </field>
+    <field name="record_key" type="C" size="64" />
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="comment" type="C" size="256" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_job_history_records_i1">
+      <col>co_job_id</col>
+    </index>
+    
+    <index name="co_job_history_records_i2">
+      <col>co_person_id</col>
+    </index>
+    
+    <index name="co_job_history_records_i3">
+      <col>org_identity_id</col>
+    </index>
+  </table>
+  
   <table name="history_records">
     <field name="id" type="I">
       <key />
@@ -1691,6 +1756,7 @@
     </field>
     <field name="enable_nsf_demo" type="L" />
     <field name="disable_expiration" type="L" />
+    <field name="disable_ois_sync" type="L" />
     <field name="enable_normalization" type="L" />
     <field name="invitation_validity" type="I" />
     <field name="permitted_fields_name" type="C" size="160" />

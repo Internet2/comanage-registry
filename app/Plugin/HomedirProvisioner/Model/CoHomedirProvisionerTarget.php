@@ -90,6 +90,7 @@ class CoHomedirProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoPersonAdded:
       case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
       case ProvisioningActionEnum::CoPersonPetitionProvisioned:
+      case ProvisioningActionEnum::CoPersonPipelineProvisioned:
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
       case ProvisioningActionEnum::CoPersonUnexpired:
       case ProvisioningActionEnum::CoPersonUpdated:

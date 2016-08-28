@@ -54,7 +54,12 @@ class CoSetting extends AppModel {
       'allowEmpty' => false,
       'message' => 'A CO ID must be provided'
     ),
-    'enable_expiration' => array(
+    'disable_expiration' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'disable_ois_sync' => array(
       'rule' => 'boolean',
       'required' => false,
       'allowEmpty' => true
@@ -130,6 +135,7 @@ class CoSetting extends AppModel {
   
   protected $defaultSettings = array(
     'disable_expiration'    => false,
+    'disable_ois_sync'      => false,
     'enable_normalization'  => true,
     'enable_nsf_demo'       => false,
     'invitation_validity'   => DEF_INV_VALIDITY,
@@ -178,7 +184,7 @@ class CoSetting extends AppModel {
    */
   
   public function expirationEnabled($coId) {
-    // Note we flip the value. The data model specifies "disabled so that
+    // Note we flip the value. The data model specifies "disabled" so that
     // the default (ie: no value present in the table) is enabled.
     return !$this->lookupValue($coId, 'disable_expiration');
   }
@@ -355,5 +361,19 @@ class CoSetting extends AppModel {
   
   public function nsfDemgraphicsEnabled($coId) {
     return (boolean)$this->lookupValue($coId, 'enable_nsf_demo');
+  }
+  
+  /**
+   * Determine if Org Identity Sync is enabled for the specified CO.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  integer $coId CO ID
+   * @return boolean True if enabled, false otherwise
+   */
+  
+  public function oisSyncEnabled($coId) {
+    // Note we flip the value. The data model specifies "disabled" so that
+    // the default (ie: no value present in the table) is enabled.
+    return !$this->lookupValue($coId, 'disable_ois_sync');
   }
 }

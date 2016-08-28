@@ -44,6 +44,7 @@ class Co extends AppModel {
     "CoGroup" => array('dependent' => true),
     // A CO can have zero or more CO people
     "CoIdentifierAssignment" => array('dependent' => true),
+    "CoJob" => array('dependent' => true),
     "CoLocalization" => array('dependent' => true),
     "CoPerson" => array('dependent' => true),
     // A CO can have zero or more petitions

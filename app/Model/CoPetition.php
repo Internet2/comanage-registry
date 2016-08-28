@@ -472,7 +472,8 @@ class CoPetition extends AppModel {
                                                                                     $sourceKey,
                                                                                     $actorCoPersonId,
                                                                                     $pt['CoPetition']['co_id'],
-                                                                                    $pt['CoPetition']['enrollee_co_person_id']);
+                                                                                    $pt['CoPetition']['enrollee_co_person_id'],
+                                                                                    false);
                 
                 // Note that we found something
                 if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {

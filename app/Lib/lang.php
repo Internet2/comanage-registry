@@ -670,6 +670,13 @@ original notification at
     SyncActionEnum::Update                  => 'Update'
   ),
   
+  'en.sync.mode' => array(
+    SyncModeEnum::Full                      => 'Full',
+    SyncModeEnum::Manual                    => 'Manual',
+    SyncModeEnum::Query                     => 'Query',
+    SyncModeEnum::Update                    => 'Update'
+  ),
+  
   'en.tandc.mode.enroll' => array(
     TAndCEnrollmentModeEnum::ExplicitConsent => 'Explicit Consent',
     TAndCEnrollmentModeEnum::ImpliedConsent  => 'Implied Consent',
@@ -815,6 +822,7 @@ original notification at
   'er.pi.match.multi' => 'Canonical %1$s match type found more than one matching record',
   'er.plugin.fail' => 'Failed to load plugin "%1$s"',
   'er.plugin.none' => 'There are no suitable plugins available. No %1$s can be added.',
+  'er.pooling' =>     'Org Identity Pooling not supported in this context',
   // er.prov is a javascript string and so cannot take a parameter
   'er.prov' =>        'Provisioning failed: ',
   'er.prov.plugin' => 'Provisioning failed for %1$s: %2$s',
@@ -1121,10 +1129,14 @@ original notification at
   'fd.ois.gr.map.desc' => 'When the above conditions are matched, a membership will be created in this group',
   'fd.ois.record' =>  'Source Record',
   'fd.ois.record.desc' => 'If the source record is empty, it likely indicates this record is no longer available from the datasource',
+  'fd.ois.record.count' => '%1$s: %2$s records currently synced',
   'fd.ois.search.mail' => 'Please enter the email address associated with the Organizational Identity you would like to use to enroll',
   'fd.ois.search.select' => 'Please select the identity you would like to use from the following matches for "%1$s"',
   'fd.ois.search.select.disabled' => 'Disabled options are already attached to an Org Identity and so cannot be selected',
   'fd.ois.search.token' => 'An email has been sent to "%1$s". Please check your mail and enter the token you received. (NOT IMPLEMENTED -- ENTER ANY TOKEN)',
+  'fd.ois.sync.disable' => 'Disable Org Identity Source Sync',
+  'fd.ois.sync.disable.desc' => 'Disable automatic (scheduled) syncing of Organizational Identity Sources<br />This setting does not impact manual syncing',
+  'fd.ois.sync.mode' => 'Sync Mode',
   'fd.open' =>        'Open',
   'fd.order' =>       'Order',
   'fd.order.es.desc' => 'The order in which this source will be queried, among all sources configured for this enrollment flow with this mode',
@@ -1599,7 +1611,11 @@ original notification at
   
   // Shell
   
+  'sh.cron.arg.coid' =>   'Numeric CO ID to run tasks for (all COs if not specified)',
+  'sh.cron.arg.epilog' => "If no task specified, all run.\nAvailable tasks: expirations, syncorgsources",
   'sh.cron.done' =>       'Cron shell finished',
+  'sh.cron.sync.ois' =>   'Syncing Organizational Identity Sources for CO %1$s (%2$s)',
+  'sh.cron.sync.ois.disabled' => 'Organizational Identity Source sync is disabled for this CO',
   'sh.cron.xp' =>         'Running expirations for CO %1$s (%2$s)',
   'sh.cron.xp.disabled' => 'Expirations are disabled for this CO',
   'sh.nt.arg.action' =>   '4-character action code (eg: from ActionEnum)',
