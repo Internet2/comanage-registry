@@ -1611,13 +1611,13 @@ original notification at
   
   // Shell
   
-  'sh.cron.arg.coid' =>   'Numeric CO ID to run tasks for (all COs if not specified)',
-  'sh.cron.arg.epilog' => "If no task specified, all run.\nAvailable tasks: expirations, syncorgsources",
-  'sh.cron.done' =>       'Cron shell finished',
-  'sh.cron.sync.ois' =>   'Syncing Organizational Identity Sources for CO %1$s (%2$s)',
-  'sh.cron.sync.ois.disabled' => 'Organizational Identity Source sync is disabled for this CO',
-  'sh.cron.xp' =>         'Running expirations for CO %1$s (%2$s)',
-  'sh.cron.xp.disabled' => 'Expirations are disabled for this CO',
+  'sh.job.arg.coid' =>    'Numeric CO ID to run tasks for (all COs if not specified)',
+  'sh.job.arg.epilog' =>  "If no task specified, all run.\nAvailable tasks: expirations, syncorgsources",
+  'sh.job.done' =>        'Job shell finished',
+  'sh.job.sync.ois' =>    'Syncing Organizational Identity Sources for CO %1$s (%2$s)',
+  'sh.job.sync.ois.disabled' => 'Organizational Identity Source sync is disabled for this CO',
+  'sh.job.xp' =>          'Running expirations for CO %1$s (%2$s)',
+  'sh.job.xp.disabled' => 'Expirations are disabled for this CO',
   'sh.nt.arg.action' =>   '4-character action code (eg: from ActionEnum)',
   'sh.nt.arg.actoridentifier' => 'Identifier associated with CO Person who sent notification',
   'sh.nt.arg.comment' =>  'Human readable comment (for body of notification)',

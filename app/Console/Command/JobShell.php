@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Cron Shell
+ * COmanage Job Shell
  *
  * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
  * 
@@ -22,7 +22,7 @@
  * @version       $Id$
  */
 
-class CronShell extends AppShell {
+class JobShell extends AppShell {
   var $uses = array('Co',
                     'CoExpirationPolicy',
                     'CoSetting',
@@ -35,11 +35,11 @@ class CronShell extends AppShell {
       'coid',
       array(
         'short' => 'c',
-        'help' => _txt('sh.cron.arg.coid'),
+        'help' => _txt('sh.job.arg.coid'),
         'boolean' => false,
         'default' => false
       )
-    )->epilog(_txt('sh.cron.arg.epilog'));
+    )->epilog(_txt('sh.job.arg.epilog'));
     
     return $parser;
   }
@@ -57,7 +57,7 @@ class CronShell extends AppShell {
     if($this->CoSetting->expirationEnabled($coId)) {
       $this->CoExpirationPolicy->executePolicies($coId, $this);
     } else {
-      $this->out("- " . _txt('sh.cron.xp.disabled'));
+      $this->out("- " . _txt('sh.job.xp.disabled'));
     }
   }
   
@@ -74,7 +74,7 @@ class CronShell extends AppShell {
     if($this->CoSetting->oisSyncEnabled($coId)) {
       $this->OrgIdentitySource->syncAll($coId);
     } else {
-      $this->out("- " . _txt('sh.cron.sync.ois.disabled'));
+      $this->out("- " . _txt('sh.job.sync.ois.disabled'));
     }
   }
   
@@ -100,17 +100,17 @@ class CronShell extends AppShell {
     foreach($cos as $co) {
       if(!$runCoId || $runCoId == $co['Co']['id']) {
         if($runAll || in_array('expirations', $this->args)) {
-          $this->out(_txt('sh.cron.xp', array($co['Co']['name'], $co['Co']['id'])));
+          $this->out(_txt('sh.job.xp', array($co['Co']['name'], $co['Co']['id'])));
           $this->expirations($co['Co']['id']);
         }
         
         if($runAll || in_array('syncorgsources', $this->args)) {
-          $this->out(_txt('sh.cron.sync.ois', array($co['Co']['name'], $co['Co']['id'])));
+          $this->out(_txt('sh.job.sync.ois', array($co['Co']['name'], $co['Co']['id'])));
           $this->syncOrgSources($co['Co']['id']);
         }
       }
     }    
     
-    $this->out(_txt('sh.cron.done'));
+    $this->out(_txt('sh.job.done'));
   }
 }
