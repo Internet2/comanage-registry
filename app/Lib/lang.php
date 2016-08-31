@@ -83,6 +83,8 @@ $cm_texts['en_US'] = array(
   'ct.co_extended_types.pl' => 'Extended Types',
   'ct.co_identifier_assignments.1' => 'Identifier Assignment',
   'ct.co_identifier_assignments.pl' => 'Identifier Assignments',
+  'ct.co_identifier_validators.1' => 'Identifier Validator',
+  'ct.co_identifier_validators.pl' => 'Identifier Validators',
   'ct.co_group_members.1' =>    'Group Member',
   'ct.co_group_members.pl' =>   'Group Members',
   'ct.co_group_members.0' =>    'No members',
@@ -786,6 +788,8 @@ original notification at
   'er.ia.exists' =>   'The identifier "%1$s" is already in use',
   'er.ia.failed' =>   'Failed to find a unique identifier to assign',
   'er.ia.none' =>     'No identifier assignments configured',
+  'er.id.exists-a' => 'The identifier "%1$s" is already in use (%2$s)',
+  'er.id.format-a' => 'The identifier "%1$s" does not meet the required format (%2$s)',
   'er.id.unk' =>      'Unknown Identifier',
   'er.id.unk-a' =>    'Unknown Identifier "%1$s"',
   'er.inv.exp' =>     'Invitation Expired',
@@ -1284,6 +1288,7 @@ original notification at
 
   // Informational messages
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
+  'in.idval.plugins'   => 'There are no Identifier Validator plugins currently installed.',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
   'in.orgid.co'        => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',

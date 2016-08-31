@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Extended Type Model
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -31,6 +31,8 @@ class CoExtendedType extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array("Co");
+  
+  public $hasMany = array("CoIdentifierValidator");
   
   // Default display field for cake generated views
   public $displayField = "display_name";
@@ -97,7 +99,7 @@ class CoExtendedType extends AppModel {
    * @since  COmanage Registry v0.6
    * @param  Integer CO ID
    * @param  String Attribute, of the form Model.attribute
-   * @param  String Format ('all' or 'list', as for Cake find)
+   * @param  String Format ('all' or 'list', as for Cake find, or 'keyed' for find keyed on ID)
    * @return Array List of defined extended types, keyed on extended type ID
    */
   
@@ -230,12 +232,14 @@ class CoExtendedType extends AppModel {
    * @since  COmanage Registry v0.9.2
    * @param  Integer CO ID
    * @param  String Attribute, of the form Model.attribute
-   * @param  String Format ('all' or 'list', as for Cake find)
+   * @param  String Format ('all' or 'list', as for Cake find, or 'keyed' for list keyed on ID)
    * @param  Boolean True if only active types should be returned
    * @return Array List of defined extended types, keyed on extended type ID
    */
   
   public function definedTypes($coId, $attribute, $format='list', $active=false) {
+    $xformat = $format;
+    
     $args = array();
     $args['conditions']['CoExtendedType.co_id'] = $coId;
     $args['conditions']['CoExtendedType.attribute'] = $attribute;
@@ -246,9 +250,12 @@ class CoExtendedType extends AppModel {
     
     if($format == 'list') {
       $args['fields'] = array('CoExtendedType.name', 'CoExtendedType.display_name');
+    } elseif($format == 'keyed') {
+      $xformat = 'list';
+      $args['fields'] = array('CoExtendedType.display_name');
     }
     
-    return $this->find($format, $args);
+    return $this->find($xformat, $args);
   }
   
   /**

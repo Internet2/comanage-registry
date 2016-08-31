@@ -55,13 +55,12 @@ class Identifier extends AppModel {
   // Validation rules for table elements
   // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
-    // Don't require any element since $belongsTo saves won't validate if they're empty
     'identifier' => array(
       'content' => array(
         // Identifier must have at least one non-space character in order to avoid
         // errors (eg: with provisioning ldap)
         'rule' => 'notBlank',
-        'required' => false,
+        'required' => true,
         'allowEmpty' => false
       )
     ),
@@ -75,7 +74,7 @@ class Identifier extends AppModel {
                                                  IdentifierEnum::OpenID,
                                                  IdentifierEnum::ORCID,
                                                  IdentifierEnum::UID))),
-        'required' => false,
+        'required' => true,
         'allowEmpty' => false
       )
     ),
@@ -115,7 +114,20 @@ class Identifier extends AppModel {
   public $cm_enum_types = array(
     'status' => 'StatusEnum',
   );
+  
+  /**
+   * Actions to take after a save operation is executed.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  boolean $created True if a new record was created (rather than update)
+   * @param  array   $options As passed into Model::save()
+   */
 
+  public function afterSave($created, $options = array()) {
+    // Commit any in-progress transaction
+    $this->_commit();
+  }
+  
   /**
    * Autoassign identifiers for a CO Person.
    *
@@ -135,6 +147,7 @@ class Identifier extends AppModel {
     
     $args = array();
     $args['conditions']['Co.id'] = $coId;
+    $args['contain'][] = 'Co';
     
     $identifierAssignments = $this->CoPerson->Co->CoIdentifierAssignment->find('all', $args);
     
@@ -146,7 +159,7 @@ class Identifier extends AppModel {
         // Assign will throw an error if an identifier of this type already exists.
         
         try {
-          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $coPersonId, $actorCoPersonId);
+          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $coPersonId, $actorCoPersonId, $provision);
           $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = 1;
           $cnt++;
         }
@@ -195,38 +208,67 @@ class Identifier extends AppModel {
   }
   
   /**
-   * Check if an identifier is available for assignment. An identifier is available
-   * if it is not defined (regardless of status) within the same CO.
+   * Actions to take before a save operation is executed.
    *
-   * IMPORTANT: This function should be called within a transaction to ensure
-   * actions taken based on availability are atomic.
-   *
-   * @since  COmanage Registry v0.6
-   * @param  String Candidate identifier
-   * @param  String Type of candidate identifier
-   * @param  Integer CO ID
-   * @return Boolean True if identifier is not in use, false otherwise
+   * @since  COmanage Registry v1.1.0
+   * @param  array   $options As passed into Model::save()
+   * @return Boolean True to continue with save, false to abort
    */
-  
-  public function checkAvailability($identifier, $identifierType, $coId) {
-    // In order to allow ensure that another process doesn't perform the same
-    // availability check while we're running, we need to lock the appropriate
-    // tables/rows at read time. We do this with findForUpdate instead of a normal find.
+
+  public function beforeSave($options = array()) {
+    if(!empty($this->data['Identifier']['co_person_id'])) {
+      // If this is an edit operation, check if the identifier itself is being changed.
+      // If not, we don't need to recheck availability.
+      
+      if(!empty($this->data['Identifier']['id'])) {
+        // Pull the current record
+        
+        $args = array();
+        $args['conditions']['Identifier.id'] = $this->data['Identifier']['id'];
+        $args['contain'] = false;
+        
+        $curData = $this->find('first', $args);
+        
+        // Both the identifier and the type must be unchanged for us to skip this check
+        if(!empty($curData['Identifier']['identifier'])
+           && $curData['Identifier']['identifier'] == $this->data['Identifier']['identifier']
+           && !empty($curData['Identifier']['type'])
+           && $curData['Identifier']['type'] == $this->data['Identifier']['type']) {
+          return true;
+        }
+      }
+      
+      // Start a transaction -- we'll commit in afterSave
+      
+      $this->_begin();
+      
+      // If availability checks were already run (ie: by CoIdentifierAssignment::assign)
+      // we can skip the checks here. However, we allow the begin() so that we have the
+      // correct number of nested begin/commit calls when afterSave() fires.
+      
+      if(!isset($options['skipAvailability']) || !$options['skipAvailability']) {
+        $coId = $this->CoPerson->field('co_id', array('CoPerson.id' => $this->data['Identifier']['co_person_id']));
+        
+        // Run the internal availability check. This will remain consistent until
+        // afterSave, though we can't assert the same for any external services
+        // the plugins check.
+        
+        try {
+          $this->checkAvailability($this->data['Identifier']['identifier'],
+                                   $this->data['Identifier']['type'],
+                                   $coId);
+        }
+        catch(Exception $e) {
+          // Roll back the transaction and re-throw the exception
+          $this->_rollback();
+          
+          $eclass = get_class($e);
+          throw new $eclass($e->getMessage());
+        }
+      }
+    }
+    // else we currently don't do anything with org identity identifiers
     
-    $args = array();
-    $args['conditions']['CoPerson.co_id'] = $coId;
-    $args['conditions']['Identifier.identifier'] = $identifier;
-    $args['conditions']['Identifier.type'] = $identifierType;
-    $args['joins'][0]['table'] = 'co_people';
-    $args['joins'][0]['alias'] = 'CoPerson';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPerson.id=Identifier.co_person_id';
-    $args['contain'] = false;
-    
-    $r = $this->findForUpdate($args['conditions'],
-                              array('identifier'),
-                              $args['joins']);
-    
-    return empty($r);
+    return true;
   }
 }

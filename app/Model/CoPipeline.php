@@ -716,7 +716,10 @@ class CoPipeline extends AppModel {
       foreach($newRecords as $srcid => $nr) {
         $model->clear();
         
-        if(!$model->save($nr, array("provision" => false))) {
+        // For identifiers and email addresses, we want to skip availability checking
+        // since we might be writing multiple versions of the same attribute (from
+        // different org identity sources).
+        if(!$model->save($nr, array("provision" => false, "skipAvailability" => true))) {
           throw new RuntimeException(_txt('er.db.save-a', array($m)));
         }
         

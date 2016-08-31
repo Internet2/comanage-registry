@@ -115,6 +115,18 @@ class EmailAddress extends AppModel {
   );
   
   /**
+   * Actions to take after a save operation is executed.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  boolean $created True if a new record was created (rather than update)
+   * @param  array   $options As passed into Model::save()
+   */
+
+  public function afterSave($created, $options = array()) {
+    $this->_commit();
+  }
+  
+  /**
    * Determine if an email address of a given type is already assigned to a CO Person.
    *
    * IMPORTANT: This function should be called within a transaction to ensure
@@ -131,7 +143,7 @@ class EmailAddress extends AppModel {
     $args['conditions']['EmailAddress.co_person_id'] = $coPersonID;
     $args['conditions']['EmailAddress.type'] = $emailType;
     $args['contain'] = false;
-    
+
     $r = $this->findForUpdate($args['conditions'], array('mail'));
     
     return !empty($r);
@@ -164,49 +176,54 @@ class EmailAddress extends AppModel {
         // Use prior setting
         $this->data['EmailAddress']['verified'] = $curdata['EmailAddress']['verified'];
       }
+      
+      // Also check if we're changing anything. If not, no need to check availability.
+      
+      if(!empty($curdata['EmailAddress']['mail'])
+        && $curdata['EmailAddress']['mail'] == $this->data['EmailAddress']['mail']
+        && !empty($curdata['EmailAddress']['type'])
+        && $curdata['EmailAddress']['type'] == $this->data['EmailAddress']['type']) {
+        return true;
+      }
     } else {
       // Adding a new address should default to not verified
       
       $this->data['EmailAddress']['verified'] = false;
     }
     
+    // Start a transaction and check availability. This is similar to Identifier::beforeSave.
+    // We'll commit in afterSave. Currently, we only work with CO Person records.
+    
+    if(!empty($this->data['EmailAddress']['co_person_id'])) {
+      $this->_begin();
+      
+      // If availability checks were already run (ie: by CoIdentifierAssignment::assign)
+      // we can skip the checks here. However, we allow the begin() so that we have the
+      // correct number of nested begin/commit calls when afterSave() fires.
+      
+      if(!isset($options['skipAvailability']) || !$options['skipAvailability']) {
+        $coId = $this->CoPerson->field('co_id', array('CoPerson.id' => $this->data['EmailAddress']['co_person_id']));
+        
+        // Run the internal availability check. This will remain consistent until
+        // afterSave, though we can't assert the same for any external services
+        // the plugins check.
+        
+        try {
+          $this->checkAvailability($this->data['EmailAddress']['mail'],
+                                   $this->data['EmailAddress']['type'],
+                                   $coId);
+        }
+        catch(Exception $e) {
+          // Roll back the transaction and re-throw the exception
+          $this->_rollback();
+          
+          $eclass = get_class($e);
+          throw new $eclass($e->getMessage());
+        }
+      }
+    }
+    
     return true;
-  }
-  
-  /**
-   * Check if an email address is available for assignment (via CoIdentifierAssignment).
-   * An email address is available if it is not defined (regardless of status) within the same CO.
-   *
-   * IMPORTANT: This function should be called within a transaction to ensure
-   * actions taken based on availability are atomic.
-   *
-   * @since  COmanage Registry v0.9.2
-   * @param  String $address Candidate email address
-   * @param  String $addressType Type of candidate email address
-   * @param  Integer CO ID
-   * @return Boolean True if email address is not in use, false otherwise
-   */
-  
-  public function checkAvailability($address, $addressType, $coId) {
-    // In order to allow ensure that another process doesn't perform the same
-    // availability check while we're running, we need to lock the appropriate
-    // tables/rows at read time. We do this with findForUpdate instead of a normal find.
-    
-    $args = array();
-    $args['conditions']['CoPerson.co_id'] = $coId;
-    $args['conditions']['EmailAddress.mail'] = $address;
-    $args['conditions']['EmailAddress.type'] = $addressType;
-    $args['joins'][0]['table'] = 'co_people';
-    $args['joins'][0]['alias'] = 'CoPerson';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPerson.id=EmailAddress.co_person_id';
-    $args['contain'] = false;
-    
-    $r = $this->findForUpdate($args['conditions'],
-                              array('mail'),
-                              $args['joins']);
-    
-    return empty($r);
   }
   
   /**

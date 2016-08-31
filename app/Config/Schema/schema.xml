@@ -438,38 +438,6 @@
     </index>
   </table>
   
-  <table name="co_message_templates">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="description" type="C" size="256">
-      <notnull />
-    </field>
-    <field name="context" type="C" size="2" />
-    <field name="cc" type="C" size="256" />
-    <field name="bcc" type="C" size="256" />
-    <field name="message_subject" type="C" size="256" />
-    <field name="message_body" type="X" size="4000" />
-    <field name="status" type="C" size="2" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="co_message_template_id" type="I">
-      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="co_message_templates_i1">
-      <col>co_id</col>
-    </index>
-  </table>
-  
   <table name="co_invites">
     <field name="id" type="I">
       <key />
@@ -688,6 +656,74 @@
     </index>
     <index name="co_group_members_i4">
       <col>co_group_member_id</col>
+    </index>
+  </table>
+  
+  <table name="co_identifier_validators">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="co_extended_type_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_extended_types(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_identifier_validator_id" type="I">
+      <constraint>REFERENCES cm_co_identifier_validators(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_identifier_validators_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_identifier_validators_i2">
+      <col>co_identifier_validator_id</col>
+    </index>
+  </table>
+  
+  <table name="co_message_templates">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256">
+      <notnull />
+    </field>
+    <field name="context" type="C" size="2" />
+    <field name="cc" type="C" size="256" />
+    <field name="bcc" type="C" size="256" />
+    <field name="message_subject" type="C" size="256" />
+    <field name="message_body" type="X" size="4000" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_message_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_message_templates_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_message_templates_i2">
+      <col>co_message_template_id</col>
     </index>
   </table>
   

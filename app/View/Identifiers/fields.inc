@@ -49,10 +49,7 @@
     print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['Identifier']['org_identity_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['Identifier']['org_identity_id']);
   }
-
-  if(isset($cur_co))
-    print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
-    
+  
   // Are we editing an org identity or a CO Person?
   $isOrgIdentity = true;
   
@@ -105,11 +102,28 @@
       <td>
         <?php
           if($e) {
+            print $this->Form->label('identifier', _txt('fd.identifier.identifier'));
+          } else {
+            print _txt('fd.identifier.identifier');
+          }
+        ?>
+        <span class="required">*</span>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('identifier', array('type' => 'text','class' => 'focusFirst'))
+                       : Sanitize::html($identifiers[0]['Identifier']['identifier'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print $l % 2;$l++; ?>">
+      <td>
+        <?php
+          if($e) {
             print $this->Form->label('type', _txt('fd.type'));
           } else {
             print _txt('fd.type');
           }
         ?>
+        <span class="required">*</span>
       </td>
       <td>
         <?php
@@ -129,21 +143,6 @@
             print $vv_available_types[ $identifiers[0]['Identifier']['type'] ];
           }
         ?>
-      </td>
-    </tr>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->label('identifier', _txt('fd.identifier.identifier'));
-          } else {
-            print _txt('fd.identifier.identifier');
-          }
-        ?>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('identifier', array('type' => 'text','class' => 'focusFirst'))
-                       : Sanitize::html($identifiers[0]['Identifier']['identifier'])); ?>
       </td>
     </tr>
     <?php if($isOrgIdentity): ?>
@@ -168,6 +167,7 @@
             print _txt('fd.status');
           }
         ?>
+        <span class="required">*</span>
       </td>
       <td>
         <?php

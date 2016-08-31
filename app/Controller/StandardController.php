@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Standard Controller
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -128,7 +128,17 @@ class StandardController extends AppController {
     if(!$this->checkWriteDependencies($data))
       return;
     
-    if($model->saveAll($data)) {
+    $err = "";
+    $ret = false;
+    
+    try {
+      $ret = $model->saveAll($data);
+    }
+    catch(Exception $e) {
+      $err = Sanitize::html($e->getMessage());
+    }
+    
+    if($ret) {
       // Reread the data so we account for any normalizations
       $data = $model->read();
       
@@ -160,7 +170,7 @@ class StandardController extends AppController {
           $this->Api->restResultHeader(500, "Other Error");
         }
       } else {
-        $this->Flash->set(_txt('er.fields'), array('key' => 'error'));
+        $this->Flash->set($err ?: _txt('er.fields'), array('key' => 'error'));
         $this->regenerateForm();
       }
     }
@@ -539,9 +549,19 @@ class StandardController extends AppController {
       // Extended Attributes for purposes of history and followups.
     }
 
+    $err = "";
+    $ret = false;
+    
+    try {
+      $ret = $model->saveAll($data);
+    }
+    catch(Exception $e) {
+      $err = Sanitize::html($e->getMessage());
+    }
+    
     // Finally, try to save.
 
-    if($model->saveAll($data)) {
+    if($ret) {
       // Reread the data so we account for any normalizations
       $data = $model->read();
       
@@ -578,7 +598,7 @@ class StandardController extends AppController {
           $this->Api->restResultHeader(500, "Other Error");
         }
       } else {
-        $this->Flash->set(_txt('er.fields'), array('key' => 'error'));
+        $this->Flash->set($err ?: _txt('er.fields'), array('key' => 'error'));
       }
     }
   }

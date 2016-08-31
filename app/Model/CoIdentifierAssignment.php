@@ -63,15 +63,16 @@ class CoIdentifierAssignment extends AppModel {
       )
     ),
     'email_type' => array(
-      'rule' => array(
-        'inList',
-        array(
-          ContactEnum::Home,
-          ContactEnum::Office
-        )
-      ),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'EmailAddress.type',
+                              'default' => array(EmailAddressEnum::Delivery,
+                                                 EmailAddressEnum::Forwarding,
+                                                 EmailAddressEnum::Official,
+                                                 EmailAddressEnum::Personal))),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'description' => array(
       'rule' => '/.*/',
@@ -141,12 +142,13 @@ class CoIdentifierAssignment extends AppModel {
    * @param  Integer CO Person ID
    * @param  Integer Actor CO Person ID
    * @return Integer ID of newly created Identifier
+   * @return Boolean Whether or not to run provisioners on save
    * @throws InvalidArgumentException
    * @throws OverflowException (identifier already exists)
    * @throws RuntimeException
    */
   
-  public function assign($coIdentifierAssignment, $coPersonID, $actorCoPersonID) {
+  public function assign($coIdentifierAssignment, $coPersonID, $actorCoPersonID, $provision=true) {
     $ret = null;
     
     // Determine if we are actually assigning an email address instead of an identifier.
@@ -156,7 +158,7 @@ class CoIdentifierAssignment extends AppModel {
        && !empty($coIdentifierAssignment['CoIdentifierAssignment']['email_type'])) {
       $assignEmail = true;
     }
-    
+
     // Begin a transaction. This is more because we need to ensure the integrity of
     // data between SELECT and INSERT/UPDATE than that we expect to rollback.
     
@@ -234,15 +236,29 @@ class CoIdentifierAssignment extends AppModel {
         // We have a new candidate (ie: one that wasn't generated on a previous loop),
         // so let's see if it is already in use.
         
-        if(($assignEmail
-            && $this->Co->CoPerson->EmailAddress->checkAvailability($candidate,
-                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['email_type'],
-                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['co_id']))
-           ||
-           (!$assignEmail
-            && $this->Co->CoPerson->Identifier->checkAvailability($candidate,
-                                                                  $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
-                                                                  $coIdentifierAssignment['CoIdentifierAssignment']['co_id']))) {
+        $ok = false;
+        
+        try {
+          if(($assignEmail
+              && $this->Co->CoPerson->EmailAddress->checkAvailability($candidate,
+                                                                      $coIdentifierAssignment['CoIdentifierAssignment']['email_type'],
+                                                                      $coIdentifierAssignment['CoIdentifierAssignment']['co_id'],
+                                                                      true))
+             ||
+             (!$assignEmail
+              && $this->Co->CoPerson->Identifier->checkAvailability($candidate,
+                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
+                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['co_id']))) {
+            $ok = true;
+          }
+        }
+        catch(Exception $e) {
+          // OverflowException = Identifier in use
+          // InvalidArgumentException = Bad format
+          // For now, we ignore the details and loop for the next candidate
+        }
+        
+        if($ok) {
           // This one's good... insert it into the table and break the loop
           
           // We need to update the appropriate validation rule with the current CO ID
@@ -264,7 +280,7 @@ class CoIdentifierAssignment extends AppModel {
             // saves against the same model.
             $this->Co->CoPerson->EmailAddress->create($emailAddressData);
             
-            if($this->Co->CoPerson->EmailAddress->save($emailAddressData, array('provision' => false))) {
+            if($this->Co->CoPerson->EmailAddress->save($emailAddressData, array('provision' => $provision))) {
               $ret = $this->Co->CoPerson->EmailAddress->id;
             }
           } else {
@@ -282,7 +298,12 @@ class CoIdentifierAssignment extends AppModel {
             // saves against the same model.
             $this->Co->CoPerson->Identifier->create($identifierData);
             
-            if($this->Co->CoPerson->Identifier->save($identifierData, array('provision' => false))) {
+            // Because we're in a transaction (at least for local checks, not necessarily
+            // for plugin checks), we can advise beforeSave to skip the availability checks
+            // (that we just ran).
+            if($this->Co->CoPerson->Identifier->save($identifierData,
+                                                     array('provision' => $provision,
+                                                           'skipAvailability' => true))) {
               $ret = $this->Co->CoPerson->Identifier->id;
             }
           }

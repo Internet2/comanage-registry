@@ -6,7 +6,7 @@
  * Version: $Revision$
  * Date: $Date$
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -326,6 +326,18 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           $args['co'] = $menuCoId;
 
           print $this->Html->link(_txt('ct.co_identifier_assignments.pl'), $args);
+          print "</li>";
+        }
+
+        if (isset($permissions['menu']['idvalidate']) && $permissions['menu']['idvalidate']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_identifier_validators';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+
+          print $this->Html->link(_txt('ct.co_identifier_validators.pl'), $args);
           print "</li>";
         }
 
