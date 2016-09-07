@@ -1,0 +1,322 @@
+/**
+ * COmanage Registry Default Style Sheet
+ *
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @link          http://www.internet2.edu/comanage COmanage Project
+ * @package       registry
+ * @since         COmanage Registry v1.1
+ * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * @version       $Id$
+ */
+
+/* HTML, BODY, HEADINGS, ANCHORS, FONTS */
+@import url("fonts/notosans_regular/stylesheet.css");
+@import url("fonts/notosans_bold/stylesheet.css");
+@import url("fonts/material-icons/material-icons.css");
+
+html * {
+  font-family: 'Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
+}
+body {
+  color: #222;
+}
+h1,h2,h3,h4,h5 {
+  font-family: 'Noto Sans Bold','Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
+  color: #555;
+}
+h1 {
+  font-size: 28px;
+  margin: 0;
+}
+h1.loginMsg {
+  font-size: 1.8em;
+  margin-top: 2em;
+  text-align: center;
+}
+h1.firstPrompt {
+  font-family: "Noto Sans";
+  font-size: 1.2em;
+  font-weight: normal;
+}
+a {
+  color: #2395E0;
+  text-decoration: none;
+}
+#main a:active,
+#main a:hover {
+  text-decoration: underline;
+}
+a.mdl-button:active, a.mdl-button:hover {
+  text-decoration: none;
+}
+
+/* HEADER */
+header.mdl-layout__header {
+  display: block !important;  /* don't hide on mobile */
+  background-color: #aed9f9;
+}
+.mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
+  padding-left: 44px;
+}
+body.logged-out .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
+  padding-left: 7px;
+}
+/* Logo */
+#logo {
+  margin-top: 4px;
+}
+#logo img {
+  height: 24px;
+}
+/* User Menu */
+#user-menu {
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 4;
+}
+body.logged-in #user-menu {
+  top: 12px;
+}
+#user-menu #user,
+#user-menu #notifications,
+#user-menu #logout {
+  float: left;
+  position: relative;
+}
+#user-menu #user,
+#user-menu #logout {
+  margin-right: 12px;
+}
+#user-common-name {
+  display: none;
+}
+#user-menu a.topMenu {
+  color: #222;
+}
+#user-menu .material-icons {
+  vertical-align: bottom;
+}
+#user-menu .icon-adjust {
+  margin-right: -8px;
+}
+#user {
+  margin-top: 8px;
+}
+#user-links-cn {
+  background-color: #1C77AF;
+  color: white;
+  margin-top: -8px;
+  text-align: center;
+  padding: 0.4em;
+}
+#user-links-id {
+  background-color: #2395E0;
+  color: white;
+  text-align: center;
+  padding: 0.4em;
+}
+/* Notifications */
+#notifications {
+  margin-top: 8px;
+}
+#notifications #notifications-menu {
+  width: 220px;
+  background-color: #f55;
+}
+#notifications .notification {
+  line-height: 1.3em;
+  padding: 0.5em 1em;
+  border-bottom: 1px solid #dae7ef;
+}
+#notifications .notification a {
+  display: block;
+}
+#notifications .notification:nth-child(odd) {
+  background-color: #fdfdfd;
+}
+#notifications .notification:nth-child(even) {
+  background-color: #f5f5f5;
+}
+#notifications .notification:hover {
+  background-color: rgb(238,238,238);
+}
+#notifications .notification-created {
+  font-size: 0.8em;
+}
+#notifications .notification-created a {
+  color: #444;
+}
+/*
+#notifications .mdl-menu__item {
+  white-space: normal;
+}*/
+#login {
+  margin: 9px;
+}
+/* hide logout button on mobile;
+   instead, reveal in user menu */
+#logout {
+  display: none;
+}
+#logout-in-menu {
+  margin: 4px 0 -8px;
+}
+.co-menu-button a {
+  background-color: #2395E0;
+  color: white;
+  text-align: center;
+  padding: 0.4em;
+  display: block;
+  margin-bottom: -8px;
+}
+.co-menu-button a:hover {
+  background-color: #53B1F4;
+}
+/* Notices */
+
+
+/* NAVIGATION / SIDE DRAWER */
+#navigation {
+  z-index: 100;
+  padding-top: 0;
+}
+#side-nav {
+  margin: 0;
+  padding: 0 0 1em 0;
+}
+#side-nav ul {
+  padding: 0.5em 0 1em 0;
+}
+#side-nav li {
+  list-style: none;
+}
+#side-nav > li {
+  border-bottom: 1px solid #f2f2f2;
+}
+#side-nav > li a {
+  display: block;
+  cursor: pointer;
+  margin: 0;
+  padding: 8px 0 8px 12px;
+  text-decoration: none;
+  color: #222;
+  position: relative;
+  overflow:hidden;
+}
+#side-nav > li li {
+  border-bottom: none;
+  position: relative;
+  overflow:hidden;
+}
+#side-nav > li li a {
+  font-size: 0.9em;
+  padding: 7px 8px 7px 16px;
+  line-height: 1.4em;
+  color: #2395E0;
+}
+#side-nav > li a:hover {
+  background-color: #f2f2f2;
+}
+/*#side-nav .fa {
+  color: #92B6D1;
+}*/
+#side-nav .fa-fw {
+  width: 2em;
+}
+#side-nav li.active a.menuTop {
+  background-color: #f2f2f2;
+}
+#side-nav .mdl-ripple {
+  background-color: #aed9f9;
+}
+#side-nav .menuTitleAdjust {
+  margin-left: -4px;
+}
+#side-nav .material-icons {
+  margin-right: 6px;
+  vertical-align: bottom;
+}
+#links ul {
+  margin: 0;
+  padding: 0;
+}
+#links li {
+  font-size: 0.9em;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  line-height: 1em;
+}
+#links a {
+  display: block;
+  padding: 7px 7px 7px 20px;
+  color: #92B6D1;
+}
+/* CONTENT */
+#collaborationTitle {
+  /*background-color: #92B6D1; original - blue-gray */
+  /*background-color: #2395E0; darker blue */
+  background-color: #53b1f4;
+  color: #fff;
+  font-size: 20px;
+  min-height: 23px;
+  padding: 10px 0 8px 15px;
+}
+#content {
+  padding: 1em;
+}
+#breadcrumbs {
+  font-size: 0.8em;
+}
+/* RIGHT SIDEBAR */
+#right-sidebar {
+  background-color: #fafafa;
+  margin: 1em 0 0 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+/* GENERAL */
+.hidden,
+.invisible {
+  display: none;
+}
+.co-grid .mdl-cell {
+  margin: 0;
+}
+.co-grid .co-grid-header {
+  display: none;
+}
+.co-grid .mdl-grid:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
+
+/* MDL OVERRIDES */
+.mdl-button--accent.mdl-button--accent.mdl-button--raised,
+.mdl-button--accent.mdl-button--accent.mdl-button--fab {
+  background-color: #c33;
+  color: #fff;
+}
+.mdl-data-table th,
+.mdl-data-table td {
+  text-align: left;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding-bottom: 1em;
+}

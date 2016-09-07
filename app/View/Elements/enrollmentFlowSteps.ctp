@@ -23,7 +23,7 @@
  * @version       $Id$
  */
 ?>
-<div class="sidebar">
+<div class="sidebar-content">
   <div id="enrollmentFlowSteps">
     <h3><?php print _txt('ct.co_enrollment_flows.1') ?></h3>
     <ul>

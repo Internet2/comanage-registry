@@ -1,0 +1,199 @@
+/**
+ * COmanage Registry Responsive Style Sheet
+ *
+ * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @link          http://www.internet2.edu/comanage COmanage Project
+ * @package       registry
+ * @since         COmanage Registry v1.1
+ * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * @version       $Id$
+ */
+
+/* Reponsive breakpoints for the COmanage theme are set to 360, 480, 600, 840, 960, 1280, 1440, and 1600dp.
+   This is a mobile-first theme.  General and 320 mobile portrait styles are in co-base.css */
+
+/* LARGE PHONE PORTRAIT */
+/**************************************************************************************************************/
+/* Larger phones (e.g. Samsung Galaxy) in portrait mode */
+@media only screen and (min-width: 360px) {
+  #logo img {
+    height: 30px;
+  }
+  #notifications {
+    margin-right: 4px;
+  }
+}
+
+/* PHONE LANDSCAPE */
+/**************************************************************************************************************/
+/* Small phones in landscape mode  */
+@media only screen and (min-width: 480px) {
+  #logo img {
+    height: 38px;
+  }
+  #notifications {
+    margin-right: 12px;
+  }
+}
+
+/* SMALL TABLET */
+/**************************************************************************************************************/
+/* Very small devices (tablets, 600px and up) */
+@media only screen and (min-width: 600px) {
+  h1 {
+    font-size: 36px;
+  }
+  #logout {
+    /*display: block; -- keep hidden for now */
+  }
+  #user-menu {
+    right: 15px;
+  }
+  #user-common-name {
+    display: inline;
+  }
+  #user-links-cn {
+    display: none;
+  }
+  #user-links-id {
+    margin-top: -8px;
+  }
+  footer {
+    text-align: right;
+    padding: 1em 2em;
+  }
+}
+
+/* SMALL DESKTOP - Primary breakpoint */
+/**************************************************************************************************************/
+/* Small devices (desktops, 840px and up) */
+@media only screen and (min-width: 840px) {
+  /**** START Layout overrides to MDL breakpoint - from 1024 to 840 ***/
+  /* HEADER */
+  .mdl-layout--fixed-drawer.is-upgraded:not(.is-small-screen) > .mdl-layout__header {
+    /* override mdl to always make header full width and set the height */
+    margin-left: 0;
+    width: auto;
+  }
+  .mdl-layout__header {
+    height: 64px !important; /* layout override */
+  }
+  .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
+     padding-left: 12px;
+  }
+  #logo {
+    margin-top: 11px;
+  }
+  #user-menu {
+    z-index: 30;
+  }
+  #user-menu a.topMenu {
+    color: white;
+  }
+  #notifications #notifications-menu {
+    width: 400px;
+  }
+  #login {
+    margin-top: 14px;
+  }
+  /* NAVIGATION / SIDE DRAWER */
+  /* MDL Drawer Override - change the drawer breakpoint from 1025 to 840 */
+  .mdl-layout--fixed-drawer > .mdl-layout__drawer {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+  .mdl-layout__drawer {
+    top: 64px; /* never cover header */
+    box-shadow: none; /* use no shadow on desktop menu */
+  }
+  .mdl-layout__drawer-button {
+    display: none;
+  }
+  /* CONTENT */
+  .mdl-layout__content {
+    margin-left: 240px !important;
+    margin-top: -64px;
+    position: relative;
+    z-index: 20;
+    background-color: white;
+  }
+  body.logged-out .mdl-layout__content {
+    margin-left: 0 !important;
+    margin-top: 0;
+  }
+  /**** END Layout overrides to MDL breakpoint - from 1024 to 840 ***/
+
+  /* RIGHT SIDEBAR */
+  .sidebar {
+    background-color: #fafafa;
+    border-left: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    margin: 0;
+    padding: 10px;
+    padding-bottom: 2em;
+    min-height: 100%;
+    position: absolute;
+    right: 0;
+    width: 247px;
+  }
+
+  #collaborationTitle {
+    min-height: 46px;
+    font-size: 2em;
+    line-height: 1.6em;
+    padding-right: 240px;
+  }
+  .co-grid .mdl-cell {
+    margin: 8px;
+  }
+  .co-grid .co-grid-header {
+    display: flex;
+    background-color: #e5e5e5 !important;
+    font-weight: bold;
+  }
+
+
+}
+
+/* MEDIUM DESKTOP */
+/**************************************************************************************************************/
+/* Medium devices (desktops, 960px and up) */
+@media only screen and (min-width: 960px) {
+
+}
+
+/* MDL override */
+@media screen and (max-width: 1024px) {
+  .mdl-layout__container.has-scrolling-header .mdl-layout__content {
+    overflow-x: visible;
+    overflow-y: visible;
+  }
+}
+
+/* MID-LARGE DESKTOP */
+/**************************************************************************************************************/
+/* Mid to large devices (desktops, 1024px and up) */
+@media only screen and (min-width: 1024px) {
+  #logo {
+    margin-top: 4px;
+  }
+}
+
+/* LARGE DESKTOP */
+/**************************************************************************************************************/
+/* Large devices (desktops, 1280px and up) */
+@media only screen and (min-width: 1280px) {
+
+}

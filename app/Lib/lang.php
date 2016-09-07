@@ -36,8 +36,9 @@ $cm_texts['en_US'] = array(
   'lang' => 'en',
 
   // Application name
-  'coordinate' =>     'COmanage Registry',
-  
+  'coordinate'         => 'COmanage Registry',
+  'coordinate.version' => 'Version',
+
   // What a CO is called (abbreviated)
   'co' =>             'CO',
   'cos' =>            'COs',
@@ -1374,7 +1375,7 @@ original notification at
   'op.home.collabs' => 'Available Collaborations',
   'op.home.collabs.summary' => 'All collaborations in which user may participate',
   'op.home.no.collabs' => 'No collaborations are currently available.',
-  'op.dashboard.select' => 'Welcome to %1$s. Please select an action from the menus, above.',
+  'op.dashboard.select' => 'Welcome to %1$s. Please select an action from the menus.',
   'op.id.auto' =>     'Autogenerate Identifiers',
   'op.id.auto.all' => 'Autogenerate Identifiers For All',
   'op.id.auto.all.confirm' => 'Are you sure you wish to autogenerate identifiers for all active CO People?',
@@ -1446,7 +1447,7 @@ original notification at
   'op.search' =>      'Search',
   'op.search-a' =>    'Search %1$s',
   'op.search.restore' =>  'Restore default listing',
-  'op.see.notifications' =>  'View full notifications list...',
+  'op.see.notifications' =>  'View all notifications',
   'op.select' =>      'Select',
   'op.select-a' =>    'Select %1$s',
   'op.select.select' => 'Please select the CO Person you would like to attach to this Petition by clicking the associated select button.',

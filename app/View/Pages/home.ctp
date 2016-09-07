@@ -78,7 +78,7 @@
     // Render some text according to the user's current state
     if(!empty($userInfo['cos'])) {
       // Valid user
-      print '<h1>' . _txt('op.home.select', array(_txt('coordinate'))) . '</h1>';
+      print '<h1 class="firstPrompt">' . _txt('op.home.select', array(_txt('coordinate'))) . '</h1>';
 
       // Load the list of COs
       if($menuContent['cos']) {
@@ -87,10 +87,66 @@
         $cos = array();
       }
 
-      print '<table id="fpCoList" class="ui-widget">';
+      print '<h3>' . _txt('op.home.collabs') . '</h3>';
+      print '<div id="fpCoList" class="co-grid co-grid-with-header mdl-shadow--2dp">';
+      print '<div class="mdl-grid co-grid-header">';
+      print '  <div class="mdl-cell mdl-cell--6-col">' . _txt('fd.name') . '</div>';
+      print '  <div class="mdl-cell mdl-cell--6-col">' . _txt('fd.desc') . '</div>';
+      print '</div>';
+
+      //loop over each CO
+      if(count($cos) > 0) {
+        $i = 0;
+        foreach($cos as $menuCoName => $menuCoData) {
+          $collabMenuCoId = $menuCoData['co_id'];
+
+          if((!isset($menuCoData['co_person']['status'])
+              || ($menuCoData['co_person']['status'] != StatusEnum::Active
+                && $menuCoData['co_person']['status'] != StatusEnum::GracePeriod)
+              || empty($menuCoData['co_person']['CoPersonRole']))
+            && !$permissions['menu']['admin']) {
+            // Don't render this CO, the person is not an active member (or a CMP admin)
+            continue;
+          }
+
+          print '<div class="mdl-grid">';
+          print '<div class="mdl-cell mdl-cell--6-col collab-name">';
+          // We use $menuCoData here and not $menuCoName because the former will indicate
+          // 'Not a Member' for CMP Admins (where they are not a member of the CO)
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_dashboards';
+          $args['action'] = 'dashboard';
+          $args['co'] = $collabMenuCoId;
+
+          print $this->Html->link($menuCoData['co_name'], $args);
+
+          print '</div><div class="mdl-cell mdl-cell--6-col collab-desc">';
+
+          if (!empty($menuCoData['co_person']['Co']['description'])) {
+            print Sanitize::html($menuCoData['co_person']['Co']['description']);
+          } elseif (!empty($menuCoData['co_desc'])) {
+            print Sanitize::html($menuCoData['co_desc']);
+          }
+          print '</div></div>';
+          $i++;
+        }
+      } else {
+        print '<p>' . _txt('op.home.no.collabs') .  '</p>';
+      }
+
+      print '</div>';
+    } elseif(!$userInfo) {
+      // Please login
+      print '<h1 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h1>';
+    }
+      
+      
+      /*
+      print '<table id="fpCoList" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">';
       print '<caption>' . _txt('op.home.collabs') . '</caption>';
       print '<thead>';
-      print '  <tr class="ui-widget-header">';
+      print '  <tr>';
       print '    <th scope="col">' . _txt('fd.name') . '</th>';
       print '    <th scope="col">' . _txt('fd.desc') . '</th>';
       print '  </tr>';
@@ -143,7 +199,7 @@
     } elseif(!$userInfo) {
       // Please login
       print '<h1 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h1>';
-    }
+    }*/
   ?>
 </div>
 <?php endif; // $err ?>

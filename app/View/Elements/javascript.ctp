@@ -26,6 +26,8 @@
 
 <script type="text/javascript">
   $(function() {
+    $('#side-nav').metisMenu();
+
     // Focus any designated form element
     $(".focusFirst").focus();
 

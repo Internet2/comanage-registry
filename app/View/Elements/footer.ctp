@@ -23,12 +23,7 @@
 
 <div class="footer">
   <div class="poweredByComanage">
-    <div class="poweredText">Powered by
-    </div>
-    <?php print $this->Html->image('comanage-logo.jpg',
-                                   array('alt'     => 'COmanage',
-                                         'height'  => 30,
-                                  ));
-    ?>
+    <span class="poweredText">Powered by</span>
+    <?php print $this->Html->image('COmanage-Logo-LG-onWhite.png', array('alt' => 'COmanage', 'height' => 30 )); ?>
   </div>
 </div>

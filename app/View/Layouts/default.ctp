@@ -26,46 +26,185 @@
   header("Expires: Thursday, 10-Jan-69 00:00:00 GMT");
   header("Cache-Control: no-store, no-cache, max-age=0, must-revalidate");
   header("Pragma: no-cache");
+
+  // Add X-UA-Compatible header for IE
+  if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
+    header('X-UA-Compatible: IE=edge,chrome=1');
+  }
 ?>
 <!DOCTYPE html>
 <html lang="<?php print _txt('lang'); ?>">
   <head>
+    <?php print $this->Html->meta(array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0',  'http-equiv' => "X-UA-Compatible")) . "\n"; ?>
+    <?php print $this->Html->charset() . "\n"; ?>
+
+    <title><?php print _txt('coordinate') . ': ' . $title_for_layout; ?></title>
     <!-- <?php
       // Include version number, but only if logged in
       if($this->Session->check('Auth.User')) {
-        print chop(file_get_contents(APP . "Config/VERSION"));
+        print _txt('coordinate.version') . ' ' . chop(file_get_contents(APP . "Config/VERSION"));
       }
     ?> -->
-    <title><?php print _txt('coordinate') . ': ' . $title_for_layout; ?></title>
-    <?php print $this->Html->charset(); ?>
-    <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Include the comanage and jquery style sheets -->
+    <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')) . "\n"; ?>
+
+    <!-- Load CSS -->
     <?php
-      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui.min');
-      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui-comanage-overrides');
-      print $this->Html->css('jquery/superfish/css/superfish');
-      print $this->Html->css('comanage');
-      print $this->Html->css('comanage-responsive');
+      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui.min') . "\n    ";
+      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui-comanage-overrides') . "\n    ";
+      print $this->Html->css('mdl/mdl-1.2.0/material.css') . "\n    ";
+      print $this->Html->css('jquery/metisMenu/metisMenu.min.css') . "\n    ";
+      print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
+      print $this->Html->css('co-base') . "\n    ";
+      print $this->Html->css('co-responsive') . "\n    ";
+      // load legacy styles while site is undergoing layout transition
+      print $this->Html->css('co-legacy') . "\n    ";
+      
+      // Until used more broadly, limit loading of Magnific Popup
       if ($this->controller = 'history_records') {
-        // Until used more broadly, limit loading of Magnific Popup
         print $this->Html->css('jquery/magnificpopup/magnific-popup');
       }
     ?>
 
-    <!-- Get jquery code -->
+    <!-- Load JavaScript -->
+    <?php /* only JQuery here - other scripts at bottom */
+      print $this->Html->script('jquery/jquery-1.11.3.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-ui-1.11.4.custom/jquery-ui.min.js') . "\n    ";
+    ?>
+
+    <!-- Include external files and scripts -->
     <?php
-      print $this->Html->script('jquery/jquery-1.11.3.min.js');
-      print $this->Html->script('jquery/jquery-ui-1.11.4.custom/jquery-ui.min.js');
-      print $this->Html->script('jquery/superfish/js/superfish.js');
-      print $this->Html->script('jquery/spin.min.js');
+      print $this->fetch('meta');
+      print $this->fetch('css');
+      print $this->fetch('script');
+    ?>
+  </head>
+
+  <?php
+    $bodyClasses = $this->params->controller . ' ' . $this->params->action . ' ';
+    if($this->Session->check('Auth.User') != NULL) {
+      $bodyClasses .= 'logged-in';
+    } else {
+      $bodyClasses .= 'logged-out';
+    }
+  ?>
+  <body class="<?php print $bodyClasses ?>" onload="js_onload_call_hooks()">
+
+    <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+      <header id="banner" role="banner" class="mdl-layout__header mdl-layout__header--scroll">
+        <div class="mdl-layout__header-row">
+          <div id="logo">
+            <?php
+              $imgFile = 'COmanage-Logo-LG-onBlue.png';
+
+              if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
+                // A custom logo has been installed, so use that instead
+                $imgFile = 'logo.png';
+              }
+
+              // Clicking on the logo will take us to the front page
+              print $this->Html->link(
+                $this->Html->image(
+                  $imgFile,
+                  array(
+                    'alt' => 'COmanage Logo'
+                  )
+                ),'/',
+                array('escape' => false)
+              );
+            ?>
+          </div>
+        </div>
+      </header>
+
+      <?php if($this->Session->check('Auth.User')): ?>
+        <div class="mdl-layout__drawer">
+          <nav id="navigation" role="navigation" aria-label="main menu" class="mdl-navigation">
+            <?php print $this->element('menuMain'); ?>
+            <?php print $this->element('links'); ?>
+          </nav>
+        </div>
+      <?php endif ?>
+
+      <nav id="user-menu">
+        <?php print $this->element('menuUser'); ?>
+      </nav>
+
+      <main id="main" class="mdl-layout__content">
+        <div id="collaborationTitle">
+        <?php
+          if(!empty($cur_co['Co']['name'])) {
+            print Sanitize::html($cur_co['Co']['name']);
+          } else {
+            print _txt('coordinate');
+          }
+        ?>
+        </div>
+
+        <div id="content" class="mdl-grid">
+        <?php
+
+          // display the view content
+          if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
+            print '<div id="content-inner" class="mdl-cell mdl-cell--9-col">';
+          } else {
+            print '<div id="content-inner" class="mdl-cell mdl-cell--12-col">';
+          }
+
+          // insert breadcrumbs on all but the homepage if logged in
+          if($this->Session->check('Auth.User')) {
+            if ($this->request->here != $this->request->webroot) {
+              print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
+            }
+          }
+
+          // insert the page internal content
+          print $this->fetch('content');
+          print '</div>';
+
+          if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
+            print '<div id="right-sidebar" class="mdl-cell mdl-cell--3-col">';
+
+            // insert the sidebar buttons if they exist
+            $sidebarButtons = $this->get('sidebarButtons');
+            if (!empty($sidebarButtons)) {
+              print $this->element('sidebarButtons');
+            }
+
+            // display enrollment flow steps when they exist
+            $enrollmentFlowSteps = $this->get('enrollmentFlowSteps');
+            if (!empty($enrollmentFlowSteps)) {
+              print $this->element('enrollmentFlowSteps');
+            }
+            print "</div>";
+          }
+        ?>
+        </div>
+      </main>
+
+      <footer>
+        <?php print $this->element('footer'); ?>
+      </footer>
+
+      <?php if(Configure::read('debug') > 0): ?>
+        <div>
+          <?php print $this->element('sql_dump'); ?>
+        </div>
+      <?php endif; ?>
+    </div>
+
+    <!-- Load JavaScript -->
+    <?php
+      print $this->Html->script('mdl/mdl-1.2.0/material.min.js') . "\n    ";
+      print $this->Html->script('jquery/metisMenu/metisMenu.min.js') . "\n    ";
+      print $this->Html->script('js-cookie/js.cookie-2.1.3.min.js') . "\n    ";
+      print $this->Html->script('jquery/spin.min.js') . "\n    ";
       if ($this->controller = 'history_records') {
         // Until used more broadly, limit loading of Magnific Popup
         print $this->Html->script('jquery/magnificpopup/jquery.magnific-popup.min.js');
       }
     ?>
-    
+
     <!-- Get timezone detection -->
     <?php print $this->Html->script('jstimezonedetect/jstz.min.js'); ?>
     <script type="text/javascript">
@@ -78,139 +217,29 @@
 
 
     <?php if($this->here != '/registry/pages/eds/index'):
-    // Don't load the following scripts when loading the Shib EDS. ?>
+      // Don't load the following scripts when loading the Shib EDS. ?>
+
       <!-- noty scripts -->
       <?php
-        print $this->Html->script('jquery/noty/jquery.noty.js');
-        print $this->Html->script('jquery/noty/layouts/topCenter.js');
-        print $this->Html->script('jquery/noty/themes/comanage.js');
+        print $this->Html->script('jquery/noty/jquery.noty.js') . "\n    ";
+        print $this->Html->script('jquery/noty/layouts/topCenter.js') . "\n    ";
+        print $this->Html->script('jquery/noty/themes/comanage.js') . "\n    ";
       ?>
+
       <!-- COmanage JavaScript library and onload scripts -->
       <?php
-        print $this->Html->script('comanage.js');
+        print $this->Html->script('comanage.js') . "\n    ";
         print $this->element('javascript');
       ?>
-    <?php endif // !eds ?>
 
-    <!-- Include external files and scripts -->
-    <?php
-      print $this->fetch('meta');
-      print $this->fetch('css');
-      print $this->fetch('script');
-    ?>
-  </head>
-
-  <body class="<?php print $this->params->controller . ' ' . $this->params->action ?>"
-        onload="js_onload_call_hooks()">
-    <nav id="row1" aria-label="user and platform menus">
-      <div class="contentWidth">
-        <?php print $this->element('secondaryMenu'); ?>
-        <?php print $this->element('links'); ?>
-      </div>
-    </nav>
-
-    <header id="row2" class="ui-widget-header">
-      <div class="contentWidth">
-
-        <div class="headerRight">
-          <?php
-            $imgFile = 'comanage-logo.png';
-
-            if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
-              // A custom logo has been installed, so use that instead
-              $imgFile = 'logo.png';
-            }
-
-            // Clicking on the logo will take us to the front page
-            print $this->Html->link(
-              $this->Html->image(
-                $imgFile,
-                array(
-                  'alt' => 'COmanage Logo',
-                  'height' => 50
-                )
-              ),'/',
-              array('escape' => false)
-            );
-          ?>
-        </div>
-
-        <div class="headerLeft">
-          <?php
-            if(!empty($cur_co['Co']['name'])) {
-              print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
-            } else {
-              print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
-            }
-          ?>
-        </div>
-      </div>
-    </header>
-
-    <?php if($this->Session->check('Auth.User')): ?>
-      <nav id="row3" aria-label="main menu">
-        <div class="contentWidth">
-          <?php print $this->element('dropMenu'); ?>
-        </div>
-      </nav>
-    <?php endif ?>
-
-    <main id="main" class="contentWidth">
-      <?php
-        // insert the sidebar buttons if they exist
-        $sidebarButtons = $this->get('sidebarButtons');
-        if(!empty($sidebarButtons)) {
-          print $this->element('sidebarButtons');
-        }
-
-        // display enrollment flow steps when they exist
-        $enrollmentFlowSteps = $this->get('enrollmentFlowSteps');
-        if(!empty($enrollmentFlowSteps)) {
-          print $this->element('enrollmentFlowSteps');
-        }
-
-        // display the view content
-        if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
-          print '<div id="content" class="contentWithSidebar">';
-        } else {
-          print '<div id="content">';
-        }
-
-        // insert breadcrumbs on all but the homepage if logged in
-        if($this->Session->check('Auth.User')) {
-          if ($this->request->here != $this->request->webroot) {
-            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
-          }
-        }
-
-        // insert the page internal content
-        print $this->fetch('content');
-
-        // close the view content div
-        print "</div>";
-      ?>
-
-    </main>
-
-    <!-- Common UI components -->
-    <?php if($this->here != '/registry/pages/eds/index'):
-      // Don't load the following UI component when loading the Shib EDS. ?>
+      <!-- Common UI components -->
       <div id="dialog" title="Confirm" role="alertdialog">
         <p>
           <span class="ui-icon ui-icon-alert co-alert"></span>
           <span id="dialog-text"><?php print _txt('op.proceed.ok'); ?></span>
         </p>
       </div>
-    <?php endif; ?>
+    <?php endif // !eds ?>
 
-    <footer class="contentWidth">
-      <?php print $this->element('footer'); ?>
-    </footer>
-
-    <?php if(Configure::read('debug') > 0): ?> 
-      <div>
-        <?php print $this->element('sql_dump'); ?>
-      </div>
-    <?php endif; ?>
   </body>
 </html>

@@ -23,7 +23,7 @@
  * @version       $Id$
  */
 ?>
-<div class="sidebar">
+<div class="sidebar-content">
   <ul id="menu">
     <?php
     foreach($sidebarButtons as $button => $link){

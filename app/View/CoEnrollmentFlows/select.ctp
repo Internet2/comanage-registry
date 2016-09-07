@@ -35,46 +35,34 @@
 
 ?>
 
-<table id="co_enrollment_flows" class="ui-widget">
-  <thead>
-    <tr class="ui-widget-header">
-      <th><?php print _txt('fd.name'); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_enrollment_flows as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print Sanitize::html($c['CoEnrollmentFlow']['name']);
-        ?>
-      </td>
-      <td>
+<div id="co_enrollment_flows" class="co-grid co-grid-with-header mdl-shadow--2dp">
+  <div class="mdl-grid co-grid-header">
+    <div class="mdl-cell mdl-cell--9-col"><?php print _txt('fd.name'); ?></div>
+    <div class="mdl-cell mdl-cell--3-col"><?php print _txt('fd.actions'); ?></div>
+  </div>
+
+
+  <?php $i = 0; ?>
+  <?php foreach ($co_enrollment_flows as $c): ?>
+    <div class="mdl-grid">
+      <div class="mdl-cell mdl-cell--9-col flow-name">
+        <?php print Sanitize::html($c['CoEnrollmentFlow']['name']); ?>
+      </div>
+      <div class="mdl-cell mdl-cell--3-col actions">
         <?php
           if($permissions['select']) {
+
             print $this->Html->link(_txt('op.begin'),
-                                    array(
-                                      'controller' => 'co_petitions',
-                                      'action' => 'start',
-                                      'coef' => $c['CoEnrollmentFlow']['id']
-                                    ),
-                                    array('class' => 'forwardbutton')) . "\n";
+                array(
+                  'controller' => 'co_petitions',
+                  'action' => 'start',
+                  'coef' => $c['CoEnrollmentFlow']['id']
+                ),
+                array('class' => 'co-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect')) . "\n";
           }
         ?>
-        <?php ; ?>
-      </td>
-    </tr>
+      </div>
+    </div>
     <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="2">
-      </th>
-    </tr>
-  </tfoot>
-</table>
+  <?php endforeach; ?>
+</div>
