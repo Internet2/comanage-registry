@@ -78,6 +78,7 @@ class LdapIdentifierValidator extends AppModel {
    * @ since COmanage Registry v1.1.0
    * @ return Array with menu location type as key and array of labels, controllers, actions as values.
    */
+  
   public function cmPluginMenus() {
     return array();
   }
@@ -97,8 +98,7 @@ class LdapIdentifierValidator extends AppModel {
    */
   
   protected function queryLdap($serverUrl, $bindDn, $password, $baseDn, $filter, $attributes=array()) {
-// XXX this is copied from CoLdapProvisionerTarget... perhaps move into Lib?
-// Or reuse the copy now in LdapSourceBackend?
+    // Based on similar code in CoLdapProvisionerTarget (CO-1320)
     $ret = array();
     
     $cxn = ldap_connect($serverUrl);
