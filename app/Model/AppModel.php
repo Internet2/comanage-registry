@@ -112,7 +112,7 @@ class AppModel extends Model {
         }
       }
     }
-    
+
     return true;
   }
   
@@ -534,12 +534,25 @@ class AppModel extends Model {
           // them all but fail on the first one that fails.
           
           try {
-            $pname = $v['CoIdentifierValidator']['plugin'] . '.' . $v['CoIdentifierValidator']['plugin'];
+            $plugin = $v['CoIdentifierValidator']['plugin'];
+            $pname = $plugin . '.' . $plugin;
             $pmodel = $plugins[$pname];
+            $pcfg = array();
+        
+            if($pmodel->cmPluginInstantiate) {
+              // Pull the relevant plugin config to pass to the plugin
+              
+              $args = array();
+              $args['conditions'][ $plugin . '.co_identifier_validator_id' ] = $v['CoIdentifierValidator']['id'];
+              $args['contain'] = false;
+              
+              $pcfg = $pmodel->find('first', $args);
+            }
             
             $pmodel->validate($identifier,
                               $v['CoIdentifierValidator'],
-                              $v['CoExtendedType']);
+                              $v['CoExtendedType'],
+                              (!empty($pcfg) ? $pcfg[$plugin] : null));
           }
           catch(InvalidArgumentException $e) {
             // Bad format
@@ -792,6 +805,19 @@ class AppModel extends Model {
       if(empty($copr[ $this->alias ]['co_person_id'])
          && !empty($copr[ $this->alias ]['org_identity_id'])) {
         return null;
+      }
+    } elseif(isset($this->validate['co_identifier_validator_id'])) {
+      // XXX this plugin type-specific logic should move elsewhere (CO-1321)
+      // Identifier Validator plugins will refer to an identifier validator
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'CoIdentifierValidator';
+    
+      $copt = $this->find('first', $args);
+      
+      if(!empty($copt['CoIdentifierValidator']['co_id'])) {
+        return $copt['CoIdentifierValidator']['co_id'];
       }
     } elseif(isset($this->validate['co_provisioning_target_id'])) {
       // Provisioning plugins will refer to a provisioning target

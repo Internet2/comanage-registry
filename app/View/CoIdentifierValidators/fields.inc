@@ -53,7 +53,7 @@
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.desc'); ?></b><span class="required">*</span>
+        <strong><?php print _txt('fd.desc'); ?></strong><span class="required">*</span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
@@ -62,35 +62,64 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.plugin'); ?></b><span class="required">*</span>
+        <strong class="fieldTitle">
+          <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
+        </strong><span class="required">*</span><br />
+        <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_identifier_validators.1'))); ?></span>
       </td>
       <td>
         <?php
-          $attrs = array();
-          $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['plugin'])
-                             ? $co_identifier_validators[0]['CoIdentifierValidator']['plugin']
-                             : null);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('plugin',
-                                      $vv_plugins,
-                                      $attrs);
+          switch($this->action) {
+            case 'add':
+              $attrs = array();
+              // Since this is add, value should always be null...
+              $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['plugin'])
+                                 ? $co_identifier_validators[0]['CoIdentifierValidator']['plugin']
+                                 : null);
+              $attrs['empty'] = false;
+              
+              print $this->Form->select('plugin',
+                                        $vv_plugins,
+                                        $attrs);
+              
+              if($this->Form->isFieldError('plugin')) {
+                print $this->Form->error('plugin');
+              }
+            break;
+          case 'edit':
+            print Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']);
+            // Send the value as hidden since it can't be changed (but is required by the model)
+            print $this->Form->hidden('plugin', array('default' => Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']))) . "\n";
             
-            if($this->Form->isFieldError('plugin')) {
-              print $this->Form->error('plugin');
+            // Create a direct link to configuration if this plugin is instantiated
+            $plugin = Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']);
+            $pl = Inflector::underscore($plugin);
+            $plm = Inflector::tableize($plugin);
+            
+            if($vv_inst_plugins[$plugin]) {
+              print $this->Html->link(_txt('op.config'),
+                array(
+                  'plugin' => $pl,
+                  'controller' => $plm,
+                  'action' => 'edit',
+                  $co_identifier_validators[0][$plugin]['id'],
+                  'ivid' => $co_identifier_validators[0]['CoIdentifierValidator']['id']
+                ),
+                array('class' => 'editbutton')) . "\n";
             }
-          } else {
+            break;
+          default:
             if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['plugin'])) {
               print $vv_plugins[ $co_identifier_validators[0]['CoIdentifierValidator']['plugin'] ];
             }
+            break;
           }
         ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.type'); ?></b><span class="required">*</span>
+        <strong><?php print _txt('fd.type'); ?></strong><span class="required">*</span>
       </td>
       <td>
         <?php
@@ -118,7 +147,7 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
-        <b><?php print _txt('fd.status'); ?></b><span class="required">*</span>
+        <strong><?php print _txt('fd.status'); ?></strong><span class="required">*</span>
       </td>
       <td>
         <?php

@@ -40,6 +40,39 @@ class CoIdentifierValidatorsController extends StandardController {
   public $requires_co = true;
   
   /**
+   * Callback before other controller methods are invoked or views are rendered.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @throws InvalidArgumentException
+   */
+  
+  function beforeFilter() {
+    parent::beforeFilter();
+    
+    // Pull the set of validators
+    $plugins = $this->loadAvailablePlugins('identifiervalidator');
+    
+    $this->set('vv_plugins', $plugins);
+    
+    // And track which are instantiated
+    $iPlugins = array();
+    
+    foreach(array_keys($plugins) as $p) {
+      // Walk the list of plugins to see which ones are instantiated,
+      // then create the association. This will pull associated data for the views.
+
+      if($this->$p->cmPluginInstantiate) {
+        $this->CoIdentifierValidator->bindModel(array('hasOne' => array($p)), false);
+        $iPlugins[$p] = true;
+      } else {
+        $iPlugins[$p] = false;
+      }
+    }
+    
+    $this->set('vv_inst_plugins', $iPlugins);
+  }
+  
+  /**
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request->params
    *
@@ -47,9 +80,6 @@ class CoIdentifierValidatorsController extends StandardController {
    */
 
   function beforeRender() {
-    // Pull the set of validators
-    $this->set('vv_plugins', $this->loadAvailablePlugins('identifiervalidator'));
-    
     // Pull the set of Extended Types. We support both EmailAddress and Identifier
     $types = array();
     // Normally we wouldn't use a localized language string as an array key,
@@ -60,6 +90,41 @@ class CoIdentifierValidatorsController extends StandardController {
     $this->set('vv_available_types', $types);
     
     parent::beforeRender();
+  }
+  
+  /**
+   * Perform any dependency checks required prior to a delete operation.
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkDeleteDependencies($curdata) {
+    // Based on OrgIdentitySourcesController::checkDeleteDependencies,
+    // which in turn is basically the same logic as CoProvisioningTargetsController.php
+    
+    // Annoyingly, the read() call in standardController resets the associations made
+    // by the bindModel() call in beforeFilter(), above. Beyond that, deep down in
+    // Cake's Model, a find() is called as part of the delete() which also resets the associations.
+    // So we have to manually delete any dependencies.
+    
+    // Use the previously obtained list of plugins as a guide
+    
+    foreach(array_keys($this->viewVars['vv_inst_plugins']) as $plugin) {
+      if($this->viewVars['vv_inst_plugins'][$plugin]) {
+        // Plugin is instantiated
+        $model = $plugin;
+        
+        if(!empty($curdata[$model]['id'])) {
+          $this->loadModel($plugin . "." . $model);
+          $this->$model->delete($curdata[$model]['id']);
+        }
+      }
+    }
+    
+    return true;
   }
   
   /**
@@ -96,5 +161,34 @@ class CoIdentifierValidatorsController extends StandardController {
 
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * Perform a redirect back to the controller's default view.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+  
+  function performRedirect() {
+    if($this->action == 'add'
+       && !empty($this->CoIdentifierValidator->data['CoIdentifierValidator']['plugin'])
+       && $this->viewVars['vv_inst_plugins'][ $this->CoIdentifierValidator->data['CoIdentifierValidator']['plugin'] ]) {
+      // Redirect to the appropriate plugin to set up whatever it wants,
+      // if it is instantiated
+      
+      $pluginName = $this->CoIdentifierValidator->data['CoIdentifierValidator']['plugin'];
+      $modelName = $pluginName;
+      
+      $target = array();
+      $target['plugin'] = Inflector::underscore($pluginName);
+      $target['controller'] = Inflector::tableize($modelName);
+      $target['action'] = 'edit';
+      $target[] = $this->CoIdentifierValidator->data[$pluginName]['id'];
+      
+      $this->redirect($target);
+    } else {
+      parent::performRedirect();
+    }
   }
 }

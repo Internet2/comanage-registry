@@ -72,7 +72,7 @@
         <strong class="fieldTitle">
           <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
         </strong><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.org_identity_sources.1'))); ?></span>
+        <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_provisioning_targets.1'))); ?></span>
       </td>
       <td>
         <?php

@@ -71,5 +71,40 @@ class CoIdentifierValidator extends AppModel {
       'allowEmpty' => false
     )
   );
+  
+  /**
+   * Callback after model save.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Boolean $created True if new model is saved (ie: add)
+   * @param  Array $options Options, as based to model::save()
+   * @return Boolean True on success
+   */
+  
+  public function afterSave($created, $options = Array()) {
+    if($created) {
+      // Create an instance of the plugin source, if it is flagged
+      // as instantiable.
+      
+      $pluginName = $this->data['CoIdentifierValidator']['plugin'];
+      $modelName = $pluginName;
+      $pluginModelName = $pluginName . "." . $modelName;
+      
+      $pmodel = ClassRegistry::init($pluginModelName);
+      
+      // See if this plugin requires instantiation
+      if($pmodel->cmPluginInstantiate) {
+        $validator = array();
+        $validator[$modelName]['co_identifier_validator_id'] = $this->id;
+        
+        // Note that we have to disable validation because we want to create an empty row.
+        if(!$pmodel->save($validator, false)) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  }
 }
 
