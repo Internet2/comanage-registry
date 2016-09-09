@@ -67,7 +67,13 @@ class CoDashboardsController extends StandardController {
 
   public function dashboard() {
     // XXX implement this
-    
+
+    // XXX a temporary means of setting layout for developing co-level skinning
+    // TODO : alter/remove this statement once the feature is developed
+    if ($this->request->query['skin'] == 'true') {
+      $this->layout = 'skin';
+    }
+
     $this->set('title_for_layout', $this->cur_co['Co']['name']);
   }
   
