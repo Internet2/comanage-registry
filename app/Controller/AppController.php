@@ -213,6 +213,11 @@ class AppController extends Controller {
       } else {
         $this->set('vv_tz', date_default_timezone_get());
       }
+
+      // Check for custom skin
+      if ($this->request->query['skin'] == 'true') {
+        $this->layout = 'skin';
+      }
       
       // Before we do anything else, check to see if a CO was provided.
       // (It might impact our authz decisions.) Note that some models (eg: MVPAs)
@@ -344,11 +349,6 @@ class AppController extends Controller {
       $this->menuContent();
       $this->getNavLinks();
       $this->getNotifications();
-
-      // Check for custom skin
-      if ($this->request->query['skin'] == 'true') {
-        $this->layout = 'skin';
-      }
     }
   }
   
