@@ -71,7 +71,7 @@
     </tr>
     <?php
       print $this->Form->create('CoGroupMember',
-                                array('action' => 'updateGroup',
+                                array('url' => array('action' => 'updateGroup'),
                                       'inputDefaults' => array('label' => false,
                                                                'div' => false))) . "\n";
       // beforeFilter needs CO ID
