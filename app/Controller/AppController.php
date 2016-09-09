@@ -344,6 +344,11 @@ class AppController extends Controller {
       $this->menuContent();
       $this->getNavLinks();
       $this->getNotifications();
+
+      // Check for custom skin
+      if ($this->request->query['skin'] == 'true') {
+        $this->layout = 'skin';
+      }
     }
   }
   
