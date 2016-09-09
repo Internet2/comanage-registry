@@ -214,11 +214,12 @@ class AppController extends Controller {
         $this->set('vv_tz', date_default_timezone_get());
       }
 
-      // Check for custom skin
-      if ($this->request->query['skin'] == 'true') {
+      // Check for custom global skin
+      // XXX placeholder for global custom skin test
+      if ($this->request->query['globalskin'] == 'true') {
         $this->layout = 'skin';
       }
-      
+
       // Before we do anything else, check to see if a CO was provided.
       // (It might impact our authz decisions.) Note that some models (eg: MVPAs)
       // might specify a CO, but might not. As of v0.6, we no longer redirect to
@@ -279,6 +280,12 @@ class AppController extends Controller {
           catch(InvalidArgumentException $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
             $this->redirect("/");
+          }
+
+          // Check for custom CO skin
+          // XXX placeholder for CO local skin test
+          if ($this->request->query['skin'] == 'true') {
+            $this->layout = 'skin';
           }
           
           // See if there are any pending Terms and Conditions. If so, redirect the user.
