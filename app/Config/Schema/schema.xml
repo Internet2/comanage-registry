@@ -1550,6 +1550,9 @@
     </field>
     <field name="description" type="C" size="256" />
     <field name="plugin" type="C" size="32" />
+    <field name="provision_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
     <field name="status" type="C" size="2" />
     <field name="ordr" type="I" />
     <field name="created" type="T" />

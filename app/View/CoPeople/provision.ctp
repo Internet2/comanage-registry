@@ -182,6 +182,20 @@
           if(!empty($c['status']['comment'])) {
             print ": " . Sanitize::html($c['status']['comment']);
           }
+          
+          // Display a message if this record is not eligible to be provisioned
+          // to this target
+          
+          if(!empty($c['CoProvisioningTarget']['provision_co_group_id'])) {
+            if(!empty($co_person)
+               && !in_array($c['CoProvisioningTarget']['provision_co_group_id'],
+                            Hash::extract($co_person, 'CoGroupMember.{n}.co_group_id'))) {
+              print " (" . _txt('rs.prov.inel.grmem') . ")";
+            } elseif(!empty($co_group)
+                     && $co_group['CoGroup']['id'] != $c['CoProvisioningTarget']['provision_co_group_id']) {
+              print " (" . _txt('rs.prov.inel.group') . ")";
+            }
+          }
         ?>
       </td>
       <td>
