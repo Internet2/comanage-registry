@@ -355,6 +355,34 @@
         ?>
       </td>
     </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print $this->Form->label('co_theme_id', _txt('fd.theme'), array('class' => 'fieldTitle'));?><br />
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['co_theme_id'])
+                             ? $co_settings[0]['CoSetting']['co_theme_id']
+                             : null);
+          $attrs['empty'] = true;
+          
+          if($e) {
+            print $this->Form->select('co_theme_id',
+                                      $vv_co_themes,
+                                      $attrs);
+            
+            if($this->Form->isFieldError('co_theme_id')) {
+              print $this->Form->error('co_theme_id');
+            }
+          } else {
+            print $vv_co_themes[ $co_settings[0]['CoSetting']['co_theme_id'] ];
+          }
+        ?>
+      </td>
+    </tr>
     <tr>
       <td>
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />

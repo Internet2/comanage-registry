@@ -135,6 +135,13 @@ class CoEnrollmentFlowsController extends StandardController {
       
       $this->set('vv_message_templates',
                  $this->CoEnrollmentFlow->CoEnrollmentFlowApprovalMessageTemplate->find('list', $args));
+      
+      // Pull the set of available themes
+      $args = array();
+      $args['conditions']['CoTheme.co_id'] = $this->cur_co['Co']['id'];;
+      $args['order'] = array('CoTheme.name ASC');
+      
+      $this->set('vv_co_themes', $this->CoEnrollmentFlow->Co->CoTheme->find("list", $args));
     }
     
     parent::beforeRender();

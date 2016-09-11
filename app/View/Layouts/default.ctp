@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Default Layout
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -98,10 +98,27 @@
       print $this->fetch('css');
       print $this->fetch('script');
     ?>
+    
+    <!-- Include custom CSS -->
+    <?php if(!empty($vv_theme_css)): ?>
+      <style type="text/css">
+        <?php print $vv_theme_css; ?>
+      </style>
+    <?php endif; ?>
   </head>
 
   <body class="<?php print $this->params->controller . ' ' . $this->params->action ?>"
-        onload="js_onload_call_hooks()">
+        onload="js_onload_call_hooks();">
+  
+    <!-- Include custom header -->
+    <?php if(!empty($vv_theme_header)): ?>
+      <header id="customHeader">
+        <div class="contentWidth">
+          <?php print $vv_theme_header; ?>
+        </div>
+      </header>
+    <?php endif; ?>
+    
     <nav id="row1" aria-label="user and platform menus">
       <div class="contentWidth">
         <?php print $this->element('secondaryMenu'); ?>
@@ -109,43 +126,45 @@
       </div>
     </nav>
 
-    <header id="row2" class="ui-widget-header">
-      <div class="contentWidth">
-
-        <div class="headerRight">
-          <?php
-            $imgFile = 'comanage-logo.png';
-
-            if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
-              // A custom logo has been installed, so use that instead
-              $imgFile = 'logo.png';
-            }
-
-            // Clicking on the logo will take us to the front page
-            print $this->Html->link(
-              $this->Html->image(
-                $imgFile,
-                array(
-                  'alt' => 'COmanage Logo',
-                  'height' => 50
-                )
-              ),'/',
-              array('escape' => false)
-            );
-          ?>
+    <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
+      <header id="row2" class="ui-widget-header">
+        <div class="contentWidth">
+  
+          <div class="headerRight">
+            <?php
+              $imgFile = 'comanage-logo.png';
+  
+              if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
+                // A custom logo has been installed, so use that instead
+                $imgFile = 'logo.png';
+              }
+  
+              // Clicking on the logo will take us to the front page
+              print $this->Html->link(
+                $this->Html->image(
+                  $imgFile,
+                  array(
+                    'alt' => 'COmanage Logo',
+                    'height' => 50
+                  )
+                ),'/',
+                array('escape' => false)
+              );
+            ?>
+          </div>
+  
+          <div class="headerLeft">
+            <?php
+              if(!empty($cur_co['Co']['name'])) {
+                print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
+              } else {
+                print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
+              }
+            ?>
+          </div>
         </div>
-
-        <div class="headerLeft">
-          <?php
-            if(!empty($cur_co['Co']['name'])) {
-              print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
-            } else {
-              print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
-            }
-          ?>
-        </div>
-      </div>
-    </header>
+      </header>
+    <?php endif; // $vv_theme_hide_title ?>
 
     <?php if($this->Session->check('Auth.User')): ?>
       <nav id="row3" aria-label="main menu">
@@ -203,9 +222,20 @@
       </div>
     <?php endif; ?>
 
-    <footer class="contentWidth">
-      <?php print $this->element('footer'); ?>
-    </footer>
+    <!-- Include custom footer -->
+    <?php if(!empty($vv_theme_footer)): ?>
+      <footer id="customFooter">
+        <div class="contentWidth">
+          <?php print $vv_theme_footer; ?>
+        </div>
+      </footer>
+    <?php endif; ?>
+
+    <?php if(!isset($vv_theme_hide_footer_logo) || !$vv_theme_hide_footer_logo): ?>
+      <footer id="co-footer" class="contentWidth">
+        <?php print $this->element('footer'); ?>
+      </footer>
+    <?php endif; ?>
 
     <?php if(Configure::read('debug') > 0): ?> 
       <div>

@@ -437,6 +437,18 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           print "</li>";
         }
 
+        if (isset($permissions['menu']['cothemes']) && $permissions['menu']['cothemes']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_themes';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+
+          print $this->Html->link(_txt('ct.co_themes.pl'), $args);
+          print "</li>";
+        }
+        
         if (!empty($menuContent['plugins'])) {
           render_plugin_menus($this->Html, $menuContent['plugins'], 'coconfig', $menuCoId);
         }

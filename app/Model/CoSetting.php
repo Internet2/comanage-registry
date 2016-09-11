@@ -38,7 +38,8 @@ class CoSetting extends AppModel {
     ),
     "CoPipeline" => array(
       'foreignKey' => 'default_co_pipeline_id'
-    )
+    ),
+    "CoTheme"
   );
   
   // Default display field for cake generated views

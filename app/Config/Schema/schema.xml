@@ -1036,6 +1036,38 @@
     </index>
   </table>
   
+  <table name="co_themes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="80" />
+    <field name="hide_title" type="L" />
+    <field name="hide_footer_logo" type="L" />
+    <field name="css" type="XL" />
+    <field name="header" type="XL" />
+    <field name="footer" type="XL" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_theme_id" type="I">
+      <constraint>REFERENCES cm_co_themes(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_themes_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_themes_i2">
+      <col>co_theme_id</col>
+    </index>
+  </table>
+  
   <table name="co_enrollment_flows">
     <field name="id" type="I">
       <key />
@@ -1096,6 +1128,9 @@
     <field name="redirect_on_confirm" type="C" size="256" />
     <field name="ignore_authoritative" type="L" />
     <field name="duplicate_mode" type="C" size="2" />
+    <field name="co_theme_id" type="I">
+      <constraint>REFERENCES cm_co_themes(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_enrollment_flow_id" type="I">
@@ -1792,6 +1827,9 @@
     <field name="co_id" type="I">
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="co_theme_id" type="I">
+      <constraint>REFERENCES cm_co_themes(id)</constraint>
     </field>
     <field name="enable_nsf_demo" type="L" />
     <field name="disable_expiration" type="L" />

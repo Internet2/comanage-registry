@@ -55,6 +55,7 @@ class Co extends AppModel {
     "CoProvisioningTarget" => array('dependent' => true),
     "CoSelfServicePermission" => array('dependent' => true),
     "CoTermsAndConditions" => array('dependent' => true),
+    "CoTheme" => array('dependent' => true),
     // A CO has zero or more COUs
     "Cou" => array('dependent' => true),
     // A CO has zero or more OrgIdentities, depending on if they are pooled.
