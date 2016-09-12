@@ -21,32 +21,48 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
+
+  // As a general rule, all Registry pages are post-login and so shouldn't be cached
+  header("Expires: Thursday, 10-Jan-69 00:00:00 GMT");
+  header("Cache-Control: no-store, no-cache, max-age=0, must-revalidate");
+  header("Pragma: no-cache");
+
+  // Add X-UA-Compatible header for IE
+  if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
+    header('X-UA-Compatible: IE=edge,chrome=1');
+  }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="<?php print _txt('lang'); ?>">
   <head>
-    <title>
-      <?php print _txt('op.processing'); ?>
-    </title>
-    <?php print $this->Html->charset(); ?>
-    <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <?php print $this->Html->meta(array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0',  'http-equiv' => "X-UA-Compatible")) . "\n"; ?>
+    <?php print $this->Html->charset() . "\n"; ?>
 
-    <!-- Include the comanage and jquery style sheets -->
+    <title><?php print _txt('op.processing'); ?></title>
+    <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')) . "\n"; ?>
+
+    <!-- Load CSS -->
     <?php
-    print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui.min');
-    print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui-comanage-overrides');
-    print $this->Html->css('jquery/superfish/css/superfish');
-    print $this->Html->css('comanage');
-    print $this->Html->css('comanage-responsive');
+      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui.min') . "\n    ";
+      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui-comanage-overrides') . "\n    ";
+      print $this->Html->css('mdl/mdl-1.2.0/material.css') . "\n    ";
+      print $this->Html->css('co-base') . "\n    ";
+      print $this->Html->css('co-responsive') . "\n    ";
+      // load legacy styles while site is undergoing layout transition
+      print $this->Html->css('co-legacy') . "\n    ";
     ?>
 
-    <!-- Get jquery code -->
+    <!-- Load JavaScript -->
+    <?php /* only JQuery here - other scripts at bottom */
+      print $this->Html->script('jquery/jquery-1.11.3.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-ui-1.11.4.custom/jquery-ui.min.js') . "\n    ";
+    ?>
+
+    <!-- Include external files and scripts -->
     <?php
-    print $this->Html->script('jquery/jquery-1.11.3.min.js');
-    print $this->Html->script('jquery/jquery-ui-1.11.4.custom/jquery-ui.min.js');
-    print $this->Html->script('jquery/superfish/js/superfish.js');
-    print $this->Html->script('jquery/spin.min.js');
+      print $this->fetch('meta');
+      print $this->fetch('css');
+      print $this->fetch('script');
     ?>
 
     <script type="text/javascript">
@@ -78,74 +94,80 @@
     <meta http-equiv="refresh" content="1;URL='<?php print $this->Html->url($vv_meta_redirect_target); ?>'" />
 
   </head>
-  <body  class="<?php print $this->params->controller . ' ' . $this->params->action ?>">
+  <body class="redirect">
 
-    <nav id="row1" aria-label="user and platform menus">
-      <div class="contentWidth">
-        <?php print $this->element('secondaryMenu'); ?>
-        <?php print $this->element('links'); ?>
+  <?php
+    $bodyClasses = $this->params->controller . ' ' . $this->params->action . ' ';
+    if($this->Session->check('Auth.User') != NULL) {
+      $bodyClasses .= 'logged-in';
+    } else {
+      $bodyClasses .= 'logged-out';
+    }
+  ?>
+  <body class="<?php print $bodyClasses ?>" onload="js_onload_call_hooks()">
+    <div id="skip-to-content-box">
+      <a href="#content-start" id="skip-to-content">Skip to main content.</a>
       </div>
-    </nav>
+      <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+        <header id="banner" role="banner" class="mdl-layout__header mdl-layout__header--scroll">
+          <div class="mdl-layout__header-row">
+            <div id="logo">
+            <?php
+                $imgFile = 'COmanage-Logo-LG-onBlue.png';
 
-    <header id="row2" class="ui-widget-header">
-      <div class="contentWidth">
+              if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
+                // A custom logo has been installed, so use that instead
+                $imgFile = 'logo.png';
+              }
 
-        <div class="headerRight">
-          <?php
-            $imgFile = 'comanage-logo.png';
-
-            if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
-              // A custom logo has been installed, so use that instead
-              $imgFile = 'logo.png';
-            }
-
-            // Clicking on the logo will take us to the front page
-            print $this->Html->link(
-              $this->Html->image(
-                $imgFile,
-                array(
-                  'alt' => 'COmanage Logo',
-                  'height' => 50
-                )
-              ),'/',
-              array('escape' => false)
-            );
-          ?>
-        </div>
-
-        <div class="headerLeft">
-          <?php
-            if(!empty($cur_co['Co']['name'])) {
-              print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
-            } else {
-              print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
-            }
-          ?>
-        </div>
-      </div>
-    </header>
-
-    <?php if($this->Session->check('Auth.User')): ?>
-      <nav id="row3" aria-label="main menu">
-        <div class="contentWidth">
-          <?php print $this->element('dropMenu'); ?>
-        </div>
-      </nav>
-    <?php endif ?>
-
-    <main id="main" class="contentWidth">
-      <div id="content">
-        <div id="redirect-box">
-          <div id="redirect-box-content">
-            <?php print $this->fetch('content'); ?>
+              // Clicking on the logo will take us to the front page
+              print $this->Html->link(
+                $this->Html->image(
+                  $imgFile,
+                  array(
+                      'alt' => 'COmanage Logo'
+                  )
+                ),'/',
+                array('escape' => false)
+              );
+            ?>
           </div>
-          <div id="redirect-spinner"></div>
         </div>
-      </div>
-    </main>
+      </header>
 
-    <footer class="contentWidth">
-      <?php print $this->element('footer'); ?>
-    </footer>
+      <main id="main" class="mdl-layout__content">
+        <div id="collaborationTitle">
+        <?php
+          if(!empty($cur_co['Co']['name'])) {
+            print Sanitize::html($cur_co['Co']['name']);
+          } else {
+            print _txt('coordinate');
+          }
+        ?>
+        </div>
+
+        <div id="content" class="mdl-grid">
+          <div id="content-inner" class="mdl-cell mdl-cell--12-col">
+            <div id="redirect-box">
+              <div id="redirect-box-content">
+                <?php print $this->fetch('content'); ?>
+              </div>
+              <div id="redirect-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <?php print $this->element('footer'); ?>
+      </footer>
+
+    </div>
+
+    <!-- Load JavaScript -->
+    <?php
+      print $this->Html->script('mdl/mdl-1.2.0/material.min.js') . "\n    ";
+      print $this->Html->script('jquery/spin.min.js') . "\n    ";
+    ?>
   </body>
 </html>

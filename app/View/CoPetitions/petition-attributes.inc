@@ -134,12 +134,12 @@
 <div id="petitionerMatchResults">
 </div>
 
-<div class="fields" style="overflow:hidden;">
+<div class="fields">
   <?php
     // Render introductory text for new petitions
     
     if($this->action == 'add' && !empty($vv_introduction_text)) {
-      print '<div class="ui-widget modelbox">' . $vv_introduction_text . "</div>";
+      print '<div class="modelbox">' . $vv_introduction_text . "</div>";
     }
     
     // If a token was passed in, submit it as part of the form
@@ -197,8 +197,8 @@
     
     $mvpa = (count($coe_attributes) > 1);
   ?>
-    <div class="ui-widget modelbox">
-      <div class = "boxtitle">
+    <div class="modelbox">
+      <div class="boxtitle">
         <strong>
           <?php
             if(isset($permissions['viewEA']) && $permissions['viewEA']) {
@@ -254,204 +254,215 @@
           }
         ?>
       </div>
-      <table class="ui-widget">
-        <tbody>
-          <?php 
-            $l = 0; // Reset zebra stripes for each box
-            foreach ($coe_attributes as $ea):
-              if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
-                // Since disabled values don't submit with the form, convert them to hidden
-                // fields and change the fieldName for the visible attribute
-                
-                $hfieldName = $ea['model'] . '.' . $ea['field'];
-                $fieldName = $hfieldName . "-disabled";
-                
-                print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . "\n";
-              } else {
-                $fieldName = $ea['model'] . '.' . $ea['field'];
+
+      <?php
+        $l = 0; // Reset zebra stripes for each box
+        foreach ($coe_attributes as $ea):
+          if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
+            // Since disabled values don't submit with the form, convert them to hidden
+            // fields and change the fieldName for the visible attribute
+
+            $hfieldName = $ea['model'] . '.' . $ea['field'];
+            $fieldName = $hfieldName . "-disabled";
+
+            print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . "\n";
+          } else {
+            $fieldName = $ea['model'] . '.' . $ea['field'];
+          }
+      ?>
+
+
+
+      <?php
+        // Emit the field itself, according to the type of field
+
+        // The type of validation rule can influence what we output.
+        $ruleType = 'default';
+
+        if(isset($ea['validate']['content']['rule'][0])) {
+          $ruleType = $ea['validate']['content']['rule'][0];
+        }
+
+        // XXX need to retrieve current values for edit and view
+
+        if($e) {
+          switch($ruleType) {
+          case 'inList':
+            // This is a select
+            $args = array();
+            // Set a default value if provided
+            if(isset($ea['default'])) {
+              $args['value'] = $ea['default'];
+              $args['disabled'] = !$ea['modifiable'];
+            }
+            $args['empty'] = !$ea['required'];
+
+            // Add focusFirst class if the first field
+            if ($coe_attribute_index == 0) {
+              $args['class'] = 'focusFirst';
+            }
+
+            print $this->Form->select($fieldName,
+                                      $ea['select'],
+                                      $args);
+
+            if($this->Form->isFieldError($fieldName)) {
+              print $this->Form->error($fieldName);
+            }
+            break;
+          case 'validateTimestamp':
+            // Handle dates specially to generate the popup calendar
+            $c = 'datepicker';
+
+            if($ea['field'] == 'valid_from')
+              $c = 'datepicker-f';
+            elseif($ea['field'] == 'valid_until')
+              $c = 'datepicker-c';
+
+            $args = array();
+
+            // Add focusFirst class if the first field
+            if ($coe_attribute_index == 0) {
+              $c = $c . ' focus-first';
+            }
+
+            $args['class'] = $c;
+
+            if(isset($ea['default'])) {
+              $args['default'] = $ea['default'];
+              $args['disabled'] = !$ea['modifiable'];
+            }
+
+            print $this->Form->text($fieldName, $args);
+
+            if($this->Form->isFieldError($fieldName)) {
+              print $this->Form->error($fieldName);
+            }
+            break;
+          default:
+            // Use default field - a text input
+            print '<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">';
+
+            $args = array();
+            // An attribute is required if (1) it is part of an MVPA that is required
+            // and the field itself is required, or (2) it is not part of an MVPA and
+            // the field itself is required
+            $args['required'] = false;
+            if(isset($ea['mvpa_required'])) {
+              if($ea['mvpa_required']) {
+                $args['required'] = $ea['required'];
               }
-          ?>
-            <tr class="line<?php print ($l % 2); $l++; ?>">
-              <td>
-                <?php
-                  // Emit the label for this field 
-                  print "<b>" . $ea['label'] . "</b>";
-                  
-                  if($ea['required']) {
-                    if($mvpa && !$ea['mvpa_required']) {
-                      print "<span class=\"required\">&dagger;</span>\n";
-                    } else {
-                      print "<span class=\"required\">*</span>\n";
-                    }
-                  }
-                  
-                  if(isset($ea['description'])
-                    && !$groupDesc
-                    && $ea['description'] != "") {
-                    print "</br>\n<span class=\"desc\">" . $ea['description'] . "</span>\n";
-                  }
-                ?>
-              </td>
-              <td>
-                <?php
-                  // Emit the field itself, according to the type of field
-                  
-                  // The type of validation rule can influence what we output.
-                  $ruleType = 'default';
-                  
-                  if(isset($ea['validate']['content']['rule'][0])) {
-                    $ruleType = $ea['validate']['content']['rule'][0];
-                  }
-                    
-                  // XXX need to retrieve current values for edit and view
-                  
-                  if($e) {
-                    switch($ruleType) {
-                    case 'inList':
-                      // This is a select
-                      $args = array();
-                      // Set a default value if provided
-                      if(isset($ea['default'])) {
-                        $args['value'] = $ea['default'];
-                        $args['disabled'] = !$ea['modifiable'];
-                      }
-                      $args['empty'] = !$ea['required'];
+            } else {
+              $args['required'] = $ea['required'];
+            }
 
-                      // Add focusFirst class if the first field
-                      if ($coe_attribute_index == 0) {
-                        $args['class'] = 'focusFirst';
-                      }
-                      
-                      print $this->Form->select($fieldName,
-                                                $ea['select'],
-                                                $args);
-                      
-                      if($this->Form->isFieldError($fieldName)) {
-                        print $this->Form->error($fieldName);
-                      }
-                      break;
-                    case 'validateTimestamp':
-                      // Handle dates specially to generate the popup calendar
-                      $c = 'datepicker';
-                      
-                      if($ea['field'] == 'valid_from')
-                        $c = 'datepicker-f';
-                      elseif($ea['field'] == 'valid_until')
-                        $c = 'datepicker-c';
-                      
-                      $args = array();
+            // Use a provided default value, if one specified
+            if(isset($ea['default'])) {
+              $args['default'] = $ea['default'];
+              $args['disabled'] = !$ea['modifiable'];
+            }
 
-                      // Add focusFirst class if the first field
-                      if ($coe_attribute_index == 0) {
-                        $c = $c . ' focus-first';
-                      }
+            // Add starting classes
+            $args['class'] = 'mdl-textfield__input';
 
-                      $args['class'] = $c;
-                      
-                      if(isset($ea['default'])) {
-                        $args['default'] = $ea['default'];
-                        $args['disabled'] = !$ea['modifiable'];
-                      }
+            // Add focusFirst class if the first field
+            if ($coe_attribute_index == 0) {
+              $args['class'] .= ' focusFirst';
+            }
 
-                      print $this->Form->text($fieldName, $args);
-                      
-                      if($this->Form->isFieldError($fieldName)) {
-                        print $this->Form->error($fieldName);
-                      }
-                      break;
-                    default:
-                      // Use default field
-                      
-                      $args = array();
-                      // An attribute is required if (1) it is part of an MVPA that is required
-                      // and the field itself is required, or (2) it is not part of an MVPA and
-                      // the field itself is required
-                      $args['required'] = false;
-                      if(isset($ea['mvpa_required'])) {
-                        if($ea['mvpa_required']) {
-                          $args['required'] = $ea['required'];
-                        }
-                      } else {
-                        $args['required'] = $ea['required'];
-                      }
-                      
-                      // Use a provided default value, if one specified
-                      if(isset($ea['default'])) {
-                        $args['default'] = $ea['default'];
-                        $args['disabled'] = !$ea['modifiable'];
-                      }
+            if($permissions['match']
+               // We can only have one name field match because of how the
+               // javascript keyup triggered code works. It's a bit tricky
+               // to try to guess the right field (CO Person Official Name?
+               // Org Identity Official Name, but only if also copied to the
+               // CO Person record?), so instead we'll just use the first
+               // name we see.
 
-                      // Add focusFirst class if the first field
-                      if ($coe_attribute_index == 0) {
-                        $args['class'] = 'focusFirst';
-                      }
+               // We'll need to loop through twice, once for given and once
+               // for family
+               && ($givenNameAttr == "" || $familyNameAttr == "")
+               && strstr($ea['attribute'], ':name:')
+               && ($ea['field'] == 'given' || $ea['field'] == 'family')) {
+              # XXX Temp hack to enable real-time query. This should
+              # instead be enabled for fields with an appropriate flag.
+              $args['class'] .= ' matchable';
 
-                      if($permissions['match']
-                         // We can only have one name field match because of how the
-                         // javascript keyup triggered code works. It's a bit tricky
-                         // to try to guess the right field (CO Person Official Name?
-                         // Org Identity Official Name, but only if also copied to the
-                         // CO Person record?), so instead we'll just use the first
-                         // name we see.
-                         
-                         // We'll need to loop through twice, once for given and once
-                         // for family
-                         && ($givenNameAttr == "" || $familyNameAttr == "")
-                         && strstr($ea['attribute'], ':name:')
-                         && ($ea['field'] == 'given' || $ea['field'] == 'family')) {
-                        # XXX Temp hack to enable real-time query. This should
-                        # instead be enabled for fields with an appropriate flag.
-                        if ($coe_attribute_index == 0) {
-                          $args['class'] = 'matchable focusFirst';
-                        } else {
-                          $args['class'] = 'matchable';
-                        }
+              if($ea['field'] == 'given') {
+                $givenNameAttr = preg_replace('/\./', '', $ea['model']) . "Given";
+              } elseif($ea['field'] == 'family') {
+                $familyNameAttr = preg_replace('/\./', '', $ea['model']) . "Family";
+              }
+            }
 
-                        if($ea['field'] == 'given') {
-                          $givenNameAttr = preg_replace('/\./', '', $ea['model']) . "Given";
-                        } elseif($ea['field'] == 'family') {
-                          $familyNameAttr = preg_replace('/\./', '', $ea['model']) . "Family";
-                        }
-                      }
-                      
-                      print $this->Form->input($fieldName, $args);
-                      break;
-                    }
-                    
-                    print "\n";
-                  } else {
-                    // Just emit the current value for this attribute, if set
-                    
-                    if(isset($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ])) {
-                      switch($ruleType) {
-                      case 'inList':
-                        // It's possible this is no longer a valid selection, especially for
-                        // extended types.
-                        if(!empty($ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]])) {
-                          print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
-                        } else {
-                          // No longer a valid enum, just print it
-                          print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
-                        }
-                        break;
-                      case 'validateTimestamp':
-                        print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
-                        break;
-                      default:
-                        print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
-                        break;
-                      }
-                    }
-                  }
-                ?>
-              </td>
-            </tr>
-          <?php
-            $coe_attribute_index++;
-            endforeach;
-          ?>
-        </tbody>
-      </table>
+            // Set the "required" symbols
+            $requiredSymbol = '';
+            if($ea['required']) {
+              if($mvpa && !$ea['mvpa_required']) {
+                $requiredSymbol = ' <span class="required">&dagger;</span>';
+              } else {
+                $requiredSymbol = ' <span class="required">*</span>';
+              }
+            }
+            // Render the form field and label
+            print $this->Form->input($fieldName, $args);
+            print $this->Form->label($fieldName, $ea['label'] . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+            print "</div>\n";
+            break;
+          }
+
+          print "\n";
+
+          // If there is a description for the field, render it under the field and label
+          if(isset($ea['description'])
+            && !$groupDesc
+            && $ea['description'] != "") {
+            print "</br>\n<span class=\"desc\">" . $ea['description'] . "</span>\n";
+          }
+        } else {
+          // Just emit the current value for this attribute, if set, with the label in front
+          // Emit the label
+          print "<b>" . $ea['label'] . "</b>";
+
+          if($ea['required']) {
+            if($mvpa && !$ea['mvpa_required']) {
+              print "<span class=\"required\">&dagger;</span>\n";
+            } else {
+              print "<span class=\"required\">*</span>\n";
+            }
+          }
+
+          if(isset($ea['description'])
+            && !$groupDesc
+            && $ea['description'] != "") {
+            print "</br>\n<span class=\"desc\">" . $ea['description'] . "</span>\n";
+          }
+
+          // Emit the value
+          if(isset($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ])) {
+            switch($ruleType) {
+            case 'inList':
+              // It's possible this is no longer a valid selection, especially for
+              // extended types.
+              if(!empty($ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]])) {
+                print $ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]];
+              } else {
+                // No longer a valid enum, just print it
+                print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+              }
+              break;
+            case 'validateTimestamp':
+              print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
+              break;
+            default:
+              print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+              break;
+            }
+          }
+        }
+        $coe_attribute_index++;
+        endforeach;
+      ?>
+      <span class="clearfix"></span>
     </div>
   <?php 
     endforeach; // foreach ($coea_model as $m => $coe_attributes): 

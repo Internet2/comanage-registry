@@ -71,7 +71,7 @@ $(document).ready(function() {
 
   $this->set('enrollmentFlowSteps', $enrollmentFlowSteps);
 
-
+  // XXX is $submit_label used?
   $submit_label = _txt('op.add');
   
   print $this->Form->create(
@@ -93,14 +93,11 @@ $(document).ready(function() {
     print $this->Form->hidden('CoPetition.token', array('default' => $vv_petition_token)) . "\n";
   }
 ?>
-<div>
-  <div id="tabs-attributes">
-    <?php
-      $e = true;  
-      
-      include('petition-attributes.inc');
-    ?>
-  </div>
+<div id="tabs-attributes">
+  <?php
+    $e = true;
+    include('petition-attributes.inc');
+  ?>
 </div>
 <?php
   print $this->Form->end();

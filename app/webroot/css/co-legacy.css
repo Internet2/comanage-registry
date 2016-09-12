@@ -155,6 +155,7 @@ td.indented {
 }
 
 /* Forms */
+/*
 form {
   clear: both;
 }
@@ -191,6 +192,7 @@ label,
 .checkbox input {
   cursor: pointer;
 }
+*/
 .form-error {
   background-color: #fee !important; /* override default focus color */
   border: 1px solid red;
@@ -583,7 +585,7 @@ body.co_people.canvas #titleNavContainer {
 #restoreLink {
   margin-bottom: 2em;
 }
-/* Petitions */
+/* PETITIONS */
 #petition {
 }
 #view_co_petition .status {
@@ -681,95 +683,6 @@ body.co_petitions .deny-button {
 }
 body.co_petitions .deny-button:hover {
   background-color: #d44;
-}
-/* Enrollment Flow Steps */
-#enrollmentFlowIntro {
-  margin-left: 2em;
-}
-.enrollmentFlowStartButton {
-  margin: 1em 0 3em 2em;
-}
-#enrollmentFlowSteps h3 {
-  margin: 0.5em;
-  font-size: 1.5em;
-}
-#enrollmentFlowSteps ul {
-  margin: 1em 0 0 0.5em;
-  padding: 0;
-}
-#enrollmentFlowSteps li {
-  list-style: none;
-  margin-bottom: 0.75em;
-}
-#enrollmentFlowSteps .ui-icon {
-  float: left;
-  clear: left;
-  margin-right: 0.5em;
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_444444_256x240.png");
-}
-#enrollmentFlowSteps li.selected {
-  background-color: #fff;
-  border: 1px solid #8dbbdd;
-  font-weight: bold;
-  padding: 0.5em;
-  margin-bottom: 1em;
-}
-#enrollmentFlowSteps li.incomplete {
-  font-style: italic;
-  color: #888;
-}
-#enrollmentFlowSteps li.incomplete .stepText {
-  color: #222;
-}
-#enrollmentFlowSteps li.complete .ui-icon {
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_6eac2c_256x240.png");
-}
-#enrollmentFlowSteps li.stopped .ui-icon {
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_cd0a0a_256x240.png");
-}
-
-/* Redirect Page */
-#redirect-box {
-  position: relative;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  margin: 4em auto;
-  padding: 2em;
-  text-align: center;
-  width: 320px;
-}
-#redirect-spinner {
-  padding: 1em 1em 2em;
-  position: relative;
-}
-
-/* Petition Attributes */
-.modelbox {
-  border: 1px solid #8DBBDD;
-  margin: 0 1em 1em 0;
-  padding: 9px 38px;
-  background-color: #f8f8f8;
-}
-.modelbox .line0,
-.modelbox .line1,
-.modelbox .line2 {
-  background-color: transparent;
-}
-.boxtitle{
-  padding: 0 0 5px 0;
-}
-.modelbox table tr>:first-child{
-  min-width: 200px;
-  text-align: right;
-}
-.modelbox table tr>:nth-child(2){
-  min-width: 150px;
-}
-.modelbox table tr>:nth-child(2) input[type=text] {
-  min-width: 380px;
-}
-.modelbox table tr>:nth-child(2) select{
-  min-width: 387px;
 }
 /* Groups */
 #groupMembers {

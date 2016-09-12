@@ -29,7 +29,15 @@
     $('#side-nav').metisMenu();
 
     // Focus any designated form element
-    $(".focusFirst").focus();
+    $('.focusFirst').focus();
+
+    // MDL prematurely marks all required=true fields with "is-invalid" class.
+    // Remove it. Must be done after MDL scripts have run.
+    $(window).load(function() {
+      $('.mdl-textfield').removeClass('is-invalid');
+    });
+
+    <?php /* TODO: Review the following for deprecation. */ ?>
 
     // Accordion
     $(".accordion").accordion();
@@ -340,6 +348,8 @@
 
     });
 
+/* XXX Deprecated??
+
     // Turn on the sidebar menus
     $("#menu").menu();
     
@@ -348,6 +358,7 @@
       position: { my: "right+15 top", at: "left bottom" }
     });
 
+*/
     // Flash Messages
     <?php
       print $this->Flash->render('error');

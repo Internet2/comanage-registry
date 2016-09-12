@@ -70,6 +70,9 @@
   #user-links-id {
     margin-top: -8px;
   }
+  #content {
+    padding: 1em;
+  }
   footer {
     text-align: right;
     padding: 1em 2em;
@@ -163,8 +166,27 @@
     background-color: #e5e5e5 !important;
     font-weight: bold;
   }
-
-
+  #redirect-box {
+    position: relative;
+    left: -120px; /* offset the drawer margin */
+  }
+  /* PETITION ATTRIBUTES */
+  .modelbox {
+    margin-right: 1em;
+  }
+  .modelbox .mdl-textfield {
+    display: block;
+    width: 100%;
+  }
+  .modelbox .boxtitle {
+    float: left;
+    width: 25%;
+    padding: 5px 0 5px 8px;
+  }
+  .modelbox .mdl-textfield {
+    float: right;
+    width: 70%;
+  }
 }
 
 /* MEDIUM DESKTOP */

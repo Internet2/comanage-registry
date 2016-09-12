@@ -89,7 +89,9 @@
     }
   ?>
   <body class="<?php print $bodyClasses ?>" onload="js_onload_call_hooks()">
-
+    <div id="skip-to-content-box">
+      <a href="#content-start" id="skip-to-content">Skip to main content.</a>
+    </div>
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
       <header id="banner" role="banner" class="mdl-layout__header mdl-layout__header--scroll">
         <div class="mdl-layout__header-row">
@@ -157,6 +159,9 @@
               print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
             }
           }
+
+          // insert the anchor that is the target of accessible "skip to content" link
+          print '<a name="content-start" id="content-start"></a>';
 
           // insert the page internal content
           print $this->fetch('content');
