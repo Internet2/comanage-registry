@@ -66,43 +66,6 @@ a.desc::before {
   float: right;
 }
 
-/* General icon and box styling */
-.co-info {
-  float: left;
-  margin-right: .3em;
-}
-.co-info-topbox {
-  padding: 0 .7em;
-  clear: both;
-}
-.co-alert {
-  float:left;
-  margin:0 7px 20px 0;
-}
-
-
-/* Messages */
-.noty_text{
-  font-weight: bold;
-}
-.noty_icon{
-  display: inline-block !important;
-  position: relative;
-  top: 3px;
-}
-.warbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_826262_256x240.png") !important;
-}
-.sucbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_006400_256x240.png") !important;
-}
-.errbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png") !important;
-}
-.notbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_444444_256x240.png") !important;
-}
-
 /* Notification table */
 .notificationStatus {
   float: left;
@@ -649,16 +612,6 @@ body.petitionerAttributes td {
 #statusfilterdialog .submit {
   margin: 0.5em 0;
   float: right !important;
-}
-#petitionerMatchResults {
-  margin: 0 0 1em 0;
-  padding: 0;
-}
-#petitionerMatchResults h3 {
-  margin: 0.5em 0 0 0;
-}
-#petitionerMatchResults ul {
-  margin: 0.5em 0 1em 0;
 }
 body.co_petitions .approve-button .ui-icon,
 body.co_petitions .deny-button .ui-icon {

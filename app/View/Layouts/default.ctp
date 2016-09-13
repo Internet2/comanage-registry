@@ -52,7 +52,8 @@
     <?php
       print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui.min') . "\n    ";
       print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui-comanage-overrides') . "\n    ";
-      print $this->Html->css('mdl/mdl-1.2.0/material.css') . "\n    ";
+      print $this->Html->css('mdl/mdl-1.2.0/material.min.css') . "\n    ";
+      print $this->Html->css('mdl/mdl-selectfield-1.0.2/mdl-selectfield.min.css') . "\n    ";
       print $this->Html->css('jquery/metisMenu/metisMenu.min.css') . "\n    ";
       print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
@@ -168,7 +169,7 @@
           print '</div>';
 
           if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
-            print '<div id="right-sidebar" class="mdl-cell mdl-cell--3-col">';
+            print '<div id="right-sidebar" class="mdl-cell mdl-cell--3-col mdl-cell--9-col-tablet mdl-cell--9-col-phone">';
 
             // insert the sidebar buttons if they exist
             $sidebarButtons = $this->get('sidebarButtons');
@@ -201,6 +202,7 @@
     <!-- Load JavaScript -->
     <?php
       print $this->Html->script('mdl/mdl-1.2.0/material.min.js') . "\n    ";
+      print $this->Html->script('mdl/mdl-selectfield-1.0.2/mdl-selectfield.min.js') . "\n    ";
       print $this->Html->script('jquery/metisMenu/metisMenu.min.js') . "\n    ";
       print $this->Html->script('js-cookie/js.cookie-2.1.3.min.js') . "\n    ";
       print $this->Html->script('jquery/spin.min.js') . "\n    ";

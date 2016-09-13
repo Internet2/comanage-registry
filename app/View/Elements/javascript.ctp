@@ -43,7 +43,7 @@
     $(".accordion").accordion();
 
     // Make all submit buttons pretty
-    $("input:submit").button();
+    //$("input:submit").button();
 
     // Other buttons
     $(".addbutton").button({
@@ -242,8 +242,8 @@
       text: true
     });
     
-    $("button:reset").button();
-    $("button:reset").css('float', 'left');
+    //$("button:reset").button();
+    //$("button:reset").css('float', 'left');
 
     $(".unlinkbutton").button({
       icons: {

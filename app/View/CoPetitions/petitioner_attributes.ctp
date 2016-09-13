@@ -31,14 +31,26 @@ $(document).ready(function() {
     if(event.which != 13) {
       // 13 is enter/return... don't search on form submit
       // XXX Don't hardcode fields here, or /registry prefix
+      var thisFieldId = $(this).attr("id");
       $.ajax({
         url: '/registry/co_people/match/coef:' + <?php print Sanitize::html($co_enrollment_flow_id); ?>
              + '/given:' + document.getElementById(givenNameAttr).value
              + '/family:' + document.getElementById(familyNameAttr).value
       }).done(function(data) {
-        $('#petitionerMatchResults').html(data);
+        //$('#petitionerMatchResults').html(data);
+        $("#matchable-for-" + thisFieldId).html(data);
+
+        // provide a close button to manually hide matchable info
+        $("#matchable-for-" + thisFieldId + " .close-button").click(function() {
+          $(this).closest('.matchable-output').hide();
+        });
       });
     }
+  });
+
+  // clear out existing matchable output boxes when focusing a matchable field
+  $("input.matchable").focus(function() {
+    $('.matchable-output').html('').show();
   });
 });
 </script>

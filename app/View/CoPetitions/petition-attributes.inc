@@ -131,9 +131,6 @@
   });
 </script>
 
-<div id="petitionerMatchResults">
-</div>
-
 <div class="fields">
   <?php
     // Render introductory text for new petitions
@@ -231,7 +228,7 @@
           $descTypeCount = count(array_count_values($descriptions));
           
           if($descTypeCount == 1 && !empty($coe_attributes[0]['description'])) {
-            print "</br>\n<span class=\"desc\">" . $coe_attributes[0]['description'] . "</span>\n";
+            print "\n<div class=\"desc\">" . $coe_attributes[0]['description'] . "</div>\n";
             $groupDesc = true; // Set flag for later
           }
           
@@ -257,6 +254,8 @@
 
       <?php
         $l = 0; // Reset zebra stripes for each box
+
+        // Output disabled fields
         foreach ($coe_attributes as $ea):
           if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
             // Since disabled values don't submit with the form, convert them to hidden
@@ -289,6 +288,9 @@
           switch($ruleType) {
           case 'inList':
             // This is a select
+            print '<div class="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">';
+            print "\n";
+
             $args = array();
             // Set a default value if provided
             if(isset($ea['default'])) {
@@ -296,48 +298,57 @@
               $args['disabled'] = !$ea['modifiable'];
             }
             $args['empty'] = !$ea['required'];
+            $args['class'] = 'mdl-selectfield__select';
 
             // Add focusFirst class if the first field
             if ($coe_attribute_index == 0) {
-              $args['class'] = 'focusFirst';
+              $args['class'] .= ' focusFirst';
             }
 
-            print $this->Form->select($fieldName,
-                                      $ea['select'],
-                                      $args);
-
+            // Render the form field, label, and error (if any)
+            print $this->Form->select($fieldName, $ea['select'], $args);
+            print $this->Form->label($fieldName, $m, array('class' => 'mdl-selectfield__label'));
             if($this->Form->isFieldError($fieldName)) {
-              print $this->Form->error($fieldName);
+              print $this->Form->error($fieldName, array('class' => 'mdl-selectfield__error'));
             }
+
+            print "</div>\n";
             break;
           case 'validateTimestamp':
             // Handle dates specially to generate the popup calendar
-            $c = 'datepicker';
-
-            if($ea['field'] == 'valid_from')
-              $c = 'datepicker-f';
-            elseif($ea['field'] == 'valid_until')
-              $c = 'datepicker-c';
+            print '<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">';
 
             $args = array();
 
-            // Add focusFirst class if the first field
-            if ($coe_attribute_index == 0) {
-              $c = $c . ' focus-first';
+            // Add starting classes
+            $args['class'] = 'mdl-textfield__input';
+
+            if($ea['field'] == 'valid_from') {
+              $args['class'] .= ' datepicker-f';
+            } elseif($ea['field'] == 'valid_until') {
+              $args['class'] .= ' datepicker-c';
+            } else {
+              $args['class'] .= ' datepicker';
             }
 
-            $args['class'] = $c;
+            // Add focusFirst class if the first field
+            if ($coe_attribute_index == 0) {
+              $args['class'] .= ' focus-first';
+            }
 
             if(isset($ea['default'])) {
               $args['default'] = $ea['default'];
               $args['disabled'] = !$ea['modifiable'];
             }
 
+            // Render the form field, label, and error (if any)
             print $this->Form->text($fieldName, $args);
-
+            print $this->Form->label($fieldName, $ea['label'], array('class' => 'mdl-textfield__label'));
             if($this->Form->isFieldError($fieldName)) {
-              print $this->Form->error($fieldName);
+              print $this->Form->error($fieldName, array('class' => 'mdl-textfield__error'));
             }
+
+            print "</div>\n";
             break;
           default:
             // Use default field - a text input
@@ -370,6 +381,8 @@
               $args['class'] .= ' focusFirst';
             }
 
+            $matchable = false;
+            $matchableInfoId = "";
             if($permissions['match']
                // We can only have one name field match because of how the
                // javascript keyup triggered code works. It's a bit tricky
@@ -386,15 +399,19 @@
               # XXX Temp hack to enable real-time query. This should
               # instead be enabled for fields with an appropriate flag.
               $args['class'] .= ' matchable';
+              $matchable = true;
 
               if($ea['field'] == 'given') {
                 $givenNameAttr = preg_replace('/\./', '', $ea['model']) . "Given";
+                $matchableInfoId = 'matchable-for-' . $givenNameAttr;
               } elseif($ea['field'] == 'family') {
                 $familyNameAttr = preg_replace('/\./', '', $ea['model']) . "Family";
+                $matchableInfoId = 'matchable-for-' . $familyNameAttr;
               }
             }
 
             // Set the "required" symbols
+            // XXX probably should do this at the top of all field output if used for dates and selects as well.
             $requiredSymbol = '';
             if($ea['required']) {
               if($mvpa && !$ea['mvpa_required']) {
@@ -403,10 +420,20 @@
                 $requiredSymbol = ' <span class="required">*</span>';
               }
             }
-            // Render the form field and label
+
+            // Render the form field, label, and error (if any)
             print $this->Form->input($fieldName, $args);
             print $this->Form->label($fieldName, $ea['label'] . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+            if($this->Form->isFieldError($fieldName)) {
+              print $this->Form->error($fieldName, array('class' => 'mdl-textfield__error'));
+            }
+
             print "</div>\n";
+
+            if ($matchable) {
+              print '<div class="matchable-output" id="' . $matchableInfoId . '">';
+              print '</div>';
+            }
             break;
           }
 
@@ -416,7 +443,7 @@
           if(isset($ea['description'])
             && !$groupDesc
             && $ea['description'] != "") {
-            print "</br>\n<span class=\"desc\">" . $ea['description'] . "</span>\n";
+            print "\n<div class=\"desc\">" . $ea['description'] . "</div>\n";
           }
         } else {
           // Just emit the current value for this attribute, if set, with the label in front
@@ -558,24 +585,21 @@
     }
   ?>
   
-  <table id="<?php print $this->action; ?>_co_petition_attrs_submit" class="ui-widget">
-    <tbody>
-      <tr>
-        <td>
-          <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-        </td>
-        <td class="submitCell">
-          <?php
-            if($e) {
-              print $this->Form->submit(_txt('op.submit'));
-              print $this->Form->button(_txt('op.reset'), 
-                                        array('type'=>'reset'));
-            }
-          ?>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div id="<?php print $this->action; ?>_co_petition_attrs_submit" class="submit-box">
+    <div class="submit-buttons">
+      <?php
+        if($e) {
+          print $this->Form->submit(_txt('op.submit'),
+            array('class'=>'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+          print $this->Form->button(_txt('op.reset'),
+            array('type'=>'reset','class'=>'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+        }
+      ?>
+    </div>
+    <div class="required-info">
+      <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+    </div>
+  </div>
 </div>
 <?php if($this->action == 'view'): ?>
   <a href="#tabs-history" class="fieldGroupName">

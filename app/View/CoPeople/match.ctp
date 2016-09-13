@@ -23,12 +23,16 @@
  */
 
   if(count($matches) > 0) {
-    print '<div class="ui-state-highlight ui-corner-all co-info-topbox">';
-    print '<h3>' . _txt('rs.match.possible') . '</h3>';
+    print '<div class="co-info-matchable">';
+    print '<div class="co-info-matchable-title">';
+    print _txt('rs.match.possible');
+    print '<a href="#" class="close-button"><i class="material-icons">close</i></a>';
+    print '</div>';
     print "<ul>\n";
     
     foreach ($matches as $m) {
       print "<li>";
+      print '<i class="material-icons">person</i>';
       print $this->Html->link(
         generateCn($m['PrimaryName']),
         array('controller' => 'co_people', 'action' => 'canvas', $m['CoPerson']['id'])

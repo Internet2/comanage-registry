@@ -166,13 +166,17 @@
     background-color: #e5e5e5 !important;
     font-weight: bold;
   }
+  /* REDIRECT PAGE */
   #redirect-box {
+    margin: 4em auto;
+    padding: 2em;
+    width: 320px;
     position: relative;
     left: -120px; /* offset the drawer margin */
   }
   /* PETITION ATTRIBUTES */
   .modelbox {
-    margin-right: 1em;
+    margin-right: 0.5em;
   }
   .modelbox .mdl-textfield {
     display: block;
@@ -183,7 +187,13 @@
     width: 25%;
     padding: 5px 0 5px 8px;
   }
-  .modelbox .mdl-textfield {
+  .modelbox .mdl-textfield,
+  .modelbox .mdl-selectfield {
+    float: right;
+    width: 70%;
+  }
+  /* MATCHABLE INFO BOX */
+  .co-info-matchable {
     float: right;
     width: 70%;
   }
