@@ -241,20 +241,20 @@ body.logged-in #user-menu {
   z-index: 100;
   padding-top: 0;
 }
-#side-nav {
+#main-menu {
   margin: 0;
   padding: 0 0 1em 0;
 }
-#side-nav ul {
+#main-menu ul {
   padding: 0.5em 0 1em 0;
 }
-#side-nav li {
+#main-menu li {
   list-style: none;
 }
-#side-nav > li {
+#main-menu > li {
   border-bottom: 1px solid #f2f2f2;
 }
-#side-nav > li a {
+#main-menu > li a {
   display: block;
   cursor: pointer;
   margin: 0;
@@ -264,41 +264,38 @@ body.logged-in #user-menu {
   position: relative;
   overflow:hidden;
 }
-#side-nav > li li {
+#main-menu > li li {
   border-bottom: none;
   position: relative;
   overflow:hidden;
 }
-#side-nav > li li a {
+#main-menu > li li a {
   font-size: 0.9em;
   padding: 7px 8px 7px 16px;
   line-height: 1.4em;
   color: #2395E0;
   border: 1px solid transparent;
 }
-#side-nav > li a:hover,
-#side-nav > li a:focus {
+#main-menu > li a:hover,
+#main-menu > li a:focus {
   background-color: #f2f2f2;
 }
-#side-nav > li li a:focus {
+#main-menu > li li a:focus {
   border: 1px dotted #53B1F4;
 }
-/*#side-nav .fa {
-  color: #92B6D1;
-}*/
-#side-nav .fa-fw {
+#main-menu .fa-fw {
   width: 2em;
 }
-#side-nav li.active a.menuTop {
+#main-menu li.active a.menuTop {
   background-color: #f2f2f2;
 }
-#side-nav .mdl-ripple {
+#main-menu .mdl-ripple {
   background-color: #aed9f9;
 }
-#side-nav .menuTitleAdjust {
+#main-menu .menuTitleAdjust {
   margin-left: -4px;
 }
-#side-nav .material-icons {
+#main-menu .material-icons {
   margin-right: 6px;
   vertical-align: bottom;
 }
@@ -330,6 +327,40 @@ body.logged-in #user-menu {
 }
 #breadcrumbs {
   font-size: 0.8em;
+}
+#titleNavContainer {
+  padding-bottom: 1em;
+}
+body.co_petitions.view #titleNavContainer,
+body.co_person_roles #titleNavContainer,
+body.co_people.canvas #titleNavContainer {
+  padding-bottom: 0;
+}
+#topLinks {
+  float: right;
+  margin: 1em 0 0 0;
+}
+#topLinks .ui-icon {
+  float: left;
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_217bc0_256x240.png");
+}
+#topLinks.ui-widget-content {
+  border: none;
+}
+#topLinks li {
+  list-style: none;
+  display: inline-block;
+}
+#topLinks a {
+  text-decoration: none;
+  color: #1d5987;
+  /* override ui-icon settings: */
+  border: none;
+  background: none;
+  background-color: white;
+}
+#topLinks a:hover {
+  color: #222;
 }
 /* RIGHT SIDEBAR */
 #right-sidebar {
@@ -468,6 +499,9 @@ body.logged-in #user-menu {
   color: #52ADEA;
 }
 /* FORMS */
+.required-info {
+  float: left;
+}
 .submit-buttons {
   float: right;
   margin-right: 0.5em;
@@ -476,6 +510,9 @@ body.logged-in #user-menu {
 .hidden,
 .invisible {
   display: none;
+}
+.center {
+  text-align: center;
 }
 .co-grid .mdl-cell {
   margin: 0;

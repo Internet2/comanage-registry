@@ -31,7 +31,7 @@ if($menuContent['cos']) {
 $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 ?>
 
-<ul id="side-nav" class="metismenu">
+<ul id="main-menu" class="metismenu">
 
   <?php
     // Output the CO submenus (People, Groups, Configuration) if a CO is selected

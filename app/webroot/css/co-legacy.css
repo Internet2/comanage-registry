@@ -254,32 +254,6 @@ td.top {
   font-size: 1em;
   height: 24px;
 }
-#topLinks {
-  float: right;
-  margin: 1em 0 0 0;
-}
-#topLinks .ui-icon {
-  float: left;
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_217bc0_256x240.png");
-}
-#topLinks.ui-widget-content {
-  border: none;
-}
-#topLinks li {
-  list-style: none;
-  display: inline-block;
-}
-#topLinks a {
-  text-decoration: none;
-  color: #1d5987;
-  /* override ui-icon settings: */
-  border: none;
-  background: none;
-  background-color: white;
-}
-#topLinks a:hover {
-  color: #222;
-}
 /* For Advanced Search box */
 #advancedSearch {
   margin-top: 0.5em;
@@ -457,11 +431,6 @@ td.order {
   font-weight: bold;
   padding: 0.3em 0;
   margin: 1em 0 0 0;
-}
-body.co_petitions.view #titleNavContainer,
-body.co_person_roles #titleNavContainer,
-body.co_people.canvas #titleNavContainer {
-  padding-bottom: 0;
 }
 .personExplorer .coAddEditButtons .ui-state-default,
 .personExplorer .coAddEditButtons .ui-widget-content .ui-state-default,

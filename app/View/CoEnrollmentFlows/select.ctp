@@ -38,17 +38,17 @@
 <div id="co_enrollment_flows" class="co-grid co-grid-with-header mdl-shadow--2dp">
   <div class="mdl-grid co-grid-header">
     <div class="mdl-cell mdl-cell--9-col"><?php print _txt('fd.name'); ?></div>
-    <div class="mdl-cell mdl-cell--3-col"><?php print _txt('fd.actions'); ?></div>
+    <div class="mdl-cell mdl-cell--2-col center"><?php print _txt('fd.actions'); ?></div>
   </div>
 
 
   <?php $i = 0; ?>
   <?php foreach ($co_enrollment_flows as $c): ?>
     <div class="mdl-grid">
-      <div class="mdl-cell mdl-cell--9-col flow-name">
+      <div class="mdl-cell mdl-cell--9-col mdl-cell--6-col-tablet mdl-cell--2-col-phone flow-name">
         <?php print Sanitize::html($c['CoEnrollmentFlow']['name']); ?>
       </div>
-      <div class="mdl-cell mdl-cell--3-col actions">
+      <div class="mdl-cell mdl-cell--2-col actions center">
         <?php
           if($permissions['select']) {
 

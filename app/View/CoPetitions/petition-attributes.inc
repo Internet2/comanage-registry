@@ -586,18 +586,18 @@
   ?>
   
   <div id="<?php print $this->action; ?>_co_petition_attrs_submit" class="submit-box">
+    <div class="required-info">
+      <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+    </div>
     <div class="submit-buttons">
       <?php
         if($e) {
           print $this->Form->submit(_txt('op.submit'),
             array('class'=>'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
-          print $this->Form->button(_txt('op.reset'),
-            array('type'=>'reset','class'=>'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+          //print $this->Form->button(_txt('op.reset'),
+          //  array('type'=>'reset','class'=>'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
         }
       ?>
-    </div>
-    <div class="required-info">
-      <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
     </div>
   </div>
 </div>

@@ -121,7 +121,7 @@
       </header>
 
       <?php if($this->Session->check('Auth.User')): ?>
-        <div class="mdl-layout__drawer">
+        <div id="navigation-drawer" class="mdl-layout__drawer">
           <nav id="navigation" role="navigation" aria-label="main menu" class="mdl-navigation">
             <?php print $this->element('menuMain'); ?>
             <?php print $this->element('links'); ?>
