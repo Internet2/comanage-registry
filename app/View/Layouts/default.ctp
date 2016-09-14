@@ -82,11 +82,14 @@
   </head>
 
   <?php
-    $bodyClasses = $this->params->controller . ' ' . $this->params->action . ' ';
+    $bodyClasses = $this->params->controller . ' ' . $this->params->action;
     if($this->Session->check('Auth.User') != NULL) {
-      $bodyClasses .= 'logged-in';
+      $bodyClasses .= ' logged-in';
     } else {
-      $bodyClasses .= 'logged-out';
+      $bodyClasses .= ' logged-out';
+    }
+    if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)) {
+      $bodyClasses .=  ' with-user-defined-links';
     }
   ?>
   <body class="<?php print $bodyClasses ?>" onload="js_onload_call_hooks()">
@@ -94,6 +97,11 @@
       <a href="#content-start" id="skip-to-content">Skip to main content.</a>
     </div>
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+      <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
+        <div id="user-defined-links-top">
+          <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
+        </div>
+      <?php endif; ?>
       <header id="banner" role="banner" class="mdl-layout__header mdl-layout__header--scroll">
         <div class="mdl-layout__header-row">
           <div id="logo">
@@ -124,7 +132,11 @@
         <div id="navigation-drawer" class="mdl-layout__drawer">
           <nav id="navigation" role="navigation" aria-label="main menu" class="mdl-navigation">
             <?php print $this->element('menuMain'); ?>
-            <?php print $this->element('links'); ?>
+            <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
+              <div id="user-defined-links-left">
+                <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
+              </div>
+            <?php endif; ?>
           </nav>
         </div>
       <?php endif ?>

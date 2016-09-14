@@ -102,6 +102,9 @@
   #user-menu {
     z-index: 30;
   }
+  body.logged-in.with-user-defined-links #user-menu {
+    top: 35px;
+  }
   #user-menu a.topMenu {
     color: white;
   }
@@ -111,7 +114,22 @@
   #login {
     margin-top: 14px;
   }
-  /* NAVIGATION / SIDE DRAWER */
+  /* USER DEFINED LINKS (top) */
+  #user-defined-links-left {
+    display: none;
+  }
+  #user-defined-links-top  {
+    display: block;
+    background-color: #222;
+    color: white;
+  }
+  #user-defined-links-top #links li {
+    display: inline-block;
+  }
+  #user-defined-links-top #links a {
+    color: white;
+  }
+    /* NAVIGATION / SIDE DRAWER */
   /* MDL Drawer Override - change the drawer breakpoint from 1025 to 840 */
   .mdl-layout--fixed-drawer > .mdl-layout__drawer {
     -webkit-transform: translateX(0);
@@ -120,6 +138,9 @@
   .mdl-layout__drawer {
     top: 64px; /* never cover header */
     box-shadow: none; /* use no shadow on desktop menu */
+  }
+  body.logged-in.with-user-defined-links .mdl-layout__drawer {
+    top: 91px;
   }
   .mdl-layout__drawer-button {
     display: none;

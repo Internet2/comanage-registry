@@ -98,6 +98,10 @@ body.logged-out .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__hea
 body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
   padding-left: 7px;
 }
+/* USER DEFINED LINKS (top) */
+#user-defined-links-top  {
+  display: none;
+}
 /* LOGO */
 #logo {
   margin-top: 4px;
@@ -139,6 +143,9 @@ body.logged-in #user-menu {
 }
 #user {
   margin-top: 8px;
+}
+#user-links-menu li {
+  text-align: center;
 }
 #user-links-cn {
   background-color: #1C77AF;
