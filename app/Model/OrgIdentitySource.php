@@ -336,6 +336,24 @@ class OrgIdentitySource extends AppModel {
   }
   
   /**
+   * Obtain all source keys from a backend.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id OrgIdentitySource to query
+   * @return Array Array of source keys
+   * @throws DomainException, if backend does not support this query
+   * @throws InvalidArgumentException
+   */
+  
+  public function obtainSourceKeys($id) {
+    // Pull keys from source
+    
+    $Backend = $this->bindPluginBackendModel($id);
+    
+    return $Backend->inventory();
+  }
+  
+  /**
    * Map a raw result into a list of group attributes suitable for mapping.
    *
    * @since  COmanage Registry v1.1.0
@@ -704,7 +722,7 @@ class OrgIdentitySource extends AppModel {
           $model = $this->OrgIdentitySourceRecord->OrgIdentity->$m;
           
           // Records obtained from the Org Identity Source
-          $newRecords = $brec['orgidentity'][$m];
+          $newRecords = isset($brec['orgidentity'][$m]) ? $brec['orgidentity'][$m] : array();
           // Records attached to the current Org Identity
           $curRecords = array();
           
@@ -960,7 +978,79 @@ class OrgIdentitySource extends AppModel {
     if($orgIdentitySource['OrgIdentitySource']['sync_mode'] == SyncModeEnum::Full) {
       // For each record in the source, if there is no OrgIdentity linked
       // run createOrgIdentity
-// XXX todo, also add count ("added") to $resCnt
+      
+      $newKeys = array();
+      
+      try {
+        $sourceKeys = $this->obtainSourceKeys($orgIdentitySource['OrgIdentitySource']['id']);
+        
+        // Determine the set of already known source keys
+        $knownKeys = Hash::extract($orgRecords, '{n}.OrgIdentitySourceRecord.sorid');
+        
+        // And finally the set of unknown (new) keys
+        $newKeys = array_diff($sourceKeys, $knownKeys);
+      }
+      catch(Exception $e) {
+        $eclass = get_class($e);
+        $err = $e->getMessage();
+        
+        if($eclass == 'DomainException') {
+          // We're misconfigured, the backend does not support inventory().
+          // We'll log an error and keep going.
+          
+          $err = _txt('er.ois.sync.full.inventory');
+        }
+        
+        // Create a job history record to record the error
+        
+        $resCnt['error']++;
+        
+        $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                     null,
+                                                     $err,
+                                                     null,
+                                                     null,
+                                                     JobStatusEnum::Failed);
+      }
+      
+      foreach($newKeys as $newKey) {
+        // This is basically the same logic as used in SyncModeEnum::Query, below
+        try {
+          $newOrgIdentityId = $this->createOrgIdentity($orgIdentitySource['OrgIdentitySource']['id'],
+                                                       $newKey,
+                                                       null,
+                                                       $orgIdentitySource['OrgIdentitySource']['co_id']);
+          
+          $resCnt['new']++;
+          
+          // Create a job history record
+          
+          $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                       $newKey,
+                                                       _txt('rs.org.src.new',
+                                                            array($orgIdentitySource['OrgIdentitySource']['description'],
+                                                                  $orgIdentitySource['OrgIdentitySource']['id'])),
+                                                       null,
+                                                       $newOrgIdentityId);
+        } 
+        catch(OverflowException $e) {
+          // There's already an associated identity. We could log a message,
+          // but that seems like it'll get noisy. We don't increment a counter
+          // either since we should have counted this in 'synced' already.
+        }
+        catch(Exception $e) {
+          // Create a job history record to record the error
+          
+          $resCnt['error']++;
+          
+          $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                       $newKey,
+                                                       $e->getMessage(),
+                                                       null,
+                                                       null,
+                                                       JobStatusEnum::Failed);
+        }        
+      }
     }
     
     if($orgIdentitySource['OrgIdentitySource']['sync_mode'] == SyncModeEnum::Query) {
@@ -1013,6 +1103,8 @@ class OrgIdentitySource extends AppModel {
           // so we leave it up to the attached pipeline to decide. If the pipeline is configured
           // for email match, the right thing will happen. Otherwise, we'll probably cause a new
           // CO Person record to be created.
+          
+          // This is basically the same logic as SyncModeEnum::Full, above
           
           try {
             // The first thing createOrgIdentity does is check for an existing record,

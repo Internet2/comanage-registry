@@ -102,6 +102,20 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   }
   
   /**
+   * Obtain all available records in the IdentitySource, as a list of unique keys
+   * (ie: suitable for passing to retrieve()).
+   *
+   * @since  COmanage Registry v1.1.0
+   * @return Array Array of unique keys
+   * @throws DomainException If the backend does not support this type of requests
+   */
+  
+  public function inventory() {
+    // Syncing all available ORCIDs is not something we should support
+    throw new DomainException("NOT IMPLEMENTED");
+  }
+  
+  /**
    * Obtain an access token from an API ID and secret.
    *
    * @since  COmanage Registry v1.1.0
