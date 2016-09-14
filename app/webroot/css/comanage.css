@@ -574,6 +574,7 @@ input[type="text"],
  }
 textarea {
   width: 80%;
+  resize: both;
 }
 input[type="text"]:focus,
 input[type="number"]:focus {

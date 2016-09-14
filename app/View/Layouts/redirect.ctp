@@ -30,7 +30,10 @@
     </title>
     <?php print $this->Html->charset(); ?>
     <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Handle the redirect -->
+    <meta http-equiv="refresh" content="1;URL='<?php print $this->Html->url($vv_meta_redirect_target); ?>'" />
 
     <!-- Include the comanage and jquery style sheets -->
     <?php
@@ -75,10 +78,24 @@
 
     </script>
 
-    <meta http-equiv="refresh" content="1;URL='<?php print $this->Html->url($vv_meta_redirect_target); ?>'" />
-
+    <!-- Include custom CSS -->
+    <?php if(!empty($vv_theme_css)): ?>
+      <style type="text/css">
+        <?php print $vv_theme_css; ?>
+      </style>
+    <?php endif; ?>
   </head>
+
   <body  class="<?php print $this->params->controller . ' ' . $this->params->action ?>">
+
+    <!-- Include custom header -->
+    <?php if(!empty($vv_theme_header)): ?>
+      <header id="customHeader">
+        <div class="contentWidth">
+          <?php print $vv_theme_header; ?>
+        </div>
+      </header>
+    <?php endif; ?>
 
     <nav id="row1" aria-label="user and platform menus">
       <div class="contentWidth">
@@ -87,43 +104,45 @@
       </div>
     </nav>
 
-    <header id="row2" class="ui-widget-header">
-      <div class="contentWidth">
+    <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
+      <header id="row2" class="ui-widget-header">
+        <div class="contentWidth">
 
-        <div class="headerRight">
-          <?php
-            $imgFile = 'comanage-logo.png';
+          <div class="headerRight">
+            <?php
+              $imgFile = 'comanage-logo.png';
 
-            if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
-              // A custom logo has been installed, so use that instead
-              $imgFile = 'logo.png';
-            }
+              if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
+                // A custom logo has been installed, so use that instead
+                $imgFile = 'logo.png';
+              }
 
-            // Clicking on the logo will take us to the front page
-            print $this->Html->link(
-              $this->Html->image(
-                $imgFile,
-                array(
-                  'alt' => 'COmanage Logo',
-                  'height' => 50
-                )
-              ),'/',
-              array('escape' => false)
-            );
-          ?>
+              // Clicking on the logo will take us to the front page
+              print $this->Html->link(
+                $this->Html->image(
+                  $imgFile,
+                  array(
+                    'alt' => 'COmanage Logo',
+                    'height' => 50
+                  )
+                ),'/',
+                array('escape' => false)
+              );
+            ?>
+          </div>
+
+          <div class="headerLeft">
+            <?php
+              if(!empty($cur_co['Co']['name'])) {
+                print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
+              } else {
+                print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
+              }
+            ?>
+          </div>
         </div>
-
-        <div class="headerLeft">
-          <?php
-            if(!empty($cur_co['Co']['name'])) {
-              print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
-            } else {
-              print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
-            }
-          ?>
-        </div>
-      </div>
-    </header>
+      </header>
+    <?php endif; // $vv_theme_hide_title ?>
 
     <?php if($this->Session->check('Auth.User')): ?>
       <nav id="row3" aria-label="main menu">
@@ -144,8 +163,19 @@
       </div>
     </main>
 
-    <footer class="contentWidth">
-      <?php print $this->element('footer'); ?>
-    </footer>
+    <!-- Include custom footer -->
+    <?php if(!empty($vv_theme_footer)): ?>
+      <footer id="customFooter">
+        <div class="contentWidth">
+          <?php print $vv_theme_footer; ?>
+        </div>
+      </footer>
+    <?php endif; ?>
+
+    <?php if(!isset($vv_theme_hide_footer_logo) || !$vv_theme_hide_footer_logo): ?>
+      <footer class="contentWidth">
+        <?php print $this->element('footer'); ?>
+      </footer>
+    <?php endif; ?>
   </body>
 </html>
