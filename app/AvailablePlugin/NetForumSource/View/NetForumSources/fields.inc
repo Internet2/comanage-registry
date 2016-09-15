@@ -73,6 +73,18 @@
         <?php print ($e ? $this->Form->input('password') : Sanitize::html($net_forum_sources[0]['NetForumSource']['password'])); ?>
       </td>
     </tr>
+    <tr class="line2">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('pl.netforumsource.queryevents'); ?></strong><br />
+        <font class="desc"><?php print _txt('pl.netforumsource.queryevents.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('query_events')
+                     : ($net_forum_sources[0]['NetForumSource']['query_events']
+                        ? _txt('fd.yes') : _txt('fd.no'))); ?>
+      </td>
+    </tr>
     <tr>
       <td>
         <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />

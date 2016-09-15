@@ -57,6 +57,11 @@ class NetForumSource extends AppModel {
       'rule' => 'notBlank',
       'required' => true,
       'allowEmpty' => false
+    ),
+    'query_events' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   

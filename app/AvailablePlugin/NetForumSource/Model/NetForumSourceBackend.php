@@ -28,6 +28,7 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
   public $name = "NetForumSourceBackend";
   
   protected $groupAttrs = array(
+    'EventProductCode' => 'Event Product Code',
     'ProductCode' => 'Product Code'
   );
   
@@ -98,18 +99,36 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
     
     // Next, construct the search query. Map the query type to the parameter name.
     $searchAttrs = array(
-      'Email' => 'szEmailAddress',
-      'Key'   => 'szCstKey',
-      'Name'  => 'szName'
+      'Email' => array(
+        'attr' => 'szEmailAddress',
+        'call' => 'ByEmail'
+      ),
+      'Event' => array(
+        'attr' => 'szCstKey',
+        'call' => 'Event'
+      ),
+      'Key'   => array(
+        'attr' => 'szCstKey',
+        'call' => 'ByKey'
+      ),
+      'Name'  => array(
+        'attr' => 'szName',
+        'call' => 'ByName'
+      )
     );
     
     $searchParams = array();
-    $searchParams[ $searchAttrs[$queryType] ] = $searchKey;
+    $searchParams[ $searchAttrs[$queryType]['attr'] ] = $searchKey;
+    
+    if($queryType == 'Event') {
+      // We also need to put in a blank record date
+      $searchParams['szRecordDate'] = '';
+    }
     
     $sresponse = null;
     
     // Construct function and result names
-    $fname = "GetCustomerBy" . $queryType;
+    $fname = "GetCustomer" . $searchAttrs[$queryType]['call'];
     $rname = $fname . "Result";
     
     $sresponse = $sclient->$fname($searchParams);
@@ -177,6 +196,22 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
           // Should really only be one...
           
           if((string)$r->MemberStatus == 'Active') {
+            if($this->pluginCfg['query_events']) {
+              // If configured, pull events (prd_code) for purposes of mapping to group memberships.
+              // Events are accessed via a separate call. Our typical use case will be to map events
+              // to groups, so we'll make that separate call and then merge the results.
+              
+              $events = $this->makeNetForumQuery('Event', $attributes['cstkey']);
+              
+              if($events) {
+                $exml = $r->addChild('Events');
+                
+                foreach($events->Result as $e) {
+                  $exml->addChild('EventProductCode', (string)$e->prd_code);
+                }
+              }
+            }
+            
             // Use the customer key as the unique ID
             $ret[ (string)$r->cst_key ]['orgidentity'] = $this->resultToOrgIdentity($r);
             
@@ -184,7 +219,6 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
             $ret[ (string)$r->cst_key ]['raw'] = $r->asXML();
           }
         }
-        
       }
     }
     
@@ -253,9 +287,14 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
     $attrs = simplexml_load_string($raw);
     
     foreach(array_keys($this->groupAttrs) as $gAttr) {
-      if(!empty($attrs->Result->$gAttr)) {
-        $ret[$gAttr][] = (string)$attrs->Result->$gAttr;
+      if(!empty($attrs->$gAttr)) {
+        $ret[$gAttr][] = (string)$attrs->$gAttr;
       }
+    }
+    
+    // Also check Events, if not empty
+    if(!empty($attrs->Events->EventProductCode)) {
+      $ret['EventProductCode'] = $attrs->Events->EventProductCode;
     }
     
     return $ret;
