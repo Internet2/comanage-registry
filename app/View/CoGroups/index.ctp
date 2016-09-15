@@ -97,7 +97,7 @@
     // We're using slightly the wrong permission here... edit group instead of add group member
     // (though they work out the same)
     print $this->Form->create('CoGroupMember',
-                              array('action' => 'update',
+                              array('url' => array('action' => 'update'),
                                     'inputDefaults' => array('label' => false,
                                                              'div' => false))) . "\n";
     // beforeFilter needs CO ID
