@@ -854,7 +854,7 @@ class OrgIdentitySource extends AppModel {
         );
         
         if(!empty($cursrcrec['OrgIdentitySourceRecord']['id'])) {
-          $orgid['OrgIdentitySourceRecord']['id'] = $cursrcrec['OrgIdentitySourceRecord']['id'];
+          $oisrec['OrgIdentitySourceRecord']['id'] = $cursrcrec['OrgIdentitySourceRecord']['id'];
         }
         
         $this->OrgIdentitySourceRecord->clear();
