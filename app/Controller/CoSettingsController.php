@@ -106,6 +106,13 @@ class CoSettingsController extends StandardController {
         
         $this->set('vv_co_pipelines', $this->CoSetting->Co->CoPipeline->find('list', $args));
       }
+      
+      // Pull the set of available themes
+      $args = array();
+      $args['conditions']['CoTheme.co_id'] = $this->cur_co['Co']['id'];;
+      $args['order'] = array('CoTheme.name ASC');
+      
+      $this->set('vv_co_themes', $this->Co->CoTheme->find("list", $args));
     }
     
     parent::beforeRender();

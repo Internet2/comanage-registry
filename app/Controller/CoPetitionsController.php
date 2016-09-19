@@ -1901,13 +1901,18 @@ class CoPetitionsController extends StandardController {
    */
 
   protected function parseToken() {
+    $token = null;
+    
     if(!empty($this->request->params['named']['token'])) {
-      return $this->request->params['named']['token'];
+      $token = $this->request->params['named']['token'];
     } elseif(!empty($this->request->data['CoPetition']['token'])) {
-      return $this->request->data['CoPetition']['token'];
+      $token = $this->request->data['CoPetition']['token'];
     }
     
-    return null;
+    // Dump the token into a viewvar in case needed
+    $this->set('vv_petition_token', $token);
+    
+    return $token;
   }
   
   /**

@@ -44,6 +44,8 @@ class Co extends AppModel {
     "CoGroup" => array('dependent' => true),
     // A CO can have zero or more CO people
     "CoIdentifierAssignment" => array('dependent' => true),
+    "CoIdentifierValidator" => array('dependent' => true),
+    "CoJob" => array('dependent' => true),
     "CoLocalization" => array('dependent' => true),
     "CoPerson" => array('dependent' => true),
     // A CO can have zero or more petitions
@@ -53,6 +55,7 @@ class Co extends AppModel {
     "CoProvisioningTarget" => array('dependent' => true),
     "CoSelfServicePermission" => array('dependent' => true),
     "CoTermsAndConditions" => array('dependent' => true),
+    "CoTheme" => array('dependent' => true),
     // A CO has zero or more COUs
     "Cou" => array('dependent' => true),
     // A CO has zero or more OrgIdentities, depending on if they are pooled.

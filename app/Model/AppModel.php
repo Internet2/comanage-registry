@@ -35,6 +35,53 @@ App::uses('Model', 'Model');
  */
 
 class AppModel extends Model {
+  // Track transactions in callbacks so we know whether to commit.
+  // (Commiting the wrong number of times confuses saveAssociated.)
+  protected $inTxn = false;
+  
+  /**
+   * Wrapper for begin(), primarily intended for use in callbacks.
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+  
+  protected function _begin() {
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+    
+    $this->inTxn = true;
+  }
+
+  /**
+   * Wrapper for commit(), primarily intended for use in callbacks.
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+  
+  protected function _commit() {
+    if($this->inTxn) {
+      $dbc = $this->getDataSource();
+      $dbc->commit();
+      
+      $this->inTxn = false;
+    }
+  }
+    
+  /**
+   * Wrapper for rollback(), primarily intended for use in callbacks.
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+  
+  protected function _rollback() {
+    if($this->inTxn) {
+      $dbc = $this->getDataSource();
+      $dbc->rollback();
+      
+      $this->inTxn = false;
+    }
+  }
+  
   /**
    * Actions before deleting a model.
    *
@@ -65,7 +112,7 @@ class AppModel extends Model {
         }
       }
     }
-    
+
     return true;
   }
   
@@ -410,6 +457,122 @@ class AppModel extends Model {
   }
   
   /**
+   * Check if an identifier or email address is available for use, ie
+   * if it is not defined (regardless of status) within the same CO.
+   *
+   * IMPORTANT: This function should be called within a transaction to ensure
+   * actions taken based on availability are atomic.
+   *
+   * @since  COmanage Registry v0.6
+   * @param  String  $identifier     Candidate identifier or email address
+   * @param  String  $identifierType Type of candidate identifier or email address
+   * @param  Integer $coId           CO ID
+   * @param  Boolean $emailUnique    If true, email addresses must be unique within the CO
+   * @return Boolean True if identifier or email address is not in use
+   * @throws InvalidArgumentException If $identifier is not of the correct format
+   * @throws OverflowException If $identifier is already in use
+   * @throws RuntimeException
+   * @todo   Since this only currently supports EmailAddress and Identifer, this could go in an intermediate model instead
+   */
+  
+  public function checkAvailability($identifier, $identifierType, $coId, $emailUnique=false) {
+    $mname = $this->name;
+    // Currently we support Identifier and EmailAddress
+    $mattr = ($this->name == 'Identifier' ? 'identifier' : 'mail');
+    
+    // In order to allow ensure that another process doesn't perform the same
+    // availability check while we're running, we need to lock the appropriate
+    // tables/rows at read time. We do this with findForUpdate instead of a normal find.
+    
+    // Ordinarily we don't require EmailAddress to be unique within the CO,
+    // unless (eg) it's being assigned via Identifier Assignment.
+    
+    if($mname != 'EmailAddress' || $emailUnique) {
+      $args = array();
+      $args['conditions']['CoPerson.co_id'] = $coId;
+      $args['conditions'][$mname.'.'.$mattr] = $identifier;
+      if($mname == 'Identifier') {
+        // For email address, uniqueness is regardless of type
+        $args['conditions'][$mname.'.type'] = $identifierType;
+      }
+      $args['joins'][0]['table'] = 'co_people';
+      $args['joins'][0]['alias'] = 'CoPerson';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id='.$mname.'.co_person_id';
+      $args['contain'] = false;
+      
+      $r = $this->findForUpdate($args['conditions'],
+                                array($mattr),
+                                $args['joins']);
+      
+      if(!empty($r)) {
+        throw new OverflowException(_txt('er.ia.exists', array($identifier)));
+      }
+    }
+    
+    // Our internal availability check is clear.
+    // Next see if there are any validators defined.
+    
+    $args = array();
+    $args['conditions']['CoIdentifierValidator.co_id'] = $coId;
+    $args['conditions']['CoIdentifierValidator.status'] = SuspendableStatusEnum::Active;
+    $args['contain'][] = 'CoExtendedType';
+    
+    $validators = $this->CoPerson->Co->CoIdentifierValidator->find('all', $args);
+    
+    if(!empty($validators)) {
+      // Load the related plugins in case we need them
+      $plugins = $this->loadAvailablePlugins('identifiervalidator');
+      
+      foreach($validators as $v) {
+        // See if this validator is configured for this attribute type.
+        // The validator type is actually in the related model pulled via foreign key.
+        
+        if($v['CoExtendedType']['attribute'] == $mname.'.type'
+           && $v['CoExtendedType']['name'] == $identifierType) {
+          // Run this plugin. If more than one plugin is configured, we'll run
+          // them all but fail on the first one that fails.
+          
+          try {
+            $plugin = $v['CoIdentifierValidator']['plugin'];
+            $pname = $plugin . '.' . $plugin;
+            $pmodel = $plugins[$pname];
+            $pcfg = array();
+        
+            if($pmodel->cmPluginInstantiate) {
+              // Pull the relevant plugin config to pass to the plugin
+              
+              $args = array();
+              $args['conditions'][ $plugin . '.co_identifier_validator_id' ] = $v['CoIdentifierValidator']['id'];
+              $args['contain'] = false;
+              
+              $pcfg = $pmodel->find('first', $args);
+            }
+            
+            $pmodel->validate($identifier,
+                              $v['CoIdentifierValidator'],
+                              $v['CoExtendedType'],
+                              (!empty($pcfg) ? $pcfg[$plugin] : null));
+          }
+          catch(InvalidArgumentException $e) {
+            // Bad format
+            throw new InvalidArgumentException(_txt('er.id.format-a', array($identifier, $e->getMessage())));
+          }
+          catch(OverflowException $e) {
+            // In use
+            throw new OverflowException(_txt('er.id.exists-a', array($identifier, $e->getMessage())));
+          }
+          catch(RuntimeException $e) {
+            throw new RuntimeException($e->getMessage());
+          }
+        }
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Compare changes in a two arrays worth of a model's data.
    *
    * @since  COmanage Registry v1.1.0
@@ -642,6 +805,19 @@ class AppModel extends Model {
       if(empty($copr[ $this->alias ]['co_person_id'])
          && !empty($copr[ $this->alias ]['org_identity_id'])) {
         return null;
+      }
+    } elseif(isset($this->validate['co_identifier_validator_id'])) {
+      // XXX this plugin type-specific logic should move elsewhere (CO-1321)
+      // Identifier Validator plugins will refer to an identifier validator
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'CoIdentifierValidator';
+    
+      $copt = $this->find('first', $args);
+      
+      if(!empty($copt['CoIdentifierValidator']['co_id'])) {
+        return $copt['CoIdentifierValidator']['co_id'];
       }
     } elseif(isset($this->validate['co_provisioning_target_id'])) {
       // Provisioning plugins will refer to a provisioning target

@@ -72,7 +72,7 @@
         <strong class="fieldTitle">
           <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
         </strong><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.org_identity_sources.1'))); ?></span>
+        <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_provisioning_targets.1'))); ?></span>
       </td>
       <td>
         <?php
@@ -112,6 +112,35 @@
     <tr class="line1">
       <td>
         <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('provisioning_co_group_id', _txt('fd.prov.group')) : _txt('fd.prov.group')); ?>
+        </strong><br />
+        <span class="descr"><?php print _txt('fd.prov.group.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          $attrs = array();
+          $attrs['value'] = (isset($co_provisioning_targets[0]['CoProvisioningTarget']['provision_co_group_id'])
+                             ? $co_provisioning_targets[0]['CoProvisioningTarget']['provision_co_group_id']
+                             : null);
+          $attrs['empty'] = true;
+
+          if($e) {
+            print $this->Form->select('provision_co_group_id',
+                                      $vv_available_groups,
+                                      $attrs);
+
+            if($this->Form->isFieldError('provision_co_group_id')) {
+              print $this->Form->error('provision_co_group_id');
+            }
+          } else {
+            print $vv_available_groups[ $co_provisioning_targets[0]['CoProvisioningTarget']['provision_co_group_id'] ];
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line2">
+      <td>
+        <strong class="fieldTitle">
           <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
         </strong><br />
         <span class="descr"><?php print _txt('en.status.prov.desc'); ?></span>
@@ -136,7 +165,7 @@
         ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line1">
       <td>
         <strong class="fieldTitle">
           <?php print ($e ? $this->Form->label('ordr', _txt('fd.order')) : _txt('fd.order')); ?>

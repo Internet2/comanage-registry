@@ -424,6 +424,33 @@ class ProvisionerBehavior extends ModelBehavior {
    */
   
   private function invokePlugin($coProvisioningTarget, $provisioningData, $action) {
+    $pAction = $action; // We might override the provided action
+    
+    // Before we do anything else, see if this plugin is configured to only operate
+    // on a specified group. We do this here rather than in marshallXData because
+    // here we have access to the plugin configuration, and the action change is not
+    // too intrusive. If we need to do more sophisticate manipulation of the provisioning
+    // data we should move this to marshallXData.
+    
+    if(!empty($coProvisioningTarget['provision_co_group_id'])) {
+      if(!empty($provisioningData['CoPerson']['id'])) { 
+        // Is this person a member of that group? We should be able to do this in a single
+        // Hash::check call using [co_group_id=$foo], but that doesn't seem to actually work...
+        
+        if(!in_array($coProvisioningTarget['provision_co_group_id'],
+                     Hash::extract($provisioningData, 'CoGroupMember.{n}.co_group_id'))) {
+          // Switch to a delete. We'll leave the provisioning data itself untouched.
+          $pAction = ProvisioningActionEnum::CoPersonDeleted;
+        }
+      } elseif(!empty($provisioningData['CoGroup']['id'])
+               // Is this group the configured group?
+               && ($coProvisioningTarget['provision_co_group_id']
+                   != $provisioningData['CoGroup']['id'])) {
+        // Switch to a delete. We'll leave the provisioning data itself untouched.
+        $pAction = ProvisioningActionEnum::CoGroupDeleted;
+      }
+    }
+    
     if(!empty($coProvisioningTarget['plugin'])) {
       $pluginName = $coProvisioningTarget['plugin'];
       $modelName = 'Co'. $pluginName . 'Target';
@@ -443,15 +470,15 @@ class ProvisionerBehavior extends ModelBehavior {
       if(!empty($pluginTarget)) {
         try {
           $pluginModel->provision($pluginTarget,
-                                  $action,
+                                  $pAction,
                                   $provisioningData);
           
           // Create/update the export record, unless this is a delete operation
           // (in which case we're about to delete the entity, so creating a record
           // will interfere with the delete).
           
-          if($action != ProvisioningActionEnum::CoGroupDeleted
-             && $action != ProvisioningActionEnum::CoPersonDeleted) {
+          if($pAction != ProvisioningActionEnum::CoGroupDeleted
+             && $pAction != ProvisioningActionEnum::CoPersonDeleted) {
             $pluginModel->CoProvisioningTarget->CoProvisioningExport->record(
               $coProvisioningTarget['id'],
               !empty($provisioningData['CoPerson']['id']) ? $provisioningData['CoPerson']['id'] : null,
@@ -463,14 +490,14 @@ class ProvisionerBehavior extends ModelBehavior {
           // deleting it). Currently, there is no equivalent concept for CO Groups.
           
           if(!empty($provisioningData['CoPerson']['id'])
-             && $action != ProvisioningActionEnum::CoPersonDeleted) {
+             && $pAction != ProvisioningActionEnum::CoPersonDeleted) {
             // It's a bit of a walk to get to HistoryRecord
             $pluginModel->CoProvisioningTarget->Co->CoPerson->HistoryRecord->record(
               $provisioningData['CoPerson']['id'],
               null,
               null,
               CakeSession::read('Auth.User.co_person_id'),
-              ($action == ProvisioningActionEnum::CoPersonReprovisionRequested
+              ($pAction == ProvisioningActionEnum::CoPersonReprovisionRequested
                ? ActionEnum::CoPersonManuallyProvisioned
                : ActionEnum::CoPersonProvisioned),
               _txt('rs.prov-a', array($coProvisioningTarget['description']))

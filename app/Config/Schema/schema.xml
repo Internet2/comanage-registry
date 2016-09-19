@@ -438,38 +438,6 @@
     </index>
   </table>
   
-  <table name="co_message_templates">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="description" type="C" size="256">
-      <notnull />
-    </field>
-    <field name="context" type="C" size="2" />
-    <field name="cc" type="C" size="256" />
-    <field name="bcc" type="C" size="256" />
-    <field name="message_subject" type="C" size="256" />
-    <field name="message_body" type="X" size="4000" />
-    <field name="status" type="C" size="2" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="co_message_template_id" type="I">
-      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="co_message_templates_i1">
-      <col>co_id</col>
-    </index>
-  </table>
-  
   <table name="co_invites">
     <field name="id" type="I">
       <key />
@@ -691,6 +659,74 @@
     </index>
   </table>
   
+  <table name="co_identifier_validators">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="co_extended_type_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_extended_types(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_identifier_validator_id" type="I">
+      <constraint>REFERENCES cm_co_identifier_validators(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_identifier_validators_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_identifier_validators_i2">
+      <col>co_identifier_validator_id</col>
+    </index>
+  </table>
+  
+  <table name="co_message_templates">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256">
+      <notnull />
+    </field>
+    <field name="context" type="C" size="2" />
+    <field name="cc" type="C" size="256" />
+    <field name="bcc" type="C" size="256" />
+    <field name="message_subject" type="C" size="256" />
+    <field name="message_body" type="X" size="4000" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_message_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_message_templates_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_message_templates_i2">
+      <col>co_message_template_id</col>
+    </index>
+  </table>
+  
   <table name="co_expiration_policies">
     <field name="id" type="I">
       <key />
@@ -908,12 +944,7 @@
       <constraint>REFERENCES cm_co_pipelines(id)</constraint>
     </field>
     <field name="status" type="C" size="2" />
-    <!--
-    <field name="load_interval" type="I" />
-    <field name="update_interval" type="I" />
-    <field name="last_load" type="T" />
-    <field name="last_update" type="T" />
-    -->
+    <field name="sync_mode" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="org_identity_source_id" type="I">
@@ -962,6 +993,10 @@
     <index name="org_identity_source_records_i2">
       <col>org_identity_id</col>
     </index>
+    
+    <index name="org_identity_source_records_i3">
+      <col>org_identity_source_id</col>
+    </index>
   </table>
   
   <table name="co_group_ois_mappings">
@@ -998,6 +1033,38 @@
     </index>
     <index name="co_group_ois_mappings_i2">
       <col>org_identity_source_id</col>
+    </index>
+  </table>
+  
+  <table name="co_themes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="80" />
+    <field name="hide_title" type="L" />
+    <field name="hide_footer_logo" type="L" />
+    <field name="css" type="XL" />
+    <field name="header" type="XL" />
+    <field name="footer" type="XL" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_theme_id" type="I">
+      <constraint>REFERENCES cm_co_themes(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_themes_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_themes_i2">
+      <col>co_theme_id</col>
     </index>
   </table>
   
@@ -1061,6 +1128,9 @@
     <field name="redirect_on_confirm" type="C" size="256" />
     <field name="ignore_authoritative" type="L" />
     <field name="duplicate_mode" type="C" size="2" />
+    <field name="co_theme_id" type="I">
+      <constraint>REFERENCES cm_co_themes(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_enrollment_flow_id" type="I">
@@ -1399,6 +1469,72 @@
     </index>
   </table>
   
+  <table name="co_jobs">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="job_type" type="C" size="2" />
+    <field name="job_type_fk" type="I" />
+    <field name="job_mode" type="C" size="16" />
+    <field name="status" type="C" size="2" />
+    <field name="register_summary" type="C" size="256" />
+    <field name="start_summary" type="C" size="256" />
+    <field name="finish_summary" type="C" size="256" />
+    <field name="queue_time" type="T" />
+    <field name="start_time" type="T" />
+    <field name="complete_time" type="T" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_jobs_i1">
+      <col>co_id</col>
+    </index>
+    
+    <index name="co_jobs_i2">
+      <col>job_type</col>
+      <col>job_type_fk</col>
+    </index>
+  </table>
+  
+  <table name="co_job_history_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_job_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_jobs(id)</constraint>
+    </field>
+    <field name="record_key" type="C" size="64" />
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="comment" type="C" size="256" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_job_history_records_i1">
+      <col>co_job_id</col>
+    </index>
+    
+    <index name="co_job_history_records_i2">
+      <col>co_person_id</col>
+    </index>
+    
+    <index name="co_job_history_records_i3">
+      <col>org_identity_id</col>
+    </index>
+  </table>
+  
   <table name="history_records">
     <field name="id" type="I">
       <key />
@@ -1449,6 +1585,9 @@
     </field>
     <field name="description" type="C" size="256" />
     <field name="plugin" type="C" size="32" />
+    <field name="provision_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
     <field name="status" type="C" size="2" />
     <field name="ordr" type="I" />
     <field name="created" type="T" />
@@ -1689,8 +1828,12 @@
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
+    <field name="co_theme_id" type="I">
+      <constraint>REFERENCES cm_co_themes(id)</constraint>
+    </field>
     <field name="enable_nsf_demo" type="L" />
     <field name="disable_expiration" type="L" />
+    <field name="disable_ois_sync" type="L" />
     <field name="enable_normalization" type="L" />
     <field name="invitation_validity" type="I" />
     <field name="permitted_fields_name" type="C" size="160" />

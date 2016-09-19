@@ -213,7 +213,7 @@ class AppController extends Controller {
       } else {
         $this->set('vv_tz', date_default_timezone_get());
       }
-      
+
       // Before we do anything else, check to see if a CO was provided.
       // (It might impact our authz decisions.) Note that some models (eg: MVPAs)
       // might specify a CO, but might not. As of v0.6, we no longer redirect to
@@ -275,7 +275,7 @@ class AppController extends Controller {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
             $this->redirect("/");
           }
-          
+
           // See if there are any pending Terms and Conditions. If so, redirect the user.
           // But don't do this if the current request is for T&C. We might also consider
           // skipping for admins. Pending T&C are retrieved by UsersController at login.
@@ -338,12 +338,15 @@ class AppController extends Controller {
   function beforeRender() {
     // Determine what is shown for menus
     // Called before each render in case permissions change
-    if(!$this->request->is('restful')
-       && $this->Session->check('Auth.User.org_identities')) {
-      $this->menuAuth();
-      $this->menuContent();
-      $this->getNavLinks();
-      $this->getNotifications();
+    if(!$this->request->is('restful')) {
+      $this->getTheme();
+      
+      if($this->Session->check('Auth.User.org_identities')) {
+        $this->menuAuth();
+        $this->menuContent();
+        $this->getNavLinks();
+        $this->getNotifications();
+      }
     }
   }
   
@@ -722,6 +725,90 @@ class AppController extends Controller {
   }
   
   /**
+   * Obtain configured theme, if any
+   * - postcondition: Theme view variable set
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+  
+  protected function getTheme() {
+    // Determine if a theme is in use
+    $coTheme = null;
+    
+    if(!empty($this->cur_co['Co']['id'])) {
+      // First see if we're in an enrollment flow
+      if($this->name == 'CoPetitions') {
+        $efId = $this->enrollmentFlowID();
+        
+        if($efId > -1) {
+          // See if this enrollment flow has a theme configured
+          
+          $args = array();
+          $args['conditions']['CoEnrollmentFlow.id'] = $efId;
+          $args['contain'][] = 'CoTheme';
+          
+          $efConfig = $this->Co->CoEnrollmentFlow->find('first', $args);
+          
+          if(!empty($efConfig['CoTheme']['id'])) {
+            $coTheme = $efConfig['CoTheme'];
+          }
+        }
+      }
+      
+      if(!$coTheme) {
+        // See if there is a CO-wide theme in effect
+        
+        $args = array();
+        $args['conditions']['CoSetting.co_id'] = $this->cur_co['Co']['id'];
+        $args['contain'][] = 'CoTheme';
+        
+        $settings = $this->Co->CoSetting->find('first', $args);
+        
+        if(!empty($settings['CoTheme']['id'])) {
+          $coTheme = $settings['CoTheme'];
+        }
+      }
+    }
+    
+    if(!$coTheme) {
+      // See if there is a platform theme
+      $args = array();
+      $args['joins'][0]['table'] = 'cos';
+      $args['joins'][0]['alias'] = 'Co';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoSetting.co_id=Co.id';
+      $args['conditions']['Co.name'] = 'COmanage';
+      $args['conditions']['Co.status'] = StatusEnum::Active;
+      $args['contain'][] = 'CoTheme';
+      
+      $this->loadModel('CoSetting');
+      
+      $settings = $this->CoSetting->find('first', $args);
+      
+      if(!empty($settings['CoTheme']['id'])) {
+        $coTheme = $settings['CoTheme'];
+      }
+    }
+      
+    if($coTheme) {
+      $this->set('vv_theme_hide_title', $coTheme['hide_title']);
+      $this->set('vv_theme_hide_footer_logo', $coTheme['hide_footer_logo']);
+      
+      if(!empty($coTheme['css'])) {
+        $this->set('vv_theme_css', $coTheme['css']);
+      }
+      
+      if(!empty($coTheme['header'])) {
+        $this->set('vv_theme_header', $coTheme['header']);
+      }
+      
+      if(!empty($coTheme['footer'])) {
+        $this->set('vv_theme_footer', $coTheme['footer']);
+      }
+    }    
+  }
+  
+  /**
    * Called from beforeRender to set permissions for display in menus
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: permissions for menu are set
@@ -785,8 +872,11 @@ class AppController extends Controller {
     // Manage CO extended types?
     $p['menu']['exttypes'] = $roles['cmadmin'] || $roles['coadmin'];
     
-    // Manage CO ID Assignment?
+    // Manage CO identifier assignments?
     $p['menu']['idassign'] = $roles['cmadmin'] || $roles['coadmin'];
+    
+    // Manage CO identifier validations?
+    $p['menu']['idvalidate'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Manage COU definitions?
     $p['menu']['cous'] = $roles['cmadmin'] || $roles['coadmin'];
@@ -817,6 +907,9 @@ class AppController extends Controller {
     
     // Manage CO terms and conditions?
     $p['menu']['cotandc'] = $roles['cmadmin'] || $roles['coadmin'];
+    
+    // Manage CO themes?
+    $p['menu']['cothemes'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Manage CO expiration policies?
     $p['menu']['coxp'] = $roles['cmadmin'] || $roles['coadmin'];

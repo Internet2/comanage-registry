@@ -229,13 +229,15 @@ class CoPipeline extends AppModel {
   
   /**
    * Find the target CO Person ID for the Pipeline.
+   * If a matching, unlinked Person is found, a new CoOrgIdentityLink will be created.
    *
    * @since  COmanage Registry v1.1.0
    * @param  Array $pipeline Array of Pipeline configuration data
-   * @param  Integer $orgIdentityId Source Org Identity to run
+   * @param  Integer $orgIdentityId Source Org Identity to run query for
    * @param  Integer $actorCoPersonId CO Person ID of actor, if interactive
    * @return Integer CO Person ID, or null if none found
    * @throws InvalidArgumentException
+   * @throws RuntimeException
    */
   
   protected function findTargetCoPersonId($pipeline, $orgIdentityId, $actorCoPersonId=null) {
@@ -243,7 +245,7 @@ class CoPipeline extends AppModel {
     $coId = $this->Co->OrgIdentity->field('co_id', array('OrgIdentity.id' => $orgIdentityId));
     
     if(!$coId) {
-      throw new InvalidArgumentException('er.notprov.id', array(_txt('ct.cos.1')));
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.cos.1'))));
     }
     
     // First option is to see if the Org Identity is already linked to a CO Person ID.
@@ -303,6 +305,9 @@ class CoPipeline extends AppModel {
         $args['joins'][0]['alias'] = 'CoPerson';
         $args['joins'][0]['type'] = 'INNER';
         $args['joins'][0]['conditions'][0] = 'CoPerson.id=' . $model . '.co_person_id';
+        // Make this a distinct select so we don't get tripped on (eg) the same email
+        // address being listed twice for the same CO Person (eg from multiple OIS records)
+        $args['fields'] = array('DISTINCT ' . $model . '.co_person_id');
         $args['contain'] = false;
         
         $matchingRecords = $this->Co->CoPerson->$model->find('all', $args);
@@ -329,7 +334,23 @@ class CoPipeline extends AppModel {
     // else No Matching
     
     if($coPersonId) {
-      // If we found a match, note history
+      // If we found a match, create a link and update history
+      $coOrgLink = array();
+      $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityId;
+      $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonId;
+
+      // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
+      // provisioning just in case that changes in the future.
+      if(!$this->Co->CoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
+        throw new RuntimeException(_txt('er.db.save-a', array('CoOrgIdentityLink')));
+      }
+      
+      $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                 null,
+                                                 $orgIdentityId,
+                                                 $actorCoPersonId,
+                                                 ActionEnum::CoPersonOrgIdLinked);
+      
       $this->Co->CoPerson->HistoryRecord->record($coPersonId,
                                                  null,
                                                  $orgIdentityId,
@@ -358,12 +379,15 @@ class CoPipeline extends AppModel {
    * @param  Array $orgIdentity Array of Org Identity data and related models
    * @param  Integer $coPersonId Target CO Person ID, if known
    * @param  Integer $actorCoPersonId CO Person ID of actor
+   * @param  Boolean $provision Whether to trigger provisioning
    * @return Boolean true, on success
    */
   
-  protected function syncOrgIdentityToCoPerson($coPipeline, $orgIdentity, $targetCoPersonId=null, $actorCoPersonId=null) {
+  protected function syncOrgIdentityToCoPerson($coPipeline, $orgIdentity, $targetCoPersonId=null, $actorCoPersonId=null,
+                                               $provision=true) {
     $coPersonId = $targetCoPersonId;
     $coPersonRoleId = null;
+    $doProvision = false; // We did something provision-worthy
     
     // If there is no CO Person ID provided, the first thing we need to do is
     // create a new CO Person record and link it to the Org Identity.
@@ -439,6 +463,8 @@ class CoPipeline extends AppModel {
                                                  $orgIdentity['OrgIdentity']['id'],
                                                  $actorCoPersonId,
                                                  ActionEnum::CoPersonOrgIdLinked);
+      
+      $doProvision = true;
     }
     
     if($coPipeline['CoPipeline']['create_role']) {
@@ -518,6 +544,8 @@ class CoPipeline extends AppModel {
                                                    _txt('rs.pi.sync-a', array(_txt('ct.co_person_roles.1'),
                                                                               $coPipeline['CoPipeline']['name'],
                                                                               $coPipeline['CoPipeline']['id'])));
+        
+        $doProvision = true;
       }
     }
     
@@ -587,11 +615,27 @@ class CoPipeline extends AppModel {
       
       $args = array();
       $args['conditions'][$m.'.'.$pkey] = $pval;
+      // We only want the records that were derived from $orgIdentity['OrgIdentity']['id'].
+      // This turns out to be surprisingly hard to figure out, partly because joining back
+      // to the same table is messy, and partly because we may be trying to trace back to
+      // a deleted record. To start, we'll filter out anything without a source_id...
+      // those couldn't have come from an OrgIdentity.
+      $args['conditions'][] = $m.'.source_' . $mkey . ' IS NOT NULL';
       $args['contain'] = false;
       
       $recs = $model->find('all', $args);
       
       foreach($recs as $a) {
+        // First we pull the org identity of the source record. By retrieving
+        // based on ID, ChangelogBehavior will return deleted records as well,
+        // which we need here.
+        $linkedOrgIdentityId = $model->field('org_identity_id', array($m.'.id' => $a[$m]['source_'.$mkey]));
+        
+        if($linkedOrgIdentityId != $orgIdentity['OrgIdentity']['id']) {
+          // This didn't come from the Org Identity we're interest in, so skip it
+          continue;
+        }
+        
         $curRecord = $a[$m];
         
         // Get rid of metadata keys
@@ -620,7 +664,7 @@ class CoPipeline extends AppModel {
                                           array($m => $curRecords[$id]));
           
           if(!empty($cstr)) {
-            // Cut the history diff here, since we don't want this on an add
+            // Cut the history diff here, since we already have the change string
             // (If the save fails later the parent transaction will roll this back)
             
             $this->Co->OrgIdentity->HistoryRecord->record($coPersonId,
@@ -636,6 +680,23 @@ class CoPipeline extends AppModel {
             // And unset current record so we don't see it as a delete
             unset($curRecords[$id]);
           }
+        } else {
+          // This is an add. Cut the history diff here since we already calculated it
+          // for update.
+          $oldrec = array();
+          $oldrec[$m] = array();
+          $newrec = array();
+          $newrec[$m][] = $newRecords[$id];
+          
+          $cstr = $model->changesToString($newrec, $oldrec);
+          
+          $this->Co->OrgIdentity->HistoryRecord->record($coPersonId,
+                                                        null,
+                                                        null,
+                                                        $actorCoPersonId,
+                                                        ActionEnum::CoPersonEditedPipeline,
+                                                        _txt('rs.edited-a4', array(_txt('ct.'.$mpl.'.1'),
+                                                                                   $cstr)));
         }
         
         // If the record is still valid record history (do this here since it's easier, we'll rollback on save failure)
@@ -652,19 +713,39 @@ class CoPipeline extends AppModel {
       }
       
       // And finally process the save for any remaining records
-      if(!empty($newRecords)) {
-        // Save the records
+      foreach($newRecords as $srcid => $nr) {
+        $model->clear();
         
-        if(!$model->saveMany($newRecords, array("provision" => false))) {
+        // For identifiers and email addresses, we want to skip availability checking
+        // since we might be writing multiple versions of the same attribute (from
+        // different org identity sources).
+        if(!$model->save($nr, array("provision" => false, "skipAvailability" => true))) {
           throw new RuntimeException(_txt('er.db.save-a', array($m)));
         }
+        
+        $doProvision = true;
       }
       
-      foreach($curRecords as $id => $cr) {
-        if(!isset($newRecords[$id])) {
-          // This is a delete
-// XXX handle
-        }
+      // Everything remaining in $curRecords is an obsolete record to be deleted
+      foreach($curRecords as $srcid => $cr) {
+        $model->delete($cr['id']);
+        
+        // Record history
+        $oldrec = array();
+        $oldrec[$m][] = $cr;
+        $newrec = array();
+        $newrec[$m] = array();
+        
+        $cstr = $model->changesToString($newrec, $oldrec);
+        
+        $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                   null,
+                                                   $orgIdentity['OrgIdentity']['id'],
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoPersonEditedPipeline,
+                                                   $cstr);
+        
+        $doProvision = true;
       }
     }
     
@@ -749,6 +830,8 @@ class CoPipeline extends AppModel {
                                                                                 $coPipeline['CoPipeline']['name'],
                                                                                 $coPipeline['CoPipeline']['id'])),
                                                      $gm['CoGroup']['id']);
+          
+          $doProvision = true;
         }
       }
       
@@ -790,9 +873,30 @@ class CoPipeline extends AppModel {
                                                                                   $coPipeline['CoPipeline']['name'],
                                                                                   $coPipeline['CoPipeline']['id'])),
                                                        $gid);
+            
+            $doProvision = true;
           }
         }
       }
+    }
+    
+    if($provision && $doProvision) {
+      // Maybe assign identifiers. We use $doProvision here since that tracks whether
+      // any changes were made. While we're primarily interested in a new CO Person
+      // being created, it's also possible that another attribute being sync'd could
+      // create circumstances in which an Identifier Assignment can now be completed.
+      // We also follow the $provision flag since if we don't want to provision we're
+      // probably in an enrollment flow, which means we should wait until the appropriate
+      // step to assign identifiers as well.
+        
+      // This will return an array describing which, if any, identifiers were assigned,
+      // but we don't do anything with the result here
+      $this->Co->CoPerson->Identifier->assign($coPipeline['CoPipeline']['co_id'], $coPersonId, $actorCoPersonId, false);
+    
+      // Trigger provisioning
+      
+      $this->Co->CoPerson->Behaviors->load('Provisioner');
+      $this->Co->CoPerson->manualProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPipelineProvisioned);
     }
     
     return true;

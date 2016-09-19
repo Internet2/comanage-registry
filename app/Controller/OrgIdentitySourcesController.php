@@ -492,18 +492,20 @@ class OrgIdentitySourcesController extends StandardController {
     // Set page title
     $this->set('title_for_layout', _txt('ct.org_identity_sources.pl'));
     
-    // Obtain a list of available sources, as configured for the enrollment flow
-    // to which the current petition is attached.
-    
-    // Note that this filtering of available sources is advisory, and not intended
-    // to (eg) restrict COU admins from seeing other sources. As of the current
-    // implementation, and CO/U admin can query and OIS backend manually, so
-    // enforcing a restriction here would not actually prevent a COU admin from
-    // being able to see data.
+    $args = array();
     
     if(!empty($this->request->params['named']['copetitionid'])) {
+      // Obtain a list of available sources, as configured for the enrollment flow
+      // to which the current petition is attached.
+      
+      // Note that this filtering of available sources is advisory, and not intended
+      // to (eg) restrict COU admins from seeing other sources. As of the current
+      // implementation, and CO/U admin can query and OIS backend manually, so
+      // enforcing a restriction here would not actually prevent a COU admin from
+      // being able to see data.
+      
       // Map the petition ID to an enrollment flow to Enrollment Sources to Org Identity Sources
-      $args = array();
+      
       $args['joins'][0]['table'] = 'co_enrollment_sources';
       $args['joins'][0]['alias'] = 'CoEnrollmentSource';
       $args['joins'][0]['type'] = 'INNER';
@@ -518,14 +520,15 @@ class OrgIdentitySourcesController extends StandardController {
       $args['joins'][2]['conditions'][0] = 'CoPetition.co_enrollment_flow_id=CoEnrollmentFlow.id';
       $args['conditions']['CoPetition.id'] = $this->request->params['named']['copetitionid'];
       $args['conditions']['CoEnrollmentSource.org_identity_mode'] = EnrollmentOrgIdentityModeEnum::OISSelect;
-      $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
-      $args['fields'] = array('OrgIdentitySource.id', 'OrgIdentitySource.description');
-      $args['contain'] = false;
-
-      $this->set('vv_org_id_sources', $this->OrgIdentitySource->find('list', $args));     
-    } else {
-      $this->Flash->set(_txt('er.notprov.id', array(_txt('ct.petitions.1'))), array('key' => 'error'));
     }
+    // else where here from Org Identities > Add From OIS
+    
+    $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];
+    $args['fields'] = array('OrgIdentitySource.id', 'OrgIdentitySource.description');
+    $args['contain'] = false;
+
+    $this->set('vv_org_id_sources', $this->OrgIdentitySource->find('list', $args));     
   }
   
   /**

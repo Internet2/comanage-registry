@@ -55,6 +55,17 @@ abstract class OrgIdentitySourceBackend extends AppModel {
   abstract public function groupableAttributes();
   
   /**
+   * Obtain all available records in the IdentitySource, as a list of unique keys
+   * (ie: suitable for passing to retrieve()).
+   *
+   * @since  COmanage Registry v1.1.0
+   * @return Array Array of unique keys
+   * @throws DomainException If the backend does not support this type of requests
+   */
+  
+  abstract public function inventory();
+  
+  /**
    * Convert a raw result, as from eg retrieve(), into an array of attributes that
    * can be used for group mapping.
    *

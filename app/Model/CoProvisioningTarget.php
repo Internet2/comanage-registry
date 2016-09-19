@@ -33,7 +33,13 @@ class CoProvisioningTarget extends AppModel {
   public $actsAs = array('Containable');
   
   // Association rules from this model to other models
-  public $belongsTo = array("Co");
+  public $belongsTo = array(
+    "Co",
+    "ProvisionCoGroup" => array(
+      'className' => 'CoGroup',
+      'foreignKey' => 'provision_co_group_id'
+    )
+  );
   
   public $hasMany = array("CoProvisioningExport" => array('dependent' => true));
   
@@ -57,6 +63,11 @@ class CoProvisioningTarget extends AppModel {
       'rule' => 'notBlank',
       'required' => true,
       'message' => 'A plugin must be provided'
+    ),
+    'provision_co_group_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     ),
     'status' => array(
       'rule' => array(

@@ -67,7 +67,7 @@ class CoDashboardsController extends StandardController {
 
   public function dashboard() {
     // XXX implement this
-    
+
     $this->set('title_for_layout', $this->cur_co['Co']['name']);
   }
   

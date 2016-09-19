@@ -244,6 +244,20 @@ class IdentifierEnum
   const UID     = 'uid';
 }
 
+class JobStatusEnum
+{
+  const Complete   = 'OK';
+  const Failed     = 'X';
+  const InProgress = 'GO';
+  const Queued     = 'Q';
+}
+
+class JobTypeEnum
+{
+  const Expiration      = 'EX';
+  const OrgIdentitySync = 'OS';
+}
+
 class LinkLocationEnum
 {
   const topBar  = 'topbar';
@@ -413,6 +427,7 @@ class ProvisioningActionEnum
   const CoPersonEnteredGracePeriod    = 'PG';
   const CoPersonExpired               = 'PX';
   const CoPersonPetitionProvisioned   = 'PP';  // Triggered after a petition is finalized
+  const CoPersonPipelineProvisioned   = 'PL';  // Triggered after a pipeline is executed
   const CoPersonReprovisionRequested  = 'PR';
   const CoPersonUnexpired             = 'PY';
   const CoPersonUpdated               = 'PU';
@@ -537,6 +552,14 @@ class SyncActionEnum
 {
   const Add    = 'A';
   const Delete = 'D';
+  const Update = 'U';
+}
+
+class SyncModeEnum
+{
+  const Full   = 'F';
+  const Manual = 'M';
+  const Query  = 'Q';
   const Update = 'U';
 }
 

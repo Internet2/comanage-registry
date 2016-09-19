@@ -603,8 +603,7 @@
               $linktarget = array(
                 'controller' => 'identifiers',
                 'action'     => 'add',
-                'copersonid' => $co_people[0]['CoPerson']['id'],
-                'co'         => $cur_co['Co']['id']
+                'copersonid' => $co_people[0]['CoPerson']['id']
               );
               $linkparams = array('class'  => 'addbutton');
               print $this->Html->link(_txt('op.add'),
@@ -648,7 +647,7 @@
                     {
                       print '<div class="identifier-container">';
                       print '<div class="action-buttons">';
-                      print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
+                      print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id']));
                       print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
                       print '</div> <!-- action-buttons -->';
                       print '<div class="identifier">';
@@ -659,8 +658,7 @@
                         . $this->Html->url(              // dialog confirm URL
                           array(
                             'controller' => 'identifiers',
-                            'action' => 'delete', $id['id'],
-                            'co' => $cur_co['Co']['id']
+                            'action' => 'delete', $id['id']
                           )
                         ) . '\',\''
                         . _txt('op.remove') . '\',\''    // dialog confirm button
@@ -671,7 +669,7 @@
                         . _txt('op.delete')
                         . '</a>';
                       print $this->Html->link(_txt('op.edit'),
-                        array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']),
+                        array('controller' => 'identifiers', 'action' => 'edit', $id['id']),
                         array('class' => 'editbutton'));
                       print '</div> <!-- identifier -->';
                       print '</div> <!-- identifier-container -->';

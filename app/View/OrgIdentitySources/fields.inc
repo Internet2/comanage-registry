@@ -52,6 +52,8 @@
                                array('default' => $cur_co['Co']['id'])). "\n";
     }
   }
+  
+  $l = 1;
 ?>
 <?php if(empty($plugins)): ?>
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
@@ -64,7 +66,7 @@
 <?php else: /* plugins */ ?>
 <table id="<?php print $this->action; ?>_org_identity_source" class="ui-widget">
   <tbody>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php print _txt('fd.desc'); ?><span class="required">*</span>
       </td>
@@ -72,7 +74,7 @@
         <?php print ($e ? $this->Form->input('description') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['description'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php print _txt('fd.plugin'); ?><span class="required">*</span><br />
         <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.org_identity_sources.1'))); ?></span>
@@ -124,7 +126,7 @@
         ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php print _txt('fd.status'); ?><span class="required">*</span>
       </td>
@@ -151,8 +153,35 @@
         ?>
       </td>
     </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.ois.sync.mode'); ?><span class="required">*</span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['sync_mode'])
+                             ? $org_identity_sources[0]['OrgIdentitySource']['sync_mode']
+                             : SyncModeEnum::Manual);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('sync_mode',
+                                      $cm_texts[ $cm_lang ]['en.sync.mode'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('sync_mode')) {
+              print $this->Form->error('sync_mode');
+            }
+          } else {
+            print _txt('en.sync.mode', null, $org_identity_sources[0]['OrgIdentitySource']['sync_mode']);
+          }
+        ?>
+      </td>
+    </tr>
     <?php if(!empty($vv_co_pipelines)): ?>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <?php print _txt('fd.pipeline'); ?><br />
         <span class="descr"><?php print _txt('fd.pipeline.desc.ois'); ?></span>

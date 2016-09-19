@@ -6,7 +6,7 @@
  * Version: $Revision$
  * Date: $Date$
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -306,6 +306,18 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           print "</li>";
         }
 
+        if (isset($permissions['menu']['idvalidate']) && $permissions['menu']['idvalidate']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_identifier_validators';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+
+          print $this->Html->link(_txt('ct.co_identifier_validators.pl'), $args);
+          print "</li>";
+        }
+
         if (isset($permissions['menu']['colocalizations']) && $permissions['menu']['colocalizations']) {
           print '<li class="mdl-js-ripple-effect">';
           $args = array();
@@ -410,6 +422,18 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           print "</li>";
         }
 
+        if (isset($permissions['menu']['cothemes']) && $permissions['menu']['cothemes']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_themes';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+
+          print $this->Html->link(_txt('ct.co_themes.pl'), $args);
+          print "</li>";
+        }
+        
         if (!empty($menuContent['plugins'])) {
           render_plugin_menus($this->Html, $menuContent['plugins'], 'coconfig', $menuCoId);
         }

@@ -695,6 +695,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     switch($op) {
       case ProvisioningActionEnum::CoPersonAdded:
       case ProvisioningActionEnum::CoPersonPetitionProvisioned:
+      case ProvisioningActionEnum::CoPersonPipelineProvisioned:
       case ProvisioningActionEnum::CoPersonUnexpired:
         // Currently, unexpiration is treated the same as add, but that is subject to change
         $assigndn = true;

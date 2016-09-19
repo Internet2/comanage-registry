@@ -68,7 +68,8 @@ class CoEnrollmentFlow extends AppModel {
       'className' => 'CoMessageTemplate',
       'foreignKey' => 'verification_template_id'
     ),
-    "CoPipeline"
+    "CoPipeline",
+    "CoTheme"
   );
   
   public $hasMany = array(

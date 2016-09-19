@@ -81,6 +81,20 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
+        <strong class="fieldTitle"><?php print _txt('fd.ois.sync.disable'); ?></strong><br />
+        <span class="descr"><?php print _txt('fd.ois.sync.disable.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('disable_ois_sync')
+                     : (isset($co_settings[0]['CoSetting']['disable_ois_sync'])
+                        && $co_settings[0]['CoSetting']['disable_ois_sync']
+                        ? _txt('fd.yes') : _txt('fd.no')));
+              print ' ' . $this->Form->label('disable_ois_sync',_txt('fd.ois.sync.disable'));
+        ?>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
         <strong class="fieldTitle"><?php print _txt('fd.nr.enable'); ?></strong>
       </td>
       <td>
@@ -337,6 +351,34 @@
             }
           } else {
             print _txt('en.elect.strategy', null, $co_settings[0]['CoSetting']['elect_strategy_primary_name']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print $this->Form->label('co_theme_id', _txt('fd.theme'), array('class' => 'fieldTitle'));?><br />
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['co_theme_id'])
+                             ? $co_settings[0]['CoSetting']['co_theme_id']
+                             : null);
+          $attrs['empty'] = true;
+          
+          if($e) {
+            print $this->Form->select('co_theme_id',
+                                      $vv_co_themes,
+                                      $attrs);
+            
+            if($this->Form->isFieldError('co_theme_id')) {
+              print $this->Form->error('co_theme_id');
+            }
+          } else {
+            print $vv_co_themes[ $co_settings[0]['CoSetting']['co_theme_id'] ];
           }
         ?>
       </td>

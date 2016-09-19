@@ -53,9 +53,9 @@
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-      <th><?php print $this->Paginator->sort('plugin', _txt('fd.plugin')); ?></th>
-      <th><?php print $this->Paginator->sort('co_pipeline_id', _txt('fd.pipeline')); ?></th>
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+      <th><?php print $this->Paginator->sort('sync_mode', _txt('fd.ois.sync.mode')); ?></th>
+      <th><?php print $this->Paginator->sort('co_pipeline_id', _txt('fd.pipeline')); ?></th>
       <th><?php print $this->Paginator->sort('last_load', _txt('fd.load.last')); ?></th>
       <th><?php print $this->Paginator->sort('last_update', _txt('fd.update.last')); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
@@ -85,16 +85,18 @@
           );
         ?>
       </td>
-      <td><?php print $plugin; ?></td>
+      <td>
+        <?php print _txt('en.status.susp', null, $o['OrgIdentitySource']['status']); ?>
+      </td>
+      <td>
+        <?php print _txt('en.sync.mode', null, $o['OrgIdentitySource']['sync_mode']); ?>
+      </td>
       <td>
         <?php
           if(!empty($o['OrgIdentitySource']['co_pipeline_id'])) {
             print $vv_co_pipelines[ $o['OrgIdentitySource']['co_pipeline_id'] ];
           }
         ?>
-      </td>
-      <td>
-        <?php print _txt('en.status.susp', null, $o['OrgIdentitySource']['status']); ?>
       </td>
       <td>
         <?php
