@@ -32,16 +32,15 @@
         print '<li class="' . $step['state'] . '">';
         switch ($step['state']) {
           case 'complete':
-            print '<span class="ui-icon ui-icon-check"> </span>';
+            print '<i class="material-icons">done</i>';
             break;
           case 'selected':
-            print '<span class="ui-icon ui-icon-arrowthick-1-e"> </span>';
+            print '<i class="material-icons">forward</i>';
             break;
           case 'stopped':
-            print '<span class="ui-icon ui-icon-closethick"> </span>';
+            print '<i class="material-icons">cancel</i>';
             break;
           case 'incomplete':
-            print '<span class="ui-icon ui-icon-bullet"> </span>';
             break;
         }
         print '<span class="stepText">' . $step['title'] . '</span>';

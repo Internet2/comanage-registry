@@ -174,10 +174,6 @@ form .submit {
   float:left;
   margin:0 10px 0 0;
 }
-select {
-  -webkit-appearance: menulist-button;
-  height: 2em;
-}
 td.top {
   vertical-align: top;
 }

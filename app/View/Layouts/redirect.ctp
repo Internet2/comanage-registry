@@ -103,11 +103,11 @@
   <body class="redirect">
 
   <?php
-    $bodyClasses = $this->params->controller . ' ' . $this->params->action . ' ';
+    $bodyClasses = $this->params->controller . ' ' . $this->params->action;
     if($this->Session->check('Auth.User') != NULL) {
-      $bodyClasses .= 'logged-in';
+      $bodyClasses .= ' logged-in';
     } else {
-      $bodyClasses .= 'logged-out';
+      $bodyClasses .= ' logged-out';
     }
     if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)) {
       $bodyClasses .=  ' with-user-defined-links';

@@ -268,7 +268,10 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true
+      selectOtherMonths: true,
+      onSelect: function() {
+        $(this).closest('.mdl-textfield').addClass('is-dirty');
+      }
     });
 
     $(".datepicker-f").datepicker({
@@ -278,7 +281,10 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true
+      selectOtherMonths: true,
+      onSelect: function(selectedDate) {
+        $(this).closest('.mdl-textfield').addClass('is-dirty');
+      }
     });
 
     $(".datepicker-m").datepicker({
@@ -287,7 +293,10 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true
+      selectOtherMonths: true,
+      onSelect: function(selectedDate) {
+        $(this).closest('.mdl-textfield').addClass('is-dirty');
+      }
     });
 
     $(".datepicker-u").datepicker({
@@ -297,7 +306,10 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true
+      selectOtherMonths: true,
+      onSelect: function(selectedDate) {
+        $(this).closest('.mdl-textfield').addClass('is-dirty');
+      }
     });
 
     // Dialog
@@ -348,17 +360,6 @@
 
     });
 
-/* XXX Deprecated??
-
-    // Turn on the sidebar menus
-    $("#menu").menu();
-    
-    // Turn on tooltips for menuTop
-    $(".menuTop").tooltip({
-      position: { my: "right+15 top", at: "left bottom" }
-    });
-
-*/
     // Flash Messages
     <?php
       print $this->Flash->render('error');

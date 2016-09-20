@@ -53,7 +53,6 @@
       print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui.min') . "\n    ";
       print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui-comanage-overrides') . "\n    ";
       print $this->Html->css('mdl/mdl-1.2.0/material.min.css') . "\n    ";
-      print $this->Html->css('mdl/mdl-selectfield-1.0.2/mdl-selectfield.min.css') . "\n    ";
       print $this->Html->css('jquery/metisMenu/metisMenu.min.css') . "\n    ";
       print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
@@ -257,14 +256,14 @@
     <!-- Load JavaScript -->
     <?php
       print $this->Html->script('mdl/mdl-1.2.0/material.min.js') . "\n    ";
-      print $this->Html->script('mdl/mdl-selectfield-1.0.2/mdl-selectfield.min.js') . "\n    ";
       print $this->Html->script('jquery/metisMenu/metisMenu.min.js') . "\n    ";
       print $this->Html->script('js-cookie/js.cookie-2.1.3.min.js') . "\n    ";
       print $this->Html->script('jquery/spin.min.js') . "\n    ";
       if ($this->controller = 'history_records') {
         // Until used more broadly, limit loading of Magnific Popup
-        print $this->Html->script('jquery/magnificpopup/jquery.magnific-popup.min.js');
+        print $this->Html->script('jquery/magnificpopup/jquery.magnific-popup.min.js') . "\n    ";
       }
+      print $this->Html->script('comanage.js') . "\n    ";
     ?>
 
     <!-- Get timezone detection -->
@@ -288,11 +287,8 @@
         print $this->Html->script('jquery/noty/themes/comanage.js') . "\n    ";
       ?>
 
-      <!-- COmanage JavaScript library and onload scripts -->
-      <?php
-        print $this->Html->script('comanage.js') . "\n    ";
-        print $this->element('javascript');
-      ?>
+      <!-- COmanage JavaScript onload scripts -->
+      <?php print $this->element('javascript'); ?>
 
       <!-- Common UI components -->
       <div id="dialog" title="Confirm" role="alertdialog">

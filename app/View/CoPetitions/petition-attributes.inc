@@ -288,7 +288,7 @@
           switch($ruleType) {
           case 'inList':
             // This is a select
-            print '<div class="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">';
+            print '<div class="mdl-selectfield">';
             print "\n";
 
             $args = array();
@@ -298,7 +298,8 @@
               $args['disabled'] = !$ea['modifiable'];
             }
             $args['empty'] = !$ea['required'];
-            $args['class'] = 'mdl-selectfield__select';
+            $args['class'] = 'co-selectfield';
+            $args['aria-labelledby'] = $m;
 
             // Add focusFirst class if the first field
             if ($coe_attribute_index == 0) {
@@ -307,7 +308,8 @@
 
             // Render the form field, label, and error (if any)
             print $this->Form->select($fieldName, $ea['select'], $args);
-            print $this->Form->label($fieldName, $m, array('class' => 'mdl-selectfield__label'));
+            // We use only the aria-labelledby attribute. A label would look like this:
+            // print $this->Form->label($fieldName, $m, array('class' => 'mdl-selectfield__label'));
             if($this->Form->isFieldError($fieldName)) {
               print $this->Form->error($fieldName, array('class' => 'mdl-selectfield__error'));
             }
@@ -500,7 +502,7 @@
     <?php if($this->action == 'view'): ?>
     <div class="ui-widget modelbox">
       <div class="boxtitle">
-        <b><?php print _txt('op.tc.agree'); ?></b>
+        <strong><?php print _txt('op.tc.agree'); ?></strong>
       </div>
       <?php
         // We link to T&C because T&C are not considered part of the petition.
@@ -517,14 +519,14 @@
                  || $vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): // action == view ?>
     <div class="ui-widget modelbox">
       <div class="boxtitle">
-        <b><?php print _txt('op.tc.agree'); ?></b><br />
+        <strong><?php print _txt('op.tc.agree'); ?></strong><br />
         <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
         <span class="descr"><?php print _txt('fd.tc.agree.desc'); ?></span>
         <?php elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): ?>
         <span class="descr"><?php print _txt('fd.tc.agree.impl'); ?></span>
         <?php endif; // vv_tandc_mode ?>
       </div>
-      <table id="<?php print $this->action; ?>_co_petition_tandc" class="ui-widget">
+      <table id="<?php print $this->action; ?>_co_petition_tandc">
         <tbody>
           <?php foreach($vv_terms_and_conditions as $t): ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -558,7 +560,7 @@
               ?>
             </td>
             <td>
-              <b><?php print $t['CoTermsAndConditions']['description']; ?></b>
+              <strong><?php print $t['CoTermsAndConditions']['description']; ?></strong>
             </td>
             <td>
               <button class="checkbutton"
@@ -581,7 +583,7 @@
     // Render conclusion text for new petitions
     
     if(!empty($vv_conclusion_text)) {
-      print '<div class="ui-widget modelbox">' . $vv_conclusion_text . "</div>";
+      print '<div class="modelbox">' . $vv_conclusion_text . "</div>";
     }
   ?>
   
@@ -600,6 +602,7 @@
       ?>
     </div>
   </div>
+  <span class="clearfix"></span>
 </div>
 <?php if($this->action == 'view'): ?>
   <a href="#tabs-history" class="fieldGroupName">

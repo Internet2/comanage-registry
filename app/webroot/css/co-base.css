@@ -412,33 +412,31 @@ body.co_people.canvas #titleNavContainer {
 }
 #enrollmentFlowSteps li {
   list-style: none;
-  margin-bottom: 0.75em;
+  margin-bottom: 1.2em;
+  line-height: 1.4em;
+  margin-left: 30px;
+  text-indent: -15px;
 }
-#enrollmentFlowSteps .ui-icon {
-  float: left;
-  clear: left;
-  margin-right: 0.5em;
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_444444_256x240.png");
+#enrollmentFlowSteps .material-icons {
+  vertical-align: middle;
+  margin-right: 6px;
 }
 #enrollmentFlowSteps li.selected {
-  background-color: #fff;
-  border: 1px solid #8dbbdd;
   font-weight: bold;
-  padding: 0.5em;
-  margin-bottom: 1em;
 }
 #enrollmentFlowSteps li.incomplete {
   font-style: italic;
-  color: #888;
+  text-indent: 0;
+  color: #999;
 }
-#enrollmentFlowSteps li.incomplete .stepText {
-  color: #222;
+#enrollmentFlowSteps li.selected .material-icons {
+  color: #53B1F4;
 }
-#enrollmentFlowSteps li.complete .ui-icon {
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_6eac2c_256x240.png");
+#enrollmentFlowSteps li.complete .material-icons {
+  color: #6eac2c;
 }
-#enrollmentFlowSteps li.stopped .ui-icon {
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_cd0a0a_256x240.png");
+#enrollmentFlowSteps li.stopped .material-icons {
+  color: #cd0a0a;
 }
 /* PETITION ATTRIBUTES */
 .modelbox {
@@ -515,6 +513,12 @@ body.co_people.canvas #titleNavContainer {
   float: right;
   margin-right: 0.5em;
 }
+.co-selectfield {
+  width: 100%;
+  font-size: 1.1em;
+  -webkit-appearance: menulist-button;
+  border: 1px solid #ddd;
+}
 /* GENERAL */
 .hidden,
 .invisible {
@@ -545,13 +549,6 @@ body.co_people.canvas #titleNavContainer {
 .mdl-data-table th,
 .mdl-data-table td {
   text-align: left;
-}
-.mdl-selectfield--floating-label.is-focused .mdl-selectfield__label,
-.mdl-selectfield--floating-label.is-dirty .mdl-selectfield__label {
-  color: #2395E0;
-}
-.mdl-selectfield__label::after {
-  background-color: rgb(33, 150, 243);
 }
 
 /* FOOTER */
