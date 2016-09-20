@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -98,52 +98,67 @@
     if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)) {
       $bodyClasses .=  ' with-user-defined-links';
     }
+    if(!empty($vv_theme_header)) {
+      $bodyClasses .=  ' with-custom-header';
+    }
+    if(!empty($vv_theme_footer)) {
+      $bodyClasses .=  ' with-custom-footer';
+    }
+    if(!empty($vv_theme_hide_title)) {
+      $bodyClasses .=  ' title-hidden';
+    }
+    if(!empty($vv_theme_hide_footer_logo)) {
+      $bodyClasses .=  ' footer-hidden';
+    }
   ?>
   <body class="<?php print $bodyClasses ?>" onload="js_onload_call_hooks()">
     <div id="skip-to-content-box">
       <a href="#content-start" id="skip-to-content">Skip to main content.</a>
     </div>
+
+    <!-- Include custom header -->
+    <?php if(!empty($vv_theme_header)): ?>
+      <header id="customHeader">
+        <div class="contentWidth">
+          <?php print $vv_theme_header; ?>
+        </div>
+      </header>
+    <?php endif; ?>
+
+    <!-- Primary layout -->
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
-      <!-- Include custom header -->
-      <?php if(!empty($vv_theme_header)): ?>
-        <header id="customHeader">
-          <div class="contentWidth">
-            <?php print $vv_theme_header; ?>
-          </div>
-        </header>
-      <?php endif; ?>
+
       <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
         <div id="user-defined-links-top">
           <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
         </div>
       <?php endif; ?>
-      <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
-        <header id="banner" role="banner" class="mdl-layout__header mdl-layout__header--scroll">
-          <div class="mdl-layout__header-row">
-            <div id="logo">
-              <?php
-                $imgFile = 'COmanage-Logo-LG-onBlue.png';
-  
-                if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
-                  // A custom logo has been installed, so use that instead
-                  $imgFile = 'logo.png';
-                }
-  
-                // Clicking on the logo will take us to the front page
-                print $this->Html->link(
-                  $this->Html->image(
-                    $imgFile,
-                    array(
-                      'alt' => 'COmanage Logo'
-                    )
-                  ),'/',
-                  array('escape' => false)
-                );
-              ?>
-            </div>
+
+      <header id="banner" role="banner" class="mdl-layout__header mdl-layout__header--scroll">
+        <div class="mdl-layout__header-row">
+          <div id="logo">
+            <?php
+              $imgFile = 'COmanage-Logo-LG-onBlue.png';
+
+              if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
+                // A custom logo has been installed, so use that instead
+                $imgFile = 'logo.png';
+              }
+
+              // Clicking on the logo will take us to the front page
+              print $this->Html->link(
+                $this->Html->image(
+                  $imgFile,
+                  array(
+                    'alt' => 'COmanage Logo'
+                  )
+                ),'/',
+                array('escape' => false)
+              );
+            ?>
           </div>
-        </header>
-      <?php endif; // $vv_theme_hide_title ?>
+        </div>
+      </header>
 
       <?php if($this->Session->check('Auth.User')): ?>
         <div id="navigation-drawer" class="mdl-layout__drawer">
@@ -163,15 +178,17 @@
       </nav>
 
       <main id="main" class="mdl-layout__content">
-        <div id="collaborationTitle">
-        <?php
-          if(!empty($cur_co['Co']['name'])) {
-            print Sanitize::html($cur_co['Co']['name']);
-          } else {
-            print _txt('coordinate');
-          }
-        ?>
-        </div>
+        <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
+          <div id="collaborationTitle">
+          <?php
+            if(!empty($cur_co['Co']['name'])) {
+              print Sanitize::html($cur_co['Co']['name']);
+            } else {
+              print _txt('coordinate');
+            }
+          ?>
+          </div>
+        <?php endif; // $vv_theme_hide_title ?>
 
         <div id="content" class="mdl-grid">
         <?php
@@ -231,7 +248,7 @@
       <?php endif; ?>
       
       <?php if(Configure::read('debug') > 0): ?>
-        <div>
+        <div id="debug">
           <?php print $this->element('sql_dump'); ?>
         </div>
       <?php endif; ?>

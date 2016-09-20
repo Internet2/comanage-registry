@@ -68,8 +68,10 @@ a {
 /* ACCESSIBLE SKIP LINK */
 #skip-to-content-box {
   position: absolute;
+  left: 50%;
+  margin-left: -100px;
   text-align: center;
-  width: 100%;
+  width: 200px;
   z-index: 40;
 }
 #skip-to-content {

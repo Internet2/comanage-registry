@@ -108,6 +108,9 @@
   #user-menu a.topMenu {
     color: white;
   }
+  body.title-hidden #user-menu a.topMenu {
+    color: #222;
+  }
   #notifications #notifications-menu {
     width: 400px;
   }
@@ -152,6 +155,9 @@
     position: relative;
     z-index: 20;
     background-color: white;
+  }
+  body.title-hidden .mdl-layout__content {
+    margin-top: 0;
   }
   body.logged-out .mdl-layout__content {
     margin-left: 0 !important;
