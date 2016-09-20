@@ -346,7 +346,7 @@
             // Render the form field, label, and error (if any)
             print $this->Form->text($fieldName, $args);
             print $this->Form->label($fieldName, $ea['label'], array('class' => 'mdl-textfield__label'));
-            /* XXX field errors on text fields are output by default; check to see if
+            /* XXX CO-1329: field errors on text fields are output by default; check to see if
                an error is being properly produced for dates and if this next statement is needed. */
             if($this->Form->isFieldError($fieldName)) {
               print $this->Form->error($fieldName);
