@@ -156,14 +156,6 @@ label,
   cursor: pointer;
 }
 */
-.form-error {
-  background-color: #fee !important; /* override default focus color */
-  border: 1px solid red;
-}
-.error-message {
-  font-style: italic;
-  color: red;
-}
 .select-name {
   font-size: 1.4em;
 }

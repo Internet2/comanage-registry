@@ -519,6 +519,14 @@ body.co_people.canvas #titleNavContainer {
   -webkit-appearance: menulist-button;
   border: 1px solid #ddd;
 }
+.form-error {
+  background-color: #fee !important; /* override default focus color */
+  border: 1px solid red;
+}
+.error-message {
+  color: red;
+  font-size: 0.9em;
+}
 /* GENERAL */
 .hidden,
 .invisible {

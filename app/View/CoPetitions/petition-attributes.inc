@@ -308,7 +308,7 @@
 
             // Render the form field, label, and error (if any)
             print $this->Form->select($fieldName, $ea['select'], $args);
-            // We use only the aria-labelledby attribute. A label would look like this:
+            // We use only the aria-labelledby attribute on select boxes. A label would look like this:
             // print $this->Form->label($fieldName, $m, array('class' => 'mdl-selectfield__label'));
             if($this->Form->isFieldError($fieldName)) {
               print $this->Form->error($fieldName, array('class' => 'mdl-selectfield__error'));
@@ -346,8 +346,10 @@
             // Render the form field, label, and error (if any)
             print $this->Form->text($fieldName, $args);
             print $this->Form->label($fieldName, $ea['label'], array('class' => 'mdl-textfield__label'));
+            /* XXX field errors on text fields are output by default; check to see if
+               an error is being properly produced for dates and if this next statement is needed. */
             if($this->Form->isFieldError($fieldName)) {
-              print $this->Form->error($fieldName, array('class' => 'mdl-textfield__error'));
+              print $this->Form->error($fieldName);
             }
 
             print "</div>\n";
@@ -424,11 +426,9 @@
             }
 
             // Render the form field, label, and error (if any)
+            // error is output by default with class "error-message"
             print $this->Form->input($fieldName, $args);
             print $this->Form->label($fieldName, $ea['label'] . $requiredSymbol, array('class' => 'mdl-textfield__label'));
-            if($this->Form->isFieldError($fieldName)) {
-              print $this->Form->error($fieldName, array('class' => 'mdl-textfield__error'));
-            }
 
             print "</div>\n";
 
