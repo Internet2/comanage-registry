@@ -41,7 +41,6 @@
     <div class="mdl-cell mdl-cell--2-col center"><?php print _txt('fd.actions'); ?></div>
   </div>
 
-
   <?php $i = 0; ?>
   <?php foreach ($co_enrollment_flows as $c): ?>
     <div class="mdl-grid">
@@ -52,13 +51,42 @@
         <?php
           if($permissions['select']) {
 
+            // begin button
             print $this->Html->link(_txt('op.begin'),
+              array(
+                'controller' => 'co_petitions',
+                'action' => 'start',
+                'coef' => $c['CoEnrollmentFlow']['id']
+              ),
+              array('class' => 'co-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect')
+            ) . "\n";
+
+            // QR code button
+            print $this->Html->link(
+              $this->Html->image(
+                'qrcode-icon.png',
                 array(
-                  'controller' => 'co_petitions',
-                  'action' => 'start',
-                  'coef' => $c['CoEnrollmentFlow']['id']
-                ),
-                array('class' => 'co-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect')) . "\n";
+                  'alt' => _txt('op.begin')
+                )
+              ),
+              array(
+                'controller' => 'qrcode',
+                '?' => array(
+                  'c' => $this->Html->url(
+                    array(
+                      'controller' => 'co_petitions',
+                      'action' => 'start',
+                      'coef' => $c['CoEnrollmentFlow']['id']
+                    ),
+                    array(
+                      'full' => true,
+                      'escape' => false
+                    )
+                  )
+                )
+              ),
+              array('class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect','escape' => false)
+            ) . "\n";
           }
         ?>
       </div>

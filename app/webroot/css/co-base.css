@@ -397,6 +397,11 @@ body.co_people.canvas #titleNavContainer {
 .enrollmentFlowStartButton {
   margin: 1em 0 3em 2em;
 }
+.qr-button {
+  padding: 0;
+  min-width: 40px;
+  margin-left: 2px;
+}
 #enrollmentFlowSteps h3 {
   margin: 0;
   font-size: 1.5em;
@@ -549,6 +554,9 @@ body.co_people.canvas #titleNavContainer {
 }
 
 /* MDL OVERRIDES */
+.mdl-layout {
+  overflow-x: auto; /* TEMPORARY allows overlarge tables to be accessed on small screens */
+}
 .mdl-button--accent.mdl-button--accent.mdl-button--raised,
 .mdl-button--accent.mdl-button--accent.mdl-button--fab {
   background-color: #c33;

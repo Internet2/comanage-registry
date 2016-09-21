@@ -140,66 +140,7 @@
       // Please login
       print '<h1 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h1>';
     }
-      
-      
-      /*
-      print '<table id="fpCoList" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">';
-      print '<caption>' . _txt('op.home.collabs') . '</caption>';
-      print '<thead>';
-      print '  <tr>';
-      print '    <th scope="col">' . _txt('fd.name') . '</th>';
-      print '    <th scope="col">' . _txt('fd.desc') . '</th>';
-      print '  </tr>';
-      print '</thead>';
 
-      print '<tbody>';
-
-      //loop over each CO
-      if(count($cos) > 0) {
-        $i = 0;
-        foreach($cos as $menuCoName => $menuCoData) {
-          $collabMenuCoId = $menuCoData['co_id'];
-
-          if((!isset($menuCoData['co_person']['status'])
-              || ($menuCoData['co_person']['status'] != StatusEnum::Active
-                  && $menuCoData['co_person']['status'] != StatusEnum::GracePeriod)
-              || empty($menuCoData['co_person']['CoPersonRole']))
-            && !$permissions['menu']['admin']) {
-            // Don't render this CO, the person is not an active member (or a CMP admin)
-            continue;
-          }
-
-          print '<tr class="line';
-          print ($i % 2)+1;
-          print '"><td>';
-          // We use $menuCoData here and not $menuCoName because the former will indicate
-          // 'Not a Member' for CMP Admins (where they are not a member of the CO)
-          $args = array();
-          $args['plugin'] = null;
-          $args['controller'] = 'co_dashboards';
-          $args['action'] = 'dashboard';
-          $args['co'] = $collabMenuCoId;
-
-          print $this->Html->link($menuCoData['co_name'], $args);
-          print '</td><td>';
-          if (!empty($menuCoData['co_person']['Co']['description'])) {
-            print Sanitize::html($menuCoData['co_person']['Co']['description']);
-          } elseif (!empty($menuCoData['co_desc'])) {
-            print Sanitize::html($menuCoData['co_desc']);
-          }
-          print '</td></tr>';
-          $i++;
-        }
-      } else {
-        print '<tr class="line1" colspan="2"><td>' . _txt('op.home.no.collabs') .  '</td></tr>';
-      }
-      
-      print '</tbody>';
-      print '</table>';
-    } elseif(!$userInfo) {
-      // Please login
-      print '<h1 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h1>';
-    }*/
   ?>
 </div>
 <?php endif; // $err ?>
