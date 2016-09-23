@@ -184,6 +184,10 @@ body.logged-in #user-menu {
 #notifications .notification:nth-child(even) {
   background-color: #f5f5f5;
 }
+#notifications li.notification:nth-child(n+4) {
+  /* only show three notifications on mobile phones. */
+  display: none;
+}
 #notifications .notification:hover {
   background-color: rgb(238,238,238);
 }
@@ -244,6 +248,21 @@ body.logged-in #user-menu {
 .co-alert { /* alert icon */
   float:left;
   margin:0 7px 20px 0;
+}
+.co-info-topbox {
+  clear: both;
+  padding: 1em;
+  background-color: #fbec88;
+  border: 1px solid #fad42e;
+  margin-bottom: 0.5em;
+}
+.co-info-topbox .material-icons {
+  vertical-align: bottom;
+  color: #53B1F4;
+  font-size: 20px;
+}
+.material-icons.error {
+  color: #d00;
 }
 /* NAVIGATION / SIDE DRAWER */
 #navigation {
@@ -337,17 +356,34 @@ body.logged-in #user-menu {
 #breadcrumbs {
   font-size: 0.8em;
 }
-#titleNavContainer {
-  padding-bottom: 1em;
-}
 body.co_petitions.view #titleNavContainer,
 body.co_person_roles #titleNavContainer,
 body.co_people.canvas #titleNavContainer {
   padding-bottom: 0;
 }
+.pageTitle {
+  float: left;
+  padding-bottom: 0.25em;
+}
+.pageTitle .deleted,
+.pageTitle .archived {
+  background-color: #e33;
+  color: white;
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  margin-left: 0.25em;
+  padding: 0 4px;
+  text-transform: uppercase;
+}
+.pageTitle .archived {
+  background-color: #444;
+}
+/* TOP CONTENT LINKS (contextual) */
 #topLinks {
-  float: right;
-  margin: 1em 0 0 0;
+  float: left;
+  margin: 0.6em 0 0;
+  padding: 0;
 }
 #topLinks .ui-icon {
   float: left;
@@ -392,22 +428,27 @@ body.co_people.canvas #titleNavContainer {
 }
 /* ENROLLMENT FLOW STEPS */
 #enrollmentFlowIntro {
-  margin-left: 2em;
+  clear: both;
+  padding: 1em;
 }
 .enrollmentFlowStartButton {
-  margin: 1em 0 3em 2em;
+  margin: 0 0 3em 1em;
 }
 .qr-button {
   padding: 0;
   min-width: 40px;
   margin-left: 2px;
 }
+.actions {
+  text-align: center;
+  white-space: nowrap;
+}
+.first-cell {
+  padding-right: 1em;
+}
 #enrollmentFlowSteps h3 {
   margin: 0;
   font-size: 1.5em;
-  /*background-color: #53b1f4;
-  color: #fff;
-  margin: -0.5em -0.5em 0.5em;*/
   padding: 0 0.5em;
   text-align: center;
 }
@@ -510,6 +551,373 @@ body.co_people.canvas #titleNavContainer {
   font-size: 18px;
   color: #52ADEA;
 }
+/* PETITIONS */
+#petition {
+}
+#view_co_petition .status {
+  margin: 0 1em 0 0;
+}
+#view_co_petition .status.N,
+#view_co_petition .status.Y,
+#view_co_petition .status.F {
+  margin: 0;
+  padding: 0.2em 1em;
+}
+#view_co_petition .status.Y,  /* approved */
+#view_co_petition .status.F { /* finalized */
+  background-color: #2a2;
+  color: white;
+}
+#view_co_petition .status.N { /* denied */
+  background-color: #c33;
+  color: white;
+}
+#view_co_petition .ui-button {
+  margin: 0 0 0 0.25em;
+}
+body.co_petitions.view th,
+body.co_petitions.view td,
+body.petitionerAttributes th,
+body.petitionerAttributes td {
+  border: none;
+}
+#filters {
+  width: 50%;
+  margin: 0 0 0 2px;
+}
+#statusFilters {
+  background-color: #f5f5f5;
+  border: 1px solid #a0c6e3;
+  clear: both;
+  margin: 1em 0;
+  min-height: 2.2em;
+  padding: 0.5em;
+}
+#statusFilters .checkbox {
+  display: inline-block;
+  margin: 0.25em 0.5em 0 0;
+  color: #222;
+}
+#statusFilters .submit {
+  float: right;
+}
+#statusfilter {
+  overflow: hidden;
+}
+#statusfilter .input>label {
+  float: left;
+}
+#statusfilterdialog .required {
+  color: black;
+}
+#statusfilterdialog .submit {
+  margin: 0.5em 0;
+  float: right !important;
+}
+body.co_petitions .approve-button .ui-icon,
+body.co_petitions .deny-button .ui-icon {
+  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png");
+}
+body.co_petitions .approve-button {
+  background-color: #2a2;
+  background-image: none;
+  border: 1px solid #191;
+  color: white;
+  font-weight: bold;
+}
+body.co_petitions .approve-button:hover {
+  background-color: #3b3;
+}
+body.co_petitions .deny-button {
+  background-color: #c33;
+  background-image: none;
+  border: 1px solid #b22;
+  color: white;
+  font-weight: bold;
+}
+body.co_petitions .deny-button:hover {
+  background-color: #d44;
+}
+/* Pagination */
+#pagination {
+  margin: 0;
+  min-height: 1.25em;
+  padding: 0.5em;
+}
+#pagination .paginationCounter {
+  float: right;
+  margin-right: 0.5em;
+}
+#pagination .paginationPrev {
+  margin-right: 1em;
+  font-size: 0.9em;
+}
+#pagination .paginationNext {
+  margin-left: 1em;
+  font-size: 0.9em;
+}
+/********************************/
+/* My Population - People Index */
+/********************************/
+/* Listing Sorter */
+#sorter {
+  float: right;
+}
+/* Alpha search  */
+#peopleAlphabet {
+  margin: 0;
+  font-size: 1.2em;
+  border-top: 1px solid #ddd;
+  border-bottom: 2px solid #ccc;
+}
+#peopleAlphabet ul {
+  display: table;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+#peopleAlphabet li {
+  display: table-cell;
+  width: 3.8%;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  text-align: center;
+}
+#peopleAlphabet li:nth-child(odd) {
+  background-color: #e5e5e5;
+}
+#peopleAlphabet a {
+  display: inline-block;
+  text-decoration: none;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  padding: 4px 0;
+  margin: 0;
+  color: #666;
+}
+#peopleAlphabet li.selected a,
+#peopleAlphabet li.selected a:hover{
+  background-color: #888;
+  color: #eee;
+}
+#peopleAlphabet a:hover {
+  background-color: #ffe;
+  color: #333;
+}
+/* Listing controls */
+.listControl {
+  color: #1D5987;
+  margin: 0;
+  clear: left;
+}
+.listControl a {
+  color: #181CF5;
+}
+.listControl a:hover {
+  color: #444;
+  text-decoration: none;
+}
+.listControl ul,
+.listControl li {
+  display: inline-block;
+}
+.listControl ul {
+  margin: 0;
+  padding: 0;
+}
+.listControl li {
+  margin-left: 0.5em;
+}
+/* People Listing */
+#co_people {
+  clear: both;
+}
+#co_people > .ui-accordion {
+  margin: 0 0 2px;
+  overflow: hidden;
+  padding: 5px;
+}
+#co_people > div > .panel1{
+  float: left;
+  margin: 0 10px 0 0;
+}
+#co_people .roleTitleLinks {
+  margin-right: 1em;
+}
+#noResults {
+  margin: 1.5em 0 0 0;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.panel2 {
+  padding: 0 0 0 10px !important;
+  margin-left: 25px;
+}
+.panel1 div,
+.panel2 div{
+  float: left;
+}
+.created,
+.status,
+.email{
+  margin-top: 6px;
+}
+.name {
+  width: 325px;
+  position: relative;
+  top: -4px;
+}
+.nameWithoutEmail {
+  top: 6px;
+}
+.email {
+  margin: 13px 0 0 0px;
+  position: absolute;
+  /*color: #7FB7DB;*/
+  color: #666;
+}
+.admin {
+  float: right !important;
+}
+.status {
+  margin-left: 5px;
+}
+.roles {
+  width: 98%;
+  padding: 5px;
+}
+.role {
+  width: 98%;
+  /*border: 1px solid #d0e5f5; */
+  padding: 2px;
+  margin-bottom: 5px;
+}
+.rolestatus{
+  float: right !important;
+  margin: 5px 9px 5px 5px;
+}
+.roledata{
+  width: 100%;
+}
+.roletitle{
+  width:100%;
+}
+.roledates{
+  text-align: right;
+  margin: 0 30px 0 0;
+}
+body.co_people.index #pagination {
+  padding: 0.5em;
+  background-color: #9FC6E2;
+  color: white;
+  font-weight: bold;
+}
+body.co_people.index #pagination a {
+  color: white;
+}
+.outer-center {
+  float: right;
+  right: 50%;
+  position: relative;
+}
+.inner-center {
+  float: right;
+  right: -50%;
+  position: relative;
+}
+/* people index jquery ui overrides */
+#co_people .panel1 {
+  border: 1px solid transparent; /* to allow our jquery UI hovers not to change the size of the div */
+  background: inherit;
+  color: #333;
+}
+#co_people .ui-state-hover,
+#co_people .ui-widget-content .ui-state-hover,
+#co_people .ui-widget-header .ui-state-hover,
+#co_people .ui-state-focus,
+#co_people .ui-widget-content .ui-state-focus,
+#co_people .ui-widget-header .ui-state-focus {
+  border: 1px solid #79b7e7;
+  background: #d0e5f5 url("/registry/css/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-bg_glass_75_d0e5f5_1x400.png") 50% 50% repeat-x;
+  color: #1d5987;
+}
+#co_people .ui-state-active,
+#co_people .ui-widget-content .ui-state-active,
+#co_people .ui-widget-header .ui-state-active {
+  border: 1px solid #79b7e7;
+  color: #333;
+  background-color: #F5F5F5;
+}
+#co_people .ui-widget-content {
+  background-color: #FAFAFA;
+}
+.ui-sortable tr {
+  cursor: move;
+}
+/* For Top Search (co_people index and org_identity index) */
+.topSearch {
+  padding: 0.5em;
+  background-color: #eee;
+  text-align: right;
+  white-space: nowrap;
+}
+.topSearch legend {
+  float: left;
+  margin: 0;
+  padding: 5px 8px 0 4px;
+  color: #666;
+}
+.topSearch fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+.topSearch .input {
+  float: left;
+  margin-right: 2px;
+}
+.topSearch input[type=text] {
+  width: 92%;
+  height: 18px;
+  padding: 2px 4px;
+  border: 1px solid #ddd;
+}
+#orgIdSearch {
+  margin: 0.5em 0;
+  min-height: 28px;
+}
+#orgIdSearch.topSearch input[type=text] {
+  width: 88%;
+}
+.topSearch label {
+  display: none;
+}
+.topSearch select {
+  color: #777;
+  background-color: #fff;
+  width: 98%;
+  height: 24px;
+  margin: 0;
+  border: 1px solid #ddd;
+  -webkit-appearance: none;
+  -webkit-border-radius: 0px;
+  padding: 2px 4px;
+  border: 1px solid #ddd;
+
+}
+.topSearch option[value=''] {
+  font-style: italic;
+}
+.topSearch .submit,
+.topSearch .clearButton {
+  float: right;
+}
+.topSearch .ui-button {
+  font-size: 1em;
+  height: 24px;
+}
 /* FORMS */
 .required-info {
   float: left;
@@ -537,8 +945,40 @@ body.co_people.canvas #titleNavContainer {
 .invisible {
   display: none;
 }
+.fieldTitle {
+  font-weight: bold;
+}
+.descr {
+  font-style: italic; /* used for long descriptions of fields */
+}
+.dataDesc {
+  margin-left: 0.5em; /* used for short, often parenthesized descriptions of data */
+  font-size: 0.9em;
+}
+.required {
+  color: red;
+}
 .center {
   text-align: center;
+}
+.asc, .desc {
+  font-style: italic;
+  text-decoration: none;
+}
+a.asc::before, a.desc::before {
+  position: relative;
+  left: -2px;
+  font-style: normal;
+}
+a.asc::before {
+  content: "▲"; /*\25b2 in escaped hex*/
+  top: -2px;
+}
+a.desc::before {
+  content: "▼"; /*\25bc in escaped hex*/
+}
+.co-grid {
+  clear: both;
 }
 .co-grid .mdl-cell {
   margin: 0;
@@ -552,7 +992,34 @@ body.co_people.canvas #titleNavContainer {
 .co-grid > div:nth-child(2) {
   border-top: 1px solid #e8e8e8;
 }
-
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 0.5em;
+  text-align: left;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  font-weight: normal;
+}
+tr td:first-child {
+  padding-left: 1em;
+}
+tr th:last-child,
+tr td:last-child {
+  border-right: none;
+}
+tr.noborder td {
+  border: none;
+}
+td.actions {
+  white-space: nowrap;
+}
+th.actionButtons {
+  width:70px;
+}
 /* MDL OVERRIDES */
 .mdl-layout {
   overflow-x: auto; /* TEMPORARY allows overlarge tables to be accessed on small screens */

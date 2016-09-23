@@ -65,11 +65,9 @@ print $this->element("pageTitleAndButtons", $params);
 
 ?>
 
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('in.orgidentities'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('in.orgidentities'); ?>
 </div>
 
 <?php // Load the top search bar
