@@ -49,13 +49,10 @@
 
 ?>
 
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('fd.ssp.default'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('fd.ssp.default'); ?>
 </div>
-<br />
 
 <table id="cous" class="ui-widget">
   <thead>

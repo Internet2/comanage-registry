@@ -66,12 +66,10 @@
 ?>
 
 <?php if($err != ""): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print $err; ?></strong>
-  </p>
-</div>
+  <div class="co-info-topbox">
+    <i class="material-icons error">info</i>
+    <?php print $err; ?>
+  </div>
 <?php else: // $err ?>
 <div id="fpDashboard">
   <?php

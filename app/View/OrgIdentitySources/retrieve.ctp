@@ -132,24 +132,21 @@
  
   $l = 1;
 ?>
-<?php if(!empty($vv_ois_record)
-         && !empty($this->request->params['named']['copetitionid'])): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('er.ois.pt.linked'); ?></strong>
-  </p>
-</div>
+
+<?php if(!empty($vv_ois_record) && !empty($this->request->params['named']['copetitionid'])): ?>
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('er.ois.pt.linked'); ?>
+  </div>
 <?php endif; ?>
+
 <?php if(!empty($vv_ois_record['OrgIdentitySourceRecord']['org_identity_id'])): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('in.orgid.ois'); ?></strong>
-  </p>
-</div>
-<br />
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('in.orgid.ois'); ?>
+  </div>
 <?php endif; // view ?>
+
 <div class="innerContent">
   <table id="view_org_identity_source_record" class="ui-widget">
     <tbody>

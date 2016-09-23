@@ -43,7 +43,7 @@
     $(".accordion").accordion();
 
     // Make all submit buttons pretty
-    //$("input:submit").button();
+    $("input:submit").button();
 
     // Other buttons
     $(".addbutton").button({

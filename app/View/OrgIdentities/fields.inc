@@ -97,13 +97,10 @@ $(function() {
   $l = 1;
 ?>
 <?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['id'])): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.orgid.edit.ois'); ?></strong>
-  </p>
-</div>
-<br />
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('op.orgid.edit.ois'); ?>
+  </div>
 <?php endif; // view ?>
 
 <div id="<?php print $this->action; ?>_org_identity" class="coTabsContainer">

@@ -47,13 +47,10 @@
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
 <?php if(empty($plugins)): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?>
 </div>
-<br />
 <?php else: /* plugins */ ?>
 <table id="<?php print $this->action; ?>_co_provisioning_target" class="ui-widget">
   <tbody>

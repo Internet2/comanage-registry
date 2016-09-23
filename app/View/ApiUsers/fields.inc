@@ -39,11 +39,9 @@
   $this->Html->addCrumb($crumbTxt);
 
 ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('ap.note.privs'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('ap.note.privs'); ?>
 </div>
 <table id="<?php print $this->action; ?>_api_users" class="ui-widget">
   <tbody>

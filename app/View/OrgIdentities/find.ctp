@@ -37,19 +37,18 @@
   }
 ?>
 
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
+
 <?php if($op == 'invite'): ?>
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('in.orgid.email'); ?></strong>
-  </p>
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('in.orgid.email'); ?>
+  </div>
 <?php endif; // invite ?>
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('in.orgid.co'); ?></strong>
-  </p>
+
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('in.orgid.co'); ?>
 </div>
-<br />
 
 <table id="org_identities" class="ui-widget">
   <thead>

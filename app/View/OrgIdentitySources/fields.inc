@@ -55,176 +55,174 @@
   
   $l = 1;
 ?>
+
 <?php if(empty($plugins)): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('er.plugin.none', array(_txt('ct.org_identity_sources.pl'))); ?></strong>
-  </p>
-</div>
-<br />
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('er.plugin.none', array(_txt('ct.org_identity_sources.pl'))); ?>
+  </div>
 <?php else: /* plugins */ ?>
-<table id="<?php print $this->action; ?>_org_identity_source" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.desc'); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.plugin'); ?><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.org_identity_sources.1'))); ?></span>
-      </td>
-      <td>
-        <?php
-          switch($this->action) {
-            case 'add':
-              print $this->Form->input('plugin');
-              break;
-            case 'edit':
-              print $this->Form->input('plugin', array('disabled' => true));
-              // We need to re-include the value as hidden since it can't be changed (but is required by the model)
-              print $this->Form->hidden('plugin',
-                                        array('default' => Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']))) . "\n";
-              break;
-            default:
-              print Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
-              break;
-          }
-          
-          if($this->action == 'edit') {
-            // And render a link to the plugin target
-            
-            $plmodel = Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
-            $pl = Inflector::underscore($plmodel);
-            $plm = Inflector::tableize($plmodel);
-            
-            print "<br />";
-            print $this->Html->link(_txt('op.config'),
-                                    array(
-                                      'plugin' => $pl,
-                                      'controller' => $plm,
-                                      'action' => 'edit',
-                                      $org_identity_sources[0][$plmodel]['id']
-                                    ),
-                                    array('class' => 'configurebutton'));
-            
-            if(!empty($vv_plugin_group_attrs[$plmodel])) {
-              print $this->Html->link(_txt('op.ois.conf.gr'),
+  <table id="<?php print $this->action; ?>_org_identity_source" class="ui-widget">
+    <tbody>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <?php print _txt('fd.desc'); ?><span class="required">*</span>
+        </td>
+        <td>
+          <?php print ($e ? $this->Form->input('description') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['description'])); ?>
+        </td>
+      </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <?php print _txt('fd.plugin'); ?><span class="required">*</span><br />
+          <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.org_identity_sources.1'))); ?></span>
+        </td>
+        <td>
+          <?php
+            switch($this->action) {
+              case 'add':
+                print $this->Form->input('plugin');
+                break;
+              case 'edit':
+                print $this->Form->input('plugin', array('disabled' => true));
+                // We need to re-include the value as hidden since it can't be changed (but is required by the model)
+                print $this->Form->hidden('plugin',
+                                          array('default' => Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']))) . "\n";
+                break;
+              default:
+                print Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
+                break;
+            }
+
+            if($this->action == 'edit') {
+              // And render a link to the plugin target
+
+              $plmodel = Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
+              $pl = Inflector::underscore($plmodel);
+              $plm = Inflector::tableize($plmodel);
+
+              print "<br />";
+              print $this->Html->link(_txt('op.config'),
                                       array(
-                                        'controller' => 'co_group_ois_mappings',
-                                        'action' => 'index',
-                                        'org_identity_source' => $org_identity_sources[0]['OrgIdentitySource']['id']
+                                        'plugin' => $pl,
+                                        'controller' => $plm,
+                                        'action' => 'edit',
+                                        $org_identity_sources[0][$plmodel]['id']
                                       ),
                                       array('class' => 'configurebutton'));
+
+              if(!empty($vv_plugin_group_attrs[$plmodel])) {
+                print $this->Html->link(_txt('op.ois.conf.gr'),
+                                        array(
+                                          'controller' => 'co_group_ois_mappings',
+                                          'action' => 'index',
+                                          'org_identity_source' => $org_identity_sources[0]['OrgIdentitySource']['id']
+                                        ),
+                                        array('class' => 'configurebutton'));
+              }
             }
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.status'); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['status'])
-                             ? $org_identity_sources[0]['OrgIdentitySource']['status']
-                             : SuspendableStatusEnum::Active);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.susp'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
+          ?>
+        </td>
+      </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <?php print _txt('fd.status'); ?><span class="required">*</span>
+        </td>
+        <td>
+          <?php
+            global $cm_lang, $cm_texts;
+            $attrs = array();
+            $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['status'])
+                               ? $org_identity_sources[0]['OrgIdentitySource']['status']
+                               : SuspendableStatusEnum::Active);
+            $attrs['empty'] = false;
+
+            if($e) {
+              print $this->Form->select('status',
+                                        $cm_texts[ $cm_lang ]['en.status.susp'],
+                                        $attrs);
+
+              if($this->Form->isFieldError('status')) {
+                print $this->Form->error('status');
+              }
+            } else {
+              print _txt('en.status', null, $org_identity_sources[0]['OrgIdentitySource']['status']);
             }
-          } else {
-            print _txt('en.status', null, $org_identity_sources[0]['OrgIdentitySource']['status']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.ois.sync.mode'); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['sync_mode'])
-                             ? $org_identity_sources[0]['OrgIdentitySource']['sync_mode']
-                             : SyncModeEnum::Manual);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('sync_mode',
-                                      $cm_texts[ $cm_lang ]['en.sync.mode'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('sync_mode')) {
-              print $this->Form->error('sync_mode');
+          ?>
+        </td>
+      </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <?php print _txt('fd.ois.sync.mode'); ?><span class="required">*</span>
+        </td>
+        <td>
+          <?php
+            global $cm_lang, $cm_texts;
+            $attrs = array();
+            $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['sync_mode'])
+                               ? $org_identity_sources[0]['OrgIdentitySource']['sync_mode']
+                               : SyncModeEnum::Manual);
+            $attrs['empty'] = false;
+
+            if($e) {
+              print $this->Form->select('sync_mode',
+                                        $cm_texts[ $cm_lang ]['en.sync.mode'],
+                                        $attrs);
+
+              if($this->Form->isFieldError('sync_mode')) {
+                print $this->Form->error('sync_mode');
+              }
+            } else {
+              print _txt('en.sync.mode', null, $org_identity_sources[0]['OrgIdentitySource']['sync_mode']);
             }
-          } else {
-            print _txt('en.sync.mode', null, $org_identity_sources[0]['OrgIdentitySource']['sync_mode']);
-          }
-        ?>
-      </td>
-    </tr>
-    <?php if(!empty($vv_co_pipelines)): ?>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.pipeline'); ?><br />
-        <span class="descr"><?php print _txt('fd.pipeline.desc.ois'); ?></span>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id'])
-                             ? $org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id']
-                             : '');
-          $attrs['empty'] = true;
-          
-          if($e) {
-            print $this->Form->select('co_pipeline_id',
-                                      $vv_co_pipelines,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('co_pipeline_id')) {
-              print $this->Form->error('co_pipeline_id');
+          ?>
+        </td>
+      </tr>
+      <?php if(!empty($vv_co_pipelines)): ?>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <?php print _txt('fd.pipeline'); ?><br />
+          <span class="descr"><?php print _txt('fd.pipeline.desc.ois'); ?></span>
+        </td>
+        <td>
+          <?php
+            $attrs = array();
+            $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id'])
+                               ? $org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id']
+                               : '');
+            $attrs['empty'] = true;
+
+            if($e) {
+              print $this->Form->select('co_pipeline_id',
+                                        $vv_co_pipelines,
+                                        $attrs);
+
+              if($this->Form->isFieldError('co_pipeline_id')) {
+                print $this->Form->error('co_pipeline_id');
+              }
+            } else {
+              if(!empty($org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id'])) {
+                print $vv_co_pipelines[ $org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id'] ];
+              }
             }
-          } else {
-            if(!empty($org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id'])) {
-              print $vv_co_pipelines[ $org_identity_sources[0]['OrgIdentitySource']['co_pipeline_id'] ];
+          ?>
+        </td>
+      </tr>
+      <?php endif; // vv_co_pipelines ?>
+      <tr>
+        <td>
+          <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+        </td>
+        <td>
+          <?php
+            if($e) {
+              print $this->Form->submit($submit_label);
+              print $this->Form->button(_txt('op.reset'),
+                                        array('type'=>'reset'));
             }
-          }
-        ?>
-      </td>
-    </tr>
-    <?php endif; // vv_co_pipelines ?>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-            print $this->Form->button(_txt('op.reset'), 
-                                      array('type'=>'reset'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+          ?>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 <?php endif; /* plugins */

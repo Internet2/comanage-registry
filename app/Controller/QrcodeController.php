@@ -38,7 +38,7 @@ class QrcodeController extends StandardController {
    *
    * @since  COmanage Registry v1.1.0
    * @param  String c from request query string: content to be encoded in QR code, typically a URL
-   * @param  String d from request query string: force a download of the PNG file
+   * @param  String download from request query string: force a download of the PNG file
    * @return response as a PNG file
    */
   public function index() {
@@ -56,7 +56,7 @@ class QrcodeController extends StandardController {
     if (isset($this->request->query['c'])) {
       $content = filter_var($this->request->query['c'],FILTER_SANITIZE_URL);
     }
-    if (isset($this->request->query['d'])) {
+    if (isset($this->request->query['download'])) {
       $download = true;
     }
 
@@ -74,6 +74,8 @@ class QrcodeController extends StandardController {
     $this->autoRender = false;
     return $this->response;
   }
+
+
 
   /**
    * Authorization for this Controller, called by Auth component

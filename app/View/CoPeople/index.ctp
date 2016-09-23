@@ -97,40 +97,28 @@
 ?>
 
 <?php if($this->action == 'link'): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.link.select', array(generateCn($vv_org_identity['PrimaryName']),
-                                                     $vv_org_identity['OrgIdentity']['id'])); ?></strong>
-  </p>
-</div>
-<br />
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('op.link.select', array(generateCn($vv_org_identity['PrimaryName']),
+                                                       $vv_org_identity['OrgIdentity']['id'])); ?>
+  </div>
 <?php elseif($this->action == 'relink' && !empty($vv_co_org_identity_link['OrgIdentity'])): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.relink.select', array(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),
-                                                       $vv_co_org_identity_link['OrgIdentity']['id'])); ?></strong>
-  </p>
-</div>
-<br />
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('op.relink.select', array(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),
+                                                         $vv_co_org_identity_link['OrgIdentity']['id'])); ?>
+  </div>
 <?php elseif($this->action == 'relink' && !empty($vv_co_person_role['CoPersonRole'])): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.relink.role.select', array($vv_co_person_role['CoPersonRole']['title'],
-                                                       $vv_co_person_role['CoPersonRole']['id'])); ?></strong>
-  </p>
-</div>
-<br />
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('op.relink.role.select', array($vv_co_person_role['CoPersonRole']['title'],
+                                                         $vv_co_person_role['CoPersonRole']['id'])); ?>
+  </div>
 <?php elseif($this->action == 'select'): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.select.select'); ?></strong>
-  </p>
-</div>
-<br />
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('op.select.select'); ?>
+  </div>
 <?php endif; // link ?>
 
 <div id="sorter" class="listControl">
@@ -497,7 +485,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
   ?>
 
   <?php print $this->element("pagination"); ?>
-  <div class="clear"></div>
+  <div class="clearfix"></div>
 
 </div>
 

@@ -46,11 +46,9 @@
     maybe_enable_submit();
   }
 </script>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.relink.role.confirm'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('op.relink.role.confirm'); ?>
 </div>
 <div class="innerContent">
   <ul>

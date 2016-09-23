@@ -70,6 +70,9 @@
   #user-links-id {
     margin-top: -8px;
   }
+  #notifications li.notification:nth-child(n+4) { /* show all notifications on tablets (and larger) */
+    display: block;
+  }
   #content {
     padding: 1em;
   }
@@ -83,8 +86,13 @@
 /**************************************************************************************************************/
 /* Small devices (desktops, 840px and up) */
 @media only screen and (min-width: 840px) {
-  /**** START Layout overrides to MDL breakpoint - from 1024 to 840 ***/
-  /* HEADER */
+  /*** START MDL OVERRIDES ***/
+  /*** Layout overrides to MDL breakpoint - from 1024 to 840 ***/
+  /* header */
+  .mdl-layout__container.has-scrolling-header .mdl-layout__content {
+    overflow-x: visible;
+    overflow-y: visible;
+  }
   .mdl-layout--fixed-drawer.is-upgraded:not(.is-small-screen) > .mdl-layout__header {
     /* override mdl to always make header full width and set the height */
     margin-left: 0;
@@ -96,6 +104,40 @@
   .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
      padding-left: 12px;
   }
+  /* navigation / side drawer */
+  /* mdl drawer overrides - change the drawer breakpoint from 1025 to 840 */
+  .mdl-layout--fixed-drawer > .mdl-layout__drawer {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+  .mdl-layout__drawer {
+    top: 64px; /* never cover header */
+    box-shadow: none; /* use no shadow on desktop menu */
+  }
+  body.logged-in.with-user-defined-links .mdl-layout__drawer {
+    top: 91px;
+  }
+  .mdl-layout__drawer-button {
+    display: none;
+  }
+  /* mdl content overrides */
+  .mdl-layout__content {
+    margin-left: 240px !important;
+    margin-top: -64px;
+    position: relative;
+    z-index: 20;
+    background-color: white;
+  }
+  body.title-hidden .mdl-layout__content {
+    margin-top: 0;
+  }
+  body.logged-out .mdl-layout__content {
+    margin-left: 0 !important;
+    margin-top: 0;
+  }
+  /*** END MDL OVERRIDES ***/
+
+  /* HEADER */
   #logo {
     margin-top: 11px;
   }
@@ -125,6 +167,7 @@
     display: block;
     background-color: #222;
     color: white;
+    min-height: 27px; /* essential */
   }
   #user-defined-links-top #links li {
     display: inline-block;
@@ -132,38 +175,6 @@
   #user-defined-links-top #links a {
     color: white;
   }
-    /* NAVIGATION / SIDE DRAWER */
-  /* MDL Drawer Override - change the drawer breakpoint from 1025 to 840 */
-  .mdl-layout--fixed-drawer > .mdl-layout__drawer {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-  }
-  .mdl-layout__drawer {
-    top: 64px; /* never cover header */
-    box-shadow: none; /* use no shadow on desktop menu */
-  }
-  body.logged-in.with-user-defined-links .mdl-layout__drawer {
-    top: 91px;
-  }
-  .mdl-layout__drawer-button {
-    display: none;
-  }
-  /* CONTENT */
-  .mdl-layout__content {
-    margin-left: 240px !important;
-    margin-top: -64px;
-    position: relative;
-    z-index: 20;
-    background-color: white;
-  }
-  body.title-hidden .mdl-layout__content {
-    margin-top: 0;
-  }
-  body.logged-out .mdl-layout__content {
-    margin-left: 0 !important;
-    margin-top: 0;
-  }
-  /**** END Layout overrides to MDL breakpoint - from 1024 to 840 ***/
 
   /* RIGHT SIDEBAR */
   .sidebar {
@@ -178,7 +189,10 @@
     right: 0;
     width: 247px;
   }
-
+  #topLinks {  /* content links */
+    float: right;
+    margin: 1.5em 0 0 0;
+  }
   #collaborationTitle {
     min-height: 46px;
     font-size: 2em;
@@ -234,12 +248,12 @@
 }
 
 /* MDL override */
-@media screen and (max-width: 1024px) {
+/*@media screen and (max-width: 1024px) {
   .mdl-layout__container.has-scrolling-header .mdl-layout__content {
     overflow-x: visible;
     overflow-y: visible;
   }
-}
+}*/
 
 /* MID-LARGE DESKTOP */
 /**************************************************************************************************************/
