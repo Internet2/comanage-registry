@@ -238,6 +238,32 @@
     float: right;
     width: 70%;
   }
+  /********************************/
+  /* My Population - People Index */
+  /********************************/
+  /* Listing sorter */
+  #sorter {
+    float: right;
+  }
+  /* Listing controls */
+  .listControl li {
+    margin-left: 0.5em;
+  }
+  #peopleToggle {
+    display: block;
+  }
+  .top-search .search-field-subgroup {
+    float: left;
+    width: 50%;
+  }
+  .search-field-subgroup:nth-child(1) {
+    margin-right: 0.5em;
+    width: 49%;
+  }
+  .top-search .clear-button {
+    float: right;
+  }
+  /* PEOPLE LISTING */
 }
 
 /* MEDIUM DESKTOP */

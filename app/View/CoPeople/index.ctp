@@ -26,9 +26,11 @@
 <script>
   $(function() {
     
-    $( ".line1, .line2" ).accordion({
+    $( ".co-person" ).accordion({
       collapsible: true,
-      active     : false
+      active     : false,
+      heightStyle: "content",
+      
     });
 
     // allow names to link to the person canvas
@@ -43,9 +45,9 @@
 
   function togglePeople(state) {
     if (state == 'open') {
-      $(".line1, .line2" ).accordion( "option", "active", 0 );
+      $(".co-person" ).accordion( "option", "active", 0 );
     } else {
-      $(".line1, .line2" ).accordion( "option", "active", false );
+      $(".co-person" ).accordion( "option", "active", false );
     }
   }
 </script>
@@ -64,35 +66,6 @@
     $this->Html->addCrumb($title_for_layout);
   } else {
     $this->Html->addCrumb(_txt('me.population'));
-    
-    // Add buttons to sidebar
-    /* XXX DEPRECATED.  Keep for now.
-    $sidebarButtons = $this->get('sidebarButtons');
-    
-    if($permissions['enroll'] && !empty($co_enrollment_flows)) {
-      $sidebarButtons[] = array(
-        'icon'    => 'circle-plus',
-        'title'   => _txt('op.enroll'),
-        'url'     => array(
-          'controller' => 'co_enrollment_flows',
-          'action'     => 'select',
-          'co'         => $cur_co['Co']['id']
-        )
-      );    
-    } elseif($permissions['add']) {
-      $sidebarButtons[] = array(
-        'icon'    => 'circle-plus',
-        'title'   => _txt('op.inv'),
-        'url'     => array(
-          'controller' => 'org_identities', 
-          'action'     => 'find', 
-          'co'         => $cur_co['Co']['id']
-        )
-      );
-    }  
-    
-    $this->set('sidebarButtons', $sidebarButtons);
-    */
   }
 ?>
 
@@ -195,50 +168,52 @@ if(isset($permissions['search']) && $permissions['search'] ) {
 <div id="co_people">
   <?php $i = 0; ?>
   <?php foreach ($co_people as $p): ?>
-    <div class="line<?php print ($i % 2)+1; ?>">
-      <div class = "panel1">
+    <div class="co-person line<?php print ($i % 2)+1; ?>">
+      <div class="person-panel">
         <?php
           $nameWithoutEmailClass = 'nameWithEmail';
           if(!isset($p['EmailAddress'][0]['mail'])) {
             $nameWithoutEmailClass = 'nameWithoutEmail';
           }
         ?>
-        <div class="name <?php print $nameWithoutEmailClass; ?>">
-          <?php
-            print $this->Html->link(generateCn($p['PrimaryName']),
-              array(
-                'controller' => 'co_people',
-                'action' => ($permissions['edit'] ? 'canvas' : ($permissions['view'] ? 'view' : '')),
-                $p['CoPerson']['id'])
-            );
-          ?>
-        </div>
+        <div class="person-info">
+          <span class="person-name <?php print $nameWithoutEmailClass; ?>">
+            <?php
+              print $this->Html->link(generateCn($p['PrimaryName']),
+                array(
+                  'controller' => 'co_people',
+                  'action' => ($permissions['edit'] ? 'canvas' : ($permissions['view'] ? 'view' : '')),
+                  $p['CoPerson']['id'])
+              );
+            ?>
+          </span>
 
-        <div class = "email">
-          <?php
-              if(isset($p['EmailAddress'][0]['mail'])) { 
-                print '(' ;
+          <span class="person-email">
+            <?php
+                if(isset($p['EmailAddress'][0]['mail'])) {
+                  print '(' ;
 
-                $email = $p['EmailAddress'][0]['mail'];
-                if(strlen($email) > 36)
-                  print substr($email, 0, 35) . "...";
-                else
-                  print $email;
-                
-                print ')';
-              }
-          ?>
-        </div>
+                  $email = $p['EmailAddress'][0]['mail'];
+                  if(strlen($email) > 36)
+                    print substr($email, 0, 35) . "...";
+                  else
+                    print $email;
 
-        <div class="status">
-          <?php
-            global $status_t;
+                  print ')';
+                }
+            ?>
+          </span>
 
-            if(!empty($p['CoPerson']['status']) ) print _txt('en.status', null, $p['CoPerson']['status']);
-          ?>
+          <span class="person-status">
+            <?php
+              global $status_t;
+
+              if(!empty($p['CoPerson']['status']) ) print _txt('en.status', null, $p['CoPerson']['status']);
+            ?>
+          </span>
         </div>
         
-        <div class="admin">
+        <div class="person-admin">
           <?php
             if(true || $myPerson) {
               // XXX for now, cou admins get all the actions, but see CO-505
@@ -362,8 +337,9 @@ if(isset($permissions['search']) && $permissions['search'] ) {
             }
           ?>
         </div>
+        <span class="clearfix"/>
       </div>
-      <div class = "panel2">
+      <div class = "role-panel">
         <div class="roles">
           <?php
             foreach ($p['CoPersonRole'] as $pr) {

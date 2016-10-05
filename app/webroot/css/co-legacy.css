@@ -91,7 +91,6 @@ label,
 .checkbox input {
   cursor: pointer;
 }
-*/
 .select-name {
   font-size: 1.4em;
 }
@@ -105,7 +104,7 @@ form .submit {
 td.top {
   vertical-align: top;
 }
-
+*/
 /* Tabbed Boxes */
 .coTabsContainer {
   float:left;
@@ -409,6 +408,7 @@ a.linkbutton:last-child {
 /**************************************************************************************************************/
 /* All devices smaller than 992px */
 @media only screen and (max-width: 991px) {
+  /*
   .contentWidth {
     margin: 0 1em;
   }
@@ -433,12 +433,14 @@ a.linkbutton:last-child {
   #orgIdSearch .input {
     width: 8.5%;
   }
+  */
 }
 
 /* MEDIUM */
 /**************************************************************************************************************/
 /* Medium devices (desktops, 992px and up) */
 @media only screen and (min-width: 992px)  {
+  /*
   .contentWidth {
     max-width: 960px;
   }
@@ -454,13 +456,14 @@ a.linkbutton:last-child {
   }
   #orgIdSearch .input {
     width: 9.9%;
-  }
+  }*/
 }
 
 /* WIDE */
 /**************************************************************************************************************/
 /* Large devices (large desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
+  /*
   .contentWidth {
     max-width: 1200px;
   }
@@ -477,12 +480,14 @@ a.linkbutton:last-child {
   #orgIdSearch .input {
     width: 10.4%;
   }
+  */
 }
 
 /* EXTRA WIDE */
 /**************************************************************************************************************/
 /* Large devices (large desktops, 1900px and up) */
 @media only screen and (min-width: 1900px) {
+  /*
   .contentWithSidebar {
     width: 1200px !important;
   }
@@ -493,4 +498,5 @@ a.linkbutton:last-child {
   #co_people .panel2 {
     width: 1150px;
   }
+  */
 }

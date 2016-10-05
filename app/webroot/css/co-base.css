@@ -550,6 +550,15 @@ body.co_people.canvas #titleNavContainer {
   font-size: 18px;
   color: #52ADEA;
 }
+#co_petition_tandc {
+  padding: 0;
+  margin:  1em 0 0 0;
+}
+#co_petition_tandc li {
+  list-style: outside none none;
+  margin: 0;
+  padding: 1em;
+}
 /* PETITIONS */
 #petition {
 }
@@ -658,9 +667,32 @@ body.co_petitions .deny-button:hover {
 /********************************/
 /* My Population - People Index */
 /********************************/
-/* Listing Sorter */
-#sorter {
-  float: right;
+/* Listing controls */
+.listControl {
+  color: #1D5987;
+  margin: 0;
+  clear: left;
+}
+.listControl a {
+  color: #181CF5;
+}
+.listControl a:hover {
+  color: #444;
+  text-decoration: none;
+}
+.listControl ul,
+.listControl li {
+  display: inline-block;
+}
+.listControl ul {
+  margin: 0;
+  padding: 0;
+}
+.listControl li {
+  margin-left: 0;
+}
+#peopleToggle {
+  display: none; /* hide on mobile */
 }
 /* Alpha search  */
 #peopleAlphabet {
@@ -705,42 +737,22 @@ body.co_petitions .deny-button:hover {
   background-color: #ffe;
   color: #333;
 }
-/* Listing controls */
-.listControl {
-  color: #1D5987;
-  margin: 0;
-  clear: left;
-}
-.listControl a {
-  color: #181CF5;
-}
-.listControl a:hover {
-  color: #444;
-  text-decoration: none;
-}
-.listControl ul,
-.listControl li {
-  display: inline-block;
-}
-.listControl ul {
-  margin: 0;
-  padding: 0;
-}
-.listControl li {
-  margin-left: 0.5em;
-}
-/* People Listing */
+/* PEOPLE LISTING */
 #co_people {
   clear: both;
 }
-#co_people > .ui-accordion {
-  margin: 0 0 2px;
-  overflow: hidden;
-  padding: 5px;
+#co_people > .co-person {
+  margin: 0;
+  padding: 0;
+  border-bottom: 2px solid #fff;
+  clear: both;
 }
-#co_people > div > .panel1{
-  float: left;
-  margin: 0 10px 0 0;
+#co_people > div > .person-panel {
+  box-sizing: border-box; /* essential */
+  margin: 0;
+  min-height: 45px;
+  position: relative;
+  width: 100%;
 }
 #co_people .roleTitleLinks {
   margin-right: 1em;
@@ -750,60 +762,55 @@ body.co_petitions .deny-button:hover {
   font-size: 1.2em;
   font-weight: bold;
 }
-.panel2 {
-  padding: 0 0 0 10px !important;
-  margin-left: 25px;
+#co_people .ui-accordion .ui-accordion-header .ui-accordion-header-icon {
+  /* override jquery default icon positioning */
+  margin-top: 0;
+  top: 14px;
 }
-.panel1 div,
-.panel2 div{
+#co_people .person-info {
   float: left;
-}
-.created,
-.status,
-.email{
   margin-top: 6px;
 }
-.name {
-  width: 325px;
-  position: relative;
-  top: -4px;
+#co_people .person-name {
 }
-.nameWithoutEmail {
-  top: 6px;
+#co_people .nameWithoutEmail {
 }
-.email {
-  margin: 13px 0 0 0px;
-  position: absolute;
-  /*color: #7FB7DB;*/
+#co_people .person-email {
   color: #666;
 }
-.admin {
-  float: right !important;
+#co_people .person-status {
+  display: block;
+  font-style: italic;
 }
-.status {
-  margin-left: 5px;
+#co_people .person-admin {
+  float: right;
+  text-align: right;
 }
-.roles {
+#co_people .person-admin button {
+  display: block;
+}
+#co_people .role-panel {
+  margin-left: 25px;
+  clear: both;
+}
+#co_people .roles {
   width: 98%;
   padding: 5px;
 }
-.role {
-  width: 98%;
-  /*border: 1px solid #d0e5f5; */
-  padding: 2px;
-  margin-bottom: 5px;
+#co_people .role {
+  width: 100%;
 }
-.rolestatus{
+#co_people .rolestatus {
   float: right !important;
   margin: 5px 9px 5px 5px;
 }
-.roledata{
+#co_people .roledata {
   width: 100%;
 }
-.roletitle{
+#co_people .roletitle {
   width:100%;
 }
-.roledates{
+#co_people .roledates {
   text-align: right;
   margin: 0 30px 0 0;
 }
@@ -816,18 +823,8 @@ body.co_people.index #pagination {
 body.co_people.index #pagination a {
   color: white;
 }
-.outer-center {
-  float: right;
-  right: 50%;
-  position: relative;
-}
-.inner-center {
-  float: right;
-  right: -50%;
-  position: relative;
-}
 /* people index jquery ui overrides */
-#co_people .panel1 {
+#co_people .person-panel {
   border: 1px solid transparent; /* to allow our jquery UI hovers not to change the size of the div */
   background: inherit;
   color: #333;
@@ -839,7 +836,8 @@ body.co_people.index #pagination a {
 #co_people .ui-widget-content .ui-state-focus,
 #co_people .ui-widget-header .ui-state-focus {
   border: 1px solid #79b7e7;
-  background: #d0e5f5 url("/registry/css/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-bg_glass_75_d0e5f5_1x400.png") 50% 50% repeat-x;
+  /*background: #d0e5f5 url("/registry/css/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-bg_glass_75_d0e5f5_1x400.png") 50% 50% repeat-x;*/
+  background-color: #d0e5f5;
   color: #1d5987;
 }
 #co_people .ui-state-active,
@@ -856,44 +854,100 @@ body.co_people.index #pagination a {
   cursor: move;
 }
 /* For Top Search (co_people index and org_identity index) */
-.topSearch {
+.top-search {
+  margin-top: 0.5em;
   padding: 0.5em;
   background-color: #eee;
-  text-align: right;
-  white-space: nowrap;
 }
-.topSearch legend {
+.top-search legend .material-icons {
+  vertical-align: middle;
+}
+.top-search legend .material-icons.drop-arrow {
+  float: right;
+  position: relative;
+  left: -5px;
+  top: -1px;
+}
+.top-search fieldset {
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+.top-search legend {
+  width: 100%;
+}
+a#top-search-toggle {
+  display: block;
+  width: 100%;
+  color: #222;
+}
+a#top-search-toggle:hover {
+  text-decoration: none;
+}
+#top-search-fields {
+  display: none;
+}
+.top-search input[type=text],
+.top-search select {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 0.5em 0;
+  height: 28px;
+  padding: 2px 4px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+}
+::-webkit-input-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder,
+:-moz-placeholder {
+  opacity: 0.2;
+}
+.top-search .submit-button,
+.top-search .clear-button {
+  float: right;
+  font-size: 0.9em;
+  width: 80px;
+  line-height: 28px;
+  height: 28px;
+  margin: 0.5em;
+}
+
+/*.top-search legend {
   float: left;
   margin: 0;
   padding: 5px 8px 0 4px;
   color: #666;
 }
-.topSearch fieldset {
+.top-search fieldset {
   border: none;
   margin: 0;
   padding: 0;
 }
-.topSearch .input {
+.top-search .search-field-subgroup {
+  clear: left;
+}
+.top-search input {
+  min-width: 100%;
+}
+top-search .input {
   float: left;
   margin-right: 2px;
 }
-.topSearch input[type=text] {
-  width: 92%;
-  height: 18px;
-  padding: 2px 4px;
-  border: 1px solid #ddd;
-}
+
 #orgIdSearch {
   margin: 0.5em 0;
   min-height: 28px;
 }
-#orgIdSearch.topSearch input[type=text] {
+#orgIdSearch.top-search input[type=text] {
   width: 88%;
 }
-.topSearch label {
+*/
+.top-search label {
   display: none;
 }
-.topSearch select {
+/*
+.top-search select {
   color: #777;
   background-color: #fff;
   width: 98%;
@@ -906,17 +960,18 @@ body.co_people.index #pagination a {
   border: 1px solid #ddd;
 
 }
-.topSearch option[value=''] {
+.top-search option[value=''] {
   font-style: italic;
 }
-.topSearch .submit,
-.topSearch .clearButton {
+.top-search .submit,
+.top-search .clearButton {
   float: right;
 }
-.topSearch .ui-button {
+.top-search .ui-button {
   font-size: 1em;
   height: 24px;
 }
+*/
 /* FORMS */
 .required-info {
   float: left;
@@ -1019,6 +1074,10 @@ th.actionButtons {
 /* MDL OVERRIDES */
 .mdl-layout {
   overflow-x: auto; /* TEMPORARY allows overlarge tables to be accessed on small screens */
+}
+.mdl-button.mdl-button--colored {
+  background-color: #53B1F4;
+  color: white;
 }
 .mdl-button--accent.mdl-button--accent.mdl-button--raised,
 .mdl-button--accent.mdl-button--accent.mdl-button--fab {

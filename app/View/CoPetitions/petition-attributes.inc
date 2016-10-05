@@ -119,8 +119,8 @@
   $(function() {
     $("#dialog-review").dialog({
       autoOpen: false,
-      height: 725,
-      width: 750,
+      //height: 725,
+      //width: 750,
       modal: true,
       buttons: {
         "<?php print _txt('op.ok'); ?>": function() {
@@ -500,8 +500,8 @@
   <?php if(!empty($vv_terms_and_conditions)): ?>
   <?php $line = 0; ?>
     <?php if($this->action == 'view'): ?>
-    <div class="ui-widget modelbox">
-      <div class="boxtitle">
+    <div class="modelbox">
+      <div class="tc-title">
         <strong><?php print _txt('op.tc.agree'); ?></strong>
       </div>
       <?php
@@ -518,7 +518,7 @@
     <?php elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent
                  || $vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): // action == view ?>
     <div class="ui-widget modelbox">
-      <div class="boxtitle">
+      <div class="tc-title">
         <strong><?php print _txt('op.tc.agree'); ?></strong><br />
         <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
         <span class="descr"><?php print _txt('fd.tc.agree.desc'); ?></span>
@@ -526,13 +526,18 @@
         <span class="descr"><?php print _txt('fd.tc.agree.impl'); ?></span>
         <?php endif; // vv_tandc_mode ?>
       </div>
-      <table id="<?php print $this->action; ?>_co_petition_tandc">
-        <tbody>
-          <?php foreach($vv_terms_and_conditions as $t): ?>
-          <tr class="line<?php print ($l % 2); $l++; ?>">
-            <td>
+      <ul id="co_petition_tandc">
+        <?php foreach($vv_terms_and_conditions as $t): ?>
+          <li class="line<?php print ($l % 2); $l++; ?>">
+              <strong><?php print $t['CoTermsAndConditions']['description']; ?></strong><br/>
+              <button class="checkbutton"
+                      type="button"
+                      onClick="open_tandc('<?php print addslashes($t['CoTermsAndConditions']['description']); ?>',
+                        '<?php print addslashes($t['CoTermsAndConditions']['url']); ?>',
+                        '<?php print addslashes($t['CoTermsAndConditions']['id']); ?>')">
+                <?php print _txt('op.tc.review'); ?>
+              </button>
               <?php
-                print _txt('op.tc.agree.i');
                 
                 $fieldName = "CoTermsAndConditions." . $t['CoTermsAndConditions']['id'];
                 $args = array();
@@ -555,26 +560,14 @@
                   //$args['disabled'] = true;
                   $args['onClick'] = "return false";
                 }
-                
+                print '<span class="tc-checkbox-and-label">';
                 print $this->Form->checkbox($fieldName, $args);
+                print $this->Form->label($fieldName, _txt('op.tc.agree.i'));
+                print '</span>';
               ?>
-            </td>
-            <td>
-              <strong><?php print $t['CoTermsAndConditions']['description']; ?></strong>
-            </td>
-            <td>
-              <button class="checkbutton"
-                      type="button"
-                      onClick="open_tandc('<?php print addslashes($t['CoTermsAndConditions']['description']); ?>',
-                                          '<?php print addslashes($t['CoTermsAndConditions']['url']); ?>',
-                                          '<?php print addslashes($t['CoTermsAndConditions']['id']); ?>')">
-                <?php print _txt('op.tc.review'); ?>
-              </button>
-            </td>
-          </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+          </li>
+        <?php endforeach; ?>
+      </ul>
     </div>
     <?php endif; // action == view ?>
   <?php endif; // T&C ?>
