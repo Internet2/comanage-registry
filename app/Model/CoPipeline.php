@@ -718,8 +718,12 @@ class CoPipeline extends AppModel {
         
         // For identifiers and email addresses, we want to skip availability checking
         // since we might be writing multiple versions of the same attribute (from
-        // different org identity sources).
-        if(!$model->save($nr, array("provision" => false, "skipAvailability" => true))) {
+        // different org identity sources). For email addresses, we also want to honor
+        // the verified status.
+        
+        if(!$model->save($nr, array("provision" => false,
+                                    "skipAvailability" => true,
+                                    "trustVerified" => true))) {
           throw new RuntimeException(_txt('er.db.save-a', array($m)));
         }
         
