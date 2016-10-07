@@ -52,13 +52,16 @@
           if($permissions['select']) {
 
             // begin button
-            print $this->Html->link(_txt('op.begin'),
+            print $this->Html->link(_txt('op.begin') . ' <i class="material-icons">forward</i>',
               array(
                 'controller' => 'co_petitions',
                 'action' => 'start',
                 'coef' => $c['CoEnrollmentFlow']['id']
               ),
-              array('class' => 'co-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect')
+              array(
+                'class' => 'co-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect',
+                'escape' => false
+              )
             ) . "\n";
 
             // QR code button

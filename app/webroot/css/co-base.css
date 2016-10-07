@@ -994,6 +994,18 @@ top-search .input {
   color: red;
   font-size: 0.9em;
 }
+/* BUTTONS */
+.co-button .material-icons {
+  font-size: 18px;
+  margin-right: -8px;
+}
+/* DIALOGS */
+.ui-dialog {
+  left: 15% !important;
+  top: 10% !important;
+  width: 70% !important;
+  padding: 0;
+}
 /* GENERAL */
 .hidden,
 .invisible {

@@ -34,7 +34,12 @@ print '<div id="enrollmentFlowIntro">';
 print $vv_intro_text;
 print '</div>';
 
-print $this->Html->Link(_txt('op.begin'),
-                        $vv_on_finish_url,
-                        array('class' => 'forwardbutton enrollmentFlowStartButton'));
+print $this->Html->Link(
+  _txt('op.begin') . ' <i class="material-icons">forward</i>',
+  $vv_on_finish_url,
+  array(
+    'class' => 'co-button enrollmentFlowStartButton mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect',
+    'escape' => false
+  )
+);
 

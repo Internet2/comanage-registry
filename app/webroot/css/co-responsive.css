@@ -264,13 +264,29 @@
     float: right;
   }
   /* PEOPLE LISTING */
+  #co_people .person-info-inner {
+    float: left;
+    width: 200px;
+  }
+  #co_people .person-status {
+    float: left;
+    width: 100px;
+  }
+  #co_people .person-admin button {
+    display: inline;
+  }
 }
 
 /* MEDIUM DESKTOP */
 /**************************************************************************************************************/
 /* Medium devices (desktops, 960px and up) */
 @media only screen and (min-width: 960px) {
-
+  #co_people .person-info-inner {
+    width: 250px;
+  }
+  #co_people .person-status {
+    width: 150px;
+  }
 }
 
 /* MDL override */
@@ -288,11 +304,16 @@
   #logo {
     margin-top: 4px;
   }
+  #co_people .person-info-inner {
+    width: 300px;
+  }
 }
 
 /* LARGE DESKTOP */
 /**************************************************************************************************************/
 /* Large devices (desktops, 1280px and up) */
 @media only screen and (min-width: 1280px) {
-
+  #co_people .person-info-inner {
+    width: 550px;
+  }
 }

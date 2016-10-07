@@ -177,37 +177,38 @@ if(isset($permissions['search']) && $permissions['search'] ) {
           }
         ?>
         <div class="person-info">
-          <span class="person-name <?php print $nameWithoutEmailClass; ?>">
-            <?php
-              print $this->Html->link(generateCn($p['PrimaryName']),
-                array(
-                  'controller' => 'co_people',
-                  'action' => ($permissions['edit'] ? 'canvas' : ($permissions['view'] ? 'view' : '')),
-                  $p['CoPerson']['id'])
-              );
-            ?>
-          </span>
+          <div class="person-info-inner">
+            <span class="person-name <?php print $nameWithoutEmailClass; ?>">
+              <?php
+                print $this->Html->link(generateCn($p['PrimaryName']),
+                  array(
+                    'controller' => 'co_people',
+                    'action' => ($permissions['edit'] ? 'canvas' : ($permissions['view'] ? 'view' : '')),
+                    $p['CoPerson']['id'])
+                );
+              ?>
+            </span>
 
-          <span class="person-email">
-            <?php
-                if(isset($p['EmailAddress'][0]['mail'])) {
-                  print '(' ;
+            <span class="person-email">
+              <?php
+                  if(isset($p['EmailAddress'][0]['mail'])) {
+                    print '(' ;
 
-                  $email = $p['EmailAddress'][0]['mail'];
-                  if(strlen($email) > 36)
-                    print substr($email, 0, 35) . "...";
-                  else
-                    print $email;
+                    $email = $p['EmailAddress'][0]['mail'];
+                    if(strlen($email) > 36)
+                      print substr($email, 0, 35) . "...";
+                    else
+                      print $email;
 
-                  print ')';
-                }
-            ?>
-          </span>
+                    print ')';
+                  }
+              ?>
+            </span>
+          </div>
 
           <span class="person-status">
             <?php
               global $status_t;
-
               if(!empty($p['CoPerson']['status']) ) print _txt('en.status', null, $p['CoPerson']['status']);
             ?>
           </span>
