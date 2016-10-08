@@ -260,6 +260,7 @@ class OrgIdentitySource extends AppModel {
     $this->OrgIdentitySourceRecord->OrgIdentity->id = null;
     
     if(!$this->OrgIdentitySourceRecord->OrgIdentity->saveAssociated($orgid, array('trustVerified' => true))) {
+      $dbc->rollback();
       throw new RuntimeException(_txt('er.db.save-a', array('OrgIdentity saveAssociated')));
     }
     
@@ -312,7 +313,13 @@ class OrgIdentitySource extends AppModel {
     }
     
     // Invoke pipeline, if configured
-    $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId);
+    try {
+      $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId);
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
+    }
     
     // Commit
     $dbc->commit();
