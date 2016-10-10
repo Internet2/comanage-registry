@@ -82,7 +82,10 @@ class CoGrouperProvisionerTargetsController extends SPTController {
 
     }
     catch (RuntimeException $e) {
-      $this->Flash->set($e->getMessage(), array('key' => 'error')); 
+      // Some exceptions thrown by the underlying libraries can contain 
+      // newline characters so replace them before setting the flash text.
+      $msg = trim(preg_replace('/\s+/', ' ', $e->getMessage()));
+      $this->Flash->set($msg, array('key' => 'error')); 
       return false;
     }
     

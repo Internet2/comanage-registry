@@ -89,6 +89,12 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
       'allowEmpty' => false,
       'on' => null,
     ),
+    'subject_identifier' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true,
+      'on' => null,
+    ),
     'login_identifier' => array(
       'rule' => 'notBlank',
       'required' => true,
@@ -104,8 +110,8 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
     'subject_view' => array(
       'subjectViewRule1' => array(
       'rule' => array('maxLength', 30),
-      'required' => true,
-      'allowEmpty' => false,
+      'required' => false,
+      'allowEmpty' => true,
       'on' => null,
     ),
     'subjectViewRule2' => array(
@@ -125,6 +131,11 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
    * @return void
    */
   public function afterSave($created, $options = array()) {
+    // Only create the view in legacy mode
+    if (!$this->data['CoGrouperProvisionerTarget']['legacy_comanage_subject']) {
+      return;
+    }
+
     $prefix = "";
     $db =& ConnectionManager::getDataSource('default');
     $db_driver = split("/", $db->config['datasource'], 2);
@@ -184,12 +195,50 @@ FROM
    * Compute the subject used by Grouper for the CoPerson.
    *
    * @since COmanage Registry v1.0.5
-   * @param Integer CO ID
-   * @param Integer CO Person ID
+   * @param  Array CO Provisioning Target data
+   * @param  ProvisioningActionEnum Registry transaction type triggering provisioning
+   * @param  Array Provisioning data
+   * @param  Integer CoPersonId for the group membership
    * @return String
   */
-  public function computeSubject($coId, $coPersonId) {
-    return 'COMANAGE_' . $coId . '_' . $coPersonId;
+  public function computeSubject($coProvisioningTargetData, $op, $provisioningData, $coPersonId) {
+    // For legacy use of SQL view as the Grouper subject source the subject
+    // is a combination of the CO ID and the CoPerson ID prefixed with 'COMANAGE'.
+    if ($coProvisioningTargetData['CoGrouperProvisionerTarget']['legacy_comanage_subject']) {
+      $coId = $provisioningData['CoGroup']['co_id'];
+      return 'COMANAGE_' . $coId . '_' . $coPersonId;
+    }
+
+    // Select the identifier from the CoPerson based on the provisioner configuration
+    $idType = $coProvisioningTargetData['CoGrouperProvisionerTarget']['subject_identifier'];
+
+    switch($op) { 
+      case ProvisioningActionEnum::CoPersonPetitionProvisioned:
+      case ProvisioningActionEnum::CoPersonPipelineProvisioned:
+        $identifiers = $provisioningData['Identifier'];
+        break;
+
+      case ProvisioningActionEnum::CoGroupReprovisionRequested:
+      case ProvisioningActionEnum::CoGroupUpdated:
+        foreach ($provisioningData['CoGroupMember'] as $membership) {
+          if ($membership['co_person_id'] == $coPersonId) {
+            $identifiers = $membership['CoPerson']['Identifier'];
+          }
+        }
+        break;
+    }
+
+    foreach ($identifiers as $identifier) {
+      if ($identifier['type'] == $idType && 
+          $identifier['status'] == SuspendableStatusEnum::Active && 
+          !$identifier['deleted']) {
+          return $identifier['identifier'];
+      }
+    }
+
+    // If we fall through we were not able to find an identifier so return null
+    // and expect the caller to handle appropriately.
+    return null;
   }
 
   /**
@@ -451,9 +500,8 @@ FROM
             }
           }
         } catch (GrouperRestClientException $e) {
-        throw new RuntimeException($e->getMessage());
+          throw new RuntimeException($e->getMessage());
         }
-
         // Determine if any memberships changed and update as necessary.
 
         // Query Grouper for all current memberships in the group. The subject
@@ -481,8 +529,11 @@ FROM
         $provisioningDataCoPersonIds = array();
         foreach ($membershipsPassedIn as $coGroupMember) {
           if($coGroupMember['member']) {
-            $coId = $provisioningData['CoGroup']['co_id'];
-            $provisioningDataCoPersonIds[] = $this->computeSubject($coId, $coGroupMember['co_person_id']);
+            $subject = $this->computeSubject($coProvisioningTargetData, $op, $provisioningData, $coGroupMember['co_person_id']);
+            if (empty($subject)) {
+              throw new RuntimeException(_txt('er.grouperprovisioner.subject'));
+            }
+            $provisioningDataCoPersonIds[] = $subject;
           }
         }
 
@@ -534,7 +585,10 @@ FROM
             if($membership['member']) {
               $coId = $membership['CoGroup']['co_id'];
               $coPersonId = $membership['co_person_id'];
-              $subject = $this->computeSubject($coId, $coPersonId);
+              $subject = $this->computeSubject($coProvisioningTargetData, $op, $provisioningData, $coPersonId);
+              if (empty($subject)) {
+                throw new RuntimeException(_txt('er.grouperprovisioner.subject'));
+              }
 
               try {
                 $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);

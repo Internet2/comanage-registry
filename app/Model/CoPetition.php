@@ -1948,7 +1948,8 @@ class CoPetition extends AppModel {
       
       $subs = array(
         'CO_PERSON' => generateCn($pt['EnrolleeCoPerson']['PrimaryName']),
-        'NEW_COU'   => $pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'] ?: null,
+        'NEW_COU'   => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'])
+                        ? $pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'] : null),
         'SPONSOR'   => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName'])
                         ? generateCn($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName']) : null)
       );
