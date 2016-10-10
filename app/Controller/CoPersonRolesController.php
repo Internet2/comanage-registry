@@ -46,17 +46,17 @@ class CoPersonRolesController extends StandardController {
   public $allows_cou = true;
 
   public $edit_contains = array(
-    'Address',
+    'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'SponsorCoPerson' => array('PrimaryName'),
-    'TelephoneNumber'
+    'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
   );
   
   // We need various related models for index and search
   public $view_contains = array(
-    'Address',
+    'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Cou',
     'SponsorCoPerson' => array('PrimaryName'),
-    'TelephoneNumber'
+    'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
   );
   
   // The extended attributes for this CO

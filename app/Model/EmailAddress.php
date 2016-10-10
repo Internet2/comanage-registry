@@ -162,7 +162,6 @@ class EmailAddress extends AppModel {
     // Make sure verified is set appropriately. As of v1.1.0, Org Identity Sources
     // can assert verified status (CO-1331), so we can't just always reset verified
     // to false.
-debug($options);
     
     $trustVerified = (isset($options['trustVerified']) && $options['trustVerified']);
     

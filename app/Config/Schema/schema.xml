@@ -498,6 +498,9 @@
     <field name="org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
     </field>
+    <field name="source_address_id" type="I">
+      <constraint>REFERENCES cm_addresses(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="address_id" type="I">
@@ -510,13 +513,14 @@
     <index name="addresses_i1">
       <col>co_person_role_id</col>
     </index>
-    
     <index name="addresses_i2">
       <col>org_identity_id</col>
     </index>
-    
     <index name="addresses_i3">
       <col>address_id</col>
+    </index>
+    <index name="addresses_i4">
+      <col>source_address_id</col>
     </index>
   </table>
 
@@ -536,6 +540,9 @@
     <field name="org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
     </field>
+    <field name="source_telephone_number_id" type="I">
+      <constraint>REFERENCES cm_telephone_numbers(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="telephone_number_id" type="I">
@@ -548,13 +555,14 @@
     <index name="telephone_numbers_i1">
       <col>co_person_role_id</col>
     </index>
-    
     <index name="telephone_numbers_i2">
       <col>org_identity_id</col>
     </index>
-    
     <index name="telephone_numbers_i3">
       <col>telephone_number_id</col>
+    </index>
+    <index name="telephone_numbers_i4">
+      <col>source_telephone_number_id</col>
     </index>
   </table>
   

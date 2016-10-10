@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Email Addresses Controller
  *
- * Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -36,6 +36,11 @@ class EmailAddressesController extends MVPAController {
     )
   );
 
+  public $view_contains = array(
+    'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')),
+    'SourceEmailAddress'
+  );
+  
   /**
    * Callback to set relevant tab to open when redirecting to another page
    * - precondition:
@@ -63,6 +68,30 @@ class EmailAddressesController extends MVPAController {
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
     $pids = $this->parsePersonID($this->request->data);
+    
+    // Is this a read only record? True if it belongs to an Org Identity that has
+    // an OrgIdentity Source Record. As of the initial implementation, not even
+    // CMP admins can edit such a record.
+    
+    if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
+      $orgIdentityId = $this->EmailAddress->field('org_identity_id', array('id' => $this->request->params['pass'][0]));
+      
+      if($orgIdentityId) {
+        $readOnly = $this->EmailAddress->OrgIdentity->readOnly($orgIdentityId);
+        
+        if($readOnly) {
+          // Proactively redirect to view. This will also prevent (eg) the REST API
+          // from editing a read only record.
+          $args = array(
+            'controller' => 'email_addresses',
+            'action'     => 'view',
+            Sanitize::html($this->request->params['pass'][0])
+          );
+          
+          $this->redirect($args);
+        }
+      }
+    }
     
     // In order to manipulate an email address, the authenticated user must have permission
     // over the associated Org Identity or CO Person. For add action, we accept

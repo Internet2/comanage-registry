@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Names Fields
  *
- * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -34,28 +34,41 @@
     return(false);
 
   $idForBreadcrumbs = '';
+  $idType = null;
 
   // Migrate the target person from a named argument to a form field
-  if(isset($this->request->params['named']['copersonid'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
+  if($this->action == 'add' && isset($this->request->params['named']['copersonid'])) {
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+     $idType = 'person';
   } elseif(isset($this->request->data['Name']['co_person_id'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['Name']['co_person_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['Name']['co_person_id']);
-  } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
+     $idType = 'person';
+  } elseif(!empty($names[0]['Name']['co_person_id'])) {
+    $idForBreadcrumbs = $names[0]['Name']['co_person_id'];
+    $idType = 'person';
+  } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idType = 'org';
   } elseif(isset($this->request->data['Name']['org_identity_id'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['Name']['org_identity_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['Name']['org_identity_id']);
+    $idType = 'org';
+  } elseif(!empty($names[0]['Name']['org_identity_id'])) {
+    $idForBreadcrumbs = $names[0]['Name']['org_identity_id'];
+    $idType = 'org';
   }
 
+  if($idType == 'org') {
+    print $this->Form->hidden('org_identity_id', array('default' => $idForBreadcrumbs)) . "\n";
+  } elseif($idType == 'person') {
+    print $this->Form->hidden('co_person_id', array('default' => $idForBreadcrumbs)) . "\n";
+  }
+  
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  if(isset($this->request->params['named']['copersonid']) || isset($this->request->data['Name']['co_person_id'])) {
+  if($idType == 'person') {
     // CO Person History
     $args = array();
     $args['plugin'] = null;
@@ -69,8 +82,7 @@
       'action' => 'canvas',
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
-
-  } elseif(isset($this->request->params['named']['orgidentityid']) || isset($this->request->data['Name']['org_identity_id'])) {
+  } elseif($idType == 'org') {
     // Org ID History
     $args = array();
     $args['plugin'] = null;
@@ -86,7 +98,6 @@
       'action' => 'edit',
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
-
   }
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('fd.name')));
   $this->Html->addCrumb($crumbTxt);

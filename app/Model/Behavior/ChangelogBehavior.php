@@ -372,7 +372,7 @@ class ChangelogBehavior extends ModelBehavior {
         if(!$model->save($archiveData, array('callbacks' => false,
                                              'validate' => false))) {
           $dataSource->rollback();
-          throw new RuntimeException(_txt('er.db.save'));
+          throw new RuntimeException(_txt('er.db.save-a', array('Changelog aftersave archive')));
         }
         
         // Grab a copy of the archive ID before we reset model state back to where it was
@@ -433,7 +433,7 @@ class ChangelogBehavior extends ModelBehavior {
                 
                 if(!$model->saveField($aparentfk, $targetArchive[$amodel]['id'], array('callbacks' => false))) {
                   $dataSource->rollback();
-                  throw new RuntimeException(_txt('er.db.save'));
+                  throw new RuntimeException(_txt('er.db.save-a', array('Changelog aftersave parentfk')));
                 }
               }
             }

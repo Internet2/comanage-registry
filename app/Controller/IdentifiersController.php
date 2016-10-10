@@ -36,6 +36,11 @@ class IdentifiersController extends MVPAController {
     )
   );
   
+  public $view_contains = array(
+    'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')),
+    'SourceIdentifier'
+  );
+  
   /**
    * Autoassign identifiers for a CO Person.
    * - precondition: $this->request->params holds CO ID and CO Person ID
@@ -191,6 +196,34 @@ class IdentifiersController extends MVPAController {
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
     $pids = $this->parsePersonID($this->request->data);
+    
+    // Is this a read only record? True if it belongs to an Org Identity that has
+    // an OrgIdentity Source Record, or if it has a source identity.
+    // As of the initial implementation, not even CMP admins can edit such a record.
+    
+    if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
+      $readOnly = false;
+      
+      $orgIdentityId = $this->Identifier->field('org_identity_id', array('id' => $this->request->params['pass'][0]));
+      
+      if($orgIdentityId) {
+        $readOnly = $this->Identifier->OrgIdentity->readOnly($orgIdentityId);
+      } else {
+        $readOnly = (bool)$this->Identifier->field('source_identifier_id', array('id' => $this->request->params['pass'][0]));
+      }
+      
+      if($readOnly) {
+        // Proactively redirect to view. This will also prevent (eg) the REST API
+        // from editing a read only record.
+        $args = array(
+          'controller' => 'identifiers',
+          'action'     => 'view',
+          Sanitize::html($this->request->params['pass'][0])
+        );
+        
+        $this->redirect($args);
+      }
+    }
     
     // In order to manipulate an identifier, the authenticated user must have permission
     // over the associated Org Identity or CO Person. For add action, we accept

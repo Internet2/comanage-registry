@@ -551,16 +551,15 @@ class CoPipeline extends AppModel {
     
     // Next handle associated models
 // XXX Implement Name
-// XXX TelephoneNumber and Address should be done only if(create_role)
 // XXX Make sure source_model_id is defined in each model and add appropriate associations (and indexes)
     
     // Supported associated models and their parent relation
     $models = array(
-      //'Address'      => 'co_person_role_id',
+      'Address'      => 'co_person_role_id',
       'EmailAddress' => 'co_person_id',
       'Identifier'   => 'co_person_id',
       //'Name'         => 'co_person_id', // XXX Handle primary name specially?
-      //'TelephoneNumber' => 'co_person_role_id'
+      'TelephoneNumber' => 'co_person_role_id'
     );
     
     foreach($models as $m => $pkey) {
@@ -577,6 +576,12 @@ class CoPipeline extends AppModel {
         $pval = $coPersonId;
         $model = $this->Co->CoPerson->$m;
       } elseif($pkey == 'co_person_role_id') {
+        // We only process role related attributes if we have a role ID,
+        // which implies create_role is true.
+        
+        if(!$coPersonRoleId)
+          continue;
+        
         $pval = $coPersonRoleId;
         $model = $this->Co->CoPerson->CoPersonRole->$m;
       }

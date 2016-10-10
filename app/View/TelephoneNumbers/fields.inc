@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Telephone Number Fields
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -34,20 +34,33 @@
     return(false);
 
   $idForBreadcrumbs = '';
+  $idType = null;
 
   // Migrate the target person from a named argument to a form field
-  if(isset($this->request->params['named']['copersonroleid'])) {
-    print $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->params['named']['copersonroleid']))) . "\n";
+  if($this->action == 'add' && isset($this->request->params['named']['copersonroleid'])) {
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonroleid']);
+    $idType = 'role';
   } elseif(isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
-    print $this->Form->hidden('co_person_role_id', array('default' => Sanitize::html($this->request->data['TelephoneNumber']['co_person_role_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['TelephoneNumber']['co_person_role_id']);
-  } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
+    $idType = 'role';
+  } elseif(!empty($telephone_numbers[0]['TelephoneNumber']['co_person_role_id'])) {
+    $idForBreadcrumbs = $telephone_numbers[0]['TelephoneNumber']['co_person_role_id'];
+    $idType = 'role';
+  } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idType = 'org';
   } elseif(isset($this->request->data['TelephoneNumber']['org_identity_id'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['TelephoneNumber']['org_identity_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['TelephoneNumber']['org_identity_id']);
+    $idType = 'org';
+  } elseif(!empty($telephone_numbers[0]['TelephoneNumber']['org_identity_id'])) {
+    $idForBreadcrumbs = $telephone_numbers[0]['TelephoneNumber']['org_identity_id'];
+    $idType = 'org';
+  }
+  
+  if($idType == 'org') {
+    print $this->Form->hidden('org_identity_id', array('default' => $idForBreadcrumbs)) . "\n";
+  } elseif($idType == 'role') {
+    print $this->Form->hidden('co_person_role_id', array('default' => $idForBreadcrumbs)) . "\n";
   }
 
   if(isset($this->params['named']['co']))
@@ -55,7 +68,7 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  if(isset($this->request->params['named']['copersonroleid']) || isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
+  if($idType == 'role') {
     // CO Person History
     $args = array();
     $args['plugin'] = null;
@@ -69,7 +82,7 @@
       'action' => 'edit',
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.co_person_roles.1'), $args);
-  } elseif(isset($this->request->params['named']['orgidentityid']) || isset($this->request->data['TelephoneNumber']['org_identity_id'])) {
+  } elseif($idType == 'org') {
     // Org ID History
     $args = array();
     $args['plugin'] = null;
@@ -149,7 +162,25 @@
         ?>
       </td>
     </tr>
-    <tr>
+    <?php if(!empty($telephone_numbers[0]['SourceTelephoneNumber']['id'])): ?>
+    <tr class="line<?php print $l % 2;$l++; ?>">
+      <td>
+        <?php print _txt('fd.source'); ?><br />
+      </td>
+      <td>
+        <?php print $this->Html->link(_txt('ct.telephone_numbers.1'),
+                                      array('controller' => 'telephone_numbers',
+                                            'action'     => 'view',
+                                            $telephone_numbers[0]['SourceTelephoneNumber']['id']));
+        ?>,
+        <?php print $this->Html->link(_txt('ct.org_identities.1'),
+                                      array('controller' => 'org_identities',
+                                            'action'     => 'view',
+                                            $telephone_numbers[0]['SourceTelephoneNumber']['org_identity_id']));
+        ?>
+      </td>
+    </tr>
+    <?php endif; // source id ?>    <tr>
       <td>
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </td>

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Telephone Number Model
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -40,14 +40,19 @@ class TelephoneNumber extends AppModel {
     // A telephone number may be attached to a CO Person Role
     "CoPersonRole",
     // A telephone number may be attached to an Org Identity
-    "OrgIdentity"
+    "OrgIdentity",
+    // A telephone number created from a Pipeline has a Source Telephone Number
+    "SourceTelephoneNumber" => array(
+      'className' => 'TelephoneNumber',
+      'foreignKey' => 'source_telephone_number_id'
+    )
   );
   
   // Default display field for cake generated views
   public $displayField = "number";
   
   // Default ordering for find operations
-  public $order = array("number");
+//  public $order = array("number");
   
   // Validation rules for table elements
   // Validation rules must be named 'content' for petition dynamic rule adjustment

@@ -26,6 +26,7 @@
   $model = $this->name;
   $req = Inflector::singularize($model);
   $modelpl = Inflector::tableize($req);
+  $modelu = Inflector::underscore($req);
   
   // Get a pointer to our data
   $d = $$modelpl;
@@ -48,17 +49,16 @@
 
     $a = array('controller' => $modelpl, 'action' => $editAction, $d[0][$req]['id']);
 
-    if(isset($this->params['named']['co'])) {
-      $a['co'] = $this->params['named']['co'];
+    if(empty($d[0]['OrgIdentity']['OrgIdentitySourceRecord']['id'])
+       && empty($d[0][$req]['source_'.$modelu.'_id'])) {
+      // Add edit button to the top links, except for attributes attached to
+      // an Org Identity that came from an Org Identity Source.
+      $params['topLinks'][] = $this->Html->link(
+        _txt('op.edit'),
+        $a,
+        array('class' => 'editbutton')
+      );
     }
-
-    // Add edit button to the top links
-    $params['topLinks'][] = $this->Html->link(
-      _txt('op.edit'),
-      $a,
-      array('class' => 'editbutton')
-    );
-
   }
 
   // Add locally configured page buttons
@@ -75,7 +75,25 @@
   }
 
   print $this->element("pageTitleAndButtons", $params);
-
+?>
+<?php if(!empty($d[0]['OrgIdentity']['OrgIdentitySourceRecord']['id'])): ?>
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
+  <p>
+    <span class="ui-icon ui-icon-info co-info"></span>
+    <strong><?php print _txt('op.orgid.edit.ois'); ?></strong>
+  </p>
+</div>
+<br />
+<?php elseif(!empty($d[0][$req]['source_'.$modelu.'_id'])): ?>
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
+  <p>
+    <span class="ui-icon ui-icon-info co-info"></span>
+    <strong><?php print _txt('op.pipeline.edit.ois'); ?></strong>
+  </p>
+</div>
+<br />
+<?php endif; // readonly ?>
+<?php
   // Output the fields
   print '<div class="innerContent">';
   if(!empty($this->plugin)) {
