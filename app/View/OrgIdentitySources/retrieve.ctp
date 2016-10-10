@@ -50,7 +50,7 @@
   $args = array(
     'controller' => 'org_identity_sources',
     'plugin'     => null,
-    'action'     => 'search',
+    'action'     => 'query',
     $vv_org_identity_source['id']
   );
   

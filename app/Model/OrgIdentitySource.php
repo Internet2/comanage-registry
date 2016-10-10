@@ -256,7 +256,13 @@ class OrgIdentitySource extends AppModel {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
-    $this->OrgIdentitySourceRecord->OrgIdentity->saveAssociated($orgid);
+    $this->OrgIdentitySourceRecord->OrgIdentity->clear();
+    $this->OrgIdentitySourceRecord->OrgIdentity->id = null;
+    
+    if(!$this->OrgIdentitySourceRecord->OrgIdentity->saveAssociated($orgid, array('trustVerified' => true))) {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.db.save-a', array('OrgIdentity saveAssociated')));
+    }
     
     $orgIdentityId = $this->OrgIdentitySourceRecord->OrgIdentity->id;
     
@@ -284,6 +290,7 @@ class OrgIdentitySource extends AppModel {
       
       // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
       // provisioning just in case that changes in the future.
+      
       if($this->Co->CoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
         // Create a history record
         try {
@@ -306,7 +313,13 @@ class OrgIdentitySource extends AppModel {
     }
     
     // Invoke pipeline, if configured
-    $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId);
+    try {
+      $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId);
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
+    }
     
     // Commit
     $dbc->commit();
@@ -812,7 +825,9 @@ class OrgIdentitySource extends AppModel {
             
             $model->clear();
           
-            if(!$model->save($newrec[$m][0])) {
+            if(!$model->save($newrec[$m][0],
+                             // We honor the email verified status provided by the source
+                             ($m == 'EmailAddress' ? array('trustVerified' => true) : array()))) {
               // In this case we'll trigger the rollback early so we can end the transaction
               // and attempt to record a failure record. (The final rollback should become a no-op.)
               $dbc->rollback();
@@ -926,7 +941,7 @@ class OrgIdentitySource extends AppModel {
       throw new RuntimeException(_txt('er.pooling'));
     }
     
-    // We'll need to set of records associated with this source
+    // We'll need the set of records associated with this source
     $args = array();
     $args['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $orgIdentitySource['OrgIdentitySource']['id'];
     $args['contain'] = false;
@@ -968,6 +983,7 @@ class OrgIdentitySource extends AppModel {
           $resCnt[ $r['status'] ]++;
         }
         catch(Exception $e) {
+          // XXX we should really record this error somewhere (or does syncorgidentity do that for us?)
           $resCnt['error']++;
         }
       }

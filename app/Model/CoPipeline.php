@@ -718,8 +718,12 @@ class CoPipeline extends AppModel {
         
         // For identifiers and email addresses, we want to skip availability checking
         // since we might be writing multiple versions of the same attribute (from
-        // different org identity sources).
-        if(!$model->save($nr, array("provision" => false, "skipAvailability" => true))) {
+        // different org identity sources). For email addresses, we also want to honor
+        // the verified status.
+        
+        if(!$model->save($nr, array("provision" => false,
+                                    "skipAvailability" => true,
+                                    "trustVerified" => true))) {
           throw new RuntimeException(_txt('er.db.save-a', array($m)));
         }
         
@@ -895,8 +899,18 @@ class CoPipeline extends AppModel {
     
       // Trigger provisioning
       
+      // In typical cases, manualProvision will not generate an exception since
+      // ProvisionerBehavior::provisionPeople/Groups will suppress them. But there
+      // are some theoretical circumstances that can generate an exception, and
+      // we don't want to fail the entire operation due to a provisioner error.
       $this->Co->CoPerson->Behaviors->load('Provisioner');
-      $this->Co->CoPerson->manualProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPipelineProvisioned);
+      
+      try {
+        $this->Co->CoPerson->manualProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPipelineProvisioned);
+      }
+      catch(Exception $e) {
+        // XXX we should probably log this somehow
+      }
     }
     
     return true;
