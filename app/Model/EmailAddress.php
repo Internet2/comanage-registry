@@ -81,7 +81,9 @@ class EmailAddress extends AppModel {
                               'default' => array(EmailAddressEnum::Delivery,
                                                  EmailAddressEnum::Forwarding,
                                                  EmailAddressEnum::Official,
-                                                 EmailAddressEnum::Personal))),
+                                                 EmailAddressEnum::Personal,
+                                                 EmailAddressEnum::Preferred,
+                                                 EmailAddressEnum::Recovery))),
         'required' => false,
         'allowEmpty' => false
       )

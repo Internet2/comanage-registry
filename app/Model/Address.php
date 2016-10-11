@@ -101,7 +101,8 @@ class Address extends AppModel {
       'content' => array(
         'rule' => array('validateExtendedType',
                         array('attribute' => 'Address.type',
-                              'default' => array(ContactEnum::Home,
+                              'default' => array(ContactEnum::Campus,
+                                                 ContactEnum::Home,
                                                  ContactEnum::Office,
                                                  ContactEnum::Postal))),
         'required' => false,

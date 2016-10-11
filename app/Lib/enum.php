@@ -145,12 +145,13 @@ class ComparisonEnum
 
 class ContactEnum
 {
+  const Campus      = 'campus';
   const Fax         = 'fax';
+  const Forwarding  = 'forwarding';
   const Home        = 'home';
   const Mobile      = 'mobile';
   const Office      = 'office';
   const Postal      = 'postal';
-  const Forwarding  = 'forwarding';
 }
 
 class ElectStrategyEnum {
@@ -163,6 +164,8 @@ class EmailAddressEnum {
   const Forwarding    = 'forwarding';
   const Official      = 'official';
   const Personal      = 'personal';
+  const Preferred     = 'preferred';
+  const Recovery      = 'recovery';
 }
 
 class EnrollmentAuthzEnum {
@@ -236,12 +239,18 @@ class IdentifierAssignmentExclusionEnum
 
 class IdentifierEnum
 {
-  const ePPN    = 'eppn';
-  const ePTID   = 'eptid';
-  const Mail    = 'mail';
-  const OpenID  = 'openid';
-  const ORCID   = 'orcid';
-  const UID     = 'uid';
+  const Badge      = 'badge';
+  const Enterprise = 'enterprise';
+  const ePPN       = 'eppn';
+  const ePTID      = 'eptid';
+  const Mail       = 'mail';
+  const National   = 'national';
+  const Network    = 'network';
+  const OpenID     = 'openid';
+  const ORCID      = 'orcid';
+  const Reference  = 'reference';
+  const SORID      = 'sorid';
+  const UID        = 'uid';
 }
 
 class JobStatusEnum

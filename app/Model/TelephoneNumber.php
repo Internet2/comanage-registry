@@ -90,7 +90,8 @@ class TelephoneNumber extends AppModel {
       'content' => array(
         'rule' => array('validateExtendedType',
                         array('attribute' => 'TelephoneNumber.type',
-                              'default' => array(ContactEnum::Fax,
+                              'default' => array(ContactEnum::Campus,
+                                                 ContactEnum::Fax,
                                                  ContactEnum::Home,
                                                  ContactEnum::Mobile,
                                                  ContactEnum::Office))),

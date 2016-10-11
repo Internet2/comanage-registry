@@ -316,7 +316,8 @@ original notification at
   ),
 
   // Extended type, key must be en.model.attribute
-  'en.address.type' =>  array(ContactEnum::Home => 'Home',
+  'en.address.type' =>  array(ContactEnum::Campus => 'Campus',
+                              ContactEnum::Home => 'Home',
                               ContactEnum::Office => 'Office',
                               ContactEnum::Postal => 'Postal',
                               ContactEnum::Forwarding => 'Forwarding'),
@@ -401,7 +402,9 @@ original notification at
     EmailAddressEnum::Delivery => 'Delivery',
     EmailAddressEnum::Forwarding => 'Forwarding',
     EmailAddressEnum::Official => 'Official',
-    EmailAddressEnum::Personal => 'Personal'
+    EmailAddressEnum::Personal => 'Personal',
+    EmailAddressEnum::Preferred => 'Preferred',
+    EmailAddressEnum::Recovery => 'Recovery'
   ),
   
   'en.enrollment.authz' => array(
@@ -453,11 +456,17 @@ original notification at
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
 
   // Extended type, key must be en.model.attribute
-  'en.identifier.type' =>  array(IdentifierEnum::ePPN => 'ePPN',
+  'en.identifier.type' =>  array(IdentifierEnum::Badge => 'Badge',
+                                 IdentifierEnum::Enterprise => 'Enterprise',
+                                 IdentifierEnum::ePPN => 'ePPN',
                                  IdentifierEnum::ePTID => 'ePTID',
                                  IdentifierEnum::Mail => 'Mail',
+                                 IdentifierEnum::National => 'National',
+                                 IdentifierEnum::Network => 'Network',
                                  IdentifierEnum::OpenID => 'OpenID',
-                                 IdentifierEnum::ORCID => 'ORCID ID',
+                                 IdentifierEnum::ORCID => 'ORCID',
+                                 IdentifierEnum::Reference => 'Match Reference',
+                                 IdentifierEnum::SORID => 'System of Record ID',
                                  IdentifierEnum::UID => 'UID'),
   
   // As a moderately arbitrary decision, the languages listed here those with at least
@@ -695,7 +704,8 @@ original notification at
   ),
 
   // Extended type, key must be en.model.attribute
-  'en.telephone_number.type' => array(ContactEnum::Fax => 'Fax',
+  'en.telephone_number.type' => array(ContactEnum::Campus => 'Campus',
+                                      ContactEnum::Fax => 'Fax',
                                       ContactEnum::Home => 'Home',
                                       ContactEnum::Mobile => 'Mobile',
                                       ContactEnum::Office => 'Office'),
@@ -818,6 +828,7 @@ original notification at
   'er.ois.search.none' => 'No searchable backends were found',
   'er.ois.search.mail.none' => 'No records were found matching the email address "%1$s"',
   'er.ois.sync.full.inventory' => 'OIS backend is configured for full sync, but backend does not support inventory() call',
+  'er.ois.val.name' => 'Backend did not provide a valid Primary Name',
   'er.orgp.nomail' => '%1$s (Org Identity %2$s) has no known email address.<br />Add an email address and then try again.',
   'er.orgp.pool' =>   'Failed to pool organizational identities',
   'er.orgp.unk-a' =>  'Unknown Org Identity "%1$s"',
@@ -1441,6 +1452,7 @@ original notification at
   'op.petition.dupe' => 'Flag Petition as Duplicate',
   'op.petition.dupe.confirm' => 'Are you sure you wish to flag this petition as a duplicate?',
   'op.petition.nextstep' => 'Initiating %1$s step, please wait...',
+  'op.pipeline.edit.ois' => 'This record was created from an Organizational Identity and therefore cannot be edited',
   'op.pipeline.rerun' => 'Rerun Pipeline',
   'op.pipeline.rerun.form' => 'Select the sync action to run the pipeline for. Note the corresponding sync strategy action must be enabled for the pipeline.',
   'op.pool' =>        'Pool',
