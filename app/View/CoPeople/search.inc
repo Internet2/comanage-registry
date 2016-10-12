@@ -47,7 +47,7 @@ global $cm_lang, $cm_texts;
 
     $( "#top-search-toggle").click(function() {
       $("#top-search-fields").toggle();
-      var searchFieldsAreOpen = $("#top-search-fields").is(':visible')
+      var searchFieldsAreOpen = $("#top-search-fields").is(':visible');
       Cookies.set('comanage-top-search-fields-visible', searchFieldsAreOpen);
       if (searchFieldsAreOpen) {
         $("#coPeopleSearch").addClass('open');
@@ -149,11 +149,10 @@ global $cm_lang, $cm_texts;
       <div class="topSearchSubmit">
         <?php
         $args = array();
-        $args['type'] = 'button';
+        //$args['type'] = 'button';
 
         // search button (submit)
-        $args = array();
-        $args['tabindex'] = '7';
+        $args['tabindex'] = '8';
         $args['aria-label'] = _txt('op.search');
         $args['class'] = 'submit-button spin mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect';
         print $this->Form->submit(_txt('op.search'),$args);
@@ -162,7 +161,7 @@ global $cm_lang, $cm_texts;
         $args['class'] = 'clear-button spin mdl-button';
         $args['aria-label'] = _txt('op.clear.all');
         $args['onclick'] = 'clearSearch(this.form)';
-        $args['tabindex'] = '8';
+        $args['tabindex'] = '7';
         print $this->Form->button(_txt('op.clear.all'),$args);
         ?>
       </div>

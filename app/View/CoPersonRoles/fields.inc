@@ -471,8 +471,6 @@
                   <?php
                   if($e && !$es) {
                     print $this->Form->submit($submit_label);
-                    print $this->Form->button(_txt('op.reset'),
-                      array('type'=>'reset'));
                   }
                   ?>
                 </td>

@@ -76,6 +76,24 @@
   #content {
     padding: 1em;
   }
+  #dialog-review {
+    height: 500px !important; /* mobile size */
+  }
+  /* CO PEOPLE */
+  #co_people .rolestatus {
+    float: right !important;
+    margin: 5px 9px 5px 5px;
+    padding: 0;
+    background-color: transparent;
+    color: #222;
+  }
+  #co_people .roleTitleLinks {
+    margin: 0 1em 0 0;
+    float: none;
+  }
+  #co_people .person-admin button {
+    display: inline;
+  }
   footer {
     text-align: right;
     padding: 1em 2em;
@@ -127,6 +145,9 @@
     position: relative;
     z-index: 20;
     background-color: white;
+  }
+  #main.mdl-layout__content {
+    overflow-x: visible;
   }
   body.title-hidden .mdl-layout__content {
     margin-top: 0;
@@ -233,6 +254,9 @@
     float: right;
     width: 70%;
   }
+  #dialog-review {
+    height: auto !important; /* desktop size */
+  }
   /* MATCHABLE INFO BOX */
   .co-info-matchable {
     float: right;
@@ -271,9 +295,6 @@
   #co_people .person-status {
     float: left;
     width: 100px;
-  }
-  #co_people .person-admin button {
-    display: inline;
   }
 }
 

@@ -100,8 +100,6 @@
       </style>
     <?php endif; ?>
   </head>
-  <body class="redirect">
-
   <?php
     $bodyClasses = $this->params->controller . ' ' . $this->params->action;
     if($this->Session->check('Auth.User') != NULL) {
@@ -125,7 +123,7 @@
       $bodyClasses .=  ' footer-hidden';
     }
   ?>
-  <body class="<?php print $bodyClasses ?>" onload="js_onload_call_hooks()">
+  <body class="redirect <?php print $bodyClasses ?>">
     <div id="skip-to-content-box">
       <a href="#content-start" id="skip-to-content">Skip to main content.</a>
     </div>      

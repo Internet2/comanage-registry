@@ -341,6 +341,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
         <span class="clearfix"/>
       </div>
       <div class = "role-panel">
+        <div class="roles-title"><?php print _txt('fd.roles'); ?></div>
         <div class="roles">
           <?php
             foreach ($p['CoPersonRole'] as $pr) {

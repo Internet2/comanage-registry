@@ -64,9 +64,10 @@
                                       $(this).dialog("close");
                                     }
                                   });
-    
+
     // Open dialog
     $("#dialog-review").dialog("open");
+
     
     <?php if($tandc && $vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
     // Enable the checkbox
@@ -530,7 +531,7 @@
         <?php foreach($vv_terms_and_conditions as $t): ?>
           <li class="line<?php print ($l % 2); $l++; ?>">
               <strong><?php print $t['CoTermsAndConditions']['description']; ?></strong><br/>
-              <button class="checkbutton"
+              <button class="checkbutton spin"
                       type="button"
                       onClick="open_tandc('<?php print addslashes($t['CoTermsAndConditions']['description']); ?>',
                         '<?php print addslashes($t['CoTermsAndConditions']['url']); ?>',
@@ -588,9 +589,8 @@
       <?php
         if($e) {
           print $this->Form->submit(_txt('op.submit'),
-            array('class'=>'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
-          //print $this->Form->button(_txt('op.reset'),
-          //  array('type'=>'reset','class'=>'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+            array('class'=>'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect')
+          );
         }
       ?>
     </div>

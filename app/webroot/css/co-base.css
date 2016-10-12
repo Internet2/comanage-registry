@@ -31,6 +31,7 @@ html * {
 }
 body {
   color: #222;
+  -webkit-overflow-scrolling: touch; /* for dialog boxes */
 }
 h1,h2,h3,h4,h5 {
   font-family: 'Noto Sans Bold','Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
@@ -64,6 +65,10 @@ a {
 }
 #main a.mdl-button:hover {
   background-color: #f2f2f2;
+}
+#main a.ui-widget:active,
+#main a.ui-widget:hover {
+  text-decoration: none;
 }
 /* ACCESSIBLE SKIP LINK */
 #skip-to-content-box {
@@ -413,6 +418,13 @@ body.co_people.canvas #titleNavContainer {
   padding: 10px;
   border: 1px solid #ddd;
 }
+#right-sidebar #menu {
+  padding-left: 1em;
+}
+#right-sidebar #menu .ui-icon {
+  float: left;
+  margin: 4px 4px 0 0;
+}
 /* REDIRECT PAGE */
 #redirect-box {
   background-color: #f5f5f5;
@@ -605,9 +617,21 @@ body.petitionerAttributes td {
   display: inline-block;
   margin: 0.25em 0.5em 0 0;
   color: #222;
+  white-space: nowrap;
 }
-#statusFilters .submit {
+#statusFilters input {
+  margin: 1px 4px 0;
+}
+#statusFilters label {
+  vertical-align: top;
+}
+#statusFilters .submit-button {
   float: right;
+  font-size: 0.9em;
+  height: 28px;
+  line-height: 28px;
+  margin: 0;
+  width: 80px;
 }
 #statusfilter {
   overflow: hidden;
@@ -645,6 +669,19 @@ body.co_petitions .deny-button {
 }
 body.co_petitions .deny-button:hover {
   background-color: #d44;
+}
+/* for T&Cs */
+.tc-checkbox-and-label {
+  white-space: nowrap;
+}
+body.co_petitions .ui-dialog {
+  left: 15% !important;
+  top: 10% !important;
+  width: 70% !important;
+  padding: 0;
+}
+#dialog-review {
+  height: 270px !important; /* mobile size */
 }
 /* Pagination */
 #pagination {
@@ -736,6 +773,7 @@ body.co_petitions .deny-button:hover {
 #peopleAlphabet a:hover {
   background-color: #ffe;
   color: #333;
+  text-decoration: none;
 }
 /* PEOPLE LISTING */
 #co_people {
@@ -754,9 +792,6 @@ body.co_petitions .deny-button:hover {
   position: relative;
   width: 100%;
 }
-#co_people .roleTitleLinks {
-  margin-right: 1em;
-}
 #noResults {
   margin: 1.5em 0 0 0;
   font-size: 1.2em;
@@ -766,6 +801,9 @@ body.co_petitions .deny-button:hover {
   /* override jquery default icon positioning */
   margin-top: 0;
   top: 14px;
+}
+#co_people .ui-accordion .ui-accordion-content {
+  padding: 0;
 }
 #co_people .person-info {
   float: left;
@@ -792,23 +830,47 @@ body.co_petitions .deny-button:hover {
 #co_people .role-panel {
   margin-left: 25px;
   clear: both;
+  position: relative;
+  overflow: visible;
 }
-#co_people .roles {
-  width: 98%;
-  padding: 5px;
+#co_people .roles-title {
+  position: absolute;
+  bottom: 10px;
+  transform: rotate(-90deg);
+  z-index: 1;
+  left: -29px;
+  font-size: 0.9em;
+  color: #bbb;
+  text-transform: lowercase;
 }
 #co_people .role {
-  width: 100%;
+  padding: 2px 4px;
+}
+#co_people .role:first-child {
+  padding-top: 4px;
+}
+#co_people .role:last-child {
+  padding-bottom: 4px;
+}
+#co_people .role:nth-child(even) {
+  background-color: #f5f5f5;
 }
 #co_people .rolestatus {
-  float: right !important;
-  margin: 5px 9px 5px 5px;
+  margin: 0;
+  font-style: italic;
+  background-color: #666;
+  color: white;
+  padding: 4px;
 }
 #co_people .roledata {
   width: 100%;
 }
 #co_people .roletitle {
   width:100%;
+}
+#co_people .roleTitleLinks {
+  margin: -12px -2px 4px 0;
+  float: right;
 }
 #co_people .roledates {
   text-align: right;
@@ -912,66 +974,9 @@ a#top-search-toggle:hover {
   height: 28px;
   margin: 0.5em;
 }
-
-/*.top-search legend {
-  float: left;
-  margin: 0;
-  padding: 5px 8px 0 4px;
-  color: #666;
-}
-.top-search fieldset {
-  border: none;
-  margin: 0;
-  padding: 0;
-}
-.top-search .search-field-subgroup {
-  clear: left;
-}
-.top-search input {
-  min-width: 100%;
-}
-top-search .input {
-  float: left;
-  margin-right: 2px;
-}
-
-#orgIdSearch {
-  margin: 0.5em 0;
-  min-height: 28px;
-}
-#orgIdSearch.top-search input[type=text] {
-  width: 88%;
-}
-*/
 .top-search label {
   display: none;
 }
-/*
-.top-search select {
-  color: #777;
-  background-color: #fff;
-  width: 98%;
-  height: 24px;
-  margin: 0;
-  border: 1px solid #ddd;
-  -webkit-appearance: none;
-  -webkit-border-radius: 0px;
-  padding: 2px 4px;
-  border: 1px solid #ddd;
-
-}
-.top-search option[value=''] {
-  font-style: italic;
-}
-.top-search .submit,
-.top-search .clearButton {
-  float: right;
-}
-.top-search .ui-button {
-  font-size: 1em;
-  height: 24px;
-}
-*/
 /* FORMS */
 .required-info {
   float: left;
@@ -998,13 +1003,6 @@ top-search .input {
 .co-button .material-icons {
   font-size: 18px;
   margin-right: -8px;
-}
-/* DIALOGS */
-.ui-dialog {
-  left: 15% !important;
-  top: 10% !important;
-  width: 70% !important;
-  padding: 0;
 }
 /* GENERAL */
 .hidden,
@@ -1084,8 +1082,8 @@ th.actionButtons {
   width:70px;
 }
 /* MDL OVERRIDES */
-.mdl-layout {
-  overflow-x: auto; /* TEMPORARY allows overlarge tables to be accessed on small screens */
+#main.mdl-layout__content {
+  overflow-x: auto; /* allow side scrolling on mobile */
 }
 .mdl-button.mdl-button--colored {
   background-color: #53B1F4;
