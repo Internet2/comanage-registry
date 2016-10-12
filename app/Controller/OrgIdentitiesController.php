@@ -438,6 +438,7 @@ class OrgIdentitiesController extends StandardController {
     
     // Is this a read only record? True if it has an OrgIdentity Source Record.
     // As of the initial implementation, not even CMP admins can edit such a record.
+    $readOnly = false;
     
     if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
       $readOnly = $this->OrgIdentity->readOnly($this->request->params['pass'][0]);
