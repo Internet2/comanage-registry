@@ -308,6 +308,9 @@
   #co_people .person-status {
     width: 150px;
   }
+  #right-sidebar #menu {
+    padding-left: 1em;
+  }
 }
 
 /* MDL override */

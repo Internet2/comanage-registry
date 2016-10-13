@@ -296,10 +296,10 @@
       event.preventDefault();
       $(this).next(".fields").slideToggle("fast");
       // toggle the +/- icon:
-      if ($(this).find(".ui-icon").hasClass("ui-icon-circlesmall-minus")) {
-        $(this).find(".ui-icon").removeClass("ui-icon-circlesmall-minus").addClass("ui-icon-circlesmall-plus");
+      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
+        $(this).find(".material-icons").text("add_box");
       } else {
-        $(this).find(".ui-icon").removeClass("ui-icon-circlesmall-plus").addClass("ui-icon-circlesmall-minus");
+        $(this).find(".material-icons").text("indeterminate_check_box");
       }
     });
 
@@ -357,7 +357,7 @@
         <?php endif; // invite+permission ?>
 
         <a href="#tabs-name" class="fieldGroupName">
-          <span class="ui-icon ui-icon-circlesmall-minus"></span>
+          <i class="material-icons">indeterminate_check_box</i>
           <?php print _txt('fd.name'); ?>
         </a>
 
@@ -613,7 +613,7 @@
             }
           ?>
           <a href="#tabs-id" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.ids'); ?>
           </a>
           <ul class="fields">
@@ -744,7 +744,7 @@
             }
           ?>
           <a href="#tabs-email" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.email_address.mail'); ?>
           </a>
           <ul class="fields">
@@ -875,7 +875,7 @@
           }
           ?>
           <a href="#tabs-group" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span> 
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.groups'); ?>
           </a>
           <ul class="fields">
@@ -956,7 +956,7 @@
             print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
           ?>
           <a href="#tabs-coperson" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.attrs.cop'); ?>
           </a>
           <ul class="fields">
@@ -1086,7 +1086,7 @@
             }
           ?>
           <a href="#tabs-role" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span> 
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.attrs.copr'); ?>
           </a>
           <ul class="fields">
@@ -1249,7 +1249,7 @@
             }
           ?>
           <a href="#tabs-sshkeys" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('ct.ssh_keys.pl'); ?>
           </a>
           <ul class="fields">
@@ -1335,7 +1335,7 @@
             }
           ?>
           <a href="#tabs-orgid" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('ct.org_identities.pl'); ?>
           </a>
           <ul class="fields">
