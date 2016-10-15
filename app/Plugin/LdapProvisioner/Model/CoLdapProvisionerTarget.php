@@ -692,6 +692,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $person   = false;
     $group    = false;
     
+    if(!empty($provisioningData['CoGroup']['id'])) {
+      $group = true;
+    }
+    
+    if(!empty($provisioningData['CoPerson']['id'])) {
+      $person = true;
+    }
+    
     switch($op) {
       case ProvisioningActionEnum::CoPersonAdded:
       case ProvisioningActionEnum::CoPersonPetitionProvisioned:
@@ -701,7 +709,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $assigndn = true;
         $delete = true;  // Need to delete on provision in case of duplicate merge on enrollment
         $add = true;
-        $person = true;
         break;
       case ProvisioningActionEnum::CoPersonDeleted:
         // Because of the complexity of how related models are deleted and the
@@ -716,7 +723,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
         $assigndn = true;
         $modify = true;
-        $person = true;
         break;
       case ProvisioningActionEnum::CoPersonExpired:
       case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
@@ -738,13 +744,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           $assigndn = true;  
           $modify = true;
         }
-        $person = true;
         break;
       case ProvisioningActionEnum::CoGroupAdded:
         $assigndn = true;
         $delete = false;  // Arguably, this should be true to clear out any prior debris
         $add = true;
-        $group = true;
         break;
       case ProvisioningActionEnum::CoGroupDeleted:
         $delete = true;
@@ -754,13 +758,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoGroupUpdated:
         $assigndn = true;
         $modify = true;
-        $group = true;
         break;
       case ProvisioningActionEnum::CoGroupReprovisionRequested:
         $assigndn = true;
         $delete = true;
         $add = true;
-        $group = true;
         break;
       default:
         throw new RuntimeException("Not Implemented");

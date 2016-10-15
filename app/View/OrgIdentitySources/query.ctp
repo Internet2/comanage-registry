@@ -138,8 +138,10 @@
             $retrieveUrl['copetitionid'] = Sanitize::html($this->request->params['named']['copetitionid']);
           }
           
+          // We could walk the set of names to look for primary, but it's easier
+          // to just pick the first (and that will be sufficient in almost all cases).
           print $this->Html->link(
-            generateCn($o['PrimaryName']),
+            generateCn($o['Name'][0]),
             $retrieveUrl
           );
         ?>

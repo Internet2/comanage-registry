@@ -323,13 +323,13 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
     if(!empty($result->ind_title))
       $orgdata['OrgIdentity']['title'] = (string)$result->ind_title;
     
-    $orgdata['PrimaryName'] = array();
+    $orgdata['Name'] = array();
     if(!empty($result->ind_first_name))
-      $orgdata['PrimaryName']['given'] = (string)$result->ind_first_name;
+      $orgdata['Name'][0]['given'] = (string)$result->ind_first_name;
     if(!empty($result->ind_last_name))
-      $orgdata['PrimaryName']['family'] = (string)$result->ind_last_name;
-    $orgdata['PrimaryName']['primary_name'] = true;
-    $orgdata['PrimaryName']['type'] = NameEnum::Official;
+      $orgdata['Name'][0]['family'] = (string)$result->ind_last_name;
+    $orgdata['Name'][0]['primary_name'] = true;
+    $orgdata['Name'][0]['type'] = NameEnum::Official;
 
     $orgdata['EmailAddress'] = array();
     

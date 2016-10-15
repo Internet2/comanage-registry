@@ -47,6 +47,7 @@ class CoPersonRolesController extends StandardController {
 
   public $edit_contains = array(
     'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
+    'CoPerson', // Used to check status recalculation on save
     'SponsorCoPerson' => array('PrimaryName'),
     'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
   );
@@ -386,20 +387,21 @@ class CoPersonRolesController extends StandardController {
       $this->generateHistory('x'.$this->action, array_merge($reqdata, $d), $curdata);
     }
     
-    // If the role status changed, recalculate the overall person status
-    
+    // If the role status changed, check to see if the overall person status changed.
+    // CoPersonRole::afterSave will do the actual recalculation, but we still want to
+    // set a flash message.
+
     if(!empty($reqdata['CoPersonRole']['status'])
        && !empty($curdata['CoPersonRole']['status'])
-       && $reqdata['CoPersonRole']['status'] != $curdata['CoPersonRole']['status']) {
-      // This could arguably go in CoPersonRole::afterSave, but it's a lot easier here
-      // since we already have old and new state
-      $newStatus = $this->CoPersonRole->CoPerson->recalculateStatus($reqdata['CoPersonRole']['co_person_id']);
-      
-      if($newStatus != $reqdata['CoPerson']['status']) {
-        $this->Flash->set(_txt('rs.cop.recalc',
-                               array(_txt('en.status', null, $newStatus))),
-                          array('key' => 'information'));
-      }
+       && $reqdata['CoPersonRole']['status'] != $curdata['CoPersonRole']['status']
+       && !empty($reqdata['CoPerson']['status'])
+       && !empty($curdata['CoPerson']['status'])
+       && $reqdata['CoPerson']['status'] != $curdata['CoPerson']['status']) {
+      // It seems like we would want to render $curdata, but confusingly StandardController rereads
+      // the current record and passes it via $reqdata after the save.
+      $this->Flash->set(_txt('rs.cop.recalc',
+                             array(_txt('en.status', null, $reqdata['CoPerson']['status']))),
+                        array('key' => 'information'));
     }
     
     if(isset($reqdata['CoPersonRole']['status'])

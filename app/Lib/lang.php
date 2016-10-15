@@ -1315,6 +1315,7 @@ original notification at
   'in.orgid.co'        => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
   'in.orgid.ois'       => 'This is the current record available directly from the source. To view the latest record retrieved and cached by Registry, click <i>View Organizational Identity Source Record</i>.',
+  'in.orgid.ois.notfound' => 'The requested key was not found in the source. If an Organizational Identity was already created using this key, the source may have deleted or expired its record.',
   'in.orgid.oisr'      => 'This is the latest record retrieved from the source, as cached by Registry. To view the current record directly from the source, click <i>View Organizational Identity Source</i>.',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
 
@@ -1565,6 +1566,7 @@ original notification at
   'rs.org.src.unchanged' => 'Source record is unchanged, no changes were processed',
   'rs.pi.match' =>    'Org Identity matched to CO Person via Pipeline %1$s (%2$s) match strategy %3$s',
   'rs.pi.ok' =>       'Pipeline executed successfully',
+  'rs.pi.role.status' => 'Updated role status to %1$s due to removal of source record',
   'rs.pi.sync-a' =>   '%1$s synced from Org Identity via Pipeline %2$s (%3$s)',
   'rs.prov-a' =>      'Provisioned %1$s',
   'rs.prov.inel.grmem' => 'Ineligible: Not a member of provisioning group',

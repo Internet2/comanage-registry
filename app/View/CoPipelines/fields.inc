@@ -381,28 +381,28 @@
         <tr class="line1">
           <td>
             <strong class="fieldTitle">
-              <?php print ($e ? $this->Form->label('CoPipeline.status_on_delete', _txt('fd.pi.sync.del.stat')) : _txt('fd.pi.sync.del.stat')); ?>
+              <?php print ($e ? $this->Form->label('CoPipeline.sync_status_on_delete', _txt('fd.pi.sync.del.stat')) : _txt('fd.pi.sync.del.stat')); ?>
             </strong><br />
             <span class="descr"><?php print _txt('fd.pi.sync.del.stat.desc'); ?></span>
           </td>
           <td>
             <?php
               $attrs = array();
-              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['status_on_delete'])
-                                 ? $co_pipelines[0]['CoPipeline']['status_on_delete']
+              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_status_on_delete'])
+                                 ? $co_pipelines[0]['CoPipeline']['sync_status_on_delete']
                                  : StatusEnum::Deleted);
               $attrs['empty'] = false;
               
               if($e) {
-                print $this->Form->select('CoPipeline.status_on_delete',
+                print $this->Form->select('CoPipeline.sync_status_on_delete',
                                           $vv_delete_statuses,
                                           $attrs);
                 
-                if($this->Form->isFieldError('status_on_delete')) {
-                  print $this->Form->error('status_on_delete');
+                if($this->Form->isFieldError('sync_status_on_delete')) {
+                  print $this->Form->error('sync_status_on_delete');
                 }
               } else {
-                print $vv_delete_statuses[ $co_pipelines[0]['CoPipeline']['status_on_delete'] ];
+                print $vv_delete_statuses[ $co_pipelines[0]['CoPipeline']['sync_status_on_delete'] ];
               }
             ?>
           </td>

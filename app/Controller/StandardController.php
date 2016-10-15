@@ -563,7 +563,20 @@ class StandardController extends AppController {
 
     if($ret) {
       // Reread the data so we account for any normalizations
-      $data = $model->read();
+      if(isset($this->edit_contains)) {
+        // New style: use containable behavior
+        
+        $args = array();
+        
+        $args['conditions'][$req.'.id'] = $id;
+        $args['contain'] = $this->edit_contains;
+        
+        $data = $model->find('first', $args);
+      } else {
+        // Old style
+        
+        $data = $model->read();
+      }
       
       // Update the view var in case the controller requires the updated values
       // for performRedirect or some other post-processing.

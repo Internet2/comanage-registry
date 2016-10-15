@@ -529,10 +529,24 @@ class OrgIdentitySource extends AppModel {
   
   public function syncOrgIdentity($id, $sourceKey, $actorCoPersonId = null, $jobId = null) {
     // Pull record from source
-    $brec = $this->retrieve($id, $sourceKey);
+    $brec = null;
     
-    // This will throw an exception if invalid
-    $this->validateOISRecord($brec);
+    try {
+      $brec = $this->retrieve($id, $sourceKey);
+    }
+    catch(InvalidArgumentException $e) {
+      // The record is no longer available in the source
+    }
+    catch(Exception $e) {
+      // Rethrow the exception
+      throw new RuntimeException($e->getMessage());
+    }
+    
+    if($brec) {
+      // If we got a record, check that it is valid.
+      // This will throw an exception if invalid.
+      $this->validateOISRecord($brec);
+    }
     
     // Start a transaction
     $dbc = $this->getDataSource();
@@ -558,7 +572,6 @@ class OrgIdentitySource extends AppModel {
         'EmailAddress',
         'Identifier',
         'Name',
-        'PrimaryName',
         'TelephoneNumber'
       );
       
@@ -727,14 +740,14 @@ class OrgIdentitySource extends AppModel {
         );
         
         foreach($models as $m) {
-          // Model key used by changelog, eg identifier_id
-          $mkey = Inflector::underscore($m) . '_id';
-          // Model in pluralized format, eg email_addresses
-          $mpl = Inflector::tableize($m);
-          // Model (singular) in localized text string
-          $mlang = _txt('ct.' . $mpl . '.1');
           // Pointer to model $m describes (eg $Identifier)
           $model = $this->OrgIdentitySourceRecord->OrgIdentity->$m;
+          // Model key used by changelog, eg identifier_id
+          $mkey = Inflector::underscore($model->name) . '_id';
+          // Model in pluralized format, eg email_addresses
+          $mpl = Inflector::tableize($model->name);
+          // Model (singular) in localized text string
+          $mlang = _txt('ct.' . $mpl . '.1');
           
           // Records obtained from the Org Identity Source
           $newRecords = isset($brec['orgidentity'][$m]) ? $brec['orgidentity'][$m] : array();
@@ -1185,7 +1198,16 @@ class OrgIdentitySource extends AppModel {
       throw new InvalidArgumentException(_txt('er.ois.noorg'));
     }
     
-    if(empty($backendRecord['orgidentity']['PrimaryName']['given'])) {
+    $primaryFound = false;
+    
+    foreach($backendRecord['orgidentity']['Name'] as $n) {
+      if(isset($n['primary_name']) && $n['primary_name']) {
+        $primaryFound = true;
+        break;
+      }
+    }
+    
+    if(!$primaryFound) {
       throw new InvalidArgumentException(_txt('er.ois.val.name'));
     }
   }

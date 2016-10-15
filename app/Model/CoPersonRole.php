@@ -186,6 +186,9 @@ class CoPersonRole extends AppModel {
     'status' => 'StatusEnum'
   );
   
+  // To detect if the role status changed
+  protected $cachedStatus = null;
+    
   /**
    * Execute logic after a CO Person Role delete operation.
    * For now manage membership of CO Person in COU members groups.
@@ -219,6 +222,16 @@ class CoPersonRole extends AppModel {
       $provision = $options['provision'];
     }
     
+    // If the role status changed, recalculate the person status
+    $curStatus = $this->field('status');
+    
+    if($this->cachedStatus != $curStatus) {
+      $coPersonId = $this->field('co_person_id');
+      
+      $this->CoPerson->recalculateStatus($coPersonId, $provision);
+    }
+    
+    // Make sure COU Group Memberships are up to date
     $this->reconcileCouMembersGroupMemberships($this->id, $this->alias, $provision);
   }
   
@@ -229,6 +242,9 @@ class CoPersonRole extends AppModel {
    */
   
   public function beforeSave($options = array()) {
+    // Cache the current status
+    $this->cachedStatus = $this->field('status');
+    
     // If the validity of the role was changed, change the status appropriately
     
     if(!empty($this->data['CoPersonRole']['valid_from'])) {

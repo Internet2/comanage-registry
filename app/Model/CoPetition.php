@@ -2433,6 +2433,7 @@ class CoPetition extends AppModel {
           $this->EnrolleeCoPersonRole->id = $coPersonRoleID;
           $curCoPersonRoleStatus = $this->EnrolleeCoPersonRole->field('status');
           
+          // This will also trigger recalculation of overall CO Person status
           $this->EnrolleeCoPersonRole->saveField('status', $newCoPersonStatus, array('provision' => false));
           
           try {
@@ -2445,11 +2446,6 @@ class CoPetition extends AppModel {
                                                                _txt('en.action', null, ActionEnum::CoPersonRoleEditedPetition) . ": "
                                                                . _txt('en.status', null, $curCoPersonRoleStatus) . " > "
                                                                . _txt('en.status', null, $newCoPersonStatus));
-            
-            // Recalculate the overall CO Person status
-            if($coPersonID) {
-              $this->EnrolleeCoPerson->recalculateStatus($coPersonID, false);
-            }
           }
           catch(Exception $e) {
             $fail = true;

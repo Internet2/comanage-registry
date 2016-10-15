@@ -215,8 +215,38 @@ class CoPipeline extends AppModel {
       }
     }
     
-    if($syncAction == SyncActionEnum::Delete) {
-      // XXX Update co person/role status as configured
+    if($syncAction == SyncActionEnum::Delete
+       && !empty($pipeline['CoPipeline']['sync_status_on_delete'])) {
+      // Find the role associated with this Org Identity and update the status
+      
+      $args = array();
+      $args['conditions']['CoPersonRole.source_org_identity_id'] = $orgIdentityId;
+      $args['contain'] = false;
+      
+      $roles = $this->Co->CoPerson->CoPersonRole->find('all', $args);
+      
+      if(!empty($roles)) {
+        // There should be only one such role, but that could change over time
+        foreach($roles as $role) {
+          $roleId = $role['CoPersonRole']['id'];
+          
+          // Update the role to the specified status
+          $this->Co->CoPerson->CoPersonRole->clear();
+          $this->Co->CoPerson->CoPersonRole->id = $roleId;
+          // This will also recalculate Person status
+          $this->Co->CoPerson->CoPersonRole->saveField('status',
+                                                       $pipeline['CoPipeline']['sync_status_on_delete']);
+          
+          // Create history
+          $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                     $roleId,
+                                                     $orgIdentityId,
+                                                     $actorCoPersonId,
+                                                     ActionEnum::CoPersonRoleEditedPipeline,
+                                                     _txt('rs.pi.role.status',
+                                                          array(_txt('en.status', null, $pipeline['CoPipeline']['sync_status_on_delete']))));
+        }
+      }
     } else {
       $this->syncOrgIdentityToCoPerson($pipeline, $orgIdentity, $coPersonId, $actorCoPersonId);
     }
@@ -665,6 +695,7 @@ class CoPipeline extends AppModel {
           
           $newRecords[$id]['id'] = $curRecords[$id]['id'];
           
+          // XXX Normalized data will make a non-diff appear as a diff (CO-1336)
           $cstr = $model->changesToString(array($m => $newRecords[$id]),
                                           array($m => $curRecords[$id]));
           
@@ -682,9 +713,10 @@ class CoPipeline extends AppModel {
           } else {
             // No change, unset record to indicate not to bother saving
             unset($newRecords[$id]);
-            // And unset current record so we don't see it as a delete
-            unset($curRecords[$id]);
           }
+          
+          // Unset current record so we don't see it as a delete
+          unset($curRecords[$id]);
         } else {
           // This is an add. Cut the history diff here since we already calculated it
           // for update.
