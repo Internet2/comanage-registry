@@ -50,103 +50,112 @@
   $args = array(
     'controller' => 'org_identity_sources',
     'plugin'     => null,
-    'action'     => 'search',
+    'action'     => 'query',
     $vv_org_identity_source['id']
   );
-  
+
   $this->Html->addCrumb($vv_org_identity_source['description'], $args);
   $this->Html->addCrumb($key);
-  
+
   // Add top links
   $params['topLinks'] = array();
 
-  if(empty($vv_ois_record)) {
-    if(!empty($permissions['create']) && $permissions['create']) {
-      // Create a new Org Identity from this record. We might be in the middle
-      // of an enrollment flow, in which case we change the text label.
-      
-      $label = _txt('op.orgid.add.ois');
-      
-      $args = array(
-        'controller' => 'org_identity_sources',
-        'action'     => 'create',
-        $vv_org_identity_source['id'],
-        'key'        => $key
-      );
-      
-      if(!empty($this->request->params['named']['copetitionid'])) {
-        $label = _txt('op.orgid.petition.ois');
-        $args['copetitionid'] = Sanitize::html($this->request->params['named']['copetitionid']);
+  if(!isset($vv_not_found) || !$vv_not_found) {
+    if(empty($vv_ois_record)) {
+      if(!empty($permissions['create']) && $permissions['create']) {
+        // Create a new Org Identity from this record. We might be in the middle
+        // of an enrollment flow, in which case we change the text label.
+
+        $label = _txt('op.orgid.add.ois');
+
+        $args = array(
+          'controller' => 'org_identity_sources',
+          'action'     => 'create',
+          $vv_org_identity_source['id'],
+          'key'        => $key
+        );
+
+        if(!empty($this->request->params['named']['copetitionid'])) {
+          $label = _txt('op.orgid.petition.ois');
+          $args['copetitionid'] = Sanitize::html($this->request->params['named']['copetitionid']);
+        }
+
+        $params['topLinks'][] = $this->Html->link(
+          $label,
+          $args,
+          array('class' => 'addbutton')
+        );
       }
-      
+    } else {
+      if(!empty($permissions['view']) && $permissions['view']) {
+        // View the Org Identity for this record
+
+        $params['topLinks'][] = $this->Html->link(
+          _txt('op.view-a', array(_txt('ct.org_identities.1'))),
+          array(
+            'controller' => 'org_identities',
+            'action'     => 'view',
+            $vv_ois_record['OrgIdentitySourceRecord']['org_identity_id']
+          ),
+          array('class' => 'viewbutton')
+        );
+      }
+
+      // View Source Record button
       $params['topLinks'][] = $this->Html->link(
-        $label,
-        $args,
-        array('class' => 'addbutton')
-      );
-    }
-  } else {
-    if(!empty($permissions['view']) && $permissions['view']) {
-      // View the Org Identity for this record
-      
-      $params['topLinks'][] = $this->Html->link(
-        _txt('op.view-a', array(_txt('ct.org_identities.1'))),
+        _txt('op.view-a', array(_txt('ct.org_identity_source_records.1'))),
         array(
-          'controller' => 'org_identities',
+          'controller' => 'org_identity_source_records',
           'action'     => 'view',
-          $vv_ois_record['OrgIdentitySourceRecord']['org_identity_id']
+          $vv_ois_record['OrgIdentitySourceRecord']['id']
         ),
         array('class' => 'viewbutton')
       );
-    }
-    
-    // View Source Record button
-    $params['topLinks'][] = $this->Html->link(
-      _txt('op.view-a', array(_txt('ct.org_identity_source_records.1'))),
-      array(
-        'controller' => 'org_identity_source_records',
-        'action'     => 'view',
-        $vv_ois_record['OrgIdentitySourceRecord']['id']
-      ),
-      array('class' => 'viewbutton')
-    );
-    
-    if($vv_org_identity_source['status'] == SuspendableStatusEnum::Active
-       && !empty($permissions['sync']) && $permissions['sync']) {
-      // Resync the Org Identity for this record
-      
-      $params['topLinks'][] = $this->Html->link(
-        _txt('op.orgid.sync.ois'),
-        array(
-          'controller' => 'org_identity_sources',
-          'action'     => 'sync',
-          $vv_org_identity_source['id'],
-          'key'        => $key
-        ),
-        array('class' => 'reconcilebutton')
-      );
+
+      if($vv_org_identity_source['status'] == SuspendableStatusEnum::Active
+         && !empty($permissions['sync']) && $permissions['sync']) {
+        // Resync the Org Identity for this record
+
+        $params['topLinks'][] = $this->Html->link(
+          _txt('op.orgid.sync.ois'),
+          array(
+            'controller' => 'org_identity_sources',
+            'action'     => 'sync',
+            $vv_org_identity_source['id'],
+            'key'        => $key
+          ),
+          array('class' => 'reconcilebutton')
+        );
+      }
     }
   }
- 
+
   print $this->element("pageTitleAndButtons", $params);
- 
+
   $l = 1;
 ?>
-
-<?php if(!empty($vv_ois_record) && !empty($this->request->params['named']['copetitionid'])): ?>
+<?php if(!empty($vv_ois_record)
+         && !empty($this->request->params['named']['copetitionid'])): ?>
   <div class="co-info-topbox">
     <i class="material-icons">info</i>
     <?php print _txt('er.ois.pt.linked'); ?>
   </div>
 <?php endif; ?>
-
 <?php if(!empty($vv_ois_record['OrgIdentitySourceRecord']['org_identity_id'])): ?>
   <div class="co-info-topbox">
     <i class="material-icons">info</i>
     <?php print _txt('in.orgid.ois'); ?>
   </div>
 <?php endif; // view ?>
-
+<?php if(isset($vv_not_found) && $vv_not_found): ?>
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
+  <p>
+    <span class="ui-icon ui-icon-info co-info"></span>
+    <strong><?php print _txt('in.orgid.ois.notfound'); ?></strong>
+  </p>
+</div>
+<br />
+<?php else: // vv_not_found ?>
 <div class="innerContent">
   <table id="view_org_identity_source_record" class="ui-widget">
     <tbody>
@@ -157,7 +166,7 @@
         <td>
           <?php
             print $vv_org_identity_source['description'];
-            
+
             if($vv_org_identity_source['status'] != SuspendableStatusEnum::Active) {
               print " (" . _txt('en.status.susp', null, $vv_org_identity_source['status']) . ")";
             }
@@ -172,18 +181,17 @@
           <?php print $key; ?>
         </td>
       </tr>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.name') . " (" . _txt('fd.name.primary_name') . ", " . $vv_org_source_record['PrimaryName']['type'] . ")"; ?>
-        </td>
-        <td>
-          <?php print generateCn($vv_org_source_record['PrimaryName']); ?>
-        </td>
-      </tr>
       <?php if(!empty($vv_org_source_record['Name'])) foreach($vv_org_source_record['Name'] as $name): ?>
       <tr class="line<?php print $l++ % 2; ?>">
         <td>
-          <?php print _txt('fd.name'); ?>
+          <?php
+            print _txt('fd.name') . " (";
+
+            if(isset($name['primary_name']) && $name['primary_name'])
+              print _txt('fd.name.primary_name') . ", ";
+
+            print $name['type'] . ")";
+          ?>
         </td>
         <td>
           <?php print generateCn($name); ?>
@@ -312,3 +320,4 @@
     </tbody>
   </table>
 </div>
+<?php endif; // vv_not_found
