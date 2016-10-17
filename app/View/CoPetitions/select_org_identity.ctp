@@ -141,8 +141,6 @@
       if(!$skip_submit) {
         print '<p>';
         print $this->Form->submit($submit_label);
-        print $this->Form->button(_txt('op.reset'), 
-                                  array('type'=>'reset'));
         print '</p>';
       }
     ?>

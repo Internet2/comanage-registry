@@ -63,9 +63,6 @@ a {
 #main a.mdl-button:hover {
   text-decoration: none;
 }
-#main a.mdl-button:hover {
-  background-color: #f2f2f2;
-}
 #main a.ui-widget:active,
 #main a.ui-widget:hover {
   text-decoration: none;
@@ -447,6 +444,13 @@ body.co_people.canvas #titleNavContainer {
   padding: 1em 1em 2em;
   position: relative;
 }
+/* SELECT CO */
+#fpCoList .co-row {
+  cursor: pointer;
+}
+#fpCoList .mdl-grid.co-row:hover {
+  background-color: #eee;
+}
 /* ENROLLMENT FLOW STEPS */
 #enrollmentFlowIntro {
   clear: both;
@@ -481,7 +485,7 @@ body.co_people.canvas #titleNavContainer {
   margin-bottom: 1.2em;
   line-height: 1.4em;
   margin-left: 30px;
-  text-indent: -15px;
+  text-indent: -12px;
 }
 #enrollmentFlowSteps .material-icons {
   vertical-align: middle;
@@ -697,9 +701,15 @@ body.co_petitions .ui-dialog {
   margin: 0;
   min-height: 1.25em;
   padding: 0.5em;
+  background-color: #9FC6E2;
+  color: white;
+  text-align: center;
+}
+#pagination a {
+  color: white;
 }
 #pagination .paginationCounter {
-  float: right;
+  display: block;
   margin-right: 0.5em;
 }
 #pagination .paginationPrev {
@@ -755,7 +765,7 @@ body.co_petitions .ui-dialog {
 }
 #peopleAlphabet li {
   display: table-cell;
-  width: 3.8%;
+  width: 3.6%;
   margin: 0;
   padding: 0;
   background-color: #f5f5f5;
@@ -780,7 +790,7 @@ body.co_petitions .ui-dialog {
   color: #eee;
 }
 #peopleAlphabet a:hover {
-  background-color: #ffe;
+  background-color: #aed9f9;
   color: #333;
   text-decoration: none;
 }
@@ -864,6 +874,9 @@ body.co_petitions .ui-dialog {
 #co_people .role:nth-child(even) {
   background-color: #f5f5f5;
 }
+#co_people .roleinfo {
+  margin: 4px 0;
+}
 #co_people .rolestatus {
   margin: 0;
   font-style: italic;
@@ -878,21 +891,12 @@ body.co_petitions .ui-dialog {
   width:100%;
 }
 #co_people .roleTitleLinks {
-  margin: -12px -2px 4px 0;
-  float: right;
+  margin: 0 4px 0;
+  float: left;
 }
 #co_people .roledates {
   text-align: right;
   margin: 0 30px 0 0;
-}
-body.co_people.index #pagination {
-  padding: 0.5em;
-  background-color: #9FC6E2;
-  color: white;
-  font-weight: bold;
-}
-body.co_people.index #pagination a {
-  color: white;
 }
 /* people index jquery ui overrides */
 #co_people .person-panel {
@@ -907,7 +911,6 @@ body.co_people.index #pagination a {
 #co_people .ui-widget-content .ui-state-focus,
 #co_people .ui-widget-header .ui-state-focus {
   border: 1px solid #79b7e7;
-  /*background: #d0e5f5 url("/registry/css/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-bg_glass_75_d0e5f5_1x400.png") 50% 50% repeat-x;*/
   background-color: #d0e5f5;
   color: #1d5987;
 }
@@ -1148,9 +1151,10 @@ a#top-search-toggle:hover {
   font-size: 0.9em;
 }
 /* BUTTONS */
-.co-button .material-icons {
+#content .co-button .material-icons {
   font-size: 18px;
   margin-right: -8px;
+  padding-top: 5px;
 }
 #content .material-icons {
   font-size: 18px;
@@ -1193,6 +1197,9 @@ a.asc::before {
 }
 a.desc::before {
   content: "▼"; /*\25bc in escaped hex*/
+}
+.ui-widget-header {
+  background: #9FC6E2;
 }
 .co-grid {
   clear: both;
@@ -1241,6 +1248,12 @@ th.actionButtons {
 .mdl-button.mdl-button--colored {
   background-color: #53B1F4;
   color: white;
+}
+.mdl-button:hover {
+  background-color: #f2f2f2;
+}
+.mdl-button--colored:hover {
+  background-color: rgb(33, 150, 243);
 }
 .mdl-button--accent.mdl-button--accent.mdl-button--raised,
 .mdl-button--accent.mdl-button--accent.mdl-button--fab {

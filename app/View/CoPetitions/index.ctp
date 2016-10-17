@@ -253,12 +253,6 @@
       }
     ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="10">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
 </table>
+
+<?php print $this->element("pagination"); ?>

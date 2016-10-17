@@ -477,8 +477,6 @@
                     <?php
                     if($e) {
                       print $this->Form->submit($submit_label);
-                      print $this->Form->button(_txt('op.reset'),
-                        array('type'=>'reset'));
                     }
                     ?>
                   </td>
@@ -1055,8 +1053,6 @@
                       <td>
                         <?php
                           print $this->Form->submit($submit_label);
-                          print $this->Form->button(_txt('op.reset'),
-                                                    array('type'=>'reset'));
                         ?>
                       </td>
                     </tr>
@@ -1312,7 +1308,6 @@
                   ?>
                   </tbody>
                 </table>
-              </div>
               </div> <!-- tabs-sshkey -->
             </li>
           </ul>

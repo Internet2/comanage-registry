@@ -467,7 +467,6 @@
 
           if($this->action == 'select') {
             print $this->Form->submit(_txt('op.save'));
-            print $this->Form->button(_txt('op.reset'), array('type'=>'reset'));
           }
         ?>
       </td>

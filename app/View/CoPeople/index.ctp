@@ -162,6 +162,12 @@ if(isset($permissions['search']) && $permissions['search'] ) {
         print '<li' . $alphaStyle . '>' . $this->html->link($i,$args) . '</li>';
       }
     ?>
+    <li class="spin">
+      <a href="javascript:clearSearch(document.getElementById('CoPersonSearchForm'));"
+         title="<?php print _txt('op.clear.search'); ?>">
+        <i class="material-icons">block</i>
+      </a>
+    </li>
   </ul>
 </div>
 
@@ -435,7 +441,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                       }
                       print ")";
                     }
-
+                  print '<span class="clearfix"></span>';
                   print "</div>";  // roletitle
                 print "</div>";  // roleinfo
               print "</div>";  // role

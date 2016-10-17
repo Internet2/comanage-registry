@@ -27,28 +27,6 @@ global $cm_lang, $cm_texts;
 
 ?>
 
-<script type="text/javascript">
-  $(function() {
-    $( "#advancedSearch" ).accordion({
-      collapsible: true,
-      header: "div.accHeader"
-    });
-    // Collapse search accordian on small devices (on page load)
-    if (window.innerWidth < 992) {
-      $( "#advancedSearch" ).accordion("option","active",false);
-    }
-    // Collapse or show accordian on window resize as well
-    window.onresize = function () {
-      if (window.innerWidth > 991) {
-        $( "#advancedSearch" ).accordion("option","active",0);
-      }
-      if (window.innerWidth < 992) {
-        $( "#advancedSearch" ).accordion("option","active",false);
-      }
-    }
-  });
-</script>
-
 <div id="advancedSearch">
   <div class="accHeader"><?php print _txt('fd.co_people.search');?></div>
   <div>

@@ -144,11 +144,7 @@
           $options = array('style' => 'float:left;');
           if(!$isMembersGroup){
             print $this->Form->submit(_txt('op.save'), $options);
-
-            print $this->Form->button(_txt('op.reset'), 
-                                    array('type'=>'reset'));
-          }                                    
-          
+          }
           print $this->Form->end();
         ?>
       </td>

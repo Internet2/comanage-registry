@@ -91,8 +91,19 @@
     margin: 0 1em 0 0;
     float: none;
   }
+  #co_people .roleinfo {
+    margin: 0;
+  }
   #co_people .person-admin button {
     display: inline;
+  }
+  /* Pagination */
+  #pagination {
+    text-align: left;
+  }
+  #pagination .paginationCounter {
+    float: right;
+    margin-right: 0.5em;
   }
   footer {
     text-align: right;
@@ -278,11 +289,10 @@
   }
   .top-search .search-field-subgroup {
     float: left;
-    width: 50%;
+    width: 49%;
   }
   .search-field-subgroup:nth-child(1) {
     margin-right: 0.5em;
-    width: 49%;
   }
   .top-search .clear-button {
     float: right;

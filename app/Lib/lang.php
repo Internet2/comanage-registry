@@ -1350,6 +1350,7 @@ original notification at
   'op.begin' =>       'Begin',
   'op.cancel' =>      'Cancel',
   'op.clear.all' =>   'Clear',
+  'op.clear.search' =>   'Clear search',
   'op.compare' =>     'Compare',
   'op.config' =>      'Configure',
   'op.confirm' =>     'Confirm',

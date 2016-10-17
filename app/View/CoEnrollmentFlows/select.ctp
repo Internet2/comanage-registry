@@ -59,7 +59,7 @@
                 'coef' => $c['CoEnrollmentFlow']['id']
               ),
               array(
-                'class' => 'co-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect',
+                'class' => 'co-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect',
                 'escape' => false
               )
             ) . "\n";
@@ -88,7 +88,7 @@
                   )
                 )
               ),
-              array('class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect','escape' => false)
+              array('class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect','escape' => false)
             ) . "\n";
           }
         ?>

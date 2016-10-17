@@ -107,7 +107,7 @@
             continue;
           }
 
-          print '<div class="mdl-grid">';
+          print '<div class="mdl-grid co-row spin">';
           print '<div class="mdl-cell mdl-cell--6-col collab-name">';
           // We use $menuCoData here and not $menuCoName because the former will indicate
           // 'Not a Member' for CMP Admins (where they are not a member of the CO)
@@ -117,7 +117,7 @@
           $args['action'] = 'dashboard';
           $args['co'] = $collabMenuCoId;
 
-          print $this->Html->link($menuCoData['co_name'], $args);
+          print $this->Html->link($menuCoData['co_name'], $args, array('class' => 'co-link'));
 
           print '</div><div class="mdl-cell mdl-cell--6-col collab-desc">';
 
@@ -129,6 +129,18 @@
           print '</div></div>';
           $i++;
         }
+
+  // Allow the whole div to be clicked:
+  ?>
+  <script type="text/javascript">
+    $(function() {
+      $("#fpCoList .co-row").click(function () {
+        location.href = $(this).find(".collab-name > a.co-link").attr('href');
+      });
+    });
+  </script>
+  <?php
+
       } else {
         print '<p>' . _txt('op.home.no.collabs') .  '</p>';
       }
