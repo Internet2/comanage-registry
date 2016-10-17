@@ -215,8 +215,38 @@ class CoPipeline extends AppModel {
       }
     }
     
-    if($syncAction == SyncActionEnum::Delete) {
-      // XXX Update co person/role status as configured
+    if($syncAction == SyncActionEnum::Delete
+       && !empty($pipeline['CoPipeline']['sync_status_on_delete'])) {
+      // Find the role associated with this Org Identity and update the status
+      
+      $args = array();
+      $args['conditions']['CoPersonRole.source_org_identity_id'] = $orgIdentityId;
+      $args['contain'] = false;
+      
+      $roles = $this->Co->CoPerson->CoPersonRole->find('all', $args);
+      
+      if(!empty($roles)) {
+        // There should be only one such role, but that could change over time
+        foreach($roles as $role) {
+          $roleId = $role['CoPersonRole']['id'];
+          
+          // Update the role to the specified status
+          $this->Co->CoPerson->CoPersonRole->clear();
+          $this->Co->CoPerson->CoPersonRole->id = $roleId;
+          // This will also recalculate Person status
+          $this->Co->CoPerson->CoPersonRole->saveField('status',
+                                                       $pipeline['CoPipeline']['sync_status_on_delete']);
+          
+          // Create history
+          $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                     $roleId,
+                                                     $orgIdentityId,
+                                                     $actorCoPersonId,
+                                                     ActionEnum::CoPersonRoleEditedPipeline,
+                                                     _txt('rs.pi.role.status',
+                                                          array(_txt('en.status', null, $pipeline['CoPipeline']['sync_status_on_delete']))));
+        }
+      }
     } else {
       $this->syncOrgIdentityToCoPerson($pipeline, $orgIdentity, $coPersonId, $actorCoPersonId);
     }
@@ -551,16 +581,15 @@ class CoPipeline extends AppModel {
     
     // Next handle associated models
 // XXX Implement Name
-// XXX TelephoneNumber and Address should be done only if(create_role)
 // XXX Make sure source_model_id is defined in each model and add appropriate associations (and indexes)
     
     // Supported associated models and their parent relation
     $models = array(
-      //'Address'      => 'co_person_role_id',
+      'Address'      => 'co_person_role_id',
       'EmailAddress' => 'co_person_id',
       'Identifier'   => 'co_person_id',
       //'Name'         => 'co_person_id', // XXX Handle primary name specially?
-      //'TelephoneNumber' => 'co_person_role_id'
+      'TelephoneNumber' => 'co_person_role_id'
     );
     
     foreach($models as $m => $pkey) {
@@ -577,6 +606,12 @@ class CoPipeline extends AppModel {
         $pval = $coPersonId;
         $model = $this->Co->CoPerson->$m;
       } elseif($pkey == 'co_person_role_id') {
+        // We only process role related attributes if we have a role ID,
+        // which implies create_role is true.
+        
+        if(!$coPersonRoleId)
+          continue;
+        
         $pval = $coPersonRoleId;
         $model = $this->Co->CoPerson->CoPersonRole->$m;
       }
@@ -660,6 +695,7 @@ class CoPipeline extends AppModel {
           
           $newRecords[$id]['id'] = $curRecords[$id]['id'];
           
+          // XXX Normalized data will make a non-diff appear as a diff (CO-1336)
           $cstr = $model->changesToString(array($m => $newRecords[$id]),
                                           array($m => $curRecords[$id]));
           
@@ -677,9 +713,10 @@ class CoPipeline extends AppModel {
           } else {
             // No change, unset record to indicate not to bother saving
             unset($newRecords[$id]);
-            // And unset current record so we don't see it as a delete
-            unset($curRecords[$id]);
           }
+          
+          // Unset current record so we don't see it as a delete
+          unset($curRecords[$id]);
         } else {
           // This is an add. Cut the history diff here since we already calculated it
           // for update.
@@ -718,8 +755,12 @@ class CoPipeline extends AppModel {
         
         // For identifiers and email addresses, we want to skip availability checking
         // since we might be writing multiple versions of the same attribute (from
-        // different org identity sources).
-        if(!$model->save($nr, array("provision" => false, "skipAvailability" => true))) {
+        // different org identity sources). For email addresses, we also want to honor
+        // the verified status.
+        
+        if(!$model->save($nr, array("provision" => false,
+                                    "skipAvailability" => true,
+                                    "trustVerified" => true))) {
           throw new RuntimeException(_txt('er.db.save-a', array($m)));
         }
         

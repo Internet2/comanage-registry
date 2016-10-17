@@ -86,6 +86,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
    * @return Array As specified
    * @throws InvalidArgumentException if not found
    * @throws OverflowException if more than one match
+   * @throws RuntimeException on backend specific errors
    */
   
   abstract public function retrieve($id);

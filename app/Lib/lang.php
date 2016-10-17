@@ -317,7 +317,8 @@ original notification at
   ),
 
   // Extended type, key must be en.model.attribute
-  'en.address.type' =>  array(ContactEnum::Home => 'Home',
+  'en.address.type' =>  array(ContactEnum::Campus => 'Campus',
+                              ContactEnum::Home => 'Home',
                               ContactEnum::Office => 'Office',
                               ContactEnum::Postal => 'Postal',
                               ContactEnum::Forwarding => 'Forwarding'),
@@ -402,7 +403,9 @@ original notification at
     EmailAddressEnum::Delivery => 'Delivery',
     EmailAddressEnum::Forwarding => 'Forwarding',
     EmailAddressEnum::Official => 'Official',
-    EmailAddressEnum::Personal => 'Personal'
+    EmailAddressEnum::Personal => 'Personal',
+    EmailAddressEnum::Preferred => 'Preferred',
+    EmailAddressEnum::Recovery => 'Recovery'
   ),
   
   'en.enrollment.authz' => array(
@@ -454,11 +457,17 @@ original notification at
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
 
   // Extended type, key must be en.model.attribute
-  'en.identifier.type' =>  array(IdentifierEnum::ePPN => 'ePPN',
+  'en.identifier.type' =>  array(IdentifierEnum::Badge => 'Badge',
+                                 IdentifierEnum::Enterprise => 'Enterprise',
+                                 IdentifierEnum::ePPN => 'ePPN',
                                  IdentifierEnum::ePTID => 'ePTID',
                                  IdentifierEnum::Mail => 'Mail',
+                                 IdentifierEnum::National => 'National',
+                                 IdentifierEnum::Network => 'Network',
                                  IdentifierEnum::OpenID => 'OpenID',
-                                 IdentifierEnum::ORCID => 'ORCID ID',
+                                 IdentifierEnum::ORCID => 'ORCID',
+                                 IdentifierEnum::Reference => 'Match Reference',
+                                 IdentifierEnum::SORID => 'System of Record ID',
                                  IdentifierEnum::UID => 'UID'),
   
   // As a moderately arbitrary decision, the languages listed here those with at least
@@ -696,7 +705,8 @@ original notification at
   ),
 
   // Extended type, key must be en.model.attribute
-  'en.telephone_number.type' => array(ContactEnum::Fax => 'Fax',
+  'en.telephone_number.type' => array(ContactEnum::Campus => 'Campus',
+                                      ContactEnum::Fax => 'Fax',
                                       ContactEnum::Home => 'Home',
                                       ContactEnum::Mobile => 'Mobile',
                                       ContactEnum::Office => 'Office'),
@@ -819,6 +829,7 @@ original notification at
   'er.ois.search.none' => 'No searchable backends were found',
   'er.ois.search.mail.none' => 'No records were found matching the email address "%1$s"',
   'er.ois.sync.full.inventory' => 'OIS backend is configured for full sync, but backend does not support inventory() call',
+  'er.ois.val.name' => 'Backend did not provide a valid Primary Name',
   'er.orgp.nomail' => '%1$s (Org Identity %2$s) has no known email address.<br />Add an email address and then try again.',
   'er.orgp.pool' =>   'Failed to pool organizational identities',
   'er.orgp.unk-a' =>  'Unknown Org Identity "%1$s"',
@@ -1305,6 +1316,7 @@ original notification at
   'in.orgid.co'        => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
   'in.orgid.ois'       => 'This is the current record available directly from the source. To view the latest record retrieved and cached by Registry, click <i>View Organizational Identity Source Record</i>.',
+  'in.orgid.ois.notfound' => 'The requested key was not found in the source. If an Organizational Identity was already created using this key, the source may have deleted or expired its record.',
   'in.orgid.oisr'      => 'This is the latest record retrieved from the source, as cached by Registry. To view the current record directly from the source, click <i>View Organizational Identity Source</i>.',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
 
@@ -1443,6 +1455,7 @@ original notification at
   'op.petition.dupe' => 'Flag Petition as Duplicate',
   'op.petition.dupe.confirm' => 'Are you sure you wish to flag this petition as a duplicate?',
   'op.petition.nextstep' => 'Initiating %1$s step, please wait...',
+  'op.pipeline.edit.ois' => 'This record was created from an Organizational Identity and therefore cannot be edited',
   'op.pipeline.rerun' => 'Rerun Pipeline',
   'op.pipeline.rerun.form' => 'Select the sync action to run the pipeline for. Note the corresponding sync strategy action must be enabled for the pipeline.',
   'op.pool' =>        'Pool',
@@ -1555,6 +1568,7 @@ original notification at
   'rs.org.src.unchanged' => 'Source record is unchanged, no changes were processed',
   'rs.pi.match' =>    'Org Identity matched to CO Person via Pipeline %1$s (%2$s) match strategy %3$s',
   'rs.pi.ok' =>       'Pipeline executed successfully',
+  'rs.pi.role.status' => 'Updated role status to %1$s due to removal of source record',
   'rs.pi.sync-a' =>   '%1$s synced from Org Identity via Pipeline %2$s (%3$s)',
   'rs.prov-a' =>      'Provisioned %1$s',
   'rs.prov.inel.grmem' => 'Ineligible: Not a member of provisioning group',

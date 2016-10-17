@@ -345,7 +345,7 @@ class CoExpirationPolicy extends AppModel {
               $oldRoleData['CoPersonRole']['status'] = $role['CoPersonRole']['status'];
               $fieldList[] = 'status';
               
-              // Note recalculation of person status happens later, after the save
+              // Note recalculation of person status happens as part of CoPersonRole::afterSave.
             }
             
             // Save changes, if any
@@ -380,12 +380,6 @@ class CoExpirationPolicy extends AppModel {
                   $appShell->out($e->getMessage(), 1, Shell::QUIET);
                 }
               }
-            }
-            
-            // Recalculate person status, if appropriate
-            
-            if(!empty($p['CoExpirationPolicy']['act_status'])) {
-              $this->Co->CoPerson->recalculateStatus($role['CoPersonRole']['co_person_id']);
             }
             
             // We have a bunch of substitutions to support, so process the template

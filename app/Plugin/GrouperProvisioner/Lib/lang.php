@@ -37,6 +37,7 @@ $cm_grouper_provisioner_texts['en_US'] = array(
   
   // Error messages
   'er.grouperprovisioner.connect'        => 'Failed to connect to Grouper web services server',
+  'er.grouperprovisioner.subject'        => 'Could not determine Grouper subject identifier',
   
   // Plugin texts
   'pl.grouperprovisioner.info'             => 'The Grouper web services server must be available and the specified credentials must be valid before this configuration can be saved.',
@@ -50,24 +51,14 @@ $cm_grouper_provisioner_texts['en_US'] = array(
   'pl.grouperprovisioner.password.desc'  => 'Password to use for authentication for Grouper web services user',
   'pl.grouperprovisioner.stem'           => 'Stem or folder',
   'pl.grouperprovisioner.stem.desc'      => 'Full Grouper stem name under which to provision groups for this CO',
-	'pl.grouperprovisioner.loginidentifier'=> 'Grouper subject UI login identifier',
-	'pl.grouperprovisioner.loginidentifier.desc' => 'CO person identifier used by Grouper for subject login to the Grouper UI',
-	'pl.grouperprovisioner.emailidentifier'=> 'Grouper subject email',
-	'pl.grouperprovisioner.emailidentifier.desc' => 'CO person email address used by Grouper for subject email address',
-	'pl.grouperprovisioner.provisiongroups'=> 'Provision groups',
-	'pl.grouperprovisioner.provisiongroups.desc' => 'Whether to provision groups for the CO to Grouper',
-	'pl.grouperprovisioner.provisioncomembers'=> 'Provision CO members group',
-	'pl.grouperprovisioner.provisioncomembers.desc' => 'Whether to provision the CO members group to Grouper',
-	'pl.grouperprovisioner.provisioncoumembers'=> 'Provision COU members groups',
-	'pl.grouperprovisioner.provisioncoumembers.desc' => 'Whether to provision the COU members groups to Grouper',
-	'pl.grouperprovisioner.cou.provisioning.style' => 'COU provisioning style',
-	'pl.grouperprovisioner.cou.provisioning.style.desc' => 'Provision COU members groups using flat or bushy style',
+  'pl.grouperprovisioner.legacy'         => 'Legacy subject',
+  'pl.grouperprovisioner.legacy.desc'    => 'Use the legacy internal COmanage subject for Grouper (deprecated)',
+  'pl.grouperprovisioner.loginidentifier'=> 'Grouper subject UI login identifier',
+  'pl.grouperprovisioner.loginidentifier.desc' => 'CO person identifier used by Grouper for subject login to the Grouper UI',
+  'pl.grouperprovisioner.emailidentifier'=> 'Grouper subject email',
+  'pl.grouperprovisioner.emailidentifier.desc' => 'CO person email address used by Grouper for subject email address',
+  'pl.grouperprovisioner.subjectidentifier'=> 'Grouper subject identifier',
+  'pl.grouperprovisioner.subjectidentifier.desc' => 'CO person identifier used by Grouper as the unique subject',
   'pl.grouperprovisioner.subjectview'      => 'Subject source view',
   'pl.grouperprovisioner.subjectview.desc' => 'Name for the Grouper subject source view in database',
-        
-	// Enumerations
-  'pl.grouperprovisioner.en.cou.style' => array(
-  	GrouperCouProvisioningStyle::Flat   => 'Flat',
-  	GrouperCouProvisioningStyle::Bushy  => 'Bushy',
-  )
 );

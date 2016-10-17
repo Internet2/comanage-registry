@@ -277,16 +277,16 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
     $orgdata['OrgIdentity']['affiliation'] = AffiliationEnum::Member;
     
     // XXX document
-    $orgdata['PrimaryName'] = array();
+    $orgdata['Name'] = array();
 
     if(!empty($result->{'orcid-bio'}->{'personal-details'}->{'given-names'}->value))
-      $orgdata['PrimaryName']['given'] = (string)$result->{'orcid-bio'}->{'personal-details'}->{'given-names'}->value;
+      $orgdata['Name'][0]['given'] = (string)$result->{'orcid-bio'}->{'personal-details'}->{'given-names'}->value;
     if(!empty($result->{'orcid-bio'}->{'personal-details'}->{'family-name'}->value))
-      $orgdata['PrimaryName']['family'] = (string)$result->{'orcid-bio'}->{'personal-details'}->{'family-name'}->value;
+      $orgdata['Name'][0]['family'] = (string)$result->{'orcid-bio'}->{'personal-details'}->{'family-name'}->value;
 // Populate primary_name and type in the caller instead of here?
-    $orgdata['PrimaryName']['primary_name'] = true;
+    $orgdata['Name'][0]['primary_name'] = true;
 // XXX this should be configurable
-    $orgdata['PrimaryName']['type'] = NameEnum::Official;
+    $orgdata['Name'][0]['type'] = NameEnum::Official;
     
     $orgdata['Identifier'] = array();
     $orgdata['Identifier'][0]['identifier'] = $result->{'orcid-identifier'}->{'uri'};

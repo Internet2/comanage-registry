@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Role Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -509,6 +509,25 @@
             <?php if(!empty($co_person_roles[0]['TelephoneNumber'])): ?>
               <?php foreach($co_person_roles[0]['TelephoneNumber'] as $t): ?>
                 <?php
+                  if(!empty($t['SourceTelephoneNumber']['id'])) {
+                    // This telephone number came from an OIS and so can't be edited
+                    print '<div>';
+                    print '<div>';
+                    print $this->Html->link($t['number'], array('controller' => 'telephone_numbers', 'action' => 'view', $t['id']));
+                    print " &nbsp;("
+                      . $t['SourceTelephoneNumber']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
+                      . ", " . $vv_copr_telephonenumber_types[ $t['type'] ] . ")<br />\n";
+                    print '</div>';
+                    print '<div>';
+                    print $this->Html->link(_txt('op.view'),
+                                            array('controller' => 'telephone_numbers', 'action' => 'view', $t['id']),
+                                            array('class' => 'viewbutton')) . "\n";
+                    print '</div>';
+                    print '</div>';
+                    
+                    continue;
+                  }
+                  
                   $perm = $this->Permission->selfService($permissions, $e, 'TelephoneNumber', $t['type']);
                 ?>
 
@@ -605,6 +624,25 @@
             <?php if(!empty($co_person_roles[0]['Address'])): ?>
               <?php foreach($co_person_roles[0]['Address'] as $addr): ?>
                 <?php
+                  if(!empty($addr['SourceAddress']['id'])) {
+                    // This address came from an OIS and so can't be edited
+                    print '<div>';
+                    print '<div>';
+                    print $this->Html->link($addr['street'], array('controller' => 'addresses', 'action' => 'view', $addr['id']));
+                    print " &nbsp;("
+                      . $addr['SourceAddress']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
+                      . ", " . $vv_copr_address_types[ $addr['type'] ] . ")<br />\n";
+                    print '</div>';
+                    print '<div>';
+                    print $this->Html->link(_txt('op.view'),
+                                            array('controller' => 'addresses', 'action' => 'view', $addr['id']),
+                                            array('class' => 'viewbutton')) . "\n";
+                    print '</div>';
+                    print '</div>';
+                    
+                    continue;
+                  }
+                  
                   $perm = $this->Permission->selfService($permissions, $e, 'Address', $addr['type']);
                 ?>
 

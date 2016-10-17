@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Fields
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -533,9 +533,8 @@
                     if($perm == PermissionEnum::ReadWrite) {
                       print $this->Html->link(generateCn($n),
                         array('controller' => 'names',
-                          'action' => 'edit',
-                          $n['id'],
-                          'co' => $cur_co['Co']['id']));
+                              'action' => 'edit',
+                              $n['id']));
                     } elseif($perm == PermissionEnum::ReadOnly) {
                       print generateCn($n);
                     }
@@ -579,9 +578,8 @@
 
                       print $this->Html->link(_txt('op.edit'),
                           array('controller' => 'names',
-                            'action' => 'edit',
-                            $n['id'],
-                            'co' => $cur_co['Co']['id']),
+                                'action' => 'edit',
+                                $n['id']),
                           array('class' => 'editbutton')) . "\n";
                     }
                     ?>
@@ -639,38 +637,53 @@
                 $l = 1;
                 if($e && !$es)
                 {
-                  if(isset($co_people[0]['Identifier']))
-                  {
-                    foreach($co_people[0]['Identifier'] as $id)
-                    {
-                      print '<div class="identifier-container">';
-                      print '<div class="action-buttons">';
-                      print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id']));
-                      print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
-                      print '</div> <!-- action-buttons -->';
-                      print '<div class="identifier">';
-                      // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                      print '<a class="deletebutton" title="' . _txt('op.delete')
-                        . '" onclick="javascript:js_confirm_generic(\''
-                        . _txt('js.remove') . '\',\''    // dialog body text
-                        . $this->Html->url(              // dialog confirm URL
-                          array(
-                            'controller' => 'identifiers',
-                            'action' => 'delete', $id['id']
-                          )
-                        ) . '\',\''
-                        . _txt('op.remove') . '\',\''    // dialog confirm button
-                        . _txt('op.cancel') . '\',\''    // dialog cancel button
-                        . _txt('op.remove') . '\',[\''   // dialog title
-                        . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                        . '\']);">'
-                        . _txt('op.delete')
-                        . '</a>';
-                      print $this->Html->link(_txt('op.edit'),
-                        array('controller' => 'identifiers', 'action' => 'edit', $id['id']),
-                        array('class' => 'editbutton'));
-                      print '</div> <!-- identifier -->';
-                      print '</div> <!-- identifier-container -->';
+                  if(isset($co_people[0]['Identifier'])) {
+                    foreach($co_people[0]['Identifier'] as $id) {
+                     if(!empty($id['SourceIdentifier']['id'])) {
+                        // This address came from an OIS and so can't be edited
+                        print '<div>';
+                        print '<div>';
+                        print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'view', $id['id']));
+                        print " &nbsp;("
+                          . $id['SourceIdentifier']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
+                          . ", " . $vv_cop_identifier_types[ $id['type'] ] . ")<br />\n";
+                        print '</div>';
+                        print '<div>';
+                        print $this->Html->link(_txt('op.view'),
+                                                array('controller' => 'identifiers', 'action' => 'view', $id['id']),
+                                                array('class' => 'viewbutton')) . "\n";
+                        print '</div>';
+                        print '</div>';
+                      } else {
+                        print '<div class="identifier-container">';
+                        print '<div class="action-buttons">';
+                        print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id']));
+                        print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
+                        print '</div> <!-- action-buttons -->';
+                        print '<div class="identifier">';
+                        // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                        print '<a class="deletebutton" title="' . _txt('op.delete')
+                          . '" onclick="javascript:js_confirm_generic(\''
+                          . _txt('js.remove') . '\',\''    // dialog body text
+                          . $this->Html->url(              // dialog confirm URL
+                            array(
+                              'controller' => 'identifiers',
+                              'action' => 'delete', $id['id']
+                            )
+                          ) . '\',\''
+                          . _txt('op.remove') . '\',\''    // dialog confirm button
+                          . _txt('op.cancel') . '\',\''    // dialog cancel button
+                          . _txt('op.remove') . '\',[\''   // dialog title
+                          . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                          . '\']);">'
+                          . _txt('op.delete')
+                          . '</a>';
+                        print $this->Html->link(_txt('op.edit'),
+                          array('controller' => 'identifiers', 'action' => 'edit', $id['id']),
+                          array('class' => 'editbutton'));
+                        print '</div> <!-- identifier -->';
+                        print '</div> <!-- identifier-container -->';
+                      }
                     }
                   }
                 }
@@ -768,52 +781,70 @@
                   
                   if(isset($co_people[0]['EmailAddress'])) {
                     foreach($co_people[0]['EmailAddress'] as $ea) {
-                      // Determine the permission for this attribute
-                      
-                      $perm = $this->Permission->selfService($permissions,
-                                                                       $e,
-                                                                       'EmailAddress',
-                                                                       (!empty($ea['type']) ? $ea['type'] : null));
-                      
-                      if($perm == PermissionEnum::ReadWrite) {
+                      if(!empty($ea['SourceEmailAddress']['id'])) {
+                        // This address came from an OIS and so can't be edited
                         print '<div>';
                         print '<div>';
-                        print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']));
-                        print " &nbsp;(" . $vv_cop_emailaddress_types[ $ea['type'] ] . ", "
+                        print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'view', $ea['id']));
+                        print " &nbsp;("
+                          . $ea['SourceEmailAddress']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
+                          . ", " . $vv_cop_emailaddress_types[ $ea['type'] ] . ", "
                           . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
                         print '</div>';
                         print '<div>';
-                        print '<a class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
-                            array(
-                              'controller' => 'email_addresses',
-                              'action' => 'delete', $ea['id'],
-                              'co' => $cur_co['Co']['id']
-                            )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt($ea['mail']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</a>';
-                        print $this->Html->link(_txt('op.edit'),
-                            array('controller' => 'email_addresses', 'action' => 'edit', $ea['id'], 'co' => $cur_co['Co']['id']),
-                            array('class' => 'editbutton')) . "\n";
+                        print $this->Html->link(_txt('op.view'),
+                                                array('controller' => 'email_addresses', 'action' => 'view', $ea['id']),
+                                                array('class' => 'viewbutton')) . "\n";
                         print '</div>';
                         print '</div>';
-                      } elseif($perm == PermissionEnum::ReadOnly) {
-                        print '<tr class="line';
-                        print ($l % 2);
-                        print '">';
-                        $l++;
-                        print '<td>';
-                        print Sanitize::html($ea['mail']) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
-                        print '</td>';
-                        print '</tr>';
+                      } else {
+                        // Determine the permission for this attribute
+                        
+                        $perm = $this->Permission->selfService($permissions,
+                                                                         $e,
+                                                                         'EmailAddress',
+                                                                         (!empty($ea['type']) ? $ea['type'] : null));
+                        
+                        if($perm == PermissionEnum::ReadWrite) {
+                          print '<div>';
+                          print '<div>';
+                          print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']));
+                          print " &nbsp;(" . $vv_cop_emailaddress_types[ $ea['type'] ] . ", "
+                            . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
+                          print '</div>';
+                          print '<div>';
+                          print '<a class="deletebutton" title="' . _txt('op.delete')
+                            . '" onclick="javascript:js_confirm_generic(\''
+                            . _txt('js.remove') . '\',\''    // dialog body text
+                            . $this->Html->url(              // dialog confirm URL
+                              array(
+                                'controller' => 'email_addresses',
+                                'action' => 'delete',
+                                $ea['id']
+                              )
+                            ) . '\',\''
+                            . _txt('op.remove') . '\',\''    // dialog confirm button
+                            . _txt('op.cancel') . '\',\''    // dialog cancel button
+                            . _txt('op.remove') . '\',[\''   // dialog title
+                            . filter_var(_jtxt($ea['mail']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                            . '\']);">'
+                            . _txt('op.delete')
+                            . '</a>';
+                          print $this->Html->link(_txt('op.edit'),
+                              array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']),
+                              array('class' => 'editbutton')) . "\n";
+                          print '</div>';
+                          print '</div>';
+                        } elseif($perm == PermissionEnum::ReadOnly) {
+                          print '<tr class="line';
+                          print ($l % 2);
+                          print '">';
+                          $l++;
+                          print '<td>';
+                          print Sanitize::html($ea['mail']) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
+                          print '</td>';
+                          print '</tr>';
+                        }
                       }
                     }
                   }

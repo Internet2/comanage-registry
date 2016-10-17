@@ -557,7 +557,9 @@ class GrouperRestClient extends HttpSocket {
       if(Configure::read('debug')) {
         CakeLog::write('error', $msg);
         CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
-        CakeLog::write('error', 'Grouper WS response was ' . print_r($response, true));
+        if (isset($response)) {
+          CakeLog::write('error', 'Grouper WS response was ' . print_r($response, true));
+        }
       }
       throw new GrouperRestClientException($msg, 1, $e);
     }

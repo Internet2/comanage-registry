@@ -472,6 +472,12 @@ class OrgIdentitySourcesController extends StandardController {
         
         $this->set('vv_ois_record', $rec);
       }
+      catch(InvalidArgumentException $e) {
+        // No records found. We'll let this fall through to the view in case an admin
+        // is looking at an OrgIdentity record where the source is no longer available.
+        $this->set('vv_not_found', true);
+        $this->set('title_for_layout', _txt('er.notfound', array(_txt('fd.key'), Sanitize::html($this->request->params['named']['key']))));
+      }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
         $this->performRedirect();

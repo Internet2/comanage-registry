@@ -56,8 +56,9 @@ class CoPeopleController extends StandardController {
     'CoNsfDemographic',
     'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier', 'PrimaryName')),
     'CoPersonRole' => array('CoPetition', 'Cou'),
-    'EmailAddress',
-    'Identifier',
+    // This deep nesting will allow us to display the source of the attribute
+    'EmailAddress' => array('SourceEmailAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
+    'Identifier' => array('SourceIdentifier' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Name',
     'PrimaryName',
     'SshKey'
@@ -1007,7 +1008,7 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoPerson.id'] = $id;
-      $args['contain'][] = 'PrimaryName';
+      $args['contain'] = array('PrimaryName', 'CoGroupMember');
       
       $this->set('co_person', $this->CoPerson->find('first', $args));
     }

@@ -34,33 +34,38 @@
     return(false);
 
   $idForBreadcrumbs = '';
+  $idType = null;
   
   // Migrate the target person from a named argument to a form field
-  if(isset($this->request->params['named']['copersonid'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
+  if($this->action == 'add' && isset($this->request->params['named']['copersonid'])) {
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+    $idType = 'person';
   } elseif(isset($this->request->data['Identifier']['co_person_id'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['Identifier']['co_person_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['Identifier']['co_person_id']);
-  } elseif(isset($this->params['named']['orgidentityid'])){
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
+    $idType = 'person';
+  } elseif(!empty($identifiers[0]['Identifier']['co_person_id'])) {
+    $idForBreadcrumbs = $identifiers[0]['Identifier']['co_person_id'];
+    $idType = 'person';
+  } elseif($this->action == 'add' && isset($this->params['named']['orgidentityid'])){
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idType = 'org';
   } elseif(isset($this->request->data['Identifier']['org_identity_id'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['Identifier']['org_identity_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['Identifier']['org_identity_id']);
+    $idType = 'org';
+  } elseif(!empty($identifiers[0]['Identifier']['org_identity_id'])) {
+    $idForBreadcrumbs = $identifiers[0]['Identifier']['org_identity_id'];
+    $idType = 'org';
   }
   
-  // Are we editing an org identity or a CO Person?
-  $isOrgIdentity = true;
-  
-  if(!empty($this->request->params['named']['copersonid'])
-     || !empty($this->request->data['Identifier']['co_person_id'])) {
-    $isOrgIdentity = false;
+  if($idType == 'org') {
+    print $this->Form->hidden('org_identity_id', array('default' => $idForBreadcrumbs)) . "\n";
+  } elseif($idType == 'person') {
+    print $this->Form->hidden('co_person_id', array('default' => $idForBreadcrumbs)) . "\n";
   }
-
+  
   // Add breadcrumbs
   print $this->element("coCrumb");
-  if(!$isOrgIdentity) {
+  if($idType == 'person') {
     // CO Person History
     $args = array();
     $args['plugin'] = null;
@@ -145,19 +150,25 @@
         ?>
       </td>
     </tr>
-    <?php if($isOrgIdentity): ?>
+    <?php if($idType == 'org'): ?>
     <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php print _txt('fd.identifier.login'); ?><br />
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('login') : Sanitize::html($identifiers[0]['Identifier']['login'])); ?>
-        <em><?php print $this->Form->label('login', _txt('fd.identifier.login.desc')); ?></em>
+        <?php
+          if($e) {
+            print $this->Form->input('login');
+            print "\n<em>" . $this->Form->label('login', _txt('fd.identifier.login.desc')) . "</em>\n";
+          } else {
+            print _txt($identifiers[0]['Identifier']['login'] ? 'fd.yes' : 'fd.no');
+          }
+        ?>
       </td>
     </tr>
-    <?php else: // $isOrgIdentity ?>
+    <?php else: // org identity ?>
     <?php print $this->Form->hidden('login', array('default' => false)) . "\n"; ?>
-    <?php endif; // $isOrgIdentity ?>
+    <?php endif; // org identity ?>
     <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php
@@ -190,6 +201,25 @@
         ?>
       </td>
     </tr>
+    <?php if(!empty($identifiers[0]['SourceIdentifier']['id'])): ?>
+    <tr class="line<?php print $l % 2;$l++; ?>">
+      <td>
+        <?php print _txt('fd.source'); ?><br />
+      </td>
+      <td>
+        <?php print $this->Html->link(_txt('ct.identifiers.1'),
+                                      array('controller' => 'identifiers',
+                                            'action'     => 'view',
+                                            $identifiers[0]['SourceIdentifier']['id']));
+        ?>,
+        <?php print $this->Html->link(_txt('ct.org_identities.1'),
+                                      array('controller' => 'org_identities',
+                                            'action'     => 'view',
+                                            $identifiers[0]['SourceIdentifier']['org_identity_id']));
+        ?>
+      </td>
+    </tr>
+    <?php endif; // source id ?>
     <tr>
       <td>
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />

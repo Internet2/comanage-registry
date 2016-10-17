@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Email Address Fields
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -34,22 +34,35 @@
     return(false);
 
   $idForBreadcrumbs = '';
+  $idType = null;
   
   // Migrate the target person from a named argument to a form field
-  if(isset($this->request->params['named']['copersonid'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
+  if($this->action == 'add' && isset($this->request->params['named']['copersonid'])) {
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+    $idType = 'person';
   } elseif(isset($this->request->data['EmailAddress']['co_person_id'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['co_person_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['co_person_id']);
-  } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
+    $idType = 'person';
+  } elseif(!empty($email_addresses[0]['EmailAddress']['co_person_id'])) {
+    $idForBreadcrumbs = $email_addresses[0]['EmailAddress']['co_person_id'];
+    $idType = 'person';
+  } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
     $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idType = 'org';
   } elseif(isset($this->request->data['EmailAddress']['org_identity_id'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['org_identity_id']))) . "\n";
     $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['org_identity_id']);
+    $idType = 'org';
+  } elseif(!empty($email_addresses[0]['EmailAddress']['org_identity_id'])) {
+    $idForBreadcrumbs = $email_addresses[0]['EmailAddress']['org_identity_id'];
+    $idType = 'org';
   }
 
+  if($idType == 'org') {
+    print $this->Form->hidden('org_identity_id', array('default' => $idForBreadcrumbs)) . "\n";
+  } elseif($idType == 'person') {
+    print $this->Form->hidden('co_person_id', array('default' => $idForBreadcrumbs)) . "\n";
+  }
+  
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
@@ -59,7 +72,7 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  if(isset($this->request->params['named']['copersonid']) || isset($this->request->data['EmailAddress']['co_person_id'])) {
+  if($idType == 'person') {
     // CO Person History
     $args = array();
     $args['plugin'] = null;
@@ -73,8 +86,7 @@
       'action' => 'canvas',
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
-
-  } elseif(isset($this->request->params['named']['orgidentityid']) || isset($this->request->data['EmailAddress']['org_identity_id'])) {
+  } elseif($idType == 'org') {
     // Org ID History
     $args = array();
     $args['plugin'] = null;
@@ -90,15 +102,15 @@
       'action' => 'edit',
       $idForBreadcrumbs);
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
-
   }
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.email_addresses.1')));
   $this->Html->addCrumb($crumbTxt);
 
+  $l = 1;
 ?>
 <table id="<?php print $this->action; ?>_email_address" class="ui-widget">
   <tbody>
-    <tr class="line1">
+    <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php
           if($e) {
@@ -118,7 +130,7 @@
       </td>
       <?php endif; ?>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php
           if($e) {
@@ -147,7 +159,7 @@
         ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print $l % 2;$l++; ?>">
       <td>
         <?php print _txt('fd.email_address.verified'); ?>
       </td>
@@ -186,6 +198,25 @@
         ?>
       </td>
     </tr>
+    <?php if(!empty($email_addresses[0]['SourceEmailAddress']['id'])): ?>
+    <tr class="line<?php print $l % 2;$l++; ?>">
+      <td>
+        <?php print _txt('fd.source'); ?><br />
+      </td>
+      <td>
+        <?php print $this->Html->link(_txt('ct.email_addresses.1'),
+                                      array('controller' => 'email_addresses',
+                                            'action'     => 'view',
+                                            $email_addresses[0]['SourceEmailAddress']['id']));
+        ?>,
+        <?php print $this->Html->link(_txt('ct.org_identities.1'),
+                                      array('controller' => 'org_identities',
+                                            'action'     => 'view',
+                                            $email_addresses[0]['SourceEmailAddress']['org_identity_id']));
+        ?>
+      </td>
+    </tr>
+    <?php endif; // source id ?>
     <tr>
       <td>
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />

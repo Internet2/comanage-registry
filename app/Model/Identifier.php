@@ -46,7 +46,7 @@ class Identifier extends AppModel {
   public $displayField = "Identifier.identifier";
   
   // Default ordering for find operations
-  public $order = array("Identifier.identifier");
+//  public $order = array("Identifier.identifier");
   
   public $actsAs = array('Containable',
                          'Provisioner',
@@ -68,11 +68,17 @@ class Identifier extends AppModel {
       'content' => array(
         'rule' => array('validateExtendedType',
                         array('attribute' => 'Identifier.type',
-                              'default' => array(IdentifierEnum::ePPN,
+                              'default' => array(IdentifierEnum::Badge,
+                                                 IdentifierEnum::Enterprise,
+                                                 IdentifierEnum::ePPN,
                                                  IdentifierEnum::ePTID,
                                                  IdentifierEnum::Mail,
+                                                 IdentifierEnum::National,
+                                                 IdentifierEnum::Network,
                                                  IdentifierEnum::OpenID,
                                                  IdentifierEnum::ORCID,
+                                                 IdentifierEnum::Reference,
+                                                 IdentifierEnum::SORID,
                                                  IdentifierEnum::UID))),
         'required' => true,
         'allowEmpty' => false

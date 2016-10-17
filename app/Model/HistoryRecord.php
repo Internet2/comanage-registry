@@ -190,10 +190,10 @@ class HistoryRecord extends AppModel {
                                                       $limit);
     
     // Call create since we might have multiple history records written in a transaction
-    $this->create($historyData);
+    $this->create();
     
     if(!$this->save($historyData)) {
-      throw new RuntimeException(_txt('er.db.save'));
+      throw new RuntimeException(_txt('er.db.save-a', array('HistoryRecord')));
     }
   }
 }

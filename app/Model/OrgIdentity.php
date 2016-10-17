@@ -380,6 +380,24 @@ class OrgIdentity extends AppModel {
   }
   
   /**
+   * Determine if an Org Identity is read only.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id Org Identity ID
+   * @return True if the Org Identity is read only, false otherwise
+   */
+  
+  public function readOnly($id) {
+    // An Org Identity is read only if it is attached to an Org Identity Source.
+    
+    $args = array();
+    $args['conditions']['OrgIdentitySourceRecord.org_identity_id'] = $id;
+    $args['contain'] = false;
+    
+    return (bool)$this->OrgIdentitySourceRecord->find('count', $args);
+  }
+  
+  /**
    * As of v1.0.0, this operation is no longer supported.
    *
    * Unpool Organizational Identities. This will link organizational identities

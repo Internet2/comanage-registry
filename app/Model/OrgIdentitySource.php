@@ -225,14 +225,10 @@ class OrgIdentitySource extends AppModel {
     }
     
     // Pull record from source
+    $brec = $this->retrieve($id, $sourceKey);
     
-    $Backend = $this->bindPluginBackendModel($id);
-    
-    $brec = $Backend->retrieve($sourceKey);
-    
-    if(empty($brec['orgidentity'])) {
-      throw new InvalidArgumentException(_txt('er.ois.noorg'));
-    }
+    // This will throw an exception if invalid
+    $this->validateOISRecord($brec);
     
     $orgid = $brec['orgidentity'];
     
@@ -256,19 +252,31 @@ class OrgIdentitySource extends AppModel {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
-    $this->OrgIdentitySourceRecord->OrgIdentity->saveAssociated($orgid);
+    $this->OrgIdentitySourceRecord->OrgIdentity->clear();
+    $this->OrgIdentitySourceRecord->OrgIdentity->id = null;
+    
+    if(!$this->OrgIdentitySourceRecord->OrgIdentity->saveAssociated($orgid, array('trustVerified' => true))) {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.db.save-a', array('OrgIdentity saveAssociated')));
+    }
     
     $orgIdentityId = $this->OrgIdentitySourceRecord->OrgIdentity->id;
     
     // Cut a history record
-    $this->OrgIdentitySourceRecord->OrgIdentity->HistoryRecord->record(null,
-                                                                       null,
-                                                                       $orgIdentityId,
-                                                                       $actorCoPersonId,
-                                                                       ActionEnum::OrgIdAddedSource,
-                                                                       _txt('rs.org.src.new',
-                                                                            array($this->cdata['OrgIdentitySource']['description'],
-                                                                                  $this->cdata['OrgIdentitySource']['id'])));
+    try {
+      $this->OrgIdentitySourceRecord->OrgIdentity->HistoryRecord->record(null,
+                                                                         null,
+                                                                         $orgIdentityId,
+                                                                         $actorCoPersonId,
+                                                                         ActionEnum::OrgIdAddedSource,
+                                                                         _txt('rs.org.src.new',
+                                                                              array($this->cdata['OrgIdentitySource']['description'],
+                                                                                    $this->cdata['OrgIdentitySource']['id'])));
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
+    }
     
     if($targetCoPersonId) {
       // Create an Org Identity Link, since we already know the OrgIdentity ID and
@@ -284,6 +292,7 @@ class OrgIdentitySource extends AppModel {
       
       // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
       // provisioning just in case that changes in the future.
+      
       if($this->Co->CoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
         // Create a history record
         try {
@@ -306,7 +315,13 @@ class OrgIdentitySource extends AppModel {
     }
     
     // Invoke pipeline, if configured
-    $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId);
+    try {
+      $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId);
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
+    }
     
     // Commit
     $dbc->commit();
@@ -514,10 +529,24 @@ class OrgIdentitySource extends AppModel {
   
   public function syncOrgIdentity($id, $sourceKey, $actorCoPersonId = null, $jobId = null) {
     // Pull record from source
+    $brec = null;
     
-    $Backend = $this->bindPluginBackendModel($id);
+    try {
+      $brec = $this->retrieve($id, $sourceKey);
+    }
+    catch(InvalidArgumentException $e) {
+      // The record is no longer available in the source
+    }
+    catch(Exception $e) {
+      // Rethrow the exception
+      throw new RuntimeException($e->getMessage());
+    }
     
-    $brec = $Backend->retrieve($sourceKey);
+    if($brec) {
+      // If we got a record, check that it is valid.
+      // This will throw an exception if invalid.
+      $this->validateOISRecord($brec);
+    }
     
     // Start a transaction
     $dbc = $this->getDataSource();
@@ -543,7 +572,6 @@ class OrgIdentitySource extends AppModel {
         'EmailAddress',
         'Identifier',
         'Name',
-        'PrimaryName',
         'TelephoneNumber'
       );
       
@@ -712,14 +740,14 @@ class OrgIdentitySource extends AppModel {
         );
         
         foreach($models as $m) {
-          // Model key used by changelog, eg identifier_id
-          $mkey = Inflector::underscore($m) . '_id';
-          // Model in pluralized format, eg email_addresses
-          $mpl = Inflector::tableize($m);
-          // Model (singular) in localized text string
-          $mlang = _txt('ct.' . $mpl . '.1');
           // Pointer to model $m describes (eg $Identifier)
           $model = $this->OrgIdentitySourceRecord->OrgIdentity->$m;
+          // Model key used by changelog, eg identifier_id
+          $mkey = Inflector::underscore($model->name) . '_id';
+          // Model in pluralized format, eg email_addresses
+          $mpl = Inflector::tableize($model->name);
+          // Model (singular) in localized text string
+          $mlang = _txt('ct.' . $mpl . '.1');
           
           // Records obtained from the Org Identity Source
           $newRecords = isset($brec['orgidentity'][$m]) ? $brec['orgidentity'][$m] : array();
@@ -812,7 +840,9 @@ class OrgIdentitySource extends AppModel {
             
             $model->clear();
           
-            if(!$model->save($newrec[$m][0])) {
+            if(!$model->save($newrec[$m][0],
+                             // We honor the email verified status provided by the source
+                             ($m == 'EmailAddress' ? array('trustVerified' => true) : array()))) {
               // In this case we'll trigger the rollback early so we can end the transaction
               // and attempt to record a failure record. (The final rollback should become a no-op.)
               $dbc->rollback();
@@ -926,7 +956,7 @@ class OrgIdentitySource extends AppModel {
       throw new RuntimeException(_txt('er.pooling'));
     }
     
-    // We'll need to set of records associated with this source
+    // We'll need the set of records associated with this source
     $args = array();
     $args['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $orgIdentitySource['OrgIdentitySource']['id'];
     $args['contain'] = false;
@@ -968,6 +998,7 @@ class OrgIdentitySource extends AppModel {
           $resCnt[ $r['status'] ]++;
         }
         catch(Exception $e) {
+          // XXX we should really record this error somewhere (or does syncorgidentity do that for us?)
           $resCnt['error']++;
         }
       }
@@ -1149,5 +1180,35 @@ class OrgIdentitySource extends AppModel {
     }
 
     $this->Co->CoJob->finish($jobId, json_encode($resCnt));
+  }
+  
+  /**
+   * Validate Org Identity Source Record
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Array   $backendRecord Record from OIS Backend
+   * @throws InvalidArgumentException
+   */
+  
+  public function validateOISRecord($backendRecord) {
+    // For now, we just check that a primary (given) name is specified.
+    // We could plausibly support more complex validation later.
+    
+    if(empty($backendRecord['orgidentity'])) {
+      throw new InvalidArgumentException(_txt('er.ois.noorg'));
+    }
+    
+    $primaryFound = false;
+    
+    foreach($backendRecord['orgidentity']['Name'] as $n) {
+      if(isset($n['primary_name']) && $n['primary_name']) {
+        $primaryFound = true;
+        break;
+      }
+    }
+    
+    if(!$primaryFound) {
+      throw new InvalidArgumentException(_txt('er.ois.val.name'));
+    }
   }
 }

@@ -81,7 +81,9 @@ class EmailAddress extends AppModel {
                               'default' => array(EmailAddressEnum::Delivery,
                                                  EmailAddressEnum::Forwarding,
                                                  EmailAddressEnum::Official,
-                                                 EmailAddressEnum::Personal))),
+                                                 EmailAddressEnum::Personal,
+                                                 EmailAddressEnum::Preferred,
+                                                 EmailAddressEnum::Recovery))),
         'required' => false,
         'allowEmpty' => false
       )
@@ -152,11 +154,18 @@ class EmailAddress extends AppModel {
   /**
    * Actions to take before a save operation is executed.
    *
+   * As of v1.1.0, a 'trustVerified' option is supported to prevent beforeSave
+   * from resetting the verified attribute.
+   *
    * @since  COmanage Registry v0.8.4
    */
   
   public function beforeSave($options = array()) {
-    // Make sure verified is set appropriately
+    // Make sure verified is set appropriately. As of v1.1.0, Org Identity Sources
+    // can assert verified status (CO-1331), so we can't just always reset verified
+    // to false.
+    
+    $trustVerified = (isset($options['trustVerified']) && $options['trustVerified']);
     
     if(!empty($this->data['EmailAddress']['id'])) {
       // We have an existing record. Pull the current values.
@@ -167,14 +176,16 @@ class EmailAddress extends AppModel {
       
       $curdata = $this->find('first', $args);
       
-      if(!empty($curdata['EmailAddress']['mail'])
-         && !empty($this->data['EmailAddress']['mail'])
-         && $curdata['EmailAddress']['mail'] != $this->data['EmailAddress']['mail']) {
-        // Email address was changed, flag as unverified
-        $this->data['EmailAddress']['verified'] = false;
-      } else {
-        // Use prior setting
-        $this->data['EmailAddress']['verified'] = $curdata['EmailAddress']['verified'];
+      if(!$trustVerified) {
+        if(!empty($curdata['EmailAddress']['mail'])
+           && !empty($this->data['EmailAddress']['mail'])
+           && $curdata['EmailAddress']['mail'] != $this->data['EmailAddress']['mail']) {
+          // Email address was changed, flag as unverified
+          $this->data['EmailAddress']['verified'] = false;
+        } else {
+          // Use prior setting
+          $this->data['EmailAddress']['verified'] = $curdata['EmailAddress']['verified'];
+        }
       }
       
       // Also check if we're changing anything. If not, no need to check availability.
@@ -186,9 +197,11 @@ class EmailAddress extends AppModel {
         return true;
       }
     } else {
-      // Adding a new address should default to not verified
-      
-      $this->data['EmailAddress']['verified'] = false;
+      if(!$trustVerified) {
+        // Adding a new address should default to not verified
+        
+        $this->data['EmailAddress']['verified'] = false;
+      }
     }
     
     // Start a transaction and check availability. This is similar to Identifier::beforeSave.

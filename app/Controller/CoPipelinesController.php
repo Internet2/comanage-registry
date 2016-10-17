@@ -42,7 +42,6 @@ class CoPipelinesController extends StandardController {
   /**
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request->params
-   * - postcondition: $cous may be set.
    *
    * @since  COmanage Registry v1.1.0
    */

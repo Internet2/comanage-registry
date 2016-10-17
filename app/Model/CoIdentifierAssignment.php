@@ -232,7 +232,9 @@ class CoIdentifierAssignment extends AppModel {
                                                 $coIdentifierAssignment['CoIdentifierAssignment']['minimum'],
                                                 $coIdentifierAssignment['CoIdentifierAssignment']['maximum']);
       
-      if(!in_array($candidate, $tested)) {
+      if(!in_array($candidate, $tested)
+         // Also check that we didn't get an empty string
+         && trim($candidate) != false) {
         // We have a new candidate (ie: one that wasn't generated on a previous loop),
         // so let's see if it is already in use.
         
