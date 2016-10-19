@@ -905,10 +905,10 @@
           }
           ?>
           <a href="#tabs-group" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <i class="material-icons">add_box</i>
             <?php print _txt('fd.groups'); ?>
           </a>
-          <ul id="tabs-group" class="fields common-list">
+          <ul id="tabs-group" class="fields common-list" style="display: none;">
               <?php if($this->action == "compare"): ?>
                 <li>
                   <div class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></div>
@@ -961,10 +961,10 @@
             print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
           ?>
           <a href="#tabs-coperson" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <i class="material-icons">add_box</i>
             <?php print _txt('fd.attrs.cop'); ?>
           </a>
-          <ul  id="tabs-coperson" class="fields common-list">
+          <ul  id="tabs-coperson" class="fields common-list" style="display: none;">
             <li>
               <label for="CoPersonStatusAgain"><?php print _txt('fd.status'); ?></label>
               <span class="field-info">
@@ -1069,10 +1069,10 @@
             }
           ?>
           <a href="#tabs-role" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <i class="material-icons">add_box</i>
             <?php print _txt('fd.attrs.copr'); ?>
           </a>
-          <ul class="fields">
+          <ul class="fields" style="display: none;">
             <li>
               <div id="tabs-role">
                 <?php if($this->action != "invite"): ?>
@@ -1232,10 +1232,10 @@
             }
           ?>
           <a href="#tabs-sshkeys" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <i class="material-icons">add_box</i>
             <?php print _txt('ct.ssh_keys.pl'); ?>
           </a>
-          <ul class="fields">
+          <ul class="fields" style="display: none;">
             <li>
               <div id="tabs-sshkeys">
                 <?php print '<div class="additionalinfo">'; ?>
@@ -1317,10 +1317,10 @@
             }
           ?>
           <a href="#tabs-orgid" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <i class="material-icons">add_box</i>
             <?php print _txt('ct.org_identities.pl'); ?>
           </a>
-          <ul class="fields">
+          <ul class="fields" style="display: none;">
             <li>
               <div id="tabs-orgid">
 

@@ -753,9 +753,9 @@ body.co_petitions .ui-dialog {
 /* Alpha search  */
 #peopleAlphabet {
   margin: 0;
-  font-size: 1.2em;
   border-top: 1px solid #ddd;
   border-bottom: 2px solid #ccc;
+  font-size: 0.9em;
 }
 #peopleAlphabet ul {
   display: table;
@@ -1214,6 +1214,9 @@ ul.common-list label {
 }
 .ui-widget-header {
   background: #9FC6E2;
+}
+.ui-button {
+  font-size: 0.9em !important;
 }
 .co-grid {
   clear: both;
