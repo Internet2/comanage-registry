@@ -263,6 +263,7 @@
     }
     
     // Populate the cross reference
+    // XXX This first hidden field will not be in a form in the Canvas view - is it needed there?
     print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
     if(!$this->action != "canvas") {
       print $this->Form->hidden('CoOrgIdentityLink.0.id'). "\n";
@@ -907,80 +908,55 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.groups'); ?>
           </a>
-          <ul class="fields">
-            <li>
-              <div id="tabs-group">
-                <div class="additionalinfo">
-                    <?php if($this->action == "compare"): ?>
-                      <table>
-                        <tr>
-                          <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-                          <?php if($e && !$es): ?>
-                            <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
-                          <?php endif; ?>
-                        </tr>
-                      </table>
-                    <?php endif; ?>
-                    <?php
-                    if(isset($co_people[0]['CoGroupMember'])) {
-	              foreach($co_people[0]['CoGroupMember'] as $g) {
-                        $isMembersGroup = ($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8)== 0);
-                      	if($e && !$es && !$isMembersGroup) {
-                          if($g['member'] || $g['owner']) {
-                            print '<div>';
-                            print '<div>';
-                            print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
-                            print '</div>';
-                            print '<div>';
-                            // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                            print '<a class="deletebutton" title="' . _txt('op.delete')
-                              . '" onclick="javascript:js_confirm_generic(\''
-                              . _txt('js.remove.member') . '\',\''    // dialog body text
-                              . $this->Html->url(                     // dialog confirm URL
-                                array(
-                                  'controller' => 'co_group_members',
-                                  'action' => 'delete', $g['id'],
-                                  'copersonid' => $co_people[0]['CoPerson']['id'],
-                                  'return' => 'person'
-                                )
-                              ) . '\',\''
-                              . _txt('op.remove') . '\',\''    // dialog confirm button
-                              . _txt('op.cancel') . '\',\''    // dialog cancel button
-                              . _txt('op.remove') . '\',[\''   // dialog title
-                              . filter_var(_jtxt($g['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                              . '\']);">'
-                              . _txt('op.delete')
-                              . '</a>';
-                            print '</div>';
-                            print '</div>';
-                          }
-                      	} else {
-                          print '<table>';
-                          print '<tr class="line';
-                          print ($l % 2);
-                          print '">';
-                          $l++;
-                          print '<td>';
-                          if($g['member'])
-                            print Sanitize::html($g['CoGroup']['name']) . "<br />\n";
-                          if($g['owner'])
-                            print Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")<br />\n";
-                          print '</td>';
-                          print '</tr>';
-                          print '</table>';
-                      	}      
-	              }
+          <ul id="tabs-group" class="fields common-list">
+              <?php if($this->action == "compare"): ?>
+                <li>
+                  <div class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></div>
+                </li>
+              <?php endif; ?>
+              <?php
+              if(isset($co_people[0]['CoGroupMember'])) {
+                foreach($co_people[0]['CoGroupMember'] as $g) {
+                  $isMembersGroup = ($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8)== 0);
+                  if($e && !$es && !$isMembersGroup) {
+                    if($g['member'] || $g['owner']) {
+                      print '<li><div><div>';
+                      print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
+                      print '</div><div>';
+                      // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                      print '<a class="deletebutton" title="' . _txt('op.delete')
+                        . '" onclick="javascript:js_confirm_generic(\''
+                        . _txt('js.remove.member') . '\',\''    // dialog body text
+                        . $this->Html->url(                     // dialog confirm URL
+                          array(
+                            'controller' => 'co_group_members',
+                            'action' => 'delete', $g['id'],
+                            'copersonid' => $co_people[0]['CoPerson']['id'],
+                            'return' => 'person'
+                          )
+                        ) . '\',\''
+                        . _txt('op.remove') . '\',\''    // dialog confirm button
+                        . _txt('op.cancel') . '\',\''    // dialog cancel button
+                        . _txt('op.remove') . '\',[\''   // dialog title
+                        . filter_var(_jtxt($g['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                        . '\']);">'
+                        . _txt('op.delete')
+                        . '</a>';
+                      print '</div></div></li>';
                     }
-                    ?>
-                </div>
-              </div> <!-- tabs-group -->
-            </li>
+                  } else {
+                    if($g['member'])
+                      print '<li>' . Sanitize::html($g['CoGroup']['name']) . "</li>\n";
+                    if($g['owner'])
+                      print '<li>' . Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")</li>\n";
+                  }
+                }
+              }
+              ?>
           </ul>
         </li>
         <li id="fields-coperson" class="fieldGroup">
           <?php
-            print $this->Form->end();
-            // Restart the form since the Form elements emitted above for add/invite cause blackholes for edit
             print $this->Form->create('CoPerson', array('url' => array('action'=>'edit','id'=>'CoPersonEditAttributesForm')));
             print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
           ?>
@@ -988,112 +964,92 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.attrs.cop'); ?>
           </a>
-          <ul class="fields">
+          <ul  id="tabs-coperson" class="fields common-list">
             <li>
-              <div id="tabs-coperson">
-                <?php print '<div class="additionalinfo">'; ?>
-                <table>
-                  <tbody>
-                    <tr class="line1">
-                      <th class="ui-widget-header">
-                        <label for="CoPersonStatusAgain"><?php print _txt('fd.status'); ?></label>
-                      </th>
-                      <td>
-                        <?php
-                          if($e && $permissions['edit']
-                             && !$permissions['editself']) {
-                            global $cm_lang, $cm_texts;
-                            
-                            $attrs = array();
-                            $attrs['value'] = $co_people[0]['CoPerson']['status'];
-                            $attrs['empty'] = false;
-                            $attrs['id'] = 'CoPersonStatusAgain';
-                            
-                            print $this->Form->select('CoPerson.status',
-                                                      $cm_texts[ $cm_lang ]['en.status'],
-                                                      $attrs);
-                            
-                            if($this->Form->isFieldError('CoPerson.status')) {
-                              print $this->Form->error('CoPerson.status');
-                            }
-                          } else {
-                            if(!empty($co_people[0]['CoPerson']['status'])) {
-                              print _txt('en.status', null, $co_people[0]['CoPerson']['status']);
-                              
-                              if($e) {
-                                // Self service... we need to include current status so the form saves
-                                print $this->Form->hidden('CoPerson.status');
-                              }
-                            }
-                          }
-                        ?>
-                        <?php if($e && $permissions['edit']
-                                 && !$permissions['editself']
-                                 &&
-                                 ($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
-                                  || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation)): ?>
-                        <div>
-                          <span class="ui-icon ui-icon-info co-info"></span>
-                          <em><?php print _txt('fd.status.change'); ?></em>
-                        </div>
-                        <?php endif; ?>
-                      </td>
-                    </tr>
-                    <tr class="line2">
-                      <th class="ui-widget-header">
-                        <?php print $this->Form->label('CoPerson.timezone', _txt('fd.timezone')); ?>
-                      </th>
-                      <td>
-                        <?php
-                          if($e && ($permissions['edit'] || $permissions['editself'])) {
-                            $attrs = array();
-                            $attrs['value'] = $co_people[0]['CoPerson']['timezone'];
-                            $attrs['empty'] = true;
-                            
-                            print $this->Form->select('CoPerson.timezone',
-                                                      // We use array_combine to force Cake to store
-                                                      // the string (eg: Europe/Amsterndam) and not the
-                                                      // index (eg: 310)
-                                                      array_combine(timezone_identifiers_list(),
-                                                                    timezone_identifiers_list()),
-                                                      $attrs);
-                            
-                            if($this->Form->isFieldError('CoPerson.timezone')) {
-                              print $this->Form->error('CoPerson.timezone');
-                            }
-                          } else {
-                            if(!empty($co_people[0]['CoPerson']['timezone'])) {
-                              print $co_people[0]['CoPerson']['timezone'];
-                            }
-                          }
-                        ?>
-                        <?php if($e &&
-                                 ($permissions['editself']
-                                  // Special check for admins, who aren't editself
-                                  || $this->Session->read('Auth.User.co_person_id') == $this->request->params['pass'][0])): ?>
-                        <div>
-                          <span class="ui-icon ui-icon-info co-info"></span>
-                          <em><?php print _txt('fd.timezone.change'); ?></em>
-                        </div>
-                        <?php endif; ?>
-                      </td>
-                    </tr>
-                    <?php if($e && ($permissions['edit'] || $permissions['editself'])): ?>
-                    <tr class="line1">
-                      <td></td>
-                      <td>
-                        <?php
-                          print $this->Form->submit($submit_label);
-                        ?>
-                      </td>
-                    </tr>
-                    <?php endif; // edit ?>
-                  </tbody>
-                </table>
-              </div>
-              </div> <!-- tabs-coperson -->
+              <label for="CoPersonStatusAgain"><?php print _txt('fd.status'); ?></label>
+              <span class="field-info">
+                <?php
+                  if($e && $permissions['edit']
+                     && !$permissions['editself']) {
+                    global $cm_lang, $cm_texts;
+
+                    $attrs = array();
+                    $attrs['value'] = $co_people[0]['CoPerson']['status'];
+                    $attrs['empty'] = false;
+                    $attrs['id'] = 'CoPersonStatusAgain';
+
+                    print $this->Form->select('CoPerson.status',
+                                              $cm_texts[ $cm_lang ]['en.status'],
+                                              $attrs);
+
+                    if($this->Form->isFieldError('CoPerson.status')) {
+                      print $this->Form->error('CoPerson.status');
+                    }
+                  } else {
+                    if(!empty($co_people[0]['CoPerson']['status'])) {
+                      print _txt('en.status', null, $co_people[0]['CoPerson']['status']);
+
+                      if($e) {
+                        // Self service... we need to include current status so the form saves
+                        print $this->Form->hidden('CoPerson.status');
+                      }
+                    }
+                  }
+                ?>
+                <?php if($e && $permissions['edit']
+                         && !$permissions['editself']
+                         &&
+                         ($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
+                          || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation)): ?>
+                  <div class="co-info-box">
+                    <span class="ui-icon ui-icon-info co-info"></span>
+                    <em><?php print _txt('fd.status.change'); ?></em>
+                  </div>
+                <?php endif; ?>
+              </span>
             </li>
-          </ul>
+            <li>
+              <?php print $this->Form->label('CoPerson.timezone', _txt('fd.timezone')); ?>
+              <?php
+                if($e && ($permissions['edit'] || $permissions['editself'])) {
+                  $attrs = array();
+                  $attrs['value'] = $co_people[0]['CoPerson']['timezone'];
+                  $attrs['empty'] = true;
+
+                  print $this->Form->select('CoPerson.timezone',
+                                            // We use array_combine to force Cake to store
+                                            // the string (eg: Europe/Amsterndam) and not the
+                                            // index (eg: 310)
+                                            array_combine(timezone_identifiers_list(),
+                                                          timezone_identifiers_list()),
+                                            $attrs);
+
+                  if($this->Form->isFieldError('CoPerson.timezone')) {
+                    print $this->Form->error('CoPerson.timezone');
+                  }
+                } else {
+                  if(!empty($co_people[0]['CoPerson']['timezone'])) {
+                    print $co_people[0]['CoPerson']['timezone'];
+                  }
+                }
+              ?>
+              <?php if($e &&
+                       ($permissions['editself']
+                        // Special check for admins, who aren't editself
+                        || $this->Session->read('Auth.User.co_person_id') == $this->request->params['pass'][0])): ?>
+                <div class="co-info">
+                  <span class="ui-icon ui-icon-info co-info"></span>
+                  <em><?php print _txt('fd.timezone.change'); ?></em>
+                </div>
+              <?php endif; ?>
+            </li>
+            <?php if($e && ($permissions['edit'] || $permissions['editself'])): ?>
+              <li>
+                <?php print $this->Form->submit($submit_label); ?>
+              </li>
+            <?php endif; // edit ?>
+          </ul><!-- tabs-coperson -->
+          <?php print $this->Form->close; ?>
         </li>
         <li id="fields-role" class="fieldGroup">
           <?php

@@ -1,1 +1,1 @@
-../Standard/edit.ctp
+../Standard/canvas.ctp

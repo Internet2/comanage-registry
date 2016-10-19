@@ -27,96 +27,75 @@ global $cm_lang, $cm_texts;
 
 ?>
 
-<div id="advancedSearch">
-  <div class="accHeader"><?php print _txt('fd.co_people.search');?></div>
-  <div>
-    <?php 
-      print $this->Form->create('CoPerson',array('url' => array('action'=>'search')));
-      print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'],'id'=>'SearchCoPersonCoId')). "\n";
-    ?>
-    <table>
-      <tr>
-        <td>
-          <?php
-            $args = array();
-            $args['label'] = _txt('fd.name.given');
-            $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
-            print $this->Form->input('Search.givenName',$args);
-          ?>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <?php
-            $args = array();
-            $args['label'] = _txt('fd.name.family');
-            $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
-            print $this->Form->input('Search.familyName',$args);
-          ?>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <?php
-            $args = array();
-            $args['label'] = _txt('fd.identifier.identifier');
-            $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
-            print $this->Form->input('Search.identifier', $args);
-          ?>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <?php
-            // This needs to pull StatusEnum values based on the model (CO-1007)
-            $statusOptions = array(StatusEnum::Active,
-                                  StatusEnum::Approved,
-                                  StatusEnum::Declined,
-                                  StatusEnum::Deleted,
-                                  StatusEnum::Denied,
-                                  StatusEnum::Invited,
-                                  StatusEnum::Pending,
-                                  StatusEnum::PendingApproval,
-                                  StatusEnum::PendingConfirmation,
-                                  StatusEnum::Suspended);
-  
-            foreach ($statusOptions as $s) {
-              $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
-            }
-            
-            $formParams = array('options' => $searchOptions,
-                                'type'    => 'select',
-                                'empty'   => ' ',
-                                'label'   => _txt('fd.status'),
-                                'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
-            
-            print $this->Form->input('Search.status', $formParams);
-          ?>
-        </td>
-      </tr>
-      <?php if(!empty($vv_cous)): ?>
-      <tr>
-        <td>
-          <?php
-            $formParams = array('options' => $vv_cous,
-                                'type'    => 'select',
-                                'empty'   => ' ',
-                                'label'   => _txt('fd.cou'),
-                                'value'   => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
-            
-            print $this->Form->input('Search.couid', $formParams);
-          ?>
-        </td>
-      </tr>
-      <?php endif; // cous ?>
-      <tr>
-        <td>
-          <?php print $this->Form->submit(_txt('op.search')); ?>
-        </td>
-      </tr>
-    </table>
-
-    <?php print $this->Form->end();?>
-
+<div id="coPeopleSimpleSearch" class="side-search">
+  <div class="accHeader">
+    <i class="material-icons">search</i>
+    <?php print _txt('fd.co_people.search');?>
   </div>
+  <?php
+    print $this->Form->create('CoPerson', array('url' => array('action'=>'search')));
+    print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'],'id'=>'SearchCoPersonCoId')). "\n";
+
+    $args = array();
+    $args['label'] = _txt('fd.name.given');
+    $args['placeholder'] = _txt('fd.name.given');
+    $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
+    print $this->Form->input('Search.givenName',$args);
+
+    $args = array();
+    $args['label'] = _txt('fd.name.family');
+    $args['placeholder'] = _txt('fd.name.family');
+    $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
+    print $this->Form->input('Search.familyName',$args);
+
+    $args = array();
+    $args['label'] = _txt('fd.identifier.identifier');
+    $args['placeholder'] = _txt('fd.identifier.identifier');
+    $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
+    print $this->Form->input('Search.identifier', $args);
+
+    // This needs to pull StatusEnum values based on the model (CO-1007)
+    $statusOptions = array(StatusEnum::Active,
+                          StatusEnum::Approved,
+                          StatusEnum::Declined,
+                          StatusEnum::Deleted,
+                          StatusEnum::Denied,
+                          StatusEnum::Invited,
+                          StatusEnum::Pending,
+                          StatusEnum::PendingApproval,
+                          StatusEnum::PendingConfirmation,
+                          StatusEnum::Suspended);
+
+    foreach ($statusOptions as $s) {
+      $searchOptions[ $s ] = $cm_texts[ $cm_lang ]['en.status'][ $s ];
+    }
+
+    $formParams = array('options' => $searchOptions,
+                        'type'    => 'select',
+                        'empty'   => _txt('fd.status') . ' ' . _txt('op.select.empty'),
+                        'label'   => _txt('fd.status'),
+                        'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
+
+    print $this->Form->input('Search.status', $formParams);
+    if(!empty($vv_cous)) {
+      $formParams = array('options' => $vv_cous,
+        'type' => 'select',
+        'empty' => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
+        'label' => _txt('fd.cou'),
+        'value' => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
+
+      print $this->Form->input('Search.couid', $formParams);
+    } // cous
+
+    //$this->Form->submit(_txt('op.search'));
+    print '<div class="sideSearchSubmit">';
+    $args = array();
+    $args['aria-label'] = _txt('op.search');
+    $args['class'] = 'submit-button spin mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect';
+    print $this->Form->submit(_txt('op.search'),$args);
+    print '</div>';
+
+    print $this->Form->end();
+  ?>
+
 </div>

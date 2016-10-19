@@ -114,35 +114,6 @@ td.top {
 .coTabs {
   min-height:350px;
 }
-/* For Advanced Search box */
-#advancedSearch {
-  margin-top: 0.5em;
-}
-#advancedSearch .ui-accordion-header {
-  font-weight: normal;
-}
-#advancedSearch .ui-accordion-content {
-  padding: 0px;
-}
-#advancedSearch td {
-  border: none;
-}
-#advancedSearch td label{
-  top: 4px;
-  position: relative;
-}
-#advancedSearch input,
-#advancedSearch select {
-  float: right;
-  clear: both;
-  width: 120px;
-}
-#advancedSearch select {
-  width: 146px;
-}
-#advancedSearch .submit {
-  float: right;
-}
 /* For enrollment form */
 #formbox {
   background-color: #F3F4F3;
@@ -223,6 +194,8 @@ td.top {
 .additionalinfo .fieldData {
   padding: 0.5em;
 }
+/*** DETANGLE THIS RULE: ***/
+/*
 #OrgIdentityEditForm .addbutton,
 #view_org_identity .addbutton,
 #CoPersonEditForm .addbutton,
@@ -232,7 +205,7 @@ td.top {
 .noborder .editbutton {
   float: right;
   clear: left;
-}
+}*/
 
 /* Drag/drop ordering */
 td.order .ui-icon{

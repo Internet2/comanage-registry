@@ -55,6 +55,10 @@
   h1 {
     font-size: 36px;
   }
+  h2 {
+    font-size: 32px;
+    line-height: 32px;
+  }
   #logout {
     /*display: block; -- keep hidden for now */
   }
@@ -96,6 +100,13 @@
   }
   #co_people .person-admin button {
     display: inline;
+  }
+  ul.common-list label {
+    display: inline-block;
+    min-width: 80px;
+  }
+  ul.common-list .co-info-box {
+    margin-left: 92px;
   }
   /* Pagination */
   #pagination {
@@ -238,6 +249,9 @@
     display: flex;
     background-color: #e5e5e5 !important;
     font-weight: bold;
+  }
+  .side-search {
+    margin: 2em 1em;
   }
   /* REDIRECT PAGE */
   #redirect-box {

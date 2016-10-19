@@ -29,8 +29,7 @@
     $( ".co-person" ).accordion({
       collapsible: true,
       active     : false,
-      heightStyle: "content",
-      
+      heightStyle: "content"
     });
 
     // allow names to link to the person canvas
@@ -288,7 +287,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                       $p['CoPerson']['id']
                     ),
                     array(
-                      'class' => 'editbutton',
+                      'class' => 'editbutton spin',
                       'onclick' => 'noprop(event);',
                       'title' => _txt('op.edit-a',array(generateCn($p['PrimaryName']))),
                       'aria-label' => _txt('op.edit-a',array(generateCn($p['PrimaryName'])))
@@ -406,7 +405,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                                                       'action' => ($permissions['edit'] ? "edit" : "view"),
                                                       $pr['id'],
                                                       'co' => $cur_co['Co']['id']),
-                                                array('class' => 'editbutton'));
+                                                array('class' => 'editbutton spin'));
                         print '</span>';
                         if(!empty($pr['title'])) {
                           print '<span class="roleTitleText">';

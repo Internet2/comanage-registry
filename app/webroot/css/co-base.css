@@ -927,11 +927,15 @@ body.co_petitions .ui-dialog {
 .ui-sortable tr {
   cursor: move;
 }
-/* For Top Search (co_people index and org_identity index) */
+/* For Top Search (co_people index and org_identity index)
+   and Side Search (person canvas) */
 .top-search {
   margin-top: 0.5em;
   padding: 0.5em;
   background-color: #eee;
+}
+.side-search {
+  margin-top: 2em;
 }
 .top-search legend .material-icons {
   vertical-align: middle;
@@ -962,7 +966,9 @@ a#top-search-toggle:hover {
   display: none;
 }
 .top-search input[type=text],
-.top-search select {
+.top-search select,
+.side-search input[type=text],
+.side-search select {
   width: 100%;
   box-sizing: border-box;
   margin: 0 0 0.5em 0;
@@ -978,7 +984,9 @@ a#top-search-toggle:hover {
   opacity: 0.2;
 }
 .top-search .submit-button,
-.top-search .clear-button {
+.top-search .clear-button,
+.side-search .submit-button,
+.side-search .clear-button {
   float: right;
   font-size: 0.9em;
   width: 80px;
@@ -986,10 +994,10 @@ a#top-search-toggle:hover {
   height: 28px;
   margin: 0.5em;
 }
-.top-search label {
+.top-search label,
+.side-search label {
   display: none;
 }
-
 /* PERSON CANVAS */
 .personExplorer ul {
   margin: 0 0 0 1em;
@@ -1002,11 +1010,6 @@ a#top-search-toggle:hover {
   list-style: none;
   margin: 0 0 0.5em 0;
 }
-.personExplorer .fieldGroupName .ui-icon {
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons-16px.png") !important;
-  float: left;
-  opacity: 0.6;
-}
 .personExplorer a {
   text-decoration: none;
 }
@@ -1014,7 +1017,7 @@ a#top-search-toggle:hover {
   height: 20px;
 }
 .personExplorer li.fieldGroup {
-  clear: left;
+  clear: both;
   margin: 0 0 1em 0;
 }
 .personExplorer ul.fields {
@@ -1027,6 +1030,10 @@ a#top-search-toggle:hover {
   font-weight: bold;
   padding: 0.3em 0;
   margin: 1em 0 0 0;
+}
+.coAddEditButtons {
+  float: right;
+  clear: left;
 }
 .personExplorer .coAddEditButtons .ui-state-default,
 .personExplorer .coAddEditButtons .ui-widget-content .ui-state-default,
@@ -1062,11 +1069,6 @@ a#top-search-toggle:hover {
   list-style: none;
   margin: 0 0 0.5em 0;
 }
-#changeLog .fieldGroupNameCl .ui-icon {
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons-16px.png") !important;
-  float: left;
-  opacity: 0.6;
-}
 #changeLog a {
   text-decoration: none;
 }
@@ -1079,10 +1081,10 @@ a#top-search-toggle:hover {
 }
 .fieldGroupNameCl {
   display: block;
-  color: #2E6E9E;
   font-size: 1.1em;
   font-weight: bold;
   padding: 0.3em 0;
+  margin: 1em 0 0 0;
 }
 .co_people #changeLog {
   margin-left: 1em;
@@ -1197,6 +1199,18 @@ a.asc::before {
 }
 a.desc::before {
   content: "▼"; /*\25bc in escaped hex*/
+}
+ul.common-list li {
+  background-color: #eee;
+  margin: 0 0 2px;
+  padding: 0.5em;
+}
+ul.common-list li:nth-child(even) {
+  background-color: #f5f5f5;
+}
+ul.common-list label {
+  display: block;
+  font-weight: bold;
 }
 .ui-widget-header {
   background: #9FC6E2;
