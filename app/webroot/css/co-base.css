@@ -199,6 +199,13 @@ body.logged-in #user-menu {
 #notifications .notification-created a {
   color: #444;
 }
+/* Notification table */
+.notificationStatus {
+  float: left;
+  margin-right: 1em;
+  margin-top: 5px;
+}
+/* LOGIN & LOGOUT */
 #login {
   margin: 9px;
 }
@@ -1035,6 +1042,47 @@ a#top-search-toggle:hover {
   float: right;
   clear: left;
 }
+.field-actions {
+   float: right;
+   padding: 2px;
+}
+.field-data {
+  float: left;
+  padding: 4px 0 0 10px;
+}
+.additionalinfo{
+  margin: 0 0 5px 0;
+}
+.additionalinfo > div {
+  margin: 0 0 2px;
+  overflow: hidden;
+  padding: 2px 0 3px 0;
+  background-color: #F5F5F5;
+}
+.additionalinfo > div:hover {
+  background-color: #eee;
+}
+.additionalinfo > div:last-child {
+  margin: 0;
+}
+.additionalinfo div a {
+  float: left;
+}
+.additionalinfo div .ui-button {
+  float: right;
+}
+.additionalinfo li {
+  margin: 0 0 2px;
+  overflow: hidden;
+  padding: 2px 0 3px 0;
+  background-color: #F5F5F5;
+}
+.additionalinfo li .actionButtons {
+  float: right;
+}
+.additionalinfo .fieldData {
+  padding: 0.5em;
+}
 .personExplorer .coAddEditButtons .ui-state-default,
 .personExplorer .coAddEditButtons .ui-widget-content .ui-state-default,
 .personExplorer .coAddEditButtons .ui-widget-header .ui-state-default {
@@ -1257,6 +1305,26 @@ tr.noborder td {
 }
 th.actionButtons {
   width:70px;
+}
+/* legacy zebra stripes for rows;
+   0 used for autoincrementing line counters; */
+.line0 {
+  background-color: #e5e5e5;
+}
+.line1 {
+  background-color: #f5f5f5;
+}
+.line2 {
+  background-color: #e5e5e5;
+}
+td.indented {
+  border-left: 3em solid #fff;
+}
+.menuitembutton {
+  width: 250px;
+}
+.submitCell {
+  text-align: right;
 }
 /* MDL OVERRIDES */
 #main.mdl-layout__content {

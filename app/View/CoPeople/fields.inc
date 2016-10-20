@@ -263,7 +263,7 @@
     }
     
     // Populate the cross reference
-    // XXX This first hidden field will not be in a form in the Canvas view - is it needed there?
+    // XXX This first hidden field will not be in a form in the Canvas view - is it needed?
     print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
     if(!$this->action != "canvas") {
       print $this->Form->hidden('CoOrgIdentityLink.0.id'). "\n";
@@ -308,17 +308,25 @@
     $("#autogenerate-dialog").dialog({
       autoOpen: false,
       <?php if($this->action == 'canvas'): ?>
-      buttons: {
-        "<?php print _txt('op.cancel'); ?>": function() {
-          $(this).dialog("close");
+      buttons: [
+        {
+          text : "<?php print _txt('op.cancel'); ?>",
+          click : function() {
+            $(this).dialog("close");
+          }
         },
-        "<?php print _txt('op.id.auto'); ?>": function() {
-          window.location="<?php print $this->Html->url(array('controller' => 'identifiers',
-                                                              'action' => 'assign',
-                                                              'copersonid' => $co_people[0]['CoPerson']['id'],
-                                                              'co' => $cur_co['Co']['id'])); ?>"
+        {
+          text : "<?php print _txt('op.id.auto'); ?>",
+          click: function () {
+            $(this).dialog("close");
+            displaySpinner();
+            window.location.href = "<?php print $this->Html->url(array('controller' => 'identifiers',
+            'action' => 'assign',
+            'copersonid' => $co_people[0]['CoPerson']['id'],
+            'co' => $cur_co['Co']['id'])); ?>";
+          }
         }
-      },
+      ],
       modal: true,
       show: {
         effect: "fade"
@@ -483,48 +491,10 @@
                   </td>
                 </tr>
               </table>
-            <?php elseif($this->action == "compare"): ?>
-              <table>
-                <!-- Simply list the org names and then the CO names -->
-                <tr>
-                  <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-                </tr>
-                <?php foreach($co_people[0]['Name'] as $n): ?>
-                  <tr>
-                    <td>
-                      <?php
-                      print generateCn($n)
-                        . " ("
-                        . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                        . $vv_cop_name_types[ $n['type'] ]
-                        . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
-                        . ")";
-                      ?>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-                <tr>
-                  <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
-                </tr>
-                <?php foreach($org_identities[0]['Name'] as $n): ?>
-                  <tr>
-                    <td>
-                      <?php
-                      print generateCn($n)
-                        . " ("
-                        . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                        . $vv_cop_name_types[ $n['type'] ]
-                        . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
-                        . ")";
-                      ?>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              </table>
-            <?php else: // invite/compare ?>
+            <?php else: // invite ?>
               <?php foreach($co_people[0]['Name'] as $n): ?>
-                <div>
-                  <div>
+                <div class="field-data-container">
+                  <div class="field-data">
                     <?php
                     $perm = $this->Permission->selfService($permissions,
                                                            $e,
@@ -547,7 +517,7 @@
                       . ")";
                     ?>
                   </div>
-                  <div>
+                  <div class="field-actions">
                     <?php
                     if($perm == PermissionEnum::ReadWrite) {
                       if(!$n['primary_name']) {
@@ -616,23 +586,7 @@
           <ul class="fields">
             <li>
               <div id="tabs-id" >
-                <?php print '<div';
-                if($this->action != 'compare')
-                  print ' class="additionalinfo"';
-                print '>';
-                ?>
-                <?php if($this->action == "compare"): ?>
-                <table>
-                  <tbody>
-                    <tr>
-                      <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-                      <?php if($e && !$es): ?>
-                        <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
-                      <?php endif; ?>
-                    </tr>
-                  </tbody>
-                </table>
-                <?php endif; ?>
+                <div class="additionalinfo">
 
                 <?php
                 $l = 1;
@@ -642,26 +596,26 @@
                     foreach($co_people[0]['Identifier'] as $id) {
                      if(!empty($id['SourceIdentifier']['id'])) {
                         // This address came from an OIS and so can't be edited
-                        print '<div>';
-                        print '<div>';
+                        print '<div class="field-data-container">';
+                        print '<div class="field-data">';
                         print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'view', $id['id']));
                         print " &nbsp;("
                           . $id['SourceIdentifier']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
                           . ", " . $vv_cop_identifier_types[ $id['type'] ] . ")<br />\n";
                         print '</div>';
-                        print '<div>';
+                        print '<div class="field-actions">';
                         print $this->Html->link(_txt('op.view'),
                                                 array('controller' => 'identifiers', 'action' => 'view', $id['id']),
                                                 array('class' => 'viewbutton')) . "\n";
                         print '</div>';
                         print '</div>';
                       } else {
-                        print '<div class="identifier-container">';
-                        print '<div class="action-buttons">';
+                        print '<div class="field-data-container">';
+                        print '<div class="field-data">';
                         print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id']));
                         print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
                         print '</div> <!-- action-buttons -->';
-                        print '<div class="identifier">';
+                        print '<div class="field-actions">';
                         // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                         print '<a class="deletebutton" title="' . _txt('op.delete')
                           . '" onclick="javascript:js_confirm_generic(\''
@@ -705,34 +659,7 @@
                   }
                 }
                 ?>
-              </div>
-              <?php if($this->action == "compare"): ?>
-                <div>
-                  <table>
-                    <tbody>
-                    <tr>
-                      <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
-                    </tr>
-                    <?php
-                    if(isset($org_identities[0]['Identifier']))
-                    {
-                      foreach($org_identities[0]['Identifier'] as $id)
-                      {
-                        print '<tr class="line';
-                        print ($l % 2);
-                        print '">';
-                        $l++;
-                        print '<td>';
-                        print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
-                        print '</td>';
-                        print '</tr>';
-                      }
-                    }
-                    ?>
-                    </tbody>
-                  </table>
                 </div>
-              <?php endif; // compare ?>
               </div> <!-- tabs-id -->
             </li>
           </ul>
@@ -762,128 +689,85 @@
           <ul class="fields">
             <li>
               <div id="tabs-email">
-                <?php print '<div';
-                if($this->action != 'compare')
-                  print ' class="additionalinfo"';
-                print '>';
-                ?>
-                <table>
-                  <tbody>
-                  <?php if($this->action == "compare"): ?>
-                    <tr>
-                      <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
-                      <?php if($e && !$es): ?>
-                        <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
-                      <?php endif; ?>
-                    </tr>
-                  <?php endif; ?>
-                  <?php
-                  $l = 1;
-                  
-                  if(isset($co_people[0]['EmailAddress'])) {
-                    foreach($co_people[0]['EmailAddress'] as $ea) {
-                      if(!empty($ea['SourceEmailAddress']['id'])) {
-                        // This address came from an OIS and so can't be edited
-                        print '<div>';
-                        print '<div>';
-                        print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'view', $ea['id']));
-                        print " &nbsp;("
-                          . $ea['SourceEmailAddress']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
-                          . ", " . $vv_cop_emailaddress_types[ $ea['type'] ] . ", "
-                          . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
-                        print '</div>';
-                        print '<div>';
-                        print $this->Html->link(_txt('op.view'),
-                                                array('controller' => 'email_addresses', 'action' => 'view', $ea['id']),
-                                                array('class' => 'viewbutton')) . "\n";
-                        print '</div>';
-                        print '</div>';
-                      } else {
-                        // Determine the permission for this attribute
-                        
-                        $perm = $this->Permission->selfService($permissions,
-                                                                         $e,
-                                                                         'EmailAddress',
-                                                                         (!empty($ea['type']) ? $ea['type'] : null));
-                        
-                        if($perm == PermissionEnum::ReadWrite) {
-                          print '<div>';
-                          print '<div>';
-                          print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']));
-                          print " &nbsp;(" . $vv_cop_emailaddress_types[ $ea['type'] ] . ", "
-                            . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
-                          print '</div>';
-                          print '<div>';
-                          print '<a class="deletebutton" title="' . _txt('op.delete')
-                            . '" onclick="javascript:js_confirm_generic(\''
-                            . _txt('js.remove') . '\',\''    // dialog body text
-                            . $this->Html->url(              // dialog confirm URL
-                              array(
-                                'controller' => 'email_addresses',
-                                'action' => 'delete',
-                                $ea['id']
-                              )
-                            ) . '\',\''
-                            . _txt('op.remove') . '\',\''    // dialog confirm button
-                            . _txt('op.cancel') . '\',\''    // dialog cancel button
-                            . _txt('op.remove') . '\',[\''   // dialog title
-                            . filter_var(_jtxt($ea['mail']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                            . '\']);">'
-                            . _txt('op.delete')
-                            . '</a>';
-                          print $this->Html->link(_txt('op.edit'),
-                              array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']),
-                              array('class' => 'editbutton')) . "\n";
-                          print '</div>';
-                          print '</div>';
-                        } elseif($perm == PermissionEnum::ReadOnly) {
-                          print '<tr class="line';
-                          print ($l % 2);
-                          print '">';
-                          $l++;
-                          print '<td>';
-                          print Sanitize::html($ea['mail']) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
-                          print '</td>';
-                          print '</tr>';
-                        }
-                      }
-                    }
-                  }
-                  ?>
-                  </tbody>
-                </table>
-              </div>
-              <?php
-              if($this->action == "compare"):
-                $l = 1;
-                ?>
-                <div>
+                <div class="additionalinfo">
                   <table>
                     <tbody>
-                    <tr>
-                      <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
-                    </tr>
                     <?php
-                    if(isset($org_identities[0]['EmailAddress']))
-                    {
-                      foreach($org_identities[0]['EmailAddress'] as $ea)
-                      {
-                        print '<tr class="line';
-                        print ($l % 2);
-                        print '">';
-                        $l++;
-                        print '<td>';
-                        print Sanitize::html($ea['mail']) . " (" . _txt('en.email_address.type', null, $ea['type']) . ")\n";
-                        print '</td>';
-                        print '</tr>';
+                    $l = 1;
 
+                    if(isset($co_people[0]['EmailAddress'])) {
+                      foreach($co_people[0]['EmailAddress'] as $ea) {
+                        if(!empty($ea['SourceEmailAddress']['id'])) {
+                          // This address came from an OIS and so can't be edited
+                          print '<div class="field-data-container">';
+                          print '<div class="field-data">';
+                          print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'view', $ea['id']));
+                          print " &nbsp;("
+                            . $ea['SourceEmailAddress']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
+                            . ", " . $vv_cop_emailaddress_types[ $ea['type'] ] . ", "
+                            . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
+                          print '</div>';
+                          print '<div class="field-actions">';
+                          print $this->Html->link(_txt('op.view'),
+                                                  array('controller' => 'email_addresses', 'action' => 'view', $ea['id']),
+                                                  array('class' => 'viewbutton')) . "\n";
+                          print '</div>';
+                          print '</div>';
+                        } else {
+                          // Determine the permission for this attribute
+
+                          $perm = $this->Permission->selfService($permissions,
+                                                                           $e,
+                                                                           'EmailAddress',
+                                                                           (!empty($ea['type']) ? $ea['type'] : null));
+
+                          if($perm == PermissionEnum::ReadWrite) {
+                            print '<div class="field-data-container">';
+                            print '<div class="field-data">';
+                            print $this->Html->link($ea['mail'], array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']));
+                            print " &nbsp;(" . $vv_cop_emailaddress_types[ $ea['type'] ] . ", "
+                              . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")<br />\n";
+                            print '</div>';
+                            print '<div class="field-actions">';
+                            print '<a class="deletebutton" title="' . _txt('op.delete')
+                              . '" onclick="javascript:js_confirm_generic(\''
+                              . _txt('js.remove') . '\',\''    // dialog body text
+                              . $this->Html->url(              // dialog confirm URL
+                                array(
+                                  'controller' => 'email_addresses',
+                                  'action' => 'delete',
+                                  $ea['id']
+                                )
+                              ) . '\',\''
+                              . _txt('op.remove') . '\',\''    // dialog confirm button
+                              . _txt('op.cancel') . '\',\''    // dialog cancel button
+                              . _txt('op.remove') . '\',[\''   // dialog title
+                              . filter_var(_jtxt($ea['mail']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                              . '\']);">'
+                              . _txt('op.delete')
+                              . '</a>';
+                            print $this->Html->link(_txt('op.edit'),
+                                array('controller' => 'email_addresses', 'action' => 'edit', $ea['id']),
+                                array('class' => 'editbutton')) . "\n";
+                            print '</div>';
+                            print '</div>';
+                          } elseif($perm == PermissionEnum::ReadOnly) {
+                            print '<tr class="line';
+                            print ($l % 2);
+                            print '">';
+                            $l++;
+                            print '<td>';
+                            print Sanitize::html($ea['mail']) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
+                            print '</td>';
+                            print '</tr>';
+                          }
+                        }
                       }
                     }
                     ?>
                     </tbody>
                   </table>
                 </div>
-              <?php endif; // compare ?>
               </div> <!-- tabs-email -->
             </li>
           </ul>
@@ -905,54 +789,49 @@
           }
           ?>
           <a href="#tabs-group" class="fieldGroupName">
-            <i class="material-icons">add_box</i>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.groups'); ?>
           </a>
-          <ul id="tabs-group" class="fields common-list" style="display: none;">
-              <?php if($this->action == "compare"): ?>
-                <li>
-                  <div class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></div>
-                </li>
-              <?php endif; ?>
-              <?php
-              if(isset($co_people[0]['CoGroupMember'])) {
-                foreach($co_people[0]['CoGroupMember'] as $g) {
-                  $isMembersGroup = ($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8)== 0);
-                  if($e && !$es && !$isMembersGroup) {
-                    if($g['member'] || $g['owner']) {
-                      print '<li><div><div>';
-                      print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
-                      print '</div><div>';
-                      // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                      print '<a class="deletebutton" title="' . _txt('op.delete')
-                        . '" onclick="javascript:js_confirm_generic(\''
-                        . _txt('js.remove.member') . '\',\''    // dialog body text
-                        . $this->Html->url(                     // dialog confirm URL
-                          array(
-                            'controller' => 'co_group_members',
-                            'action' => 'delete', $g['id'],
-                            'copersonid' => $co_people[0]['CoPerson']['id'],
-                            'return' => 'person'
-                          )
-                        ) . '\',\''
-                        . _txt('op.remove') . '\',\''    // dialog confirm button
-                        . _txt('op.cancel') . '\',\''    // dialog cancel button
-                        . _txt('op.remove') . '\',[\''   // dialog title
-                        . filter_var(_jtxt($g['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                        . '\']);">'
-                        . _txt('op.delete')
-                        . '</a>';
-                      print '</div></div></li>';
-                    }
-                  } else {
-                    if($g['member'])
-                      print '<li>' . Sanitize::html($g['CoGroup']['name']) . "</li>\n";
-                    if($g['owner'])
-                      print '<li>' . Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")</li>\n";
+          <ul id="tabs-group" class="fields common-list">
+            <?php
+            if(isset($co_people[0]['CoGroupMember'])) {
+              foreach($co_people[0]['CoGroupMember'] as $g) {
+                $isMembersGroup = ($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8)== 0);
+                if($e && !$es && !$isMembersGroup) {
+                  if($g['member'] || $g['owner']) {
+                    print '<li><div class="field-data-container"><div class="field-data">';
+                    print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
+                    print '</div><div class="field-actions">';
+                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                    print '<a class="deletebutton" title="' . _txt('op.delete')
+                      . '" onclick="javascript:js_confirm_generic(\''
+                      . _txt('js.remove.member') . '\',\''    // dialog body text
+                      . $this->Html->url(                     // dialog confirm URL
+                        array(
+                          'controller' => 'co_group_members',
+                          'action' => 'delete', $g['id'],
+                          'copersonid' => $co_people[0]['CoPerson']['id'],
+                          'return' => 'person'
+                        )
+                      ) . '\',\''
+                      . _txt('op.remove') . '\',\''    // dialog confirm button
+                      . _txt('op.cancel') . '\',\''    // dialog cancel button
+                      . _txt('op.remove') . '\',[\''   // dialog title
+                      . filter_var(_jtxt($g['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                      . '\']);">'
+                      . _txt('op.delete')
+                      . '</a>';
+                    print '</div></div></li>';
                   }
+                } else {
+                  if($g['member'])
+                    print '<li>' . Sanitize::html($g['CoGroup']['name']) . "</li>\n";
+                  if($g['owner'])
+                    print '<li>' . Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")</li>\n";
                 }
               }
-              ?>
+            }
+            ?>
           </ul>
         </li>
         <li id="fields-coperson" class="fieldGroup">
@@ -961,10 +840,10 @@
             print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
           ?>
           <a href="#tabs-coperson" class="fieldGroupName">
-            <i class="material-icons">add_box</i>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.attrs.cop'); ?>
           </a>
-          <ul  id="tabs-coperson" class="fields common-list" style="display: none;">
+          <ul  id="tabs-coperson" class="fields common-list">
             <li>
               <label for="CoPersonStatusAgain"><?php print _txt('fd.status'); ?></label>
               <span class="field-info">
@@ -1049,11 +928,11 @@
               </li>
             <?php endif; // edit ?>
           </ul><!-- tabs-coperson -->
-          <?php print $this->Form->close; ?>
+          <?php print $this->Form->end(); ?>
         </li>
         <li id="fields-role" class="fieldGroup">
           <?php
-            if($this->action != "compare" && $e && !$es) {
+            if($e && !$es) {
               print '<div class="coAddEditButtons">';
               $linktarget = array('controller' => 'co_person_roles',
                 'action'     => 'add',
@@ -1080,128 +959,86 @@
                   <table id="<?php print $this->action; ?>_co_person_roles" class="ui-widget">
                     <tbody>
                     <tr class="line<?php print ($l % 2); $l++; ?>">
-                      <?php if($this->action == "compare"): ?>
-                        <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
-                        <th class="ui-widget-header"><?php print _txt('fd.ou'); ?></th>
-                      <?php else: // compare ?>
-                        <th class="ui-widget-header"><?php print _txt('fd.cou'); ?></th>
-                      <?php endif; // compare ?>
+                      <th class="ui-widget-header"><?php print _txt('fd.cou'); ?></th>
                       <th class="ui-widget-header"><?php print _txt('fd.title'); ?></th>
                       <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
                       <th class="ui-widget-header"><?php print _txt('fd.valid_from'); ?></th>
                       <th class="ui-widget-header"><?php print _txt('fd.valid_through'); ?></th>
-                      <?php if($this->action != "compare"): ?>
-                        <th class="ui-widget-header"><?php print _txt('fd.status'); ?></th>
-                        <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
-                      <?php endif; // compare ?>
+                      <th class="ui-widget-header"><?php print _txt('fd.status'); ?></th>
+                      <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                     </tr>
-                    <?php if($this->action == "compare"): ?>
-                      <tr class="line<?php print ($l % 2); $l++; ?>">
-                        <td>
-                          <?php
-                          if(isset($org_identities[0]['OrgIdentity']['o']))
-                            print Sanitize::html($org_identities[0]['OrgIdentity']['o']);
-                          ?>
-                        </td>
-                        <td>
-                          <?php
-                          if(isset($org_identities[0]['OrgIdentity']['ou']))
-                            print Sanitize::html($org_identities[0]['OrgIdentity']['ou']);
-                          ?>
-                        </td>
-                        <td>
-                          <?php
-                          if(isset($org_identities[0]['OrgIdentity']['title']))
-                            print Sanitize::html($org_identities[0]['OrgIdentity']['title']);
-                          ?>
-                        </td>
-                        <td>
-                          <?php
-                          if(isset($org_identities[0]['OrgIdentity']['affiliation']))
-                            print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
-                          ?>
-                        </td>
-                      </tr>
-                    <?php endif; // compare ?>
                     <?php
                     $rcnt = 1;
                     foreach($co_people[0]['CoPersonRole'] as $r):
                       ?>
                       <tr class="line<?php print ($l % 2); $l++; ?>">
-                        <?php if($this->action == "compare"): ?>
-                          <td><?php if(isset($r['o'])) print Sanitize::html($r['o']); ?></td>
-                          <td><?php if(isset($r['ou'])) print Sanitize::html($r['ou']); ?></td>
-                        <?php else: // compare ?>
-                          <td><?php if(isset($r['Cou']['name'])) print Sanitize::html($r['Cou']['name']); ?></td>
-                        <?php endif; // compare ?>
+                        <td><?php if(isset($r['Cou']['name'])) print Sanitize::html($r['Cou']['name']); ?></td>
                         <td><?php if(isset($r['title'])) print Sanitize::html($r['title']); ?></td>
                         <td><?php if(isset($r['affiliation'])) print $vv_copr_affiliation_types[ $r['affiliation'] ]; ?></td>
                         <td><?php if(isset($r['valid_from']) && $r['valid_from'] > 0) print $this->Time->format('Y M d', $r['valid_from']); ?></td>
                         <td><?php if(isset($r['valid_through']) && $r['valid_through'] > 0) print $this->Time->format('Y M d', $r['valid_through']); ?></td>
-                        <?php if($this->action != "compare"): ?>
-                          <td><?php if(isset($r['status'])) print _txt('en.status', null, $r['status']); ?></td>
-                          <td>
-                            <?php
-                            if($es // Editing self
-                              || empty($r['Cou']) // No COU set for this person
-                              || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))) // Admin for the COU
-                            {
-                              // COU Admins can only edit their own folks, so we need a bit of
-                              // a machination to determine if they can edit these records
-                              // along side other authorized folks.
+                        <td><?php if(isset($r['status'])) print _txt('en.status', null, $r['status']); ?></td>
+                        <td>
+                          <?php
+                          if($es // Editing self
+                            || empty($r['Cou']) // No COU set for this person
+                            || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))) // Admin for the COU
+                          {
+                            // COU Admins can only edit their own folks, so we need a bit of
+                            // a machination to determine if they can edit these records
+                            // along side other authorized folks.
 
-                              // Currently, users can self-edit some role level attributes,
-                              // so give them an edit button, too.
+                            // Currently, users can self-edit some role level attributes,
+                            // so give them an edit button, too.
 
-                              if($permissions['enroll']
-                                && $r['status'] == StatusEnum::PendingApproval
-                                && !empty($r['CoPetition'][0]['id'])) {
-                                print $this->Html->link(_txt('op.petition'),
-                                  array('controller' => 'co_petitions',
-                                    'action' => 'view',
-                                    $r['CoPetition'][0]['id'],
-                                    'co' => $r['CoPetition'][0]['co_id'],
-                                    'coef' => $r['CoPetition'][0]['co_enrollment_flow_id']),
-                                  array('class' => 'petitionbutton'));
-                              }
-
-                              if($permissions['canvas']) {
-                                print $this->Html->link(_txt('op.edit'),
-                                    array('controller' => 'co_person_roles', 'action' => 'edit', $r['id']),
-                                    array('class' => 'editbutton')) . "\n";
-                              }
-
-                              if($permissions['relink']) {
-                                print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.role.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'copersonroleid' => $r['id'])) . '\');">' . _txt('op.relink') . '</a>' . "\n";
-                              }
-
-                              if($permissions['delete']) {
-                                print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-                                  . '" onclick="javascript:js_confirm_generic(\''
-                                  . _txt('js.remove') . '\',\''    // dialog body text
-                                  . $this->Html->url(              // dialog confirm URL
-                                    array(
-                                      'controller' => 'co_person_roles',
-                                      'action' => 'delete',
-                                      $r['id']
-                                    )
-                                  ) . '\',\''
-                                  . _txt('op.remove') . '\',\''    // dialog confirm button
-                                  . _txt('op.cancel') . '\',\''    // dialog cancel button
-                                  . _txt('op.remove') . '\',[\''   // dialog title
-                                  . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                                  . '\']);">'
-                                  . _txt('op.delete')
-                                  . '</button>';
-                              }
-                            } elseif($permissions['view']) {
-                              print $this->Html->link(_txt('op.view'),
-                                  array('controller' => 'co_person_roles', 'action' => 'view', $r['id']),
-                                  array('class' => 'viewbutton')) . "\n";
+                            if($permissions['enroll']
+                              && $r['status'] == StatusEnum::PendingApproval
+                              && !empty($r['CoPetition'][0]['id'])) {
+                              print $this->Html->link(_txt('op.petition'),
+                                array('controller' => 'co_petitions',
+                                  'action' => 'view',
+                                  $r['CoPetition'][0]['id'],
+                                  'co' => $r['CoPetition'][0]['co_id'],
+                                  'coef' => $r['CoPetition'][0]['co_enrollment_flow_id']),
+                                array('class' => 'petitionbutton'));
                             }
-                            ?>
-                          </td>
-                        <?php endif; // compare ?>
+
+                            if($permissions['canvas']) {
+                              print $this->Html->link(_txt('op.edit'),
+                                  array('controller' => 'co_person_roles', 'action' => 'edit', $r['id']),
+                                  array('class' => 'editbutton')) . "\n";
+                            }
+
+                            if($permissions['relink']) {
+                              print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.role.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'copersonroleid' => $r['id'])) . '\');">' . _txt('op.relink') . '</a>' . "\n";
+                            }
+
+                            if($permissions['delete']) {
+                              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                                . '" onclick="javascript:js_confirm_generic(\''
+                                . _txt('js.remove') . '\',\''    // dialog body text
+                                . $this->Html->url(              // dialog confirm URL
+                                  array(
+                                    'controller' => 'co_person_roles',
+                                    'action' => 'delete',
+                                    $r['id']
+                                  )
+                                ) . '\',\''
+                                . _txt('op.remove') . '\',\''    // dialog confirm button
+                                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                                . _txt('op.remove') . '\',[\''   // dialog title
+                                . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                                . '\']);">'
+                                . _txt('op.delete')
+                                . '</button>';
+                            }
+                          } elseif($permissions['view']) {
+                            print $this->Html->link(_txt('op.view'),
+                                array('controller' => 'co_person_roles', 'action' => 'view', $r['id']),
+                                array('class' => 'viewbutton')) . "\n";
+                          }
+                          ?>
+                        </td>
                       </tr>
                       <?php
                         $rcnt++;
@@ -1247,11 +1084,11 @@
                   {
                     if(isset($co_people[0]['SshKey'])) {
                       foreach($co_people[0]['SshKey'] as $sk) {
-                        print '<div>';
-                        print '<div>';
+                        print '<div class="field-data-container">';
+                        print '<div class="field-data">';
                         print $this->Html->link($sk['comment'], array('controller' => 'ssh_keys', 'action' => 'edit', $sk['id']));
                         print '</div>';
-                        print '<div>';
+                        print '<div class="field-actions">';
                         // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                         print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
                           . '" onclick="javascript:js_confirm_generic(\''

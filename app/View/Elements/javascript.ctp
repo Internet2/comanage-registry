@@ -26,24 +26,22 @@
 
 <script type="text/javascript">
   $(function() {
+    // Establish left-side navigation
     $('#main-menu').metisMenu();
 
     // Focus any designated form element
     $('.focusFirst').focus();
 
     // MDL prematurely marks all required=true fields with "is-invalid" class.
-    // Remove it. Must be done after MDL scripts have run.
+    // Remove it. Must be done after MDL scripts have run (hence, window.load)
     $(window).load(function() {
       $('.mdl-textfield').removeClass('is-invalid');
     });
-
-    <?php /* TODO: Review the following for deprecation. */ ?>
 
     // Accordion
     $(".accordion").accordion();
 
     // Make all submit buttons pretty
-    //$("input:submit").button();
     $("input:submit").addClass("spin submit-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect");
 
     // Other buttons
@@ -330,28 +328,13 @@
     });
 
     // Add a spinner when a form is submitted or when any item is clicked with a "spin" class
-    $("input[type='submit'],.spin").click(function() {
+    $("input[type='submit'], .spin").click(function() {
 
       var spinnerDiv = '<div id="coSpinner"></div>';
       $("body").append(spinnerDiv);
 
-      var coSpinnerOpts = {
-        lines: 13, // The number of lines to draw
-        length: 20, // The length of each line
-        width: 8, // The line thickness
-        radius: 20, // The radius of the inner circle
-        corners: 0.4, // Corner roundness (0..1)
-        rotate: 0, // The rotation offset
-        direction: 1, // 1: clockwise, -1: counterclockwise
-        color: '#9FC6E2', // #rgb or #rrggbb or array of colors
-        speed: 1.2, // Rounds per second
-        trail: 60, // Afterglow percentage
-        shadow: false, // Whether to render a shadow
-        hwaccel: false, // Whether to use hardware acceleration
-        className: 'spinner', // The CSS class to assign to the spinner
-        zIndex: 100 // The z-index (defaults to 2000000000)
-      };
       var coSpinnerTarget = document.getElementById('coSpinner');
+      // coSpinnerOpts are set in js/comanage.js
       var coSpinner = new Spinner(coSpinnerOpts).spin(coSpinnerTarget);
 
       // Test for invalid fields (HTML5) and turn off spinner explicitly if found

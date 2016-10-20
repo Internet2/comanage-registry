@@ -26,32 +26,8 @@
    will be moved into co-base.css. */
 
 
-/* Notification table */
-.notificationStatus {
-  float: left;
-  margin-right: 1em;
-  margin-top: 5px;
-}
 
-/* zebra stripes for rows; 0 used for autoincrementing line counters */
-.line0 {
-  background-color: #e5e5e5;
-}
-.line1 {
-  background-color: #f5f5f5;
-}
-.line2 {
-  background-color: #e5e5e5;
-}
-td.indented {
-  border-left: 3em solid #fff;
-}
-.menuitembutton {
-  width: 250px;
-}
-.submitCell {
-  text-align: right;
-}
+
 
 /* Forms */
 /*
@@ -134,66 +110,7 @@ td.top {
   margin-top: 1.5em;
 }
 
-/* 2-column layout */
-.twocolumn{
-  border: solid gray 2px;
-  float: left;
-  margin: 0 30px 0 15px;
-  padding: 10px;
-  width: 365px;
-}
-.twocolumn .ui-widget-header{
-  padding: 0 5px;
-  overflow: hidden;
-}
-.twocolumn .ui-widget-header div {
-  margin: 8px 0;
-  float: left;
-}
-.twocolumn input[type="text"]{
-  width: 230px;
-}
-.additionalinfo{
-  margin: 0 0 5px 0;
-}
-.additionalinfo > div {
-  margin: 0 0 2px;
-  overflow: hidden;
-  padding: 2px 0 3px 0;
-  background-color: #F5F5F5;
-}
-.additionalinfo > div:hover {
-  background-color: #eee;
-}
-.additionalinfo > div:last-child {
-  margin: 0;
-}
-.additionalinfo > div>div:first-child{
-  float: left;
-  padding: 7px 0 0 10px;
-}
-.additionalinfo > div > div:last-child{
-  float: right;
-  padding-left: 5px;
-}
-.additionalinfo div a {
-  float: left;
-}
-.additionalinfo div .ui-button {
-  float: right;
-}
-.additionalinfo li {
-  margin: 0 0 2px;
-  overflow: hidden;
-  padding: 2px 0 3px 0;
-  background-color: #F5F5F5;
-}
-.additionalinfo li .actionButtons {
-  float: right;
-}
-.additionalinfo .fieldData {
-  padding: 0.5em;
-}
+
 /*** DETANGLE THIS RULE: ***/
 /*
 #OrgIdentityEditForm .addbutton,
@@ -216,7 +133,4 @@ td.order {
 }
 .ui-menu-item {
   border: 1px solid transparent; /* provide space for the hover effect border */
-}
-#advancedSearch {
-  clear: both;
 }

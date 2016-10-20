@@ -48,6 +48,45 @@ function generateFlash(text, type) {
   });
 }
 
+// Explicitly generate a spinner. This can normally be done by
+// setting the "spin" class on an element.  (See View/Elements/javascript.ctp)
+// For dynamically created elements, we can generate the spinner
+// dynamically by calling this function.
+
+// Set defaults - this is used by all spinners.
+var coSpinnerOpts = {
+  lines: 13, // The number of lines to draw
+  length: 20, // The length of each line
+  width: 8, // The line thickness
+  radius: 20, // The radius of the inner circle
+  corners: 0.4, // Corner roundness (0..1)
+  rotate: 0, // The rotation offset
+  direction: 1, // 1: clockwise, -1: counterclockwise
+  color: '#9FC6E2', // #rgb or #rrggbb or array of colors
+  speed: 1.2, // Rounds per second
+  trail: 60, // Afterglow percentage
+  shadow: false, // Whether to render a shadow
+  hwaccel: false, // Whether to use hardware acceleration
+  className: 'spinner', // The CSS class to assign to the spinner
+  zIndex: 100 // The z-index (defaults to 2000000000)
+};
+
+// show a spinner
+function displaySpinner() {
+  var spinnerDiv = '<div id="coSpinner"></div>';
+  $("body").append(spinnerDiv);
+
+  var coSpinnerTarget = document.getElementById('coSpinner');
+  var coSpinner = new Spinner(coSpinnerOpts).spin(coSpinnerTarget);
+}
+
+// stop a spinner explicitly
+// assumes spinner is in a div with ID "coSpinner"
+function stopSpinner() {
+  $("#coSpinner").remove();
+}
+
+
 // Returns an i18n string with tokens replaced.
 // For use in JavaScript dialogs.
 // text          - body text for the array with tokens {0}, {1}, etc

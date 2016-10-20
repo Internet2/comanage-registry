@@ -505,15 +505,15 @@ $(function() {
         <?php
           if(isset($org_identities[0]['Identifier'])) {
             foreach($org_identities[0]['Identifier'] as $id) {
-              print '<div>';
-                print '<div>';
+              print '<div class="field-data-container">';
+                print '<div class="field-data">';
                   print $this->Html->link($id['identifier'],
                                           array('controller' => 'identifiers',
                                                 'action' => ($e ? 'edit' : 'view'),
                                                 $id['id']));
                   print "&nbsp;(" . $id['type'] . ")\n";
                 print '</div>';
-                print '<div>';
+                print '<div class="field-actions">';
                 
                 if($e) {
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
@@ -573,15 +573,15 @@ $(function() {
         <?php
           if(isset($org_identities[0]['EmailAddress'])) {
             foreach($org_identities[0]['EmailAddress'] as $ea) {
-              print '<div>';
-                print '<div>';
+              print '<div class="field-data-container">';
+                print '<div class="field-data">';
                   print $this->Html->link($ea['mail'], array('controller' => 'email_addresses',
                                                              'action' => ($e ? 'edit' : 'view'),
                                                              $ea['id']));
                   print "&nbsp;(" . _txt('en.email_address.type', null, $ea['type']) . ", "
                     . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")";
                 print '</div>';
-                print '<div>';
+                print '<div class="field-actions">';
                 
                 if($e) {
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
@@ -639,15 +639,15 @@ $(function() {
         <?php
           if(isset($org_identities[0]['TelephoneNumber'])) {
             foreach($org_identities[0]['TelephoneNumber'] as $t) {
-              print '<div>';
-                print '<div>';
+              print '<div class="field-data-container">';
+                print '<div class="field-data">';
                   print $this->Html->link(formatTelephone($t),
                                           array('controller' => 'telephone_numbers',
                                                 'action' => ($e ? 'edit' : 'view'),
                                                 $t['id']));
                   print "&nbsp;(" . _txt('en.telephone_number.type', null, $t['type']) . ")<br />\n";
                 print '</div>';
-                print '<div>';
+                print '<div class="field-actions">';
                 
                 if($e) {
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
@@ -706,14 +706,14 @@ $(function() {
         <?php
           if(isset($org_identities[0]['Address'])) {
             foreach($org_identities[0]['Address'] as $addr) {
-              print '<div>';
-                print '<div>';
+              print '<div class="field-data-container">';
+                print '<div class="field-data">';
                   print $this->Html->link($addr['street'], array('controller' => 'addresses',
                                                                  'action'     => ($e ? 'edit' : 'view'),
                                                                  $addr['id']));
                   print "&nbsp;(" . _txt('en.address.type', null, $addr['type']) . ")<br />\n";
                 print '</div>';
-                print '<div>';
+                print '<div class="field-actions">';
                 
                 if($e) {
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
@@ -772,8 +772,8 @@ $(function() {
         <?php
           if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
             foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
-              print '<div>';
-                print '<div>';
+              print '<div class="field-data-container">';
+                print '<div class="field-data">';
                   print $this->Html->link(generateCn($o['CoPerson']['PrimaryName']),
                                           array('controller' => 'co_people',
                                                 'action'     => 'canvas',
@@ -781,7 +781,7 @@ $(function() {
                   
                   print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
                 print '</div>';
-                print '<div>';
+                print '<div class="field-actions">';
                 
                 // We don't currently offer an unlink button here, that can only (currently)
                 // be done from CO Person Canvas, which places some restrictions on that action.
