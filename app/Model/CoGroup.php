@@ -372,138 +372,125 @@ class CoGroup extends AppModel {
     return $targets;
   }
   
+ /**
+   * Determine if a CO Group is read only.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id CO Group ID
+   * @return True if the CO Group is read only, false otherwise
+   * @throws InvalidArgumentException
+   */
+
+  public function readOnly($id) {
+    // A CO Group is read only if it is a members group.
+    
+    $name = $this->field('name', array('CoGroup.id' => $id));
+    
+    if(!$name) {
+      throw new InvalidArgumentException(_txt('er.gr.nf', array($id)));
+    }
+    
+    return !strncmp($name, 'members', 7);
+  }
+  
   /**
    * Reconcile CO Person memberships in a members group.
    * 
    * @since COmanage Registry 0.9.3
    * @param Integer CoGroup Id
-   * @return true if success or false for failure
+   * @return true on success
+   * @throws InvalidArgumentException
    */
   
   public function reconcileMembersGroup($id) {
+    // First find the group
     $args = array();
     $args['conditions']['CoGroup.id'] = $id;
-    $args['contain']['Co'] = 'Cou';
+    $args['contain'] = false;
+    
     $group = $this->find('first', $args);
       
     if(empty($group)) {
-      return false;
+      throw new InvalidArgumentException(_txt('er.gr.nf', array($id)));
     }
     
     // Make sure the group is a members group.    
     $name = $group['CoGroup']['name'];
+    
     if($name != 'members' && strncmp($name, 'members:', 8) != 0) {
-      return false;
+      throw new InvalidArgumentException(_txt('er.gr.reconcile.inv'));
     }
     
-    $coId = $group['CoGroup']['co_id'];
+    $cou = null;
     
     // Determine if this is a members group for a COU and if so
     // the ID for the COU.
-    $couId = null;
     if($name != 'members') {
-        foreach($group['Co']['Cou'] as $cou) {
-          if($name == 'members:' . $cou['name']) {
-            $couId = $cou['id'];
-          }      
-        }                    
+      $couName = substr($name, 8);
+      
+      $args = array();
+      $args['conditions']['Cou.name'] = $couName;
+      $args['contain'] = false;
+      
+      $cou = $this->Co->Cou->find('first', $args);
+      
+      if(!$cou) {
+        throw new InvalidArgumentException(_txt('er.gr.nf', array($name)));
+      }
     }
     
-    // Find all CO people for the CO.
+    // Determine the set of people who should be in the target group.
+    // As of v1.1.0, we only want active people (with active roles in the COU, if specified).
+    
     $args = array();
+    $args['conditions']['CoPerson.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
     $args['conditions']['CoPerson.co_id'] = $group['CoGroup']['co_id'];
-    $args['contain'][] = 'CoGroupMember';
-    $args['contain'][] = 'CoPersonRole';
+    if($cou) {
+      $args['joins'][0]['table'] = 'co_person_roles';
+      $args['joins'][0]['alias'] = 'CoPersonRole';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
+      $args['conditions']['CoPersonRole.cou_id'] = $cou['Cou']['id'];
+      $args['conditions']['CoPersonRole.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+    }
+    $args['contain'] = false;
+    
     $coPeople = $this->Co->CoPerson->find('all', $args);
     
-    // Loop over the CO people and determine if any are not
-    // members of the group that should be members.
-    foreach($coPeople as $coPerson) {
-      $coPersonId = $coPerson['CoPerson']['id'];
-      if(isset($couId)) {
-        // Check for role in the COU.
-        foreach($coPerson['CoPersonRole'] as $role) {
-          if($role['cou_id'] == $couId) {
-            // Since have role in the COU should be in the COU members group.
-            $isMember = false;
-            foreach($coPerson['CoGroupMember'] as $membership) {
-              if($membership['co_group_id'] == $id) {
-                $isMember = true;
-                break;
-              }
-            } 
-            if(!$isMember) {
-              $data = array();
-              $data['CoGroupMember']['co_group_id'] = $id;
-              $data['CoGroupMember']['co_person_id'] = $coPerson['CoPerson']['id'];
-              $data['CoGroupMember']['member'] = true;
-              $this->Co->CoPerson->CoGroupMember->clear();
-              $success = $this->Co->CoPerson->CoGroupMember->save($data);              
-              if(!$success) {
-                $this->log("Error saving membership for CoPerson.id $coPersonId in CoGroup.id $id");
-                return false;
-              }
-            }
-          } 
-        }
-      } else {
-        // Check for membership in the CO members group.        
-        $isMember = false;
-        foreach($coPerson['CoGroupMember'] as $membership) {
-          if($membership['co_group_id'] == $id) {
-            $isMember = true;
-            break;
-          } 
-        }
-        if(!$isMember) {
-          $data = array();
-          $data['CoGroupMember']['co_group_id'] = $id;
-          $data['CoGroupMember']['co_person_id'] = $coPerson['CoPerson']['id'];
-          $data['CoGroupMember']['member'] = true;
-          $this->Co->CoPerson->CoGroupMember->clear();
-          $success = $this->Co->CoPerson->CoGroupMember->save($data);              
-          if(!$success) {
-            $this->log("Error saving membership for CoPerson.id $coPersonId in CoGroup.id $id");
-            return false;
-          }
-        }
-      }
-    }
-    
-    // Find all memberships for the group.
+    // Determine the set of people currently in the target group
     $args = array();
     $args['conditions']['CoGroupMember.co_group_id'] = $id;
-    $args['contain']['CoPerson'] = 'CoPersonRole';
-    $memberships = $this->Co->CoPerson->CoGroupMember->find('all', $args);
+    $args['conditions']['CoGroupMember.co_group_id'] = $id;
+    $args['fields'] = array('CoGroupMember.co_person_id', 'CoGroupMember.id' );
+    $args['contain'] = false;
     
-    // Loop over the memberships to find any that should not exist for this group.
-    foreach($memberships as $membership) {
-      if(isset($couId)) {
-        // This is a COU members group so check for role in the COU.
-        $delete = true;
-        foreach($membership['CoPerson']['CoPersonRole'] as $role) {
-          if($role['cou_id'] == $couId) {
-            $delete = false;
-            break;
-          }
-        }
-        if($delete) {
-          $success = $this->Co->CoPerson->CoGroupMember->delete($membership['CoGroupMember']['id']);
-          if(!$success) {
-            $this->log("Error deleting CoGroupMember.id " . $membership['CoGroupMember']['id']);
-            return false;
-          }
-        }
-      } else {
-        // This is a CO members group so check person in the CO.
-        if($membership['CoPerson']['co_id'] != $coId) {
-          $success = $this->Co->CoPerson->CoGroupMember->delete($membership['CoGroupMember']['id']);
-          if(!$success) {
-            $this->log("Error deleting CoGroupMember.id " . $membership['CoGroupMember']['id']);
-            return false;
-          }
-        }
-      }
+    $members = $this->Co->CoGroup->CoGroupMember->find('list', $args);
+    
+    // Make diff'able arrays
+    $currentMembers = array_keys($members);
+    $targetMembers = Hash::extract($coPeople, '{n}.CoPerson.id');
+    
+    // For any person in $currentMembers but not in $targetMembers, remove them from the group
+    
+    $toRemove = array_diff($currentMembers, $targetMembers);
+    
+    foreach($toRemove as $coPersonId) {
+      $this->Co->CoPerson->CoGroupMember->delete($members[$coPersonId]);
+    }
+    
+    // For any person in $targetMembers but not in $currentMembers, add them to the group
+    
+    $toAdd = array_diff($targetMembers, $currentMembers);
+    
+    foreach($toAdd as $coPersonId) {
+      $data = array();
+      $data['CoGroupMember']['co_group_id'] = $id;
+      $data['CoGroupMember']['co_person_id'] = $coPersonId;
+      $data['CoGroupMember']['member'] = true;
+      $data['CoGroupMember']['owner'] = false;
+      
+      $this->Co->CoPerson->CoGroupMember->clear();
+      $this->Co->CoPerson->CoGroupMember->save($data); 
     }
     
     return true;  

@@ -356,6 +356,7 @@ class CoGroupsController extends StandardController {
     $member = array();
     $managed = false;
     $managedp = false;
+    $readonly = false;
     $self = false;
     
     if(!empty($roles['copersonid'])) {
@@ -387,7 +388,11 @@ class CoGroupsController extends StandardController {
         $self = true;
       }
     }
-
+    
+    if(!empty($this->request->params['pass'][0])) {
+      $readonly = $this->CoGroup->readOnly(Sanitize::paranoid($this->request->params['pass'][0]));
+    }
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
@@ -400,10 +405,10 @@ class CoGroupsController extends StandardController {
     $p['admin'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Delete an existing Group?
-    $p['delete'] = ($roles['cmadmin'] || $managed);
+    $p['delete'] = (!$readonly && ($roles['cmadmin'] || $managed));
     
     // Edit an existing Group?
-    $p['edit'] = ($roles['cmadmin'] || $managed);
+    $p['edit'] = (!$readonly && ($roles['cmadmin'] || $managed));
     
     // View history for an existing Group?
     $p['history'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
@@ -412,7 +417,7 @@ class CoGroupsController extends StandardController {
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     
     // Reconcile memberships in a members group?
-    $p['reconcile'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['reconcile'] = ($readonly && ($roles['cmadmin'] || $roles['coadmin']));
     
     if($this->action == 'index' && $p['index']
        && ($roles['cmadmin'] || $roles['coadmin'])) {
@@ -420,6 +425,7 @@ class CoGroupsController extends StandardController {
       
       $p['delete'] = true;
       $p['edit'] = true;
+      $p['reconcile'] = true;
       $p['view'] = true;
     }
     
@@ -529,12 +535,11 @@ class CoGroupsController extends StandardController {
    * @param integer CO Group ID of members group or null to reconcile existence of members groups
    */
   function reconcile($id = null) {
-    // Only support REST invocation at this time.
     if(!$this->request->is('restful')) {
-      $this->redirect('/');
-      return;
+      // Not currently supported
+      $this->performRedirect();
     }
-    
+  
     // If no id then reconcile the existence of the CO members group
     // and the COU members groups.
     if(!isset($id)) {
@@ -589,13 +594,15 @@ class CoGroupsController extends StandardController {
       return;
     }
     
-    $success = $this->CoGroup->reconcileMembersGroup($id);
-    if(!$success) {
-      $this->Api->restResultHeader(500, 'Membership reconciliation failed');
+    try {
+      $this->CoGroup->reconcileMembersGroup($id);
+      $this->Api->restResultHeader(200, 'OK');
+    }
+    catch(Exception $e) {
+      $this->Api->restResultHeader(500, $e->getMessage());
       return; 
     }      
       
-    $this->Api->restResultHeader(200, 'OK');
     return;
   }
   

@@ -198,6 +198,12 @@ class CoPersonRole extends AppModel {
    */
   
   public function afterDelete() {
+    // Because CoPersonRole is changelog enabled, these references are still valid.
+    
+    // Recalculate person status
+    $coPersonId = $this->field('co_person_id');
+    $this->CoPerson->recalculateStatus($coPersonId);
+    
     // Manage CO person membership in the COU members group.
     $this->reconcileCouMembersGroupMemberships($this->id, $this->alias);
   }
@@ -225,7 +231,7 @@ class CoPersonRole extends AppModel {
     // If the role status changed, recalculate the person status
     $curStatus = $this->field('status');
     
-    if($this->cachedStatus != $curStatus) {
+    if($created || ($this->cachedStatus != $curStatus)) {
       $coPersonId = $this->field('co_person_id');
       
       $this->CoPerson->recalculateStatus($coPersonId, $provision);
@@ -284,7 +290,6 @@ class CoPersonRole extends AppModel {
    * @param  Boolean $provision Whether to run provisioners
    * @throws InvalidArgumentException
    * @throws RuntimeException
-   * @return none
    */
   
   public function reconcileCouMembersGroupMemberships($id, $alias = null, $provision = true) {
@@ -306,74 +311,34 @@ class CoPersonRole extends AppModel {
     $coPersonId = $this->field('co_person_id');
     
     if(!$coPersonId) {
-      throw new InvalidArgumentException(_txt('er.unknown', $id));
+      // We're probably deleting the CO
+      return;
     }
+    
+    // If the role is Active or GracePeriod, we want to make sure the
+    // person is in the relevant Members group. However, because this model
+    // is changelog enabled and we are retrieving based on ID (which will
+    // return deleted attributes), we need to also check the deleted flag.
+    $status = $this->field('status');
+    $deleted = $this->field('deleted');
+    
+    $eligible = (!$deleted && ($status == StatusEnum::Active || $status == StatusEnum::GracePeriod));
+    
+    // Construct the members group name
+    $couId = $this->field('cou_id');
     
     $args = array();
-    $args['conditions']['CoPerson.id'] = $coPersonId;
-    $args['contain']['CoPersonRole'] = 'Cou';
-    $args['contain']['CoGroupMember'] = 'CoGroup';
-    $coPerson = $this->CoPerson->find('first', $args);
+    $args['conditions']['Cou.id'] = $couId;
+    $args['contain'] = false;
     
-    // Loop over roles and find those with a COU. 
-    $couMembersGroupNames = array();
-    $membershipsToAdd = array();
-    foreach($coPerson['CoPersonRole'] as $role) {
-      if(isset($role['cou_id'])) {
-        // Use name of the COU to construct name of the COU members group.
-        $couMembersGroupName = 'members:' . $role['Cou']['name'];
-        $couMembersGroupNames[] = $couMembersGroupName;
-        
-        // Loop over memberships to see if a member of this members group.
-        $isMember = false;
-        
-        foreach($coPerson['CoGroupMember'] as $membership) {
-          if($membership['CoGroup']['name'] == $couMembersGroupName && $membership['member']) {
-            $isMember = true;
-            break;
-          }
-        }
-        
-        if(!$isMember) {
-          if(!in_array($couMembersGroupName, $membershipsToAdd)) {
-            $membershipsToAdd[] = $couMembersGroupName;
-          }
-        }
-      }
+    $cou = $this->Cou->find('first', $args);
+    
+    if(!$cou) {
+      throw new InvalidArgumentException(_txt('er.unknown', array($couId)));
     }
     
-    // Add memberships and cut history records.
-    foreach($membershipsToAdd as $groupName) {
-      $this->CoPerson->CoGroupMember->addByGroupName($coPersonId, $groupName, false, $provision);
-    }
+    $coGroupName = 'members:' . $cou['Cou']['name'];
     
-    // Loop over group memberships, pick out those for COU members groups, and
-    // reconcile with the list of COU members group names.
-    foreach($coPerson['CoGroupMember'] as $membership) {
-      $groupName = $membership['CoGroup']['name'];
-      
-      if(strncmp($groupName, 'members:', 8) == 0 && $membership['member']) {
-        if(!in_array($groupName, $couMembersGroupNames)) {
-          // Delete CO person from COU members group and cut a history record.
-          $this->CoPerson->CoGroupMember->delete($membership['id']);
-          // Cut history record.
-          $msgData = array(
-            $groupName,
-            $membership['CoGroup']['id']
-          );
-          $msg = _txt('rs.grm.deleted', $msgData);
-          
-          // Let exceptions pop back up the stack
-          $this->CoPerson->HistoryRecord->record(
-            $coPersonId,
-            null,
-            null, 
-            null, 
-            ActionEnum::CoGroupMemberDeleted, 
-            $msg
-          );
-      	}	
-      }
-    }
+    $this->CoPerson->CoGroupMember->syncMembership($coGroupName, $coPersonId, $eligible, $provision);
   }
 }
