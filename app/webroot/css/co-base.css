@@ -1127,24 +1127,24 @@ a#top-search-toggle:hover {
   background-color: #e33;
   color: white;
 }
+.explorerContainer #changeLog {
+  margin-left: 1em;
+}
+.explorerContainer #changeLog ul {
+  margin-left: 1em;
+}
+.explorerContainer #changeLog .fieldGroupNameCl {
+  border-bottom: 1px solid #eee;
+}
+.explorerContainer #changeLog .additionalinfo {
+  padding: 5px;
+}
 .fieldGroupNameCl {
   display: block;
   font-size: 1.1em;
   font-weight: bold;
   padding: 0.3em 0;
   margin: 1em 0 0 0;
-}
-.co_people #changeLog {
-  margin-left: 1em;
-}
-.co_people #changeLog ul {
-  margin-left: 1em;
-}
-.co_people #changeLog .fieldGroupNameCl {
-  border-bottom: 1px solid #eee;
-}
-.co_people #changeLog .additionalinfo {
-  padding: 5px;
 }
 #restoreLink {
   margin-bottom: 2em;

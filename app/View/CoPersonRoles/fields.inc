@@ -81,10 +81,10 @@
         event.preventDefault();
         $(this).next(".fields").slideToggle("fast");
         // toggle the +/- icon:
-        if ($(this).find(".ui-icon").hasClass("ui-icon-circlesmall-minus")) {
-          $(this).find(".ui-icon").removeClass("ui-icon-circlesmall-minus").addClass("ui-icon-circlesmall-plus");
+        if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
+          $(this).find(".material-icons").text("add_box");
         } else {
-          $(this).find(".ui-icon").removeClass("ui-icon-circlesmall-plus").addClass("ui-icon-circlesmall-minus");
+          $(this).find(".material-icons").text("indeterminate_check_box");
         }
       });
     });
@@ -97,7 +97,7 @@
         <li id="fields-role" class="fieldGroup">
 
           <a href="#tabs-role" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.attrs.copr'); ?>
           </a>
 
@@ -500,7 +500,7 @@
           <?php endif; // ReadWrite permission, telephone ?>
 
           <a href="#tabs-phone" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('ct.telephone_numbers.pl'); ?>
           </a>
 
@@ -614,7 +614,7 @@
           <?php endif; // ReadWrite permission, address ?>
 
           <a href="#tabs-address" class="fieldGroupName">
-            <span class="ui-icon ui-icon-circlesmall-minus"></span>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('ct.addresses.pl'); ?>
           </a>
 
