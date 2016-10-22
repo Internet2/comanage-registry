@@ -552,6 +552,8 @@ class StandardController extends AppController {
     $err = "";
     $ret = false;
     
+    // Finally, try to save.
+
     try {
       $ret = $model->saveAll($data);
     }
@@ -559,8 +561,6 @@ class StandardController extends AppController {
       $err = Sanitize::html($e->getMessage());
     }
     
-    // Finally, try to save.
-
     if($ret) {
       // Reread the data so we account for any normalizations
       if(isset($this->edit_contains)) {

@@ -283,6 +283,94 @@ class CoGroupMember extends AppModel {
   }
   
   /**
+   * Sync a group membership based. This function is primarily intended for
+   * syncing automatically managed groups (eg: "members").
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  String $coGroupName Name of CO Group to sync membership
+   * @param  Integer $coPersonId CO Person ID of member
+   * @param  Boolean $eligible Whether the person should be in the group
+   * @param  Boolean $provision Whether to run provisioners
+   * @param  Boolean $owner Whether $coPersonId should also be an owner
+   * @throws InvalidArgumentException
+   */
+  
+  public function syncMembership($coGroupName, $coPersonId, $eligible, $provision=true, $owner=false) {
+    // Find the CO ID
+    $coId = $this->CoPerson->field('co_id', array('CoPerson.id' => $coPersonId));
+    
+    if(!$coId) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_people.1'), $coPersonId)));
+    }
+    
+    // Find the requested group
+    $targetGroup = $this->CoGroup->findByName($coId, $coGroupName);
+    
+    if(!$targetGroup) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_groups.1'), $coId)));
+    }
+    
+    // Is $coPersonId already a member?
+    
+    $args = array();
+    $args['conditions']['CoGroupMember.co_group_id'] = $targetGroup['CoGroup']['id'];
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    $args['contain'] = false;
+    
+    // There should really only be one of these
+    $groupMember = $this->find('first', $args);
+    
+    $isMember = (isset($groupMember['CoGroupMember']['member'])
+                 && $groupMember['CoGroupMember']['member']);
+    
+    $hAction = null;
+    $hText = "";
+    
+    if($eligible && !$isMember) {
+      // Add a membership
+      
+      $this->clear();
+      $data = array();
+      $data['CoGroupMember']['co_group_id'] = $targetGroup['CoGroup']['id'];
+      $data['CoGroupMember']['co_person_id'] = $coPersonId;
+      $data['CoGroupMember']['member'] = true;
+      $data['CoGroupMember']['owner'] = $owner;
+      
+      $options = array();
+      if(!$provision) {
+        $options['provision'] = false;
+      }
+      
+      $this->save($data, $options);
+      
+      $hAction = ActionEnum::CoGroupMemberAdded;
+      $hText = _txt('rs.grm.added', array($targetGroup['CoGroup']['name'],
+                                          $targetGroup['CoGroup']['id'],
+                                          _txt('fd.yes'),
+                                          _txt('fd.no')));
+    } elseif(!$eligible && $isMember) {
+      // Remove the membership
+      $this->delete($groupMember['CoGroupMember']['id']);
+      
+      $hAction = ActionEnum::CoGroupMemberDeleted;
+      $hText = _txt('rs.grm.deleted', array($targetGroup['CoGroup']['name'], $targetGroup['CoGroup']['id']));
+    }
+    // else nothing to do
+    
+    if($hAction) {
+      // Cut a history record
+      
+      $this->CoPerson->HistoryRecord->record($coPersonId,
+                                             null,
+                                             null,
+                                             null,
+                                             $hAction,
+                                             $hText,
+                                             $targetGroup['CoGroup']['id']);
+    }
+  }
+  
+  /**
    * Update the CO Group Memberships for a CO Person.
    *
    * @since  COmanage Registry v0.8

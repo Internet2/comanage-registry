@@ -197,54 +197,58 @@ class CoPerson extends AppModel {
   
   public function afterSave($created, $options = array()) {
     // Manage CO person membership in the CO members group.
-      
-    // Since the Provisioner Behavior will only provision group memberships
-    // for CO People with an Active status we do not need to manage 
-    // membership in the members group based on status here.  So we only
-    // add a CO Person to the members group upon creation and then leave
-    // it there. 
-    if($created) {
-        $coPersonId = $this->data[$this->alias]['id'];
-        $coid = $this->data[$this->alias]['co_id'];
+    // This is similar to CoPersonRole::reconcileCouMembersGroupMemberships.
+    
+    $eligible = false;
+    $isMember = false;
+    
+    $provision = (isset($options['provision']) ? $options['provision'] : true);
+    
+    $coPersonId = $this->id;
+    $coId = $this->field('co_id');
+    $status = $this->field('status');
+    $eligible = ($status == StatusEnum::Active || $status == StatusEnum::GracePeriod);
+    
+    $this->CoGroupMember->syncMembership('members', $coPersonId, $eligible, $provision);
+    
+    // We also need to update any COU members groups. Start by pulling the list of COUs,
+    // in id => name format.
+    
+    $cous = $this->Co->Cou->allCous($coId);
+    
+    if(!empty($cous)) {
+      if($eligible) {
+        // Restore any members: groups. We need the list of current roles.
         
-        // Find the members group for this CO.    
         $args = array();
-        $args['conditions']['CoGroup.name'] = 'members';
-        $args['conditions']['CoGroup.co_id'] = $coid;
+        $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
+        $args['conditions']['CoPersonRole.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+        $args['fields'] = array('CoPersonRole.id', 'CoPersonRole.cou_id');
         $args['contain'] = false;
-        $membersgroup = $this->CoGroupMember->CoGroup->find('first', $args);
         
-        // The members group may not exist if a deployment was upgraded and not
-        // reconciled so in that case just silently return.
-        if(empty($membersgroup)) {
-          return;
+        $roles = $this->CoPersonRole->find('list', $args);
+        
+        foreach($roles as $roleId => $couId) {
+          $coGroupName = 'members:' . $cous[$couId];
+          
+          $this->CoGroupMember->syncMembership($coGroupName, $coPersonId, true, $provision);
+          
+          // We could try to remove ineligible groups, but under most cases we would have
+          // already done that (eg: via CoPersonRole::afterSave). Note that a person could
+          // have multiple roles in a COU, only some of which are active or grace period,
+          // so we'd also need to account for that in processing removals (by removing first
+          // then adding).
         }
-            
-        // Create the membership in the members group.
-        $data = array();
-        $data['CoGroupMember']['co_group_id'] = $membersgroup['CoGroup']['id'];
-        $data['CoGroupMember']['co_person_id'] = $coPersonId;
-        $data['CoGroupMember']['member'] = true;
+      } else {
+        // Remove any members groups. We walk the list of COUs
+        // in case there are any inconsistencies that need to be cleaned up.
         
-        // Make sure to pass $options in case we're in an enrollment flow
-        // and don't want to trigger provisioning
-        $this->CoGroupMember->save($data, $options);
-        
-        // Cut a history record.
-        try {
-          $msgData = array(
-            'members',
-            $membersgroup['CoGroup']['id'],
-            _txt('fd.yes'),
-            _txt('fd.no')
-          );                  
-          $msg = _txt('rs.grm.added', $msgData);
-          $this->HistoryRecord->record($coPersonId, null, null, null, ActionEnum::CoGroupMemberAdded, $msg);
-        } catch(Exception $e) {
-          $msg = _txt('er.grm.history.members', array($coPersonId));
-          $this->log($msg);
-        }      
-      
+        foreach($cous as $couId => $couName) {
+          $coGroupName = 'members:' . $couName;
+          
+          $this->CoGroupMember->syncMembership($coGroupName, $coPersonId, false, $provision);
+        }
+      }
     }
   }
   

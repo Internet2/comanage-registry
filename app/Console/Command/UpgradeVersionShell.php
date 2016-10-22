@@ -26,8 +26,10 @@ class UpgradeVersionShell extends AppShell {
   var $uses = array('Meta',
                     'Address',
                     'CmpEnrollmentConfiguration',
+                    'Co',
                     'CoEnrollmentAttributeDefault',
-                    'CoEnrollmentFlow');
+                    'CoEnrollmentFlow',
+                    'CoGroup');
   
   // A list of known versions, must be semantic versioning compliant. The value
   // is a "blocker" if it is a version that prevents an upgrade from happening.
@@ -155,6 +157,9 @@ class UpgradeVersionShell extends AppShell {
   }
   
   function main() {
+    // Merge plugin texts, in case any plugins end up being called
+    _bootstrap_plugin_txt();
+    
     // Pull current (PHP code) version
     $targetVersion = null;
     
@@ -295,8 +300,48 @@ class UpgradeVersionShell extends AppShell {
   }
   
   public function post110() {
-    // 1.1.0 replaces CoEnrollmentFlow::verify_email with email_verification_mode
+    // 1.1.0 replaces CoEnrollmentFlow::verify_email with email_verification_mode.
     $this->out(_txt('sh.ug.110.ef'));
     $this->CoEnrollmentFlow->_ug110();
+    
+    // 1.1.0 changes how members groups are populated. This will reconcile the groups.
+    $this->out(_txt('sh.ug.110.gr'));
+    
+    // Start by pulling the list of COs and its COUs.
+    
+    $args = array();
+    $args['contain'] = 'Cou';
+    
+    $cos = $this->Co->find('all', $args);
+    
+    // We update inactive COs as well, in case they become active again
+    foreach($cos as $co) {
+      $this->out('- ' . $co['Co']['name']);
+      
+      // Reconcile the CO members group
+      $args = array();
+      $args['conditions']['CoGroup.name'] = 'members';
+      $args['conditions']['CoGroup.co_id'] = $co['Co']['id'];
+      $args['contain'] = false;
+      
+      $group = $this->CoGroup->find('first', $args);
+      
+      if($group) {
+        $this->CoGroup->reconcileMembersGroup($group['CoGroup']['id']);
+      }
+      
+      foreach($co['Cou'] as $cou) {
+        $this->out('-- ' . $cou['name']);
+        
+        // Reconcile the COU members group
+        $args['conditions']['CoGroup.name'] = 'members:' . $cou['name'];
+        
+        $group = $this->CoGroup->find('first', $args);
+        
+        if($group) {
+          $this->CoGroup->reconcileMembersGroup($group['CoGroup']['id']);
+        }
+      }
+    }
   }
 }

@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Fields
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -54,6 +54,31 @@ if(!$e && !$v)
   return(false);
 
 // Add buttons
+if($permissions['reconcile']) {
+  // Reconcile read only groups
+  
+  $buttonUrl = array(
+    'controller'    => 'co_groups',
+    'action'        => 'reconcile',
+    $co_groups[0]['CoGroup']['id'],
+    'ext'           => 'json'
+  );
+
+  // Construct jQuery popup
+  $onclickAction = "javascript:js_confirm_reconcile('"
+                    . Router::url($buttonUrl) . "');
+                    return false;";
+
+  $params['topLinks'][] = $this->Html->link(
+    _txt('op.gr.reconcile'),
+    $buttonUrl,
+    array(
+      'class'   => 'reconcilebutton',
+      'onclick' => $onclickAction
+    )
+  );
+}
+
 if(!empty($co_groups[0]['CoGroup']['id'])) {
   // Manage group memberships
   $params['topLinks'][] = $this->Html->link(
@@ -94,3 +119,109 @@ if($permissions['history'] && !empty($co_groups[0]['CoGroup']['id'])) {
 }
 
 ?>
+<script type="text/javascript">
+  /* JS specific to these buttons */
+
+  function js_confirm_reconcile(targetUrl) {
+    $("#reconcile-dialog").dialog("option",
+                                  "buttons",
+                                  [ { text: "<?php print _txt('op.cancel'); ?>", click: function() { $(this).dialog("close"); } },
+                                    { text: "<?php print _txt('op.gr.reconcile'); ?>", click: function() {
+                                      $(this).dialog("close");
+                                      js_request_reconciliation(targetUrl);
+                                    } }
+                                  ] );
+
+    // Open the dialog to confirm reconcilation
+    $("#reconcile-dialog").dialog("open");
+  }
+  
+  function js_request_reconciliation(targetUrl) {
+    // Open the progress bar dialog
+    $("#progressbar-dialog").dialog("open");
+
+    // Initiate the reconciliation request
+    var jqxhr = $.post(targetUrl, '{ "RequestType":"Reconciliation","Version":"1.0","Synchronous":true }');
+
+    jqxhr.done(function(data, textStatus, jqXHR) {
+      $("#progressbar-dialog").dialog("close");
+      $("#result-dialog").dialog("open");
+    });
+
+    jqxhr.fail(function(jqXHR, textStatus, errorThrown) {
+      // Note we're getting 200 here but it's actually a success (perhaps because no body returned; CO-984)
+
+      $("#progressbar-dialog").dialog("close");
+
+      if(jqXHR.status != "200") {
+        $("#result-dialog").html("<p><?php print _txt('er.gr.reconcile'); ?>" + " " + errorThrown + " (" +  jqXHR.status + ")</p>");
+      }
+
+      $("#result-dialog").dialog("open");
+    });
+  }
+  
+  $(function() {
+    // Define progressbar
+    $("#reconcile-progressbar").progressbar({
+      value: false
+    });
+
+    // Progress bar dialog
+    $("#progressbar-dialog").dialog({
+      autoOpen: false,
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+    });
+    
+    // Reconciliation dialog
+    $("#reconcile-dialog").dialog({
+      autoOpen: false,
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+    });
+    
+    // Result dialog
+    $("#result-dialog").dialog({
+      autoOpen: false,
+      buttons: {
+        "<?php print _txt('op.ok'); ?>": function() {
+          $(this).dialog("close");
+          // Refresh the page after provisioning to get latest status
+          // XXX this could ultimately be replaced by an AJAX query
+          location.reload();
+        },
+      },
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+    });
+  });
+</script>
+
+<div id="progressbar-dialog" title="<?php print _txt('op.gr.reconcile'); ?>">
+  <p><?php print _txt('op.gr.reconcile.wait'); ?></p>
+  <div id="reconcile-progressbar"></div>
+</div>
+
+<div id="reconcile-dialog" title="<?php print _txt('op.gr.reconcile'); ?>">
+  <p><?php print _txt('op.gr.reconcile.confirm'); ?></p>
+</div>
+
+<div id="result-dialog" title="<?php print _txt('op.gr.reconcile'); ?>">
+  <p><?php print _txt('rs.gr.reconcile.ok'); ?></p>
+</div>
