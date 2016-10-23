@@ -262,13 +262,15 @@ body.logged-in #user-menu {
   clear: both;
   padding: 1em;
   background-color: #fbec88;
-  border: 1px solid #fad42e;
+  /*border: 1px solid #fad42e;*/
   margin-bottom: 0.5em;
 }
-.co-info-topbox .material-icons {
+#content .co-info-topbox .material-icons {
+  color: #53b1f4;
+  font-size: 26px;
   vertical-align: bottom;
-  color: #53B1F4;
-  font-size: 20px;
+  float: left;
+  margin-right: 0.25em;
 }
 .material-icons.error {
   color: #d00;
@@ -1007,7 +1009,7 @@ a#top-search-toggle:hover {
 }
 /* PERSON CANVAS */
 .personExplorer ul {
-  margin: 0 0 0 1em;
+  margin: 0;
   padding: 0;
 }
 .personExplorer ul.topList {
@@ -1127,9 +1129,6 @@ a#top-search-toggle:hover {
   background-color: #e33;
   color: white;
 }
-.explorerContainer #changeLog {
-  margin-left: 1em;
-}
 .explorerContainer #changeLog ul {
   margin-left: 1em;
 }
@@ -1202,12 +1201,12 @@ a#top-search-toggle:hover {
 }
 /* BUTTONS */
 #content .co-button .material-icons {
-  font-size: 18px;
+  font-size: 17px;
   margin-right: -8px;
-  padding-top: 5px;
+  padding-top: 6px;
 }
 #content .material-icons {
-  font-size: 18px;
+  font-size: 17px;
   margin-top: 3px;
   vertical-align: top;
 }

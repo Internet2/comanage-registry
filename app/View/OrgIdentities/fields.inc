@@ -97,6 +97,13 @@
   </div>
 <?php endif; // view ?>
 
+<?php if($this->action == 'edit'): ?>
+  <div class="co-info-topbox">
+    <i class="material-icons">info</i>
+    <?php print _txt('in.orgidentities'); ?>
+  </div>
+<?php endif; // edit ?>
+
 <div id="<?php print $this->action; ?>_org_identity" class="explorerContainer">
   <div id="coOrgIdExplorer" class="personExplorer">
     <ul>

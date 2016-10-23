@@ -320,6 +320,10 @@
     float: left;
     width: 100px;
   }
+  /* PERSON and ORGID CANVAS*/
+  .personExplorer ul ul {
+    margin-left: 1em;
+  }
 }
 
 /* MEDIUM DESKTOP */
