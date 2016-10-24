@@ -252,7 +252,7 @@ body.logged-in #user-menu {
 /* General icon and box styling */
 .co-info { /* info icon */
   float: left;
-  margin-right: .3em;
+  margin: 0.3em 0.3em 0 0;
 }
 .co-alert { /* alert icon */
   float:left;
@@ -1052,11 +1052,11 @@ a#top-search-toggle:hover {
   float: left;
   padding: 4px 0 0 10px;
 }
-.additionalinfo{
+.additionalinfo {
   margin: 0 0 5px 0;
 }
-.additionalinfo > div {
-  margin: 0 0 2px;
+.field-data-container {
+  margin: 0 0 2px !important;
   overflow: hidden;
   padding: 2px 0 3px 0;
   background-color: #F5F5F5;
@@ -1258,6 +1258,9 @@ ul.common-list li:nth-child(even) {
 ul.common-list label {
   display: block;
   font-weight: bold;
+}
+ul.common-list .co-info-box {
+  font-size: 0.9em;
 }
 .ui-widget-header {
   background: #9FC6E2;

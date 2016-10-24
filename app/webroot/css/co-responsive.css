@@ -104,9 +104,15 @@
   ul.common-list label {
     display: inline-block;
     min-width: 80px;
+    width: 20%;
+    vertical-align: top;
   }
-  ul.common-list .co-info-box {
-    margin-left: 92px;
+  ul.common-list .field-info {
+    display: inline-block;
+    width: 78%;
+  }
+  .co-info-box .co-info { /* info icon */
+    margin-left: -1.6em;
   }
   /* Pagination */
   #pagination {
