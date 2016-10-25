@@ -101,18 +101,23 @@
   #co_people .person-admin button {
     display: inline;
   }
-  ul.common-list label {
+  ul.form-list .field-name {
     display: inline-block;
     min-width: 80px;
-    width: 20%;
-    vertical-align: top;
+    vertical-align: middle;
+    width: 30%;
+    padding-left: 0.5em;
   }
-  ul.common-list .field-info {
+  ul.form-list .field-info {
     display: inline-block;
-    width: 78%;
+    max-width: 65%;
   }
-  .co-info-box .co-info { /* info icon */
+  .field-info-desc .co-info { /* info icon */
     margin-left: -1.6em;
+  }
+  /* ORG IDS */
+  body.org_identities.edit ul.form-list .field-name {
+    padding-left: 0.75em;
   }
   /* Pagination */
   #pagination {

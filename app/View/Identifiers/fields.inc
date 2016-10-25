@@ -100,62 +100,67 @@
   $this->Html->addCrumb($crumbTxt);
   
   $l = 1;
+
+  // hidden fields
+  if($idType != 'org') {
+    print $this->Form->hidden('login', array('default' => false)) . "\n";
+  }
 ?>
-<table id="<?php print $this->action; ?>_identifier" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->label('identifier', _txt('fd.identifier.identifier'));
-          } else {
-            print _txt('fd.identifier.identifier');
+
+<ul id="<?php print $this->action; ?>_identifier" class="fields form-list">
+  <li>
+    <span class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('identifier', _txt('fd.identifier.identifier'));
+        } else {
+          print _txt('fd.identifier.identifier');
+        }
+      ?>
+      <span class="required">*</span>
+    </span>
+    <span class="field-info">
+      <?php print ($e ? $this->Form->input('identifier', array('type' => 'text','class' => 'focusFirst'))
+                     : Sanitize::html($identifiers[0]['Identifier']['identifier'])); ?>
+    </span>
+  </li>
+  <li>
+    <span class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('type', _txt('fd.type'));
+        } else {
+          print _txt('fd.type');
+        }
+      ?>
+      <span class="required">*</span>
+    </span>
+    <span class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($identifiers) ? $identifiers[0]['Identifier']['type'] : "");
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('type',
+                                    $vv_available_types,
+                                    $attrs);
+
+          if($this->Form->isFieldError('type')) {
+            print $this->Form->error('type');
           }
-        ?>
-        <span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('identifier', array('type' => 'text','class' => 'focusFirst'))
-                       : Sanitize::html($identifiers[0]['Identifier']['identifier'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->label('type', _txt('fd.type'));
-          } else {
-            print _txt('fd.type');
-          }
-        ?>
-        <span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (isset($identifiers) ? $identifiers[0]['Identifier']['type'] : "");
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('type',
-                                      $vv_available_types,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('type')) {
-              print $this->Form->error('type');
-            }
-          } else {
-            print $vv_available_types[ $identifiers[0]['Identifier']['type'] ];
-          }
-        ?>
-      </td>
-    </tr>
-    <?php if($idType == 'org'): ?>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
+        } else {
+          print $vv_available_types[ $identifiers[0]['Identifier']['type'] ];
+        }
+      ?>
+    </span>
+  </li>
+  <?php if($idType == 'org'): ?>
+    <li>
+      <span class="field-name">
         <?php print _txt('fd.identifier.login'); ?><br />
-      </td>
-      <td>
+      </span>
+      <span class="field-info">
         <?php
           if($e) {
             print $this->Form->input('login');
@@ -164,75 +169,73 @@
             print _txt($identifiers[0]['Identifier']['login'] ? 'fd.yes' : 'fd.no');
           }
         ?>
-      </td>
-    </tr>
-    <?php else: // org identity ?>
-    <?php print $this->Form->hidden('login', array('default' => false)) . "\n"; ?>
-    <?php endif; // org identity ?>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->label('status', _txt('fd.status'));
-          } else {
-            print _txt('fd.status');
+      </span>
+    </li>
+  <?php endif; // org identity ?>
+
+  <li>
+    <span class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('status', _txt('fd.status'));
+        } else {
+          print _txt('fd.status');
+        }
+      ?>
+      <span class="required">*</span>
+    </span>
+    <span class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($identifiers) ? $identifiers[0]['Identifier']['status'] : StatusEnum::Active);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
           }
-        ?>
-        <span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($identifiers) ? $identifiers[0]['Identifier']['status'] : StatusEnum::Active);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            print _txt('en.status', null, $identifiers[0]['Identifier']['status']);
-          }
-        ?>
-      </td>
-    </tr>
-    <?php if(!empty($identifiers[0]['SourceIdentifier']['id'])): ?>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
-        <?php print _txt('fd.source'); ?><br />
-      </td>
-      <td>
-        <?php print $this->Html->link(_txt('ct.identifiers.1'),
-                                      array('controller' => 'identifiers',
-                                            'action'     => 'view',
-                                            $identifiers[0]['SourceIdentifier']['id']));
-        ?>,
-        <?php print $this->Html->link(_txt('ct.org_identities.1'),
-                                      array('controller' => 'org_identities',
-                                            'action'     => 'view',
-                                            $identifiers[0]['SourceIdentifier']['org_identity_id']));
-        ?>
-      </td>
-    </tr>
-    <?php endif; // source id ?>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        } else {
+          print _txt('en.status', null, $identifiers[0]['Identifier']['status']);
+        }
+      ?>
+    </span>
+  </li>
+  <?php if(!empty($identifiers[0]['SourceIdentifier']['id'])): ?>
+  <li>
+    <span class="field-name">
+      <?php print _txt('fd.source'); ?><br />
+    </span>
+    <span class="field-info">
+      <?php print $this->Html->link(_txt('ct.identifiers.1'),
+                                    array('controller' => 'identifiers',
+                                          'action'     => 'view',
+                                          $identifiers[0]['SourceIdentifier']['id']));
+      ?>,
+      <?php print $this->Html->link(_txt('ct.org_identities.1'),
+                                    array('controller' => 'org_identities',
+                                          'action'     => 'view',
+                                          $identifiers[0]['SourceIdentifier']['org_identity_id']));
+      ?>
+    </span>
+  </li>
+  <?php endif; // source id ?>
+  <li class="fields-submit">
+    <span class="field-name">
+      <span class="required"><?php print _txt('fd.req'); ?></span>
+    </span>
+    <span class="field-info">
+      <?php
+        if($e) {
+          print $this->Form->submit($submit_label);
+        }
+      ?>
+    </span>
+  </li>
+</ul>
 <?php
   print $this->element("changelog");

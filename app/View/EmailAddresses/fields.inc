@@ -108,10 +108,9 @@
 
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_email_address" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
+<ul id="<?php print $this->action; ?>_email_address" class="fields form-list">
+    <li>
+      <span class="field-name">
         <?php
           if($e) {
             print $this->Form->label('mail', _txt('fd.email_address.mail'));
@@ -119,19 +118,17 @@
             print _txt('fd.email_address.mail');
           }
         ?>
-      </td>
-      <td>
+      </span>
+      <span class="field-info">
         <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
-      </td>
-      <?php if($e && $isVerified): ?>
-      <td>
-        <span class="ui-icon ui-icon-info co-info"></span>
-        <em><?php print _txt('fd.email_address.verified.warn'); ?></em>
-      </td>
-      <?php endif; ?>
-    </tr>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
+        <?php if($e && $isVerified): ?>
+          <span class="ui-icon ui-icon-info co-info"></span>
+          <em><?php print _txt('fd.email_address.verified.warn'); ?></em>
+        <?php endif; ?>
+      </span>
+    </li>
+    <li>
+      <span class="field-name">
         <?php
           if($e) {
             print $this->Form->label('type', _txt('fd.type'));
@@ -139,8 +136,8 @@
             print _txt('fd.type');
           }
         ?>
-      </td>
-      <td>
+      </span>
+      <span class="field-info">
         <?php
           $attrs['value'] = (isset($email_addresses) ? $email_addresses[0]['EmailAddress']['type'] : "");
           $attrs['empty'] = false;
@@ -157,13 +154,13 @@
             print Sanitize::html(_txt('en.email_address.type', null, $email_addresses[0]['EmailAddress']['type']));
           }
         ?>
-      </td>
-    </tr>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
+      </span>
+    </li>
+    <li>
+      <span class="field-name">
         <?php print _txt('fd.email_address.verified'); ?>
-      </td>
-      <td>
+      </span>
+      <span class="field-info">
         <?php
           // For an add, verified is by definition no and can't (currently, anyway) be set manually.
           // This will be caught by $email_addresses being null.
@@ -196,14 +193,14 @@
               . '</button>' . "\n";
           }
         ?>
-      </td>
-    </tr>
+      </span>
+    </li>
     <?php if(!empty($email_addresses[0]['SourceEmailAddress']['id'])): ?>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
+    <li>
+      <span class="field-name">
         <?php print _txt('fd.source'); ?><br />
-      </td>
-      <td>
+      </span>
+      <span class="field-info">
         <?php print $this->Html->link(_txt('ct.email_addresses.1'),
                                       array('controller' => 'email_addresses',
                                             'action'     => 'view',
@@ -214,22 +211,21 @@
                                             'action'     => 'view',
                                             $email_addresses[0]['SourceEmailAddress']['org_identity_id']));
         ?>
-      </td>
-    </tr>
+      </span>
+    </li>
     <?php endif; // source id ?>
-    <tr>
-      <td>
+    <li class="fields-submit">
+      <span class="field-name">
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
+      </span>
+      <span class="field-info">
         <?php
           if($e) {
             print $this->Form->submit($submit_label);
           }
         ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      </span>
+    </li>
+</ul>
 <?php
   print $this->element("changelog");

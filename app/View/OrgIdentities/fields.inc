@@ -107,6 +107,8 @@
 <div id="<?php print $this->action; ?>_org_identity" class="explorerContainer">
   <div id="coOrgIdExplorer" class="personExplorer">
     <ul>
+
+      <!-- Names -->
       <li id="fields-name" class="fieldGroup">
 
         <?php if($e && $this->action != 'add'): ?>
@@ -127,353 +129,346 @@
           <i class="material-icons">indeterminate_check_box</i>
           <?php print _txt('fd.name.affil'); ?>
         </a>
-        <ul class="fields">
+        <ul id="tabs-name" class="fields form-list">
+
+          <?php if($this->action == 'add'): ?>
+            <li>
+              <span class="field-name">
+                <?php print ($e ? $this->Form->label('PrimaryName.honorific', _txt('fd.name.honorific') .  " " . _txt('fd.name.h.desc')) : _txt('fd.name.honorific')); ?>
+              </span>
+              <span class="field-info">
+                <?php
+                  print $this->Form->hidden('PrimaryName.id');
+                  print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
+                  print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
+                  print ($e ? $this->Form->input('PrimaryName.honorific', array('class' => 'focusFirst')) : Sanitize::html($org_identities[0]['PrimaryName']['honorific']));
+                ?>
+              </span>
+            </li>
+            <li>
+              <span class="field-name">
+                <?php print ($e ? $this->Form->label('PrimaryName.given', _txt('fd.name.given')) . ' <span class="required">*</span>' : _txt('fd.name.given')); ?>
+              </span>
+              <span class="field-info">
+                <?php print ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
+              </span>
+            </li>
+            <li>
+              <span class="field-name">
+                <?php print ($e ? $this->Form->label('PrimaryName.middle', _txt('fd.name.middle')) : _txt('fd.name.middle')); ?>
+              </span>
+              <span class="field-info">
+                <?php print ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
+              </span>
+            </li>
+            <li>
+              <span class="field-name">
+                <?php print ($e ? $this->Form->label('PrimaryName.family', _txt('fd.name.family')) :  _txt('fd.name.family')); ?>
+              </span>
+              <span class="field-info">
+                <?php print ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
+              </span>
+            </li>
+            <li>
+              <span class="field-name">
+                <?php print ($e ? $this->Form->label('PrimaryName.suffix', _txt('fd.name.suffix') . " " . _txt('fd.name.s.desc')) :  _txt('fd.name.suffix')); ?>
+              </span>
+              <span class="field-info">
+                <?php print ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
+              </span>
+            </li>
+            <li>
+              <span class="field-name">
+                <?php print _txt('fd.type'); ?>
+              </span>
+              <span class="field-info">
+                <?php print _txt('en.name.type', null, NameEnum::Official); ?>
+              </span>
+            </li>
+            <li>
+              <span class="field-name">
+                <?php print ($e ? $this->Form->label('PrimaryName.language', _txt('fd.language')) : _txt('fd.language')); ?>
+              </span>
+              <span class="field-info">
+                <?php
+                  global $cm_lang, $cm_texts;
+
+                  $attrs = array();
+                  $attrs['value'] = (isset($org_identities[0]['PrimaryName']['language'])
+                    ? $org_identities[0]['PrimaryName']['language']
+                    : getPreferredLanguage());
+                  $attrs['empty'] = true;
+
+                  if($e) {
+                    print $this->Form->select('PrimaryName.language',
+                      $cm_texts[ $cm_lang ]['en.language'],
+                      $attrs);
+
+                    if($this->Form->isFieldError('PrimaryName.language')) {
+                      print $this->Form->error('PrimaryName.language');
+                    }
+                  } else {
+                    print _txt('en.language', null, $org_identities[0]['PrimaryName']['language']);
+                  }
+                ?>
+              </span>
+            </li>
+          <?php else: // add ?>
+            <?php foreach($org_identities[0]['Name'] as $n): ?>
+              <li class="field-data-container">
+                <div class="field-data">
+                  <?php
+                    print $this->Html->link(generateCn($n),
+                        array('controller' => 'names',
+                          'action' => ($e ? 'edit' : 'view'),
+                          $n['id']))
+                      . " ("
+                      . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
+                      . _txt('en.name.type', null, $n['type'])
+                      . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
+                      . ")";
+                  ?>
+                </div>
+                <div class="field-actions">
+                  <?php
+                    if($e) {
+                      if(!$n['primary_name']) {
+                        print '<a class="deletebutton" title="' . _txt('op.delete')
+                          . '" onclick="javascript:js_confirm_generic(\''
+                          . _txt('js.remove') . '\',\''    // dialog body text
+                          . $this->Html->url(              // dialog confirm URL
+                            array(
+                              'controller' => 'names',
+                              'action' => 'delete',
+                              $n['id'],
+                              'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                            )
+                          ) . '\',\''
+                          . _txt('op.remove') . '\',\''    // dialog confirm button
+                          . _txt('op.cancel') . '\',\''    // dialog cancel button
+                          . _txt('op.remove') . '\',[\''   // dialog title
+                          . filter_var(_jtxt(generateCn($n)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                          . '\']);">'
+                          . _txt('op.delete')
+                          . '</a>';
+
+                        print $this->Html->link(_txt('op.primary'),
+                            array('controller'    => 'names',
+                              'action'        => 'primary',
+                              $n['id'],
+                              'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
+                            array('class' => 'primarybutton')) . "\n";
+                      }
+
+                      print $this->Html->link(_txt('op.edit'),
+                          array('controller' => 'names',
+                            'action' => 'edit',
+                            $n['id']),
+                          array('class' => 'editbutton')) . "\n";
+                    } else {
+                      print $this->Html->link(_txt('op.view'),
+                          array('controller' => 'names',
+                            'action' => 'view',
+                            $n['id']),
+                          array('class' => 'viewbutton')) . "\n";
+                    }
+                  ?>
+                </div>
+              </li>
+            <?php endforeach; ?>
+          <?php endif; // add ?>
           <li>
-            <div id="tabs-name" class="additionalinfo">
-              <table id="<?php print $this->action; ?>_org_identity_names" class="ui-widget">
-                <tbody>
-                <?php $l = 1; ?>
-                <?php if($this->action == 'add'): ?>
-                  <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <td>
-                      <?php print ($e ? $this->Form->label('PrimaryName.honorific', _txt('fd.name.honorific') .  " " . _txt('fd.name.h.desc')) : _txt('fd.name.honorific')); ?>
-                    </td>
-                    <td>
-                      <?php
-                        print $this->Form->hidden('PrimaryName.id');
-                        print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
-                        print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
-                        print ($e ? $this->Form->input('PrimaryName.honorific') : Sanitize::html($org_identities[0]['PrimaryName']['honorific']));
-                      ?>
-                    </td>
-                  </tr>
-                  <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <td>
-                      <?php print ($e ? $this->Form->label('PrimaryName.given', _txt('fd.name.given')) : _txt('fd.name.given')); ?><span class="required">*</span>
-                    </td>
-                    <td>
-                      <?php print ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
-                    </td>
-                  </tr>
-                  <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <td>
-                      <?php print ($e ? $this->Form->label('PrimaryName.middle', _txt('fd.name.middle')) : _txt('fd.name.middle')); ?>
-                    </td>
-                    <td>
-                      <?php print ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
-                    </td>
-                  <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <td>
-                      <?php print ($e ? $this->Form->label('PrimaryName.family', _txt('fd.name.family')) :  _txt('fd.name.family')); ?>
-                    </td>
-                    <td>
-                      <?php print ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
-                    </td>
-                  </tr>
-                  <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <td>
-                      <?php print ($e ? $this->Form->label('PrimaryName.suffix', _txt('fd.name.suffix') . " " . _txt('fd.name.s.desc')) :  _txt('fd.name.suffix')); ?>
-                    </td>
-                    <td>
-                      <?php print ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
-                    </td>
-                  </tr>
-                  <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <td>
-                      <?php print _txt('fd.type'); ?>
-                    </td>
-                    <td>
-                      <?php print _txt('en.name.type', null, NameEnum::Official); ?>
-                    </td>
-                  </tr>
-                  <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <td>
-                      <?php print ($e ? $this->Form->label('PrimaryName.language', _txt('fd.language')) : _txt('fd.language')); ?>
-                    </td>
-                    <td>
-                      <?php
-                        global $cm_lang, $cm_texts;
+            <span class="field-name">
+              <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+            </span>
+            <span class="field-info">
+              <?php
+                global $cm_lang, $cm_texts;
+                $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['status'])
+                  ? $org_identities[0]['OrgIdentity']['status']
+                  : "M");
+                $attrs['empty'] = true;
 
-                        $attrs = array();
-                        $attrs['value'] = (isset($org_identities[0]['PrimaryName']['language'])
-                          ? $org_identities[0]['PrimaryName']['language']
-                          : getPreferredLanguage());
-                        $attrs['empty'] = true;
+                if($e) {
+                  print $this->Form->select('status',
+                    $cm_texts[ $cm_lang ]['en.status.org'],
+                    $attrs);
 
-                        if($e) {
-                          print $this->Form->select('PrimaryName.language',
-                            $cm_texts[ $cm_lang ]['en.language'],
-                            $attrs);
-
-                          if($this->Form->isFieldError('PrimaryName.language')) {
-                            print $this->Form->error('PrimaryName.language');
-                          }
-                        } else {
-                          print _txt('en.language', null, $org_identities[0]['PrimaryName']['language']);
-                        }
-                      ?>
-                    </td>
-                  </tr>
-                <?php else: // add ?>
-                  <?php foreach($org_identities[0]['Name'] as $n): ?>
-                    <tr class="noborder">
-                      <td>
-                        <?php
-                          print $this->Html->link(generateCn($n),
-                              array('controller' => 'names',
-                                'action' => ($e ? 'edit' : 'view'),
-                                $n['id']))
-                            . " ("
-                            . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                            . _txt('en.name.type', null, $n['type'])
-                            . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
-                            . ")";
-                        ?>
-                      </td>
-                      <td>
-                        <?php
-                          if($e) {
-                            if(!$n['primary_name']) {
-                              print '<a class="deletebutton" title="' . _txt('op.delete')
-                                . '" onclick="javascript:js_confirm_generic(\''
-                                . _txt('js.remove') . '\',\''    // dialog body text
-                                . $this->Html->url(              // dialog confirm URL
-                                  array(
-                                    'controller' => 'names',
-                                    'action' => 'delete',
-                                    $n['id'],
-                                    'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
-                                  )
-                                ) . '\',\''
-                                . _txt('op.remove') . '\',\''    // dialog confirm button
-                                . _txt('op.cancel') . '\',\''    // dialog cancel button
-                                . _txt('op.remove') . '\',[\''   // dialog title
-                                . filter_var(_jtxt(generateCn($n)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                                . '\']);">'
-                                . _txt('op.delete')
-                                . '</a>';
-
-                              print $this->Html->link(_txt('op.primary'),
-                                  array('controller'    => 'names',
-                                    'action'        => 'primary',
-                                    $n['id'],
-                                    'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
-                                  array('class' => 'primarybutton')) . "\n";
-                            }
-
-                            print $this->Html->link(_txt('op.edit'),
-                                array('controller' => 'names',
-                                  'action' => 'edit',
-                                  $n['id']),
-                                array('class' => 'editbutton')) . "\n";
-                          } else {
-                            print $this->Html->link(_txt('op.view'),
-                                array('controller' => 'names',
-                                  'action' => 'view',
-                                  $n['id']),
-                                array('class' => 'viewbutton')) . "\n";
-                          }
-                        ?>
-                      </td>
-                    </tr>
-                  <?php endforeach; ?>
-                <?php endif; // add ?>
-                <tr class="line<?php print ($l % 2); $l++; ?>">
-                  <td>
-                    <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
-                  </td>
-                  <td>
-                    <?php
-                      global $cm_lang, $cm_texts;
-                      $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['status'])
-                        ? $org_identities[0]['OrgIdentity']['status']
-                        : "M");
-                      $attrs['empty'] = true;
-
-                      if($e) {
-                        print $this->Form->select('status',
-                          $cm_texts[ $cm_lang ]['en.status.org'],
-                          $attrs);
-
-                        if($this->Form->isFieldError('status')) {
-                          print $this->Form->error('status');
-                        }
-                      } else {
-                        if(!empty($org_identities[0]['OrgIdentity']['status'])) {
-                          print $cm_texts[ $cm_lang ]['en.status.org'][ $org_identities[0]['OrgIdentity']['status'] ];
-                        }
-                      }
-                    ?>
-                  </td>
-                </tr>
-                <tr class="line<?php print ($l % 2); $l++; ?>">
-                  <td>
-                    <?php print ($e ? $this->Form->label('affiliation', _txt('fd.affiliation')) : _txt('fd.affiliation')); ?>
-                  </td>
-                  <td>
-                    <?php
-                      global $cm_lang, $cm_texts;
-                      $attrs = array();
-                      $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['affiliation'])
-                        ? $org_identities[0]['OrgIdentity']['affiliation']
-                        : "M");
-                      $attrs['empty'] = true;
-
-                      if($e) {
-                        print $this->Form->select('affiliation',
-                          $cm_texts[ $cm_lang ]['en.org_identity.affiliation'],
-                          $attrs);
-
-                        if($this->Form->isFieldError('affiliation')) {
-                          print $this->Form->error('affiliation');
-                        }
-                      } else {
-                        if(!empty($org_identities[0]['OrgIdentity']['affiliation'])) {
-                          print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
-                        }
-                      }
-                    ?>
-                  </td>
-                </tr>
-                <tr class="line<?php print ($l % 2); $l++; ?>">
-                  <td>
-                    <?php print ($e ? $this->Form->label('title', _txt('fd.title')) : _txt('fd.title')); ?>
-                  </td>
-                  <td>
-                    <?php
-                      if($e) {
-                        if(!empty($vv_enums_title)) {
-                          // Attribute enumerations defined
-
-                          if(!empty($org_identities[0]['OrgIdentity']['title'])
-                            && !array_search($org_identities[0]['OrgIdentity']['title'], $vv_enums_title)) {
-                            print $org_identities[0]['OrgIdentity']['title'];
-
-                            print '<div>
-                               <span class="ui-icon ui-icon-info co-info"></span>
-                               <em>' . _txt('er.ae.val.inv') . '</em>
-                             </div>';
-                          }
-
-                          $attrs = array();
-                          $attrs['empty'] = true;
-
-                          print $this->Form->select('title', $vv_enums_title, $attrs);
-
-                          if($this->Form->isFieldError('title')) {
-                            print $this->Form->error('title');
-                          }
-                        } else {
-                          // No attribute enumerations defined
-                          print $this->Form->input('title', array('size' => 60, 'class' => 'focusFirst'));
-                        }
-                      } else {
-                        print Sanitize::html($org_identities[0]['OrgIdentity']['title']);
-                      }
-                    ?>
-                  </td>
-                </tr>
-                <tr class="line<?php print ($l % 2); $l++; ?>">
-                  <td>
-                    <?php print ($e ? $this->Form->label('o', _txt('fd.o')) : _txt('fd.o')); ?>
-                  </td>
-                  <td>
-                    <?php
-                      if($e) {
-                        if(!empty($vv_enums_o)) {
-                          // Attribute enumerations defined
-
-                          if(!empty($org_identities[0]['OrgIdentity']['o'])
-                            && !array_search($org_identities[0]['OrgIdentity']['o'], $vv_enums_o)) {
-                            print $org_identities[0]['OrgIdentity']['o'];
-
-                            print '<div>
-                               <span class="ui-icon ui-icon-info co-info"></span>
-                               <em>' . _txt('er.ae.val.inv') . '</em>
-                             </div>';
-                          }
-
-                          $attrs = array();
-                          $attrs['empty'] = true;
-
-                          print $this->Form->select('o', $vv_enums_o, $attrs);
-
-                          if($this->Form->isFieldError('o')) {
-                            print $this->Form->error('o');
-                          }
-                        } else {
-                          // No attribute enumerations defined
-                          print $this->Form->input('o', array('size' => 60));
-                        }
-                      } else {
-                        print Sanitize::html($org_identities[0]['OrgIdentity']['o']);
-                      }
-                    ?>
-                  </td>
-                </tr>
-                <tr class="line<?php print ($l % 2); $l++; ?>">
-                  <td>
-                    <?php print ($e ? $this->Form->label('ou', _txt('fd.ou')) : _txt('fd.ou')); ?>
-                  </td>
-                  <td>
-                    <?php
-                      if($e) {
-                        if(!empty($vv_enums_ou)) {
-                          // Attribute enumerations defined
-
-                          if(!empty($org_identities[0]['OrgIdentity']['ou'])
-                            && !array_search($org_identities[0]['OrgIdentity']['ou'], $vv_enums_ou)) {
-                            print $org_identities[0]['OrgIdentity']['ou'];
-
-                            print '<div>
-                               <span class="ui-icon ui-icon-info co-info"></span>
-                               <em>' . _txt('er.ae.val.inv') . '</em>
-                             </div>';
-                          }
-
-                          $attrs = array();
-                          $attrs['empty'] = true;
-
-                          print $this->Form->select('ou', $vv_enums_ou, $attrs);
-
-                          if($this->Form->isFieldError('ou')) {
-                            print $this->Form->error('ou');
-                          }
-                        } else {
-                          // No attribute enumerations defined
-                          print $this->Form->input('ou', array('size' => 60));
-                        }
-                      } else {
-                        print Sanitize::html($org_identities[0]['OrgIdentity']['ou']);
-                      }
-                    ?>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-                  </td>
-                  <td>
-                    <?php
-                      if($e)
-                      {
-                        print '<div class="submitButton">';
-                        print $this->Form->submit($submit_label);
-                        print '</div>';
-                      }
-                    ?>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
+                  if($this->Form->isFieldError('status')) {
+                    print $this->Form->error('status');
+                  }
+                } else {
+                  if(!empty($org_identities[0]['OrgIdentity']['status'])) {
+                    print $cm_texts[ $cm_lang ]['en.status.org'][ $org_identities[0]['OrgIdentity']['status'] ];
+                  }
+                }
+              ?>
+            </span>
           </li>
-        </ul>
-      </li>
+          <li>
+            <span class="field-name">
+              <?php print ($e ? $this->Form->label('affiliation', _txt('fd.affiliation')) : _txt('fd.affiliation')); ?>
+            </span>
+            <span class="field-info">
+              <?php
+                global $cm_lang, $cm_texts;
+                $attrs = array();
+                $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['affiliation'])
+                  ? $org_identities[0]['OrgIdentity']['affiliation']
+                  : "M");
+                $attrs['empty'] = true;
+
+                if($e) {
+                  print $this->Form->select('affiliation',
+                    $cm_texts[ $cm_lang ]['en.org_identity.affiliation'],
+                    $attrs);
+
+                  if($this->Form->isFieldError('affiliation')) {
+                    print $this->Form->error('affiliation');
+                  }
+                } else {
+                  if(!empty($org_identities[0]['OrgIdentity']['affiliation'])) {
+                    print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
+                  }
+                }
+              ?>
+            </span>
+          </li>
+          <li>
+            <span class="field-name">
+              <?php print ($e ? $this->Form->label('title', _txt('fd.title')) : _txt('fd.title')); ?>
+            </span>
+            <span class="field-info">
+              <?php
+                if($e) {
+                  if(!empty($vv_enums_title)) {
+                    // Attribute enumerations defined
+
+                    if(!empty($org_identities[0]['OrgIdentity']['title'])
+                      && !array_search($org_identities[0]['OrgIdentity']['title'], $vv_enums_title)) {
+                      print $org_identities[0]['OrgIdentity']['title'];
+
+                      print '<div>
+                         <span class="ui-icon ui-icon-info co-info"></span>
+                         <em>' . _txt('er.ae.val.inv') . '</em>
+                       </div>';
+                    }
+
+                    $attrs = array();
+                    $attrs['empty'] = true;
+
+                    print $this->Form->select('title', $vv_enums_title, $attrs);
+
+                    if($this->Form->isFieldError('title')) {
+                      print $this->Form->error('title');
+                    }
+                  } else {
+                    // No attribute enumerations defined
+                    print $this->Form->input('title', array('size' => 60));
+                  }
+                } else {
+                  print Sanitize::html($org_identities[0]['OrgIdentity']['title']);
+                }
+              ?>
+            </span>
+          </li>
+          <li>
+            <span class="field-name">
+              <?php print ($e ? $this->Form->label('o', _txt('fd.o')) : _txt('fd.o')); ?>
+            </span>
+            <span class="field-info">
+              <?php
+                if($e) {
+                  if(!empty($vv_enums_o)) {
+                    // Attribute enumerations defined
+
+                    if(!empty($org_identities[0]['OrgIdentity']['o'])
+                      && !array_search($org_identities[0]['OrgIdentity']['o'], $vv_enums_o)) {
+                      print $org_identities[0]['OrgIdentity']['o'];
+
+                      print '<div>
+                         <span class="ui-icon ui-icon-info co-info"></span>
+                         <em>' . _txt('er.ae.val.inv') . '</em>
+                       </div>';
+                    }
+
+                    $attrs = array();
+                    $attrs['empty'] = true;
+
+                    print $this->Form->select('o', $vv_enums_o, $attrs);
+
+                    if($this->Form->isFieldError('o')) {
+                      print $this->Form->error('o');
+                    }
+                  } else {
+                    // No attribute enumerations defined
+                    print $this->Form->input('o', array('size' => 60));
+                  }
+                } else {
+                  print Sanitize::html($org_identities[0]['OrgIdentity']['o']);
+                }
+              ?>
+            </span>
+          </li>
+          <li>
+            <span class="field-name">
+              <?php print ($e ? $this->Form->label('ou', _txt('fd.ou')) : _txt('fd.ou')); ?>
+            </span>
+            <span class="field-info">
+              <?php
+                if($e) {
+                  if(!empty($vv_enums_ou)) {
+                    // Attribute enumerations defined
+
+                    if(!empty($org_identities[0]['OrgIdentity']['ou'])
+                      && !array_search($org_identities[0]['OrgIdentity']['ou'], $vv_enums_ou)) {
+                      print $org_identities[0]['OrgIdentity']['ou'];
+
+                      print '<div>
+                         <span class="ui-icon ui-icon-info co-info"></span>
+                         <em>' . _txt('er.ae.val.inv') . '</em>
+                       </div>';
+                    }
+
+                    $attrs = array();
+                    $attrs['empty'] = true;
+
+                    print $this->Form->select('ou', $vv_enums_ou, $attrs);
+
+                    if($this->Form->isFieldError('ou')) {
+                      print $this->Form->error('ou');
+                    }
+                  } else {
+                    // No attribute enumerations defined
+                    print $this->Form->input('ou', array('size' => 60));
+                  }
+                } else {
+                  print Sanitize::html($org_identities[0]['OrgIdentity']['ou']);
+                }
+              ?>
+            </span>
+          </li>
+          <li class="fields-submit">
+            <span class="field-name">
+              <span class="required"><?php print _txt('fd.req'); ?></span>
+            </span>
+            <span class="field-info">
+              <?php
+                if($e)
+                {
+                  print '<div class="submitButton">';
+                  print $this->Form->submit($submit_label);
+                  print '</div>';
+                }
+              ?>
+            </span>
+          </li>
+        </ul><!-- tabs-name -->
+      </li><!-- fields-name -->
 
       <?php if($this->action != "add"): ?>
+        <!-- Ids -->
         <li id="fields-id" class="fieldGroup">
-
           <?php if($e): ?>
             <div class="coAddEditButtons">
               <?php
@@ -488,68 +483,65 @@
               ?>
             </div>
           <?php endif; ?>
-
           <a href="#tabs-id" class="fieldGroupName">
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.ids'); ?>
           </a>
-          <ul class="fields">
-            <li>
-              <div id="tabs-id" class="additionalinfo">
-                <?php
-                  if(isset($org_identities[0]['Identifier'])) {
-                    foreach($org_identities[0]['Identifier'] as $id) {
-                      print '<div class="field-data-container">';
-                      print '<div class="field-data">';
-                      print $this->Html->link($id['identifier'],
-                        array('controller' => 'identifiers',
-                          'action' => ($e ? 'edit' : 'view'),
-                          $id['id']));
-                      print "&nbsp;(" . $id['type'] . ")\n";
-                      print '</div>';
-                      print '<div class="field-actions">';
+          <ul id="tabs-id" class="fields data-list">
+            <?php
+              if(isset($org_identities[0]['Identifier'])) {
+                foreach($org_identities[0]['Identifier'] as $id) {
+                  print '<li class="field-data-container">';
+                  print '<div class="field-data">';
+                  print $this->Html->link($id['identifier'],
+                    array('controller' => 'identifiers',
+                      'action' => ($e ? 'edit' : 'view'),
+                      $id['id']));
+                  print "&nbsp;(" . $id['type'] . ")\n";
+                  print '</div>';
+                  print '<div class="field-actions">';
 
-                      if($e) {
-                        // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                        print '<a class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
-                            array(
-                              'controller' => 'identifiers',
-                              'action' => 'delete',
-                              $id['id'],
-                              'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
-                            )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</a>';
-                        print $this->Html->link(_txt('op.edit'),
-                            array('controller' => 'identifiers',
-                              'action' => 'edit',
-                              $id['id']),
-                            array('class' => 'editbutton')) . "\n";
-                      } else {
-                        print $this->Html->link(_txt('op.view'),
-                            array('controller' => 'identifiers',
-                              'action' => 'view',
-                              $id['id']),
-                            array('class' => 'viewbutton')) . "\n";
-                      }
-                      print '</div>';
-                      print '</div>';
-                    }
+                  if($e) {
+                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                    print '<a class="deletebutton" title="' . _txt('op.delete')
+                      . '" onclick="javascript:js_confirm_generic(\''
+                      . _txt('js.remove') . '\',\''    // dialog body text
+                      . $this->Html->url(              // dialog confirm URL
+                        array(
+                          'controller' => 'identifiers',
+                          'action' => 'delete',
+                          $id['id'],
+                          'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                        )
+                      ) . '\',\''
+                      . _txt('op.remove') . '\',\''    // dialog confirm button
+                      . _txt('op.cancel') . '\',\''    // dialog cancel button
+                      . _txt('op.remove') . '\',[\''   // dialog title
+                      . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                      . '\']);">'
+                      . _txt('op.delete')
+                      . '</a>';
+                    print $this->Html->link(_txt('op.edit'),
+                        array('controller' => 'identifiers',
+                          'action' => 'edit',
+                          $id['id']),
+                        array('class' => 'editbutton')) . "\n";
+                  } else {
+                    print $this->Html->link(_txt('op.view'),
+                        array('controller' => 'identifiers',
+                          'action' => 'view',
+                          $id['id']),
+                        array('class' => 'viewbutton')) . "\n";
                   }
-                ?>
-              </div>
-            </li>
-          </ul>
-        </li>
+                  print '</div>';
+                  print '</li>';
+                }
+              }
+            ?>
+          </ul><!-- tabs-id -->
+        </li><!-- fields-id -->
+
+        <!-- Email -->
         <li id="fields-email" class="fieldGroup">
           <?php if($e): ?>
             <div class="coAddEditButtons">
@@ -567,62 +559,60 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.email_address.mail'); ?>
           </a>
-          <ul class="fields">
-            <li>
-              <div id="tabs-email"class="additionalinfo">
-                <?php
-                  if(isset($org_identities[0]['EmailAddress'])) {
-                    foreach($org_identities[0]['EmailAddress'] as $ea) {
-                      print '<div class="field-data-container">';
-                      print '<div class="field-data">';
-                      print $this->Html->link($ea['mail'], array('controller' => 'email_addresses',
-                        'action' => ($e ? 'edit' : 'view'),
-                        $ea['id']));
-                      print "&nbsp;(" . _txt('en.email_address.type', null, $ea['type']) . ", "
-                        . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")";
-                      print '</div>';
-                      print '<div class="field-actions">';
+          <ul id="tabs-email" class="fields data-list">
+            <?php
+              if(isset($org_identities[0]['EmailAddress'])) {
+                foreach($org_identities[0]['EmailAddress'] as $ea) {
+                  print '<li class="field-data-container">';
+                  print '<div class="field-data">';
+                  print $this->Html->link($ea['mail'], array('controller' => 'email_addresses',
+                    'action' => ($e ? 'edit' : 'view'),
+                    $ea['id']));
+                  print "&nbsp;(" . _txt('en.email_address.type', null, $ea['type']) . ", "
+                    . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")";
+                  print '</div>';
+                  print '<div class="field-actions">';
 
-                      if($e) {
-                        // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                        print '<a class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
-                            array(
-                              'controller' => 'email_addresses',
-                              'action' => 'delete',
-                              $ea['id']
-                            )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt($ea['mail']),FILTER_SANITIZE_EMAIL)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</a>';
-                        print $this->Html->link(_txt('op.edit'),
-                            array('controller' => 'email_addresses',
-                              'action' => 'edit',
-                              $ea['id']),
-                            array('class' => 'editbutton')) . "\n";
-                      } else {
-                        print $this->Html->link(_txt('op.view'),
-                            array('controller' => 'email_addresses',
-                              'action' => 'view',
-                              $ea['id']),
-                            array('class' => 'viewbutton')) . "\n";
-                      }
-                      print '</div>';
-                      print '</div>';
-                    }
+                  if($e) {
+                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                    print '<a class="deletebutton" title="' . _txt('op.delete')
+                      . '" onclick="javascript:js_confirm_generic(\''
+                      . _txt('js.remove') . '\',\''    // dialog body text
+                      . $this->Html->url(              // dialog confirm URL
+                        array(
+                          'controller' => 'email_addresses',
+                          'action' => 'delete',
+                          $ea['id']
+                        )
+                      ) . '\',\''
+                      . _txt('op.remove') . '\',\''    // dialog confirm button
+                      . _txt('op.cancel') . '\',\''    // dialog cancel button
+                      . _txt('op.remove') . '\',[\''   // dialog title
+                      . filter_var(_jtxt($ea['mail']),FILTER_SANITIZE_EMAIL)  // dialog body text replacement strings
+                      . '\']);">'
+                      . _txt('op.delete')
+                      . '</a>';
+                    print $this->Html->link(_txt('op.edit'),
+                        array('controller' => 'email_addresses',
+                          'action' => 'edit',
+                          $ea['id']),
+                        array('class' => 'editbutton')) . "\n";
+                  } else {
+                    print $this->Html->link(_txt('op.view'),
+                        array('controller' => 'email_addresses',
+                          'action' => 'view',
+                          $ea['id']),
+                        array('class' => 'viewbutton')) . "\n";
                   }
-                ?>
-              </div>
-            </li>
-          </ul>
-        </li>
+                  print '</div>';
+                  print '</li>';
+                }
+              }
+            ?>
+          </ul><!-- tabs-email -->
+        </li><!-- fields-email -->
+
+        <!-- Phone numbers -->
         <li id="fields-phone" class="fieldGroup">
           <?php if($e): ?>
             <div class="coAddEditButtons">
@@ -640,63 +630,61 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.telephone_number.number'); ?>
           </a>
-          <ul class="fields">
-            <li>
-              <div id="tabs-phone" class="additionalinfo">
-                <?php
-                  if(isset($org_identities[0]['TelephoneNumber'])) {
-                    foreach($org_identities[0]['TelephoneNumber'] as $t) {
-                      print '<div class="field-data-container">';
-                      print '<div class="field-data">';
-                      print $this->Html->link(formatTelephone($t),
+          <ul id="tabs-phone" class="fields data-list">
+            <?php
+              if(isset($org_identities[0]['TelephoneNumber'])) {
+                foreach($org_identities[0]['TelephoneNumber'] as $t) {
+                  print '<li class="field-data-container">';
+                  print '<div class="field-data">';
+                  print $this->Html->link(formatTelephone($t),
+                    array('controller' => 'telephone_numbers',
+                      'action' => ($e ? 'edit' : 'view'),
+                      $t['id']));
+                  print "&nbsp;(" . _txt('en.telephone_number.type', null, $t['type']) . ")<br />\n";
+                  print '</div>';
+                  print '<div class="field-actions">';
+
+                  if($e) {
+                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                    print '<a class="deletebutton" title="' . _txt('op.delete')
+                      . '" onclick="javascript:js_confirm_generic(\''
+                      . _txt('js.remove') . '\',\''    // dialog body text
+                      . $this->Html->url(              // dialog confirm URL
+                        array(
+                          'controller' => 'telephone_numbers',
+                          'action' => 'delete',
+                          $t['id']
+                        )
+                      ) . '\',\''
+                      . _txt('op.remove') . '\',\''    // dialog confirm button
+                      . _txt('op.cancel') . '\',\''    // dialog cancel button
+                      . _txt('op.remove') . '\',[\''   // dialog title
+                      . filter_var(_jtxt(formatTelephone($t)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                      . '\']);">'
+                      . _txt('op.delete')
+                      . '</a>';
+                    print $this->Html->link(_txt('op.edit'),
                         array('controller' => 'telephone_numbers',
-                          'action' => ($e ? 'edit' : 'view'),
-                          $t['id']));
-                      print "&nbsp;(" . _txt('en.telephone_number.type', null, $t['type']) . ")<br />\n";
-                      print '</div>';
-                      print '<div class="field-actions">';
-
-                      if($e) {
-                        // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                        print '<a class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
-                            array(
-                              'controller' => 'telephone_numbers',
-                              'action' => 'delete',
-                              $t['id']
-                            )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt(formatTelephone($t)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</a>';
-                        print $this->Html->link(_txt('op.edit'),
-                            array('controller' => 'telephone_numbers',
-                              'action' => 'edit',
-                              $t['id']),
-                            array('class' => 'editbutton')) . "\n";
-                      } else {
-                        print $this->Html->link(_txt('op.view'),
-                            array('controller' => 'telephone_numbers',
-                              'action' => 'view',
-                              $t['id']),
-                            array('class' => 'viewbutton')) . "\n";
-                      }
-
-                      print '</div>';
-                      print '</div>';
-                    }
+                          'action' => 'edit',
+                          $t['id']),
+                        array('class' => 'editbutton')) . "\n";
+                  } else {
+                    print $this->Html->link(_txt('op.view'),
+                        array('controller' => 'telephone_numbers',
+                          'action' => 'view',
+                          $t['id']),
+                        array('class' => 'viewbutton')) . "\n";
                   }
-                ?>
-              </div>
-            </li>
-          </ul>
-        </li>
+
+                  print '</div>';
+                  print '</li>';
+                }
+              }
+            ?>
+          </ul><!-- tabs-phone -->
+        </li><!-- fields-phone -->
+        
+        <!-- Addresses -->
         <li id="fields-address" class="fieldGroup">
           <?php if($e): ?>
             <div class="coAddEditButtons">
@@ -718,63 +706,60 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.address'); ?>
           </a>
-          <ul class="fields">
-            <li>
-              <div id="tabs-address" class="additionalinfo">
-                <?php
-                  if(isset($org_identities[0]['Address'])) {
-                    foreach($org_identities[0]['Address'] as $addr) {
-                      print '<div class="field-data-container">';
-                      print '<div class="field-data">';
-                      print $this->Html->link($addr['street'], array('controller' => 'addresses',
-                        'action'     => ($e ? 'edit' : 'view'),
-                        $addr['id']));
-                      print "&nbsp;(" . _txt('en.address.type', null, $addr['type']) . ")<br />\n";
-                      print '</div>';
-                      print '<div class="field-actions">';
+          <ul id="tabs-address" class="fields data-list">
+            <?php
+              if(isset($org_identities[0]['Address'])) {
+                foreach($org_identities[0]['Address'] as $addr) {
+                  print '<li class="field-data-container">';
+                  print '<div class="field-data">';
+                  print $this->Html->link($addr['street'], array('controller' => 'addresses',
+                    'action'     => ($e ? 'edit' : 'view'),
+                    $addr['id']));
+                  print "&nbsp;(" . _txt('en.address.type', null, $addr['type']) . ")<br />\n";
+                  print '</div>';
+                  print '<div class="field-actions">';
 
-                      if($e) {
-                        // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                        print '<a class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
-                            array(
-                              'controller' => 'addresses',
-                              'action' => 'delete',
-                              $addr['id']
-                            )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt($addr['street']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</a>';
-                        print $this->Html->link(_txt('op.edit'),
-                            array('controller' => 'addresses',
-                              'action'     => 'edit',
-                              $addr['id']),
-                            array('class' => 'editbutton')) . "\n";
-                      } else {
-                        print $this->Html->link(_txt('op.view'),
-                            array('controller' => 'addresses',
-                              'action'     => 'view',
-                              $addr['id']),
-                            array('class' => 'viewbutton')) . "\n";
-                      }
-
-                      print '</div>';
-                      print '</div>';
-                    }
+                  if($e) {
+                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
+                    print '<a class="deletebutton" title="' . _txt('op.delete')
+                      . '" onclick="javascript:js_confirm_generic(\''
+                      . _txt('js.remove') . '\',\''    // dialog body text
+                      . $this->Html->url(              // dialog confirm URL
+                        array(
+                          'controller' => 'addresses',
+                          'action' => 'delete',
+                          $addr['id']
+                        )
+                      ) . '\',\''
+                      . _txt('op.remove') . '\',\''    // dialog confirm button
+                      . _txt('op.cancel') . '\',\''    // dialog cancel button
+                      . _txt('op.remove') . '\',[\''   // dialog title
+                      . filter_var(_jtxt($addr['street']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                      . '\']);">'
+                      . _txt('op.delete')
+                      . '</a>';
+                    print $this->Html->link(_txt('op.edit'),
+                        array('controller' => 'addresses',
+                          'action'     => 'edit',
+                          $addr['id']),
+                        array('class' => 'editbutton')) . "\n";
+                  } else {
+                    print $this->Html->link(_txt('op.view'),
+                        array('controller' => 'addresses',
+                          'action'     => 'view',
+                          $addr['id']),
+                        array('class' => 'viewbutton')) . "\n";
                   }
-                ?>
-                <br>
-              </div>
-            </li>
-          </ul>
-        </li>
+
+                  print '</div>';
+                  print '</li>';
+                }
+              }
+            ?>
+          </ul><!-- tabs-address -->
+        </li><!-- fields-address -->
+        
+        <!-- Associated CoPeople listings -->
         <li id="fields-copeople" class="fieldGroup">
           <?php if($e): ?>
             <div class="coAddEditButtons">
@@ -797,38 +782,34 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('ct.co_people.pl'); ?>
           </a>
-          <ul class="fields">
-            <li>
-              <div id="tabs-copeople" class="additionalinfo">
-                <?php
-                  if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
-                    foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
-                      print '<div class="field-data-container">';
-                      print '<div class="field-data">';
-                      print $this->Html->link(generateCn($o['CoPerson']['PrimaryName']),
-                        array('controller' => 'co_people',
-                          'action'     => 'canvas',
-                          $o['CoPerson']['id']));
+          <ul id="tabs-copeople" class="fields data-list">
+            <?php
+              if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
+                foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
+                  print '<li class="field-data-container">';
+                  print '<div class="field-data">';
+                  print $this->Html->link(generateCn($o['CoPerson']['PrimaryName']),
+                    array('controller' => 'co_people',
+                      'action'     => 'canvas',
+                      $o['CoPerson']['id']));
 
-                      print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
-                      print '</div>';
-                      print '<div class="field-actions">';
+                  print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
+                  print '</div>';
+                  print '<div class="field-actions">';
 
-                      // We don't currently offer an unlink button here, that can only (currently)
-                      // be done from CO Person Canvas, which places some restrictions on that action.
+                  // We don't currently offer an unlink button here, that can only (currently)
+                  // be done from CO Person Canvas, which places some restrictions on that action.
 
-                      print $this->Html->link(_txt('op.view'),
-                          array('controller' => 'co_people',
-                            'action'     => 'canvas',
-                            $o['CoPerson']['id']),
-                          array('class' => 'editbutton')) . "\n";
-                      print '</div>';
-                      print '</div>';
-                    }
-                  }
-                ?>
-              </div>
-            </li>
+                  print $this->Html->link(_txt('op.view'),
+                      array('controller' => 'co_people',
+                        'action'     => 'canvas',
+                        $o['CoPerson']['id']),
+                      array('class' => 'editbutton')) . "\n";
+                  print '</div>';
+                  print '</li>';
+                }
+              }
+            ?>
           </ul>
         </li>
       <?php endif; ?>

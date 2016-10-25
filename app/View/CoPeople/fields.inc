@@ -372,7 +372,7 @@
           <?php print _txt('fd.name'); ?>
         </a>
 
-        <ul id="tabs-name" class="fields">
+        <ul id="tabs-name" class="fields data-list">
           <?php if($this->action == 'invite'): ?>
             <li class="field-data-container">
               <table>
@@ -585,7 +585,7 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.ids'); ?>
           </a>
-          <ul id="tabs-id" class="fields">
+          <ul id="tabs-id" class="fields data-list">
             <?php
             if($e && !$es) {
               if(isset($co_people[0]['Identifier'])) {
@@ -673,7 +673,7 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.email_address.mail'); ?>
           </a>
-          <ul id="tabs-email" class="fields">
+          <ul id="tabs-email" class="fields data-list">
             <?php
             if(isset($co_people[0]['EmailAddress'])) {
               foreach($co_people[0]['EmailAddress'] as $ea) {
@@ -764,7 +764,7 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.groups'); ?>
           </a>
-          <ul id="tabs-group" class="fields common-list">
+          <ul id="tabs-group" class="fields form-list">
             <?php
             if(isset($co_people[0]['CoGroupMember'])) {
               foreach($co_people[0]['CoGroupMember'] as $g) {
@@ -817,9 +817,11 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.attrs.cop'); ?>
           </a>
-          <ul  id="tabs-coperson" class="fields common-list">
+          <ul  id="tabs-coperson" class="fields form-list">
             <li>
-              <label for="CoPersonStatusAgain"><?php print _txt('fd.status'); ?></label>
+              <span class="field-name vtop">
+                <label for="CoPersonStatusAgain"><?php print _txt('fd.status'); ?></label>
+              </span>
               <span class="field-info">
                 <?php
                   if($e && $permissions['edit']
@@ -854,51 +856,58 @@
                          &&
                          ($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
                           || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation)): ?>
-                  <div class="co-info-box">
+                  <div class="field-info-desc">
                     <span class="ui-icon ui-icon-info co-info"></span>
-                    <em><?php print _txt('fd.status.change'); ?></em>
+                    <?php print _txt('fd.status.change'); ?>
                   </div>
                 <?php endif; ?>
               </span>
             </li>
             <li>
-              <?php print $this->Form->label('CoPerson.timezone', _txt('fd.timezone')); ?>
-              <?php
-                if($e && ($permissions['edit'] || $permissions['editself'])) {
-                  $attrs = array();
-                  $attrs['value'] = $co_people[0]['CoPerson']['timezone'];
-                  $attrs['empty'] = true;
+              <span class="field-name">
+                <?php print $this->Form->label('CoPerson.timezone', _txt('fd.timezone')); ?>
+              </span>
+              <span class="field-info">
+                <?php
+                  if($e && ($permissions['edit'] || $permissions['editself'])) {
+                    $attrs = array();
+                    $attrs['value'] = $co_people[0]['CoPerson']['timezone'];
+                    $attrs['empty'] = true;
 
-                  print $this->Form->select('CoPerson.timezone',
-                                            // We use array_combine to force Cake to store
-                                            // the string (eg: Europe/Amsterndam) and not the
-                                            // index (eg: 310)
-                                            array_combine(timezone_identifiers_list(),
-                                                          timezone_identifiers_list()),
-                                            $attrs);
+                    print $this->Form->select('CoPerson.timezone',
+                                              // We use array_combine to force Cake to store
+                                              // the string (eg: Europe/Amsterndam) and not the
+                                              // index (eg: 310)
+                                              array_combine(timezone_identifiers_list(),
+                                                            timezone_identifiers_list()),
+                                              $attrs);
 
-                  if($this->Form->isFieldError('CoPerson.timezone')) {
-                    print $this->Form->error('CoPerson.timezone');
+                    if($this->Form->isFieldError('CoPerson.timezone')) {
+                      print $this->Form->error('CoPerson.timezone');
+                    }
+                  } else {
+                    if(!empty($co_people[0]['CoPerson']['timezone'])) {
+                      print $co_people[0]['CoPerson']['timezone'];
+                    }
                   }
-                } else {
-                  if(!empty($co_people[0]['CoPerson']['timezone'])) {
-                    print $co_people[0]['CoPerson']['timezone'];
-                  }
-                }
-              ?>
-              <?php if($e &&
-                       ($permissions['editself']
-                        // Special check for admins, who aren't editself
-                        || $this->Session->read('Auth.User.co_person_id') == $this->request->params['pass'][0])): ?>
-                <div class="co-info">
-                  <span class="ui-icon ui-icon-info co-info"></span>
-                  <em><?php print _txt('fd.timezone.change'); ?></em>
-                </div>
-              <?php endif; ?>
+                ?>
+                <?php if($e &&
+                         ($permissions['editself']
+                          // Special check for admins, who aren't editself
+                          || $this->Session->read('Auth.User.co_person_id') == $this->request->params['pass'][0])): ?>
+                  <div class="co-info">
+                    <span class="ui-icon ui-icon-info co-info"></span>
+                    <em><?php print _txt('fd.timezone.change'); ?></em>
+                  </div>
+                <?php endif; ?>
+              </span>
             </li>
             <?php if($e && ($permissions['edit'] || $permissions['editself'])): ?>
-              <li>
-                <?php print $this->Form->submit($submit_label); ?>
+              <li class="fields-submit">
+                <span class="field-name"></span>
+                <span class="field-info">
+                  <?php print $this->Form->submit($submit_label); ?>
+                </span>
               </li>
             <?php endif; // edit ?>
           </ul><!-- tabs-coperson -->
@@ -927,7 +936,7 @@
             <i class="material-icons">add_box</i>
             <?php print _txt('fd.attrs.copr'); ?>
           </a>
-          <ul id="tabs-role" class="fields" style="display: none;">
+          <ul id="tabs-role" class="fields data-list" style="display: none;">
             <li>
               <?php if($this->action != "invite"): ?>
                 <!-- Person Role Data -->
@@ -1048,7 +1057,7 @@
             <i class="material-icons">add_box</i>
             <?php print _txt('ct.ssh_keys.pl'); ?>
           </a>
-          <ul id="tabs-sshkeys" class="fields" style="display: none;">
+          <ul id="tabs-sshkeys" class="fields data-list" style="display: none;">
 
             <?php
             if($e)
@@ -1120,7 +1129,7 @@
             <i class="material-icons">add_box</i>
             <?php print _txt('ct.org_identities.pl'); ?>
           </a>
-          <ul id="tabs-orgid" class="fields" style="display: none;">
+          <ul id="tabs-orgid" class="fields data-list" style="display: none;">
             <li>
               <!-- Org Identity Data -->
               <table id="<?php print $this->action; ?>_org_identities" class="ui-widget">

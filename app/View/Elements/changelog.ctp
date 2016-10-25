@@ -40,7 +40,7 @@
     <i class="material-icons">add_box</i>
     <?php print _txt('fd.changelog'); ?>
   </a>
-  <ul class="fields" style="display: none;">
+  <ul class="fields data-list" style="display: none;">
     <li>
       <div id="tabs-changelog" class="additionalinfo">
 
