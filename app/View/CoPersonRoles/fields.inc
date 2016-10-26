@@ -208,7 +208,7 @@
                   && !empty($co_person_roles[0]['CoPersonRole']['status'])
                   && ($co_person_roles[0]['CoPersonRole']['status'] == StatusEnum::PendingApproval
                     || $co_person_roles[0]['CoPersonRole']['status'] == StatusEnum::PendingConfirmation)): ?>
-                  <div class="field-info-desc">
+                  <div class="field-desc">
                     <span class="ui-icon ui-icon-info co-info"></span>
                     <?php print _txt('fd.status.change'); ?>
                   </div>
@@ -235,7 +235,7 @@
                         && !array_search($co_person_roles[0]['CoPersonRole']['title'], $vv_enums_title)) {
                         print $co_person_roles[0]['CoPersonRole']['title'];
 
-                        print '<div class="field-info-desc">
+                        print '<div class="field-desc">
                                  <span class="ui-icon ui-icon-info co-info"></span>
                                  <em>' . _txt('er.ae.val.inv') . '</em>
                                </div>';
@@ -279,7 +279,7 @@
                         && !array_search($co_person_roles[0]['CoPersonRole']['o'], $vv_enums_o)) {
                         print $co_person_roles[0]['CoPersonRole']['o'];
 
-                        print '<div class="field-info-desc">
+                        print '<div class="field-desc">
                                  <span class="ui-icon ui-icon-info co-info"></span>
                                  <em>' . _txt('er.ae.val.inv') . '</em>
                                </div>';
@@ -331,7 +331,7 @@
                          && !array_search($co_person_roles[0]['CoPersonRole']['ou'], $vv_enums_ou)) {
                         print $co_person_roles[0]['CoPersonRole']['ou'];
 
-                        print '<div class="field-info-desc">
+                        print '<div class="field-desc">
                                  <span class="ui-icon ui-icon-info co-info"></span>
                                  <em>' . _txt('er.ae.val.inv') . '</em>
                                </div>';
@@ -377,7 +377,7 @@
                           $co_person_roles[0]['SponsorCoPerson']['id']));
                     }
 
-                    print '<div class="field-info-desc">
+                    print '<div class="field-desc">
                               <span class="ui-icon ui-icon-info co-info"></span>
                               <em>' . _txt('fd.sponsor.inel') . '</em>
                             </div>';

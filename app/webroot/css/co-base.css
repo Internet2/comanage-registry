@@ -1185,19 +1185,6 @@ ul.data-table li {
 #groupMembers tr:nth-child(even) td {
   background-color: #eee;
 }
-/* Demographics */
-/*
-#add_co_nsf_demographic .checkbox,
-#edit_co_nsf_demographic .checkbox {
-  clear: left;
-  margin-bottom: 0.5em;
-}
-#add_co_nsf_demographic .checkbox input,
-#edit_co_nsf_demographic .checkbox input {
-  float: left;
-  margin: 0 4px 8px 0;
-}*/
-
 /* FORMS */
 label {
   cursor: pointer;
@@ -1228,10 +1215,13 @@ ul.form-list li.fields-submit {
 ul.form-list .field-name {
   display: block;
 }
+ul.form-list .field-title {
+  font-weight: bold;
+}
 ul.form-list .field-info {
   position: relative;
 }
-ul.form-list .field-info-desc {
+ul.form-list .field-desc {
   font-size: 0.9em;
   font-style: italic;
 }
@@ -1263,7 +1253,7 @@ ul.form-list li.fields-submit .required {
   margin: 4px 4px 0 0;
 }
 .checkbox label {
-  margin-left: 2em;
+  margin-left: 1.5em;
   display: block;
 }
 .checkbox label::first-line {
@@ -1311,7 +1301,7 @@ ul.form-list li.fields-submit .required {
   font-weight: bold;
 }
 .descr {
-  font-style: italic; /* used for long descriptions of fields */
+  font-style: italic; /* used for long descriptions of fields, typically near the field-title */
 }
 .data-desc {
   margin-left: 0.5em; /* used for short, often parenthesized descriptions of data */
@@ -1448,7 +1438,6 @@ td.indented {
 .mdl-data-table td {
   text-align: left;
 }
-
 /* FOOTER */
 footer {
   text-align: center;

@@ -858,7 +858,7 @@
                          &&
                          ($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
                           || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation)): ?>
-                  <div class="field-info-desc">
+                  <div class="field-desc">
                     <span class="ui-icon ui-icon-info co-info"></span>
                     <?php print _txt('fd.status.change'); ?>
                   </div>

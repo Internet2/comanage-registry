@@ -52,88 +52,86 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_attribute_enumeration" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.attribute'); ?><span class="required">*</span><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            $attrs = array();
-            $attrs['value'] = (isset($attribute_enumerations)
-                               ? $attribute_enumerations[0]['AttributeEnumeration']['attribute']
-                               : null);
-            $attrs['empty'] = false;
-            
-            print $this->Form->select('attribute',
-                                      $vv_supported_attrs,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('attribute')) {
-              print $this->Form->error('attribute');
-            }
-          } else {
-            if(!empty($attribute_enumerations[0]['AttributeEnumeration']['attribute'])) {
-              print $attribute_enumerations[0]['AttributeEnumeration']['attribute'];
-            }
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.value'); ?><br />
-        <em><?php print _txt('fd.ae.optvalue.desc'); ?></em>
-      </td>
-      <td>
-        <?php print ($e ?
-                     $this->Form->input('optvalue', array('class' => 'focusFirst', 'size' => 60))
-                     : Sanitize::html($attribute_enumerations[0]['AttributeEnumeration']['name'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.status'); ?><span class="required">*</span><br />
-        <em><?php print _txt('fd.status.ae.desc'); ?></em>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
+<ul id="<?php print $this->action; ?>_attribute_enumeration" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.attribute'); ?><span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        if($e) {
           $attrs = array();
           $attrs['value'] = (isset($attribute_enumerations)
-                             ? $attribute_enumerations[0]['AttributeEnumeration']['status']
-                             : SuspendableStatusEnum::Active);
+                             ? $attribute_enumerations[0]['AttributeEnumeration']['attribute']
+                             : null);
           $attrs['empty'] = false;
           
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.susp'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            print _txt('en.status.susp', null, $attribute_enumerations[0]['AttributeEnumeration']['status']);
+          print $this->Form->select('attribute',
+                                    $vv_supported_attrs,
+                                    $attrs);
+          
+          if($this->Form->isFieldError('attribute')) {
+            print $this->Form->error('attribute');
           }
-        ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
+        } else {
+          if(!empty($attribute_enumerations[0]['AttributeEnumeration']['attribute'])) {
+            print $attribute_enumerations[0]['AttributeEnumeration']['attribute'];
           }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.value'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.ae.optvalue.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ?
+                   $this->Form->input('optvalue', array('class' => 'focusFirst', 'size' => 60))
+                   : Sanitize::html($attribute_enumerations[0]['AttributeEnumeration']['name'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.status'); ?><span class="required">*</span></div>
+      <div class="field-desc"><?php print _txt('fd.status.ae.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($attribute_enumerations)
+                           ? $attribute_enumerations[0]['AttributeEnumeration']['status']
+                           : SuspendableStatusEnum::Active);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
+          }
+        } else {
+          print _txt('en.status.susp', null, $attribute_enumerations[0]['AttributeEnumeration']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
 <?php
   print $this->element("changelog");

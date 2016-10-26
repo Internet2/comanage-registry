@@ -54,9 +54,9 @@
   print $this->element("pageTitleAndButtons", $params);
 
 ?>
-<table id="attribute_enumerations" class="ui-widget">
+<table id="attribute_enumerations">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('attribute', _txt('fd.attribute')); ?></th>
       <th><?php print $this->Paginator->sort('optvalue', _txt('fd.value')); ?></th>
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
@@ -122,12 +122,6 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="4">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
 </table>
+
+<?php print $this->element("pagination");

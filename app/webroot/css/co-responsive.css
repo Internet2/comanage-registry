@@ -112,6 +112,13 @@
     display: inline-block;
     width: 65%;
   }
+  ul.form-list-admin .field-name {
+    width: 50%;
+    padding-right: 1em;
+  }
+  ul.form-list-admin .field-info {
+    width: 40%;
+  }
   ul.form-list input[type="text"],
   ul.form-list input[type="number"] {
     width: 97%;
