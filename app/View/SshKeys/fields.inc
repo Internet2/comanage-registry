@@ -63,102 +63,98 @@
   $this->Html->addCrumb($crumbTxt);
 
 ?>
-<table id="<?php print $this->action; ?>_ssh_key" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <?php print _txt('fd.sshkey.comment'); ?>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('comment', array('class' => 'focusFirst')) : Sanitize::html($ssh_keys[0]['SshKey']['comment'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print _txt('fd.sshkey.type'); ?>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($ssh_keys) ? $ssh_keys[0]['SshKey']['type'] : SshKeyTypeEnum::DSA);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('type',
-                                      $cm_texts[ $cm_lang ]['en.sshkey.type'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('type')) {
-              print $this->Form->error('type');
-            }
-          } else {
-            print Sanitize::html($contact_t[ $ssh_keys[0]['SshKey']['type'] ]);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print _txt('fd.sshkey.skey'); ?>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('skey')
-                     : Sanitize::html($ssh_keys[0]['SshKey']['skey'])); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<?php if($this->action == 'add'): ?>
-<hr />
-<h2><?php print _txt('op.upload.new', array(_txt('ct.ssh_keys.1'))); ?></h2>
+<ul id="<?php print $this->action; ?>_ssh_key" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.sshkey.comment'); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('comment', array('class' => 'focusFirst')) : Sanitize::html($ssh_keys[0]['SshKey']['comment'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.sshkey.type'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs['value'] = (isset($ssh_keys) ? $ssh_keys[0]['SshKey']['type'] : SshKeyTypeEnum::DSA);
+        $attrs['empty'] = false;
 
-<table id="<?php print $this->action; ?>_ssh_key_upload" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td>
+        if($e) {
+          print $this->Form->select('type',
+                                    $cm_texts[ $cm_lang ]['en.sshkey.type'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('type')) {
+            print $this->Form->error('type');
+          }
+        } else {
+          print Sanitize::html($contact_t[ $ssh_keys[0]['SshKey']['type'] ]);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name vtop">
+      <?php print _txt('fd.sshkey.skey'); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('skey')
+                   : Sanitize::html($ssh_keys[0]['SshKey']['skey'])); ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
+<?php if($this->action == 'add' && $e): ?>
+  <hr />
+  <h2><?php print _txt('op.upload.new', array(_txt('ct.ssh_keys.1'))); ?></h2>
+
+  <ul id="<?php print $this->action; ?>_ssh_key_upload" class="fields form-list">
+    <li>
+      <div class="field-name">
+        <?php print _txt('fd.sshkey.skey'); ?>
+      </div>
+      <div class="field-info">
         <?php
           // Close the previous form
+          // XXX Shouldn't do this; instead, pass this page through canvas to avoid a global form wrapper and
+          // then define each form separately in this file
           print $this->Form->end();
-          
-          // Start a new form (this will get closed by Standard/add/edit.ctp)
-          print $this->Form->create('SshKey', array('type' => 'file',
-                                                    'action' => 'addKeyFile'));
-          
+
+          // Start a new form (this will get closed by Standard/add.ctp)
+          print $this->Form->create('SshKey', array('type' => 'file', 'action' => 'addKeyFile'));
+
           // Since we started a new form, we need to re-insert the coperson id
-          
+
           if(isset($this->request->params['named']['copersonid']))
             print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
           elseif(isset($this->request->data['SshKey']['co_person_id']))
             print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['SshKey']['co_person_id']))) . "\n";
-          
+
           print $this->Form->file('SshKey.keyFile');
         ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit(_txt('op.upload'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      </div>
+    </li>
+    <li class="fields-submit">
+      <div class="field-name"></div>
+      <div class="field-info">
+        <?php print $this->Form->submit(_txt('op.upload')); ?>
+      </div>
+    </li>
+  </ul>
 <?php endif; // add ?>
+
 <?php
   print $this->element("changelog");

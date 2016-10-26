@@ -110,9 +110,7 @@
   }
   ul.form-list .field-info {
     display: inline-block;
-  }
-  .field-info-desc .co-info { /* info icon */
-    /*margin-left: -1.6em;*/
+    width: 65%;
   }
   ul.form-list input[type="text"],
   ul.form-list input[type="number"] {
@@ -130,10 +128,35 @@
     margin-top: 0.5em;
     width: 65%;
   }
+  /* PETITION ATTRIBUTES */
+  .modelbox {
+    margin-right: 0.5em;
+  }
+  .modelbox .mdl-textfield {
+    display: block;
+    width: 100%;
+  }
+  .modelbox .boxtitle {
+    float: left;
+    width: 25%;
+    padding: 5px 0 5px 8px;
+  }
+  .modelbox .mdl-textfield,
+  .modelbox .mdl-selectfield {
+    float: right;
+    width: 70%;
+  }
   .modelbox-data-label {
     width: 120px;
   }
-
+  #dialog-review {
+    height: auto !important; /* desktop size */
+  }
+  /* MATCHABLE INFO BOX */
+  .co-info-matchable {
+    float: right;
+    width: 70%;
+  }
   /* PAGINATION */
   #pagination {
     text-align: left;
@@ -286,32 +309,6 @@
     width: 320px;
     position: relative;
     left: -120px; /* offset the drawer margin */
-  }
-  /* PETITION ATTRIBUTES */
-  .modelbox {
-    margin-right: 0.5em;
-  }
-  .modelbox .mdl-textfield {
-    display: block;
-    width: 100%;
-  }
-  .modelbox .boxtitle {
-    float: left;
-    width: 25%;
-    padding: 5px 0 5px 8px;
-  }
-  .modelbox .mdl-textfield,
-  .modelbox .mdl-selectfield {
-    float: right;
-    width: 70%;
-  }
-  #dialog-review {
-    height: auto !important; /* desktop size */
-  }
-  /* MATCHABLE INFO BOX */
-  .co-info-matchable {
-    float: right;
-    width: 70%;
   }
   /********************************/
   /* My Population - People Index */

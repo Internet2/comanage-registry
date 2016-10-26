@@ -50,7 +50,7 @@
             print $this->Html->link($n['CoNotification']['comment'],$args);
             print '</span>';
             print '<span class="notification-created">';
-            print $this->Html->link($this->Time->timeAgoInWords($n['CoNotification']['created']),args);
+            print $this->Html->link($this->Time->timeAgoInWords($n['CoNotification']['created']),$args);
             print '</span>';
 
             $notificationCount++;

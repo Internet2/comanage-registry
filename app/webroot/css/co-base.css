@@ -275,6 +275,7 @@ form#notificationStatus {
   vertical-align: bottom;
   float: left;
   margin-right: 0.25em;
+  margin-top: -0.1em;
 }
 .material-icons.error {
   color: #d00;

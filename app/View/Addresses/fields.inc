@@ -104,159 +104,157 @@
 
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_address" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td class="fieldName">
-        <?php print _txt('fd.address.street'); ?>
-        <?php if(in_array('street', $required_fields)): ?>
-        <span class="required">*</span>
-        <?php endif; // required_fields ?>
-      </td>
-      <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('street', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['street'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td class="fieldName">
-        <?php print _txt('fd.address.room'); ?>
-        <?php if(in_array('room', $required_fields)): ?>
-        <span class="required">*</span>
-        <?php endif; // required_fields ?>
-      </td>
-      <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('room') : Sanitize::html($addresses[0]['Address']['room'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td class="fieldName">
-        <?php print _txt('fd.address.locality'); ?>
-        <?php if(in_array('locality', $required_fields)): ?>
-        <span class="required">*</span>
-        <?php endif; // required_fields ?>
-      </td>
-      <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td class="fieldName">
-        <?php print _txt('fd.address.state'); ?>
-        <?php if(in_array('state', $required_fields)): ?>
-        <span class="required">*</span>
-        <?php endif; // required_fields ?>
-      </td>
-      <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td class="fieldName">
-        <?php print _txt('fd.address.postal_code'); ?>
-        <?php if(in_array('postal_code', $required_fields)): ?>
-        <span class="required">*</span>
-        <?php endif; // required_fields ?>
-      </td>
-      <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td class="fieldName">
-        <?php print _txt('fd.address.country'); ?>
-        <?php if(in_array('country', $required_fields)): ?>
-        <span class="required">*</span>
-        <?php endif; // required_fields ?>
-      </td>
-      <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td class="fieldName">
-        <?php print _txt('fd.type'); ?>
-      </td>
-      <td class="fieldVal">
-        <?php
+<ul id="<?php print $this->action; ?>_address" class="fields form-list">
+  <li>
+    <div class="field-name vtop">
+      <?php print _txt('fd.address.street'); ?>
+      <?php if(in_array('street', $required_fields)): ?>
+      <span class="required">*</span>
+      <?php endif; // required_fields ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('street', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['street'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.address.room'); ?>
+      <?php if(in_array('room', $required_fields)): ?>
+      <span class="required">*</span>
+      <?php endif; // required_fields ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('room') : Sanitize::html($addresses[0]['Address']['room'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.address.locality'); ?>
+      <?php if(in_array('locality', $required_fields)): ?>
+      <span class="required">*</span>
+      <?php endif; // required_fields ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.address.state'); ?>
+      <?php if(in_array('state', $required_fields)): ?>
+      <span class="required">*</span>
+      <?php endif; // required_fields ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.address.postal_code'); ?>
+      <?php if(in_array('postal_code', $required_fields)): ?>
+      <span class="required">*</span>
+      <?php endif; // required_fields ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.address.country'); ?>
+      <?php if(in_array('country', $required_fields)): ?>
+      <span class="required">*</span>
+      <?php endif; // required_fields ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.type'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+      $attrs = array();
+        $attrs['value'] = (isset($addresses[0]['Address']['type']) ? $addresses[0]['Address']['type'] : "");
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('type',
+                                    $vv_available_types,
+                                    $attrs);
+          
+          if($this->Form->isFieldError('type')) {
+            print $this->Form->error('type');
+          }
+        } else {
+          print _txt('en.contact', null, $addresses[0]['Address']['type']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.language'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        
         $attrs = array();
-          $attrs['value'] = (isset($addresses[0]['Address']['type']) ? $addresses[0]['Address']['type'] : "");
-          $attrs['empty'] = false;
+        $attrs['value'] = (isset($addresses[0]['Address']['language'])
+                           ? $addresses[0]['Address']['language']
+                           : getPreferredLanguage());
+        $attrs['empty'] = true;
+        
+        if($e) {
+          print $this->Form->select('language',
+                                    $cm_texts[ $cm_lang ]['en.language'],
+                                    $attrs);
           
-          if($e) {
-            print $this->Form->select('type',
-                                      $vv_available_types,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('type')) {
-              print $this->Form->error('type');
-            }
-          } else {
-            print _txt('en.contact', null, $addresses[0]['Address']['type']);
+          if($this->Form->isFieldError('language')) {
+            print $this->Form->error('language');
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td class="fieldName">
-        <?php print _txt('fd.language'); ?>
-      </td>
-      <td class="fieldVal">
-        <?php
-          global $cm_lang, $cm_texts;
-          
-          $attrs = array();
-          $attrs['value'] = (isset($addresses[0]['Address']['language'])
-                             ? $addresses[0]['Address']['language']
-                             : getPreferredLanguage());
-          $attrs['empty'] = true;
-          
-          if($e) {
-            print $this->Form->select('language',
-                                      $cm_texts[ $cm_lang ]['en.language'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('language')) {
-              print $this->Form->error('language');
-            }
-          } else {
-            if(!empty($addresses[0]['Address']['language']))
-              print _txt('en.language', null, $addresses[0]['Address']['language']);
-          }
-        ?>
-      </td>
-    </tr>
-    <?php if(!empty($addresses[0]['SourceAddress']['id'])): ?>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
-        <?php print _txt('fd.source'); ?><br />
-      </td>
-      <td>
-        <?php print $this->Html->link(_txt('ct.addresses.1'),
-                                      array('controller' => 'addresses',
-                                            'action'     => 'view',
-                                            $addresses[0]['SourceAddress']['id']));
-        ?>,
-        <?php print $this->Html->link(_txt('ct.org_identities.1'),
-                                      array('controller' => 'org_identities',
-                                            'action'     => 'view',
-                                            $addresses[0]['SourceAddress']['org_identity_id']));
-        ?>
-      </td>
-    </tr>
-    <?php endif; // source id ?>
-    <tr>
-      <td>
+        } else {
+          if(!empty($addresses[0]['Address']['language']))
+            print _txt('en.language', null, $addresses[0]['Address']['language']);
+        }
+      ?>
+    </div>
+  </li>
+
+  <?php if(!empty($addresses[0]['SourceAddress']['id'])): ?>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.source'); ?><br />
+    </div>
+    <div class="field-info">
+      <?php print $this->Html->link(_txt('ct.addresses.1'),
+                                    array('controller' => 'addresses',
+                                          'action'     => 'view',
+                                          $addresses[0]['SourceAddress']['id']));
+      ?>,
+      <?php print $this->Html->link(_txt('ct.org_identities.1'),
+                                    array('controller' => 'org_identities',
+                                          'action'     => 'view',
+                                          $addresses[0]['SourceAddress']['org_identity_id']));
+      ?>
+    </div>
+  </li>
+  <?php endif; // source id ?>
+
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
 <?php
   print $this->element("changelog");

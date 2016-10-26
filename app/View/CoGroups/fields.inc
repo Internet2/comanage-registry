@@ -68,82 +68,77 @@
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
 
 ?>
-<table id="<?php print $this->action; ?>_co_group" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_groups[0]['CoGroup']['name'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_groups[0]['CoGroup']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print _txt('fd.open'); ?>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
-        <?php
-          if ($e) {
-            print $this->Form->label('open',_txt('fd.open'));
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_groups) ? $co_groups[0]['CoGroup']['status'] : 'A');
-          $attrs['empty'] = false;
+<ul id="<?php print $this->action; ?>_co_group" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <?php print ($e ? $this->Form->label('name', _txt('fd.name')) . ' <span class="required">*</span>' : _txt('fd.name')); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_groups[0]['CoGroup']['name'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_groups[0]['CoGroup']['description'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.open'); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+      <?php
+        if ($e) {
+          print $this->Form->label('open',_txt('fd.open'));
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs['value'] = (isset($co_groups) ? $co_groups[0]['CoGroup']['status'] : 'A');
+        $attrs['empty'] = false;
 
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.susp'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            print _txt('en.status', null, $co_groups[0]['CoGroup']['status']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
 
-    </tr>
-  </tbody>
-</table>
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
+          }
+        } else {
+          print _txt('en.status', null, $co_groups[0]['CoGroup']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
 
 <?php if($this->action != 'add'): ?>
 <h3><?php print _txt('ct.co_group_members.pl'); ?></h3>
 <table id="groupMembers">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.name'); ?></th>
       <th><?php print _txt('fd.status'); ?></th>
       <th><?php print _txt('fd.roles'); ?></th>
@@ -227,7 +222,6 @@
           }
         }
         print '</td>';
-        
         print '</tr>';
       }
     ?>

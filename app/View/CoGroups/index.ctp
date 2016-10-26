@@ -295,7 +295,7 @@
   });
 </script>
 
-<table id="co_groups" class="ui-widget">
+<table id="co_groups">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
@@ -452,28 +452,22 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="5">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-    <tr>
-      <td colspan="4"></td>
-      <td>
-        <?php
 
-          if($this->action == 'select') {
-            print $this->Form->submit(_txt('op.save'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tfoot>
+  <?php if($this->action == 'select'): ?>
+    <tfoot>
+      <tr>
+        <td colspan="4"></td>
+        <td>
+          <?php print $this->Form->submit(_txt('op.save')); ?>
+        </td>
+      </tr>
+    </tfoot>
+  <?php endif; ?>
 </table>
 
 <?php
+  print $this->element("pagination");
+
   if($this->action == 'select') {
     print $this->Form->end();
   }
