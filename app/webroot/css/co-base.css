@@ -533,8 +533,11 @@ body.co_people.canvas #titleNavContainer {
   display: block;
   width: 100%;
 }
-.modelbox .boxtitle{
+.modelbox .boxtitle {
   padding: 0 0 5px 0;
+}
+.modelbox .boxtitle a {
+  font-weight: bold;
 }
 .modelbox table tr>:first-child{
   min-width: 200px;
@@ -548,6 +551,27 @@ body.co_people.canvas #titleNavContainer {
 }
 .modelbox table tr>:nth-child(2) select{
   min-width: 387px;
+}
+body.view .modelbox-data {
+  display: table;
+  width: 100%;
+}
+.modelbox-data-field {
+  display: table-row;
+}
+.modelbox-data-label {
+  display: table-cell;
+  padding-right: 1.5em;
+  border-bottom: 1px dashed #ccc;
+}
+.modelbox-data-value {
+  display: table-cell;
+  vertical-align: top;
+  border-bottom: 1px dashed #ccc;
+}
+.modelbox textarea {
+  background-color: white;
+  border: 1px solid #eee;
 }
 /* MATCHABLE INFO BOX */
 .co-info-matchable {

@@ -110,7 +110,6 @@
   }
   ul.form-list .field-info {
     display: inline-block;
-    width: 68%;
   }
   .field-info-desc .co-info { /* info icon */
     /*margin-left: -1.6em;*/
@@ -123,7 +122,19 @@
   body.org_identities.edit ul.form-list .field-name {
     padding-left: 0.75em;
   }
-  /* Pagination */
+  /* PETITIONS */
+  body.view .modelbox .boxtitle {
+    margin-right: 2em;
+  }
+  body.view .modelbox .modelbox-data {
+    margin-top: 0.5em;
+    width: 65%;
+  }
+  .modelbox-data-label {
+    width: 120px;
+  }
+
+  /* PAGINATION */
   #pagination {
     text-align: left;
   }
