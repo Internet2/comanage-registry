@@ -66,127 +66,121 @@
 
   $emptyArg = array('empty' => true);
 ?>
-<table id="<?php print $this->action; ?>_co_nsf_demographic" class="ui-widget">
-  <tbody>
-    <tr class="line2">
-      <td>
-        <?php print _txt('fd.de.gender'); ?>
-      </td>
-      <td>
-        <?php
-          $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['gender'] : '');
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('gender',
-                                      $cm_texts[ $cm_lang ]['en.nsf.gender'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('gender')) {
-              print $this->Form->error('gender');
-            }
-          } else {
-            print _txt('en.nsf.gender', null, $CoNsfDemographics[0]['CoNsfDemographic']['gender']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print _txt('fd.de.citizen'); ?>
-      </td>
-      <td>
-        <?php
-          $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['citizenship'] : '');
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('citizenship',
-                                      $cm_texts[ $cm_lang ]['en.nsf.citizen'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('citizenship')) {
-              print $this->Form->error('citizenship');
-            }
-          } else {
-            print _txt('en.nsf.citizen', null, $CoNsfDemographics[0]['CoNsfDemographic']['citizenship']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print _txt('fd.de.ethnic'); ?>
-      </td>
-      <td>
-        <?php
-          $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['ethnicity'] : '');
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('ethnicity',
-                                      $cm_texts[ $cm_lang ]['en.nsf.ethnic'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('ethnicity')) {
-              print $this->Form->error('ethnicity');
-            }
-          } else {
-            print _txt('en.nsf.ethnic', null, $CoNsfDemographics[0]['CoNsfDemographic']['ethnicity']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print _txt('fd.de.race'); ?>
-      </td>
-      <td>
-        <?php 
-          $args = array('type'     => 'select',
-                        'multiple' => 'checkbox',
-                        'options'  => $optionDesc['race'],
-                        'selected' => (isset($race_options) ? $race_options : array())
-                       );
-          print ($e ? $this->Form->input('race', $args)
-                    : _txt('en.nsf.race',
-                           null,
-                           $CoNsfDemographics[0]['CoNsfDemographic']['race']));
-        ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print _txt('fd.de.disab'); ?>
-      </td>
-      <td>
-        <?php 
-          $args = array('type'     => 'select',
-                        'multiple' => 'checkbox',
-                        'options'  => $optionDesc['disability'],
-                        'selected' => (isset($disability_options) ? $disability_options : array())
-                       );
-          print ($e ? $this->Form->input('disability', $args)
-                    : _txt('en.nsf.disab',
-                           null,
-                           $CoNsfDemographics[0]['CoNsfDemographic']['disability']));
-        ?>
-      </td>
-    </tr>
-    <tr>
-      <td></td>
-      <td>
-
-        <?php
+<ul id="<?php print $this->action; ?>_co_nsf_demographic" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.de.gender'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['gender'] : '');
+        $attrs['empty'] = false;
+        
         if($e) {
-          print $this->Form->submit($submit_label);
+          print $this->Form->select('gender',
+                                    $cm_texts[ $cm_lang ]['en.nsf.gender'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('gender')) {
+            print $this->Form->error('gender');
+          }
+        } else {
+          print _txt('en.nsf.gender', null, $CoNsfDemographics[0]['CoNsfDemographic']['gender']);
         }
-        ?>
-
-      </td>
-    </tr>
-  </tbody>
-</table>
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.de.citizen'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['citizenship'] : '');
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('citizenship',
+                                    $cm_texts[ $cm_lang ]['en.nsf.citizen'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('citizenship')) {
+            print $this->Form->error('citizenship');
+          }
+        } else {
+          print _txt('en.nsf.citizen', null, $CoNsfDemographics[0]['CoNsfDemographic']['citizenship']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name vtop">
+      <?php print _txt('fd.de.ethnic'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs['value'] = (isset($co_nsf_demographics) ? $co_nsf_demographics[0]['CoNsfDemographic']['ethnicity'] : '');
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('ethnicity',
+                                    $cm_texts[ $cm_lang ]['en.nsf.ethnic'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('ethnicity')) {
+            print $this->Form->error('ethnicity');
+          }
+        } else {
+          print _txt('en.nsf.ethnic', null, $CoNsfDemographics[0]['CoNsfDemographic']['ethnicity']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name vtop">
+      <?php print _txt('fd.de.race'); ?>
+    </div>
+    <div class="field-info">
+      <?php 
+        $args = array('type'     => 'select',
+                      'multiple' => 'checkbox',
+                      'options'  => $optionDesc['race'],
+                      'selected' => (isset($race_options) ? $race_options : array())
+                     );
+        print ($e ? $this->Form->input('race', $args)
+                  : _txt('en.nsf.race',
+                         null,
+                         $CoNsfDemographics[0]['CoNsfDemographic']['race']));
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.de.disab'); ?>
+    </div>
+    <div class="field-info">
+      <?php 
+        $args = array('type'     => 'select',
+                      'multiple' => 'checkbox',
+                      'options'  => $optionDesc['disability'],
+                      'selected' => (isset($disability_options) ? $disability_options : array())
+                     );
+        print ($e ? $this->Form->input('disability', $args)
+                  : _txt('en.nsf.disab',
+                         null,
+                         $CoNsfDemographics[0]['CoNsfDemographic']['disability']));
+      ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name"></div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
 
 <?php
   print $this->element("changelog");

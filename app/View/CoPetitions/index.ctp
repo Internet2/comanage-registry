@@ -92,7 +92,7 @@
   ?>
 </div>
 
-<table id="co_people" class="ui-widget">
+<table id="co_people">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('EnrolleePrimaryName.family', _txt('fd.enrollee')); ?></th>
@@ -255,4 +255,4 @@
   </tbody>
 </table>
 
-<?php print $this->element("pagination"); ?>
+<?php print $this->element("pagination");

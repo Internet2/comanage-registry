@@ -40,57 +40,54 @@
     <i class="material-icons">add_box</i>
     <?php print _txt('fd.changelog'); ?>
   </a>
-  <ul class="fields data-list" style="display: none;">
+  <ul id="tabs-changelog" class="fields data-list data-table" style="display: none;">
     <li>
-      <div id="tabs-changelog" class="additionalinfo">
-
-        <table id="<?php print $this->action . "_" . $modelu . "_changelog"; ?>" class="ui-widget">
-          <tbody>
-          <tr class="line<?php print ($l % 2);
-                               print (${$modelpl}[0][$req]['deleted'] ? ' deleted' : '');
-                               $l++; ?>">
-            <th>
-              <?php print _txt('fd.deleted'); ?>
-            </th>
-            <td>
-              <?php print (${$modelpl}[0][$req]['deleted'] ? _txt('fd.yes') : _txt('fd.no')); ?>
-            </td>
-          </tr>
-          <tr class="line<?php print ($l % 2); $l++; ?>">
-            <th>
-              <?php print _txt('fd.revision'); ?>
-            </th>
-            <td>
-              <?php
-              print ${$modelpl}[0][$req]['revision'];
-              ?>
-            </td>
-          </tr>
-          <tr class="line<?php print ($l % 2); $l++; ?>">
-            <th>
-              <?php print _txt('fd.modified'); ?>
-            </th>
-            <td>
-              <?php
-              print $this->Time->format(${$modelpl}[0][$req]['modified'], "%c $vv_tz", false, $vv_tz);
-              ?>
-            </td>
-          </tr>
-          <tr class="line<?php print ($l % 2); $l++; ?>">
-            <th>
-              <?php print _txt('fd.actor'); ?>
-            </th>
-            <td>
-              <?php
-              if(!empty(${$modelpl}[0][$req]['actor_identifier'])) {
-                print ${$modelpl}[0][$req]['actor_identifier'];
-              }
-              ?>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+      <table id="<?php print $this->action . "_" . $modelu . "_changelog"; ?>">
+        <tbody>
+        <tr class="line<?php print ($l % 2);
+                             print (${$modelpl}[0][$req]['deleted'] ? ' deleted' : '');
+                             $l++; ?>">
+          <th>
+            <?php print _txt('fd.deleted'); ?>
+          </th>
+          <td>
+            <?php print (${$modelpl}[0][$req]['deleted'] ? _txt('fd.yes') : _txt('fd.no')); ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th>
+            <?php print _txt('fd.revision'); ?>
+          </th>
+          <td>
+            <?php
+            print ${$modelpl}[0][$req]['revision'];
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th>
+            <?php print _txt('fd.modified'); ?>
+          </th>
+          <td>
+            <?php
+            print $this->Time->format(${$modelpl}[0][$req]['modified'], "%c $vv_tz", false, $vv_tz);
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <th>
+            <?php print _txt('fd.actor'); ?>
+          </th>
+          <td>
+            <?php
+            if(!empty(${$modelpl}[0][$req]['actor_identifier'])) {
+              print ${$modelpl}[0][$req]['actor_identifier'];
+            }
+            ?>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </li>
   </ul>
 </div>

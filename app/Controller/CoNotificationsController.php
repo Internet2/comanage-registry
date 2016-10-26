@@ -48,7 +48,18 @@ class CoNotificationsController extends StandardController {
     'RecipientCoGroup',
     'ResolverCoPerson' => 'PrimaryName'
   );
-  
+
+  /**
+   * View a specific notification.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id CO Notification ID
+   */
+  public function view($id) {
+    parent::view($id);
+    $this->set('title_for_layout', _txt('ct.co_notifications.1'));
+  }
+
   /**
    * Acknowledge the specified notification.
    * - postcondition: CO Invitation status set to 'Acknowledged'

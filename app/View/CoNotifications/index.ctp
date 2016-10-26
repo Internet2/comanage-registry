@@ -73,7 +73,7 @@
   </select>
 </form>
 
-<table id="co_notifications" class="ui-widget">
+<table id="co_notifications">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('action', _txt('fd.action')); ?></th>
@@ -111,12 +111,7 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="4">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
+
 </table>
+
+<?php print $this->element("pagination");

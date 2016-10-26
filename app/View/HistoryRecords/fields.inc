@@ -102,147 +102,141 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_history_record" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print $l%2;$l++; ?>">
-      <td>
-        <?php print _txt('fd.comment'); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('comment',
-                                          array('class' => 'focusFirst',
-                                                'size'  => '80'))
-                     : Sanitize::html($history_records[0]['HistoryRecord']['comment'])); ?>
-      </td>
-    </tr>
-    <?php if($this->action == 'view'): ?>
-    <tr class="line<?php print $l%2;$l++; ?>">
-      <td>
-        <?php print _txt('fd.action'); ?>
-      </td>
-      <td>
-        <?php print Sanitize::html($history_records[0]['HistoryRecord']['action']); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print $l%2;$l++; ?>">
-      <td>
-        <?php print _txt('ct.co_people.1'); ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($history_records[0]['CoPerson']['id'])) {
-            print $this->Html->link(
-              generateCn($history_records[0]['CoPerson']['PrimaryName']),
-              array(
-                'controller' => 'co_people',
-                'action' => 'canvas',
-                $history_records[0]['CoPerson']['id']
-              )
-            );
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print $l%2;$l++; ?>">
-      <td>
-        <?php print _txt('ct.co_person_roles.1'); ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($history_records[0]['CoPersonRole']['id'])) {
-            print $this->Html->link(
-              Sanitize::html($history_records[0]['CoPersonRole']['title'])
-              . " (" . $history_records[0]['CoPersonRole']['id'] . ")",
-              array(
-                'controller' => 'co_person_roles',
-                'action' => 'view',
-                $history_records[0]['CoPersonRole']['id']
-              )
-            );
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print $l%2;$l++; ?>">
-      <td>
-        <?php print _txt('ct.org_identities.1'); ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($history_records[0]['OrgIdentity']['id'])) {
-            print $this->Html->link(
-              generateCn($history_records[0]['OrgIdentity']['PrimaryName']),
-              array(
-                'controller' => 'org_identities',
-                'action' => 'view',
-                $history_records[0]['OrgIdentity']['id']
-              )
-            );
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print $l%2;$l++; ?>">
-      <td>
-        <?php print _txt('ct.co_groups.1'); ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($history_records[0]['CoGroup']['id'])) {
-            print $this->Html->link(
-              $history_records[0]['CoGroup']['name'],
-              array(
-                'controller' => 'co_groups',
-                'action' => 'view',
-                $history_records[0]['CoGroup']['id']
-              )
-            );
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print $l%2;$l++; ?>">
-      <td>
-        <?php print _txt('fd.actor'); ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($history_records[0]['ActorCoPerson']['id'])) {
-            print $this->Html->link(
-              generateCn($history_records[0]['ActorCoPerson']['PrimaryName']),
-              array(
-                'controller' => 'co_people',
-                'action' => 'view',
-                $history_records[0]['ActorCoPerson']['id']
-              )
-            );
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print $l%2;$l++; ?>">
-      <td>
-        <?php print _txt('fd.created'); ?>
-      </td>
-      <td>
-        <?php print $this->Time->format($history_records[0]['HistoryRecord']['created'], "%c $vv_tz", false, $vv_tz); ?>
-      </td>
-    </tr>
-    <?php endif; // view ?>
-    <?php if($this->action != 'view'): ?>
-      <tr>
-        <td>
-          <em><span class="required"><?php print _txt('fd.req'); ?></span></em>
-        </td>
-        <td>
-          <?php
-            if($e) {
-              print $this->Form->submit($submit_label);
-            }
-          ?>
-        </td>
-      </tr>
-    <?php endif ?>
-  </tbody>
-</table>
+<ul id="<?php print $this->action; ?>_history_record" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.comment'); ?> <span class="required">*</span>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('comment',
+                                        array('class' => 'focusFirst',
+                                              'size'  => '80'))
+                   : Sanitize::html($history_records[0]['HistoryRecord']['comment'])); ?>
+    </div>
+  </li>
+  <?php if($this->action == 'view'): ?>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.action'); ?>
+    </div>
+    <div class="field-info">
+      <?php print Sanitize::html($history_records[0]['HistoryRecord']['action']); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('ct.co_people.1'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($history_records[0]['CoPerson']['id'])) {
+          print $this->Html->link(
+            generateCn($history_records[0]['CoPerson']['PrimaryName']),
+            array(
+              'controller' => 'co_people',
+              'action' => 'canvas',
+              $history_records[0]['CoPerson']['id']
+            )
+          );
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('ct.co_person_roles.1'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($history_records[0]['CoPersonRole']['id'])) {
+          print $this->Html->link(
+            Sanitize::html($history_records[0]['CoPersonRole']['title'])
+            . " (" . $history_records[0]['CoPersonRole']['id'] . ")",
+            array(
+              'controller' => 'co_person_roles',
+              'action' => 'view',
+              $history_records[0]['CoPersonRole']['id']
+            )
+          );
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('ct.org_identities.1'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($history_records[0]['OrgIdentity']['id'])) {
+          print $this->Html->link(
+            generateCn($history_records[0]['OrgIdentity']['PrimaryName']),
+            array(
+              'controller' => 'org_identities',
+              'action' => 'view',
+              $history_records[0]['OrgIdentity']['id']
+            )
+          );
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('ct.co_groups.1'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($history_records[0]['CoGroup']['id'])) {
+          print $this->Html->link(
+            $history_records[0]['CoGroup']['name'],
+            array(
+              'controller' => 'co_groups',
+              'action' => 'view',
+              $history_records[0]['CoGroup']['id']
+            )
+          );
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.actor'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($history_records[0]['ActorCoPerson']['id'])) {
+          print $this->Html->link(
+            generateCn($history_records[0]['ActorCoPerson']['PrimaryName']),
+            array(
+              'controller' => 'co_people',
+              'action' => 'view',
+              $history_records[0]['ActorCoPerson']['id']
+            )
+          );
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.created'); ?>
+    </div>
+    <div class="field-info">
+      <?php print $this->Time->format($history_records[0]['HistoryRecord']['created'], "%c $vv_tz", false, $vv_tz); ?>
+    </div>
+  </li>
+  <?php endif; // view ?>
+  <?php if($this->action != 'view' && $e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif ?>
+</ul>

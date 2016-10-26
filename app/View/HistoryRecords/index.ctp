@@ -91,9 +91,9 @@
 
 ?>
 
-<table id="org_identities" class="ui-widget">
+<table id="history_records">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('id', _txt('fd.id.seq')); ?></th>
       <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
       <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>

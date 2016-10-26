@@ -938,20 +938,20 @@
             <i class="material-icons">add_box</i>
             <?php print _txt('fd.attrs.copr'); ?>
           </a>
-          <ul id="tabs-role" class="fields data-list" style="display: none;">
+          <ul id="tabs-role" class="fields data-list data-table" style="display: none;">
             <li>
               <?php if($this->action != "invite"): ?>
                 <!-- Person Role Data -->
-                <table id="<?php print $this->action; ?>_co_person_roles" class="ui-widget">
+                <table id="<?php print $this->action; ?>_co_person_roles">
                   <tbody>
                   <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <th class="ui-widget-header"><?php print _txt('fd.cou'); ?></th>
-                    <th class="ui-widget-header"><?php print _txt('fd.title'); ?></th>
-                    <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
-                    <th class="ui-widget-header"><?php print _txt('fd.valid_from'); ?></th>
-                    <th class="ui-widget-header"><?php print _txt('fd.valid_through'); ?></th>
-                    <th class="ui-widget-header"><?php print _txt('fd.status'); ?></th>
-                    <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+                    <th><?php print _txt('fd.cou'); ?></th>
+                    <th><?php print _txt('fd.title'); ?></th>
+                    <th><?php print _txt('fd.affiliation'); ?></th>
+                    <th><?php print _txt('fd.valid_from'); ?></th>
+                    <th><?php print _txt('fd.valid_through'); ?></th>
+                    <th><?php print _txt('fd.status'); ?></th>
+                    <th><?php print _txt('fd.actions'); ?></th>
                   </tr>
                   <?php
                   $rcnt = 1;
@@ -1131,17 +1131,17 @@
             <i class="material-icons">add_box</i>
             <?php print _txt('ct.org_identities.pl'); ?>
           </a>
-          <ul id="tabs-orgid" class="fields data-list" style="display: none;">
+          <ul id="tabs-orgid" class="fields data-list data-table" style="display: none;">
             <li>
               <!-- Org Identity Data -->
-              <table id="<?php print $this->action; ?>_org_identities" class="ui-widget">
+              <table id="<?php print $this->action; ?>_org_identities">
                 <tbody>
                 <tr class="line<?php print ($l % 2); $l++; ?>">
-                  <th class="ui-widget-header"><?php print _txt('fd.name'); ?></th>
-                  <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
-                  <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
-                  <th class="ui-widget-header"><?php print _txt('fd.identifier.ids.login'); ?></th>
-                  <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
+                  <th><?php print _txt('fd.name'); ?></th>
+                  <th><?php print _txt('fd.o'); ?></th>
+                  <th><?php print _txt('fd.affiliation'); ?></th>
+                  <th><?php print _txt('fd.identifier.ids.login'); ?></th>
+                  <th><?php print _txt('fd.actions'); ?></th>
                 </tr>
                 <?php if(!empty($co_people[0]['CoOrgIdentityLink'])): ?>
                 <?php foreach($co_people[0]['CoOrgIdentityLink'] as $link): ?>

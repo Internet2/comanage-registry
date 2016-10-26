@@ -157,9 +157,9 @@
   });
 </script>
 
-<table id="provisioning_status" class="ui-widget">
+<table id="provisioning_status">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.desc'); ?></th>
       <th><?php print _txt('fd.status'); ?></th>
       <th><?php print _txt('fd.timestamp'); ?></th>
@@ -230,13 +230,6 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="4">
-      </th>
-    </tr>
-  </tfoot>
 </table>
 
 <div id="progressbar-dialog" title="<?php print _txt('op.prov'); ?>">

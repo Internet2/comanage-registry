@@ -200,6 +200,10 @@ body.logged-in #user-menu {
   color: #444;
 }
 /* Notification table */
+form#notificationStatus {
+  clear: left;
+  margin: 0.5em 0;
+}
 .notificationStatus {
   float: left;
   margin-right: 1em;
@@ -706,7 +710,7 @@ body.co_petitions .ui-dialog {
 /* Pagination */
 #pagination {
   margin: 0;
-  min-height: 1.25em;
+  min-height: 1.5em;
   padding: 0.5em;
   background-color: #9FC6E2;
   color: white;
@@ -1040,14 +1044,23 @@ a#top-search-toggle:hover {
   float: right;
   clear: left;
 }
-.data-list li {
+/* DATA LISTS */
+/*** ul.data-list is the main structure for representing data
+     in which the field value is to the left, and actions on that
+     value are to the right; this is used for canvases and explorers
+     where the fields require no (or few) labels.
+     see also ul.form-list below. ***/
+ul.data-list li {
   margin: 0 0 2px !important;
   overflow: hidden;
   padding: 2px 0 3px 0;
   background-color: #F5F5F5;
 }
-.data-list li:nth-child(2n) {
+ul.data-list li:nth-child(2n) {
   background-color: #ededed; /* note that this is slightly lighter than the .form-list zebra */
+}
+ul.data-table li {
+  background-color: unset;
 }
 .field-actions {
    float: right;
@@ -1060,39 +1073,12 @@ a#top-search-toggle:hover {
 .field-data-alone {
   padding: 2px 0 2px 10px;
 }
-#names-container .data-list {
+#names-container ul.data-list {
   margin-bottom: 0;
 }
-#names-container .data-list li:last-child {
+#names-container ul.data-list li:last-child {
   margin-bottom: 0;
   border-bottom: 2px solid #ccc;
-}
-.additionalinfo {
-  margin: 0 0 5px 0;
-}
-.additionalinfo > div:hover {
-  background-color: #eee;
-}
-.additionalinfo > div:last-child {
-  margin: 0;
-}
-.additionalinfo div a {
-  float: left;
-}
-.additionalinfo div .ui-button {
-  float: right;
-}
-.additionalinfo li {
-  margin: 0 0 2px;
-  overflow: hidden;
-  padding: 2px 0 3px 0;
-  background-color: #F5F5F5;
-}
-.additionalinfo li .actionButtons {
-  float: right;
-}
-.additionalinfo .fieldData {
-  padding: 0.5em;
 }
 .personExplorer .coAddEditButtons .ui-state-default,
 .personExplorer .coAddEditButtons .ui-widget-content .ui-state-default,
@@ -1175,6 +1161,7 @@ a#top-search-toggle:hover {
   background-color: #eee;
 }
 /* Demographics */
+/*
 #add_co_nsf_demographic .checkbox,
 #edit_co_nsf_demographic .checkbox {
   clear: left;
@@ -1184,7 +1171,7 @@ a#top-search-toggle:hover {
 #edit_co_nsf_demographic .checkbox input {
   float: left;
   margin: 0 4px 8px 0;
-}
+}*/
 
 /* FORMS */
 label {
@@ -1193,6 +1180,10 @@ label {
 ul.fields li {
   overflow-x: auto; /* required for data tables on mobile */
 }
+/*** ul.form-list is the main structure for representing forms
+     as well as data where field name is in the left column and
+     field data is in the right column; see also ul.data-list
+     above. ***/
 ul.form-list {
   clear: both;
   padding: 0;
@@ -1238,6 +1229,20 @@ ul.form-list select {
 }
 ul.form-list li.fields-submit .required {
   font-style: italic;
+}
+.checkbox {
+  margin-bottom: 0.5em;
+}
+.checkbox input {
+  float: left;
+  margin: 4px 4px 0 0;
+}
+.checkbox label {
+  margin-left: 2em;
+  display: block;
+}
+.checkbox label::first-line {
+  margin-left: 0;
 }
 /* XXX determine which among the following five rules are still in use */
 .required-info {
@@ -1344,6 +1349,17 @@ th, td {
   border-right: 2px solid #fff;
   border-bottom: 2px solid #fff;
   font-weight: normal;
+}
+th {
+  background-color: #9fc6e2;
+  color: white;
+}
+th a {
+  color: white;
+}
+th a:hover {
+  color: #ff3;
+  text-decoration: none !important;
 }
 tr td:first-child {
   padding-left: 1em;

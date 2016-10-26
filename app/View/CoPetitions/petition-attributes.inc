@@ -499,22 +499,23 @@
   ?>
 
   <?php if(!empty($vv_terms_and_conditions)): ?>
-  <?php $line = 0; ?>
     <?php if($this->action == 'view'): ?>
     <div class="modelbox">
-      <div class="tc-title">
-        <strong><?php print _txt('op.tc.agree'); ?></strong>
+      <div class="box-title">
+        <?php print _txt('ct.co_terms_and_conditions.1'); ?>
       </div>
-      <?php
-        // We link to T&C because T&C are not considered part of the petition.
-        
-        print $this->Html->link(_txt('op.tc.review.pt'),
-                                array('controller' => 'co_terms_and_conditions',
-                                      'action' => 'review',
-                                      'copersonid' => $co_petitions[0]['CoPetition']['enrollee_co_person_id'],
-                                      'co' => $co_petitions[0]['CoPetition']['co_id']),
-                                array('class' => 'linkbutton'));
-      ?>
+      <div class="box-data">
+        <?php
+          // We link to T&C because T&C are not considered part of the petition.
+
+          print $this->Html->link(_txt('op.tc.review.pt'),
+                                  array('controller' => 'co_terms_and_conditions',
+                                        'action' => 'review',
+                                        'copersonid' => $co_petitions[0]['CoPetition']['enrollee_co_person_id'],
+                                        'co' => $co_petitions[0]['CoPetition']['co_id']),
+                                  array('class' => 'linkbutton'));
+        ?>
+      </div>
     </div>
     <?php elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent
                  || $vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): // action == view ?>
@@ -580,49 +581,47 @@
       print '<div class="modelbox">' . $vv_conclusion_text . "</div>";
     }
   ?>
-  
-  <div id="<?php print $this->action; ?>_co_petition_attrs_submit" class="submit-box">
-    <div class="required-info">
-      <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+
+  <?php if($e): ?>
+    <div id="<?php print $this->action; ?>_co_petition_attrs_submit" class="submit-box">
+      <div class="required-info">
+        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+      </div>
+      <div class="submit-buttons">
+        <?php print $this->Form->submit(_txt('op.submit')); ?>
+      </div>
     </div>
-    <div class="submit-buttons">
-      <?php
-        if($e) {
-          print $this->Form->submit(_txt('op.submit'),
-            array('class'=>'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect')
-          );
-        }
-      ?>
-    </div>
-  </div>
+  <?php endif; ?>
   <span class="clearfix"></span>
 </div>
 <?php if($this->action == 'view'): ?>
   <a href="#tabs-history" class="fieldGroupName">
-    <span class="ui-icon ui-icon-circlesmall-minus"></span>
+    <i class="material-icons">indeterminate_check_box</i>
     <?php print _txt('fd.history.pt'); ?>
   </a>
-  <div id="tabs-history" class="fields">
-    <table id="<?php print $this->action; ?>_co_petition_attrs" class="ui-widget">
-      <tbody>
-        <tr>
-          <th class="ui-state-default"><?php print _txt('fd.action'); ?></th>
-          <th class="ui-state-default"><?php print _txt('fd.actor'); ?></th>
-          <th class="ui-state-default"><?php print _txt('fd.comment'); ?></th>
-          <th class="ui-state-default"><?php print _txt('fd.timestamp.tz', array($vv_tz)); ?></th>
-        </tr>
-        
-        <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
-        <tr class="line<?php print ($l % 2); $l++; ?>">
-          <td><?php print $hr['action']; ?></td>
-          <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? generateCn($hr['ActorCoPerson']['PrimaryName']) : _txt('fd.actor.self')); ?></td>
-          <td><?php print $hr['comment']; ?></td>
-          <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
-        </tr>
-        <?php endforeach; // CoPetitionHistoryRecord ?>
-      </tbody>
-    </table>
-  </div>
+  <ul id="tabs-history" class="fields data-list data-table">
+    <li>
+      <table id="<?php print $this->action; ?>_co_petition_attrs">
+        <tbody>
+          <tr>
+            <th><?php print _txt('fd.action'); ?></th>
+            <th><?php print _txt('fd.actor'); ?></th>
+            <th><?php print _txt('fd.comment'); ?></th>
+            <th><?php print _txt('fd.timestamp.tz', array($vv_tz)); ?></th>
+          </tr>
+
+          <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td><?php print $hr['action']; ?></td>
+            <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? generateCn($hr['ActorCoPerson']['PrimaryName']) : _txt('fd.actor.self')); ?></td>
+            <td><?php print $hr['comment']; ?></td>
+            <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
+          </tr>
+          <?php endforeach; // CoPetitionHistoryRecord ?>
+        </tbody>
+      </table>
+    </li>
+  </ul>
 <?php endif; // action == view ?>
 
 <div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">

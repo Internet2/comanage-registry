@@ -129,13 +129,13 @@
       </td>
       <td>
         <?php if(!empty($c['CoTAndCAgreement'])): ?>
-        <button class="linkbutton"
+        <button class="checkbutton"
                 type="button"
                 onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
                                     '<?php print addslashes($c['CoTermsAndConditions']['url']); ?>',
                                     'review',
                                     '')">
-          <?php print _txt('op.view'); ?>
+          <?php print _txt('op.tc.review'); ?>
         </button>
         <?php else: ?>
         <button class="checkbutton"
@@ -158,20 +158,14 @@
                                         
                                         print $this->Html->url($args);
                                       ?>')">
-          <?php print _txt('op.tc.agree'); ?>
+          <?php print _txt('op.tc.review'); ?>
         </button>
         <?php endif; ?>
       </td>
     </tr>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="3">
-      </th>
-    </tr>
-  </tfoot>
+
 </table>
 <?php endif; // vv_co_terms_and_conditions ?>
 

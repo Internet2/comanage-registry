@@ -62,6 +62,7 @@ class HistoryRecordsController extends StandardController {
   // Use the lightbox layout for view
   public function view($id) {
     parent::view($id);
+    $this->set('title_for_layout', _txt('ct.history_records.1'));
     $this->layout = 'lightbox';
   }
 
