@@ -736,12 +736,9 @@ body.co_petitions .ui-dialog {
   margin: 0;
   clear: left;
 }
-.listControl a {
-  color: #181CF5;
-}
 .listControl a:hover {
   color: #444;
-  text-decoration: none;
+  text-decoration: none !important;
 }
 .listControl ul,
 .listControl li {
@@ -990,6 +987,10 @@ a#top-search-toggle:hover {
 :-moz-placeholder {
   opacity: 0.2;
 }
+.top-search input[type=text]:focus,
+.side-search input[type=text]:focus {
+  background-color: #ffd;
+}
 .top-search .submit-button,
 .top-search .clear-button,
 .side-search .submit-button,
@@ -1045,6 +1046,9 @@ a#top-search-toggle:hover {
   padding: 2px 0 3px 0;
   background-color: #F5F5F5;
 }
+.data-list li:nth-child(2n) {
+  background-color: #ededed; /* note that this is slightly lighter than the .form-list zebra */
+}
 .field-actions {
    float: right;
    padding: 2px;
@@ -1052,6 +1056,16 @@ a#top-search-toggle:hover {
 .field-data {
   float: left;
   padding: 4px 0 0 10px;
+}
+.field-data-alone {
+  padding: 2px 0 2px 10px;
+}
+#names-container .data-list {
+  margin-bottom: 0;
+}
+#names-container .data-list li:last-child {
+  margin-bottom: 0;
+  border-bottom: 2px solid #ccc;
 }
 .additionalinfo {
   margin: 0 0 5px 0;
@@ -1176,6 +1190,9 @@ a#top-search-toggle:hover {
 label {
   cursor: pointer;
 }
+ul.fields li {
+  overflow-x: auto; /* required for data tables on mobile */
+}
 ul.form-list {
   clear: both;
   padding: 0;
@@ -1202,14 +1219,27 @@ ul.form-list .field-info-desc {
   font-size: 0.9em;
   font-style: italic;
 }
-ul.form-list input[type="text"] {
-  width: 97%;
+ul.form-list input[type="text"],
+ul.form-list input[type="number"] {
+  width: 95%;
   font-size: 1em;
-  padding: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  border: 1px solid #ddd;
+  padding: 4px 6px;
+}
+ul.form-list input[type="text"]:focus,
+ul.form-list input[type="number"]:focus {
+  background-color: #ffd;
+}
+ul.form-list select {
+  font-size: 0.9em;
 }
 ul.form-list li.fields-submit .required {
   font-style: italic;
 }
+/* XXX determine which among the following five rules are still in use */
 .required-info {
   float: left;
 }
@@ -1351,6 +1381,13 @@ td.indented {
 /* MDL OVERRIDES */
 #main.mdl-layout__content {
   overflow-x: auto; /* allow side scrolling on mobile */
+}
+.mdl-textfield input[type=text],
+.mdl-textfield input[type=number] {
+  border-left: none;
+  border-top: none;
+  border-right: none;
+  padding: 0;
 }
 .mdl-button.mdl-button--colored {
   background-color: #53B1F4;

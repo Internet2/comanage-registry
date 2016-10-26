@@ -129,159 +129,164 @@
           <i class="material-icons">indeterminate_check_box</i>
           <?php print _txt('fd.name.affil'); ?>
         </a>
-        <ul id="tabs-name" class="fields form-list">
 
+        <div id="names-container" class="fields">
           <?php if($this->action == 'add'): ?>
-            <li>
-              <span class="field-name">
-                <?php print ($e ? $this->Form->label('PrimaryName.honorific', _txt('fd.name.honorific') .  " " . _txt('fd.name.h.desc')) : _txt('fd.name.honorific')); ?>
-              </span>
-              <span class="field-info">
-                <?php
-                  print $this->Form->hidden('PrimaryName.id');
-                  print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
-                  print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
-                  print ($e ? $this->Form->input('PrimaryName.honorific', array('class' => 'focusFirst')) : Sanitize::html($org_identities[0]['PrimaryName']['honorific']));
-                ?>
-              </span>
-            </li>
-            <li>
-              <span class="field-name">
-                <?php print ($e ? $this->Form->label('PrimaryName.given', _txt('fd.name.given')) . ' <span class="required">*</span>' : _txt('fd.name.given')); ?>
-              </span>
-              <span class="field-info">
-                <?php print ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
-              </span>
-            </li>
-            <li>
-              <span class="field-name">
-                <?php print ($e ? $this->Form->label('PrimaryName.middle', _txt('fd.name.middle')) : _txt('fd.name.middle')); ?>
-              </span>
-              <span class="field-info">
-                <?php print ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
-              </span>
-            </li>
-            <li>
-              <span class="field-name">
-                <?php print ($e ? $this->Form->label('PrimaryName.family', _txt('fd.name.family')) :  _txt('fd.name.family')); ?>
-              </span>
-              <span class="field-info">
-                <?php print ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
-              </span>
-            </li>
-            <li>
-              <span class="field-name">
-                <?php print ($e ? $this->Form->label('PrimaryName.suffix', _txt('fd.name.suffix') . " " . _txt('fd.name.s.desc')) :  _txt('fd.name.suffix')); ?>
-              </span>
-              <span class="field-info">
-                <?php print ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
-              </span>
-            </li>
-            <li>
-              <span class="field-name">
-                <?php print _txt('fd.type'); ?>
-              </span>
-              <span class="field-info">
-                <?php print _txt('en.name.type', null, NameEnum::Official); ?>
-              </span>
-            </li>
-            <li>
-              <span class="field-name">
-                <?php print ($e ? $this->Form->label('PrimaryName.language', _txt('fd.language')) : _txt('fd.language')); ?>
-              </span>
-              <span class="field-info">
-                <?php
-                  global $cm_lang, $cm_texts;
-
-                  $attrs = array();
-                  $attrs['value'] = (isset($org_identities[0]['PrimaryName']['language'])
-                    ? $org_identities[0]['PrimaryName']['language']
-                    : getPreferredLanguage());
-                  $attrs['empty'] = true;
-
-                  if($e) {
-                    print $this->Form->select('PrimaryName.language',
-                      $cm_texts[ $cm_lang ]['en.language'],
-                      $attrs);
-
-                    if($this->Form->isFieldError('PrimaryName.language')) {
-                      print $this->Form->error('PrimaryName.language');
-                    }
-                  } else {
-                    print _txt('en.language', null, $org_identities[0]['PrimaryName']['language']);
-                  }
-                ?>
-              </span>
-            </li>
-          <?php else: // add ?>
-            <?php foreach($org_identities[0]['Name'] as $n): ?>
-              <li class="field-data-container">
-                <div class="field-data">
+            <ul id="tabs-name" class="fields form-list">
+              <li>
+                <div class="field-name">
+                  <?php print ($e ? $this->Form->label('PrimaryName.honorific', _txt('fd.name.honorific') .  " " . _txt('fd.name.h.desc')) : _txt('fd.name.honorific')); ?>
+                </div>
+                <div class="field-info">
                   <?php
-                    print $this->Html->link(generateCn($n),
-                        array('controller' => 'names',
-                          'action' => ($e ? 'edit' : 'view'),
-                          $n['id']))
-                      . " ("
-                      . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                      . _txt('en.name.type', null, $n['type'])
-                      . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
-                      . ")";
+                    print $this->Form->hidden('PrimaryName.id');
+                    print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
+                    print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
+                    print ($e ? $this->Form->input('PrimaryName.honorific', array('class' => 'focusFirst')) : Sanitize::html($org_identities[0]['PrimaryName']['honorific']));
                   ?>
                 </div>
-                <div class="field-actions">
+              </li>
+              <li>
+                <div class="field-name">
+                  <?php print ($e ? $this->Form->label('PrimaryName.given', _txt('fd.name.given')) . ' <span class="required">*</span>' : _txt('fd.name.given')); ?>
+                </div>
+                <div class="field-info">
+                  <?php print ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
+                </div>
+              </li>
+              <li>
+                <div class="field-name">
+                  <?php print ($e ? $this->Form->label('PrimaryName.middle', _txt('fd.name.middle')) : _txt('fd.name.middle')); ?>
+                </div>
+                <div class="field-info">
+                  <?php print ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
+                </div>
+              </li>
+              <li>
+                <div class="field-name">
+                  <?php print ($e ? $this->Form->label('PrimaryName.family', _txt('fd.name.family')) :  _txt('fd.name.family')); ?>
+                </div>
+                <div class="field-info">
+                  <?php print ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
+                </div>
+              </li>
+              <li>
+                <div class="field-name">
+                  <?php print ($e ? $this->Form->label('PrimaryName.suffix', _txt('fd.name.suffix') . " " . _txt('fd.name.s.desc')) :  _txt('fd.name.suffix')); ?>
+                </div>
+                <div class="field-info">
+                  <?php print ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
+                </div>
+              </li>
+              <li>
+                <div class="field-name">
+                  <?php print _txt('fd.type'); ?>
+                </div>
+                <div class="field-info">
+                  <?php print _txt('en.name.type', null, NameEnum::Official); ?>
+                </div>
+              </li>
+              <li>
+                <div class="field-name">
+                  <?php print ($e ? $this->Form->label('PrimaryName.language', _txt('fd.language')) : _txt('fd.language')); ?>
+                </div>
+                <div class="field-info">
                   <?php
+                    global $cm_lang, $cm_texts;
+
+                    $attrs = array();
+                    $attrs['value'] = (isset($org_identities[0]['PrimaryName']['language'])
+                      ? $org_identities[0]['PrimaryName']['language']
+                      : getPreferredLanguage());
+                    $attrs['empty'] = true;
+
                     if($e) {
-                      if(!$n['primary_name']) {
-                        print '<a class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
-                            array(
-                              'controller' => 'names',
-                              'action' => 'delete',
-                              $n['id'],
-                              'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
-                            )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt(generateCn($n)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</a>';
+                      print $this->Form->select('PrimaryName.language',
+                        $cm_texts[ $cm_lang ]['en.language'],
+                        $attrs);
 
-                        print $this->Html->link(_txt('op.primary'),
-                            array('controller'    => 'names',
-                              'action'        => 'primary',
-                              $n['id'],
-                              'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
-                            array('class' => 'primarybutton')) . "\n";
+                      if($this->Form->isFieldError('PrimaryName.language')) {
+                        print $this->Form->error('PrimaryName.language');
                       }
-
-                      print $this->Html->link(_txt('op.edit'),
-                          array('controller' => 'names',
-                            'action' => 'edit',
-                            $n['id']),
-                          array('class' => 'editbutton')) . "\n";
                     } else {
-                      print $this->Html->link(_txt('op.view'),
-                          array('controller' => 'names',
-                            'action' => 'view',
-                            $n['id']),
-                          array('class' => 'viewbutton')) . "\n";
+                      print _txt('en.language', null, $org_identities[0]['PrimaryName']['language']);
                     }
                   ?>
                 </div>
               </li>
-            <?php endforeach; ?>
+            </ul>
+          <?php else: // add ?>
+            <ul id="tabs-name" class="fields data-list">
+              <?php foreach($org_identities[0]['Name'] as $n): ?>
+                <li class="field-data-container">
+                  <div class="field-data">
+                    <?php
+                      print $this->Html->link(generateCn($n),
+                          array('controller' => 'names',
+                            'action' => ($e ? 'edit' : 'view'),
+                            $n['id']))
+                        . " ("
+                        . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
+                        . _txt('en.name.type', null, $n['type'])
+                        . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
+                        . ")";
+                    ?>
+                  </div>
+                  <div class="field-actions">
+                    <?php
+                      if($e) {
+                        if(!$n['primary_name']) {
+                          print '<a class="deletebutton" title="' . _txt('op.delete')
+                            . '" onclick="javascript:js_confirm_generic(\''
+                            . _txt('js.remove') . '\',\''    // dialog body text
+                            . $this->Html->url(              // dialog confirm URL
+                              array(
+                                'controller' => 'names',
+                                'action' => 'delete',
+                                $n['id'],
+                                'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
+                              )
+                            ) . '\',\''
+                            . _txt('op.remove') . '\',\''    // dialog confirm button
+                            . _txt('op.cancel') . '\',\''    // dialog cancel button
+                            . _txt('op.remove') . '\',[\''   // dialog title
+                            . filter_var(_jtxt(generateCn($n)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                            . '\']);">'
+                            . _txt('op.delete')
+                            . '</a>';
+
+                          print $this->Html->link(_txt('op.primary'),
+                              array('controller'    => 'names',
+                                'action'        => 'primary',
+                                $n['id'],
+                                'orgidentityid' => $org_identities[0]['OrgIdentity']['id']),
+                              array('class' => 'primarybutton')) . "\n";
+                        }
+
+                        print $this->Html->link(_txt('op.edit'),
+                            array('controller' => 'names',
+                              'action' => 'edit',
+                              $n['id']),
+                            array('class' => 'editbutton')) . "\n";
+                      } else {
+                        print $this->Html->link(_txt('op.view'),
+                            array('controller' => 'names',
+                              'action' => 'view',
+                              $n['id']),
+                            array('class' => 'viewbutton')) . "\n";
+                      }
+                    ?>
+                  </div>
+                </li>
+              <?php endforeach; ?>
+            </ul>
           <?php endif; // add ?>
+          <ul id="tabs-name-fields" class="fields form-list">
           <li>
-            <span class="field-name">
+            <div class="field-name">
               <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
-            </span>
-            <span class="field-info">
+            </div>
+            <div class="field-info">
               <?php
                 global $cm_lang, $cm_texts;
                 $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['status'])
@@ -303,13 +308,13 @@
                   }
                 }
               ?>
-            </span>
+            </div>
           </li>
           <li>
-            <span class="field-name">
+            <div class="field-name">
               <?php print ($e ? $this->Form->label('affiliation', _txt('fd.affiliation')) : _txt('fd.affiliation')); ?>
-            </span>
-            <span class="field-info">
+            </div>
+            <div class="field-info">
               <?php
                 global $cm_lang, $cm_texts;
                 $attrs = array();
@@ -332,13 +337,13 @@
                   }
                 }
               ?>
-            </span>
+            </div>
           </li>
           <li>
-            <span class="field-name">
+            <div class="field-name">
               <?php print ($e ? $this->Form->label('title', _txt('fd.title')) : _txt('fd.title')); ?>
-            </span>
-            <span class="field-info">
+            </div>
+            <div class="field-info">
               <?php
                 if($e) {
                   if(!empty($vv_enums_title)) {
@@ -370,13 +375,13 @@
                   print Sanitize::html($org_identities[0]['OrgIdentity']['title']);
                 }
               ?>
-            </span>
+            </div>
           </li>
           <li>
-            <span class="field-name">
+            <div class="field-name">
               <?php print ($e ? $this->Form->label('o', _txt('fd.o')) : _txt('fd.o')); ?>
-            </span>
-            <span class="field-info">
+            </div>
+            <div class="field-info">
               <?php
                 if($e) {
                   if(!empty($vv_enums_o)) {
@@ -408,13 +413,13 @@
                   print Sanitize::html($org_identities[0]['OrgIdentity']['o']);
                 }
               ?>
-            </span>
+            </div>
           </li>
           <li>
-            <span class="field-name">
+            <div class="field-name">
               <?php print ($e ? $this->Form->label('ou', _txt('fd.ou')) : _txt('fd.ou')); ?>
-            </span>
-            <span class="field-info">
+            </div>
+            <div class="field-info">
               <?php
                 if($e) {
                   if(!empty($vv_enums_ou)) {
@@ -446,24 +451,20 @@
                   print Sanitize::html($org_identities[0]['OrgIdentity']['ou']);
                 }
               ?>
-            </span>
+            </div>
           </li>
-          <li class="fields-submit">
-            <span class="field-name">
-              <span class="required"><?php print _txt('fd.req'); ?></span>
-            </span>
-            <span class="field-info">
-              <?php
-                if($e)
-                {
-                  print '<div class="submitButton">';
-                  print $this->Form->submit($submit_label);
-                  print '</div>';
-                }
-              ?>
-            </span>
-          </li>
-        </ul><!-- tabs-name -->
+          <?php if($e): ?>
+            <li class="fields-submit">
+              <div class="field-name">
+                <span class="required"><?php print _txt('fd.req'); ?></span>
+              </div>
+              <div class="field-info">
+                <?php print $this->Form->submit($submit_label); ?>
+              </div>
+            </li>
+          <?php endif; ?>
+        </ul><!-- tabs-name--fields -->
+        </div>
       </li><!-- fields-name -->
 
       <?php if($this->action != "add"): ?>

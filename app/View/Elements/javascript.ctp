@@ -41,10 +41,10 @@
     // Accordion
     $(".accordion").accordion();
 
-    // Make all submit buttons pretty
+    // Make all submit buttons pretty (MDL)
     $("input:submit").addClass("spin submit-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect");
 
-    // Other buttons
+    // Other buttons (jQuery)
     $(".addbutton").button({
       icons: {
         primary: 'ui-icon-circle-plus'

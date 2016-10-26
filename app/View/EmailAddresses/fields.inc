@@ -109,93 +109,93 @@
   $l = 1;
 ?>
 <ul id="<?php print $this->action; ?>_email_address" class="fields form-list">
-    <li>
-      <span class="field-name">
-        <?php
-          if($e) {
-            print $this->Form->label('mail', _txt('fd.email_address.mail'));
-          } else {
-            print _txt('fd.email_address.mail');
+  <li>
+    <span class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('mail', _txt('fd.email_address.mail'));
+        } else {
+          print _txt('fd.email_address.mail');
+        }
+      ?>
+    </span>
+    <span class="field-info">
+      <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
+      <?php if($e && $isVerified): ?>
+        <span class="ui-icon ui-icon-info co-info"></span>
+        <em><?php print _txt('fd.email_address.verified.warn'); ?></em>
+      <?php endif; ?>
+    </span>
+  </li>
+  <li>
+    <span class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('type', _txt('fd.type'));
+        } else {
+          print _txt('fd.type');
+        }
+      ?>
+    </span>
+    <span class="field-info">
+      <?php
+        $attrs['value'] = (isset($email_addresses) ? $email_addresses[0]['EmailAddress']['type'] : "");
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('type',
+                                    $vv_available_types,
+                                    $attrs);
+
+          if($this->Form->isFieldError('type')) {
+            print $this->Form->error('type');
           }
-        ?>
-      </span>
-      <span class="field-info">
-        <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
-        <?php if($e && $isVerified): ?>
-          <span class="ui-icon ui-icon-info co-info"></span>
-          <em><?php print _txt('fd.email_address.verified.warn'); ?></em>
-        <?php endif; ?>
-      </span>
-    </li>
-    <li>
-      <span class="field-name">
-        <?php
-          if($e) {
-            print $this->Form->label('type', _txt('fd.type'));
-          } else {
-            print _txt('fd.type');
+        } else {
+          print Sanitize::html(_txt('en.email_address.type', null, $email_addresses[0]['EmailAddress']['type']));
+        }
+      ?>
+    </span>
+  </li>
+  <li>
+    <span class="field-name">
+      <?php print _txt('fd.email_address.verified'); ?>
+    </span>
+    <span class="field-info">
+      <?php
+        // For an add, verified is by definition no and can't (currently, anyway) be set manually.
+        // This will be caught by $email_addresses being null.
+
+        if($this->action != 'add') {
+          $url = array(
+            'controller' => 'co_invites',
+            'action' => 'verifyEmailAddress',
+            'email_address_id' => $email_addresses[0]['EmailAddress']['id']
+          );
+
+          if(!empty($cur_co['Co']['id'])) {
+            $url['co'] = $cur_co['Co']['id'];
           }
-        ?>
-      </span>
-      <span class="field-info">
-        <?php
-          $attrs['value'] = (isset($email_addresses) ? $email_addresses[0]['EmailAddress']['type'] : "");
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('type',
-                                      $vv_available_types,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('type')) {
-              print $this->Form->error('type');
-            }
-          } else {
-            print Sanitize::html(_txt('en.email_address.type', null, $email_addresses[0]['EmailAddress']['type']));
-          }
-        ?>
-      </span>
-    </li>
-    <li>
-      <span class="field-name">
-        <?php print _txt('fd.email_address.verified'); ?>
-      </span>
-      <span class="field-info">
-        <?php
-          // For an add, verified is by definition no and can't (currently, anyway) be set manually.
-          // This will be caught by $email_addresses being null.
-          
-          if($this->action != 'add') {
-            $url = array(
-              'controller' => 'co_invites',
-              'action' => 'verifyEmailAddress',
-              'email_address_id' => $email_addresses[0]['EmailAddress']['id']
-            );
-            
-            if(!empty($cur_co['Co']['id'])) {
-              $url['co'] = $cur_co['Co']['id'];
-            }
-          }
-          
-          print ($isVerified ? _txt('fd.yes') : _txt('fd.no')) . "\n";
-          
-          if(!$isVerified && $permissions['verifyEmailAddress']) {
-            print '<button class="checkbutton" title="' . _txt('op.verify')
-              . '" type="button" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.confirm.verify') . '\',\''   // dialog body text
-              . $this->Html->url($url) . '\',\''      // redirect URL
-              . _txt('op.verify') . '\',\''           // dialog confirm button
-              . _txt('op.cancel') . '\',\''           // dialog cancel button
-              . _txt('op.verify') . '\',[\''          // dialog title
-              . filter_var(_jtxt($email_addresses[0]['EmailAddress']['mail']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.verify')
-              . '</button>' . "\n";
-          }
-        ?>
-      </span>
-    </li>
-    <?php if(!empty($email_addresses[0]['SourceEmailAddress']['id'])): ?>
+        }
+
+        print ($isVerified ? _txt('fd.yes') : _txt('fd.no')) . "\n";
+
+        if(!$isVerified && $permissions['verifyEmailAddress']) {
+          print '<button class="checkbutton" title="' . _txt('op.verify')
+            . '" type="button" onclick="javascript:js_confirm_generic(\''
+            . _txt('js.confirm.verify') . '\',\''   // dialog body text
+            . $this->Html->url($url) . '\',\''      // redirect URL
+            . _txt('op.verify') . '\',\''           // dialog confirm button
+            . _txt('op.cancel') . '\',\''           // dialog cancel button
+            . _txt('op.verify') . '\',[\''          // dialog title
+            . filter_var(_jtxt($email_addresses[0]['EmailAddress']['mail']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+            . '\']);">'
+            . _txt('op.verify')
+            . '</button>' . "\n";
+        }
+      ?>
+    </span>
+  </li>
+  <?php if(!empty($email_addresses[0]['SourceEmailAddress']['id'])): ?>
     <li>
       <span class="field-name">
         <?php print _txt('fd.source'); ?><br />
@@ -213,19 +213,18 @@
         ?>
       </span>
     </li>
-    <?php endif; // source id ?>
+  <?php endif; // source id ?>
+
+  <?php if($e): ?>
     <li class="fields-submit">
       <span class="field-name">
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+        <span class="required"><?php print _txt('fd.req'); ?></span>
       </span>
       <span class="field-info">
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
+        <?php print $this->Form->submit($submit_label); ?>
       </span>
     </li>
+  <?php endif; ?>
 </ul>
 <?php
   print $this->element("changelog");

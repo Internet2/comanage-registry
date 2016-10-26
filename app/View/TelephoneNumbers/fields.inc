@@ -104,70 +104,69 @@
 
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_telephone_number" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.telephone_number.country_code'); ?>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('country_code') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['country_code'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.telephone_number.area_code'); ?>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('area_code') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['area_code'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.telephone_number.number'); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('number', array('class' => 'focusFirst')) : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['number'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.telephone_number.extension'); ?>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('extension') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['extension'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print _txt('fd.type'); ?>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (isset($telephone_numbers) ? $telephone_numbers[0]['TelephoneNumber']['type'] : "");
-          $attrs['empty'] = false;
+<ul id="<?php print $this->action; ?>_telephone_number" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.telephone_number.country_code'); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('country_code') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['country_code'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.telephone_number.area_code'); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('area_code') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['area_code'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.telephone_number.number'); ?><span class="required">*</span>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('number', array('class' => 'focusFirst')) : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['number'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.telephone_number.extension'); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('extension') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['extension'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.type'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($telephone_numbers) ? $telephone_numbers[0]['TelephoneNumber']['type'] : "");
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('type',
+                                    $vv_available_types,
+                                    $attrs);
           
-          if($e) {
-            print $this->Form->select('type',
-                                      $vv_available_types,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('type')) {
-              print $this->Form->error('type');
-            }
-          } else {
-            print _txt('en.contact', null, $telephone_numbers[0]['TelephoneNumber']['type']);
+          if($this->Form->isFieldError('type')) {
+            print $this->Form->error('type');
           }
-        ?>
-      </td>
-    </tr>
-    <?php if(!empty($telephone_numbers[0]['SourceTelephoneNumber']['id'])): ?>
-    <tr class="line<?php print $l % 2;$l++; ?>">
-      <td>
+        } else {
+          print _txt('en.contact', null, $telephone_numbers[0]['TelephoneNumber']['type']);
+        }
+      ?>
+    </div>
+  </li>
+  <?php if(!empty($telephone_numbers[0]['SourceTelephoneNumber']['id'])): ?>
+    <li>
+      <div class="field-name">
         <?php print _txt('fd.source'); ?><br />
-      </td>
-      <td>
+      </div>
+      <div class="field-info">
         <?php print $this->Html->link(_txt('ct.telephone_numbers.1'),
                                       array('controller' => 'telephone_numbers',
                                             'action'     => 'view',
@@ -178,21 +177,19 @@
                                             'action'     => 'view',
                                             $telephone_numbers[0]['SourceTelephoneNumber']['org_identity_id']));
         ?>
-      </td>
-    </tr>
-    <?php endif; // source id ?>    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      </div>
+    </li>
+  <?php endif; // source id ?>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
 <?php
   print $this->element("changelog");

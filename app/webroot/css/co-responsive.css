@@ -110,10 +110,14 @@
   }
   ul.form-list .field-info {
     display: inline-block;
-    max-width: 65%;
+    width: 68%;
   }
   .field-info-desc .co-info { /* info icon */
-    margin-left: -1.6em;
+    /*margin-left: -1.6em;*/
+  }
+  ul.form-list input[type="text"],
+  ul.form-list input[type="number"] {
+    width: 97%;
   }
   /* ORG IDS */
   body.org_identities.edit ul.form-list .field-name {

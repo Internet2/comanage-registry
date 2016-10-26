@@ -486,7 +486,7 @@
                   <td>
                     <?php
                     if($e) {
-                      print $this->Form->submit($submit_label);
+                      print $this->Form->submit(_txt('op.inv'));
                     }
                     ?>
                   </td>
@@ -496,13 +496,11 @@
           <?php else: // invite ?>
           <?php foreach($co_people[0]['Name'] as $n): ?>
             <li class="field-data-container">
-              <div class="field-data">
+              <?php
+                $perm = $this->Permission->selfService($permissions, $e, 'Name', (!empty($n['type']) ? $n['type'] : null));
+              ?>
+              <div class="field-data <?php if($perm == PermissionEnum::ReadOnly) { print ' field-data-alone'; }; ?>">
                 <?php
-                $perm = $this->Permission->selfService($permissions,
-                                                       $e,
-                                                       'Name',
-                                                       (!empty($n['type']) ? $n['type'] : null));
-
                 if($perm == PermissionEnum::ReadWrite) {
                   print $this->Html->link(generateCn($n),
                     array('controller' => 'names',
@@ -512,7 +510,7 @@
                   print generateCn($n);
                 }
 
-                print "&nbsp;("
+                print " ("
                   . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
                   . $vv_cop_name_types[ $n['type'] ]
                   . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
@@ -546,7 +544,7 @@
                           'action'     => 'primary',
                           $n['id'],
                           'copersonid' => $co_people[0]['CoPerson']['id']),
-                        array('class' => 'primarybutton')) . "\n";
+                        array('class' => 'primarybutton'));
                   }
 
                   print $this->Html->link(_txt('op.edit'),
@@ -641,7 +639,9 @@
               if(isset($co_people[0]['Identifier'])) {
                 foreach($co_people[0]['Identifier'] as $id) {
                   print '<li class="field-data-container">';
+                  print '<div class="field-data field-data-alone">';
                   print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
+                  print '</div>';
                   print '</li>';
                 }
               }
@@ -733,7 +733,9 @@
                     print '</li>';
                   } elseif($perm == PermissionEnum::ReadOnly) {
                     print '<li class="field-data-container">';
+                    print '<div class="field-data field-data-alone">';
                     print Sanitize::html($ea['mail']) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
+                    print '</div>';
                     print '</li>';
                   }
                 }
@@ -764,7 +766,7 @@
             <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.groups'); ?>
           </a>
-          <ul id="tabs-group" class="fields form-list">
+          <ul id="tabs-group" class="fields data-list">
             <?php
             if(isset($co_people[0]['CoGroupMember'])) {
               foreach($co_people[0]['CoGroupMember'] as $g) {
@@ -797,9 +799,9 @@
                   }
                 } else {
                   if($g['member'])
-                    print '<li class="field-data-container">' . Sanitize::html($g['CoGroup']['name']) . "</li>\n";
+                    print '<li class="field-data-container"><div class="field-data field-data-alone">' . Sanitize::html($g['CoGroup']['name']) . "</div></li>\n";
                   if($g['owner'])
-                    print '<li class="field-data-container">' . Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")</li>\n";
+                    print '<li class="field-data-container"><div class="field-data field-data-alone">' . Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")</div></li>\n";
                 }
               }
             }
@@ -819,10 +821,10 @@
           </a>
           <ul  id="tabs-coperson" class="fields form-list">
             <li>
-              <span class="field-name vtop">
+              <div class="field-name vtop">
                 <label for="CoPersonStatusAgain"><?php print _txt('fd.status'); ?></label>
-              </span>
-              <span class="field-info">
+              </div>
+              <div class="field-info">
                 <?php
                   if($e && $permissions['edit']
                      && !$permissions['editself']) {
@@ -861,13 +863,13 @@
                     <?php print _txt('fd.status.change'); ?>
                   </div>
                 <?php endif; ?>
-              </span>
+              </div>
             </li>
             <li>
-              <span class="field-name">
+              <div class="field-name">
                 <?php print $this->Form->label('CoPerson.timezone', _txt('fd.timezone')); ?>
-              </span>
-              <span class="field-info">
+              </div>
+              <div class="field-info">
                 <?php
                   if($e && ($permissions['edit'] || $permissions['editself'])) {
                     $attrs = array();
@@ -900,14 +902,14 @@
                     <em><?php print _txt('fd.timezone.change'); ?></em>
                   </div>
                 <?php endif; ?>
-              </span>
+              </div>
             </li>
             <?php if($e && ($permissions['edit'] || $permissions['editself'])): ?>
               <li class="fields-submit">
-                <span class="field-name"></span>
-                <span class="field-info">
-                  <?php print $this->Form->submit($submit_label); ?>
-                </span>
+                <div class="field-name"></div>
+                <div class="field-info">
+                  <?php print $this->Form->submit(_txt('op.save')); ?>
+                </div>
               </li>
             <?php endif; // edit ?>
           </ul><!-- tabs-coperson -->

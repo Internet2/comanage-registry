@@ -235,7 +235,7 @@
                         && !array_search($co_person_roles[0]['CoPersonRole']['title'], $vv_enums_title)) {
                         print $co_person_roles[0]['CoPersonRole']['title'];
 
-                        print '<div>
+                        print '<div class="field-info-desc">
                                  <span class="ui-icon ui-icon-info co-info"></span>
                                  <em>' . _txt('er.ae.val.inv') . '</em>
                                </div>';
@@ -279,7 +279,7 @@
                         && !array_search($co_person_roles[0]['CoPersonRole']['o'], $vv_enums_o)) {
                         print $co_person_roles[0]['CoPersonRole']['o'];
 
-                        print '<div class="descr">
+                        print '<div class="field-info-desc">
                                  <span class="ui-icon ui-icon-info co-info"></span>
                                  <em>' . _txt('er.ae.val.inv') . '</em>
                                </div>';
@@ -331,7 +331,7 @@
                          && !array_search($co_person_roles[0]['CoPersonRole']['ou'], $vv_enums_ou)) {
                         print $co_person_roles[0]['CoPersonRole']['ou'];
 
-                        print '<div>
+                        print '<div class="field-info-desc">
                                  <span class="ui-icon ui-icon-info co-info"></span>
                                  <em>' . _txt('er.ae.val.inv') . '</em>
                                </div>';
@@ -377,7 +377,7 @@
                           $co_person_roles[0]['SponsorCoPerson']['id']));
                     }
 
-                    print '<div>
+                    print '<div class="field-info-desc">
                               <span class="ui-icon ui-icon-info co-info"></span>
                               <em>' . _txt('fd.sponsor.inel') . '</em>
                             </div>';
@@ -464,18 +464,16 @@
               } // foreach
             } // endif extended attributes
             ?>
-            <li class="fields-submit">
-              <div class="field-name">
-                <span class="required"><?php print _txt('fd.req'); ?></span>
-              </div>
-              <div class="field-info">
-                <?php
-                if($e && !$es) {
-                  print $this->Form->submit($submit_label);
-                }
-                ?>
-              </div>
-            </li>
+            <?php if($e && !$es): ?>
+              <li class="fields-submit">
+                <div class="field-name">
+                  <span class="required"><?php print _txt('fd.req'); ?></span>
+                </div>
+                <div class="field-info">
+                  <?php print $this->Form->submit($submit_label); ?>
+                </div>
+              </li>
+            <?php endif; ?>
           </ul><!-- tabs-role -->
         </li><!-- fields-role -->
 
@@ -588,7 +586,7 @@
 
                 <?php endforeach; // TelephoneNumber ?>
               <?php else: ?>
-                <li class="invisible"><span class="data-desc"><?php print _txt('fd.none'); ?></span></li>
+                <li><div class="field-data field-data-alone"><?php print _txt('fd.none'); ?></div></li>
               <?php endif; // TelephoneNumber ?>
             </ul><!-- tabs-phone -->
           </li><!-- fields-phone -->

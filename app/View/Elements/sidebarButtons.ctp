@@ -27,10 +27,10 @@
   <ul id="menu">
     <?php
     foreach($sidebarButtons as $button => $link){
-      if(strpos($link['url'],'js_confirm_generic') === false) {
+      if(gettype($link['url']) == 'string') {
         print '<li>'; // don't show spinner for dialog boxes
       } else {
-        print '<li class="spin">';
+        print '<li class="spin">'; // 'url' is otherwise an array
       }
       // Clean data
       $icontitle = '<span class="ui-icon ui-icon-'
