@@ -49,68 +49,64 @@
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
-<table id="<?php print $this->action; ?>_cou" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <?php print $this->Form->label('name',_txt('fd.name')); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cous[0]['Cou']['name'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print $this->Form->label('description',_txt('fd.desc')); ?>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($cous[0]['Cou']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php
+<ul id="<?php print $this->action; ?>_cou" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('name',_txt('fd.name')); ?><span class="required">*</span>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cous[0]['Cou']['name'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('description',_txt('fd.desc')); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('description') : Sanitize::html($cous[0]['Cou']['description'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php
+      if($e) {
+        if (!empty($this->viewVars['parent_options'] )) {
+          print $this->Form->label('parent_id', _txt('fd.parent'));
+        } else {
+          print _txt('fd.parent');
+        }
+      }
+      ?>
+    </div>
+    <div class="field-info">
+      <?php
         if($e) {
           if (!empty($this->viewVars['parent_options'] )) {
-            print $this->Form->label('parent_id', _txt('fd.parent'));
+            // Print dropdown selector with COU options
+            print $this->Form->select('parent_id', $this->viewVars['parent_options']);
           } else {
-            print _txt('fd.parent');
+            // Do not print empty selector
+            print _txt('fd.cou.nopar');
           }
         }
-        ?>
-      </td>
-      <td>
-        <?php
-          if($e) {
-            if (!empty($this->viewVars['parent_options'] )) {
-              // Print dropdown selector with COU options
-              print $this->Form->select('parent_id', $this->viewVars['parent_options']);
-            } else {
-              // Do not print empty selector
-              print _txt('fd.cou.nopar');
-            }
-          }
-          else {
-            print Sanitize::html($cous[0]['Cou']['parent_id']);
-          }
+        else {
+          print Sanitize::html($cous[0]['Cou']['parent_id']);
+        }
 
-          if($this->Form->isFieldError('status')) {
-            print $this->Form->error('status');
-          }
-        ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        if($this->Form->isFieldError('status')) {
+          print $this->Form->error('status');
+        }
+      ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

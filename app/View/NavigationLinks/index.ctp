@@ -61,9 +61,9 @@
 
 ?>
 
-<table id="navigation_links" class="ui-widget">
+<table id="navigation_links">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('title', _txt('fd.link.title')); ?></th>
       <th><?php print $this->Paginator->sort('url', _txt('fd.link.url')); ?></th>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
@@ -122,7 +122,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="5">
         <?php print $this->element("pagination"); ?>
       </th>

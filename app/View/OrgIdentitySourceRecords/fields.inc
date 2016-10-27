@@ -71,7 +71,7 @@
   </div>
 <?php endif; // view ?>
 
-<table id="<?php print $this->action; ?>_org_identity_source" class="ui-widget">
+<table id="<?php print $this->action; ?>_org_identity_source">
   <tbody>
     <tr class="line1">
       <td>

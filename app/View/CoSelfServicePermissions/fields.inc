@@ -94,7 +94,7 @@
 
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_self_service_permissions" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_self_service_permissions">
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>

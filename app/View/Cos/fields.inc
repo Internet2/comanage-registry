@@ -39,7 +39,7 @@
   $this->Html->addCrumb($crumbTxt);
     
 ?>
-<table id="<?php print $this->action; ?>_co" class="ui-widget">
+<table id="<?php print $this->action; ?>_co">
   <tbody>
     <tr class="line1">
       <td>

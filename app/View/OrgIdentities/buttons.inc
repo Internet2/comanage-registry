@@ -105,7 +105,7 @@ if($this->action != "add") {
   <p>
     <?php print _txt('op.pipeline.rerun.form'); ?>
   </p>
-  <table class="ui-widget">
+  <table>
     <tbody>
       <tr>
         <th class="ui-widget-header">

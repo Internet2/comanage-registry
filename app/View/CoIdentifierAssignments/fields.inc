@@ -79,7 +79,7 @@
     document.getElementById('CoIdentifierAssignmentEmailType').disabled = false;
   }
 </script>
-<table id="<?php print $this->action; ?>_co_identifier_assignment" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_identifier_assignment">
   <tbody>
     <tr class="line1">
       <td>

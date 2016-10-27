@@ -46,9 +46,9 @@
   global $cm_lang, $cm_texts;
 ?>
 
-<table id="co_nsf_demographics" class="ui-widget">
+<table id="co_nsf_demographics">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('gender', _txt('fd.de.gender')); ?></th>
       <th><?php print $this->Paginator->sort('citizenship', _txt('fd.de.citizen')); ?></th>
       <th><?php print $this->Paginator->sort('ethnicity', _txt('fd.de.ethnic')); ?></th>
@@ -125,7 +125,7 @@
     <?php endforeach; ?>
   </tbody>
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="7">
         <?php print $this->element("pagination"); ?>
       </th>

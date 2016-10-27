@@ -157,7 +157,7 @@
 <br />
 <?php else: // vv_not_found ?>
 <div class="innerContent">
-  <table id="view_org_identity_source_record" class="ui-widget">
+  <table id="view_org_identity_source_record">
     <tbody>
       <tr class="line<?php print $l++ % 2; ?>">
         <td>

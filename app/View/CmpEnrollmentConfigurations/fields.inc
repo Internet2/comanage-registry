@@ -142,7 +142,7 @@
 </script>
 <div>
   <div>
-    <table id="<?php print $this->action; ?>_cmp_enrollment_configuration" class="ui-widget">
+    <table id="<?php print $this->action; ?>_cmp_enrollment_configuration">
       <tbody>
 <?php if(0): ?>
         <tr class="line1">
@@ -258,7 +258,7 @@
   </div>
   
   <div id="org_attributes" style="display:none">
-    <table id="<?php print $this->action; ?>_cmp_enrollment_attributes" class="ui-widget">
+    <table id="<?php print $this->action; ?>_cmp_enrollment_attributes">
       <?php
         $l = 1;
         $xindex = 0;

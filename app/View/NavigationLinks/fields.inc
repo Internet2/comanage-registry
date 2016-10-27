@@ -40,7 +40,7 @@
 
 ?>
 
-<table id="<?php print $this->action; ?>_link" class="ui-widget">
+<table id="<?php print $this->action; ?>_link">
   <tbody>
     <tr class="line1">
       <td>

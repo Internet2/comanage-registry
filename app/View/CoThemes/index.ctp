@@ -49,9 +49,9 @@
 
 ?>
 
-<table id="co_themes" class="ui-widget">
+<table id="co_themes">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('name', _txt('fd.key')); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
     </tr>
@@ -106,7 +106,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="2">
         <?php print $this->element("pagination"); ?>
       </th>

@@ -58,9 +58,9 @@
 
 ?>
 
-<table id="cous" class="ui-widget">
+<table id="cous">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <th><?php print $this->Paginator->sort('authz_level', _txt('fd.ef.authz')); ?></th>
@@ -159,12 +159,7 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="4">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
 </table>
+
+<?php
+  print $this->element("pagination");

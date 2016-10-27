@@ -83,9 +83,9 @@
 </form>
 <br />
 
-<table id="co_extended_types" class="ui-widget">
+<table id="co_extended_types">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('attribute', _txt('fd.attribute')); ?></th>
       <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
       <th><?php print $this->Paginator->sort('display_name', _txt('fd.name.d')); ?></th>
@@ -162,7 +162,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="5">
         <?php print $this->element("pagination"); ?>
       </th>

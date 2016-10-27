@@ -49,9 +49,9 @@
 
 ?>
 
-<table id="org_identity_sources" class="ui-widget">
+<table id="org_identity_sources">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <th><?php print $this->Paginator->sort('sync_mode', _txt('fd.ois.sync.mode')); ?></th>
@@ -187,7 +187,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="7">
         <?php print $this->element("pagination"); ?>
       </th>

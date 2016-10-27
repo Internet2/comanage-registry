@@ -46,7 +46,7 @@
 
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
-<table id="<?php print $this->action; ?>_co_extended_attribute" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_extended_attribute">
   <tbody>
     <tr class="line1">
       <td>

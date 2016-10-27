@@ -66,27 +66,27 @@
   
   function authn_update_gadgets() {
     // Hide and show accordingly.
-    
+
     var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode').value;
     var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
     
     if(confirm != '<?php print VerificationModeEnum::None; ?>') {
-      $("#CoEnrollmentFlowInvitationValidity").closest("tr").show('fade');
+      $("#CoEnrollmentFlowInvitationValidity").closest("li").show('fade');
       fields_update_gadgets();
-      $("#CoEnrollmentFlowRequireAuthn").closest("tr").show('fade');
+      $("#CoEnrollmentFlowRequireAuthn").closest("li").show('fade');
       
       if(authn) {
-        $("#CoEnrollmentFlowDuplicateMode").closest("tr").show('fade');
+        $("#CoEnrollmentFlowDuplicateMode").closest("li").show('fade');
       } else {
-        $("#CoEnrollmentFlowDuplicateMode").closest("tr").hide('fade');
+        $("#CoEnrollmentFlowDuplicateMode").closest("li").hide('fade');
       }
     } else {
-      $("#CoEnrollmentFlowInvitationValidity").closest("tr").hide('fade');
-      $("#CoEnrollmentFlowVerificationTemplateId").closest("tr").hide('fade');
-      $("#CoEnrollmentFlowVerificationSubject").closest("tr").hide('fade');
-      $("#CoEnrollmentFlowVerificationBody").closest("tr").hide('fade');
-      $("#CoEnrollmentFlowRequireAuthn").closest("tr").hide('fade');
-      $("#CoEnrollmentFlowDuplicateMode").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowInvitationValidity").closest("li").hide('fade');
+      $("#CoEnrollmentFlowVerificationTemplateId").closest("li").hide('fade');
+      $("#CoEnrollmentFlowVerificationSubject").closest("li").hide('fade');
+      $("#CoEnrollmentFlowVerificationBody").closest("li").hide('fade');
+      $("#CoEnrollmentFlowRequireAuthn").closest("li").hide('fade');
+      $("#CoEnrollmentFlowDuplicateMode").closest("li").hide('fade');
     }
   }
   
@@ -136,11 +136,11 @@
     var vtemplate = document.getElementById('CoEnrollmentFlowVerificationTemplateId').value;
     
     if(vtemplate) {
-      $("#CoEnrollmentFlowVerificationSubject").closest("tr").hide('fade');
-      $("#CoEnrollmentFlowVerificationBody").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowVerificationSubject").closest("li").hide('fade');
+      $("#CoEnrollmentFlowVerificationBody").closest("li").hide('fade');
     } else {
-      $("#CoEnrollmentFlowVerificationSubject").closest("tr").show('fade');
-      $("#CoEnrollmentFlowVerificationBody").closest("tr").show('fade');
+      $("#CoEnrollmentFlowVerificationSubject").closest("li").show('fade');
+      $("#CoEnrollmentFlowVerificationBody").closest("li").show('fade');
     }
     
     // If notify on approval is enabled, show the relevant options
@@ -149,27 +149,27 @@
       // Hide subject and body if a template is selected
       var atemplate = document.getElementById('CoEnrollmentFlowApprovalTemplateId').value;
       
-      $("#CoEnrollmentFlowApprovalTemplateId").closest("tr").show('fade');
+      $("#CoEnrollmentFlowApprovalTemplateId").closest("li").show('fade');
       
       if(atemplate) {
-        $("#CoEnrollmentFlowApprovalSubject").closest("tr").hide('fade');
-        $("#CoEnrollmentFlowApprovalBody").closest("tr").hide('fade');
+        $("#CoEnrollmentFlowApprovalSubject").closest("li").hide('fade');
+        $("#CoEnrollmentFlowApprovalBody").closest("li").hide('fade');
       } else {
-        $("#CoEnrollmentFlowApprovalSubject").closest("tr").show('fade');
-        $("#CoEnrollmentFlowApprovalBody").closest("tr").show('fade');
+        $("#CoEnrollmentFlowApprovalSubject").closest("li").show('fade');
+        $("#CoEnrollmentFlowApprovalBody").closest("li").show('fade');
       }
     } else {
-      $("#CoEnrollmentFlowApprovalTemplateId").closest("tr").hide('fade');
-      $("#CoEnrollmentFlowApprovalSubject").closest("tr").hide('fade');
-      $("#CoEnrollmentFlowApprovalBody").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowApprovalTemplateId").closest("li").hide('fade');
+      $("#CoEnrollmentFlowApprovalSubject").closest("li").hide('fade');
+      $("#CoEnrollmentFlowApprovalBody").closest("li").hide('fade');
     }
     
     // If notify on finalize is enabled, show the template selector
     
     if(document.getElementById('CoEnrollmentFlowNotifyOnFinalize').checked) {
-      $("#CoEnrollmentFlowFinalizationTemplateId").closest("tr").show('fade');
+      $("#CoEnrollmentFlowFinalizationTemplateId").closest("li").show('fade');
     } else {
-      $("#CoEnrollmentFlowFinalizationTemplateId").closest("tr").hide('fade');
+      $("#CoEnrollmentFlowFinalizationTemplateId").closest("li").hide('fade');
     }
   }
   
@@ -180,672 +180,673 @@
     authz_update_gadgets();
   }
 </script>
-<table id="<?php print $this->action; ?>_co_enrollment_configuration" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('name',_txt('fd.name')) : _txt('fd.name')); ?>
-        </strong>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('name', array('default' => _txt('fd.untitled'),'class' => 'focusFirst'))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['name'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('status',_txt('fd.status')) : _txt('fd.status')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] : EnrollmentFlowStatusEnum::Active);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.ef'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            print _txt('en.status', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['status']);
+<ul id="<?php print $this->action; ?>_co_enrollment_configuration" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('name',_txt('fd.name')) : _txt('fd.name')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('name', array('default' => _txt('fd.untitled'),'class' => 'focusFirst'))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['name'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('status',_txt('fd.status')) : _txt('fd.status')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] : EnrollmentFlowStatusEnum::Active);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.ef'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('authz_level', _txt('fd.ef.authz')) : _txt('fd.ef.authz')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.authz.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_enrollment_flows)
-                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_level']
-                              : EnrollmentAuthzEnum::CoOrCouAdmin);
-          $attrs['empty'] = false;
-          $attrs['onChange'] = 'authz_update_gadgets()';
-          
-          if($e) {
-            print $this->Form->select('authz_level',
-                                      $cm_texts[ $cm_lang ]['en.enrollment.authz'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('authz_level')) {
-              print $this->Form->error('authz_level');
-            }
-          } else {
-            print _txt('en.enrollment.authz', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_level']);
+        } else {
+          print _txt('en.status', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('authz_level', _txt('fd.ef.authz')) : _txt('fd.ef.authz')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.authz.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_enrollment_flows)
+                            ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_level']
+                            : EnrollmentAuthzEnum::CoOrCouAdmin);
+        $attrs['empty'] = false;
+        $attrs['onChange'] = 'authz_update_gadgets()';
+
+        if($e) {
+          print $this->Form->select('authz_level',
+                                    $cm_texts[ $cm_lang ]['en.enrollment.authz'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('authz_level')) {
+            print $this->Form->error('authz_level');
           }
-        ?>
-        <div id="authzgroupdiv" style="display:none">
-          <?php
-            if(!empty($co_groups)) {
-              $attrs = array();
-              $attrs['value'] = (isset($co_enrollment_flows)
-                                 ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_co_group_id']
-                                 : null);
-              $attrs['empty'] = true;
-              
-              if($e) {
-                print $this->Form->label('authz_co_group_id', _txt('fd.ef.authz.group')) . ': ';
-                print $this->Form->select('authz_co_group_id',
-                                          $co_groups,
-                                          $attrs);
-                
-                if($this->Form->isFieldError('authz_co_group_id')) {
-                  print $this->Form->error('authz_co_group_id');
-                }
-              } else {
-                print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_co_group_id'] ];
-              }
-            }
-          ?>
-        </div>
-        <div id="authzcoudiv" style="display:none">
-          <?php
-            if(!empty($cous)) {
-              $attrs = array();
-              $attrs['value'] = (isset($co_enrollment_flows)
-                                 ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_cou_id']
-                                 : null);
-              $attrs['empty'] = true;
-              
-              if($e) {
-                print $this->Form->label('authz_cou_id', _txt('fd.ef.authz.cou')) . ': ';
-                print $this->Form->select('authz_cou_id',
-                                          $cous,
-                                          $attrs);
-                
-                if($this->Form->isFieldError('authz_cou_id')) {
-                  print $this->Form->error('authz_cou_id');
-                }
-              } else {
-                print $cous[ $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_cou_id'] ];
-              }
-            }
-          ?>
-        </div>
-      </td>
-    </tr>
-    <?php if(!empty($vv_co_pipelines)): ?>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('co_pipeline_id',_txt('fd.pipeline')) : _txt('fd.pipeline')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.pipeline.desc.ef'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'])
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id']
-                             : '');
-          $attrs['empty'] = true;
-          
-          if($e) {
-            print $this->Form->select('co_pipeline_id',
-                                      $vv_co_pipelines,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('co_pipeline_id')) {
-              print $this->Form->error('co_pipeline_id');
-            }
-          } else {
-            print $vv_co_pipelines[ $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'] ];
-          }
-        ?>
-      </td>
-    </tr>
-    <?php endif; // vv_co_pipelines ?>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('match_policy', _txt('fd.ef.match')) : _txt('fd.ef.match')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.match.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy'] : EnrollmentMatchPolicyEnum::Advisory);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('match_policy',
-                                      $cm_texts[ $cm_lang ]['en.enrollment.match'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('match_policy')) {
-              print $this->Form->error('match_policy');
-            }
-          } else {
-            print _txt('en.enrollment.match', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print _txt('fd.ef.appr'); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.appr.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('approval_required', array('onClick' => 'approver_update_gadgets()')) . ' ' .
-                       $this->Form->label('approval_required', _txt('fd.ef.appr'))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_required'])); ?>
-        <div id="approvergroupdiv" style="display:none">
-          <?php
-            if(!empty($co_groups)) {
-              $attrs = array();
-              $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id'])
-                                 ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id']
-                                 : null);
-              $attrs['empty'] = true;
-              
-              if($e) {
-                print $this->Form->label('approver_co_group_id', _txt('fd.ef.appr.pl')) . ': ';
-                print $this->Form->select('approver_co_group_id',
-                                          $co_groups,
-                                          $attrs);
-                
-                if($this->Form->isFieldError('approver_co_group_id')) {
-                  print $this->Form->error('approver_co_group_id');
-                }
-                
-                print '<br /><span class="descr">' . _txt('fd.ef.appr.gr') . '</span>';
-              } else {
-                print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id'] ];
-              }
-            }
-          ?>
-        </div>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print _txt('fd.ef.ce'); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.ce.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode'])
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode']
-                             : VerificationModeEnum::None);
-          $attrs['empty'] = false;
-          $attrs['onchange'] = "authn_update_gadgets();";
-          
-          if($e) {
-            print $this->Form->select('email_verification_mode',
-                                      $cm_texts[ $cm_lang ]['en.enrollment.verification'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('email_verification_mode')) {
-              print $this->Form->error('email_verification_mode');
-            }
-          } else {
-            print _txt('en.enrollment.verification', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode']);
-          }
-        ?>
-      </td>
-    </tr>
-    <?php $ll = $l; // use an alternate index for indented rows ?>
-    <tr class="line<?php print ($ll % 2); $ll++; ?>">
-      <td class="indented">
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('invitation_validity', _txt('fd.ef.invval')) :_txt('fd.ef.invval')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.invval.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('invitation_validity',
-                                          array('default' => DEF_INV_VALIDITY))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['invitation_validity'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($ll % 2); $ll++; ?>">
-      <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.vmt'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.vmt.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id']
-                             : null);
-          $attrs['empty'] = true;
-          $attrs['onchange'] = "fields_update_gadgets();";
-          
-          if($e) {
-            print $this->Form->select('verification_template_id',
-                                      (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentVerification])
-                                       ? $vv_message_templates[MessageTemplateEnum::EnrollmentVerification]
-                                       : array()),
-                                      $attrs);
-            
-            if($this->Form->isFieldError('verification_template_id')) {
-              print $this->Form->error('verification_template_id');
-            }
-          } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])) {
-            print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentVerification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'] ]);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($ll % 2); $ll++; ?>">
-      <td class="indented">
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('verification_subject', _txt('fd.ef.vsub')) : _txt('fd.ef.vsub')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.vsub.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('verification_subject',
-                                          array('default' => _txt('em.invite.subject.ef')))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_subject'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($ll % 2); $ll++; ?>">
-      <td class="indented">
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('verification_body', _txt('fd.ef.vbody')) : _txt('fd.ef.vbody')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.vbody.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('verification_body',
-                                          array('default' => _txt('em.invite.body.ef')))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_body'])); ?>
-      </td>
-    </tr>    <tr class="line<?php print ($ll % 2); $ll++; ?>">
-      <td class="indented">
-        <strong class="fieldTitle">
-          <?php print _txt('fd.ef.authn'); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.authn.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('require_authn', array('onClick' => 'authn_update_gadgets()')) . ' ' .
-                       $this->Form->label('require_authn', _txt('fd.ef.authn'))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($ll % 2); $ll++; ?>" style="display:none">
-      <td class="indented">
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('duplicate_mode', _txt('fd.ef.dupe')) : _txt('fd.ef.dupe')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.dupe.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode'])
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']
-                             : EnrollmentDupeModeEnum::Duplicate);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('duplicate_mode',
-                                      $cm_texts[ $cm_lang ]['en.enrollment.dupe'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('duplicate_mode')) {
-              print $this->Form->error('duplicate_mode');
-            }
-          } else {
-            print _txt('en.enrollment.dupe', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('notify_from', _txt('fd.ef.efn')) : _txt('fd.ef.efn')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.efn.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('notify_from')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_from'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('notification_co_group_id', _txt('fd.ef.nogr')) : _txt('fd.ef.nogr')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.nogr.desc'); ?></span>
-      </td>
-      <td>
+        } else {
+          print _txt('en.enrollment.authz', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_level']);
+        }
+      ?>
+      <div id="authzgroupdiv" class="subfield" style="display:none">
         <?php
           if(!empty($co_groups)) {
             $attrs = array();
-            $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['notification_co_group_id'])
-                               ? $co_enrollment_flows[0]['CoEnrollmentFlow']['notification_co_group_id']
+            $attrs['value'] = (isset($co_enrollment_flows)
+                               ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_co_group_id']
                                : null);
             $attrs['empty'] = true;
-            
+
             if($e) {
-              print $this->Form->select('notification_co_group_id',
+              print $this->Form->label('authz_co_group_id', _txt('fd.ef.authz.group')) . ': ';
+              print $this->Form->select('authz_co_group_id',
                                         $co_groups,
                                         $attrs);
-              
-              if($this->Form->isFieldError('notification_co_group_id')) {
-                print $this->Form->error('notification_co_group_id');
+
+              if($this->Form->isFieldError('authz_co_group_id')) {
+                print $this->Form->error('authz_co_group_id');
               }
             } else {
-              print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['notification_co_group_id'] ];
+              print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_co_group_id'] ];
             }
           }
         ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print _txt('fd.ef.noap'); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.noap.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('notify_on_approval', array('onChange' => 'fields_update_gadgets();')) . ' ' .
-                       $this->Form->label('notify_on_approval', _txt('fd.ef.noap'))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($ll % 2); $ll++; ?>">
-      <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.amt'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.amt.desc'); ?></span>
-      </td>
-      <td>
+      </div>
+      <div id="authzcoudiv" class="subfield" style="display:none">
         <?php
-          global $cm_lang, $cm_texts;
+          if(!empty($cous)) {
+            $attrs = array();
+            $attrs['value'] = (isset($co_enrollment_flows)
+                               ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_cou_id']
+                               : null);
+            $attrs['empty'] = true;
+
+            if($e) {
+              print $this->Form->label('authz_cou_id', _txt('fd.ef.authz.cou')) . ': ';
+              print $this->Form->select('authz_cou_id',
+                                        $cous,
+                                        $attrs);
+
+              if($this->Form->isFieldError('authz_cou_id')) {
+                print $this->Form->error('authz_cou_id');
+              }
+            } else {
+              print $cous[ $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_cou_id'] ];
+            }
+          }
+        ?>
+      </div>
+    </div>
+  </li>
+  <?php if(!empty($vv_co_pipelines)): ?>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('co_pipeline_id',_txt('fd.pipeline')) : _txt('fd.pipeline')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.pipeline.desc.ef'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'])
+                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id']
+                           : '');
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('co_pipeline_id',
+                                    $vv_co_pipelines,
+                                    $attrs);
+
+          if($this->Form->isFieldError('co_pipeline_id')) {
+            print $this->Form->error('co_pipeline_id');
+          }
+        } else {
+          print $vv_co_pipelines[ $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'] ];
+        }
+      ?>
+    </div>
+  </li>
+  <?php endif; // vv_co_pipelines ?>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('match_policy', _txt('fd.ef.match')) : _txt('fd.ef.match')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.match.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy'] : EnrollmentMatchPolicyEnum::Advisory);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('match_policy',
+                                    $cm_texts[ $cm_lang ]['en.enrollment.match'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('match_policy')) {
+            print $this->Form->error('match_policy');
+          }
+        } else {
+          print _txt('en.enrollment.match', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name vtop">
+      <div class="field-title">
+        <?php print _txt('fd.ef.appr'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.appr.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+                   ? $this->Form->input('approval_required', array('onClick' => 'approver_update_gadgets()')) . ' ' .
+                     $this->Form->label('approval_required', _txt('fd.ef.appr'))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_required'])); ?>
+      <div id="approvergroupdiv" class="subfield" style="display:none">
+        <?php
+          if(!empty($co_groups)) {
+            $attrs = array();
+            $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id'])
+                               ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id']
+                               : null);
+            $attrs['empty'] = true;
+
+            if($e) {
+              print $this->Form->label('approver_co_group_id', _txt('fd.ef.appr.pl')) . ': ';
+              print $this->Form->select('approver_co_group_id',
+                                        $co_groups,
+                                        $attrs);
+
+              if($this->Form->isFieldError('approver_co_group_id')) {
+                print $this->Form->error('approver_co_group_id');
+              }
+
+              print '<div class="field-desc">' . _txt('fd.ef.appr.gr') . '</div>';
+            } else {
+              print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_co_group_id'] ];
+            }
+          }
+        ?>
+      </div>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.ef.ce'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.ce.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode'])
+                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode']
+                           : VerificationModeEnum::None);
+        $attrs['empty'] = false;
+        $attrs['onchange'] = "authn_update_gadgets();";
+
+        if($e) {
+          print $this->Form->select('email_verification_mode',
+                                    $cm_texts[ $cm_lang ]['en.enrollment.verification'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('email_verification_mode')) {
+            print $this->Form->error('email_verification_mode');
+          }
+        } else {
+          print _txt('en.enrollment.verification', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['email_verification_mode']);
+        }
+      ?>
+    </div>
+  </li>
+  <li class="indented">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('invitation_validity', _txt('fd.ef.invval')) :_txt('fd.ef.invval')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.invval.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('invitation_validity',
+                                        array('default' => DEF_INV_VALIDITY))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['invitation_validity'])); ?>
+    </div>
+  </li>
+  <li class="indented">
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.ef.vmt'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.ef.vmt.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])
+                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id']
+                           : null);
+        $attrs['empty'] = true;
+        $attrs['onchange'] = "fields_update_gadgets();";
+
+        if($e) {
+          print $this->Form->select('verification_template_id',
+                                    (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentVerification])
+                                     ? $vv_message_templates[MessageTemplateEnum::EnrollmentVerification]
+                                     : array()),
+                                    $attrs);
+
+          if($this->Form->isFieldError('verification_template_id')) {
+            print $this->Form->error('verification_template_id');
+          }
+        } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])) {
+          print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentVerification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'] ]);
+        }
+      ?>
+    </div>
+  </li>
+  <li class="indented">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('verification_subject', _txt('fd.ef.vsub')) : _txt('fd.ef.vsub')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.vsub.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('verification_subject',
+                                        array('default' => _txt('em.invite.subject.ef')))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_subject'])); ?>
+    </div>
+  </li>
+  <li class="indented">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('verification_body', _txt('fd.ef.vbody')) : _txt('fd.ef.vbody')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.vbody.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('verification_body',
+                                        array('default' => _txt('em.invite.body.ef')))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_body'])); ?>
+    </div>
+  </li>
+  <li class="indented">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.ef.authn'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.authn.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('require_authn', array('onClick' => 'authn_update_gadgets()')) . ' ' .
+                     $this->Form->label('require_authn', _txt('fd.ef.authn'))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'])); ?>
+    </div>
+  </li>
+  <li class="indented" style="display:none">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('duplicate_mode', _txt('fd.ef.dupe')) : _txt('fd.ef.dupe')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.dupe.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode'])
+                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']
+                           : EnrollmentDupeModeEnum::Duplicate);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('duplicate_mode',
+                                    $cm_texts[ $cm_lang ]['en.enrollment.dupe'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('duplicate_mode')) {
+            print $this->Form->error('duplicate_mode');
+          }
+        } else {
+          print _txt('en.enrollment.dupe', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('notify_from', _txt('fd.ef.efn')) : _txt('fd.ef.efn')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.efn.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('notify_from')
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_from'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('notification_co_group_id', _txt('fd.ef.nogr')) : _txt('fd.ef.nogr')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.nogr.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($co_groups)) {
           $attrs = array();
-          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id']
+          $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['notification_co_group_id'])
+                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['notification_co_group_id']
                              : null);
           $attrs['empty'] = true;
-          $attrs['onchange'] = "fields_update_gadgets();";
-          
+
           if($e) {
-            print $this->Form->select('approval_template_id',
-                                      (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentApproval])
-                                       ? $vv_message_templates[MessageTemplateEnum::EnrollmentApproval]
-                                       : array()),
+            print $this->Form->select('notification_co_group_id',
+                                      $co_groups,
                                       $attrs);
-            
-            if($this->Form->isFieldError('approval_template_id')) {
-              print $this->Form->error('approval_template_id');
-            }
-          } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])) {
-            print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentApproval][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'] ]);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">
-      <td class="indented">
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('approval_subject',_txt('fd.ef.asub')) : _txt('fd.ef.asub')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.asub.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('approval_subject',
-                                          array('default' => _txt('em.approval.subject.ef')))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_subject'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>" style="display:none">
-      <td class="indented">
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('approval_body', _txt('fd.ef.abody')) : _txt('fd.ef.abody')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.abody.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('approval_body',
-                                          array('default' => _txt('em.approval.body.ef')))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print _txt('fd.ef.nof'); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.nof.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('notify_on_finalize', array('onChange' => 'fields_update_gadgets();')) . ' ' .
-                       $this->Form->label('notify_on_finalize', _txt('fd.ef.nof'))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_finalize'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($ll % 2); $ll++; ?>" style="display:none">
-      <td class="indented">
-        <strong class="fieldTitle"><?php print _txt('fd.ef.fmt'); ?></strong><br />
-        <span class="descr"><?php print _txt('fd.ef.fmt.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'])
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id']
-                             : null);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('finalization_template_id',
-                                      (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization])
-                                       ? $vv_message_templates[MessageTemplateEnum::EnrollmentFinalization]
-                                       : array()),
-                                      $attrs);
-            
-            if($this->Form->isFieldError('finalization_template_id')) {
-              print $this->Form->error('finalization_template_id');
-            }
-          } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'])) {
-            print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization][ $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'] ]);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('introduction_text', _txt('fd.ef.intro')) : _txt('fd.ef.intro')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.intro.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('introduction_text')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['introduction_text'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('conclusion_text', _txt('fd.ef.concl')) : _txt('fd.ef.concl')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.concl.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('conclusion_text')
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['conclusion_text'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('t_and_c_mode', _txt('fd.ef.tandc')) : _txt('fd.ef.tandc')); ?>
-        </strong><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.ef.tandc.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_enrollment_flows)
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']
-                             : TAndCEnrollmentModeEnum::ExplicitConsent);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('t_and_c_mode',
-                                      $cm_texts[ $cm_lang ]['en.tandc.mode.enroll'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('t_and_c_mode')) {
-              print $this->Form->error('t_and_c_mode');
+
+            if($this->Form->isFieldError('notification_co_group_id')) {
+              print $this->Form->error('notification_co_group_id');
             }
           } else {
-            print _txt('en.tandc.mode.enroll', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']);
+            print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow']['notification_co_group_id'] ];
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('redirect_on_submit', _txt('fd.ef.rd.submit')) : _txt('fd.ef.rd.submit')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.rd.submit.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('redirect_on_submit', array('size' => 60))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_submit'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('redirect_on_confirm', _txt('fd.ef.rd.confirm')) : _txt('fd.ef.rd.confirm')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ef.rd.confirm.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('redirect_on_confirm', array('size' => 60))
-                     : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_confirm'])); ?>
-      </td>
-    </tr>
-    <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('ignore_authoritative', _txt('fd.ea.ignauth')) : _txt('fd.ea.ignauth')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ea.ignauth.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          print ($e
-                 ? $this->Form->input('ignore_authoritative',
-                                      array('default' => false))
-                 : ($co_enrollment_flows[0]['CoEnrollmentFlow']['ignore_authoritative']
-                    ? _txt('fd.yes') : _txt('fd.no')));
-        ?>
-      </td>
-    </tr>
-    <?php endif; ?>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <?php print $this->Form->label('co_theme_id', _txt('fd.theme'), array('class' => 'fieldTitle'));?><br />
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          
-          $attrs = array();
-          $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['co_theme_id'])
-                             ? $co_enrollment_flows[0]['CoEnrollmentFlow']['co_theme_id']
-                             : null);
-          $attrs['empty'] = true;
-          
-          if($e) {
-            print $this->Form->select('co_theme_id',
-                                      $vv_co_themes,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('co_theme_id')) {
-              print $this->Form->error('co_theme_id');
-            }
-          } else {
-            print $vv_co_themes[ $co_enrollment_flows[0]['CoEnrollmentFlow']['co_theme_id'] ];
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.ef.noap'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.noap.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+                   ? $this->Form->input('notify_on_approval', array('onChange' => 'fields_update_gadgets();')) . ' ' .
+                     $this->Form->label('notify_on_approval', _txt('fd.ef.noap'))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'])); ?>
+    </div>
+  </li>
+  <li class="indented">
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.ef.amt'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.ef.amt.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])
+                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id']
+                           : null);
+        $attrs['empty'] = true;
+        $attrs['onchange'] = "fields_update_gadgets();";
+
+        if($e) {
+          print $this->Form->select('approval_template_id',
+                                    (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentApproval])
+                                     ? $vv_message_templates[MessageTemplateEnum::EnrollmentApproval]
+                                     : array()),
+                                    $attrs);
+
+          if($this->Form->isFieldError('approval_template_id')) {
+            print $this->Form->error('approval_template_id');
           }
-        ?>
-      </td>
-    </tr>
+        } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])) {
+          print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentApproval][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'] ]);
+        }
+      ?>
+    </div>
+  </li>
+  <li class="indented" style="display:none">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('approval_subject',_txt('fd.ef.asub')) : _txt('fd.ef.asub')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.asub.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('approval_subject',
+                                        array('default' => _txt('em.approval.subject.ef')))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_subject'])); ?>
+    </div>
+  </li>
+  <li class="indented" style="display:none">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('approval_body', _txt('fd.ef.abody')) : _txt('fd.ef.abody')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.abody.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('approval_body',
+                                        array('default' => _txt('em.approval.body.ef')))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.ef.nof'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.nof.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+                   ? $this->Form->input('notify_on_finalize', array('onChange' => 'fields_update_gadgets();')) . ' ' .
+                     $this->Form->label('notify_on_finalize', _txt('fd.ef.nof'))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_finalize'])); ?>
+    </div>
+  </li>
+  <li class="indented" style="display:none">
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.ef.fmt'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.ef.fmt.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'])
+                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id']
+                           : null);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('finalization_template_id',
+                                    (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization])
+                                     ? $vv_message_templates[MessageTemplateEnum::EnrollmentFinalization]
+                                     : array()),
+                                    $attrs);
+
+          if($this->Form->isFieldError('finalization_template_id')) {
+            print $this->Form->error('finalization_template_id');
+          }
+        } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'])) {
+          print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization][ $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'] ]);
+        }
+      ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('introduction_text', _txt('fd.ef.intro')) : _txt('fd.ef.intro')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.intro.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('introduction_text')
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['introduction_text'])); ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('conclusion_text', _txt('fd.ef.concl')) : _txt('fd.ef.concl')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.concl.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('conclusion_text')
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['conclusion_text'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('t_and_c_mode', _txt('fd.ef.tandc')) : _txt('fd.ef.tandc')); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.tandc.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_enrollment_flows)
+                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']
+                           : TAndCEnrollmentModeEnum::ExplicitConsent);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('t_and_c_mode',
+                                    $cm_texts[ $cm_lang ]['en.tandc.mode.enroll'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('t_and_c_mode')) {
+            print $this->Form->error('t_and_c_mode');
+          }
+        } else {
+          print _txt('en.tandc.mode.enroll', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('redirect_on_submit', _txt('fd.ef.rd.submit')) : _txt('fd.ef.rd.submit')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.rd.submit.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('redirect_on_submit', array('size' => 60))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_submit'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('redirect_on_confirm', _txt('fd.ef.rd.confirm')) : _txt('fd.ef.rd.confirm')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.rd.confirm.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('redirect_on_confirm', array('size' => 60))
+                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_confirm'])); ?>
+    </div>
+  </li>
+  <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('ignore_authoritative', _txt('fd.ea.ignauth')) : _txt('fd.ea.ignauth')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ea.ignauth.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        print ($e
+               ? $this->Form->input('ignore_authoritative',
+                                    array('default' => false))
+               : ($co_enrollment_flows[0]['CoEnrollmentFlow']['ignore_authoritative']
+                  ? _txt('fd.yes') : _txt('fd.no')));
+      ?>
+    </div>
+  </li>
+  <?php endif; ?>
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('co_theme_id', _txt('fd.theme'), array('class' => 'fieldTitle'));?>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+
+        $attrs = array();
+        $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['co_theme_id'])
+                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['co_theme_id']
+                           : null);
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('co_theme_id',
+                                    $vv_co_themes,
+                                    $attrs);
+
+          if($this->Form->isFieldError('co_theme_id')) {
+            print $this->Form->error('co_theme_id');
+          }
+        } else {
+          print $vv_co_themes[ $co_enrollment_flows[0]['CoEnrollmentFlow']['co_theme_id'] ];
+        }
+      ?>
+    </div>
+  </li>
     
-    <?php
-    if($e) {
-      print '<tr><td></td><td>';
-      print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-      print '</td></tr>';
-    }
-    ?>
-  </tbody>
-</table>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name"></div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
 <?php
   print $this->element("changelog");

@@ -79,9 +79,9 @@
 
 ?>
 
-<table id="co_enrollment_sources" class="ui-widget">
+<table id="co_enrollment_sources">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
 <!-- XXX this is sorting by ID, but rendering by name -->
       <th><?php print $this->Paginator->sort('org_identity_source_id', _txt('ct.org_identity_sources.1')); ?></th>
       <th><?php print $this->Paginator->sort('org_identity_mode', _txt('fd.ef.orgid')); ?></th>
@@ -144,7 +144,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="4">
         <?php print $this->element("pagination"); ?>
       </th>

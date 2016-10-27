@@ -49,7 +49,7 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_message_templates" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_message_templates">
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>

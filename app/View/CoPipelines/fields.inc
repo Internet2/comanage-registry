@@ -143,7 +143,7 @@
     var $tabs = $( "#tabs" ).tabs();
   });
 </script>
-<table id="<?php print $this->action; ?>_co_pipelines" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_pipelines">
   <tbody>
     <tr class="line1">
       <td>
@@ -203,7 +203,7 @@
   </ul>
   
   <div id="tabs-match">
-    <table id="match_strategy" class="ui-widget">
+    <table id="match_strategy">
       <tbody>
         <tr class="line1">
           <td>
@@ -269,7 +269,7 @@
     </table>
   </div>
   <div id="tabs-sync">
-    <table id="sync_strategy" class="ui-widget">
+    <table id="sync_strategy">
       <tbody>
         <tr class="line1">
           <td>

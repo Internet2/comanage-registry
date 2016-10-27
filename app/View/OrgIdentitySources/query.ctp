@@ -112,9 +112,9 @@
 </div>
 
 <?php if(!empty($vv_search_results)): ?>
-<table id="org_identity_source_results" class="ui-widget">
+<table id="org_identity_source_results">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.name'); ?></th>
       <th><?php print _txt('fd.email_address.mail'); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
@@ -170,7 +170,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="3">
         <?php /*print $this->element("pagination");*/ ?>
       </th>

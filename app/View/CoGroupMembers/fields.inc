@@ -52,7 +52,7 @@
     print $this->Form->hidden('co_person_id', array('default' => $this->request->data['CoGroupMember']['co_person_id'])). "\n";
   }
 ?>
-<table id="<?php print $this->action; ?>_co_group_member" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_group_member">
   <tbody>
     <tr class="line1">
       <td>

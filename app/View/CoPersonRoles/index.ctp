@@ -48,9 +48,9 @@
 
 ?>
 
-<table id="co_person_roles" class="ui-widget">
+<table id="co_person_roles">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
       <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php print $this->Paginator->sort('Cou.ou', _txt('fd.cou')); ?></th>
@@ -156,7 +156,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="9">
         <?php print $this->element("pagination"); ?>
       </th>

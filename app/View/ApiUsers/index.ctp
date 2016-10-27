@@ -44,9 +44,9 @@
 
 ?>
 
-<table id="api_users" class="ui-widget">
+<table id="api_users">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('username', _txt('fd.username.api')); ?></th>
       <th><?php print _txt('fd.password'); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>

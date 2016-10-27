@@ -49,9 +49,9 @@
 
 ?>
 
-<table id="co_pipelines" class="ui-widget">
+<table id="co_pipelines">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('name', _txt('fd.key')); ?></th>
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
@@ -110,7 +110,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="3">
         <?php print $this->element("pagination"); ?>
       </th>

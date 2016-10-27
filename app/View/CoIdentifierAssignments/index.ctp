@@ -231,9 +231,9 @@
   });
 </script>
 
-<table id="cous" class="ui-widget">
+<table id="cous">
   <thead>
-  <tr class="ui-widget-header">
+  <tr>
     <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
     <th><?php print $this->Paginator->sort('identifier_type', _txt('fd.type')); ?></th>
     <th><?php print _txt('fd.actions'); ?></th>
@@ -287,7 +287,7 @@
   </tbody>
 
   <tfoot>
-  <tr class="ui-widget-header">
+  <tr>
     <th colspan="3">
       <?php print $this->element("pagination"); ?>
     </th>

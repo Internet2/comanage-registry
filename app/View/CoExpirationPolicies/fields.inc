@@ -76,7 +76,7 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_expiration_policies" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_expiration_policies">
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
@@ -137,7 +137,7 @@
     </li>
   </ul>
   <div id="tabs-conditions">
-    <table id="<?php print $this->action; ?>_co_expiration_policies2" class="ui-widget">
+    <table id="<?php print $this->action; ?>_co_expiration_policies2">
       <tbody>
         <!-- Conditions -->
         <tr>
@@ -291,7 +291,7 @@
     </table>
   </div>
   <div id="tabs-actions">
-    <table id="<?php print $this->action; ?>_co_expiration_policies3" class="ui-widget">
+    <table id="<?php print $this->action; ?>_co_expiration_policies3">
       <tbody>
         <!-- Actions -->
         <tr>

@@ -62,7 +62,7 @@
     <?php print _txt('er.plugin.none', array(_txt('ct.org_identity_sources.pl'))); ?>
   </div>
 <?php else: /* plugins */ ?>
-  <table id="<?php print $this->action; ?>_org_identity_source" class="ui-widget">
+  <table id="<?php print $this->action; ?>_org_identity_source">
     <tbody>
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>

@@ -94,7 +94,7 @@
 
 <table id="co_people">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('EnrolleePrimaryName.family', _txt('fd.enrollee')); ?></th>
       <th><?php print $this->Paginator->sort('CoPetition.status', _txt('fd.status')); ?></th>
       <th><?php print $this->Paginator->sort('CoEnrollmentFlow.name', _txt('ct.co_enrollment_flows.1')); ?></th>

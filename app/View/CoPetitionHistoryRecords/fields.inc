@@ -65,7 +65,7 @@
   $this->Html->addCrumb(_txt('op.petition.comment'));
 
 ?>
-<table id="<?php print $this->action; ?>_co_petition_history_record" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_petition_history_record">
   <tbody>
     <tr class="line1">
       <td>

@@ -75,7 +75,7 @@
 
 <table id="co_notifications">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('action', _txt('fd.action')); ?></th>
       <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
       <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>

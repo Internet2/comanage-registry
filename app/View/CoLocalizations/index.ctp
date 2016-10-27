@@ -49,9 +49,9 @@
 
 ?>
 
-<table id="co_localizations" class="ui-widget">
+<table id="co_localizations">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('lkey', _txt('fd.key')); ?></th>
       <th><?php print $this->Paginator->sort('language', _txt('fd.language')); ?></th>
       <th><?php print $this->Paginator->sort('text', _txt('fd.text')); ?></th>
@@ -113,7 +113,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="4">
         <?php print $this->element("pagination"); ?>
       </th>

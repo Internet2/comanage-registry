@@ -1256,6 +1256,18 @@ ul.form-list select {
 ul.form-list li.fields-submit .required {
   font-style: italic;
 }
+ul.form-list li.indented {
+  border-left: 8px solid #53b1f4;
+}
+ul.form-list li.field-stack .field-name,
+ul.form-list li.field-stack .field-info {
+  display: block;
+  width: 97%;
+}
+ul.form-list li.field-stack textarea {
+  margin: 0;
+  width: 100%;
+}
 .checkbox {
   margin-bottom: 0.5em;
 }
@@ -1269,6 +1281,16 @@ ul.form-list li.fields-submit .required {
 }
 .checkbox label::first-line {
   margin-left: 0;
+}
+.checkbox .subfield {
+  margin-left: 1.5em;
+}
+.checkbox .subfield input {
+  float: none;
+}
+.checkbox .subfield label {
+  display: inline;
+  margin: 0;
 }
 /* XXX determine which among the following five rules are still in use */
 .required-info {

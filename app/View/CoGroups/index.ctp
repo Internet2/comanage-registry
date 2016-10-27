@@ -297,7 +297,7 @@
 
 <table id="co_groups">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
       <th><?php print $this->Paginator->sort('open', _txt('fd.open')); ?></th>

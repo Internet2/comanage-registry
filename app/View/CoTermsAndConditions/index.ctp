@@ -49,9 +49,9 @@
   
 ?>
 
-<table id="cous" class="ui-widget">
+<table id="cous">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <th><?php print $this->Paginator->sort('cou', _txt('fd.cou')); ?></th>
@@ -123,7 +123,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="4">
         <?php print $this->element("pagination"); ?>
       </th>

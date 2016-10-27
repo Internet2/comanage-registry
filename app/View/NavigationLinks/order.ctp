@@ -90,9 +90,9 @@
   });
 </script>
 
-<table id="navigation_links" class="ui-widget">  
+<table id="navigation_links">  
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.ea.order'); ?></th>
       <th><?php print _txt('fd.link.title'); ?></th>
       <th><?php print _txt('fd.link.url'); ?></th>
@@ -122,7 +122,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="4">
         <?php print $this->element("pagination"); ?>
       </th>

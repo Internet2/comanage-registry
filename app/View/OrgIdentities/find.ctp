@@ -50,9 +50,9 @@
   <?php print _txt('in.orgid.co'); ?>
 </div>
 
-<table id="org_identities" class="ui-widget">
+<table id="org_identities">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
       <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
@@ -113,7 +113,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="8">
         <?php print $this->element("pagination"); ?>
       </th>

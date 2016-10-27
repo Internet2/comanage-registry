@@ -174,7 +174,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="7">
         <?php print $this->element("pagination"); ?>
       </th>

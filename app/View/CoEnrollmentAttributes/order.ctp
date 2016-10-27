@@ -110,9 +110,9 @@
   });
 </script>
 
-<table id="enrollment_attributes" class="ui-widget">
+<table id="enrollment_attributes">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.ea.order'); ?></th>
       <th><?php print _txt('fd.ea.label'); ?></th>
       <th><?php print _txt('fd.attribute'); ?></th>
@@ -140,7 +140,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="3">
         <?php print $this->element("pagination"); ?>
       </th>

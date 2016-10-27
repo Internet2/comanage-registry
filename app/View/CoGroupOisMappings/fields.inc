@@ -46,7 +46,7 @@
   
   print $this->Form->hidden('org_identity_source_id', array('default' => $vv_ois_id)) . "\n";
 ?>
-<table id="<?php print $this->action; ?>_co_group_ois_mapping" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_group_ois_mapping">
   <tbody>
     <tr class="line1">
       <td>

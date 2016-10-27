@@ -96,9 +96,9 @@
   });
 </script>
 
-<table id="provisioning_targets" class="ui-widget">
+<table id="provisioning_targets">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.order'); ?></th>
       <th><?php print _txt('fd.desc'); ?></th>
       <th><?php print _txt('fd.plugin'); ?></th>
@@ -125,7 +125,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="3">
         <?php print $this->element("pagination"); ?>
       </th>

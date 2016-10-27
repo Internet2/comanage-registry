@@ -78,9 +78,9 @@
 
 ?>
 
-<table id="co_enrollment_attributes" class="ui-widget">
+<table id="co_enrollment_attributes">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('label', _txt('fd.ea.label')); ?></th>
       <th><?php print $this->Paginator->sort('attribute', _txt('fd.attribute')); ?></th>
       <th><?php print $this->Paginator->sort('ordr', _txt('fd.ea.order')); ?></th>
@@ -144,7 +144,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="5">
         <?php print $this->element("pagination"); ?>
       </th>

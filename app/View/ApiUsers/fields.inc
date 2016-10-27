@@ -43,7 +43,7 @@
   <i class="material-icons">info</i>
   <?php print _txt('ap.note.privs'); ?>
 </div>
-<table id="<?php print $this->action; ?>_api_users" class="ui-widget">
+<table id="<?php print $this->action; ?>_api_users">
   <tbody>
     <tr class="line1">
       <th>

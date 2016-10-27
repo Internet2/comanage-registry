@@ -73,7 +73,7 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_enrollment_source" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_enrollment_source">
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>

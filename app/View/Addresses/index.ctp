@@ -30,9 +30,9 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<table id="addresses" class="ui-widget">
+<table id="addresses">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('street', _txt('fd.address.street')); ?></th>
       <th><?php print $this->Paginator->sort('type', _txt('fd.type')); ?></th>
       <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
@@ -113,7 +113,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="5">
         <?php print $this->element("pagination"); ?>
       </th>

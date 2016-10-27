@@ -26,9 +26,9 @@
   print $this->element("pageTitle", $params);
 ?>
 
-<table id="identifiers" class="ui-widget">
+<table id="identifiers">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('identifier', _txt('fd.identifier.identifier')); ?></th>
       <th><?php print $this->Paginator->sort('type', _txt('fd.type')); ?></th>
       <th><?php print $this->Paginator->sort('login', _txt('fd.identifier.login')); ?></th>
@@ -127,7 +127,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="6">
         <?php print $this->element("pagination"); ?>
       </th>

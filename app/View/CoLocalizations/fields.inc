@@ -65,7 +65,7 @@
     populate_default_text();
   }
 </script>
-<table id="<?php print $this->action; ?>_co_localizations" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_localizations">
   <tbody>
     <tr class="line1">
       <td>

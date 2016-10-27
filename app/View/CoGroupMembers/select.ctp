@@ -62,9 +62,9 @@
 
 ?>
 
-<table id="co_people" class="ui-widget">
+<table id="co_people">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.name'); ?></th>
       <th><?php print _txt('fd.co_people.status'); ?></th>
       <th><?php print _txt('fd.perms'); ?></th>
@@ -133,7 +133,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="3">
       </th>
     </tr>

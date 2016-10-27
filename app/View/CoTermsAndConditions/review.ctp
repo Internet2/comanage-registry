@@ -97,9 +97,9 @@
     <?php print _txt('fd.tc.agree.login'); ?>
   </div>
 <?php endif; // mode=login ?>
-<table id="cous" class="ui-widget">
+<table id="cous">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.desc'); ?></th>
       <th><?php print _txt('fd.status'); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>

@@ -34,9 +34,9 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<table id="org_identity_sources" class="ui-widget">
+<table id="org_identity_sources">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.name'); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
     </tr>
@@ -77,7 +77,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="2">
       </th>
     </tr>

@@ -302,7 +302,7 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_enrollment_attribute" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_enrollment_attribute">
   <tbody>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td width="50%"> <!-- force a width here and below so the two tables line up -->

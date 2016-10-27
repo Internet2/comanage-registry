@@ -52,7 +52,7 @@
   <?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?>
 </div>
 <?php else: /* plugins */ ?>
-<table id="<?php print $this->action; ?>_co_provisioning_target" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_provisioning_target">
   <tbody>
     <tr class="line1">
       <td>

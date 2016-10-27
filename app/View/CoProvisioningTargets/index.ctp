@@ -232,9 +232,9 @@
   });
 </script>
 
-<table id="cos" class="ui-widget">
+<table id="cos">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
       <th><?php print $this->Paginator->sort('plugin', _txt('fd.plugin')); ?></th>
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
@@ -336,7 +336,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="5">
         <?php print $this->element("pagination"); ?>
       </th>

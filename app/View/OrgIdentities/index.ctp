@@ -84,9 +84,9 @@ if(isset($permissions['search']) && $permissions['search'] ) {
 }
 ?>
 
-<table id="org_identities" class="ui-widget">
+<table id="org_identities">
   <thead>
-  <tr class="ui-widget-header">
+  <tr>
     <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
     <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
     <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>

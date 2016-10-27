@@ -47,7 +47,7 @@
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
 
-<table id="<?php print $this->action; ?>_co_link" class="ui-widget">
+<table id="<?php print $this->action; ?>_co_link">
   <tbody>
     <tr class="line1">
       <td>

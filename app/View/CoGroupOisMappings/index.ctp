@@ -56,9 +56,9 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<table id="co_group_ois_mappings" class="ui-widget">
+<table id="co_group_ois_mappings">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('attribute', _txt('fd.attribute')); ?></th>
       <th><?php print $this->Paginator->sort('comparison', _txt('fd.comparison')); ?></th>
       <th><?php print $this->Paginator->sort('pattern', _txt('fd.pattern')); ?></th>
@@ -139,7 +139,7 @@
   </tbody>
   
   <tfoot>
-    <tr class="ui-widget-header">
+    <tr>
       <th colspan="5">
         <?php print $this->element("pagination"); ?>
       </th>
