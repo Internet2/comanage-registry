@@ -48,8 +48,6 @@
       print $this->Html->css('mdl/mdl-1.2.0/material.css') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
-      // load legacy styles while site is undergoing layout transition
-      print $this->Html->css('co-legacy') . "\n    ";
     ?>
 
     <!-- Load JavaScript -->

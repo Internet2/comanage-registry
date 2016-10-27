@@ -57,8 +57,6 @@
       print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
-      // load legacy styles while site is undergoing layout transition
-      print $this->Html->css('co-legacy') . "\n    ";
       
       // Until used more broadly, limit loading of Magnific Popup
       if ($this->controller = 'history_records') {
