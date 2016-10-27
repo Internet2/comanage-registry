@@ -1257,7 +1257,8 @@ ul.form-list li.fields-submit .required {
   font-style: italic;
 }
 ul.form-list li.indented {
-  border-left: 8px solid #53b1f4;
+  border-left: 8px solid #AED9F9;
+  margin: 0 0 0 0.5em;
 }
 ul.form-list li.field-stack .field-name,
 ul.form-list li.field-stack .field-info {

@@ -489,7 +489,7 @@
                    : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_subject'])); ?>
     </div>
   </li>
-  <li class="indented">
+  <li class="indented field-stack">
     <div class="field-name">
       <div class="field-title">
         <?php print ($e ? $this->Form->label('verification_body', _txt('fd.ef.vbody')) : _txt('fd.ef.vbody')); ?>
@@ -650,7 +650,7 @@
                    : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_subject'])); ?>
     </div>
   </li>
-  <li class="indented" style="display:none">
+  <li class="indented field-stack" style="display:none">
     <div class="field-name">
       <div class="field-title">
         <?php print ($e ? $this->Form->label('approval_body', _txt('fd.ef.abody')) : _txt('fd.ef.abody')); ?>
