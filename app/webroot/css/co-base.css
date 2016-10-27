@@ -199,7 +199,18 @@ body.logged-in #user-menu {
 #notifications .notification-created a {
   color: #444;
 }
-/* Notification table */
+/* Notification page */
+ul.form-list.notification-list .field-name {
+  font-weight: bold;
+  vertical-align: top;
+  max-width: 240px;
+}
+ul.form-list.notification-list .field-info {
+  vertical-align: top;
+}
+.field-email p {
+  margin-bottom: 0.25em;
+}
 form#notificationStatus {
   clear: left;
   margin: 0.5em 0;

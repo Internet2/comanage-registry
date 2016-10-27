@@ -51,197 +51,218 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_localizations" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.comment'); ?></b>
-      </td>
-      <td>
-        <?php print Sanitize::html($co_notifications[0]['CoNotification']['comment']); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.status'); ?></b>
-      </td>
-      <td>
-        <?php
-          print '<div class="notificationStatus">' . _txt('en.status.not', null, $co_notifications[0]['CoNotification']['status']) . '</div>';
+<ul id="<?php print $this->action; ?>_co_notification" class="fields form-list notification-list">
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.comment'); ?>
+    </div>
+    <div class="field-info">
+      <?php print filter_var($co_notifications[0]['CoNotification']['comment'], FILTER_SANITIZE_STRING); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.status'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        print '<div class="notificationStatus">' . _txt('en.status.not', null, $co_notifications[0]['CoNotification']['status']) . '</div>';
+        
+        if($co_notifications[0]['CoNotification']['status'] == NotificationStatusEnum::PendingAcknowledgment
+           && $permissions['acknowledge']) {
+          print $this->Html->link(
+            _txt('op.ack'),
+            array(
+              'controller' => 'co_notifications',
+              'action'     => 'acknowledge',
+              $co_notifications[0]['CoNotification']['id']
+            ),
+            array('class' => 'checkbutton')
+          );
+        }
+        
+        // This is not else/if because someone could have permission to either ack or cancel
+        if(($co_notifications[0]['CoNotification']['status'] == NotificationStatusEnum::PendingAcknowledgment
+            || $co_notifications[0]['CoNotification']['status'] == NotificationStatusEnum::PendingResolution)
+           && $permissions['cancel']) {
+          print $this->Html->link(
+            _txt('op.cancel'),
+            array(
+              'controller' => 'co_notifications',
+              'action'     => 'cancel',
+              $co_notifications[0]['CoNotification']['id']
+            ),
+            array('class' => 'cancelbutton')
+          );
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.source'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($co_notifications[0]['CoNotification']['source_url'])) {
+          print $this->Html->link(
+            $co_notifications[0]['CoNotification']['source_url'],
+            $co_notifications[0]['CoNotification']['source_url']
+          );
+        } elseif(!empty($co_notifications[0]['CoNotification']['source_controller'])) {
+          print $this->Html->link(
+            $co_notifications[0]['CoNotification']['source_controller'],
+            array(
+              'controller' => $co_notifications[0]['CoNotification']['source_controller'],
+              'action'     => $co_notifications[0]['CoNotification']['source_action'],
+              $co_notifications[0]['CoNotification']['source_id'],
+              // Inject the CO ID in case it's needed
+              'co'         => $cur_co['Co']['id']
+            )
+          );
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.subject'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($co_notifications[0]['SubjectCoPerson']['PrimaryName'])) {
+          print generateCn($co_notifications[0]['SubjectCoPerson']['PrimaryName']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.recipient'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($co_notifications[0]['RecipientCoPerson']['PrimaryName'])) {
+          print generateCn($co_notifications[0]['RecipientCoPerson']['PrimaryName']);
+        } elseif(!empty($co_notifications[0]['RecipientCoGroup']['name'])) {
+          print $co_notifications[0]['RecipientCoGroup']['name'];
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.actor'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($co_notifications[0]['ActorCoPerson']['PrimaryName'])) {
+          print generateCn($co_notifications[0]['ActorCoPerson']['PrimaryName']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.action'); ?>
+    </div>
+    <div class="field-info">
+      <?php print filter_var($co_notifications[0]['CoNotification']['action'], FILTER_SANITIZE_STRING); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.created'); ?>
+    </div>
+    <div class="field-info">
+      <?php print $this->Time->format($co_notifications[0]['CoNotification']['created'], "%c $vv_tz", false, $vv_tz); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.not.last'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($co_notifications[0]['CoNotification']['notification_time'])) {
+          print $this->Time->format($co_notifications[0]['CoNotification']['notification_time'], "%c $vv_tz", false, $vv_tz);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.resolved'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($co_notifications[0]['CoNotification']['resolution_time'])) {
+          print $this->Time->format($co_notifications[0]['CoNotification']['resolution_time'], "%c $vv_tz", false, $vv_tz);
           
-          if($co_notifications[0]['CoNotification']['status'] == NotificationStatusEnum::PendingAcknowledgment
-             && $permissions['acknowledge']) {
-            print $this->Html->link(
-              _txt('op.ack'),
-              array(
-                'controller' => 'co_notifications',
-                'action'     => 'acknowledge',
-                $co_notifications[0]['CoNotification']['id']
-              ),
-              array('class' => 'checkbutton')
-            );
+          if(!empty($co_notifications[0]['ResolverCoPerson']['PrimaryName'])) {
+            print " (" . generateCn($co_notifications[0]['ResolverCoPerson']['PrimaryName']) . ")";
           }
-          
-          // This is not else/if because someone could have permission to either ack or cancel
-          if(($co_notifications[0]['CoNotification']['status'] == NotificationStatusEnum::PendingAcknowledgment
-              || $co_notifications[0]['CoNotification']['status'] == NotificationStatusEnum::PendingResolution)
-             && $permissions['cancel']) {
-            print $this->Html->link(
-              _txt('op.cancel'),
-              array(
-                'controller' => 'co_notifications',
-                'action'     => 'cancel',
-                $co_notifications[0]['CoNotification']['id']
-              ),
-              array('class' => 'cancelbutton')
-            );
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.source'); ?></b>
-      </td>
-      <td>
-        <?php
-          if(!empty($co_notifications[0]['CoNotification']['source_url'])) {
-            print $this->Html->link(
-              $co_notifications[0]['CoNotification']['source_url'],
-              $co_notifications[0]['CoNotification']['source_url']
-            );
-          } elseif(!empty($co_notifications[0]['CoNotification']['source_controller'])) {
-            print $this->Html->link(
-              $co_notifications[0]['CoNotification']['source_controller'],
-              array(
-                'controller' => $co_notifications[0]['CoNotification']['source_controller'],
-                'action'     => $co_notifications[0]['CoNotification']['source_action'],
-                $co_notifications[0]['CoNotification']['source_id'],
-                // Inject the CO ID in case it's needed
-                'co'         => $cur_co['Co']['id']
-              )
-            );
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.subject'); ?></b>
-      </td>
-      <td>
-        <?php
-          if(!empty($co_notifications[0]['SubjectCoPerson']['PrimaryName'])) {
-            print generateCn($co_notifications[0]['SubjectCoPerson']['PrimaryName']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.recipient'); ?></b>
-      </td>
-      <td>
-        <?php
-          if(!empty($co_notifications[0]['RecipientCoPerson']['PrimaryName'])) {
-            print generateCn($co_notifications[0]['RecipientCoPerson']['PrimaryName']);
-          } elseif(!empty($co_notifications[0]['RecipientCoGroup']['name'])) {
-            print $co_notifications[0]['RecipientCoGroup']['name'];
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.actor'); ?></b>
-      </td>
-      <td>
-        <?php
-          if(!empty($co_notifications[0]['ActorCoPerson']['PrimaryName'])) {
-            print generateCn($co_notifications[0]['ActorCoPerson']['PrimaryName']);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.action'); ?></b>
-      </td>
-      <td>
-        <?php print Sanitize::html($co_notifications[0]['CoNotification']['action']); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.created'); ?></b>
-      </td>
-      <td>
-        <?php print $this->Time->format($co_notifications[0]['CoNotification']['created'], "%c $vv_tz", false, $vv_tz); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.not.last'); ?></b>
-      </td>
-      <td>
-        <?php
-          if(!empty($co_notifications[0]['CoNotification']['notification_time'])) {
-            print $this->Time->format($co_notifications[0]['CoNotification']['notification_time'], "%c $vv_tz", false, $vv_tz);
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.resolved'); ?></b>
-      </td>
-      <td>
-        <?php
-          if(!empty($co_notifications[0]['CoNotification']['resolution_time'])) {
-            print $this->Time->format($co_notifications[0]['CoNotification']['resolution_time'], "%c $vv_tz", false, $vv_tz);
-            
-            if(!empty($co_notifications[0]['ResolverCoPerson']['PrimaryName'])) {
-              print " (" . generateCn($co_notifications[0]['ResolverCoPerson']['PrimaryName']) . ")";
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.not.email.subject'); ?>
+    </div>
+    <div class="field-info">
+      <?php print filter_var($co_notifications[0]['CoNotification']['email_subject'], FILTER_SANITIZE_STRING); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.not.email.body'); ?>
+    </div>
+    <div class="field-info field-email">
+      <?php
+        $fieldString = filter_var($co_notifications[0]['CoNotification']['email_body'], FILTER_SANITIZE_STRING);
+        $regexUrlFinder = "/(http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/";
+        foreach (explode(PHP_EOL, $fieldString) as $line) {
+          if (trim($line)) {
+            print '<p>';
+            if (preg_match($regexUrlFinder, $line, $uri)) {
+              print preg_replace($regexUrlFinder, '<a href="' . $uri[0] . '">' . $uri[0] . '</a> ', $line);
+            } else {
+              print $line;
             }
+            print '</p>';
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.not.email.subject'); ?></b>
-      </td>
-      <td>
-        <?php print Sanitize::html($co_notifications[0]['CoNotification']['email_subject']); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.not.email.body'); ?></b>
-      </td>
-      <td>
-        <pre>
-          <?php print Sanitize::html($co_notifications[0]['CoNotification']['email_body']); ?>
-        </pre>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.not.res.subject'); ?></b>
-      </td>
-      <td>
-        <?php print Sanitize::html($co_notifications[0]['CoNotification']['resolution_subject']); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.not.res.body'); ?></b>
-      </td>
-      <td>
-        <pre>
-          <?php print Sanitize::html($co_notifications[0]['CoNotification']['resolution_body']); ?>
-        </pre>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.not.res.subject'); ?>
+    </div>
+    <div class="field-info">
+      <?php print filter_var($co_notifications[0]['CoNotification']['resolution_subject'],FILTER_SANITIZE_STRING); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.not.res.body'); ?>
+    </div>
+    <div class="field-info field-email">
+      <?php
+        $fieldString = filter_var($co_notifications[0]['CoNotification']['resolution_body'],FILTER_SANITIZE_STRING);
+        foreach (explode(PHP_EOL, $fieldString) as $line) {
+          if (trim($line)) {
+            print '<p>';
+            if (preg_match($regexUrlFinder, $line, $uri)) {
+              print preg_replace($regexUrlFinder, '<a href="' . $uri[0] . '">' . $uri[0] . '</a> ', $line);
+            } else {
+              print $line;
+            }
+            print '</p>';
+          }
+        }
+      ?>
+    </div>
+  </li>
+</ul>
