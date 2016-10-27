@@ -136,9 +136,6 @@
     width: 65%;
   }
   /* PETITION ATTRIBUTES */
-  .modelbox {
-    margin-right: 0.5em;
-  }
   .modelbox .mdl-textfield {
     display: block;
     width: 100%;
@@ -353,6 +350,13 @@
   /* PERSON and ORGID CANVAS*/
   .personExplorer ul ul {
     margin-left: 1em;
+  }
+  /* PETITION ATTRIBUTES */
+  .modelbox {
+    margin: 0 0 1em 1em;
+  }
+  body.petitionerAttributes .modelbox {
+    margin: 0 0.5em 1.5em 0;
   }
 }
 
