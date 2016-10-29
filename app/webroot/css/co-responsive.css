@@ -123,9 +123,6 @@
   ul.form-list input[type="number"] {
     width: 97%;
   }
-  ul.form-list li.indented {
-    margin-left: 1.5em !important;
-  }
   ul.form-list li.field-stack textarea {
     margin-left: 0.5em;
   }

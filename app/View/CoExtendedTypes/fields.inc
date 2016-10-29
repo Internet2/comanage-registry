@@ -56,118 +56,117 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_extended_type">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.attribute'); ?></strong>
-      </td>
-      <td>
-        <?php
-          if(isset($vv_supported_attrs[ $attr ])) {
-            print $vv_supported_attrs[ $attr ];
-          } else {
-            print $attr;
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
-        </strong><span class="required">*</span><br />
-        <span class="desc"><?php print _txt('fd.an.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_types[0]['CoExtendedType']['name'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('display_name', _txt('fd.name.d')) : _txt('fd.name.d')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_types[0]['CoExtendedType']['display_name'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
-        </strong><span class="required">*</span><br />
-        <span class="desc"><?php print _txt('fd.status.et.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_extended_types) ? $co_extended_types[0]['CoExtendedType']['status'] : SuspendableStatusEnum::Active);
-          $attrs['empty'] = false;
-          if($vv_type_in_use) {
-            // A type in use cannot be suspended (see controller for more details)
-            $attrs['disabled'] = true;
-            
-            print $this->Form->hidden('status', array('default' => true)) . "\n";
-          }
+<ul id="<?php print $this->action; ?>_co_extended_type" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.attribute'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        if(isset($vv_supported_attrs[ $attr ])) {
+          print $vv_supported_attrs[ $attr ];
+        } else {
+          print $attr;
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.an.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_types[0]['CoExtendedType']['name'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('display_name', _txt('fd.name.d')) : _txt('fd.name.d')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_types[0]['CoExtendedType']['display_name'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.status.et.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_extended_types) ? $co_extended_types[0]['CoExtendedType']['status'] : SuspendableStatusEnum::Active);
+        $attrs['empty'] = false;
+        if($vv_type_in_use) {
+          // A type in use cannot be suspended (see controller for more details)
+          $attrs['disabled'] = true;
           
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.susp'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            print _txt('en.status.susp', null, $co_extended_types[0]['CoExtendedType']['status']);
-          }
-        ?>
-      </td>
-    </tr>
-    <?php if($attr == 'CoPersonRole.affiliation'): // Affiliations can map to eduPersonAffiliations ?>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('edupersonaffiliation', _txt('fd.affiliation.ep')) : _txt('fd.affiliation.ep')); ?>
-        </strong><br />
-        <span class="desc"><?php print _txt('fd.affiliation.ep.map.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_extended_types) ? $co_extended_types[0]['CoExtendedType']['edupersonaffiliation'] : "");
-          $attrs['empty'] = true;
+          print $this->Form->hidden('status', array('default' => true)) . "\n";
+        }
+        
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
           
-          if($e) {
-            print $this->Form->select('edupersonaffiliation',
-                                      $cm_texts[ $cm_lang ]['en.co_person_role.affiliation'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('edupersonaffiliation')) {
-              print $this->Form->error('edupersonaffiliation');
-            }
-          } else {
-            print _txt('en.co_person_role.affiliation', null, $co_extended_types[0]['CoExtendedType']['edupersonaffiliation']);
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
           }
-        ?>
-      </td>
-    </tr>
-    <?php endif; // affiliation ?>
-    <tr>
-      <td>
-        <span class="desc"><span class="required"><?php print _txt('fd.req'); ?></span></span><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
+        } else {
+          print _txt('en.status.susp', null, $co_extended_types[0]['CoExtendedType']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <?php if($attr == 'CoPersonRole.affiliation'): // Affiliations can map to eduPersonAffiliations ?>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('edupersonaffiliation', _txt('fd.affiliation.ep')) : _txt('fd.affiliation.ep')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.affiliation.ep.map.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_extended_types) ? $co_extended_types[0]['CoExtendedType']['edupersonaffiliation'] : "");
+        $attrs['empty'] = true;
+        
+        if($e) {
+          print $this->Form->select('edupersonaffiliation',
+                                    $cm_texts[ $cm_lang ]['en.co_person_role.affiliation'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('edupersonaffiliation')) {
+            print $this->Form->error('edupersonaffiliation');
           }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        } else {
+          print _txt('en.co_person_role.affiliation', null, $co_extended_types[0]['CoExtendedType']['edupersonaffiliation']);
+        }
+      ?>
+    </div>
+  </li>
+  <?php endif; // affiliation ?>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

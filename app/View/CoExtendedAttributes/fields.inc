@@ -46,84 +46,83 @@
 
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
-<table id="<?php print $this->action; ?>_co_extended_attribute">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
-        </strong><span class="required">*</span><br />
-        <span class="desc"><?php print _txt('fd.lan.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('display_name', _txt('fd.name.d')) : _txt('fd.name.d')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['display_name'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e && $this->action=='add' ? $this->Form->label('type', _txt('fd.type')) : _txt('fd.type')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_extended_attributes) ? $co_extended_attributes[0]['CoExtendedAttribute']['type'] : "");
-          $attrs['empty'] = false;
-          
-          if($e && $this->action=='add') {
-            print $this->Form->select('type',
-                                      $cm_texts[ $cm_lang ]['en.extattr'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('type')) {
-              print $this->Form->error('type');
-            }
-          } else {
-            print _txt('en.extattr', null, $co_extended_attributes[0]['CoExtendedAttribute']['type']);
+<ul id="<?php print $this->action; ?>_co_extended_attribute" class="fields form-list">
+  <li>
+    <div class="field-name vtop">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
+      <div class="field-desc"><?php print _txt('fd.lan.desc'); ?></div>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('display_name', _txt('fd.name.d')) : _txt('fd.name.d')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['display_name'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name vtop">
+      <div class="field-title">
+        <?php print ($e && $this->action=='add' ? $this->Form->label('type', _txt('fd.type')) : _txt('fd.type')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs['value'] = (isset($co_extended_attributes) ? $co_extended_attributes[0]['CoExtendedAttribute']['type'] : "");
+        $attrs['empty'] = false;
+
+        if($e && $this->action=='add') {
+          print $this->Form->select('type',
+                                    $cm_texts[ $cm_lang ]['en.extattr'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('type')) {
+            print $this->Form->error('type');
           }
-          
-          // Emit data type to make validation work
-          if($e && $this->action=='edit')
-            print $this->Form->hidden('type');
-        ?>
-        <p>
-          <span class="ui-icon ui-icon-info co-info"></span>
-          <span class="desc"><?php print _txt('fd.type.warn'); ?></span>
-        </p>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.index'); ?></strong>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('indx') . ' ' . $this->Form->label('indx', _txt('fd.index'))
-                     : ($co_extended_attributes[0]['CoExtendedAttribute']['type'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <span class="desc"><span class="required"><?php print _txt('fd.req'); ?></span></span><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        } else {
+          print _txt('en.extattr', null, $co_extended_attributes[0]['CoExtendedAttribute']['type']);
+        }
+
+        // Emit data type to make validation work
+        if($e && $this->action=='edit')
+          print $this->Form->hidden('type');
+      ?>
+      <div class="field-desc">
+        <span class="ui-icon ui-icon-info co-info"></span>
+        <?php print _txt('fd.type.warn'); ?>
+      </div>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.index'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('indx') . ' ' . $this->Form->label('indx', _txt('fd.index'))
+                   : ($co_extended_attributes[0]['CoExtendedAttribute']['type'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

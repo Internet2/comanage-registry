@@ -1046,6 +1046,33 @@ a#top-search-toggle:hover {
 .side-search label {
   display: none;
 }
+/* top filter form, similar to top search */
+.top-filter {
+  clear: both;
+  margin: 0.5em 0;
+  padding: 0.25em 0.5em;
+  background-color: #eee;
+}
+.top-filter .filters {
+  position: relative;
+  top: 2px;
+}
+.top-filter select {
+  box-sizing: border-box;
+  margin: 0;
+  height: 28px;
+  padding: 2px 4px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  width: 60%
+}
+.top-filter .submit-button {
+  font-size: 0.9em;
+  width: 80px;
+  line-height: 24px;
+  height: 28px;
+  margin: 0.25em;
+}
 /* PERSON CANVAS */
 .personExplorer ul {
   margin: 0;
@@ -1236,6 +1263,9 @@ ul.form-list .field-desc {
   font-size: 0.9em;
   font-style: italic;
 }
+ul.form-list .fields-header {
+  background-color: #fff;
+}
 ul.form-list input[type="text"],
 ul.form-list input[type="number"] {
   width: 95%;
@@ -1256,9 +1286,24 @@ ul.form-list select {
 ul.form-list li.fields-submit .required {
   font-style: italic;
 }
-ul.form-list li.indented {
-  border-left: 8px solid #AED9F9;
-  margin: 0 0 0 0.5em;
+ul.field-children {
+  margin: 0.5em;
+  padding: 0;
+}
+ul.field-children li {
+  margin: 0;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+ul.field-children li:nth-child(1) {
+  border-top: 1px solid #ccc;
+}
+ul.field-children li:nth-child(odd) {
+  background-color: #f8f8f8;
+}
+ul.field-children li:nth-child(even) {
+  background-color: #ddd;
 }
 ul.form-list li.field-stack .field-name,
 ul.form-list li.field-stack .field-info {

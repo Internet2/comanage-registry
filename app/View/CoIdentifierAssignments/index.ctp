@@ -285,15 +285,9 @@
     <?php $i++; ?>
   <?php endforeach; ?>
   </tbody>
-
-  <tfoot>
-  <tr>
-    <th colspan="3">
-      <?php print $this->element("pagination"); ?>
-    </th>
-  </tr>
-  </tfoot>
 </table>
+
+<?php print $this->element("pagination"); ?>
 
 <div id="progressbar-dialog" title="<?php print _txt('op.id.auto'); ?>">
   <p><?php print _txt('op.id.auto.wait'); ?></p>
