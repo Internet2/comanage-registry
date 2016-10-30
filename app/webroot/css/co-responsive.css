@@ -124,7 +124,7 @@
     width: 97%;
   }
   ul.form-list li.field-stack textarea {
-    margin-left: 0.5em;
+    margin: 0.5em 0 0.5em 0.5em;
   }
   /* ORG IDS */
   body.org_identities.edit ul.form-list .field-name {

@@ -38,53 +38,59 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_orcid_source" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.orcidsource.redirect_url'); ?>
-      </td>
-      <td>
-        <input type="text" readonly="true" size="60" value="<?php print $this->Html->url($vv_orcid_redirect_url, true); ?>" />
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td style="width:50%">
-        <strong class="fieldTitle"><?php print _txt('pl.orcidsource.description'); ?></strong><font class="required">*</font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('description', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.orcidsource.clientid'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.orcidsource.clientid.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('clientid', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['clientid'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.orcidsource.secret'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.orcidsource.secret.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('client_secret', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['client_secret'])); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<ul id="<?php print $this->action; ?>_orcid_source" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.orcidsource.redirect_url'); ?></div>
+    </div>
+    <div class="field-info">
+      <input type="text" readonly="true" size="60" value="<?php print $this->Html->url($vv_orcid_redirect_url, true); ?>" />
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.orcidsource.description'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('description', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['description'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.orcidsource.clientid'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.orcidsource.clientid.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('clientid', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['clientid'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.orcidsource.secret'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.orcidsource.secret.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('client_secret', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['client_secret'])); ?>
+    </div>
+  </li>
+  
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

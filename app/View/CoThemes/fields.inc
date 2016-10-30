@@ -46,91 +46,87 @@
   
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
-<table id="<?php print $this->action; ?>_co_themes">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('name', array('size' => '80','class' => 'focusFirst'))
-                     : Sanitize::html($co_themes[0]['CoTheme']['name'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('hide_title', _txt('fd.th.hide_title')) : _txt('fd.th.hide_title')); ?>
-        </strong>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('hide_title')
-                     : ($co_themes[0]['CoTheme']['hide_title'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('hide_footer_logo', _txt('fd.th.hide_footer_logo')) : _txt('fd.th.hide_foooter')); ?>
-        </strong>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('hide_footer_logo')
-                     : ($co_themes[0]['CoTheme']['hide_footer_logo'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('header', _txt('fd.th.header')) : _txt('fd.th.header')); ?>
-        </strong>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('header')
-                     : Sanitize::html($co_themes[0]['CoTheme']['header'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('footer', _txt('fd.th.footer')) : _txt('fd.th.footer')); ?>
-        </strong>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('footer')
-                     : Sanitize::html($co_themes[0]['CoTheme']['footer'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('css', _txt('fd.th.css')) : _txt('fd.th.css')); ?>
-        </strong>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('css')
-                     : Sanitize::html($co_themes[0]['CoTheme']['css'])); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
+<ul id="<?php print $this->action; ?>_co_themes" class="field form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('name', array('size' => '80','class' => 'focusFirst'))
+                   : Sanitize::html($co_themes[0]['CoTheme']['name'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.th.hide_title'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('hide_title') . ' ' . $this->Form->label('hide_title', _txt('fd.th.hide_title'))
+                      :  ($co_themes[0]['CoTheme']['hide_title'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.th.hide_footer_logo'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('hide_footer_logo') . ' ' .  $this->Form->label('hide_footer_logo', _txt('fd.th.hide_footer_logo'))
+                   : ($co_themes[0]['CoTheme']['hide_footer_logo'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('header', _txt('fd.th.header')) : _txt('fd.th.header')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('header')
+                   : Sanitize::html($co_themes[0]['CoTheme']['header'])); ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('footer', _txt('fd.th.footer')) : _txt('fd.th.footer')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('footer')
+                   : Sanitize::html($co_themes[0]['CoTheme']['footer'])); ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('css', _txt('fd.th.css')) : _txt('fd.th.css')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('css')
+                   : Sanitize::html($co_themes[0]['CoTheme']['css'])); ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

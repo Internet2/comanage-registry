@@ -94,109 +94,110 @@
 
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_self_service_permissions">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('model', _txt('fd.model')) : _txt('fd.model')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (isset($co_self_service_permissions[0]['CoSelfServicePermission']['model'])
-                             ? $co_self_service_permissions[0]['CoSelfServicePermission']['model']
-                             : 0);
-          $attrs['empty'] = false;
-          $attrs['onchange'] = "update_type_select();";
+<ul id="<?php print $this->action; ?>_co_self_service_permissions" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('model', _txt('fd.model')) : _txt('fd.model')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_self_service_permissions[0]['CoSelfServicePermission']['model'])
+                           ? $co_self_service_permissions[0]['CoSelfServicePermission']['model']
+                           : 0);
+        $attrs['empty'] = false;
+        $attrs['onchange'] = "update_type_select();";
+        
+        if($e) {
+          print $this->Form->select('model',
+                                    $models,
+                                    $attrs);
           
-          if($e) {
-            print $this->Form->select('model',
-                                      $models,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('model')) {
-              print $this->Form->error('model');
-            }
-          } else {
-            if(!empty($co_self_service_permissions[0]['CoSelfServicePermission']['model'])) {
-              print Sanitize::html($cous[ $co_self_service_permissions[0]['CoSelfServicePermission']['model'] ]);
-            }
+          if($this->Form->isFieldError('model')) {
+            print $this->Form->error('model');
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('type', _txt('fd.type')) : _txt('fd.type')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.ssp.type.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (isset($co_self_service_permissions[0]['CoSelfServicePermission']['type'])
-                             ? $co_self_service_permissions[0]['CoSelfServicePermission']['type']
-                             : 0);
-          $attrs['empty'] = true;
-          
-          if($e) {
-            print $this->Form->select('type',
-                                      array(), // The available options will be set by update_type_select()
-                                      $attrs);
-            
-            if($this->Form->isFieldError('type')) {
-              print $this->Form->error('type');
-            }
-          } else {
-            if(!empty($co_self_service_permissions[0]['CoSelfServicePermission']['type'])) {
-              print $types[ $co_self_service_permissions[0]['CoSelfServicePermission']['model'] ][ $co_self_service_permissions[0]['CoSelfServicePermission']['type'] ];
-            }
+        } else {
+          if(!empty($co_self_service_permissions[0]['CoSelfServicePermission']['model'])) {
+            print Sanitize::html($cous[ $co_self_service_permissions[0]['CoSelfServicePermission']['model'] ]);
           }
-        ?>
-      </td>
-    </tr>    
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('permission', _txt('fd.perm')) : _txt('fd.perm')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_texts, $cm_lang;
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('type', _txt('fd.type')) : _txt('fd.type')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ssp.type.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_self_service_permissions[0]['CoSelfServicePermission']['type'])
+                           ? $co_self_service_permissions[0]['CoSelfServicePermission']['type']
+                           : 0);
+        $attrs['empty'] = true;
+        
+        if($e) {
+          print $this->Form->select('type',
+                                    array(), // The available options will be set by update_type_select()
+                                    $attrs);
           
-          $attrs = array();
-          $attrs['value'] = (isset($co_self_service_permissions[0]['CoSelfServicePermission']['permission'])
-                             ? $co_self_service_permissions[0]['CoSelfServicePermission']['permission']
-                             : 0);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('permission',
-                                      $cm_texts[ $cm_lang ]['en.permission'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('permission')) {
-              print $this->Form->error('permission');
-            }
-          } else {
-            if(!empty($co_self_service_permissions[0]['CoSelfServicePermission']['permission'])) {
-              print _txt('en.permission', null, $co_self_service_permissions[0]['CoSelfServicePermission']['permission']);
-            }
+          if($this->Form->isFieldError('type')) {
+            print $this->Form->error('type');
           }
-        ?>
-      </td>
-    </tr>
+        } else {
+          if(!empty($co_self_service_permissions[0]['CoSelfServicePermission']['type'])) {
+            print $types[ $co_self_service_permissions[0]['CoSelfServicePermission']['model'] ][ $co_self_service_permissions[0]['CoSelfServicePermission']['type'] ];
+          }
+        }
+      ?>
+    </div>
+  </li>    
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('permission', _txt('fd.perm')) : _txt('fd.perm')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_texts, $cm_lang;
+        
+        $attrs = array();
+        $attrs['value'] = (isset($co_self_service_permissions[0]['CoSelfServicePermission']['permission'])
+                           ? $co_self_service_permissions[0]['CoSelfServicePermission']['permission']
+                           : 0);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('permission',
+                                    $cm_texts[ $cm_lang ]['en.permission'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('permission')) {
+            print $this->Form->error('permission');
+          }
+        } else {
+          if(!empty($co_self_service_permissions[0]['CoSelfServicePermission']['permission'])) {
+            print _txt('en.permission', null, $co_self_service_permissions[0]['CoSelfServicePermission']['permission']);
+          }
+        }
+      ?>
+    </div>
+  </li>
 
-    <?php
-    if($e) {
-      print '<tr><td></td><td>';
-      print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-      print '</td></tr>';
-    }
-    ?>
-  </tbody>
-</table>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name"></div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

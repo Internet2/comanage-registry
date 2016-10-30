@@ -1312,9 +1312,13 @@ ul.form-list li.field-stack .field-info {
   display: block;
   width: 97%;
 }
+ul.form-list textarea {
+  font-size: 0.9em;
+}
 ul.form-list li.field-stack textarea {
   margin: 0;
   width: 100%;
+  resize: vertical;
 }
 .checkbox {
   margin-bottom: 0.5em;
@@ -1447,6 +1451,9 @@ a.desc::before {
 }
 .co-grid > div:nth-child(2) {
   border-top: 1px solid #e8e8e8;
+}
+.fixed-width * {
+  font-family: "Courier New","Courier",monospace !important;
 }
 /* Tables */
 table {

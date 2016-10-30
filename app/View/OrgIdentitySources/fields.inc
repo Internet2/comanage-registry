@@ -66,7 +66,8 @@
     <li>
       <div class="field-name">
         <div class="field-title">
-          <?php print _txt('fd.desc'); ?><span class="required">*</span>
+          <?php print _txt('fd.desc'); ?>
+          <span class="required">*</span>
         </div>
       </div>
       <div class="field-info">
@@ -76,7 +77,8 @@
     <li>
       <div class="field-name">
         <div class="field-title">
-          <?php print _txt('fd.plugin'); ?><span class="required">*</span>
+          <?php print _txt('fd.plugin'); ?>
+          <span class="required">*</span>
         </div>
         <div class="field-desc"><?php print _txt('fd.plugin.warn', array(_txt('ct.org_identity_sources.1'))); ?></div>
       </div>
@@ -129,7 +131,8 @@
     <li>
       <div class="field-name">
         <div class="field-title">
-          <?php print _txt('fd.status'); ?><span class="required">*</span>
+          <?php print _txt('fd.status'); ?>
+          <span class="required">*</span>
         </div>
       </div>
       <div class="field-info">
@@ -158,7 +161,8 @@
     <li>
       <div class="field-name">
         <div class="field-title">
-          <?php print _txt('fd.ois.sync.mode'); ?><span class="required">*</span>
+          <?php print _txt('fd.ois.sync.mode'); ?>
+          <span class="required">*</span>
         </div>
       </div>
       <div class="field-info">

@@ -139,294 +139,299 @@
   }
   
   $(function() {
-    // Turn on Tabs
-    var $tabs = $( "#tabs" ).tabs();
+    // Explorer menu toggles
+    $(".fieldGroupName").click(function(event) {
+      event.preventDefault();
+      $(this).next(".fields").slideToggle("fast");
+      // toggle the +/- icon:
+      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
+        $(this).find(".material-icons").text("add_box");
+      } else {
+        $(this).find(".material-icons").text("indeterminate_check_box");
+      }
+    });
   });
 </script>
-<table id="<?php print $this->action; ?>_co_pipelines">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('name')
-                     : Sanitize::html($co_pipelines[0]['CoPipeline']['name'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
-        </strong>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['status'])
-                             ? $co_pipelines[0]['CoPipeline']['status']
-                             : SuspendableStatusEnum::Active);
-          $attrs['empty'] = false;
+<ul id="<?php print $this->action; ?>_co_pipelines" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('name')
+                   : Sanitize::html($co_pipelines[0]['CoPipeline']['name'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['status'])
+                           ? $co_pipelines[0]['CoPipeline']['status']
+                           : SuspendableStatusEnum::Active);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
           
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.susp'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            print _txt('en.status.susp', null, $co_pipelines[0]['CoPipeline']['status']);
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
           }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        } else {
+          print _txt('en.status.susp', null, $co_pipelines[0]['CoPipeline']['status']);
+        }
+      ?>
+    </div>
+  </li>
+</ul>
 
-<div id="tabs">
-  <ul>
-    <li>
-      <a href="#tabs-match">
-        <?php print _txt('fd.pi.match.str'); ?>
-      </a>
-    </li>
-    <li>
-      <a href="#tabs-sync">
-        <?php print _txt('fd.pi.sync.str'); ?>
-      </a>
-    </li>
-  </ul>
+<div id="<?php print $this->action; ?>_co_pipelines_expl" class="explorerContainer">
+  <div id="co-pipelines" class="personExplorer">
+    <ul>
+      <li id="fields-match-strategy" class="fieldGroup">
+
+        <a href="#tabs-match" class="fieldGroupName">
+          <i class="material-icons">add_box</i>
+          <?php print _txt('fd.pi.match.str'); ?>
+        </a>
   
-  <div id="tabs-match">
-    <table id="match_strategy">
-      <tbody>
-        <tr class="line1">
-          <td>
-            <strong class="fieldTitle">
-              <?php print ($e ? $this->Form->label('CoPipeline.match_strategy', _txt('fd.pi.match.str')) : _txt('fd.pi.match.str')); ?>
-            </strong><span class="required">*</span>
-          </td>
-          <td>
-            <?php
-              global $cm_lang, $cm_texts;
-              $attrs = array();
-              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['match_strategy'])
-                                 ? $co_pipelines[0]['CoPipeline']['match_strategy']
-                                 : MatchStrategyEnum::NoMatching);
-              $attrs['empty'] = false;
-              $attrs['onChange'] = 'update_type_select();fields_update_gadgets();';
-              
-              if($e) {
-                $this->Form->unlockField('CoPipeline.match_strategy');
-                print $this->Form->select('CoPipeline.match_strategy',
-                                          $cm_texts[ $cm_lang ]['en.match.strategy'],
-                                          $attrs);
+        <!-- Match strategy -->
+        <ul id="tabs-match" class="fields form-list" style="display: none;">
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print ($e ? $this->Form->label('CoPipeline.match_strategy', _txt('fd.pi.match.str')) : _txt('fd.pi.match.str')); ?>
+                <span class="required">*</span>
+              </div>
+            </div>  
+            <div class="field-info">
+              <?php
+                global $cm_lang, $cm_texts;
+                $attrs = array();
+                $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['match_strategy'])
+                                   ? $co_pipelines[0]['CoPipeline']['match_strategy']
+                                   : MatchStrategyEnum::NoMatching);
+                $attrs['empty'] = false;
+                $attrs['onChange'] = 'update_type_select();fields_update_gadgets();';
                 
-                if($this->Form->isFieldError('match_strategy')) {
-                  print $this->Form->error('match_strategy');
+                if($e) {
+                  $this->Form->unlockField('CoPipeline.match_strategy');
+                  print $this->Form->select('CoPipeline.match_strategy',
+                                            $cm_texts[ $cm_lang ]['en.match.strategy'],
+                                            $attrs);
+                  
+                  if($this->Form->isFieldError('match_strategy')) {
+                    print $this->Form->error('match_strategy');
+                  }
+                } else {
+                  print _txt('en.match.strategy', null, $co_pipelines[0]['CoPipeline']['match_strategy']);
                 }
-              } else {
-                print _txt('en.match.strategy', null, $co_pipelines[0]['CoPipeline']['match_strategy']);
-              }
-            ?>
-          </td>
-        </tr>
-        <tr class="line2">
-          <td>
-            <strong class="fieldTitle">
-              <?php print ($e ? $this->Form->label('CoPipeline.match_type', _txt('fd.pi.match.type')) : _txt('fd.pi.match.type')); ?>
-            </strong><span class="required">*</span>
-          </td>
-          <td>
-            <?php
-              $attrs = array();
-              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['match_type'])
-                                 ? $co_pipelines[0]['CoPipeline']['match_type']
-                                 : '');
-              $attrs['empty'] = false;
-              
-              if($e) {
-                $this->Form->unlockField('CoPipeline.match_type');
-                print $this->Form->select('CoPipeline.match_type',
-                                          array(), // The available options will be set by update_type_select()
-                                          $attrs);
+              ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print ($e ? $this->Form->label('CoPipeline.match_type', _txt('fd.pi.match.type')) : _txt('fd.pi.match.type')); ?>
+                <span class="required">*</span>
+              </div>
+            </div>
+            <div class="field-info">
+              <?php
+                $attrs = array();
+                $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['match_type'])
+                                   ? $co_pipelines[0]['CoPipeline']['match_type']
+                                   : '');
+                $attrs['empty'] = false;
                 
-                if($this->Form->isFieldError('match_type')) {
-                  print $this->Form->error('match_type');
+                if($e) {
+                  $this->Form->unlockField('CoPipeline.match_type');
+                  print $this->Form->select('CoPipeline.match_type',
+                                            array(), // The available options will be set by update_type_select()
+                                            $attrs);
+                  
+                  if($this->Form->isFieldError('match_type')) {
+                    print $this->Form->error('match_type');
+                  }
+                } else {
+                  print Sanitize::html($co_pipelines[0]['CoPipeline']['match_type']);
                 }
-              } else {
-                print Sanitize::html($co_pipelines[0]['CoPipeline']['match_type']);
-              }
-            ?>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div id="tabs-sync">
-    <table id="sync_strategy">
-      <tbody>
-        <tr class="line1">
-          <td>
-            <strong class="fieldTitle">
-              <?php print _txt('fd.pi.sync.add'); ?>
-            </strong>
-          </td>
-          <td>
-            <?php print ($e
-                         ? $this->Form->input('sync_on_add', array('onChange' => 'fields_update_gadgets()')) . ' ' .
-                           $this->Form->label('sync_on_add', _txt('fd.pi.sync.add'))
-                         : (isset($co_pipelines[0]['CoPipeline']['sync_on_add']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
-          </td>
-        </tr>
-        <tr class="line2">
-          <td>
-            <strong class="fieldTitle">
-              <?php print _txt('fd.pi.sync.upd'); ?>
-            </strong>
-          </td>
-          <td>
-            <?php print ($e
-                         ? $this->Form->input('sync_on_update', array('onChange' => 'fields_update_gadgets()')) . ' ' .
-                           $this->Form->label('sync_on_update', _txt('fd.pi.sync.upd'))
-                         : (isset($co_pipelines[0]['CoPipeline']['sync_on_update']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
-          </td>
-        </tr>
-        <tr class="line1">
-          <td>
-            <strong class="fieldTitle">
-              <?php print _txt('fd.pi.sync.del'); ?>
-            </strong>
-          </td>
-          <td>
-            <?php print ($e
-                         ? $this->Form->input('sync_on_delete', array('onChange' => 'fields_update_gadgets()')) . ' ' .
-                           $this->Form->label('sync_on_delete', _txt('fd.pi.sync.del'))
-                         : (isset($co_pipelines[0]['CoPipeline']['sync_on_del']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
-          </td>
-        </tr>
-        <tr class="line2">
-          <td>
-            <b><?php print $this->Form->label('create_role', _txt('fd.pi.sync.role')); ?></b>
-          </td>
-          <td>
-            <?php print ($e
-                         ? $this->Form->input('create_role',
-                                              array('onChange' => 'fields_update_gadgets()'))
-                         : (isset($co_pipelines[0]['CoPipeline']['create_role']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
-          </td>
-        </tr>
-        <tr class="line1">
-          <td>
-            <strong class="fieldTitle">
-              <?php print ($e ? $this->Form->label('CoPipeline.sync_cou_id', _txt('fd.pi.sync.cou')) : _txt('fd.pi.sync.cou')); ?>
-            </strong>
-          </td>
-          <td>
-            <?php
-              $attrs = array();
-              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_cou_id'])
-                                 ? $co_pipelines[0]['CoPipeline']['sync_cou_id']
-                                 : '');
-              $attrs['empty'] = true;
-              
-              if($e) {
-                print $this->Form->select('CoPipeline.sync_cou_id',
-                                          $vv_cous,
-                                          $attrs);
-                
-                if($this->Form->isFieldError('sync_cou_id')) {
-                  print $this->Form->error('sync_cou_id');
-                }
-              } else {
-                print $vv_cous[ $co_pipelines[0]['CoPipeline']['sync_cou_id'] ];
-              }
-            ?>
-          </td>
-        </tr>
-        <tr class="line2">
-          <td>
-            <strong class="fieldTitle">
-              <?php print ($e ? $this->Form->label('CoPipeline.sync_replace_cou_id', _txt('fd.pi.sync.cou.repl')) : _txt('fd.pi.sync.cou.repl')); ?>
-            </strong><br />
-            <span class="descr"><?php print _txt('fd.pi.sync.cou.repl.desc'); ?></span>
-          </td>
-          <td>
-            <?php
-              $attrs = array();
-              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_replace_cou_id'])
-                                 ? $co_pipelines[0]['CoPipeline']['sync_replace_cou_id']
-                                 : '');
-              $attrs['empty'] = true;
-              
-              if($e) {
-                print $this->Form->select('CoPipeline.sync_replace_cou_id',
-                                          $vv_cous,
-                                          $attrs);
-                
-                if($this->Form->isFieldError('sync_replace_cou_id')) {
-                  print $this->Form->error('sync_replace_cou_id');
-                }
-              } else {
-                print $vv_cous[ $co_pipelines[0]['CoPipeline']['sync_replace_cou_id'] ];
-              }
-            ?>
-          </td>
-        </tr>
-        <tr class="line1">
-          <td>
-            <strong class="fieldTitle">
-              <?php print ($e ? $this->Form->label('CoPipeline.sync_status_on_delete', _txt('fd.pi.sync.del.stat')) : _txt('fd.pi.sync.del.stat')); ?>
-            </strong><br />
-            <span class="descr"><?php print _txt('fd.pi.sync.del.stat.desc'); ?></span>
-          </td>
-          <td>
-            <?php
-              $attrs = array();
-              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_status_on_delete'])
-                                 ? $co_pipelines[0]['CoPipeline']['sync_status_on_delete']
-                                 : StatusEnum::Deleted);
-              $attrs['empty'] = false;
-              
-              if($e) {
-                print $this->Form->select('CoPipeline.sync_status_on_delete',
-                                          $vv_delete_statuses,
-                                          $attrs);
-                
-                if($this->Form->isFieldError('sync_status_on_delete')) {
-                  print $this->Form->error('sync_status_on_delete');
-                }
-              } else {
-                print $vv_delete_statuses[ $co_pipelines[0]['CoPipeline']['sync_status_on_delete'] ];
-              }
-            ?>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+              ?>
+            </div>
+          </li>
+        </ul><!-- tabs-match -->
+      </li><!-- fields-match -->
 
-<table>
-  <tbody>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      <li id="fields-sync" class="fieldGroup">
+
+        <a href="#tabs-sync" class="fieldGroupName">
+          <i class="material-icons">add_box</i>
+          <?php print _txt('fd.pi.sync.str'); ?>
+        </a>
+
+        <!-- Sync strategy -->
+        <ul id="tabs-sync" class="fields form-list" style="display: none">
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print _txt('fd.pi.sync.add'); ?>
+              </div>
+            </div>
+            <div class="field-info checkbox">
+              <?php print ($e
+                           ? $this->Form->input('sync_on_add', array('onChange' => 'fields_update_gadgets()')) . ' ' .
+                             $this->Form->label('sync_on_add', _txt('fd.pi.sync.add'))
+                           : (isset($co_pipelines[0]['CoPipeline']['sync_on_add']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print _txt('fd.pi.sync.upd'); ?>
+              </div>
+            </div>
+            <div class="field-info checkbox">
+              <?php print ($e
+                           ? $this->Form->input('sync_on_update', array('onChange' => 'fields_update_gadgets()')) . ' ' .
+                             $this->Form->label('sync_on_update', _txt('fd.pi.sync.upd'))
+                           : (isset($co_pipelines[0]['CoPipeline']['sync_on_update']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print _txt('fd.pi.sync.del'); ?>
+              </div>
+            </div>
+            <div class="field-info checkbox">
+              <?php print ($e
+                           ? $this->Form->input('sync_on_delete', array('onChange' => 'fields_update_gadgets()')) . ' ' .
+                             $this->Form->label('sync_on_delete', _txt('fd.pi.sync.del'))
+                           : (isset($co_pipelines[0]['CoPipeline']['sync_on_del']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title"><?php print _txt('fd.pi.sync.role'); ?></div>
+            </div>
+            <div class="field-info checkbox">
+              <?php print ($e
+                           ? $this->Form->input('create_role', array('onChange' => 'fields_update_gadgets()')) . ' ' .
+                             $this->Form->label('create_role', _txt('fd.pi.sync.role'))
+                           : (isset($co_pipelines[0]['CoPipeline']['create_role']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print ($e ? $this->Form->label('CoPipeline.sync_cou_id', _txt('fd.pi.sync.cou')) : _txt('fd.pi.sync.cou')); ?>
+              </div>
+            </div>
+            <div class="field-info">
+              <?php
+                $attrs = array();
+                $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_cou_id'])
+                                   ? $co_pipelines[0]['CoPipeline']['sync_cou_id']
+                                   : '');
+                $attrs['empty'] = true;
+
+                if($e) {
+                  print $this->Form->select('CoPipeline.sync_cou_id',
+                                            $vv_cous,
+                                            $attrs);
+
+                  if($this->Form->isFieldError('sync_cou_id')) {
+                    print $this->Form->error('sync_cou_id');
+                  }
+                } else {
+                  print $vv_cous[ $co_pipelines[0]['CoPipeline']['sync_cou_id'] ];
+                }
+              ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print ($e ? $this->Form->label('CoPipeline.sync_replace_cou_id', _txt('fd.pi.sync.cou.repl')) : _txt('fd.pi.sync.cou.repl')); ?>
+              </div>
+              <div class="field-desc"><?php print _txt('fd.pi.sync.cou.repl.desc'); ?></div>
+            </div>
+            <div class="field-info">
+              <?php
+                $attrs = array();
+                $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_replace_cou_id'])
+                                   ? $co_pipelines[0]['CoPipeline']['sync_replace_cou_id']
+                                   : '');
+                $attrs['empty'] = true;
+
+                if($e) {
+                  print $this->Form->select('CoPipeline.sync_replace_cou_id',
+                                            $vv_cous,
+                                            $attrs);
+
+                  if($this->Form->isFieldError('sync_replace_cou_id')) {
+                    print $this->Form->error('sync_replace_cou_id');
+                  }
+                } else {
+                  print $vv_cous[ $co_pipelines[0]['CoPipeline']['sync_replace_cou_id'] ];
+                }
+              ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print ($e ? $this->Form->label('CoPipeline.sync_status_on_delete', _txt('fd.pi.sync.del.stat')) : _txt('fd.pi.sync.del.stat')); ?>
+              </div>
+              <div class="field-desc"><?php print _txt('fd.pi.sync.del.stat.desc'); ?></div>
+            </div>
+            <div class="field-info">
+              <?php
+                $attrs = array();
+                $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_status_on_delete'])
+                                   ? $co_pipelines[0]['CoPipeline']['sync_status_on_delete']
+                                   : StatusEnum::Deleted);
+                $attrs['empty'] = false;
+
+                if($e) {
+                  print $this->Form->select('CoPipeline.sync_status_on_delete',
+                                            $vv_delete_statuses,
+                                            $attrs);
+
+                  if($this->Form->isFieldError('sync_status_on_delete')) {
+                    print $this->Form->error('sync_status_on_delete');
+                  }
+                } else {
+                  print $vv_delete_statuses[ $co_pipelines[0]['CoPipeline']['sync_status_on_delete'] ];
+                }
+              ?>
+            </div>
+          </li>
+        </ul>
+      </li>
+
+      <?php if($e): ?>
+        <li class="fieldGroup">
+          <ul class="fields form-list">
+            <li class="fields-submit">
+              <div class="field-name"><span class="required"><?php print _txt('fd.req'); ?></span></div>
+              <div class="field-info">
+                <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+              </div>
+            </li>
+          </ul>
+        </li>
+      <?php endif; ?>
+  </ul>
+</div>

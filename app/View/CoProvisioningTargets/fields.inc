@@ -52,141 +52,140 @@
   <?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?>
 </div>
 <?php else: /* plugins */ ?>
-<table id="<?php print $this->action; ?>_co_provisioning_target">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
-        </strong><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_provisioning_targets.1'))); ?></span>
-      </td>
-      <td>
-        <?php
-          switch($this->action) {
-            case 'add':
-              print $this->Form->input('plugin');
-              break;
-            case 'edit':
-              print '<strong>' . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . '</strong>';
-              // Send the value as hidden since it can't be changed (but is required by the model)
-              print $this->Form->hidden('plugin', array('default' => Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']))) . "\n";
-              break;
-            default:
-              print Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']);
-              break;
-          }
+<ul id="<?php print $this->action; ?>_co_provisioning_target" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['description'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_provisioning_targets.1'))); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        switch($this->action) {
+          case 'add':
+            print $this->Form->input('plugin');
+            break;
+          case 'edit':
+            print Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']);
+            // Send the value as hidden since it can't be changed (but is required by the model)
+            print $this->Form->hidden('plugin', array('default' => Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']))) . "\n";
+            break;
+          default:
+            print Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']);
+            break;
+        }
+        
+        if($this->action == 'edit') {
+          // And render a link to the plugin target
           
-          if($this->action == 'edit') {
-            // And render a link to the plugin target
-            
-            $pl = Inflector::underscore(Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']));
-            $plmodel = "Co" . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . "Target";
-            
-            print ' ' . $this->Html->link(_txt('op.config'),
-                                               array(
-                                                 'plugin' => $pl,
-                                                 'controller' => 'co_' . $pl . '_targets',
-                                                 'action' => 'edit',
-                                                 $co_provisioning_targets[0][$plmodel]['id'],
-                                                 'co' => $cur_co['Co']['id']
-                                               ),
-                                               array('class' => 'configurebutton'));
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('provisioning_co_group_id', _txt('fd.prov.group')) : _txt('fd.prov.group')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.prov.group.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (isset($co_provisioning_targets[0]['CoProvisioningTarget']['provision_co_group_id'])
-                             ? $co_provisioning_targets[0]['CoProvisioningTarget']['provision_co_group_id']
-                             : null);
-          $attrs['empty'] = true;
-
-          if($e) {
-            print $this->Form->select('provision_co_group_id',
-                                      $vv_available_groups,
-                                      $attrs);
-
-            if($this->Form->isFieldError('provision_co_group_id')) {
-              print $this->Form->error('provision_co_group_id');
-            }
-          } else {
-            print $vv_available_groups[ $co_provisioning_targets[0]['CoProvisioningTarget']['provision_co_group_id'] ];
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('en.status.prov.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_provisioning_targets) ? $co_provisioning_targets[0]['CoProvisioningTarget']['status'] : ProvisionerStatusEnum::AutomaticMode);
-          $attrs['empty'] = false;
+          $pl = Inflector::underscore(Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']));
+          $plmodel = "Co" . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . "Target";
           
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.prov'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            print _txt('en.status', null, $co_provisioning_targets[0]['CoProvisioningTarget']['status']);
+          print ' ' . $this->Html->link(_txt('op.config'),
+                                             array(
+                                               'plugin' => $pl,
+                                               'controller' => 'co_' . $pl . '_targets',
+                                               'action' => 'edit',
+                                               $co_provisioning_targets[0][$plmodel]['id'],
+                                               'co' => $cur_co['Co']['id']
+                                             ),
+                                             array('class' => 'configurebutton'));
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('provisioning_co_group_id', _txt('fd.prov.group')) : _txt('fd.prov.group')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.prov.group.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_provisioning_targets[0]['CoProvisioningTarget']['provision_co_group_id'])
+                           ? $co_provisioning_targets[0]['CoProvisioningTarget']['provision_co_group_id']
+                           : null);
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('provision_co_group_id',
+                                    $vv_available_groups,
+                                    $attrs);
+
+          if($this->Form->isFieldError('provision_co_group_id')) {
+            print $this->Form->error('provision_co_group_id');
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('ordr', _txt('fd.order')) : _txt('fd.order')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.order.prov.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('ordr')
-                     : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['ordr'])); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
+        } else {
+          print $vv_available_groups[ $co_provisioning_targets[0]['CoProvisioningTarget']['provision_co_group_id'] ];
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('en.status.prov.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs['value'] = (isset($co_provisioning_targets) ? $co_provisioning_targets[0]['CoProvisioningTarget']['status'] : ProvisionerStatusEnum::AutomaticMode);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.prov'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
           }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        } else {
+          print _txt('en.status', null, $co_provisioning_targets[0]['CoProvisioningTarget']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('ordr', _txt('fd.order')) : _txt('fd.order')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.order.prov.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('ordr')
+                   : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['ordr'])); ?>
+    </div>
+  </li>
+  
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>  
+</ul>
 <?php endif; /* plugins */
