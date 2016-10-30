@@ -382,7 +382,7 @@
       ?>
     </div>
   </li>
-  <? if($e): ?>
+  <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">
         <span class="required"><?php print _txt('fd.req'); ?></span>
