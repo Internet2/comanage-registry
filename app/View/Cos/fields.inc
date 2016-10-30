@@ -39,59 +39,64 @@
   $this->Html->addCrumb($crumbTxt);
     
 ?>
-<table id="<?php print $this->action; ?>_co">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?><span class="required">*</span>
-      </td>
-      <td>
+<ul id="<?php print $this->action; ?>_co" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <div class="field-title">
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cos[0]['Co']['name'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
+      </div>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($cos[0]['Co']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('description') : Sanitize::html($cos[0]['Co']['description'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($cos) ? $cos[0]['Co']['status'] : 'A');
-          $attrs['empty'] = false;
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs['value'] = (isset($cos) ? $cos[0]['Co']['status'] : 'A');
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
           
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.susp'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            print _txt('en.status.susp', null, $cos[0]['Co']['status']);
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
           }
-        ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        } else {
+          print _txt('en.status.susp', null, $cos[0]['Co']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

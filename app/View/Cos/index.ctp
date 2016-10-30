@@ -120,4 +120,5 @@
   </tbody>
 </table>
 
-<?php print $this->element("pagination");
+<?php
+  print $this->element("pagination");

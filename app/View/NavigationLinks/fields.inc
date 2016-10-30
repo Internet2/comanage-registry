@@ -40,53 +40,52 @@
 
 ?>
 
-<table id="<?php print $this->action; ?>_link">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?></strong>
-      </td>
-      <td>
+<ul id="<?php print $this->action; ?>_link" class="fields form-list">
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e
                      ? $this->Form->input('description', array('class' => 'focusFirst'))
                      : Sanitize::html($navigation_links[0]['NavigationLink']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle"><?php print ($e ? $this->Form->label('title', _txt('fd.link.title')) : _txt('fd.link.title')); ?></strong>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print ($e ? $this->Form->label('title', _txt('fd.link.title')) : _txt('fd.link.title')); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e
                      ? $this->Form->input('title')
                      : Sanitize::html($navigation_links[0]['NavigationLink']['title'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print ($e ? $this->Form->label('url', _txt('fd.link.url')) : _txt('fd.link.url')); ?></strong>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print ($e ? $this->Form->label('url', _txt('fd.link.url')) : _txt('fd.link.url')); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e
                      ? $this->Form->input('url')
                      : Sanitize::html($navigation_links[0]['NavigationLink']['url'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle"><?php print ($e ? $this->Form->label('ordr', _txt('fd.link.order')) : _txt('fd.link.order')); ?></strong>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print ($e ? $this->Form->label('ordr', _txt('fd.link.order')) : _txt('fd.link.order')); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e
                      ? $this->Form->input('ordr')
                      : Sanitize::html($navigation_links[0]['NavigationLink']['ordr'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print ($e ? $this->Form->label('location', _txt('fd.link.location')) : _txt('fd.link.location')); ?></strong>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print ($e ? $this->Form->label('location', _txt('fd.link.location')) : _txt('fd.link.location')); ?></div>
+      </div>
+      <div class="field-info">
         <?php
           if($e) {
             if (!empty($this->viewVars['vv_link_location_options'] )) {
@@ -102,16 +101,16 @@
             print $this->Form->error('status');
           }
         ?>
-      </td>
-    </tr>
+      </div>
+    </li>
 
-    <?php
-    if($e) {
-      print '<tr><td></td><td>';
-      print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-      print '</td></tr>';
-    }
-    ?>
+    <?php if($e): ?>
+      <li class="fields-submit">
+        <div class="field-name"></div>
+        <div class="field-info">
+          <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+        </div>
+      </li>
+    <?php endif; ?>
 
-  </tbody>
-</table>
+</ul>

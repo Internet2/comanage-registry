@@ -1269,7 +1269,8 @@ ul.form-list .fields-header {
   background-color: #fff;
 }
 ul.form-list input[type="text"],
-ul.form-list input[type="number"] {
+ul.form-list input[type="number"],
+ul.form-list input[type="password"] {
   width: 95%;
   font-size: 1em;
   -webkit-border-radius: 0;
@@ -1279,7 +1280,8 @@ ul.form-list input[type="number"] {
   padding: 4px 6px;
 }
 ul.form-list input[type="text"]:focus,
-ul.form-list input[type="number"]:focus {
+ul.form-list input[type="number"]:focus,
+ul.form-list input[type="password"]:focus {
   background-color: #ffd;
 }
 ul.form-list select {
