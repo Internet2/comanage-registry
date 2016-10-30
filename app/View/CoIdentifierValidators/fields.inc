@@ -49,142 +49,140 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_identifier_validators">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong><?php print _txt('fd.desc'); ?></strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
-                        : Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
-        </strong><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_identifier_validators.1'))); ?></span>
-      </td>
-      <td>
-        <?php
-          switch($this->action) {
-            case 'add':
-              $attrs = array();
-              // Since this is add, value should always be null...
-              $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['plugin'])
-                                 ? $co_identifier_validators[0]['CoIdentifierValidator']['plugin']
-                                 : null);
-              $attrs['empty'] = false;
-              
-              print $this->Form->select('plugin',
-                                        $vv_plugins,
-                                        $attrs);
-              
-              if($this->Form->isFieldError('plugin')) {
-                print $this->Form->error('plugin');
-              }
-            break;
-          case 'edit':
-            print Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']);
-            // Send the value as hidden since it can't be changed (but is required by the model)
-            print $this->Form->hidden('plugin', array('default' => Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']))) . "\n";
+<ul id="<?php print $this->action; ?>_co_identifier_validators" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.desc'); ?> 
+      <span class="required">*</span>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
+                      : Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['description'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
+      </div><span class="required">*</span><br />
+      <div class="field-desc"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_identifier_validators.1'))); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        switch($this->action) {
+          case 'add':
+            $attrs = array();
+            // Since this is add, value should always be null...
+            $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['plugin'])
+                               ? $co_identifier_validators[0]['CoIdentifierValidator']['plugin']
+                               : null);
+            $attrs['empty'] = false;
             
-            // Create a direct link to configuration if this plugin is instantiated
-            $plugin = Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']);
-            $pl = Inflector::underscore($plugin);
-            $plm = Inflector::tableize($plugin);
-            
-            if($vv_inst_plugins[$plugin]) {
-              print $this->Html->link(_txt('op.config'),
-                array(
-                  'plugin' => $pl,
-                  'controller' => $plm,
-                  'action' => 'edit',
-                  $co_identifier_validators[0][$plugin]['id'],
-                  'ivid' => $co_identifier_validators[0]['CoIdentifierValidator']['id']
-                ),
-                array('class' => 'editbutton')) . "\n";
-            }
-            break;
-          default:
-            if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['plugin'])) {
-              print $vv_plugins[ $co_identifier_validators[0]['CoIdentifierValidator']['plugin'] ];
-            }
-            break;
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong><?php print _txt('fd.type'); ?></strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id'])
-                             ? $co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id']
-                             : null);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('co_extended_type_id',
-                                      $vv_available_types,
+            print $this->Form->select('plugin',
+                                      $vv_plugins,
                                       $attrs);
             
-            if($this->Form->isFieldError('co_extended_type_id')) {
-              print $this->Form->error('co_extended_type_id');
+            if($this->Form->isFieldError('plugin')) {
+              print $this->Form->error('plugin');
             }
-          } else {
-            if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id'])) {
-              print $vv_available_types[ $co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id'] ];
-            }
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong><?php print _txt('fd.status'); ?></strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['status'])
-                             ? $co_identifier_validators[0]['CoIdentifierValidator']['status']
-                             : SuspendableStatusEnum::Active);
-          $attrs['empty'] = false;
+          break;
+        case 'edit':
+          print Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']);
+          // Send the value as hidden since it can't be changed (but is required by the model)
+          print $this->Form->hidden('plugin', array('default' => Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']))) . "\n";
           
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.susp'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['status'])) {
-              print _txt('en.status', null, $co_identifier_validators[0]['CoIdentifierValidator']['status']);
-            }
+          // Create a direct link to configuration if this plugin is instantiated
+          $plugin = Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']);
+          $pl = Inflector::underscore($plugin);
+          $plm = Inflector::tableize($plugin);
+          
+          if($vv_inst_plugins[$plugin]) {
+            print $this->Html->link(_txt('op.config'),
+              array(
+                'plugin' => $pl,
+                'controller' => $plm,
+                'action' => 'edit',
+                $co_identifier_validators[0][$plugin]['id'],
+                'ivid' => $co_identifier_validators[0]['CoIdentifierValidator']['id']
+              ),
+              array('class' => 'editbutton')) . "\n";
           }
-        ?>
-      </td>
-    </tr>
-    <?php if($e): ?>
-    <tr>
-      <td></td>
-      <td>
-        <?php
-          print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-        ?>
-      </td>
-    </tr>
-    <?php endif; // $e ?>
-  </tbody>
-</table>
+          break;
+        default:
+          if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['plugin'])) {
+            print $vv_plugins[ $co_identifier_validators[0]['CoIdentifierValidator']['plugin'] ];
+          }
+          break;
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.type'); ?>
+      <span class="required">*</span>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id'])
+                           ? $co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id']
+                           : null);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('co_extended_type_id',
+                                    $vv_available_types,
+                                    $attrs);
+          
+          if($this->Form->isFieldError('co_extended_type_id')) {
+            print $this->Form->error('co_extended_type_id');
+          }
+        } else {
+          if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id'])) {
+            print $vv_available_types[ $co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id'] ];
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.status'); ?><span class="required">*</span>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['status'])
+                           ? $co_identifier_validators[0]['CoIdentifierValidator']['status']
+                           : SuspendableStatusEnum::Active);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
+          }
+        } else {
+          if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['status'])) {
+            print _txt('en.status', null, $co_identifier_validators[0]['CoIdentifierValidator']['status']);
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name"></div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+      </div>
+    </li>
+  <?php endif; // $e ?>
+</ul>
 <?php
   print $this->element("changelog");

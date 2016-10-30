@@ -54,97 +54,97 @@
       // Populate the array with the current translation strings
       
       foreach(array_keys($vv_cm_texts) as $k) {
-        print 'cm_texts["' . $k . '"] = "' . str_replace('"', '\"', $vv_cm_texts[$k]) . '";' . "\n";
+        $filtered_k = str_replace('"', '\"', $vv_cm_texts[$k]); // escape quotes
+        $filtered_k = str_replace(PHP_EOL, '<br/>', $filtered_k); // html-ize line breaks
+        print 'cm_texts["' . $k . '"] = "' . $filtered_k . '";' . "\n";
       }
     ?>
     
-    $("#original").text(cm_texts[document.getElementById('CoLocalizationLkey').value]);
+    $("#original").text(cm_texts[$('#CoLocalizationLkey').val()]);
   }
   
   function js_local_onload() {
     populate_default_text();
   }
 </script>
-<table id="<?php print $this->action; ?>_co_localizations">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('lkey', _txt('fd.key')) : _txt('fd.key')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_localizations[0]['CoLocalization']['lkey'])
-                             ? $co_localizations[0]['CoLocalization']['lkey']
-                             : "");
-          $attrs['empty'] = false;
-          $attrs['onChange'] = 'populate_default_text()';
+<ul id="<?php print $this->action; ?>_co_localizations" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('lkey', _txt('fd.key')) : _txt('fd.key')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs['value'] = (isset($co_localizations[0]['CoLocalization']['lkey'])
+                           ? $co_localizations[0]['CoLocalization']['lkey']
+                           : "");
+        $attrs['empty'] = false;
+        $attrs['onChange'] = 'populate_default_text()';
+        
+        if($e) {
+          // Make sure both the value and the displayed text are the key
+          $keys = array_keys($vv_cm_texts);
           
-          if($e) {
-            // Make sure both the value and the displayed text are the key
-            $keys = array_keys($vv_cm_texts);
-            
-            print $this->Form->select('lkey',
-                                      array_combine($keys, $keys),
-                                      $attrs);
-            
-            if($this->Form->isFieldError('lkey')) {
-              print $this->Form->error('lkey');
-            }
-          } else {
-            print $co_localizations[0]['CoLocalization']['lkey'];
+          print $this->Form->select('lkey',
+                                    array_combine($keys, $keys),
+                                    $attrs);
+          
+          if($this->Form->isFieldError('lkey')) {
+            print $this->Form->error('lkey');
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('language', _txt('fd.language')) : _txt('fd.language')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('language', array('default' => 'en_US'))
-                     : Sanitize::html($co_localizations[0]['CoLocalization']['language'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('text', _txt('fd.text')) : _txt('fd.text')); ?>
-        </strong><span class="required">*</span><br />
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('text', array('size' => '80','class' => 'focusFirst'))
-                     : Sanitize::html($co_localizations[0]['CoLocalization']['text'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle">
-          <?php print _txt('fd.text.original'); ?>
-        </strong>
-      </td>
-      <td>
-        <div id="original">
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        } else {
+          print $co_localizations[0]['CoLocalization']['lkey'];
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('language', _txt('fd.language')) : _txt('fd.language')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('language', array('default' => 'en_US'))
+                   : Sanitize::html($co_localizations[0]['CoLocalization']['language'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('text', _txt('fd.text')) : _txt('fd.text')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('text', array('size' => '80','class' => 'focusFirst'))
+                   : Sanitize::html($co_localizations[0]['CoLocalization']['text'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.text.original'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <div id="original"></div>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

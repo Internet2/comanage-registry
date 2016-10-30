@@ -49,128 +49,140 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_message_templates">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.desc'); ?></b><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
-                        : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.mt.context'); ?></b>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_message_templates[0]['CoMessageTemplate']['context'])
-                             ? $co_message_templates[0]['CoMessageTemplate']['context']
-                             : null);
-          $attrs['empty'] = false;
+<ul id="<?php print $this->action; ?>_co_message_templates" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.desc'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
+                      : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['description'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.mt.context'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_message_templates[0]['CoMessageTemplate']['context'])
+                           ? $co_message_templates[0]['CoMessageTemplate']['context']
+                           : null);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('context',
+                                    $cm_texts[ $cm_lang ]['en.mt.context'],
+                                    $attrs);
           
-          if($e) {
-            print $this->Form->select('context',
-                                      $cm_texts[ $cm_lang ]['en.mt.context'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('context')) {
-              print $this->Form->error('context');
-            }
-          } else {
-            if(!empty($co_message_templates[0]['CoMessageTemplate']['context'])) {
-              print _txt('en.mt.context', null, $co_message_templates[0]['CoMessageTemplate']['context']);
-            }
+          if($this->Form->isFieldError('context')) {
+            print $this->Form->error('context');
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.cc'); ?></b><br />
-        <em><?php print _txt('fd.cc.desc'); ?></em>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('cc')
-                        : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['cc'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.bcc'); ?></b><br />
-        <em><?php print _txt('fd.bcc.desc'); ?></em>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('bcc')
-                        : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['bcc'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.mt.sub'); ?></strong><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.mt.sub.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('message_subject')
-                     : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['message_subject'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('fd.mt.body'); ?></strong><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.mt.body.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('message_body')
-                     : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['message_body'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.status'); ?></b><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_message_templates[0]['CoMessageTemplate']['status'])
-                             ? $co_message_templates[0]['CoMessageTemplate']['status']
-                             : SuspendableStatusEnum::Active);
-          $attrs['empty'] = false;
+        } else {
+          if(!empty($co_message_templates[0]['CoMessageTemplate']['context'])) {
+            print _txt('en.mt.context', null, $co_message_templates[0]['CoMessageTemplate']['context']);
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.cc'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.cc.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('cc')
+                      : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['cc'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.bcc'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.bcc.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('bcc')
+                      : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['bcc'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.mt.sub'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.mt.sub.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('message_subject')
+                   : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['message_subject'])); ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.mt.body'); ?>
+        <span class="required">*</span>
+      </div>
+      <span class="descr"><?php print _txt('fd.mt.body.desc'); ?></span>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('message_body')
+                   : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['message_body'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.status'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_message_templates[0]['CoMessageTemplate']['status'])
+                           ? $co_message_templates[0]['CoMessageTemplate']['status']
+                           : SuspendableStatusEnum::Active);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
           
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.susp'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            if(!empty($co_message_templates[0]['CoMessageTemplate']['status'])) {
-              print _txt('en.status', null, $co_message_templates[0]['CoMessageTemplate']['status']);
-            }
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
           }
-        ?>
-      </td>
-    </tr>
-    <?php if($e): ?>
-    <tr>
-      <td></td>
-      <td>
+        } else {
+          if(!empty($co_message_templates[0]['CoMessageTemplate']['status'])) {
+            print _txt('en.status', null, $co_message_templates[0]['CoMessageTemplate']['status']);
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name"></div>
+      <div class="field-info">
         <?php
           print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
         ?>
-      </td>
-    </tr>
-    <?php endif; // $e ?>
-  </tbody>
-</table>
+      </div>
+    </li>
+  <?php endif; // $e ?>
+</ul>
 <?php
   print $this->element("changelog");
