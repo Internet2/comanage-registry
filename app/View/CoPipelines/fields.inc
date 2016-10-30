@@ -72,9 +72,11 @@
     
     if(createrole && (syncadd || syncupd)) {
       $("#CoPipelineSyncCouId").closest('tr').show('fade');
+      $("#CoPipelineSyncAffiliation").closest('tr').show('fade');
       $("#CoPipelineSyncReplaceCouId").closest('tr').show('fade');
     } else {
       $("#CoPipelineSyncCouId").closest('tr').hide('fade');
+      $("#CoPipelineSyncAffiliation").closest('tr').hide('fade');
       $("#CoPipelineSyncReplaceCouId").closest('tr').hide('fade');
     }
     
@@ -352,6 +354,35 @@
         <tr class="line2">
           <td>
             <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('CoPipeline.sync_affiliation', _txt('fd.pi.sync.affil')) : _txt('fd.pi.sync.affil')); ?>
+            </strong><br />
+            <span class="descr"><?php print _txt('fd.pi.sync.affil.desc'); ?></span>
+          </td>
+          <td>
+            <?php
+              $attrs = array();
+              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_affiliation'])
+                                 ? $co_pipelines[0]['CoPipeline']['sync_affiliation']
+                                 : '');
+              $attrs['empty'] = true;
+              
+              if($e) {
+                print $this->Form->select('CoPipeline.sync_affiliation',
+                                          $vv_copr_affiliation_types,
+                                          $attrs);
+                
+                if($this->Form->isFieldError('sync_affiliation')) {
+                  print $this->Form->error('sync_affiliation');
+                }
+              } else {
+                print $vv_copr_affiliation_types[ $co_pipelines[0]['CoPipeline']['sync_affiliation'] ];
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line1">
+          <td>
+            <strong class="fieldTitle">
               <?php print ($e ? $this->Form->label('CoPipeline.sync_replace_cou_id', _txt('fd.pi.sync.cou.repl')) : _txt('fd.pi.sync.cou.repl')); ?>
             </strong><br />
             <span class="descr"><?php print _txt('fd.pi.sync.cou.repl.desc'); ?></span>
@@ -378,7 +409,7 @@
             ?>
           </td>
         </tr>
-        <tr class="line1">
+        <tr class="line2">
           <td>
             <strong class="fieldTitle">
               <?php print ($e ? $this->Form->label('CoPipeline.sync_status_on_delete', _txt('fd.pi.sync.del.stat')) : _txt('fd.pi.sync.del.stat')); ?>

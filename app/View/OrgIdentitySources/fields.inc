@@ -55,6 +55,25 @@
   
   $l = 1;
 ?>
+<script type="text/javascript">
+  // JS specific to these fields
+
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+    
+    var eppntype = document.getElementById('OrgIdentitySourceEppnIdentifierType').value;
+    
+    if(eppntype) {
+      $("#OrgIdentitySourceEppnSuffix").closest('tr').show('fade');
+    } else {
+      $("#OrgIdentitySourceEppnSuffix").closest('tr').hide('fade');
+    }
+  }
+  
+  function js_local_onload() {
+    fields_update_gadgets();
+  }
+</script>
 <?php if(empty($plugins)): ?>
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
@@ -211,6 +230,43 @@
       </td>
     </tr>
     <?php endif; // vv_co_pipelines ?>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.ois.eppn.type'); ?><br />
+        <span class="descr"><?php print _txt('fd.ois.eppn.type.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          $attrs = array();
+          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'])
+                             ? $org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type']
+                             : null);
+          $attrs['empty'] = true;
+          $attrs['onChange'] = 'fields_update_gadgets();';
+          
+          if($e) {
+            print $this->Form->select('eppn_identifier_type',
+                                      $vv_identifier_types,
+                                      $attrs);
+            
+            if($this->Form->isFieldError('eppn_identifier_type')) {
+              print $this->Form->error('eppn_identifier_type');
+            }
+          } else {
+            print $vv_identifier_types[ $org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'] ];
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.ois.eppn.suffix'); ?><br />
+        <span class="descr"><?php print _txt('fd.ois.eppn.suffix.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('eppn_suffix') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['eppn_suffix'])); ?>
+      </td>
+    </tr>
     <tr>
       <td>
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />

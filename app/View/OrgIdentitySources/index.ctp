@@ -56,8 +56,6 @@
       <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <th><?php print $this->Paginator->sort('sync_mode', _txt('fd.ois.sync.mode')); ?></th>
       <th><?php print $this->Paginator->sort('co_pipeline_id', _txt('fd.pipeline')); ?></th>
-      <th><?php print $this->Paginator->sort('last_load', _txt('fd.load.last')); ?></th>
-      <th><?php print $this->Paginator->sort('last_update', _txt('fd.update.last')); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
     </tr>
   </thead>
@@ -95,20 +93,6 @@
         <?php
           if(!empty($o['OrgIdentitySource']['co_pipeline_id'])) {
             print $vv_co_pipelines[ $o['OrgIdentitySource']['co_pipeline_id'] ];
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($o['OrgIdentitySource']['last_load'])) {
-            print $this->Time->niceShort($o['OrgIdentitySource']['last_load'], $vv_tz);
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($o['OrgIdentitySource']['last_update'])) {
-            print $this->Time->niceShort($o['OrgIdentitySource']['last_update'], $vv_tz);
           }
         ?>
       </td>
@@ -160,6 +144,26 @@
             }
           }
           
+          if($permissions['inventory']) {
+            print '<button type="button" class="viewbutton" title="' . _txt('op.inventory.view')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.ois.inventory') . '\',\''    // dialog body text
+              . $this->Html->url(                     // dialog confirm URL
+                array(
+                  'controller' => 'org_identity_sources',
+                  'action' => 'inventory',
+                  $o['OrgIdentitySource']['id']
+                )
+              ) . '\',\''
+              . _txt('op.view') . '\',\''      // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.inventory.view') . '\',[\''   // dialog title
+              . filter_var(_jtxt($o['OrgIdentitySource']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+              . '\']);">'
+              . _txt('op.inventory.view')
+              . '</button>';
+          }
+          
           if($permissions['delete']) {
             print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
               . '" onclick="javascript:js_confirm_generic(\''
@@ -188,7 +192,7 @@
   
   <tfoot>
     <tr class="ui-widget-header">
-      <th colspan="7">
+      <th colspan="5">
         <?php print $this->element("pagination"); ?>
       </th>
     </tr>

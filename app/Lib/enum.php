@@ -128,6 +128,17 @@ class AffiliationEnum
     AffiliationEnum::Employee      => 'Employee',
     AffiliationEnum::LibraryWalkIn => 'Library Walk-In'
   );
+  
+  public static $fromEduPersonAffiliation = array(
+    'Faculty'         => AffiliationEnum::Faculty,
+    'Student'         => AffiliationEnum::Student,
+    'Staff'           => AffiliationEnum::Staff,
+    'Alum'            => AffiliationEnum::Alum,
+    'Member'          => AffiliationEnum::Member,
+    'Affiliate'       => AffiliationEnum::Affiliate,
+    'Employee'        => AffiliationEnum::Employee,
+    'Library Walk-In' => AffiliationEnum::LibraryWalkIn
+  );
 }
 
 class ComparisonEnum
