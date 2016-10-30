@@ -259,7 +259,6 @@
     });
 
     // Datepickers
-
     $(".datepicker").datepicker({
       changeMonth: true,
       changeYear: true,
@@ -271,6 +270,8 @@
       onSelect: function() {
         $(this).closest('.mdl-textfield').addClass('is-dirty');
       }
+    }).bind('click',function () {
+      $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
 
     $(".datepicker-f").datepicker({
@@ -284,7 +285,11 @@
       onSelect: function(selectedDate) {
         $(this).closest('.mdl-textfield').addClass('is-dirty');
       }
+    }).bind('click',function () {
+      $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
+
+
 
     $(".datepicker-m").datepicker({
       changeMonth: true,
@@ -296,6 +301,8 @@
       onSelect: function(selectedDate) {
         $(this).closest('.mdl-textfield').addClass('is-dirty');
       }
+    }).bind('click',function () {
+      $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
 
     $(".datepicker-u").datepicker({
@@ -309,6 +316,8 @@
       onSelect: function(selectedDate) {
         $(this).closest('.mdl-textfield').addClass('is-dirty');
       }
+    }).bind('click',function () {
+      $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
 
     // Dialog

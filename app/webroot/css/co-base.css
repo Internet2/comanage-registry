@@ -564,6 +564,9 @@ body.co_people.canvas #titleNavContainer {
 .modelbox table tr>:nth-child(2) select{
   min-width: 387px;
 }
+.modelbox-data {
+  position: relative;
+}
 body.view .modelbox-data {
   display: table;
   width: 100%;
@@ -1337,6 +1340,20 @@ ul.form-list li.field-stack textarea {
 .checkbox .subfield label {
   display: inline;
   margin: 0;
+}
+/* Ensure datepicker renders properly.
+   We are using javascript to move it near its input field so
+   that it will scroll properly on mobile devices. */
+#ui-datepicker-div table tr > *:first-child,
+#ui-datepicker-div table tr > *:nth-child(2) {
+  min-width: 0;
+  text-align: center;
+}
+#ui-datepicker-div table tr td:first-child {
+  padding-left: 1px;
+}
+#ui-datepicker-div {
+  top: 0 !important;
 }
 /* XXX determine which among the following five rules are still in use */
 .required-info {
