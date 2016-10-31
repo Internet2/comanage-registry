@@ -1144,6 +1144,10 @@ original notification at
   'fd.nr.enable' =>   'Enable Normalizations',
   'fd.null' =>        'Null',
   'fd.o' =>           'Organization',
+  'fd.ois.eppn.suffix' => 'EPPN Suffix',
+  'fd.ois.eppn.suffix.desc' => 'If set, append this suffix to the EPPN Identifier to construct an ePPN (do not include @)',
+  'fd.ois.eppn.type' => 'EPPN Identifier Type',
+  'fd.ois.eppn.type.desc' => 'If set, use the identifier of this type to construct an ePPN',
   'fd.ois.gr.map' =>  'Target Group',
   'fd.ois.gr.map.desc' => 'When the above conditions are matched, a membership will be created in this group',
   'fd.ois.record' =>  'Source Record',
@@ -1176,6 +1180,8 @@ original notification at
   'fd.pi.match.str' => 'Match Strategy',
   'fd.pi.match.type' => 'Match Field Type',
   'fd.pi.sync.add' => 'Sync on Add',
+  'fd.pi.sync.affil' => 'CO Person Role Affiliation',
+  'fd.pi.sync.affil.desc' => 'If set, created CO Person Roles will be given this affiliation (not the affiliation of the Organizational Identity)',
   'fd.pi.sync.cou' => 'Sync to COU',
   'fd.pi.sync.cou.repl' => 'Replace Record in COU',
   'fd.pi.sync.cou.repl.desc' => 'If the CO Person has an existing role in the specified COU, that role will be deleted/expired',
@@ -1345,6 +1351,7 @@ original notification at
   // Can include token replacements in the form of {0}, {1}, {2}, etc.
   // Pass a replacements array as the last parameter to js_confirm_generic() in default.ctp
   // NOTE: these strings should escape all quotes using &quot; (or \x22) and &apos; (or \x27)
+  'js.ois.inventory'  =>  'Are you sure you wish to retrieve the full inventory from this backend? This may be slow and result in a large page load.',
   'js.remove'         =>  'Are you sure you wish to remove \x22{0}\x22?  This action cannot be undone.',
   'js.remove.member'  =>  'Are you sure you wish to remove this member from group \x22{0}\x22?  This action cannot be undone.',
   'js.reinvite'       =>  'Are you sure you wish to resend an invitation to {0}?  Any previous invitation will be invalidated.',
@@ -1430,6 +1437,7 @@ original notification at
   'op.inv.resend.to' =>  'Resend Invite to %1$s',
   'op.inv.resend.confirm' => 'Are you sure you wish to resend an invitation to %1$s? Any previous invitation will be invalidated.',
   'op.inv.send' =>    'Send Invite',
+  'op.inventory.view' => 'View Inventory',
   'op.manage.grm' =>  'Manage Group Memberships',
   'op.menu' =>        'Menu',
   'op.link' =>        'Link',
@@ -1442,6 +1450,7 @@ original notification at
   'op.logout' =>      'Logout',
   'op.next' =>        'Next',
   'op.ois.conf.gr' => 'Configure Group Mapping',
+  'op.ois.inventory' => 'View %1$s Inventory',
   'op.ok' =>          'OK',
   'op.order.attr' =>  'Reorder Attributes',
   'op.order.link' =>  'Reorder Links',

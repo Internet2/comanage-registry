@@ -43,6 +43,13 @@ class OrgIdentitySourcesController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = false;
+
+  // We want to contain the plugins, but we don't know what they are yet.
+  // We'll add them in beforeFilter(). (Don't use recursive here or we'll pull
+  // all affiliated OIS records, which would be bad.)
+  public $view_contains = array();
+  
+  public $edit_contains = array();
   
   /**
    * Callback before other controller methods are invoked or views are rendered.
@@ -93,6 +100,10 @@ class OrgIdentitySourcesController extends StandardController {
       $bmodel = $plugin . 'Backend';
       $this->loadModel($plugin . '.' . $bmodel);
       $pluginGroupAttrs[ $plugin ] = $this->$bmodel->groupableAttributes();
+      
+      // Make this plugin containable
+      $this->edit_contains[] = $plugin;
+      $this->view_contains[] = $plugin;
     }
     
     $this->set('plugins', $plugins);
@@ -130,6 +141,21 @@ class OrgIdentitySourcesController extends StandardController {
       
       $this->set('vv_co_pipelines', $this->OrgIdentitySource->CoPipeline->find('list', $args));
     }
+  }
+  
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   * - precondition: Request Handler component has set $this->request
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+
+  public function beforeRender() {
+    if(!$this->request->is('restful')) {
+      $this->set('vv_identifier_types', $this->OrgIdentitySource->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+    }
+    
+    parent::beforeRender();
   }
   
   /**
@@ -263,6 +289,29 @@ class OrgIdentitySourcesController extends StandardController {
   }
   
   /**
+   * Obtain all records from a backend. Because this just obtains record keys,
+   * it is primarily intended for developers and debugging.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $id OrgIdentitySource to inventory
+   */
+  
+  public function inventory($id) {
+    $this->set('title_for_layout',
+           _txt('op.ois.inventory', array($this->viewVars['vv_org_identity_source']['description'])));
+    
+    try {
+      $keys = $this->OrgIdentitySource->obtainSourceKeys($id);
+      sort($keys);
+      
+      $this->set('vv_source_keys', $keys);
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+    }
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -300,6 +349,9 @@ class OrgIdentitySourcesController extends StandardController {
     
     // View all existing Org Identity Sources?
     $p['index'] = $roles['cmadmin'] || $coadmin;
+    
+    // Retrieve all records from an Org Identity Source?
+    $p['inventory'] = $roles['cmadmin'] || $coadmin;
     
     // Retrieve a record from an Org Identity Source?
     $p['retrieve'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];

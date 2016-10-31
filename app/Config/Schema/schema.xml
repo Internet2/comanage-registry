@@ -917,6 +917,7 @@
     <field name="sync_cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
+    <field name="sync_affiliation" type="C" size="32" />
     <field name="sync_replace_cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
@@ -953,6 +954,8 @@
     </field>
     <field name="status" type="C" size="2" />
     <field name="sync_mode" type="C" size="2" />
+    <field name="eppn_identifier_type" type="C" size="128" />
+    <field name="eppn_suffix" type="C" size="128" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="org_identity_source_id" type="I">

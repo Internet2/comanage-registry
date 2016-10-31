@@ -141,11 +141,12 @@ class CoPipeline extends AppModel {
    * @param  Integer $orgIdentityId Source Org Identity to run
    * @param  SyncActionEnum $syncAction Add, Update, or Delete
    * @param  Integer $actorCoPersonId CO Person ID of actor, if interactive
+   * @param  Boolean $provision Whether to execute provisioning
    * @return Boolean True on success
    * @throws InvalidArgumentException
    */
   
-  public function execute($id, $orgIdentityId, $syncAction, $actorCoPersonId=null) {
+  public function execute($id, $orgIdentityId, $syncAction, $actorCoPersonId=null, $provision=true) {
     // Make sure we have a valid action
     
     if(!in_array($syncAction, array(SyncActionEnum::Add,
@@ -248,7 +249,7 @@ class CoPipeline extends AppModel {
         }
       }
     } else {
-      $this->syncOrgIdentityToCoPerson($pipeline, $orgIdentity, $coPersonId, $actorCoPersonId);
+      $this->syncOrgIdentityToCoPerson($pipeline, $orgIdentity, $coPersonId, $actorCoPersonId, $provision);
     }
     
     if($syncAction == SyncActionEnum::Add) {
@@ -358,6 +359,7 @@ class CoPipeline extends AppModel {
       // want to do something like send a bunch of attributes (as configured) and use
       // the resulting Reference Identifier as a handle to pull the appropriate CO Person
       // record (via the identifiers table). Unclear how to handle potential/pending matches.
+      // (CO-1343)
       
       throw new InvalidArgumentException('NOT IMPLEMENTED');
     }
@@ -368,7 +370,9 @@ class CoPipeline extends AppModel {
       $coOrgLink = array();
       $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $orgIdentityId;
       $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonId;
-
+      
+      $this->Co->CoPerson->CoOrgIdentityLink->clear();
+      
       // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
       // provisioning just in case that changes in the future.
       if(!$this->Co->CoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
@@ -500,12 +504,21 @@ class CoPipeline extends AppModel {
     if($coPipeline['CoPipeline']['create_role']) {
       // Construct a CO Person Role and compare against existing.
       
+      // Figure out a target affiliation, defaulting to Member if we can't find anything else
+      // (since it's required by CoPersonRole).
+      $affil = AffiliationEnum::Member;
+      
+      if(!empty($coPipeline['CoPipeline']['sync_affiliation'])) {
+        // Use the configured affil
+        $affil = $coPipeline['CoPipeline']['sync_affiliation'];
+      } elseif(!empty($orgIdentity['OrgIdentity']['affiliation'])) {
+        // Use the org identity's affil
+        $affil = $orgIdentity['OrgIdentity']['affiliation'];
+      }
+      
       $newCoPersonRole = array(
         'CoPersonRole' => array(
-          // Affiliation is required by CoPersonRole, so if not provided set default
-          'affiliation' => (!empty($orgIdentity['OrgIdentity']['affiliation'])
-                            ? $orgIdentity['OrgIdentity']['affiliation']
-                            : AffiliationEnum::Member),
+          'affiliation' => $affil,
           // Set the cou_id even if null so the diff operates correctly
           'cou_id'      => $coPipeline['CoPipeline']['sync_cou_id'],
           'o'           => $orgIdentity['OrgIdentity']['o'],

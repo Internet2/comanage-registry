@@ -55,14 +55,34 @@
   
   $l = 1;
 ?>
+  
+<script type="text/javascript">
+  // JS specific to these fields
 
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+    
+    var eppntype = document.getElementById('OrgIdentitySourceEppnIdentifierType').value;
+    
+    if(eppntype) {
+      $("#OrgIdentitySourceEppnSuffix").closest('tr').show('fade');
+    } else {
+      $("#OrgIdentitySourceEppnSuffix").closest('tr').hide('fade');
+    }
+  }
+  
+  function js_local_onload() {
+    fields_update_gadgets();
+  }
+</script>
+  
 <?php if(empty($plugins)): ?>
   <div class="co-info-topbox">
     <i class="material-icons">info</i>
     <?php print _txt('er.plugin.none', array(_txt('ct.org_identity_sources.pl'))); ?>
   </div>
 <?php else: /* plugins */ ?>
-  <ul id="<?php print $this->action; ?>_org_identity_source" class="fields form-list">
+  <ul id="<?php print $this->action; ?>_org_identity_source" class="fields form-list form-list-admin">
     <li>
       <div class="field-name">
         <div class="field-title">
@@ -222,6 +242,45 @@
     </li>
     <?php endif; // vv_co_pipelines ?>
 
+    <li>
+      <div class="field-name">
+        <div class="field-title">
+          <?php print _txt('fd.ois.eppn.type'); ?>
+        </div>
+        <div class="field-desc"><?php print _txt('fd.ois.eppn.type.desc'); ?></div>
+      </div>
+      <div class="field-info">
+        <?php
+          $attrs = array();
+          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'])
+                             ? $org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type']
+                             : null);
+          $attrs['empty'] = true;
+          $attrs['onChange'] = 'fields_update_gadgets();';
+          
+          if($e) {
+            print $this->Form->select('eppn_identifier_type',
+                                      $vv_identifier_types,
+                                      $attrs);
+            
+            if($this->Form->isFieldError('eppn_identifier_type')) {
+              print $this->Form->error('eppn_identifier_type');
+            }
+          } else {
+            print $vv_identifier_types[ $org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'] ];
+          }
+        ?>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print _txt('fd.ois.eppn.suffix'); ?></div>
+        <div class="field-desc"><?php print _txt('fd.ois.eppn.suffix.desc'); ?></div>
+      </div>
+      <div class="field-info">
+        <?php print ($e ? $this->Form->input('eppn_suffix') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['eppn_suffix'])); ?>
+      </div>
+    </li>
     <?php if($e): ?>
       <li class="fields-submit">
         <div class="field-name">

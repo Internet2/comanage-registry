@@ -356,61 +356,91 @@
                   if($this->Form->isFieldError('sync_cou_id')) {
                     print $this->Form->error('sync_cou_id');
                   }
+
                 } else {
                   print $vv_cous[ $co_pipelines[0]['CoPipeline']['sync_cou_id'] ];
                 }
               ?>
+          </div>
+        </li>
+        <li>
+          <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('CoPipeline.sync_affiliation', _txt('fd.pi.sync.affil')) : _txt('fd.pi.sync.affil')); ?>
             </div>
-          </li>
-          <li>
-            <div class="field-name">
-              <div class="field-title">
-                <?php print ($e ? $this->Form->label('CoPipeline.sync_replace_cou_id', _txt('fd.pi.sync.cou.repl')) : _txt('fd.pi.sync.cou.repl')); ?>
-              </div>
-              <div class="field-desc"><?php print _txt('fd.pi.sync.cou.repl.desc'); ?></div>
-            </div>
-            <div class="field-info">
-              <?php
-                $attrs = array();
-                $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_replace_cou_id'])
-                                   ? $co_pipelines[0]['CoPipeline']['sync_replace_cou_id']
-                                   : '');
-                $attrs['empty'] = true;
-
-                if($e) {
-                  print $this->Form->select('CoPipeline.sync_replace_cou_id',
-                                            $vv_cous,
-                                            $attrs);
-
-                  if($this->Form->isFieldError('sync_replace_cou_id')) {
-                    print $this->Form->error('sync_replace_cou_id');
-                  }
-                } else {
-                  print $vv_cous[ $co_pipelines[0]['CoPipeline']['sync_replace_cou_id'] ];
+            <div class="field-desc"><?php print _txt('fd.pi.sync.affil.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+              $attrs = array();
+              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_affiliation'])
+                                 ? $co_pipelines[0]['CoPipeline']['sync_affiliation']
+                                 : '');
+              $attrs['empty'] = true;
+              
+              if($e) {
+                print $this->Form->select('CoPipeline.sync_affiliation',
+                                          $vv_copr_affiliation_types,
+                                          $attrs);
+                
+                if($this->Form->isFieldError('sync_affiliation')) {
+                  print $this->Form->error('sync_affiliation');
                 }
-              ?>
+              } else {
+                print $vv_copr_affiliation_types[ $co_pipelines[0]['CoPipeline']['sync_affiliation'] ];
+              }
+            ?>
+          </div>
+        </li>
+        <li>
+          <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('CoPipeline.sync_replace_cou_id', _txt('fd.pi.sync.cou.repl')) : _txt('fd.pi.sync.cou.repl')); ?>
             </div>
-          </li>
-          <li>
-            <div class="field-name">
-              <div class="field-title">
-                <?php print ($e ? $this->Form->label('CoPipeline.sync_status_on_delete', _txt('fd.pi.sync.del.stat')) : _txt('fd.pi.sync.del.stat')); ?>
-              </div>
-              <div class="field-desc"><?php print _txt('fd.pi.sync.del.stat.desc'); ?></div>
+            <div class="field-desc"><?php print _txt('fd.pi.sync.cou.repl.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+              $attrs = array();
+              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_replace_cou_id'])
+                                 ? $co_pipelines[0]['CoPipeline']['sync_replace_cou_id']
+                                 : '');
+              $attrs['empty'] = true;
+              
+              if($e) {
+                print $this->Form->select('CoPipeline.sync_replace_cou_id',
+                                          $vv_cous,
+                                          $attrs);
+                
+                if($this->Form->isFieldError('sync_replace_cou_id')) {
+                  print $this->Form->error('sync_replace_cou_id');
+                }
+              } else {
+                print $vv_cous[ $co_pipelines[0]['CoPipeline']['sync_replace_cou_id'] ];
+              }
+            ?>
+          </div>
+        </li>
+        <li>
+          <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('CoPipeline.sync_status_on_delete', _txt('fd.pi.sync.del.stat')) : _txt('fd.pi.sync.del.stat')); ?>
             </div>
-            <div class="field-info">
-              <?php
-                $attrs = array();
-                $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_status_on_delete'])
-                                   ? $co_pipelines[0]['CoPipeline']['sync_status_on_delete']
-                                   : StatusEnum::Deleted);
-                $attrs['empty'] = false;
-
-                if($e) {
-                  print $this->Form->select('CoPipeline.sync_status_on_delete',
-                                            $vv_delete_statuses,
-                                            $attrs);
-
+            <div class="field-desc"><?php print _txt('fd.pi.sync.del.stat.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+              $attrs = array();
+              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_status_on_delete'])
+                                 ? $co_pipelines[0]['CoPipeline']['sync_status_on_delete']
+                                 : StatusEnum::Deleted);
+              $attrs['empty'] = false;
+              
+              if($e) {
+                print $this->Form->select('CoPipeline.sync_status_on_delete',
+                                          $vv_delete_statuses,
+                                          $attrs);
+                
                   if($this->Form->isFieldError('sync_status_on_delete')) {
                     print $this->Form->error('sync_status_on_delete');
                   }
@@ -420,8 +450,8 @@
               ?>
             </div>
           </li>
-        </ul>
-      </li>
+        </ul><!-- tabs-sync -->
+      </li><!-- fields-sync -->
 
       <?php if($e): ?>
         <li class="fieldGroup">
@@ -435,5 +465,6 @@
           </ul>
         </li>
       <?php endif; ?>
-  </ul>
+    </ul>
+  </div>
 </div>

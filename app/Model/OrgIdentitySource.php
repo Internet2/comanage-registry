@@ -154,7 +154,8 @@ class OrgIdentitySource extends AppModel {
     
     $args = array();
     $args['conditions']['OrgIdentitySource.id'] = $id;
-    // Do not set contain = false, we need the related model to pass to the backend
+    // We need the related model to pass to the backend, but we don't know it yet.
+    $args['contain'] = false;
     
     $ois = $this->find('first', $args);
     
@@ -163,6 +164,23 @@ class OrgIdentitySource extends AppModel {
     }
     
     $pmodel = $ois['OrgIdentitySource']['plugin'];
+    
+    // Now pull the plugin configuration
+    $args = array();
+    $args['conditions'][$pmodel . '.org_identity_source_id'] = $id;
+    $args['contain'] = false;
+    
+    // Load the source model
+    $smodel = $pmodel . '.' . $pmodel;
+    $SPlugin = ClassRegistry::init($smodel);
+    
+    $source = $SPlugin->find('first', $args);
+    
+    if(empty($source[$pmodel])) {
+      throw new InvalidArgumentException(_txt('er.notfound', array($pmodel, $id)));
+    }
+    
+    $ois[$pmodel] = $source[$pmodel];
     
     // Store for possible later use
     $this->cdata = $ois;
@@ -201,13 +219,14 @@ class OrgIdentitySource extends AppModel {
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
    * @param  Integer $coId CO ID, if org identities are not pooled
    * @param  Integer $targetCoPersonId CO Person ID to link new Org Identity to, if already known
+   * @param  Boolean $provision Whether to execute provisioning
    * @return Integer ID of new Org Identity
    * @throws InvalidArgumentException
    * @throws OverflowException
    * @throws RuntimeException
    */
   
-  public function createOrgIdentity($id, $sourceKey, $actorCoPersonId=null, $coId=null, $targetCoPersonId=null) {
+  public function createOrgIdentity($id, $sourceKey, $actorCoPersonId=null, $coId=null, $targetCoPersonId=null, $provision=false) {
     // Unlike CoPipeline::syncOrgIdentityToCoPerson, we have a separate call
     // for create vs update. This is because $Backend->retrieve() will return
     // data in a format that is more or less ready for a direct save.
@@ -316,7 +335,7 @@ class OrgIdentitySource extends AppModel {
     
     // Invoke pipeline, if configured
     try {
-      $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId);
+      $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId, $provision);
     }
     catch(Exception $e) {
       $dbc->rollback();
@@ -337,9 +356,10 @@ class OrgIdentitySource extends AppModel {
    * @param  Integer $orgIdentityId OrgIdentity ID
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
    * @param  String $syncAction "add", "update", or "delete"
+   * @param  Boolean $provision Whether to execute provisioning
    */
   
-  protected function executePipeline($id, $orgIdentityId, $action, $actorCoPersonId) {
+  protected function executePipeline($id, $orgIdentityId, $action, $actorCoPersonId, $provision=true) {
     $pipelineId = $this->OrgIdentitySourceRecord->OrgIdentity->pipeline($orgIdentityId);
     
     if($pipelineId) {
@@ -397,7 +417,48 @@ class OrgIdentitySource extends AppModel {
   public function retrieve($id, $key) {
     $Backend = $this->bindPluginBackendModel($id);
     
-    return $Backend->retrieve($key);
+    $ret = $Backend->retrieve($key);
+    
+    if(!empty($ret['orgidentity'])) {
+      // If we got a result check to see if we're configured to construct an eppn
+      
+      if(!empty($this->cdata['OrgIdentitySource']['eppn_identifier_type'])) {
+        // First see if the backend already generated an eppn. If so, we won't.
+        // While we're seaching, also look for the attribute we want to use.
+        $existing = false;
+        $value = null;
+        
+        if(!empty($ret['orgidentity']['Identifier'])) {
+          foreach($ret['orgidentity']['Identifier'] as $id) {
+            if(!empty($id['type'])) {
+              if($id['type'] == $this->cdata['OrgIdentitySource']['eppn_identifier_type']) {
+                $value = $id['identifier'];
+              } elseif($id['type'] == IdentifierEnum::ePPN) {
+                $existing = true;
+                break;
+              }
+            }
+          }
+        }
+        
+        if(!$existing && $value) {
+          // Inject an eppn into the identifier result
+          
+          if(!empty($this->cdata['OrgIdentitySource']['eppn_suffix'])) {
+            $value .= '@' . $this->cdata['OrgIdentitySource']['eppn_suffix'];
+          }
+          
+          $ret['orgidentity']['Identifier'][] = array(
+            'identifier' => $value,
+            'type'       => IdentifierEnum::ePPN,
+            'status'     => StatusEnum::Active,
+            'login'      => true
+          );
+        }
+      }
+    }
+    
+    return $ret;
   }
   
   /**
