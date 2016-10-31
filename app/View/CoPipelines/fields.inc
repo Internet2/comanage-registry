@@ -55,14 +55,14 @@
     var match = document.getElementById('CoPipelineMatchStrategy').value;
     
     if(match == '<?php print MatchStrategyEnum::EmailAddress; ?>') {
-      $("#CoPipelineMatchType").closest('tr').show('fade');
+      $("#CoPipelineMatchType").closest('li').show('fade');
       // XXX set types
     } else if(match == '<?php print MatchStrategyEnum::Identifier; ?>') {
       update_type_select();
-      $("#CoPipelineMatchType").closest('tr').show('fade');
+      $("#CoPipelineMatchType").closest('li').show('fade');
       // XXX set types
     } else {
-      $("#CoPipelineMatchType").closest('tr').hide('fade');
+      $("#CoPipelineMatchType").closest('li').hide('fade');
     }
     
     var syncadd = document.getElementById('CoPipelineSyncOnAdd').checked;
@@ -71,17 +71,19 @@
     var createrole = document.getElementById('CoPipelineCreateRole').checked;
     
     if(createrole && (syncadd || syncupd)) {
-      $("#CoPipelineSyncCouId").closest('tr').show('fade');
-      $("#CoPipelineSyncReplaceCouId").closest('tr').show('fade');
+      $("#CoPipelineSyncCouId").closest('li').show('fade');
+      $("#CoPipelineSyncAffiliation").closest('li').show('fade');
+      $("#CoPipelineSyncReplaceCouId").closest('li').show('fade');
     } else {
-      $("#CoPipelineSyncCouId").closest('tr').hide('fade');
-      $("#CoPipelineSyncReplaceCouId").closest('tr').hide('fade');
+      $("#CoPipelineSyncCouId").closest('li').hide('fade');
+      $("#CoPipelineSyncAffiliation").closest('li').hide('fade');
+      $("#CoPipelineSyncReplaceCouId").closest('li').hide('fade');
     }
     
     if(createrole && syncdel) {
-      $("#CoPipelineStatusOnDelete").closest('tr').show('fade');
+      $("#CoPipelineStatusOnDelete").closest('li').show('fade');
     } else {
-      $("#CoPipelineStatusOnDelete").closest('tr').hide('fade');
+      $("#CoPipelineStatusOnDelete").closest('li').hide('fade');
     }
   }
   
