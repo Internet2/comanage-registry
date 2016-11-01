@@ -51,6 +51,10 @@ h1.firstPrompt {
   font-size: 1.2em;
   font-weight: normal;
 }
+h2 {
+  font-size: 24px;
+  margin: 0;
+}
 a {
   color: #2395E0;
   text-decoration: none;

@@ -59,73 +59,77 @@
 
   // XXX lots of duplication across the various LDAP plugins...
 ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-  <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-    <strong><?php print _txt('pl.ldapsource.info'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('pl.ldapsource.info'); ?>
 </div>
-<br />
-<table id="<?php print $this->action; ?>_ldap_identifier_validator" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td style="width:50%">
-        <strong class="fieldTitle"><?php print _txt('pl.ldapidentifier.serverurl'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapidentifier.serverurl.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['serverurl'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapidentifier.binddn'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapidentifier.binddn.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['binddn'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapidentifier.password'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapidentifier.password.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['password'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapidentifier.basedn'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapidentifier.basedn.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['basedn'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapidentifier.filter'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapidentifier.filter.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('filter') : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['filter'])); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-            print $this->Form->button(_txt('op.reset'), 
-                                      array('type'=>'reset'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<ul id="<?php print $this->action; ?>_ldap_identifier_validator" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.ldapidentifier.serverurl'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.ldapidentifier.serverurl.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['serverurl'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.ldapidentifier.binddn'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.ldapidentifier.binddn.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['binddn'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.ldapidentifier.password'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.ldapidentifier.password.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('password') : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['password'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.ldapidentifier.basedn'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.ldapidentifier.basedn.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['basedn'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.ldapidentifier.filter'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.ldapidentifier.filter.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('filter') : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['filter'])); ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li>
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

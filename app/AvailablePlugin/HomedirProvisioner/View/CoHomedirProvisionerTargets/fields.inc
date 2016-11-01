@@ -37,9 +37,7 @@
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
 ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-  <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-    <strong><?php print _txt('pl.homedirprovisioner.noconfig'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('pl.homedirprovisioner.noconfig'); ?>
 </div>

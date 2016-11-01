@@ -57,30 +57,27 @@
   
   print $this->Form->hidden('co_identifier_validator_id', array('default' => $vv_ivid)) . "\n";
 ?>
-<table id="<?php print $this->action; ?>_regex_identifier_validator" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.regexidentifier.pattern'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.regexidentifier.pattern.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('pattern') : Sanitize::html($regex_identifier_validators[0]['RegexIdentifierValidator']['pattern'])); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-            print $this->Form->button(_txt('op.reset'), 
-                                      array('type'=>'reset'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<ul id="<?php print $this->action; ?>_regex_identifier_validator" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.regexidentifier.pattern'); ?>
+        <span class="required">*</span>
+      </div><br />
+      <div class="field-desc"><?php print _txt('pl.regexidentifier.pattern.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('pattern') : Sanitize::html($regex_identifier_validators[0]['RegexIdentifierValidator']['pattern'])); ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

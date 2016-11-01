@@ -47,15 +47,15 @@
     var legacy = document.getElementById('CoGrouperProvisionerTargetLegacyComanageSubject').checked;
     
     if(legacy) {
-      $("#CoGrouperProvisionerTargetSubjectIdentifier").closest("tr").hide('fade');
+      $("#CoGrouperProvisionerTargetSubjectIdentifier").closest("li").hide('fade');
       $("#CoGrouperProvisionerTargetSubjectIdentifier").removeAttr("required");
-      $("#CoGrouperProvisionerTargetSubjectView").closest("tr").show('fade');
+      $("#CoGrouperProvisionerTargetSubjectView").closest("li").show('fade');
       $("#CoGrouperProvisionerTargetSubjectView").attr("required", true);
 
     } else {
-      $("#CoGrouperProvisionerTargetSubjectIdentifier").closest("tr").show('fade');
+      $("#CoGrouperProvisionerTargetSubjectIdentifier").closest("li").show('fade');
       $("#CoGrouperProvisionerTargetSubjectIdentifier").attr("required", true);
-      $("#CoGrouperProvisionerTargetSubjectView").closest("tr").hide('fade');
+      $("#CoGrouperProvisionerTargetSubjectView").closest("li").hide('fade');
       $("#CoGrouperProvisionerTargetSubjectView").removeAttr("required");
     }
   }
@@ -64,159 +64,180 @@
     legacy_update_gadgets();
   }
 </script>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-  <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-    <strong><?php print _txt('pl.grouperprovisioner.info'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('pl.grouperprovisioner.info'); ?>
 </div>
-<br />
-<table id="<?php print $this->action; ?>_co_grouper_provisioner_target" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.serverurl'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.serverurl.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['serverurl'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.contextpath'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.contextpath.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('contextpath', array('size' => 20)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['contextpath'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.login'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.login.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('login', array('size' => 24)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.password'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.password.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['password'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.stem'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.stem.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('stem', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['stem'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.legacy'); ?><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.legacy.desc'); ?></font>
-      </td>
-      <td>
-        <?php 
-          $args = array();
-          $args['onchange'] = "legacy_update_gadgets();";
-          if ($e) { 
-            print $this->Form->input('legacy_comanage_subject', $args);
-          } else {
-            print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['legacy_comanage_subject']); 
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line1" style="display:none">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.subjectview'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.subjectview.desc'); ?></font>
-      </td>
-      <td>
-        <?php 
-        if ($e) {
-          $args = array();
-          $args['size'] = 30;
-          if (!isset($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view'])) {
-            $args['default'] = $viewDefault;  
-          }
-          print $this->Form->input('subject_view', $args);
+<ul id="<?php print $this->action; ?>_co_grouper_provisioner_target" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.grouperprovisioner.serverurl'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.serverurl.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['serverurl'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.grouperprovisioner.contextpath'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.contextpath.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('contextpath', array('size' => 20)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['contextpath'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.grouperprovisioner.login'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.login.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('login', array('size' => 24)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.grouperprovisioner.password'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.password.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['password'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.grouperprovisioner.stem'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.stem.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('stem', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['stem'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.grouperprovisioner.legacy'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.legacy.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php 
+        $args = array();
+        $args['onchange'] = "legacy_update_gadgets();";
+        if ($e) { 
+          print $this->Form->input('legacy_comanage_subject', $args);
         } else {
-          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view']); 
+          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['legacy_comanage_subject']); 
         }
-        ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.subjectidentifier'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.subjectidentifier.desc'); ?></font>
-      </td>
-      <td>
-        <?php 
-          if($e) {
-            $args = array();
-            $args['empty'] = '(choose one)';
-            print $this->Form->select('subject_identifier', $identifier_types, $args);
-          } else {
-            print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_identifier']); 
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.loginidentifier'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.loginidentifier.desc'); ?></font>
-      </td>
-      <td>
-        <?php 
-          if($e) {
-            $args = array();
-            $args['empty'] = '(choose one)';
-            print $this->Form->select('login_identifier', $identifier_types, $args);
-          } else {
-            print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier']); 
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print _txt('pl.grouperprovisioner.emailidentifier'); ?><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.grouperprovisioner.emailidentifier.desc'); ?></font>
-      </td>
-      <td>
-        <?php 
-          if($e) {
-            $args = array();
-            $args['empty'] = '(choose one)';
-            print $this->Form->select('email_identifier', $email_address_types, $args);
-          } else {
-            print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier']); 
-          }
-        ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      ?>
+    </div>
+  </li>
+  <li style="display:none">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.grouperprovisioner.subjectview'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.subjectview.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php 
+      if ($e) {
+        $args = array();
+        $args['size'] = 30;
+        if (!isset($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view'])) {
+          $args['default'] = $viewDefault;  
+        }
+        print $this->Form->input('subject_view', $args);
+      } else {
+        print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view']); 
+      }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.grouperprovisioner.subjectidentifier'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.subjectidentifier.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php 
+        if($e) {
+          $args = array();
+          $args['empty'] = '(choose one)';
+          print $this->Form->select('subject_identifier', $identifier_types, $args);
+        } else {
+          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_identifier']); 
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.grouperprovisioner.loginidentifier'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.loginidentifier.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php 
+        if($e) {
+          $args = array();
+          $args['empty'] = '(choose one)';
+          print $this->Form->select('login_identifier', $identifier_types, $args);
+        } else {
+          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier']); 
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.grouperprovisioner.emailidentifier'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.grouperprovisioner.emailidentifier.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php 
+        if($e) {
+          $args = array();
+          $args['empty'] = '(choose one)';
+          print $this->Form->select('email_identifier', $email_address_types, $args);
+        } else {
+          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier']); 
+        }
+      ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

@@ -37,34 +37,32 @@
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
 ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-  <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-    <strong><?php print _txt('pl.changelogprovisioner.info'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('pl.changelogprovisioner.info'); ?>
 </div>
-<br />
-<table id="<?php print $this->action; ?>_co_changelog_provisioner_target" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.changelogprovisioner.logfile'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.changelogprovisioner.logfile.desc'); ?></font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('logfile', array('size' => 50)) : Sanitize::html($co_changelog_provisioner_targets[0]['CoChangelogProvisionerTarget']['logfile'])); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
-      </td>
-      <td>
-        <?php
-          if($e)
-            print $this->Form->submit($submit_label);
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<ul id="<?php print $this->action; ?>_co_changelog_provisioner_target" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.changelogprovisioner.logfile'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.changelogprovisioner.logfile.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('logfile', array('size' => 50)) : Sanitize::html($co_changelog_provisioner_targets[0]['CoChangelogProvisionerTarget']['logfile'])); ?>
+    </div>
+  </li>
+
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>

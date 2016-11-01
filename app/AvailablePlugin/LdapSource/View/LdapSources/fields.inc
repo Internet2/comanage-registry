@@ -37,91 +37,91 @@
   print $this->Form->hidden('org_identity_source_id', array('default' => $vv_oisid)) . "\n";
 
 ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-  <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-    <strong><?php print _txt('pl.ldapsource.info'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('pl.ldapsource.info'); ?>
 </div>
-<br />
-<table id="<?php print $this->action; ?>_ldap_source_target" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td style="width:50%">
-        <strong class="fieldTitle"><?php print _txt('pl.ldapsource.serverurl'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapsource.serverurl.desc'); ?></font>
-      </td>
-      <td>
+<ul id="<?php print $this->action; ?>_ldap_source_target" class="fields form-list form-list-admin">
+    <li>
+      <div class="field-name">
+        <div class="field-title">
+          <?php print _txt('pl.ldapsource.serverurl'); ?> 
+          <span class="required">*</span>
+        </div>
+        <div class="field-desc"><?php print _txt('pl.ldapsource.serverurl.desc'); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['serverurl'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapsource.binddn'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapsource.binddn.desc'); ?></font>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print _txt('pl.ldapsource.binddn'); ?></div>
+        <div class="field-desc"><?php print _txt('pl.ldapsource.binddn.desc'); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['binddn'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapsource.password'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapsource.password.desc'); ?></font>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print _txt('pl.ldapsource.password'); ?></div>
+        <div class="field-desc"><?php print _txt('pl.ldapsource.password.desc'); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e ? $this->Form->input('password') : Sanitize::html($ldap_sources[0]['LdapSource']['password'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapsource.basedn'); ?></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapsource.basedn.desc'); ?></font>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title">
+          <?php print _txt('pl.ldapsource.basedn'); ?>
+          <span class="required">*</span>
+        </div>
+        <div class="field-desc"><?php print _txt('pl.ldapsource.basedn.desc'); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['basedn'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapsource.key_attribute'); ?></strong></strong><font class="required">*</font><br />
-        <font class="desc"><?php print _txt('pl.ldapsource.key_attribute.desc'); ?></font>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title">
+          <?php print _txt('pl.ldapsource.key_attribute'); ?>
+          <span class="required">*</span>
+        </div>
+        <div class="field-desc"><?php print _txt('pl.ldapsource.key_attribute.desc'); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e ? $this->Form->input('key_attribute') : Sanitize::html($ldap_sources[0]['LdapSource']['key_attribute'])); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapsource.search_filter'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapsource.search_filter.desc'); ?></font>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print _txt('pl.ldapsource.search_filter'); ?></div>
+        <div class="field-desc"><?php print _txt('pl.ldapsource.search_filter.desc'); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e ? $this->Form->input('search_filter', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['search_filter'])); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <strong class="fieldTitle"><?php print _txt('pl.ldapsource.uidattr'); ?></strong><br />
-        <font class="desc"><?php print _txt('pl.ldapsource.uidattr.desc'); ?></font>
-      </td>
-      <td>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title"><?php print _txt('pl.ldapsource.uidattr'); ?></div>
+        <div class="field-desc"><?php print _txt('pl.ldapsource.uidattr.desc'); ?></div>
+      </div>
+      <div class="field-info">
         <?php print ($e ? $this->Form->input('uid_attr', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['uid_attr'])); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-            print $this->Form->button(_txt('op.reset'), 
-                                      array('type'=>'reset'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      </div>
+    </li>
+    <?php if($e): ?>
+      <li class="fields-submit">
+        <div class="field-name">
+          <span class="required"><?php print _txt('fd.req'); ?></span>
+        </div>
+        <div class="field-info">
+          <?php print $this->Form->submit($submit_label); ?>
+        </div>
+      </li>
+    <?php endif; ?>
+</ul>

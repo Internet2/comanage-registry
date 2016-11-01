@@ -36,36 +36,30 @@
   
   print $this->Form->hidden('org_identity_source_id', array('default' => $vv_oisid)) . "\n";
 ?>
-<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
-  <p>
-    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
-    <strong><?php print _txt('pl.filesource.info'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('pl.filesource.info'); ?>
 </div>
-<br />
-<table id="<?php print $this->action; ?>_file_source_target" class="ui-widget">
-  <tbody>
-    <tr class="line1">
-      <td style="width:50%">
-        <strong class="fieldTitle"><?php print _txt('pl.filesource.filepath'); ?></strong><font class="required">*</font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('filepath', array('size' => 50)) : Sanitize::html($ldap_sources[0]['FileSource']['filepath'])); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-            print $this->Form->button(_txt('op.reset'), 
-                                      array('type'=>'reset'));
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<ul id="<?php print $this->action; ?>_file_source_target" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.filesource.filepath'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('filepath', array('size' => 50)) : Sanitize::html($ldap_sources[0]['FileSource']['filepath'])); ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
