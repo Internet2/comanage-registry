@@ -976,6 +976,10 @@
     <index name="org_identity_sources_i1">
       <col>co_id</col>
     </index>
+     
+    <index name="org_identity_sources_i2">
+      <col>org_identity_source_id</col>
+    </index>
   </table>
   
   <table name="org_identity_source_records">
@@ -1015,6 +1019,10 @@
     
     <index name="org_identity_source_records_i3">
       <col>org_identity_source_id</col>
+    </index>
+    
+    <index name="org_identity_source_records_i4">
+      <col>org_identity_source_record_id</col>
     </index>
   </table>
   

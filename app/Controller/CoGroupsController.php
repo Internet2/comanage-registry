@@ -39,7 +39,7 @@ class CoGroupsController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
-
+  
   /**
    * Callback to set relevant tab to open when redirecting to another page
    * - precondition:
@@ -640,7 +640,7 @@ class CoGroupsController extends StandardController {
     // XXX proper authz here is probably something like "(all open CO groups
     // and all CO groups that I own) that CO Person isn't already a member of)"
     
-    // XXX Don't user server side pagination
+    // XXX Don't use server side pagination
     // $params['conditions'] = array($req.'.co_id' => $this->params['named']['co']); or ['url']['coid'] for REST
     // $this->set('co_groups', $model->find('all', $params));
 
@@ -651,6 +651,7 @@ class CoGroupsController extends StandardController {
     
     $this->paginate['contain'] = array(
       'CoGroupMember' => array(
+        'conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']),
         'CoPerson' => array('PrimaryName')
       )
     );
