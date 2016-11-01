@@ -293,6 +293,14 @@
     </index>
     <!-- There should be a unique constraint on primary_name+co_person_id and
          primary_name+org_identity_id, but the nulls may make that tricky -->
+    
+    <index name="names_i2">
+      <col>co_person_id</col>
+    </index>
+    
+    <index name="names_i3">
+      <col>org_identity_id</col>
+    </index>
   </table>
   
   <table name="co_extended_attributes">
