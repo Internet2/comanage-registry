@@ -415,10 +415,21 @@ class CoIdentifierAssignment extends AppModel {
         case '[':
           // Sequenced segment
           
+          // Single Use segments are only incorporated into the specified iteration,
+          // vs Additive segmens that are incorporated into all subsequent ones as well.
+          $singleuse = false;
+          
+          if($j+1 < strlen($base) && $base[$j+1] == '=') {
+            $singleuse = true;
+            $j++;
+          }
+          
           if($j+3 < strlen($base)) {
             $j++;
             
-            if($base[$j] <= $iteration) {
+            if(($singleuse && ($base[$j] == $iteration))
+                ||
+                (!$singleuse && ($base[$j] <= $iteration))) {
               // This segment is now in effect, copy until we see a close bracket
               // (and jump past the ':')
               $j += 2;
