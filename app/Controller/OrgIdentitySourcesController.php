@@ -118,7 +118,7 @@ class OrgIdentitySourcesController extends StandardController {
       // Pull the plugin information associated with the ID
       $args = array();
       $args['conditions']['OrgIdentitySource.id'] = $this->request->params['pass'][0];
-      // Do not set contain = false, we need the related model to pass to the backend
+      $args['contain'] = $this->edit_contains;
       
       $ois = $this->OrgIdentitySource->find('first', $args);
       
