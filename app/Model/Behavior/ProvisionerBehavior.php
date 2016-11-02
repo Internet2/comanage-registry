@@ -700,7 +700,6 @@ class ProvisionerBehavior extends ModelBehavior {
     $group = $coGroupModel->find('first', $args);
     
     if(!empty($group['CoGroup']['id']) && $coPersonId) {
-// XXX document when this is provided and that only the CoGroupMember for the group is provided
       $args = array();
       $args['conditions']['CoPerson.id'] = $coPersonId;
       $args['contain'] = array('CoGroupMember' => array('conditions' => array('co_group_id ' => $coGroupId)));
@@ -713,52 +712,6 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     return $group;
-    
-    // We only want people in a suitable status
-    // -- XXX make sure to carry this forward to pager
-    /*
-    $args['conditions']['CoPerson.status'] = $this->groupStatuses;
-    
-    $newCoGroupData = $coGroupModel->find('all', $args);
-    
-    // Reorganize the group data into a hierarchy of the original format
-    $sortedGroupData = array();
-    
-    // Copy the group metadata from the first result
-    if(!empty($newCoGroupData[0]['CoGroup']['id'])) {
-      // We want the metadata even if the group is not Active
-      $sortedGroupData['CoGroup'] = $newCoGroupData[0]['CoGroup'];
-      
-      // Only look at the rest of the data if the group is active
-      if($newCoGroupData[0]['CoGroup']['status'] == StatusEnum::Active) {
-        foreach($newCoGroupData as $g) {
-          if(!empty($g['CoGroupMember']['id'])) {
-            // Key the GroupMember on its ID to make it easier to find
-            $gmid = $g['CoGroupMember']['id'];
-            
-            if(!isset($sortedGroupData['CoGroupMember'][$gmid]))
-              $sortedGroupData['CoGroupMember'][$gmid] = $g['CoGroupMember'];
-            
-            if(!empty($g['CoPerson']['id'])) {
-              // Key the CO Person on its ID to make it easier to find
-              $cpid = $g['CoPerson']['id'];
-              
-              if(!isset($sortedGroupData['CoGroupMember'][$gmid]['CoPerson'])) {
-                $sortedGroupData['CoGroupMember'][$gmid]['CoPerson'] = $g['CoPerson'];
-              }
-              
-              if(!empty($g['Identifier']['id'])) {
-                // Just insert it into the array
-                
-                $sortedGroupData['CoGroupMember'][$gmid]['CoPerson']['Identifier'][] = $g['Identifier'];
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    return $sortedGroupData;*/
   }
   
   /**
