@@ -196,7 +196,7 @@ class ProvisionerBehavior extends ModelBehavior {
     $pmodel = null;
     $pdata = null;
     $paction = null;
-    
+
     // For our initial implementation, one of the following must be true for $model:
     //  - The model is CoGroup
     //  - The model is CoPerson
@@ -223,7 +223,9 @@ class ProvisionerBehavior extends ModelBehavior {
     
     // Track which group or groups need to be rewritten.
     $coGroupIds = array();
-    $copid = null; // CO Person ID, not to be confused with $coPersonId, used below
+    // For a group update triggered by a person update (eg: person status change), this is
+    // the subject CO Person ID (not to be confused with $coPersonId, used below)
+    $copid = null;
     $gmodel = null;
     
     // If a CO Person status has changed to or from a status that triggers group provisioning,
@@ -307,6 +309,11 @@ class ProvisionerBehavior extends ModelBehavior {
       } elseif(!empty($model->data[ $model->name ]['co_group_id'])) {
         $gmodel = $model->CoGroup;
         $coGroupIds[] = $model->data[ $model->name ]['co_group_id'];
+        
+        if(!empty($model->data[ $model->name ]['co_person_id'])) {
+          // We need to pass the CO Person ID to marshallCoGroupData
+          $copid = $model->data[ $model->name ]['co_person_id'];
+        }
       }
     }
     
@@ -391,7 +398,7 @@ class ProvisionerBehavior extends ModelBehavior {
     
     if($model->name == 'CoGroup') {
       if($gmodel) {
-        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction);
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $copid);
       }
       // else we could be CoGroupMember being promoted to afterSave in the middle of
       // a CoGroup being deleted. In that scenario, we don't actually need to try
@@ -404,7 +411,7 @@ class ProvisionerBehavior extends ModelBehavior {
         $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction);
       }
       if($gmodel) {
-        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction);
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $copid);
       }
     }
     
@@ -676,46 +683,82 @@ class ProvisionerBehavior extends ModelBehavior {
    * @since  COmanage Registry v0.8.2
    * @param  Model $coGroupModel CO Group Model instance
    * @param  integer $coGroupId CO Group to (re)provision
+   * @param  integer $coPersonId CO Person who triggered group update, if relevant
    * @return Array Array of CO Group Data, as returned by find
    * @throws InvalidArgumentException
    */
   
-  private function marshallCoGroupData($coGroupModel, $coGroupId) {
+  private function marshallCoGroupData($coGroupModel, $coGroupId, $coPersonId=null) {
+    // We can't pull all group member data because it won't scale. So we just pass
+    // the group metadata, and if a person triggered the update we also pass that
+    // person's information.
+    
     $args = array();
     $args['conditions']['CoGroup.id'] = $coGroupId;
-    // Only pull related models relevant for provisioning
-    $args['contain'] = array(
-      'CoGroupMember' => array('CoPerson' => array('Identifier'))
-    );
+    $args['contain'] = false;
     
-    $coGroupData = $coGroupModel->find('first', $args);
+    $group = $coGroupModel->find('first', $args);
     
-    // At the moment, if a group is inactive we behave similarly to marshallCoPersonData:
-    // we remove all the group memberships and return just the metadata.
-    
-    if($coGroupData['CoGroup']['status'] != StatusEnum::Active) {
-      unset($coGroupData['CoGroupMember']);
+    if(!empty($group['CoGroup']['id']) && $coPersonId) {
+// XXX document when this is provided and that only the CoGroupMember for the group is provided
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $coPersonId;
+      $args['contain'] = array('CoGroupMember' => array('conditions' => array('co_group_id ' => $coGroupId)));
+      
+      $person = $coGroupModel->Co->CoPerson->find('first', $args);
+      
+      if(!empty($person)) {
+        $group['CoGroup'] = array_merge($group['CoGroup'], $person);
+      }
     }
     
-    // Remove any inactive CO People (ie: memberships attached to inactive CO People)
+    return $group;
     
-    if(!empty($coGroupData['CoGroupMember'])) {
-      for($i = (count($coGroupData['CoGroupMember']) - 1);$i >= 0;$i--) {
-        // Count backwards so we don't trip over indices when we unset invalid memberships.
-        
-        if(!isset($coGroupData['CoGroupMember'][$i]['CoPerson']['status'])
-           || !in_array($coGroupData['CoGroupMember'][$i]['CoPerson']['status'],
-                        $this->groupStatuses)) {
-          unset($coGroupData['CoGroupMember'][$i]);
+    // We only want people in a suitable status
+    // -- XXX make sure to carry this forward to pager
+    /*
+    $args['conditions']['CoPerson.status'] = $this->groupStatuses;
+    
+    $newCoGroupData = $coGroupModel->find('all', $args);
+    
+    // Reorganize the group data into a hierarchy of the original format
+    $sortedGroupData = array();
+    
+    // Copy the group metadata from the first result
+    if(!empty($newCoGroupData[0]['CoGroup']['id'])) {
+      // We want the metadata even if the group is not Active
+      $sortedGroupData['CoGroup'] = $newCoGroupData[0]['CoGroup'];
+      
+      // Only look at the rest of the data if the group is active
+      if($newCoGroupData[0]['CoGroup']['status'] == StatusEnum::Active) {
+        foreach($newCoGroupData as $g) {
+          if(!empty($g['CoGroupMember']['id'])) {
+            // Key the GroupMember on its ID to make it easier to find
+            $gmid = $g['CoGroupMember']['id'];
+            
+            if(!isset($sortedGroupData['CoGroupMember'][$gmid]))
+              $sortedGroupData['CoGroupMember'][$gmid] = $g['CoGroupMember'];
+            
+            if(!empty($g['CoPerson']['id'])) {
+              // Key the CO Person on its ID to make it easier to find
+              $cpid = $g['CoPerson']['id'];
+              
+              if(!isset($sortedGroupData['CoGroupMember'][$gmid]['CoPerson'])) {
+                $sortedGroupData['CoGroupMember'][$gmid]['CoPerson'] = $g['CoPerson'];
+              }
+              
+              if(!empty($g['Identifier']['id'])) {
+                // Just insert it into the array
+                
+                $sortedGroupData['CoGroupMember'][$gmid]['CoPerson']['Identifier'][] = $g['Identifier'];
+              }
+            }
+          }
         }
       }
-      
-      if(count($coGroupData['CoGroupMember']) == 0) {
-        unset($coGroupData['CoGroupMember']);
-      }
     }
     
-    return $coGroupData;
+    return $sortedGroupData;*/
   }
   
   /**
@@ -823,19 +866,20 @@ class ProvisionerBehavior extends ModelBehavior {
   /**
    * Provision group data.
    *
-   * @param Object $model Invoking model
-   * @param Object $gmodel Group model
-   * @param Array $coGroupIds Array of group IDs to provision
-   * @param Boolean $created As passed to afterSave()
+   * @param  Object $model Invoking model
+   * @param  Object $gmodel Group model
+   * @param  Array $coGroupIds Array of group IDs to provision
+   * @param  Boolean $created As passed to afterSave()
    * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
+   * @param  Integer $coPersonId CO Person who triggered group update, if relevant
    * @return Boolean
    * @throws InvalidArgumentException
    */
   
-  protected function provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction) {
+  protected function provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $coPersonId=null) {
     foreach($coGroupIds as $coGroupId) {
       try {
-        $pdata = $this->marshallCoGroupData($gmodel, $coGroupId);
+        $pdata = $this->marshallCoGroupData($gmodel, $coGroupId, $coPersonId);
       }
       catch(InvalidArgumentException $e) {
         throw new InvalidArgumentException($e->getMessage());

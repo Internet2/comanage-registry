@@ -188,6 +188,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // Full set of supported attributes (not what's configured)
     $supportedAttributes = $this->supportedAttributes();
     
+    // Cached group membership, interim solution for CO-1348 (see below)
+    $groupMembers = array();
+    
     // Note we don't need to check for inactive status where relevant since
     // ProvisionerBehavior will remove those from the data we get.
     
@@ -216,6 +219,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       if(($person && $oc == 'groupOfNames')
          || ($group && !in_array($oc, array('groupOfNames','eduMember')))) {
         continue;
+      }
+      
+      if($group && empty($groupMembers) && in_array($oc, array('groupOfNames','eduMember'))) {
+        // As an interim solution to CO-1348 we'll pull all group members here (since we no longer get them)
+        
+        $args = array();
+        $args['conditions']['CoGroupMember.co_group_id'] = $provisioningData['CoGroup']['id'];
+        $args['contain'] = false;
+                  
+        $groupMembers = $this->CoLdapProvisionerDn->CoGroup->CoGroupMember->find('all', $args);
       }
       
       // Iterate across objectclasses, looking for those that are required or enabled
@@ -491,12 +504,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               // hasMember and isMember of are both part of the eduMember objectclass, which can apply
               // to both people and group entries. Check what type of data we're working with for both.
               case 'hasMember':
-                if($group) {
+                if($group && !empty($provisioningData['CoGroup']['id'])) {
                   $members = $this->CoLdapProvisionerDn
                                   ->CoGroup
                                   ->CoGroupMember
-                                  ->mapCoGroupMembersToIdentifiers($provisioningData['CoGroupMember'],
-                                                                   $targetType);
+                                  ->mapCoGroupMembersToIdentifiers($groupMembers, $targetType);
                   
                   if(!empty($members)) {
                     // Unlike member, hasMember is not required. However, like owner, we can't have
@@ -527,17 +539,17 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               case 'member':
-                if(!empty($provisioningData['CoGroupMember'])) {
-                  $attributes[$attr] = $this->CoLdapProvisionerDn->dnsForMembers($provisioningData['CoGroupMember']);
-                }
+                $attributes[$attr] = $this->CoLdapProvisionerDn->dnsForMembers($groupMembers);
                 
                 if(empty($attributes[$attr])) {
                   // groupofnames requires at least one member
+                  // XXX seems like a better option would be to deprovision the group?
                   throw new UnderflowException('member');
                 }
                 break;
               case 'owner':
-                $owners = $this->CoLdapProvisionerDn->dnsForOwners($provisioningData['CoGroupMember']);
+                $owners = $this->CoLdapProvisionerDn->dnsForOwners($groupMembers);
+                
                 if(!empty($owners)) {
                   // Can't have an empty owners list (it should either not be present
                   // or have at least one entry)
