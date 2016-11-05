@@ -748,8 +748,9 @@ class ProvisionerBehavior extends ModelBehavior {
       //'CoPersonRole.Cou',
       //'CoPersonRole.TelephoneNumber',
       'EmailAddress',
-      'Identifier', 
-      'PrimaryName',
+      'Identifier',
+      'Name',
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
       'SshKey'
     );
     

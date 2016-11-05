@@ -272,8 +272,23 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   $attributes[$attr] = $provisioningData['PrimaryName']['family'];
                 }
                 break;
+              case 'displayName':
+              case 'eduPersonNickname':
+                // Walk through each name
+                foreach($provisioningData['Name'] as $n) {
+                  if(empty($targetType) || ($targetType == $n['type'])) {
+                    $attributes[$attr][] = generateCn($n);
+                    
+                    if(!$multiple) {
+                      // We're only allowed one name in the attribute
+                      break;
+                    }
+                  }
+                }
+                break;
               // Attributes from CO Person Role
               case 'eduPersonAffiliation':
+              case 'eduPersonScopedAffiliation':
               case 'employeeType':
               case 'o':
               case 'ou':
@@ -281,6 +296,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 // Map the attribute to the column
                 $cols = array(
                   'eduPersonAffiliation' => 'affiliation',
+                  'eduPersonScopedAffiliation' => 'affiliation',
                   'employeeType' => 'affiliation',
                   'o' => 'o',
                   'ou' => 'ou',
@@ -292,12 +308,24 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 
                 foreach($provisioningData['CoPersonRole'] as $r) {
                   if(!empty($r[ $cols[$attr] ])) {
-                    if($attr == 'eduPersonAffiliation') {
+                    if($attr == 'eduPersonAffiliation'
+                       || $attr == 'eduPersonScopedAffiliation') {
                       $affilmap = $this->CoProvisioningTarget->Co->CoExtendedType->affiliationMap($provisioningData['Co']['id']);
                       
                       if(!empty($affilmap[ $r[ $cols[$attr] ]])) {
-                        // Look up the language rendering of this
-                        $attributes[$attr][] = AffiliationEnum::$eduPersonAffiliation[ $affilmap[ $r[ $cols[$attr] ]] ];
+                        // Append scope, if so configured
+                        $scope = '';
+                        
+                        if($attr == 'eduPersonScopedAffiliation') {
+                          if(!empty($coProvisioningTargetData['CoLdapProvisionerTarget']['scope_suffix'])) {
+                            $scope = '@' . $coProvisioningTargetData['CoLdapProvisionerTarget']['scope_suffix'];
+                          } else {
+                            // Don't add this attribute since we don't have a scope
+                            continue;
+                          }
+                        }
+                        
+                        $attributes[$attr][] = $affilmap[ $r[ $cols[$attr] ] ] . $scope;
                       }
                     } else {
                       $attributes[$attr][] = $r[ $cols[$attr] ];
@@ -316,24 +344,51 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               // Attributes from models attached to CO Person
+              case 'eduPersonOrcid':
               case 'eduPersonPrincipalName':
+              case 'eduPersonPrincipalNamePrior':
+              case 'eduPersonUniqueId':
               case 'employeeNumber':
               case 'mail':
               case 'uid':
                 // Map the attribute to the model and column
                 $mods = array(
+                  'eduPersonOrcid' => 'Identifier',
                   'eduPersonPrincipalName' => 'Identifier',
+                  'eduPersonPrincipalNamePrior' => 'Identifier',
+                  'eduPersonUniqueId' => 'Identifier',
                   'employeeNumber' => 'Identifier',
                   'mail' => 'EmailAddress',
                   'uid' => 'Identifier'
                 );
                 
                 $cols = array(
+                  'eduPersonOrcid' => 'identifier',
                   'eduPersonPrincipalName' => 'identifier',
+                  'eduPersonPrincipalNamePrior' => 'identifier',
+                  'eduPersonUniqueId' => 'identifier',
                   'employeeNumber' => 'identifier',
                   'mail' => 'mail',
                   'uid' => 'identifier'
                 );
+                
+                if($attr == 'eduPersonOrcid') {
+                  // Force target type to Orcid. Note we don't validate that the value is in
+                  // URL format (http://orcid.org/0000-0001-2345-6789) but perhaps we should.
+                  $targetType = IdentifierEnum::ORCID;
+                }
+                
+                $scope = '';
+                
+                if($attr == 'eduPersonUniqueId') {
+                  // Append scope if set, skip otherwise
+                  if(!empty($coProvisioningTargetData['CoLdapProvisionerTarget']['scope_suffix'])) {
+                    $scope = '@' . $coProvisioningTargetData['CoLdapProvisionerTarget']['scope_suffix'];
+                  } else {
+                    // Don't add this attribute since we don't have a scope
+                    continue;
+                  }
+                }
                 
                 $modelList = null;
                 
@@ -346,7 +401,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   // For the others, it's unclear what to do. For now, we'll just
                   // pick the first one.
                   
-                  if($attr == 'mail' || $attr == 'uid') {
+                  if($attr == 'mail'
+                     || $attr == 'uid'
+                     || $attr == 'eduPersonOrcid'
+                     || $attr == 'eduPersonPrincipalNamePrior') {
                     // Multi-valued
                     
                     // The structure is something like
@@ -383,7 +441,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     if(empty($targetType) || ($targetType == $m['type'])) {
                       // And finally that the attribute itself is set
                       if(!empty($m[ $cols[$attr] ])) {
-                        $attributes[$attr][] = $m[ $cols[$attr] ];
+                        $attributes[$attr][] = $m[ $cols[$attr] ] . $scope;
                         $found = true;
                       }
                     }
@@ -1191,12 +1249,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
 //            'defaulttype' => NameEnum::Official
           ),
           // And since there is only one name, there's no point in supporting displayName
-          /* 'displayName' => array(
+          'displayName' => array(
             'required'    => false,
             'multiple'    => false,
             'typekey'     => 'en.name.type',
             'defaulttype' => NameEnum::Preferred
-          ),*/
+          ),
           'o' => array(
             'required'    => false,
             'multiple'    => true
@@ -1246,12 +1304,43 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             'required'  => false,
             'multiple'  => true
           ),
+          'eduPersonEntitlement' => array(
+            'required'  => false,
+            'multiple'  => true
+          ),
+          'eduPersonNickname' => array(
+            'required'    => false,
+            'multiple'    => true,
+            'typekey'     => 'en.name.type',
+            'defaulttype' => NameEnum::Preferred
+          ),
+          'eduPersonOrcid' => array(
+            'required'  => false,
+            'multiple'  => false,
+            'alloworgvalue' => true
+          ),
           'eduPersonPrincipalName' => array(
             'required'  => false,
             'multiple'  => false,
             'alloworgvalue' => true,
             'extendedtype' => 'identifier_types',
             'defaulttype' => IdentifierEnum::ePPN
+          ),
+          'eduPersonPrincipalNamePrior' => array(
+            'required'  => false,
+            'multiple'  => true,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::ePPN
+          ),
+          'eduPersonScopedAffiliation' => array(
+            'required'  => false,
+            'multiple'  => true
+          ),
+          'eduPersonUniqueId' => array(
+            'required'  => false,
+            'multiple'  => false,
+            'extendedtype' => 'identifier_types',
+            'defaulttype' => IdentifierEnum::Enterprise
           )
         )
       ),
