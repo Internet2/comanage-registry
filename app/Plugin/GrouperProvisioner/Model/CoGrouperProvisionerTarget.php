@@ -606,6 +606,7 @@ FROM
           $subject = $this->computeSubject($coProvisioningTargetData, $op, $provisioningData, $provisioningData['CoGroup']['CoPerson']['id']);
 
           if (empty($subject)) {
+            $coPersonId = $provisioningData['CoGroup']['CoPerson']['id'];
             $this->log("GrouperProvisioner is unable to compute the Grouper subject for coPersonId = $coPersonId");
             break;
           }
