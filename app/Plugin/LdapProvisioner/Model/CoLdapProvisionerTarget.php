@@ -775,12 +775,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     switch($op) {
       case ProvisioningActionEnum::CoPersonAdded:
-      case ProvisioningActionEnum::CoPersonPetitionProvisioned:
-      case ProvisioningActionEnum::CoPersonPipelineProvisioned:
-      case ProvisioningActionEnum::CoPersonUnexpired:
-        // Currently, unexpiration is treated the same as add, but that is subject to change
+        // On add, we issue a delete (for housekeeping purposes, it will mostly fail)
+        // and then an add. Note that various other operations will be promoted from
+        // modify to add if there is no record in LDAP, so don't make this modify.
         $assigndn = true;
-        $delete = true;  // Need to delete on provision in case of duplicate merge on enrollment
+        $delete = true;
         $add = true;
         break;
       case ProvisioningActionEnum::CoPersonDeleted:
@@ -793,7 +792,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $add = false;
         $person = true;
         break;
+      case ProvisioningActionEnum::CoPersonPetitionProvisioned:
+      case ProvisioningActionEnum::CoPersonPipelineProvisioned:
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
+      case ProvisioningActionEnum::CoPersonUnexpired:
+        // For these actions, there may be an existing record with externally managed
+        // attributes that we don't want to change. Treat them all as modifies.
         $assigndn = true;
         $modify = true;
         break;
