@@ -62,6 +62,7 @@ class CoGroup extends AppModel {
       'className' => 'CoProvisioningTarget',
       'foreignKey' => 'provision_co_group_id'
     ),
+    "CoService",
     "CoSettingSponsorCoGroup" => array(
       'className' => 'CoSetting',
       'foreignKey' => 'sponsor_co_group_id'
@@ -187,11 +188,12 @@ class CoGroup extends AppModel {
    * @param  Integer Maximium number of results to retrieve (or null)
    * @param  Integer Offset to start retrieving results from (or null)
    * @param  String Field to sort by (or null)
+   * @param  Boolean Whether to return owner-only records
    * @return Array Group information, as returned by find
    * @todo   Rewrite to a custom find type
    */
   
-  function findForCoPerson($coPersonId, $limit=null, $offset=null, $order=null) {
+  function findForCoPerson($coPersonId, $limit=null, $offset=null, $order=null, $owner=true) {
     $args = array();
     $args['joins'][0]['table'] = 'co_group_members';
     $args['joins'][0]['alias'] = 'CoGroupMember';
@@ -199,8 +201,12 @@ class CoGroup extends AppModel {
     $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
     $args['conditions']['CoGroup.status'] = StatusEnum::Active;
     $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
-    $args['conditions']['OR']['CoGroupMember.member'] = 1;
-    $args['conditions']['OR']['CoGroupMember.owner'] = 1;
+    if($owner) {
+      $args['conditions']['OR']['CoGroupMember.member'] = 1;
+      $args['conditions']['OR']['CoGroupMember.owner'] = 1;
+    } else {
+      $args['conditions']['CoGroupMember.member'] = true;
+    }
     $args['contain'] = false;
     
     if($limit) {

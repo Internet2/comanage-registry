@@ -606,6 +606,21 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   $attributes[$attr] = array();
                 }
                 break;
+              // eduPersonEntitlement is based on Group memberships
+              case 'eduPersonEntitlement':
+                $entGroupIds = Hash::extract($provisioningData['CoGroupMember'], '{n}.co_group_id');
+                
+                $attributes[$attr] = $this->CoProvisioningTarget
+                                          ->Co
+                                          ->CoGroup
+                                          ->CoService
+                                          ->mapCoGroupsToEntitlements($provisioningData['Co']['id'], $entGroupIds);
+                
+                if(!$modify && empty($attributes[$attr])) {
+                  // Can't have empty values on add
+                  unset($attributes[$attr]);
+                }
+                break;
               // posixAccount attributes
               case 'gecos':
                 // Construct using same name as cn

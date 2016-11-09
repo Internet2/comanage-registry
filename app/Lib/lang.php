@@ -121,6 +121,8 @@ $cm_texts['en_US'] = array(
   'ct.co_provisioning_targets.pl' => 'Provisioning Targets',
   'ct.co_self_service_permissions.1'  => 'Self Service Permission',
   'ct.co_self_service_permissions.pl' => 'Self Service Permissions',
+  'ct.co_services.1' =>         'Service',
+  'ct.co_services.pl' =>        'Services',
   'ct.co_settings.1' =>         'CO Setting',
   'ct.co_settings.pl' =>        'CO Settings',
   'ct.co_sync_strategies.1' =>  'Sync Strategy',
@@ -710,6 +712,13 @@ original notification at
                                       ContactEnum::Mobile => 'Mobile',
                                       ContactEnum::Office => 'Office'),
   
+  'en.visibility' => array(
+    VisibilityEnum::CoAdmin         => 'CO Admin',
+    VisibilityEnum::CoGroupMember   => 'CO Group Member',
+    VisibilityEnum::CoMember        => 'CO Member',
+    VisibilityEnum::Unauthenticated => 'Unauthenticated Users'
+  ),
+  
   // Errors
   'er.ae.val.inv' =>  'The current value is not a valid selection. Any change to this record will remove the current value.',
   'er.archived' =>    'This record is already archived and cannot be edited',
@@ -1234,6 +1243,16 @@ original notification at
   'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petiton',
   'fd.status.et.desc' => 'An Extended Type that is in use cannot be made inactive',
   'fd.subject' =>     'Subject',
+  'fd.svc.euri' =>    'Entitlement URI',
+  'fd.svc.euri.desc' => 'Entitlement URI, as specified by <a href="http://software.internet2.edu/eduperson/internet2-mace-dir-eduperson-201602.html">eduPerson</a>',
+  'fd.svc.group' =>   'Service Group',
+  'fd.svc.group.desc' => 'Access to this Service requires membership in this Group',
+  'fd.svc.mail' =>    'Service Contact Email',
+  'fd.svc.mail.desc' => 'Email contact address for assistance with this Service',
+  'fd.svc.portal' =>  'Service Portal',
+  'fd.svc.url' =>     'Service URL',
+  'fd.svc.url.desc' => 'URL at which this Service is available',
+  'fd.svc.vis.desc' => 'Visibility of this Service in the service portal',
   'fd.tc.agree.desc' => 'You must agree to the following Terms and Conditions before continuing.<br />You must review the T&C before you can click <i>I Agree</i>, and you must agree before you can submit.',
   'fd.tc.agree.impl' => 'By clicking <i>Submit</i>, you are agreeing to the following Terms and Conditions.<br />Please review the T&C before continuing.',
   'fd.tc.agree.login' => 'You must agree to all of the following Terms and Conditions before continuing.',
@@ -1281,6 +1300,7 @@ original notification at
   'fd.valid_through' => 'Valid Through',
   'fd.valid_through.desc' => '(leave blank for indefinite validity)',
   'fd.value' =>       'Value',
+  'fd.visibility' =>  'Visibility',
   'fd.xp.actions' =>  'All of the following <b>actions</b> will be taken when the specified conditions match:',
   'fd.xp.conditions' => 'All of the following <b>conditions</b> must be met for this Expiration Policy to take effect:',
   'fd.xp.affil.act.desc' => 'CO Person Roles matching this Expiration Policy will be given this affiliation',

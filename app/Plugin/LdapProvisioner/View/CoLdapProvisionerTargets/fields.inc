@@ -129,6 +129,8 @@
       $currentGroupings[$grouping]['_index'] = $i;
     }
   }
+  
+  $l = 1;
 ?>
 <div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;"> 
   <p>
@@ -139,7 +141,7 @@
 <br />
 <table id="<?php print $this->action; ?>_co_ldap_provisioner_target" class="ui-widget">
   <tbody>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td style="width:50%">
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.serverurl'); ?></strong><span class="required">*</span><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.serverurl.desc'); ?></span>
@@ -148,7 +150,7 @@
         <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['serverurl'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.binddn'); ?></strong><span class="required">*</span><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.binddn.desc'); ?></span>
@@ -157,7 +159,7 @@
         <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['binddn'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.password'); ?></strong><span class="required">*</span><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.password.desc'); ?></span>
@@ -166,7 +168,7 @@
         <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['password'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.dntype'); ?></strong><span class="required">*</span><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.dntype.desc'); ?></span>
@@ -188,7 +190,7 @@
                     : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_identifier_type'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.dnattr'); ?></strong><span class="required">*</span><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.dnattr.desc'); ?></span>
@@ -199,7 +201,7 @@
                         : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_attribute_name'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.basedn'); ?></strong><span class="required">*</span><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.basedn.desc'); ?></span>
@@ -208,7 +210,7 @@
         <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['basedn'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.basedn.gr'); ?></strong><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.basedn.gr.desc'); ?></span>
@@ -217,7 +219,16 @@
         <?php print ($e ? $this->Form->input('group_basedn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_basedn'])); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.scope'); ?></strong><br />
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.scope.desc'); ?></span>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('scope_suffix', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['scope_suffix'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.opts'); ?></strong><br />
         <span class="desc"><?php /* print _txt('pl.ldapprovisioner.opts.desc'); */ ?></span>
@@ -236,7 +247,7 @@
         ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.attrs'); ?></strong><span class="required">*</span><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.attrs.desc'); ?></span>
@@ -447,7 +458,7 @@
         ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.person_ocs'); ?></strong><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.person_ocs.desc'); ?></span>
@@ -458,7 +469,7 @@
                      : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['person_ocs'])); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.group_ocs'); ?></strong><br />
         <span class="desc"><?php print _txt('pl.ldapprovisioner.group_ocs.desc'); ?></span>

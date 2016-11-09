@@ -32,7 +32,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 ?>
 
 <ul class="sf-menu">
-<!-- Organizations Dropdown -->
+<!-- Collaborations Dropdown -->
   <li class="dropMenu collabMenu">
     <a class="menuTop">
       <span>
@@ -217,6 +217,40 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         // Plugins
         if (!empty($menuContent['plugins'])) {
           render_plugin_menus($this->Html, $menuContent['plugins'], 'cogroups', $menuCoId);
+        }
+        
+        print "</ul>";
+        print "</li>";
+      }
+      
+      // Services
+      if(!empty($menuContent['services'])) {
+        print '<li class="dropMenu serviceMenu">';
+        
+        print '<a class="menuTop">';
+        print '<span>' . _txt('ct.co_services.pl') . '</span>';
+        print '<span class="sf-sub-indicator"> »</span>';
+        print '</a>';
+        print '<ul>';
+        
+        print "<li>";
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_services';
+        $args['action'] = 'portal';
+        $args['co'] = $menuCoId;
+        print $this->Html->link(_txt('fd.svc.portal'), $args);
+        print "</li>";
+        
+        foreach($menuContent['services'] as $svc) {
+          print "<li>";
+          print $this->Html->link($svc['CoService']['description'], $svc['CoService']['service_url']);
+          print "</li>";
+        }
+        
+        // Plugins
+        if(!empty($menuContent['plugins'])) {
+          render_plugin_menus($this->Html, $menuContent['plugins'], 'coservices', $menuCoId);
         }
         
         print "</ul>";
@@ -422,6 +456,18 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           $args['co'] = $menuCoId;
 
           print $this->Html->link(_txt('ct.co_self_service_permissions.pl'), $args);
+          print "</li>";
+        }
+
+        if (isset($permissions['menu']['coservices']) && $permissions['menu']['coservices']) {
+          print "<li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_services';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+
+          print $this->Html->link(_txt('ct.co_services.pl'), $args);
           print "</li>";
         }
 
