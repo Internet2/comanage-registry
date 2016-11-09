@@ -215,14 +215,17 @@ FROM
     switch($op) { 
       case ProvisioningActionEnum::CoPersonPetitionProvisioned:
       case ProvisioningActionEnum::CoPersonPipelineProvisioned:
-        $identifiers = $provisioningData['Identifier'];
-        foreach ($identifiers as $identifier) {
-          if ($identifier['type'] == $idType && 
-              $identifier['status'] == SuspendableStatusEnum::Active && 
-              !$identifier['deleted']) {
-              return $identifier['identifier'];
+        if (array_key_exists('Identifier', $provisioningData)) {
+          $identifiers = $provisioningData['Identifier'];
+          foreach ($identifiers as $identifier) {
+            if ($identifier['type'] == $idType && 
+                $identifier['status'] == SuspendableStatusEnum::Active && 
+                !$identifier['deleted']) {
+                return $identifier['identifier'];
+            }
           }
         }
+
         break;
 
       case ProvisioningActionEnum::CoGroupReprovisionRequested:
@@ -231,16 +234,33 @@ FROM
         break;
 
       case ProvisioningActionEnum::CoGroupUpdated:
-        $coPersonId = $provisioningData['CoGroup']['CoPerson']['id'];
-        $args = array();
-        $args['conditions']['Identifier.co_person_id'] = $coPersonId;
-        $args['conditions']['Identifier.type'] = $idType;
-        $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
-        $args['conditions']['Identifier.deleted'] = false;
-        $args['contain'] = false;
+        if (isset($provisioningData['CoGroup']['CoPerson'])) {
+          $coPersonId = $provisioningData['CoGroup']['CoPerson']['id'];
+          $args = array();
+          $args['conditions']['Identifier.co_person_id'] = $coPersonId;
+          $args['conditions']['Identifier.type'] = $idType;
+          $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
+          $args['conditions']['Identifier.deleted'] = false;
+          $args['contain'] = false;
 
-        $identifier = $this->CoProvisioningTarget->Co->CoPerson->Identifier->find('first', $args);
-        return $identifier['Identifier']['identifier'];
+          $identifier = $this->CoProvisioningTarget->Co->CoPerson->Identifier->find('first', $args);
+          if ($identifier) {
+            return $identifier['Identifier']['identifier'];
+          }
+        }
+        break;
+
+      case ProvisioningActionEnum::CoPersonUpdated:
+        if (array_key_exists('Identifier', $provisioningData)) {
+          $identifiers = $provisioningData['Identifier'];
+          foreach ($identifiers as $identifier) {
+            if ($identifier['type'] == $idType && 
+                $identifier['status'] == SuspendableStatusEnum::Active && 
+                !$identifier['deleted']) {
+                return $identifier['identifier'];
+            }
+          }
+        }
         break;
     }
 
@@ -306,6 +326,69 @@ FROM
     $password = $coProvisioningTargetData['CoGrouperProvisionerTarget']['password'];
 
     switch($op) {
+      case ProvisioningActionEnum::CoPersonUpdated:
+      
+        // We only process CoPersonUpdated provisioning actions when the status
+        // on the CoPerson is deleted to signal an expunge action taking place.
+        // We need to find the necessary identifier to be used as the Grouper subject
+        // and remove memberships before the identifier is deleted as part of the expunge
+        // process.
+        if (array_key_exists('CoPerson', $provisioningData)) {
+          if ($provisioningData['CoPerson']['status'] != StatusEnum::Deleted) {
+            break;
+          }
+        }
+
+        // This is a CoPersonUpdated provisioning action with a deleted CoPerson.
+        $coPersonId = $provisioningData['CoPerson']['id'];
+
+        // Find the Grouper subject.
+        $subject = $this->computeSubject($coProvisioningTargetData, $op, $provisioningData, $coPersonId);
+        if (!isset($subject)) {
+          $this->log("GrouperProvisioner is unable to compute the Grouper subject for coPersonId = $coPersonId");
+          break;
+        }
+
+        // Find all group memberships for the CoPerson.
+        $args = array();
+        $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+        $args['conditions']['CoGroupMember.member'] = true;
+        $args['conditions']['CoGroupMember.deleted'] = false;
+        $args['contain'] = false;
+
+        $memberships = $this->CoProvisioningTarget->Co->CoPerson->CoGroupMember->find('all', $args);
+
+        try {
+          $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
+
+          foreach ($memberships as $m) {
+            // Find the corresponding CoGroup
+            $args = array();
+            $args['conditions']['CoGroup.id'] = $m['CoGroupMember']['co_group_id'];
+            $args['contain'] = false;
+
+            $group = $this->CoProvisioningTarget->Co->CoGroup->find('first', $args);
+            if (!$group) {
+              continue;
+            }
+
+            // Map from CoGroup to the Grouper group details.
+            $provisionerGroup = $this->CoGrouperProvisionerGroup->findProvisionerGroup($coProvisioningTargetData, $group);
+            $groupName = $this->CoGrouperProvisionerGroup->getGroupName($provisionerGroup);
+
+            // Ask Grouper to delete the membership.
+            $grouper->deleteManyMember($groupName, array($subject));
+
+            // Update provisioner group table to record new modified time.
+            $this->CoGrouperProvisionerGroup->updateProvisionerGroup($provisionerGroup, $provisionerGroup);     
+          }
+
+        } catch (GrouperRestClientException $e) {
+          throw new RuntimeException($e->getMessage());
+        }
+
+        break;
+
       case ProvisioningActionEnum::CoGroupAdded:
 
         $provisionerGroup = $this->CoGrouperProvisionerGroup->addProvisionerGroup($coProvisioningTargetData, $provisioningData);
@@ -513,14 +596,18 @@ FROM
           throw new RuntimeException($e->getMessage());
         }
 
-        // CoGroupMember is only present if a membership change has happened.
-        if (array_key_exists('CoGroupMember', $provisioningData['CoGroup'])) {
+        // CoGroupMember is only present if a membership change has happened,
+        // but we need to make sure that we are not being called because a CoPerson
+        // has been deleted.
+        if (array_key_exists('CoGroupMember', $provisioningData['CoGroup']) &&
+              $provisioningData['CoGroup']['CoPerson']['status'] != StatusEnum::Deleted) {
 
           $coGroupMember = $provisioningData['CoGroup']['CoGroupMember'];
           $subject = $this->computeSubject($coProvisioningTargetData, $op, $provisioningData, $provisioningData['CoGroup']['CoPerson']['id']);
 
           if (empty($subject)) {
-            throw new RuntimeException(_txt('er.grouperprovisioner.subject'));
+            $this->log("GrouperProvisioner is unable to compute the Grouper subject for coPersonId = $coPersonId");
+            break;
           }
 
           try {
