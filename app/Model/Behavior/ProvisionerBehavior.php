@@ -571,7 +571,21 @@ class ProvisionerBehavior extends ModelBehavior {
     } else {
       throw new RuntimeException(_txt('er.co.specify'));
     }
-    $args['order'] = array('CoProvisioningTarget.ordr ASC');
+    // In general, we want the ascending order, but for delete operations we want descending (CO-1356).
+    // We use $personStatuses (and $action) to determine the order. There are very few circumstances
+    // where (eg) a person should go from Active backwards to (eg) Confirmed, and in those we
+    // probably want to deprovision anyway.
+    
+    if($action == ProvisioningActionEnum::CoPersonDeleted
+       || $action == ProvisioningActionEnum::CoGroupDeleted
+       || ($model->name == 'CoPerson'
+           && !in_array($provisioningData[ $model->name ]['status'], $this->personStatuses))
+       || ($model->name == 'CoGroup'
+           && $provisioningData[ $model->name ]['status'] != SuspendableStatusEnum::Active)) {
+      $args['order'] = array('CoProvisioningTarget.ordr DESC');
+    } else {
+      $args['order'] = array('CoProvisioningTarget.ordr ASC');
+    }
     $args['contain'] = false;
     
     $targets = $model->Co->CoProvisioningTarget->find('all', $args);
