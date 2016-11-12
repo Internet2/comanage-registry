@@ -348,7 +348,9 @@ class CoGroupMember extends AppModel {
                                           _txt('fd.no')));
     } elseif(!$eligible && $isMember) {
       // Remove the membership
+      $this->_provision = $provision;
       $this->delete($groupMember['CoGroupMember']['id']);
+      $this->_provision = true;
       
       $hAction = ActionEnum::CoGroupMemberDeleted;
       $hText = _txt('rs.grm.deleted', array($targetGroup['CoGroup']['name'], $targetGroup['CoGroup']['id']));

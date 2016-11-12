@@ -327,6 +327,11 @@ class CoPersonRole extends AppModel {
     // Construct the members group name
     $couId = $this->field('cou_id');
     
+    if(!$couId) {
+      // There is no COU associated with this role, so nothing to do
+      return;
+    }
+    
     $args = array();
     $args['conditions']['Cou.id'] = $couId;
     $args['contain'] = false;

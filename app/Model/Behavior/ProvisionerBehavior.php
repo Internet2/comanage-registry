@@ -56,6 +56,13 @@ class ProvisionerBehavior extends ModelBehavior {
    */
   
   public function afterDelete(Model $model) {
+    // Because Cake 2 doesn't support $options on delete callbacks, we need
+    // a hack to determine provisioning. Cake 3 supports $options.
+    if(isset($model->_provision) && $model->_provision === false) {
+      // The save requested we skip provisioning
+      return true;
+    }
+    
     // Note that in most cases this is just an edit. ie: deleting a telephone number is
     // CoPersonUpdated not CoPersonDeleted. In those cases, we can just call afterSave.
     
@@ -103,6 +110,13 @@ class ProvisionerBehavior extends ModelBehavior {
    */
   
   public function beforeDelete(Model $model, $cascade = true) {
+    // Because Cake 2 doesn't support $options on delete callbacks, we need
+    // a hack to determine provisioning. Cake 3 supports $options.
+    if(isset($model->_provision) && $model->_provision === false) {
+      // The save requested we skip provisioning
+      return true;
+    }
+    
     // Note that in most cases this is just an edit. ie: deleting a telephone number is
     // CoPersonUpdated not CoPersonDeleted. However, in those cases we don't want to
     // process anything until afterDelete().

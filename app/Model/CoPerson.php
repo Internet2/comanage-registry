@@ -218,11 +218,13 @@ class CoPerson extends AppModel {
     
     if(!empty($cous)) {
       if($eligible) {
-        // Restore any members: groups. We need the list of current roles.
+        // Restore any members: groups. We need the list of current roles, but we only want
+        // those attached to a COU.
         
         $args = array();
         $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
         $args['conditions']['CoPersonRole.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+        $args['conditions'][] = 'CoPersonRole.cou_id IS NOT NULL';
         $args['fields'] = array('CoPersonRole.id', 'CoPersonRole.cou_id');
         $args['contain'] = false;
         
@@ -251,6 +253,62 @@ class CoPerson extends AppModel {
       }
     }
   }
+  
+  /**
+   * Cascades model deletes through associated hasMany and hasOne child records.
+   * This is based on lib/Cake/Model/Model.php:_deleteDependent, but modified
+   * to disable provisioning. This could go in AppModel, but better would be to
+   * upgrade to Cake 3, which supports $options in delete callbacks.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  string $id ID of record that was deleted
+   * @return void
+   */
+	protected function deleteDependent($id) {
+		if (!empty($this->__backAssociation)) {
+			$savedAssociations = $this->__backAssociation;
+			$this->__backAssociation = array();
+		}
+
+		foreach (array_merge($this->hasMany, $this->hasOne) as $assoc => $data) {
+			if ($data['dependent'] !== true) {
+				continue;
+			}
+
+			$Model = $this->{$assoc};
+
+			if ($data['foreignKey'] === false && $data['conditions'] && in_array($this->name, $Model->getAssociated('belongsTo'))) {
+				$Model->recursive = 0;
+				$conditions = array($this->escapeField(null, $this->name) => $id);
+			} else {
+				$Model->recursive = -1;
+				$conditions = array($Model->escapeField($data['foreignKey']) => $id);
+				if ($data['conditions']) {
+					$conditions = array_merge((array)$data['conditions'], $conditions);
+				}
+			}
+
+      $Model->_provision = false;
+			if (isset($data['exclusive']) && $data['exclusive']) {
+				$Model->deleteAll($conditions);
+			} else {
+				$records = $Model->find('all', array(
+					'conditions' => $conditions, 'fields' => $Model->primaryKey
+				));
+
+				if (!empty($records)) {
+					foreach ($records as $record) {
+						$Model->delete($record[$Model->alias][$Model->primaryKey]);
+					}
+				}
+			}
+      $Model->_provision = true;
+		}
+
+		if (isset($savedAssociations)) {
+			$this->__backAssociation = $savedAssociations;
+		}
+	}
   
   /**
    * Completely purge a CO Person. This will cascade deletes past where normal
@@ -290,10 +348,17 @@ class CoPerson extends AppModel {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
-    // Set the person to Deleted so they are deprovisioned quickly and to prevent
-    // notification errors as the expunge is processed.
+    // Set the person to Deleted to prevent notification errors as the expunge is processed.
+    
+    // As of v1.1.0, we disable provisioning after this save. Note that some models
+    // are not ProvisionerBehavior-enabled (eg: CoNotification, CoOrgIdentityLink,
+    // HistoryRecord, OrgIdentity), and so there is no need to explicitly disable
+    // provisioning for these.
+    
     $this->id = $coPersonId;
-    $this->saveField('status', StatusEnum::Deleted);
+    // We don't provision here since afterSave will recalculate members groups,
+    // retriggering provision (and potentially reprovisinoing)
+    $this->saveField('status', StatusEnum::Deleted, array('provision' => false));
     
     // Rewrite any Notification where this person is an actor, recipient, or resolver
     
@@ -351,7 +416,9 @@ class CoPerson extends AppModel {
     // the delete (typically because provisioning fires off). After _deleteDependent, we should be
     // left with only minimal new residue which the normal delete() will clean up.
     
-    $this->_deleteDependent($coPersonId, true);
+    $this->deleteDependent($coPersonId);
+
+    // We want this delete to (de)provision
     $this->delete($coPersonId);
     
     // Need to check if there was an error since we can't see if something failed
