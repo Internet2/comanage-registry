@@ -253,10 +253,14 @@ class GrouperRestClient extends HttpSocket {
    *
    * @since               COmanage Directory 0.8.3
    * @names               array of group names
+   * @param               integer $pageSize page size
+   * @param               integer $pageNumber page number
+   * @param               string $sortString one of uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
+   * @param               string $ascending one of 'T' or 'F'
    * @return              array of subject ids
    * @throws              GrouperRestClientException
    */
-  public function getMembersManyGroups($names) {
+  public function getMembersManyGroups($names, $pageSize=null, $pageNumber=null, $sortString=null, $ascending=null) {
     $body = array(
       'WsRestGetMembersRequest' => array(
         'memberFilter' => 'Immediate',
@@ -266,6 +270,22 @@ class GrouperRestClient extends HttpSocket {
           )
         )
       );
+
+    if (isset($pageSize)) {
+      $body['WsRestGetMembersRequest']['pageSize'] = $pageSize;
+    }
+
+    if (isset($pageNumber)) {
+      $body['WsRestGetMembersRequest']['pageNumber'] = $pageNumber;
+    }
+
+    if (isset($sortString)) {
+      $body['WsRestGetMembersRequest']['sortString'] = $sortString;
+    }
+
+    if (isset($ascending)) {
+      $body['WsRestGetMembersRequest']['ascending'] = $ascending;
+    }
 
     foreach($names as $n) {
       $body['WsRestGetMembersRequest']['wsGroupLookups'][] = array('groupName' => $n);

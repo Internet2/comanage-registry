@@ -228,11 +228,6 @@ FROM
 
         break;
 
-      case ProvisioningActionEnum::CoGroupReprovisionRequested:
-        // TODO 
-        $identifiers = array();
-        break;
-
       case ProvisioningActionEnum::CoGroupUpdated:
         if (isset($provisioningData['CoGroup']['CoPerson'])) {
           $coPersonId = $provisioningData['CoGroup']['CoPerson']['id'];
@@ -246,6 +241,17 @@ FROM
           $identifier = $this->CoProvisioningTarget->Co->CoPerson->Identifier->find('first', $args);
           if ($identifier) {
             return $identifier['Identifier']['identifier'];
+          }
+        }
+        break;
+
+      case ProvisioningActionEnum::CoPersonDeleted:
+        if (array_key_exists('Identifier', $provisioningData)) {
+          $identifiers = $provisioningData['Identifier'];
+          foreach ($identifiers as $identifier) {
+            if ($identifier['type'] == $idType && $identifier['status'] == SuspendableStatusEnum::Active) {
+                return $identifier['identifier'];
+            }
           }
         }
         break;
@@ -326,6 +332,7 @@ FROM
     $password = $coProvisioningTargetData['CoGrouperProvisionerTarget']['password'];
 
     switch($op) {
+      case ProvisioningActionEnum::CoPersonDeleted:
       case ProvisioningActionEnum::CoPersonUpdated:
       
         // We only process CoPersonUpdated provisioning actions when the status
@@ -349,14 +356,24 @@ FROM
           break;
         }
 
-        // Find all group memberships for the CoPerson.
-        $args = array();
-        $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
-        $args['conditions']['CoGroupMember.member'] = true;
-        $args['conditions']['CoGroupMember.deleted'] = false;
-        $args['contain'] = false;
+        $memberships = array();
 
-        $memberships = $this->CoProvisioningTarget->Co->CoPerson->CoGroupMember->find('all', $args);
+        if ($op == ProvisioningActionEnum::CoPersonDeleted) {
+          foreach ($provisioningData['CoGroupMember'] as $m) {
+            $memberships[] = array('CoGroupMember' => $m);
+          }
+          
+        } elseif ($op == ProvisioningActionEnum::CoPersonUpdated) {
+
+          // Find all group memberships for the CoPerson.
+          $args = array();
+          $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+          $args['conditions']['CoGroupMember.member'] = true;
+          $args['conditions']['CoGroupMember.deleted'] = false;
+          $args['contain'] = false;
+
+          $memberships = $this->CoProvisioningTarget->Co->CoPerson->CoGroupMember->find('all', $args);
+        }
 
         try {
           $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
@@ -455,13 +472,224 @@ FROM
         break;
 
       case ProvisioningActionEnum::CoGroupReprovisionRequested:
+        $provisionerGroup = $this->CoGrouperProvisionerGroup->findProvisionerGroup($coProvisioningTargetData, $provisioningData);
+        $groupName = $this->CoGrouperProvisionerGroup->getGroupName($provisionerGroup);
+
+        $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
+
+        // We reprovision in two steps: 
+        // (1) Use a transaction and a SELECT FOR UPDATE statement 
+        //     with offset and limit to loop over all identifiers
+        //     for all members of the group and then ask Grouper
+        //     to add those members to the group.
+        // (2) Query Grouper for identifiers of all members in
+        //     its group instance and query to find any that are not supposed
+        //     to be in the group and then ask Grouper to delete those
+        //     from its instance of the group.
+
+        // Begin by querying to find the identifiers for all members
+        // of the group.
         
-        // TODO noop for now...
+        // Get a handle to the database interface.
+        $dbc = $this->getDataSource();
+
+        // Begin a transaction.
+        $dbc->begin();
+
+        $args = array();
+
+        // We use Identifier as the primary table.
+        $args['table'] = $dbc->fullTableName($this->CoProvisioningTarget->Co->CoPerson->Identifier);
+        $args['alias'] = $this->CoProvisioningTarget->Co->CoPerson->Identifier->alias;
+
+        // We join across CoGroupMember and CoPeople.
+        $args['joins'][0]['table']         = 'co_group_members';
+        $args['joins'][0]['alias']         = 'CoGroupMember';
+        $args['joins'][0]['type']          = 'INNER';
+        $args['joins'][0]['conditions'][0] = 'Identifier.co_person_id=CoGroupMember.co_person_id';
+
+        $args['joins'][1]['table']         = 'co_people';
+        $args['joins'][1]['alias']         = 'CoPerson';
+        $args['joins'][1]['type']          = 'INNER';
+        $args['joins'][1]['conditions'][0] = 'Identifier.co_person_id=CoPerson.id';
+
+        // We only want identifiers used as the Grouper subject source.
+        $args['conditions']['Identifier.type'] = $coProvisioningTargetData['CoGrouperProvisionerTarget']['subject_identifier'];
+
+        // We only want active identifiers.
+        $args['conditions']['Identifier.status'] = StatusEnum::Active;
+
+        // We only want memberships in the group being reprovisioned.
+        $args['conditions']['CoGroupMember.co_group_id'] = $provisioningData['CoGroup']['id'];
+
+        // We only want people from the corresponding CO.
+        $args['conditions']['CoPerson.co_id'] = $provisioningData['CoGroup']['co_id'];
+
+        // We only want CoPeople in the active or approved status.
+        $args['conditions']['CoPerson.status'][0] = StatusEnum::Active;
+        $args['conditions']['CoPerson.status'][1] = StatusEnum::Approved;
+
+        // Contain the query since we only want the identifiers.
+        $args['contain'] = false;
+
+        // We only need to return the identifier itself.
+        $args['fields'] = $dbc->fields($this->CoProvisioningTarget->Co->CoPerson->Identifier, null, array('Identifier.identifier'));
+
+        // Order by the identifier.
+        $args['order'] = 'Identifier.identifier';
+
+        // Start at the beginning and only consider 100 at a time in order to
+        // help with memory scaling.
+        $args['limit']  = 100;
+        $offset = 0;
+
+        $done = false;
+
+        while (!$done) {
+          $args['offset'] = $offset;
+
+          // Appending to the generated query should be fairly portable.
+          // We use buildQuery to ensure callbacks (such as ChangelogBehavior) are
+          // invoked, then buildStatement to turn it into SQL.
+
+          $sql = $dbc->buildStatement(
+                    $this->CoProvisioningTarget->Co->CoPerson->Identifier->buildQuery('all', $args), 
+                    $this->CoProvisioningTarget->Co->CoPerson->Identifier);
+
+          $sqlForUpdate = $sql . " FOR UPDATE";
+
+          $identifiers = $dbc->fetchAll($sqlForUpdate, array(), array('cache' => false));
+
+          if ($identifiers) {
+            $subjects = array();
+            foreach ($identifiers as $i) {
+              $subjects[] = $i['Identifier']['identifier'];
+            }
+            try {
+                $grouper->addManyMember($groupName, $subjects);
+            } catch (GrouperRestClientException $e) {
+              // Log the exception but continue with the next set.
+              $this->log("GrouperRestClientException: " . $e->getMessage());
+            }
+
+          } else {
+            $done = true;
+          }
+
+          $offset = $offset + 100;
+        }
+
+        // End the transaction to release the read lock held by SELECT FOR UPDATE.
+        $dbc->commit();
+
+        // Next query Grouper using pagination to find the identifiers of all the
+        // subjects it thinks are members of the group and test against the
+        // database to find any that should be deleted.
+
+        $done = false;
+
+        // Request no more than 100 members of a Grouper group.
+        $pageSize = 100;
+
+        // Start with the first page of members.
+        $pageNumber = 1;
+
+        // Order by the subject Id which will be the configured identifier.
+        $sortString = 'subjectId';
+
+        // Order in ascending order.
+        $ascending = 'T';
+
+        while (!$done) {
+          $memberIdentifiers = array();
+
+          // Query Grouper for a page of members.
+          try {
+            $ret = $grouper->getMembersManyGroups(array($groupName), $pageSize, $pageNumber, $sortString, $ascending);
+          } catch (GrouperRestClientException $e) {
+            // Log the exception but continue gracefully.
+            $this->log("GrouperRestClientException: " . $e->getMessage());
+            $done = true;
+            continue;
+          }
+
+          if ($ret) {
+            if (array_key_exists($groupName, $ret)) {
+              $memberIdentifiers = $ret[$groupName];
+            }
+          }
+
+          if (!$memberIdentifiers) {
+            // No more members returned so we are done paging.
+            $done = true;
+            continue;
+          } else {
+            // Increment page number for the next query.
+            $pageNumber = $pageNumber + 1;
+          }
+
+          $coGroupId = $provisioningData['CoGroup']['id'];
+          $identifierType = $coProvisioningTargetData['CoGrouperProvisionerTarget']['subject_identifier'];
+
+          $args = array();
+
+          // LEFT join the CoGroupMember table so we can find identifiers of people not in the group.
+          $args['joins'][0]['table'] = 'co_group_members';
+          $args['joins'][0]['alias'] = 'CoGroupMember';
+          $args['joins'][0]['type'] = 'LEFT';
+          $args['joins'][0]['conditions'][0] = 'Identifier.co_person_id=CoGroupMember.co_person_id';
+          $args['joins'][0]['conditions'][1] = "CoGroupMember.co_group_id=$coGroupId";
+
+          // INNER join the CoPerson table so we only select identifiers for people in our CO.
+          $args['joins'][1]['table'] = 'co_people';
+          $args['joins'][1]['alias'] = 'CoPerson';
+          $args['joins'][1]['type'] = 'INNER';
+          $args['joins'][1]['conditions'][0] = 'Identifier.co_person_id=CoPerson.id';
+
+          // Only consider the identifier we are using as the Grouper subject.
+          $args['conditions']['Identifier.type'] = $coProvisioningTargetData['CoGrouperProvisionerTarget']['subject_identifier'];
+
+          // Select identifiers of people not in the group by having the CoGroupMember id be null.
+          $args['conditions']['CoGroupMember.id'] = null;
+
+          // Only consider CoPeople in our CO.
+          $args['conditions']['CoPerson.co_id'] = $provisioningData['CoGroup']['co_id'];
+
+          // Only consider active or approved people.
+          $args['conditions']['OR'][0]['CoPerson.status'] = StatusEnum::Active;
+          $args['conditions']['OR'][1]['CoPerson.status'] = StatusEnum::Approved;
+
+          // Consider only the group of identifiers Grouper says are in the group.
+          foreach ($memberIdentifiers as $identifier) {
+            $args['conditions']['Identifier.identifier'][] = $identifier;
+          }
+
+          // We only need to return the identifier itself.
+          $args['fields'] = $dbc->fields($this->CoProvisioningTarget->Co->CoPerson->Identifier, null, array('Identifier.identifier'));
+
+          $args['contain'] = false;
+
+          $identifiersToDelete = $this->CoProvisioningTarget->Co->CoPerson->Identifier->find('all', $args);
+
+          if ($identifiersToDelete) {
+            $subjects = array();
+            foreach ($identifiersToDelete as $s) {
+              $subjects[] = $s['Identifier']['identifier'];
+            }
+            try {
+                $grouper->deleteManyMember($groupName, $subjects);
+            } catch (GrouperRestClientException $e) {
+              // Log the exception but continue with the next set.
+              $this->log("GrouperRestClientException: " . $e->getMessage());
+            }
+          }
+        }
+
+        // Update provisioner group table to record new modified time.
+        $this->CoGrouperProvisionerGroup->updateProvisionerGroup($provisionerGroup, $provisionerGroup);     
         break;
 
-
       case ProvisioningActionEnum::CoGroupUpdated:
-
         // Determine if any details about the group itself changed
         // and update as necessary.
 
