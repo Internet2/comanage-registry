@@ -363,7 +363,7 @@ class OrgIdentitySource extends AppModel {
     $pipelineId = $this->OrgIdentitySourceRecord->OrgIdentity->pipeline($orgIdentityId);
     
     if($pipelineId) {
-      return $this->CoPipeline->execute($pipelineId, $orgIdentityId, $action, $actorCoPersonId);
+      return $this->CoPipeline->execute($pipelineId, $orgIdentityId, $action, $actorCoPersonId, $provision);
     }
     // Otherwise, no pipeline to run, so just return success.
     

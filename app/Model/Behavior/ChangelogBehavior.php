@@ -38,7 +38,7 @@ class ChangelogBehavior extends ModelBehavior {
     if(!$created
        && !empty($options['fieldList'])
        && !in_array('revision', $options['fieldList'])) {
-      // On edit, if a fieldList was specified an revision wasn't in it (which
+      // On edit, if a fieldList was specified and revision wasn't in it (which
       // it usually won't be), we weren't able to increment it. Increment it here.
       
       // Get the current revision. We can't disable callbacks using field(), but

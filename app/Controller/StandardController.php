@@ -612,6 +612,11 @@ class StandardController extends AppController {
         }
       } else {
         $this->Flash->set($err ?: _txt('er.fields'), array('key' => 'error'));
+        
+        if($req == 'CoPerson') {
+          // For CO People, we need to redirect back to canvas
+          $this->performRedirect();
+        }
       }
     }
   }

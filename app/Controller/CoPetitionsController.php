@@ -656,7 +656,8 @@ class CoPetitionsController extends StandardController {
           }
           catch(Exception $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
-            $this->performRedirect(); 
+            // Don't redirect since it will mask the actual error
+            //$this->performRedirect(); 
           }
           
           // Make sure we don't issue a redirect
@@ -670,7 +671,8 @@ class CoPetitionsController extends StandardController {
           }
           catch(Exception $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
-            $this->performRedirect(); 
+            // Don't redirect since it will mask the actual error
+            //$this->performRedirect(); 
           }
           
           // Make sure we don't issue a redirect

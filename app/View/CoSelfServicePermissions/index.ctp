@@ -57,7 +57,7 @@
 </div>
 <br />
 
-<table id="cous" class="ui-widget">
+<table id="co_self_service_permissions" class="ui-widget">
   <thead>
     <tr class="ui-widget-header">
       <th><?php print $this->Paginator->sort('model', _txt('fd.model')); ?></th>

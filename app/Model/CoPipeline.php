@@ -236,7 +236,8 @@ class CoPipeline extends AppModel {
           $this->Co->CoPerson->CoPersonRole->id = $roleId;
           // This will also recalculate Person status
           $this->Co->CoPerson->CoPersonRole->saveField('status',
-                                                       $pipeline['CoPipeline']['sync_status_on_delete']);
+                                                       $pipeline['CoPipeline']['sync_status_on_delete'],
+                                                       array('provision' => $provision));
           
           // Create history
           $this->Co->CoPerson->HistoryRecord->record($coPersonId,
