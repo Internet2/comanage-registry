@@ -340,7 +340,7 @@ FROM
         // We need to find the necessary identifier to be used as the Grouper subject
         // and remove memberships before the identifier is deleted as part of the expunge
         // process.
-        if (array_key_exists('CoPerson', $provisioningData)) {
+        if (($op == ProvisioningActionEnum::CoPersonUpdated) && array_key_exists('CoPerson', $provisioningData)) {
           if ($provisioningData['CoPerson']['status'] != StatusEnum::Deleted) {
             break;
           }
