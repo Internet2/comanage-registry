@@ -475,20 +475,29 @@ FROM
         $provisionerGroup = $this->CoGrouperProvisionerGroup->findProvisionerGroup($coProvisioningTargetData, $provisioningData);
         $groupName = $this->CoGrouperProvisionerGroup->getGroupName($provisionerGroup);
 
-        $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
-
-        // We reprovision in two steps: 
-        // (1) Use a transaction and a SELECT FOR UPDATE statement 
+        // We reprovision in three steps: 
+        // (1) Call ourselves recursively with a CoGroupUpdated operation since
+        //     that branch of the switch statement has the logic to check for
+        //     existence of stems and groups and create any if necessary.
+        // (2) Use a transaction and a SELECT FOR UPDATE statement 
         //     with offset and limit to loop over all identifiers
         //     for all members of the group and then ask Grouper
         //     to add those members to the group.
-        // (2) Query Grouper for identifiers of all members in
+        // (3) Query Grouper for identifiers of all members in
         //     its group instance and query to find any that are not supposed
         //     to be in the group and then ask Grouper to delete those
         //     from its instance of the group.
 
-        // Begin by querying to find the identifiers for all members
-        // of the group.
+        // Begin by calling ourselves recursively with a CoGroupUpdated operation.
+        $ret = $this->provision($coProvisioningTargetData, ProvisioningActionEnum::CoGroupUpdated, $provisioningData);
+        if (!$ret) {
+          $this->log("Recursive call of provision by GrouperProvisioner with operation CoGroupUpdated failed");
+          return $ret;
+        }
+
+        $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
+
+        // Next find the identifiers for all members of the group.
         
         // Get a handle to the database interface.
         $dbc = $this->getDataSource();
