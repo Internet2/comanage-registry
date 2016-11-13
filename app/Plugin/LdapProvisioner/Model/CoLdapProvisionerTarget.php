@@ -656,14 +656,31 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 // XXX hard coded for now (CO-863)
                 $attributes[$attr] = "/bin/tcsh";
                 break;
+              // Internal attributes
+              case 'pwdAccountLockedTime':
+                // Our initial support is simple: set to 000001010000Z for
+                // expired or suspended Person status
+                if($provisioningData['CoPerson']['status'] == StatusEnum::Expired
+                   || $provisioningData['CoPerson']['status'] == StatusEnum::Suspended) {
+                  $attributes[$attr] = '000001010000Z';
+                } elseif($modify) {
+                  $attributes[$attr] = array();
+                }
+                break;
               default:
                 throw new InternalErrorException("Unknown attribute: " . $attr);
                 break;
             }
           } elseif($modify) {
             // In case this attribute is no longer being exported (but was previously),
-            // set an empty value to indicate delete
-            $attributes[$attr] = array();
+            // set an empty value to indicate delete. However, don't do this for serverInternal
+            // attributes since they may not actually be enabled on a given server
+            // (we don't currently have a good way to know).
+            
+            if(!isset($supportedAttributes[$oc]['attributes'][$attr]['serverInternal'])
+               || !$supportedAttributes[$oc]['attributes'][$attr]['serverInternal']) {
+              $attributes[$attr] = array();
+            }
           }
         }
       }
@@ -1211,6 +1228,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
 //            'multiple'    => true,
 //            'typekey'     => 'en.name.type',
 //            'defaulttype' => NameEnum::Official
+          ),
+          // This isn't actually defined in an object class, it's part of the
+          // server internal schema (if supported), but we don't have a better
+          // place to put it
+          'pwdAccountLockedTime' => array(
+            'required'       => false,
+            'multiple'       => false,
+            'serverInternal' => true
           )
         )
       ),
