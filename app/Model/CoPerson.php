@@ -356,9 +356,14 @@ class CoPerson extends AppModel {
     // provisioning for these.
     
     $this->id = $coPersonId;
+    
     // We don't provision here since afterSave will recalculate members groups,
-    // retriggering provision (and potentially reprovisinoing)
-    $this->saveField('status', StatusEnum::Deleted, array('provision' => false));
+    // retriggering provision (and potentially reprovisioning).
+    
+    // Don't update Person status to Deleted since deleting the roles (via deleteDependent)
+    // may recalculate it back to Active, in turn creating additional group memberships
+    // that then need to be re-deleted.
+//    $this->saveField('status', StatusEnum::Deleted, array('provision' => false));
     
     // Rewrite any Notification where this person is an actor, recipient, or resolver
     

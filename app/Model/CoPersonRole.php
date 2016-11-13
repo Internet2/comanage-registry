@@ -200,12 +200,15 @@ class CoPersonRole extends AppModel {
   public function afterDelete() {
     // Because CoPersonRole is changelog enabled, these references are still valid.
     
+    // Pass through provision settings
+    $provision = isset($this->_provision) ? $this->_provision : true;
+    
     // Recalculate person status
     $coPersonId = $this->field('co_person_id');
-    $this->CoPerson->recalculateStatus($coPersonId);
+    $this->CoPerson->recalculateStatus($coPersonId, $provision);
     
     // Manage CO person membership in the COU members group.
-    $this->reconcileCouMembersGroupMemberships($this->id, $this->alias);
+    $this->reconcileCouMembersGroupMemberships($this->id, $this->alias, $provision);
   }
   
   /**
