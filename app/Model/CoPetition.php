@@ -293,7 +293,8 @@ class CoPetition extends AppModel {
       if($efAttr['field'] == 'co_enrollment_attribute_id'
          || $efAttr['field'] == 'type'
          || $efAttr['field'] == 'language'
-         || $efAttr['field'] == 'primary_name') {
+         || $efAttr['field'] == 'primary_name'
+         || $efAttr['field'] == 'status') {
         
         continue;
       }

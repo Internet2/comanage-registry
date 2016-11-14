@@ -58,6 +58,7 @@ class CoPersonRole extends AppModel {
   public $hasMany = array(
     // A person can have one or more address
     "Address" => array('dependent' => true),
+    "CoExpirationCount" => array('dependent' => true),
     "CoPetition" => array(
       'dependent' => true,
       'foreignKey' => 'enrollee_co_person_role_id'
@@ -186,8 +187,8 @@ class CoPersonRole extends AppModel {
     'status' => 'StatusEnum'
   );
   
-  // To detect if the role status changed
-  protected $cachedStatus = null;
+  // To detect if various attributes changed
+  protected $cachedData = null;
     
   /**
    * Execute logic after a CO Person Role delete operation.
@@ -231,10 +232,17 @@ class CoPersonRole extends AppModel {
       $provision = $options['provision'];
     }
     
-    // If the role status changed, recalculate the person status
-    $curStatus = $this->field('status');
+    // Pull the current record
+    $args = array();
+    $args['conditions'][$this->alias.'.id'] = $this->id;
+    $args['contain'] = array('CoPerson');
+
+    $curdata = $this->find('first', $args);
     
-    if($created || ($this->cachedStatus != $curStatus)) {
+    // If the role status changed, recalculate the person status
+    
+    if($created || ($this->cachedData[$this->alias]['status']
+                    != $curdata[$this->alias]['status'])) {
       $coPersonId = $this->field('co_person_id');
       
       $this->CoPerson->recalculateStatus($coPersonId, $provision);
@@ -242,6 +250,22 @@ class CoPersonRole extends AppModel {
     
     // Make sure COU Group Memberships are up to date
     $this->reconcileCouMembersGroupMemberships($this->id, $this->alias, $provision);
+    
+    if(!$created) {
+      // Reset any expiration counts
+      $this->CoExpirationCount->reset($curdata['CoPerson']['co_id'],
+                                      $curdata[$this->alias]['id'],
+                                      $affilChanged=($this->cachedData[$this->alias]['affiliation']
+                                       != $curdata[$this->alias]['affiliation']),
+                                      ($this->cachedData[$this->alias]['cou_id']
+                                       != $curdata[$this->alias]['cou_id']),
+                                      ($this->cachedData[$this->alias]['sponsor_co_person_id']
+                                       != $curdata[$this->alias]['sponsor_co_person_id']),
+                                      ($this->cachedData[$this->alias]['status']
+                                       != $curdata[$this->alias]['status']),
+                                      ($this->cachedData[$this->alias]['valid_through']
+                                       != $curdata[$this->alias]['valid_through']));
+    }
   }
   
   /**
@@ -251,8 +275,18 @@ class CoPersonRole extends AppModel {
    */
   
   public function beforeSave($options = array()) {
-    // Cache the current status
-    $this->cachedStatus = $this->field('status');
+    // Cache the current record
+    $this->cachedData = null;
+    
+    if(!empty($this->data['CoPersonRole']['id'])) {
+      // We have an existing record
+      
+      $args = array();
+      $args['conditions']['CoPersonRole.id'] = $this->data['CoPersonRole']['id'];
+      $args['contain'] = false;
+
+      $this->cachedData = $this->find('first', $args);
+    }
     
     // If the validity of the role was changed, change the status appropriately
     

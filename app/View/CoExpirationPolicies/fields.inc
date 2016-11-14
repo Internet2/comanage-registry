@@ -245,6 +245,20 @@
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
             <strong class="fieldTitle">
+              <?php print ($e ? $this->Form->label('cond_count', _txt('fd.xp.count.cond')) : _txt('fd.xp.count.cond')); ?>
+            </strong><br />
+            <span class="descr"><?php print _txt('fd.xp.count.cond.desc'); ?></span>
+          </td>
+          <td>
+            <?php
+              print ($e ? $this->Form->input('cond_count', $args)
+                        : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['cond_count']));
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <td>
+            <strong class="fieldTitle">
               <?php print ($e ? $this->Form->label('cond_status', _txt('fd.status')) : _txt('fd.status')); ?>
             </strong><br />
             <span class="descr"><?php print _txt('fd.xp.status.cond.desc'); ?></span>
@@ -471,6 +485,19 @@
           <td>
             <?php print ($e ? $this->Form->input('act_notify_co_person') . ' ' . $this->Form->label('act_notify_co_person', _txt('fd.xp.notify_coperson.act'))
                             : ($co_expiration_policies[0]['CoExpirationPolicy']['act_notify_co_person']
+                               ? _txt('fd.yes') : _txt('fd.no'))); ?>
+          </td>
+        </tr>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <td>
+            <strong class="fieldTitle">
+              <?php print _txt('fd.xp.notify_sponsor.act'); ?>
+            </strong><br />
+            <span class="descr"><?php print _txt('fd.xp.notify_sponsor.act.desc'); ?></span>
+          </td>
+          <td>
+            <?php print ($e ? $this->Form->input('act_notify_sponsor') . ' ' . $this->Form->label('act_notify_sponsor', _txt('fd.xp.notify_sponsor.act'))
+                            : ($co_expiration_policies[0]['CoExpirationPolicy']['act_notify_sponsor']
                                ? _txt('fd.yes') : _txt('fd.no'))); ?>
           </td>
         </tr>

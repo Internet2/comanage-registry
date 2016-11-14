@@ -759,6 +759,7 @@
     <field name="cond_affiliation" type="C" size="32" />
     <field name="cond_before_expiry" type="I" />
     <field name="cond_after_expiry" type="I" />
+    <field name="cond_count" type="I" />
     <field name="cond_status" type="C" size="2" />
     <field name="cond_sponsor_invalid" type="L" />
     <field name="act_affiliation" type="C" size="32" />
@@ -772,6 +773,7 @@
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
     <field name="act_notify_co_person" type="L" />
+    <field name="act_notify_sponsor" type="L" />
     <field name="act_notification_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
@@ -785,6 +787,38 @@
     
     <index name="co_expiration_policies_i1">
       <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="co_expiration_counts">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_expiration_policy_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_expiration_policies(id)</constraint>
+    </field>
+    <field name="co_person_role_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
+    </field>
+    <field name="expiration_count" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_expiration_count_id" type="I">
+      <constraint>REFERENCES cm_co_expiration_counts(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_expiration_counts_i1">
+      <col>co_expiration_policy_id</col>
+      <col>co_person_role_id</col>
+    </index>
+    <index name="co_expiration_counts_i2">
+      <col>co_expiration_count_id</col>
     </index>
   </table>
   

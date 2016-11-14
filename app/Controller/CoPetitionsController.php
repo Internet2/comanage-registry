@@ -2014,6 +2014,7 @@ class CoPetitionsController extends StandardController {
       }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
+        $this->log($e->getMessage());
         $this->performRedirect();
       }
     }
