@@ -902,6 +902,9 @@ class AppController extends Controller {
     // Manage CO self service permissions?
     $p['menu']['coselfsvcperm'] = $roles['cmadmin'] || $roles['coadmin'];
     
+    // Manage CO services?
+    $p['menu']['coservices'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // Manage CO settings?
     $p['menu']['cosettings'] = $roles['cmadmin'] || $roles['coadmin'];
     
@@ -987,6 +990,16 @@ class AppController extends Controller {
           );
         }
       }
+    }
+    
+    // Pull the list of services, which could be non-empty even
+    // for anonymous access
+    if(!empty($this->cur_co['Co']['id'])) {
+      $this->loadModel('CoService');
+      
+      $menu['services'] = $this->CoService->findServicesByPerson($this->Role,
+                                                                 $this->cur_co['Co']['id'],
+                                                                 $this->Session->read('Auth.User.co_person_id'));
     }
     
     // Determine what menu contents plugins want available

@@ -251,6 +251,20 @@
           <li>
             <div class="field-name">
               <div class="field-title">
+                <?php print ($e ? $this->Form->label('cond_count', _txt('fd.xp.count.cond')) : _txt('fd.xp.count.cond')); ?>
+              </div>
+              <div class="field-desc"><?php print _txt('fd.xp.count.cond.desc'); ?></div>
+            </div>
+            <div class="field-info">
+              <?php
+                print ($e ? $this->Form->input('cond_count', $args)
+                          : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['cond_count']));
+              ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
                 <?php print ($e ? $this->Form->label('cond_status', _txt('fd.status')) : _txt('fd.status')); ?>
               </div>
               <div class="field-desc"><?php print _txt('fd.xp.status.cond.desc'); ?></div>
@@ -482,6 +496,19 @@
             <div class="field-info checkbox">
               <?php print ($e ? $this->Form->input('act_notify_co_person') . ' ' . $this->Form->label('act_notify_co_person', _txt('fd.xp.notify_coperson.act'))
                               : ($co_expiration_policies[0]['CoExpirationPolicy']['act_notify_co_person']
+                                 ? _txt('fd.yes') : _txt('fd.no'))); ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print _txt('fd.xp.notify_sponsor.act'); ?>
+              </div>
+              <div class="field-desc"><?php print _txt('fd.xp.notify_sponsor.act.desc'); ?></div>
+            </div>
+            <div class="field-info checkbox">
+              <?php print ($e ? $this->Form->input('act_notify_sponsor') . ' ' . $this->Form->label('act_notify_sponsor', _txt('fd.xp.notify_sponsor.act'))
+                              : ($co_expiration_policies[0]['CoExpirationPolicy']['act_notify_sponsor']
                                  ? _txt('fd.yes') : _txt('fd.no'))); ?>
             </div>
           </li>

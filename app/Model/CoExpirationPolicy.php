@@ -53,6 +53,10 @@ class CoExpirationPolicy extends AppModel {
     )
   );
   
+  public $hasMany = array(
+    "CoExpirationCount" => array('dependent' => true)
+  );
+  
   // Default display field for cake generated views
   public $displayField = "description";
   
@@ -95,6 +99,11 @@ class CoExpirationPolicy extends AppModel {
       'allowEmpty' => true
     ),
     'cond_after_expirty' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'cond_count' => array(
       'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
@@ -169,6 +178,11 @@ class CoExpirationPolicy extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'act_notify_sponsor' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'act_notification_subject' => array(
       'rule' => 'notBlank',
       'required' => false,
@@ -239,12 +253,13 @@ class CoExpirationPolicy extends AppModel {
           $args['conditions']['CoPersonRole.affiliation'] = $p['CoExpirationPolicy']['cond_affiliation'];
         }
         // Note only one of after and before is permitted
-        if(!empty($p['CoExpirationPolicy']['cond_after_expiry'])) {
+        // We use strlen because we want the literal string 0 but not an empty string.
+        if(strlen($p['CoExpirationPolicy']['cond_after_expiry']) > 0) {
           // Imagine today is June 10 and cond_after_expiry is 7 days (ie: give someone a week grace
           // period after expiration). What we want are valid through dates from June 3 and earlier.
           $args['conditions']['CoPersonRole.valid_through <'] =
             date('Y-m-d H:i:s', strtotime("-" . $p['CoExpirationPolicy']['cond_after_expiry'] . " days"));
-        } elseif(!empty($p['CoExpirationPolicy']['cond_before_expiry'])) {
+        } elseif(strlen($p['CoExpirationPolicy']['cond_before_expiry']) > 0) {
           // Imagine today is June 5 and cond_before_expiry is 3 days (ie: notify someone 3 days
           // before expiration). What we want are valid_through dates between now (6/5) and 3 days
           // from now (6/8).
@@ -279,6 +294,23 @@ class CoExpirationPolicy extends AppModel {
         
         if(!empty($roles)) {
           foreach($roles as $role) {
+            if(!empty($p['CoExpirationPolicy']['cond_count'])) {
+              // Make sure we haven't already sent the specified number of notifications.
+              // It's a bit tricky to do this as part of the find, so we do it here.
+              
+              $cnt = $this->CoExpirationCount->count($p['CoExpirationPolicy']['id'],
+                                                     $role['CoPersonRole']['id']);
+              
+              if($cnt >= $p['CoExpirationPolicy']['cond_count']) {
+                // Count reached, just move on to the next role
+                continue;
+              } else {
+                // While we're here increment the count
+                $this->CoExpirationCount->increment($p['CoExpirationPolicy']['id'],
+                                                    $role['CoPersonRole']['id']);
+              }
+            }
+            
             // Log that this expiration policy matched
             
             if($appShell) {
@@ -572,6 +604,40 @@ class CoExpirationPolicy extends AppModel {
                                 null,
                                 'coperson',
                                 $role['CoPersonRole']['co_person_id'],
+                                ActionEnum::ExpirationPolicyMatched,
+                                _txt('rs.xp.match', array($p['CoExpirationPolicy']['description'],
+                                                          $p['CoExpirationPolicy']['id'])),
+                                array(
+                                  // XXX Not really clear this is the right source, but there's not a clear alternate
+                                  // Should we create a log of expirations that are fired off? (seems redundant vs history_records)
+                                  'controller' => 'co_person_roles',
+                                  'action'     => 'edit',
+                                  'id'         => $role['CoPersonRole']['id']
+                                ),
+                                false,
+                                null,
+                                $subject,
+                                $body);
+              }
+              catch(Exception $e) {
+                if($appShell) {
+                  $appShell->out($e->getMessage(), 1, Shell::QUIET);
+                }
+              }
+            }
+            
+            if(isset($p['CoExpirationPolicy']['act_notify_sponsor'])
+               && $p['CoExpirationPolicy']['act_notify_sponsor']
+               && !empty($role['CoPersonRole']['sponsor_co_person_id'])) {
+              try {
+                $this->Co
+                     ->CoGroup
+                     ->CoNotificationRecipientGroup
+                     ->register($role['CoPersonRole']['sponsor_co_person_id'],
+                                null,
+                                null,
+                                'coperson',
+                                $role['CoPersonRole']['sponsor_co_person_id'],
                                 ActionEnum::ExpirationPolicyMatched,
                                 _txt('rs.xp.match', array($p['CoExpirationPolicy']['description'],
                                                           $p['CoExpirationPolicy']['id'])),

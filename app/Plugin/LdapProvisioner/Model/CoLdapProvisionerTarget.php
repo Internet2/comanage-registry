@@ -188,6 +188,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // Full set of supported attributes (not what's configured)
     $supportedAttributes = $this->supportedAttributes();
     
+    // Cached group membership, interim solution for CO-1348 (see below)
+    $groupMembers = array();
+    
     // Note we don't need to check for inactive status where relevant since
     // ProvisionerBehavior will remove those from the data we get.
     
@@ -216,6 +219,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       if(($person && $oc == 'groupOfNames')
          || ($group && !in_array($oc, array('groupOfNames','eduMember')))) {
         continue;
+      }
+      
+      if($group && empty($groupMembers) && in_array($oc, array('groupOfNames','eduMember'))) {
+        // As an interim solution to CO-1348 we'll pull all group members here (since we no longer get them)
+        
+        $args = array();
+        $args['conditions']['CoGroupMember.co_group_id'] = $provisioningData['CoGroup']['id'];
+        $args['contain'] = false;
+                  
+        $groupMembers = $this->CoLdapProvisionerDn->CoGroup->CoGroupMember->find('all', $args);
       }
       
       // Iterate across objectclasses, looking for those that are required or enabled
@@ -549,12 +562,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               // hasMember and isMember of are both part of the eduMember objectclass, which can apply
               // to both people and group entries. Check what type of data we're working with for both.
               case 'hasMember':
-                if($group) {
+                if($group && !empty($provisioningData['CoGroup']['id'])) {
                   $members = $this->CoLdapProvisionerDn
                                   ->CoGroup
                                   ->CoGroupMember
-                                  ->mapCoGroupMembersToIdentifiers($provisioningData['CoGroupMember'],
-                                                                   $targetType);
+                                  ->mapCoGroupMembersToIdentifiers($groupMembers, $targetType);
                   
                   if(!empty($members)) {
                     // Unlike member, hasMember is not required. However, like owner, we can't have
@@ -585,17 +597,17 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               case 'member':
-                if(!empty($provisioningData['CoGroupMember'])) {
-                  $attributes[$attr] = $this->CoLdapProvisionerDn->dnsForMembers($provisioningData['CoGroupMember']);
-                }
+                $attributes[$attr] = $this->CoLdapProvisionerDn->dnsForMembers($groupMembers);
                 
                 if(empty($attributes[$attr])) {
                   // groupofnames requires at least one member
+                  // XXX seems like a better option would be to deprovision the group?
                   throw new UnderflowException('member');
                 }
                 break;
               case 'owner':
-                $owners = $this->CoLdapProvisionerDn->dnsForOwners($provisioningData['CoGroupMember']);
+                $owners = $this->CoLdapProvisionerDn->dnsForOwners($groupMembers);
+                
                 if(!empty($owners)) {
                   // Can't have an empty owners list (it should either not be present
                   // or have at least one entry)
@@ -604,6 +616,21 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   // Unless we're modifying an entry, in which case an empty list
                   // says to remove any previous entry
                   $attributes[$attr] = array();
+                }
+                break;
+              // eduPersonEntitlement is based on Group memberships
+              case 'eduPersonEntitlement':
+                $entGroupIds = Hash::extract($provisioningData['CoGroupMember'], '{n}.co_group_id');
+                
+                $attributes[$attr] = $this->CoProvisioningTarget
+                                          ->Co
+                                          ->CoGroup
+                                          ->CoService
+                                          ->mapCoGroupsToEntitlements($provisioningData['Co']['id'], $entGroupIds);
+                
+                if(!$modify && empty($attributes[$attr])) {
+                  // Can't have empty values on add
+                  unset($attributes[$attr]);
                 }
                 break;
               // posixAccount attributes
@@ -629,14 +656,31 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 // XXX hard coded for now (CO-863)
                 $attributes[$attr] = "/bin/tcsh";
                 break;
+              // Internal attributes
+              case 'pwdAccountLockedTime':
+                // Our initial support is simple: set to 000001010000Z for
+                // expired or suspended Person status
+                if($provisioningData['CoPerson']['status'] == StatusEnum::Expired
+                   || $provisioningData['CoPerson']['status'] == StatusEnum::Suspended) {
+                  $attributes[$attr] = '000001010000Z';
+                } elseif($modify) {
+                  $attributes[$attr] = array();
+                }
+                break;
               default:
                 throw new InternalErrorException("Unknown attribute: " . $attr);
                 break;
             }
           } elseif($modify) {
             // In case this attribute is no longer being exported (but was previously),
-            // set an empty value to indicate delete
-            $attributes[$attr] = array();
+            // set an empty value to indicate delete. However, don't do this for serverInternal
+            // attributes since they may not actually be enabled on a given server
+            // (we don't currently have a good way to know).
+            
+            if(!isset($supportedAttributes[$oc]['attributes'][$attr]['serverInternal'])
+               || !$supportedAttributes[$oc]['attributes'][$attr]['serverInternal']) {
+              $attributes[$attr] = array();
+            }
           }
         }
       }
@@ -760,12 +804,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     switch($op) {
       case ProvisioningActionEnum::CoPersonAdded:
-      case ProvisioningActionEnum::CoPersonPetitionProvisioned:
-      case ProvisioningActionEnum::CoPersonPipelineProvisioned:
-      case ProvisioningActionEnum::CoPersonUnexpired:
-        // Currently, unexpiration is treated the same as add, but that is subject to change
+        // On add, we issue a delete (for housekeeping purposes, it will mostly fail)
+        // and then an add. Note that various other operations will be promoted from
+        // modify to add if there is no record in LDAP, so don't make this modify.
         $assigndn = true;
-        $delete = true;  // Need to delete on provision in case of duplicate merge on enrollment
+        $delete = true;
         $add = true;
         break;
       case ProvisioningActionEnum::CoPersonDeleted:
@@ -778,7 +821,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $add = false;
         $person = true;
         break;
+      case ProvisioningActionEnum::CoPersonPetitionProvisioned:
+      case ProvisioningActionEnum::CoPersonPipelineProvisioned:
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
+      case ProvisioningActionEnum::CoPersonUnexpired:
+        // For these actions, there may be an existing record with externally managed
+        // attributes that we don't want to change. Treat them all as modifies.
         $assigndn = true;
         $modify = true;
         break;
@@ -1180,6 +1228,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
 //            'multiple'    => true,
 //            'typekey'     => 'en.name.type',
 //            'defaulttype' => NameEnum::Official
+          ),
+          // This isn't actually defined in an object class, it's part of the
+          // server internal schema (if supported), but we don't have a better
+          // place to put it
+          'pwdAccountLockedTime' => array(
+            'required'       => false,
+            'multiple'       => false,
+            'serverInternal' => true
           )
         )
       ),

@@ -605,6 +605,14 @@ class VerificationModeEnum
   const None      = 'X';
 }
 
+class VisibilityEnum
+{
+  const CoAdmin         = 'CA';
+  const CoGroupMember   = 'CG';
+  const CoMember        = 'CP';
+  const Unauthenticated = 'P';
+}
+
 // Old style enums below, deprecated
 // We're mostly ready to drop these, but there are still a few places that
 // reference them and need to be cleaned up.

@@ -210,6 +210,7 @@ class CoGroupMember extends AppModel {
   
   /**
    * Obtain all group members for a CO Group.
+   * NOTE: If this function is called within a transaction, a read lock will be obtained (SELECT FOR UPDATE).
    *
    * @since  COmanage Registry v0.9.2
    * @param  Integer CO Group ID
@@ -226,23 +227,19 @@ class CoGroupMember extends AppModel {
     $args['joins'][0]['alias'] = 'CoGroup';
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
+    $args['fields'] = array(
+      'id', 'co_group_id', 'co_person_id', 'member', 'owner'
+    );
     $args['conditions']['CoGroup.status'] = StatusEnum::Active;
     $args['conditions']['CoGroup.id'] = $coGroupId;
     $args['contain'] = false;
     
-    if($limit) {
-      $args['limit'] = $limit;
-    }
-    
-    if($offset) {
-      $args['offset'] = $offset;
-    }
-    
-    if($order) {
-      $args['order'] = $order;
-    }
-    
-    return $this->find('all', $args);
+    return $this->findForUpdate($args['conditions'],
+                                $args['fields'],
+                                $args['joins'],
+                                $limit,
+                                $offset,
+                                $order);
   }
 
   /**
@@ -261,9 +258,9 @@ class CoGroupMember extends AppModel {
     $coPeopleIds = array();
     
     foreach($coGroupMembers as $m) {
-      if(($owners && $m['owner'])
-         || (!$owners && $m['member'])) {
-        $coPeopleIds[] = $m['co_person_id'];
+      if(($owners && $m['CoGroupMember']['owner'])
+         || (!$owners && $m['CoGroupMember']['member'])) {
+        $coPeopleIds[] = $m['CoGroupMember']['co_person_id'];
       }
     }
     
@@ -304,6 +301,7 @@ class CoGroupMember extends AppModel {
     }
     
     // Find the requested group
+
     $targetGroup = $this->CoGroup->findByName($coId, $coGroupName);
     
     if(!$targetGroup) {
@@ -350,7 +348,9 @@ class CoGroupMember extends AppModel {
                                           _txt('fd.no')));
     } elseif(!$eligible && $isMember) {
       // Remove the membership
+      $this->_provision = $provision;
       $this->delete($groupMember['CoGroupMember']['id']);
+      $this->_provision = true;
       
       $hAction = ActionEnum::CoGroupMemberDeleted;
       $hText = _txt('rs.grm.deleted', array($targetGroup['CoGroup']['name'], $targetGroup['CoGroup']['id']));

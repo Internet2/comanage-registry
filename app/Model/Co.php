@@ -54,6 +54,7 @@ class Co extends AppModel {
     // A CO can have zero or more provisioning targets
     "CoProvisioningTarget" => array('dependent' => true),
     "CoSelfServicePermission" => array('dependent' => true),
+    "CoService" => array('dependent' => true),
     "CoTermsAndConditions" => array('dependent' => true),
     "CoTheme" => array('dependent' => true),
     // A CO has zero or more COUs

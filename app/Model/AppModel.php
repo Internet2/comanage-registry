@@ -884,10 +884,13 @@ class AppModel extends Model {
    * @param  Array Find conditions in the usual Cake format
    * @param  Array List of fields to retrieve
    * @param  Array Join conditions in the usual Cake format
+   * @param  Integer Maximium number of results to retrieve
+   * @param  Integer Offset to start retrieving results from
+   * @param  String Field to sort by
    * @return Array Result set as returned by Cake fetchAll() or read(), which isn't necessarily the same format as find()
    */
   
-  public function findForUpdate($conditions, $fields, $joins = array()) {
+  public function findForUpdate($conditions, $fields, $joins = array(), $limit=null, $offset=null, $order=null) {
     $dbc = $this->getDataSource();
     
     $args['conditions'] = $conditions;
@@ -897,10 +900,9 @@ class AppModel extends Model {
     // Don't allow joins to be NULL, make it an empty array if not set
     $args['joins'] = ($joins ? $joins : array());
     
-    // For the moment, we don't support these for no particular reason
-    $args['order'] = null;
-    $args['limit'] = null;
-    $args['group'] = null;
+    $args['order'] = $order;
+    $args['offset'] = $offset;
+    $args['limit'] = $limit;
     
     // Appending to the generated query should be fairly portable.
     // We use buildQuery to ensure callbacks (such as ChangelogBehavior) are

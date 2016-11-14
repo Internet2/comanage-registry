@@ -258,6 +258,7 @@ class CoGrouperProvisionerGroup extends AppModel {
   public function updateProvisionerGroup($current, &$updated) {
     if (array_key_exists('id', $current['CoGrouperProvisionerGroup'])) {
       $updated['CoGrouperProvisionerGroup']['id'] = $current['CoGrouperProvisionerGroup']['id'];
+      unset($updated['CoGrouperProvisionerGroup']['modified']);
     }
     
     if(!$this->save($updated)) {

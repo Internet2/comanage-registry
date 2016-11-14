@@ -216,9 +216,9 @@ class CoLdapProvisionerDn extends AppModel {
     $coPeopleIds = array();
     
     foreach($coGroupMembers as $m) {
-      if(($owners && $m['owner'])
-         || (!$owners && $m['member'])) {
-        $coPeopleIds[] = $m['co_person_id'];
+      if(($owners && $m['CoGroupMember']['owner'])
+         || (!$owners && $m['CoGroupMember']['member'])) {
+        $coPeopleIds[] = $m['CoGroupMember']['co_person_id'];
       }
     }
     

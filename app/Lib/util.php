@@ -305,10 +305,13 @@ function render_plugin_menus() {
       if(isset($plugins[$plugin][$menu])) {
         foreach(array_keys($plugins[$plugin][$menu]) as $label) {
           $args = $plugins[$plugin][$menu][$label];
-          $args['plugin'] = Inflector::underscore($plugin);
-          if(!empty($coid)){
-            $args['co'] = $coid;
+          if(is_array($args)) {
+            $args['plugin'] = Inflector::underscore($plugin);
+            if(!empty($coid)){
+              $args['co'] = $coid;
+            }
           }
+          // else probably just a string url
           print "<li>" . $htmlHelper->link($label, $args) . "</li>\n";
         }
       }

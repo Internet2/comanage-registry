@@ -56,6 +56,13 @@ class ProvisionerBehavior extends ModelBehavior {
    */
   
   public function afterDelete(Model $model) {
+    // Because Cake 2 doesn't support $options on delete callbacks, we need
+    // a hack to determine provisioning. Cake 3 supports $options.
+    if(isset($model->_provision) && $model->_provision === false) {
+      // The save requested we skip provisioning
+      return true;
+    }
+    
     // Note that in most cases this is just an edit. ie: deleting a telephone number is
     // CoPersonUpdated not CoPersonDeleted. In those cases, we can just call afterSave.
     
@@ -103,6 +110,13 @@ class ProvisionerBehavior extends ModelBehavior {
    */
   
   public function beforeDelete(Model $model, $cascade = true) {
+    // Because Cake 2 doesn't support $options on delete callbacks, we need
+    // a hack to determine provisioning. Cake 3 supports $options.
+    if(isset($model->_provision) && $model->_provision === false) {
+      // The save requested we skip provisioning
+      return true;
+    }
+    
     // Note that in most cases this is just an edit. ie: deleting a telephone number is
     // CoPersonUpdated not CoPersonDeleted. However, in those cases we don't want to
     // process anything until afterDelete().
@@ -196,7 +210,7 @@ class ProvisionerBehavior extends ModelBehavior {
     $pmodel = null;
     $pdata = null;
     $paction = null;
-    
+
     // For our initial implementation, one of the following must be true for $model:
     //  - The model is CoGroup
     //  - The model is CoPerson
@@ -223,7 +237,9 @@ class ProvisionerBehavior extends ModelBehavior {
     
     // Track which group or groups need to be rewritten.
     $coGroupIds = array();
-    $copid = null; // CO Person ID, not to be confused with $coPersonId, used below
+    // For a group update triggered by a person update (eg: person status change), this is
+    // the subject CO Person ID (not to be confused with $coPersonId, used below)
+    $copid = null;
     $gmodel = null;
     
     // If a CO Person status has changed to or from a status that triggers group provisioning,
@@ -307,6 +323,11 @@ class ProvisionerBehavior extends ModelBehavior {
       } elseif(!empty($model->data[ $model->name ]['co_group_id'])) {
         $gmodel = $model->CoGroup;
         $coGroupIds[] = $model->data[ $model->name ]['co_group_id'];
+        
+        if(!empty($model->data[ $model->name ]['co_person_id'])) {
+          // We need to pass the CO Person ID to marshallCoGroupData
+          $copid = $model->data[ $model->name ]['co_person_id'];
+        }
       }
     }
     
@@ -391,7 +412,7 @@ class ProvisionerBehavior extends ModelBehavior {
     
     if($model->name == 'CoGroup') {
       if($gmodel) {
-        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction);
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $copid);
       }
       // else we could be CoGroupMember being promoted to afterSave in the middle of
       // a CoGroup being deleted. In that scenario, we don't actually need to try
@@ -404,7 +425,7 @@ class ProvisionerBehavior extends ModelBehavior {
         $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction);
       }
       if($gmodel) {
-        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction);
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $copid);
       }
     }
     
@@ -564,7 +585,21 @@ class ProvisionerBehavior extends ModelBehavior {
     } else {
       throw new RuntimeException(_txt('er.co.specify'));
     }
-    $args['order'] = array('CoProvisioningTarget.ordr ASC');
+    // In general, we want the ascending order, but for delete operations we want descending (CO-1356).
+    // We use $personStatuses (and $action) to determine the order. There are very few circumstances
+    // where (eg) a person should go from Active backwards to (eg) Confirmed, and in those we
+    // probably want to deprovision anyway.
+    
+    if($action == ProvisioningActionEnum::CoPersonDeleted
+       || $action == ProvisioningActionEnum::CoGroupDeleted
+       || ($model->name == 'CoPerson'
+           && !in_array($provisioningData[ $model->name ]['status'], $this->personStatuses))
+       || ($model->name == 'CoGroup'
+           && $provisioningData[ $model->name ]['status'] != SuspendableStatusEnum::Active)) {
+      $args['order'] = array('CoProvisioningTarget.ordr DESC');
+    } else {
+      $args['order'] = array('CoProvisioningTarget.ordr ASC');
+    }
     $args['contain'] = false;
     
     $targets = $model->Co->CoProvisioningTarget->find('all', $args);
@@ -676,46 +711,35 @@ class ProvisionerBehavior extends ModelBehavior {
    * @since  COmanage Registry v0.8.2
    * @param  Model $coGroupModel CO Group Model instance
    * @param  integer $coGroupId CO Group to (re)provision
+   * @param  integer $coPersonId CO Person who triggered group update, if relevant
    * @return Array Array of CO Group Data, as returned by find
    * @throws InvalidArgumentException
    */
   
-  private function marshallCoGroupData($coGroupModel, $coGroupId) {
+  private function marshallCoGroupData($coGroupModel, $coGroupId, $coPersonId=null) {
+    // We can't pull all group member data because it won't scale. So we just pass
+    // the group metadata, and if a person triggered the update we also pass that
+    // person's information.
+    
     $args = array();
     $args['conditions']['CoGroup.id'] = $coGroupId;
-    // Only pull related models relevant for provisioning
-    $args['contain'] = array(
-      'CoGroupMember' => array('CoPerson' => array('Identifier'))
-    );
+    $args['contain'] = false;
     
-    $coGroupData = $coGroupModel->find('first', $args);
+    $group = $coGroupModel->find('first', $args);
     
-    // At the moment, if a group is inactive we behave similarly to marshallCoPersonData:
-    // we remove all the group memberships and return just the metadata.
-    
-    if($coGroupData['CoGroup']['status'] != StatusEnum::Active) {
-      unset($coGroupData['CoGroupMember']);
-    }
-    
-    // Remove any inactive CO People (ie: memberships attached to inactive CO People)
-    
-    if(!empty($coGroupData['CoGroupMember'])) {
-      for($i = (count($coGroupData['CoGroupMember']) - 1);$i >= 0;$i--) {
-        // Count backwards so we don't trip over indices when we unset invalid memberships.
-        
-        if(!isset($coGroupData['CoGroupMember'][$i]['CoPerson']['status'])
-           || !in_array($coGroupData['CoGroupMember'][$i]['CoPerson']['status'],
-                        $this->groupStatuses)) {
-          unset($coGroupData['CoGroupMember'][$i]);
-        }
-      }
+    if(!empty($group['CoGroup']['id']) && $coPersonId) {
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $coPersonId;
+      $args['contain'] = array('CoGroupMember' => array('conditions' => array('co_group_id ' => $coGroupId)));
       
-      if(count($coGroupData['CoGroupMember']) == 0) {
-        unset($coGroupData['CoGroupMember']);
+      $person = $coGroupModel->Co->CoPerson->find('first', $args);
+      
+      if(!empty($person)) {
+        $group['CoGroup'] = array_merge($group['CoGroup'], $person);
       }
     }
     
-    return $coGroupData;
+    return $group;
   }
   
   /**
@@ -824,19 +848,20 @@ class ProvisionerBehavior extends ModelBehavior {
   /**
    * Provision group data.
    *
-   * @param Object $model Invoking model
-   * @param Object $gmodel Group model
-   * @param Array $coGroupIds Array of group IDs to provision
-   * @param Boolean $created As passed to afterSave()
+   * @param  Object $model Invoking model
+   * @param  Object $gmodel Group model
+   * @param  Array $coGroupIds Array of group IDs to provision
+   * @param  Boolean $created As passed to afterSave()
    * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
+   * @param  Integer $coPersonId CO Person who triggered group update, if relevant
    * @return Boolean
    * @throws InvalidArgumentException
    */
   
-  protected function provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction) {
+  protected function provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $coPersonId=null) {
     foreach($coGroupIds as $coGroupId) {
       try {
-        $pdata = $this->marshallCoGroupData($gmodel, $coGroupId);
+        $pdata = $this->marshallCoGroupData($gmodel, $coGroupId, $coPersonId);
       }
       catch(InvalidArgumentException $e) {
         throw new InvalidArgumentException($e->getMessage());
