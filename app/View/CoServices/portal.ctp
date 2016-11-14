@@ -33,9 +33,9 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<table id="co_services" class="ui-widget">
+<table id="co_services">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print _txt('fd.desc'); ?></th>
       <th><?php print _txt('fd.svc.url'); ?></th>
       <th><?php print _txt('fd.svc.mail'); ?></th>
@@ -76,11 +76,5 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="3">
-      </th>
-    </tr>
-  </tfoot>
+
 </table>

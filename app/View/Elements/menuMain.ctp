@@ -194,7 +194,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         print '<li class="serviceMenu">';
         
         print '<a class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
-        print '<i class="material-icons">build</i>';
+        print '<i class="material-icons">apps</i>';
         print '<span class="menuTitle">' . _txt('ct.co_services.pl') . '</span>';
         print '<span class="fa arrow fa-fw"></span>';
         print '<span class="mdl-ripple"></span>';

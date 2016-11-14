@@ -49,162 +49,162 @@
 
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_services" class="ui-widget">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
-        </strong><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : Sanitize::html($co_services[0]['CoService']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
-        </strong>
+<ul id="<?php print $this->action; ?>_co_services" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
         <span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_services[0]['CoService']['status'])
-                             ? $co_services[0]['CoService']['status']
-                             : SuspendableStatusEnum::Active);
-          $attrs['empty'] = false;
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('description', array('class' => 'focusFirst'))
+                   : Sanitize::html($co_services[0]['CoService']['description'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_services[0]['CoService']['status'])
+                           ? $co_services[0]['CoService']['status']
+                           : SuspendableStatusEnum::Active);
+        $attrs['empty'] = false;
 
-          if($e) {
-            print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status.susp'],
-                                      $attrs);
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
 
-            if($this->Form->isFieldError('status')) {
-              print $this->Form->error('status');
-            }
-          } else {
-            print _txt('en.status', null, $co_services[0]['CoService']['status']);
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('visibility', _txt('fd.visibility')) : _txt('fd.visibility')); ?>
-        </strong>
-        <span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.svc.vis.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs = array();
-          $attrs['value'] = (isset($co_services[0]['CoService']['visibility'])
-                             ? $co_services[0]['CoService']['visibility']
-                             : VisibilityEnum::CoMember);
-          $attrs['empty'] = false;
+        } else {
+          print _txt('en.status', null, $co_services[0]['CoService']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('visibility', _txt('fd.visibility')) : _txt('fd.visibility')); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.vis.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_services[0]['CoService']['visibility'])
+                           ? $co_services[0]['CoService']['visibility']
+                           : VisibilityEnum::CoMember);
+        $attrs['empty'] = false;
 
-          if($e) {
-            print $this->Form->select('visibility',
-                                      $cm_texts[ $cm_lang ]['en.visibility'],
-                                      $attrs);
+        if($e) {
+          print $this->Form->select('visibility',
+                                    $cm_texts[ $cm_lang ]['en.visibility'],
+                                    $attrs);
 
-            if($this->Form->isFieldError('visibility')) {
-              print $this->Form->error('visibility');
-            }
-          } else {
-            print _txt('en.visibility', null, $co_services[0]['CoService']['visibility']);
+          if($this->Form->isFieldError('visibility')) {
+            print $this->Form->error('visibility');
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('co_group_id', _txt('fd.svc.group')) : _txt('fd.svc.group')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.svc.group.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (isset($co_services[0]['CoService']['co_group_id'])
-                             ? $co_services[0]['CoService']['co_group_id']
-                             : 0);
-          $attrs['empty'] = true;
+        } else {
+          print _txt('en.visibility', null, $co_services[0]['CoService']['visibility']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('co_group_id', _txt('fd.svc.group')) : _txt('fd.svc.group')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.group.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_services[0]['CoService']['co_group_id'])
+                           ? $co_services[0]['CoService']['co_group_id']
+                           : 0);
+        $attrs['empty'] = true;
+        
+        if($e) {
+          print $this->Form->select('co_group_id',
+                                    $vv_co_groups,
+                                    $attrs);
           
-          if($e) {
-            print $this->Form->select('co_group_id',
-                                      $vv_co_groups,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('co_group_id')) {
-              print $this->Form->error('co_group_id');
-            }
-          } else {
-            if(!empty( $co_services[0]['CoService']['co_group_id'])) {
-              print Sanitize::html($vv_co_groups[  $co_services[0]['CoService']['co_group_id'] ]);
-            }
+          if($this->Form->isFieldError('co_group_id')) {
+            print $this->Form->error('co_group_id');
           }
-        ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('service_url', _txt('fd.svc.url')) : _txt('fd.svc.url')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.svc.url.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('service_url')
-                     : Sanitize::html($co_services[0]['CoService']['service_url'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('contact_email', _txt('fd.svc.mail')) : _txt('fd.svc.mail')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.svc.mail.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('contact_email')
-                     : Sanitize::html($co_services[0]['CoService']['contact_email'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('entitlement_uri', _txt('fd.svc.euri')) : _txt('fd.svc.euri')); ?>
-        </strong><br />
-        <span class="descr"><?php print _txt('fd.svc.euri.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('entitlement_uri')
-                     : Sanitize::html($co_services[0]['CoService']['entitlement_uri'])); ?>
-      </td>
-    </tr>
-    
-    <?php
-    if($e) {
-      print '<tr><td></td><td>';
-      print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-      print $this->Form->button(_txt('op.reset'), array('type'=>'reset'));
-      print '</td></tr>';
-    }
-    ?>
-  </tbody>
-</table>
+        } else {
+          if(!empty( $co_services[0]['CoService']['co_group_id'])) {
+            print Sanitize::html($vv_co_groups[  $co_services[0]['CoService']['co_group_id'] ]);
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('service_url', _txt('fd.svc.url')) : _txt('fd.svc.url')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.url.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('service_url')
+                   : Sanitize::html($co_services[0]['CoService']['service_url'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('contact_email', _txt('fd.svc.mail')) : _txt('fd.svc.mail')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.mail.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('contact_email')
+                   : Sanitize::html($co_services[0]['CoService']['contact_email'])); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('entitlement_uri', _txt('fd.svc.euri')) : _txt('fd.svc.euri')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.euri.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('entitlement_uri')
+                   : Sanitize::html($co_services[0]['CoService']['entitlement_uri'])); ?>
+    </div>
+  </li>
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
 <?php
   print $this->element("changelog");
   

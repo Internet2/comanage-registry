@@ -48,9 +48,7 @@
       </div>
     </div>
     <div class="field-info">
-      <div class="field-title">
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cos[0]['Co']['name'])); ?>
-      </div>
+      <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cos[0]['Co']['name'])); ?>
     </div>
   </li>
   <li>

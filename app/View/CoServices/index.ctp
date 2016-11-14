@@ -48,9 +48,9 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<table id="co_services" class="ui-widget">
+<table id="co_services">
   <thead>
-    <tr class="ui-widget-header">
+    <tr>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
       <th><?php print $this->Paginator->sort('co_group_id', _txt('ct.co_groups.1')); ?></th>
       <th><?php print $this->Paginator->sort('visibility', _txt('fd.visibility')); ?></th>
@@ -121,12 +121,7 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="4">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
+
 </table>
+
+<?php print $this->element("pagination"); ?>
