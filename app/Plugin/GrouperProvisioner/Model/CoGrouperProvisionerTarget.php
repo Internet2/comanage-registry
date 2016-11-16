@@ -852,12 +852,17 @@ FROM
             $grouper = new GrouperRestClient($serverUrl, $contextPath, $login, $password);
             $groupName = $this->CoGrouperProvisionerGroup->getGroupName($newProvisionerGroup);
 
-            // If CoGroupMember is not empty then it is a membership add, otherwise it is
-            // a membership delete.
-            if ($coGroupMember) {
+            // If CoGroupMember is empty or the member flag is false then it is a membership delete, 
+            // otherwise if the member flag is true it is a membership add.
+            if (!$coGroupMember) {
+              $grouper->deleteManyMember($groupName, array($subject));
+            } elseif (!$coGroupMember[0]['member'] && ($coGroupMember[0]['co_group_id'] == $provisioningData['CoGroup']['id'])) {
+              $grouper->deleteManyMember($groupName, array($subject));
+            } elseif ($coGroupMember[0]['member'] && ($coGroupMember[0]['co_group_id'] == $provisioningData['CoGroup']['id'])) {
               $grouper->addManyMember($groupName, array($subject));
             } else {
-              $grouper->deleteManyMember($groupName, array($subject));
+              // This should not happen so log if we get here.
+              $this->log("GrouperProvisioner is unable to determine membership status");
             }
 
             // Update provisioner group table to record new modified time.
