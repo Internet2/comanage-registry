@@ -42,7 +42,6 @@ $cm_orcid_source_texts['en_US'] = array(
   // Plugin texts
   'pl.orcidsource.clientid'       => 'Client ID',
   'pl.orcidsource.clientid.desc'  => 'Client ID obtained from registering with the ORCID Public ID',
-  'pl.orcidsource.description'    => 'Description',
   'pl.orcidsource.linked'         => 'Obtained ORCID "%1$s" via authenticated OAuth flow',
   'pl.orcidsource.redirect_url'   => 'ORCID Redirect URI',
   'pl.orcidsource.secret'         => 'Client Secret',

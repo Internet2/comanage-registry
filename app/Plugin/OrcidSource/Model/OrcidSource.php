@@ -42,11 +42,6 @@ class OrcidSource extends AppModel {
       'required' => true,
       'message' => 'An Org Identity Source ID must be provided'
     ),
-    'description' => array(
-      'rule' => 'notBlank',
-      'required' => true,
-      'allowEmpty' => false
-    ),
     'clientid' => array(
       'rule' => 'notBlank',
       'required' => true,

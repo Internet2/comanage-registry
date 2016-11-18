@@ -49,14 +49,6 @@
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td style="width:50%">
-        <strong class="fieldTitle"><?php print _txt('pl.orcidsource.description'); ?></strong><font class="required">*</font>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('description', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['description'])); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle"><?php print _txt('pl.orcidsource.clientid'); ?></strong><font class="required">*</font><br />
         <font class="desc"><?php print _txt('pl.orcidsource.clientid.desc'); ?></font>

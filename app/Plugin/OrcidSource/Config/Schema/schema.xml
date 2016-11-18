@@ -34,7 +34,6 @@
     <field name="org_identity_source_id" type="I">
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
-    <field name="description" type="C" size="256" />
     <!-- Don't call this client_id or cake will think it's a foreign key -->
     <field name="clientid" type="C" size="80" />
     <field name="client_secret" type="C" size="80" />
