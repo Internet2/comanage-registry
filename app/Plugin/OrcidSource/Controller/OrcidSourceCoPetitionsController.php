@@ -66,8 +66,8 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
     // Append the petition ID to the callback
     $callback[] = $id;
     $callback['oisid'] = $oiscfg['OrgIdentitySource']['id'];
-    $redirectUri = Router::url($callback);
-
+    $redirectUri = Router::url($callback, array('full' => true));
+  
     if(empty($this->request->query['code'])) {
       // First time through, redirect to the authorize URL
       
