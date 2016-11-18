@@ -280,23 +280,28 @@ class ProvisionerBehavior extends ModelBehavior {
     // If identifiers have changed, resync groups as well since group memberships
     // may be keyed on one of them.
     
-    if($model->name == 'Identifier'
-       && !empty($model->data['Identifier']['co_person_id'])) {
-      if(!isset($model->cacheData['Identifier']['identifier'])
-         && !empty($model->data['Identifier']['identifier'])) {
-        $syncGroups = true;
-      } elseif(!empty($model->cacheData['Identifier']['modified'])
-               && !empty($model->data['Identifier']['modified'])
-               && ($model->cacheData['Identifier']['modified']
-                   != $model->data['Identifier']['modified'])) {
-        // Use modified as a proxy for seeing if anything has changed in the record
+    if($model->name == 'Identifier') {
+      if(!empty($model->data['Identifier']['co_person_id'])) {
+        if(!isset($model->cacheData['Identifier']['identifier'])
+           && !empty($model->data['Identifier']['identifier'])) {
+          $syncGroups = true;
+        } elseif(!empty($model->cacheData['Identifier']['modified'])
+                 && !empty($model->data['Identifier']['modified'])
+                 && ($model->cacheData['Identifier']['modified']
+                     != $model->data['Identifier']['modified'])) {
+          // Use modified as a proxy for seeing if anything has changed in the record
+          
+          $syncGroups = true;
+        }
         
-        $syncGroups = true;
-      }
-      
-      if($syncGroups) {
+        if($syncGroups) {
+          $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
+          $copid = $model->data['Identifier']['co_person_id'];
+        }
+      } elseif(!empty($model->cacheData['Identifier']['co_person_id'])) {
+        // Identifier was deleted
         $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
-        $copid = $model->data['Identifier']['co_person_id'];
+        $copid = $model->cacheData['Identifier']['co_person_id'];
       }
     }
     
@@ -328,6 +333,15 @@ class ProvisionerBehavior extends ModelBehavior {
           // We need to pass the CO Person ID to marshallCoGroupData
           $copid = $model->data[ $model->name ]['co_person_id'];
         }
+      } elseif(!empty($model->cacheData[ $model->name ]['co_group_id'])) {
+        // eg: CoGroupMember deleted
+        $gmodel = $model->CoGroup;
+        $coGroupIds[] = $model->cacheData[ $model->name ]['co_group_id'];
+        
+        if(!empty($model->cacheData[ $model->name ]['co_person_id'])) {
+          // We need to pass the CO Person ID to marshallCoGroupData
+          $copid = $model->cacheData[ $model->name ]['co_person_id'];
+        }
       }
     }
     
@@ -354,24 +368,37 @@ class ProvisionerBehavior extends ModelBehavior {
       } elseif(!empty($model->data[ $model->name ]['co_person_id'])) {
         $pmodel = $model->CoPerson;
         $coPersonIds[] = $model->data[ $model->name ]['co_person_id'];
+      } elseif(!empty($model->cacheData[ $model->name ]['co_person_id'])) {
+        $pmodel = $model->CoPerson;
+        $coPersonIds[] = $model->cacheData[ $model->name ]['co_person_id'];
       } elseif(!empty($model->data[ $model->name ]['co_person_role_id'])) {
         $pmodel = $model->CoPersonRole->CoPerson;
         $coPersonIds[] = $model->CoPersonRole->field('co_person_id',
                                                     array('id' => $model->data[ $model->name ]['co_person_role_id']));
+      } elseif(!empty($model->cacheData[ $model->name ]['co_person_role_id'])) {
+        $pmodel = $model->CoPersonRole->CoPerson;
+        $coPersonIds[] = $model->CoPersonRole->field('co_person_id',
+                                                    array('id' => $model->cacheData[ $model->name ]['co_person_role_id']));
       } elseif($model->name == 'CoPersonRole' && !empty($model->data['CoPersonRole']['id'])) {
         // eg: for saveField called via CoExpirationPolicy::executePolicies()
         $pmodel = $model->CoPerson;
         $coPersonIds[] = $model->field('co_person_id',
                                       array('id' => $model->data['CoPersonRole']['id']));
       } elseif($model->name == 'Identifier'
-               && !empty($model->data['Identifier']['org_identity_id'])
-               && empty($model->data['Identifier']['co_person_id'])) {
+               &&
+               ((!empty($model->data['Identifier']['org_identity_id'])
+                 && empty($model->data['Identifier']['co_person_id']))
+                || (!empty($model->cacheData['Identifier']['org_identity_id'])
+                 && empty($model->cacheData['Identifier']['co_person_id'])))) {
         // Identifiers from an org record can be provisioned into a CO Person record.
         // We need to map from the Org Identity ID to a CO Person ID, but the tricky
         // part here is that an Org Identity can map into multiple CO People.
         
         $args = array();
-        $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $model->data['Identifier']['org_identity_id'];
+        $args['conditions']['CoOrgIdentityLink.org_identity_id'] =
+          (!empty($model->data['Identifier']['org_identity_id'])
+           ? $model->data['Identifier']['org_identity_id']
+           : $model->cacheData['Identifier']['org_identity_id']);
         $args['fields'] = array('CoOrgIdentityLink.org_identity_id', 'CoOrgIdentityLink.co_person_id');
         $args['contain'] = false;
         
