@@ -45,25 +45,33 @@ class CoTAndCAgreement extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'co_terms_and_conditions_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false,
-      'message' => 'A CO Terms And Conditions ID must be provided'
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'allowEmpty' => false,
+        'message' => 'A CO Terms And Conditions ID must be provided'
+      )
     ),
     'co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'allowEmpty' => false
+      )
     ),
     'agreement_time' => array(
-      'rule' => 'datetime',
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => 'datetime',
+        'required' => true,
+        'allowEmpty' => false
+      )
     ),
     'identifier' => array(
-      'rule' => '/.*/',
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => '/.*/',
+        'required' => true,
+        'allowEmpty' => false
+      )
     ),
   );
   

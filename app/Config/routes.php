@@ -73,6 +73,8 @@ Router::mapResources(array(
   'co_org_identity_links',
   'co_people',
   'co_person_roles',
+	'co_t_and_c_agreements',
+	'co_terms_and_conditions',
   'cos',
   'cous',
   'email_addresses',
