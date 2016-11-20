@@ -801,6 +801,22 @@ $(function() {
             }
           }
           
+          if(!empty($org_identities[0]['PipelineCoPersonRole']['id'])) {
+            print '<div>';
+              print '<div>';
+                print _txt('in.orgid.pi.role') . "<br />\n";
+              print '</div>';
+              print '<div>';
+              
+              print $this->Html->link(_txt('op.view'),
+                                      array('controller' => 'co_person_roles',
+                                            'action'     => 'edit',
+                                            $org_identities[0]['PipelineCoPersonRole']['id']),
+                                      array('class' => 'editbutton')) . "\n";
+              print '</div>';
+            print '</div>';
+          }
+          
           if($e) {
             if($permissions['link']) {
               foreach($vv_linkable_cos as $lcoid => $lconame) {

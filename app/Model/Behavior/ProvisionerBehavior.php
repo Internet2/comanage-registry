@@ -720,6 +720,8 @@ class ProvisionerBehavior extends ModelBehavior {
     } else {
       // Set the appropriate ID
       
+      $model->clear();
+      
       if($model->name == 'CoPerson' && $coPersonId) {
         $model->id = $coPersonId;
       } elseif($model->name == 'CoGroup' && $coGroupId) {

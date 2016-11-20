@@ -103,6 +103,24 @@
 
           <table id="<?php print $this->action; ?>_co_person_role" class="ui-widget fields">
             <tbody>
+              <?php if(!empty($co_person_roles[0]['CoPersonRole']['source_org_identity_id'])): ?>
+                <tr class="line<?php print ($l % 2); $l++; ?>">
+                  <td>
+                    <?php print _txt('fd.source'); ?>
+                  </td>
+                  <td>
+                    <?php
+                      $args = array(
+                        'controller' => 'org_identities',
+                        'action'     => 'view',
+                        $co_person_roles[0]['CoPersonRole']['source_org_identity_id']
+                      );
+                      
+                      print $this->Html->link(_txt('ct.org_identities.1'), $args);
+                    ?>
+                  </td>
+                </tr>
+              <?php endif; ?>
               <?php if(!empty($permissions['cous'])): ?>
                 <tr class="line<?php print ($l % 2); $l++; ?>">
                   <td>

@@ -81,9 +81,9 @@
     }
     
     if(createrole && syncdel) {
-      $("#CoPipelineStatusOnDelete").closest('tr').show('fade');
+      $("#CoPipelineSyncStatusOnDelete").closest('tr').show('fade');
     } else {
-      $("#CoPipelineStatusOnDelete").closest('tr').hide('fade');
+      $("#CoPipelineSyncStatusOnDelete").closest('tr').hide('fade');
     }
   }
   

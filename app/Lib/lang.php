@@ -466,7 +466,7 @@ original notification at
                                  IdentifierEnum::National => 'National',
                                  IdentifierEnum::Network => 'Network',
                                  IdentifierEnum::OpenID => 'OpenID',
-                                 IdentifierEnum::ORCID => 'ORCID',
+                                 IdentifierEnum::ORCID => 'ORCID iD',
                                  IdentifierEnum::Reference => 'Match Reference',
                                  IdentifierEnum::SORID => 'System of Record ID',
                                  IdentifierEnum::UID => 'UID'),
@@ -1348,6 +1348,7 @@ original notification at
   'in.orgid.ois'       => 'This is the current record available directly from the source. To view the latest record retrieved and cached by Registry, click <i>View Organizational Identity Source Record</i>.',
   'in.orgid.ois.notfound' => 'The requested key was not found in the source. If an Organizational Identity was already created using this key, the source may have deleted or expired its record.',
   'in.orgid.oisr'      => 'This is the latest record retrieved from the source, as cached by Registry. To view the current record directly from the source, click <i>View Organizational Identity Source</i>.',
+  'in.orgid.pi.role'   => 'CO Person Role created from this Org Identity via Pipeline',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
 
   // Menu

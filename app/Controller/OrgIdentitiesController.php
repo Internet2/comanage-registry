@@ -68,6 +68,8 @@ class OrgIdentitiesController extends StandardController {
     'Identifier',
     'Name',
     'OrgIdentitySourceRecord',
+    'PipelineCoPersonRole',
+    'PipelineCoGroupMember',
     'PrimaryName',
     'TelephoneNumber'
   );
