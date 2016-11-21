@@ -817,6 +817,24 @@ $(function() {
             print '</div>';
           }
           
+          if(!empty($org_identities[0]['PipelineCoGroupMember'])) {
+            foreach($org_identities[0]['PipelineCoGroupMember'] as $g) {
+              print '<div>';
+                print '<div>';
+                  print _txt('in.orgid.pi.group', array(Sanitize::html($g['CoGroup']['name']))) . "<br />\n";
+                print '</div>';
+                print '<div>';
+                
+                print $this->Html->link(_txt('op.view'),
+                                      array('controller' => 'co_group_members',
+                                            'action'     => 'edit',
+                                            $g['id']),
+                                      array('class' => 'editbutton')) . "\n";
+                print '</div>';
+              print '</div>';
+            }
+          }
+          
           if($e) {
             if($permissions['link']) {
               foreach($vv_linkable_cos as $lcoid => $lconame) {

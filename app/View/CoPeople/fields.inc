@@ -953,6 +953,14 @@
                               . '\']);">'
                               . _txt('op.delete')
                               . '</a>';
+                            
+                            if(!empty($g['source_org_identity_id'])) {
+                              print $this->Html->link(_txt('op.view.source'),
+                                  array('controller' => 'org_identities',
+                                        'action' => 'view',
+                                        $g['source_org_identity_id']),
+                                  array('class' => 'viewbutton'));
+                            }
                             print '</div>';
                             print '</div>';
                           }

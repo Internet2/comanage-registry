@@ -49,10 +49,6 @@ class OrgIdentity extends AppModel {
     "PipelineCoPersonRole" => array(
       'className'  => 'CoPersonRole',
       'foreignKey' => 'source_org_identity_id'
-    ),
-    "PipelineCoGroupMember" => array(
-      'className'  => 'CoGroupMember',
-      'foreignKey' => 'source_org_identity_id'
     )
   );
   
@@ -80,6 +76,10 @@ class OrgIdentity extends AppModel {
     // A person can have many identifiers within an organization
     "Identifier" => array('dependent' => true),
     "Name" => array('dependent' => true),
+    "PipelineCoGroupMember" => array(
+      'className'  => 'CoGroupMember',
+      'foreignKey' => 'source_org_identity_id'
+    ),
     // A person can have one or more telephone numbers
     "TelephoneNumber" => array('dependent' => true)
   );

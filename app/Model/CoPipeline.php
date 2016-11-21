@@ -218,37 +218,7 @@ class CoPipeline extends AppModel {
     
     if($syncAction == SyncActionEnum::Delete
        && !empty($pipeline['CoPipeline']['sync_status_on_delete'])) {
-      // Find the role associated with this Org Identity and update the status
-      
-      $args = array();
-      $args['conditions']['CoPersonRole.source_org_identity_id'] = $orgIdentityId;
-      $args['contain'] = false;
-      
-      $roles = $this->Co->CoPerson->CoPersonRole->find('all', $args);
-      
-      if(!empty($roles)) {
-        // There should be only one such role, but that could change over time
-        foreach($roles as $role) {
-          $roleId = $role['CoPersonRole']['id'];
-          
-          // Update the role to the specified status
-          $this->Co->CoPerson->CoPersonRole->clear();
-          $this->Co->CoPerson->CoPersonRole->id = $roleId;
-          // This will also recalculate Person status
-          $this->Co->CoPerson->CoPersonRole->saveField('status',
-                                                       $pipeline['CoPipeline']['sync_status_on_delete'],
-                                                       array('provision' => $provision));
-          
-          // Create history
-          $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                     $roleId,
-                                                     $orgIdentityId,
-                                                     $actorCoPersonId,
-                                                     ActionEnum::CoPersonRoleEditedPipeline,
-                                                     _txt('rs.pi.role.status',
-                                                          array(_txt('en.status', null, $pipeline['CoPipeline']['sync_status_on_delete']))));
-        }
-      }
+      $this->processDelete($pipeline, $orgIdentityId, $actorCoPersonId, $provision);
     } else {
       $this->syncOrgIdentityToCoPerson($pipeline, $orgIdentity, $coPersonId, $actorCoPersonId, $provision);
     }
@@ -406,13 +376,98 @@ class CoPipeline extends AppModel {
   }
   
   /**
+   * Process an Org Identity delete action.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Array $coPipeline Array of CO Pipeline configuration
+   * @param  Integer $orgIdentityId Org Identity ID
+   * @param  Integer $actorCoPersonId CO Person ID of actor
+   * @param  Boolean $provision Whether to trigger provisioning
+   * @return Boolean true on success
+   */
+  
+  protected function processDelete($coPipeline, $orgIdentityId, $actorCoPersonId=null, $provision=true) {
+    // First, find the role associated with this Org Identity and update the status
+    
+    $args = array();
+    $args['conditions']['CoPersonRole.source_org_identity_id'] = $orgIdentityId;
+    $args['contain'] = false;
+    
+    $roles = $this->Co->CoPerson->CoPersonRole->find('all', $args);
+    
+    if(!empty($roles)) {
+      // There should be only one such role, but that could change over time
+      foreach($roles as $role) {
+        $roleId = $role['CoPersonRole']['id'];
+        
+        // Update the role to the specified status
+        $this->Co->CoPerson->CoPersonRole->clear();
+        $this->Co->CoPerson->CoPersonRole->id = $roleId;
+        // This will also recalculate Person status
+        $this->Co->CoPerson->CoPersonRole->saveField('status',
+                                                     $coPipeline['CoPipeline']['sync_status_on_delete'],
+                                                     array('provision' => $provision));
+        
+        // Create history
+        $this->Co->CoPerson->HistoryRecord->record($role['CoPersonRole']['co_person_id'],
+                                                   $roleId,
+                                                   $orgIdentityId,
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoPersonRoleEditedPipeline,
+                                                   _txt('rs.pi.role.status',
+                                                        array(_txt('en.status', null, $coPipeline['CoPipeline']['sync_status_on_delete']))));
+      }
+    }
+    
+    // We also need to delete any group memberships associated with this org identity.
+    // This is similar to the code in syncOrgIdentityToCoPerson, below.
+    
+    $args = array();
+    $args['conditions']['CoGroupMember.source_org_identity_id'] = $orgIdentityId;
+    $args['contain'][] = 'CoGroup';
+    
+    $memberships = $this->Co->CoPerson->CoGroupMember->find('all', $args);
+    
+    if(!empty($memberships)) {
+      foreach($memberships as $gm) {
+        if(!$this->Co->CoPerson->CoGroupMember->delete($gm['CoGroupMember']['id'], array("provision" => $provision))) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoGroupMember')));
+        }
+        
+        // Cut history
+        $this->Co->CoPerson->HistoryRecord->record($gm['CoGroupMember']['co_person_id'],
+                                                   null,
+                                                   $orgIdentityId,
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoGroupMemberDeletedPipeline,
+                                                   _txt('rs.grm.deleted',
+                                                        array($gm['CoGroup']['name'],
+                                                              $gm['CoGroupMember']['co_group_id'])),
+                                                   $gm['CoGroupMember']['co_group_id']);
+        
+        $this->Co->CoPerson->HistoryRecord->record($gm['CoGroupMember']['co_person_id'],
+                                                   null,
+                                                   $orgIdentityId,
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoGroupMemberDeletedPipeline,
+                                                   _txt('rs.pi.sync-a', array(_txt('ct.co_group_members.1'),
+                                                                              $coPipeline['CoPipeline']['name'],
+                                                                              $coPipeline['CoPipeline']['id'])),
+                                                   $gm['CoGroupMember']['co_group_id']);
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Sync Org Identity attributes to a CO Person record. Suitable for add or update
    * sync actions.
    *
    * @since  COmanage Registry v1.1.0
    * @param  Array $coPipeline Array of CO Pipeline configuration
    * @param  Array $orgIdentity Array of Org Identity data and related models
-   * @param  Integer $coPersonId Target CO Person ID, if known
+   * @param  Integer $targetCoPersonId Target CO Person ID, if known
    * @param  Integer $actorCoPersonId CO Person ID of actor
    * @param  Boolean $provision Whether to trigger provisioning
    * @return Boolean true, on success

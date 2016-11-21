@@ -69,7 +69,7 @@ class OrgIdentitiesController extends StandardController {
     'Name',
     'OrgIdentitySourceRecord',
     'PipelineCoPersonRole',
-    'PipelineCoGroupMember',
+    'PipelineCoGroupMember' => array('CoGroup'),
     'PrimaryName',
     'TelephoneNumber'
   );

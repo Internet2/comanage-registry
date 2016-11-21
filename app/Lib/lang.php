@@ -1349,6 +1349,7 @@ original notification at
   'in.orgid.ois.notfound' => 'The requested key was not found in the source. If an Organizational Identity was already created using this key, the source may have deleted or expired its record.',
   'in.orgid.oisr'      => 'This is the latest record retrieved from the source, as cached by Registry. To view the current record directly from the source, click <i>View Organizational Identity Source</i>.',
   'in.orgid.pi.role'   => 'CO Person Role created from this Org Identity via Pipeline',
+  'in.orgid.pi.group'  => '%1$s Group Membership created from this Org Identity via Pipeline',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
 
   // Menu
@@ -1542,6 +1543,7 @@ original notification at
   'op.view' =>        'View',
   'op.view.all' =>    'View All',
   'op.view.pending' => 'View Pending',
+  'op.view.source' => 'View Source',
   'op.view-a' =>      'View %1$s',
   'op.view-f' =>      'View %1$s for %2$s',
   
