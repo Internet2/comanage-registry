@@ -134,7 +134,7 @@ class LdapSourceBackend extends OrgIdentitySourceBackend {
     $orgdata['OrgIdentity'] = array();
     
     if(!empty($result['edupersonaffiliation'][0]))
-      $orgdata['OrgIdentity']['affiliation'] = AffiliationEnum::$fromEduPersonAffiliation[ $result['edupersonaffiliation'][0] ];
+      $orgdata['OrgIdentity']['affiliation'] = $result['edupersonaffiliation'][0];
     if(!empty($result['o'][0]))
       $orgdata['OrgIdentity']['o'] = $result['o'][0];
     if(!empty($result['ou'][0]))
