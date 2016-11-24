@@ -106,6 +106,17 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       'required' => false,
       'allowEmpty' => true
     ),
+    'scope_suffix' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'unconf_attr_mode' => array(
+      'rule' => array('inList', array(LdapProvUnconfAttrEnum::Ignore,
+                                      LdapProvUnconfAttrEnum::Remove)),
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'opt_lang' => array(
       'rule' => 'boolean'
     ),
@@ -136,15 +147,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
    * Assemble attributes for an LDAP record.
    *
    * @since  COmanage Registry v0.8
-   * @param  Array CO Provisioning Target data
-   * @param  Array CO Person or CO Group Data used for provisioning
-   * @param  Boolean Whether or not this will be for a modify operation
-   * @param  Array Attributes used to generate the DN for this person, as returned by CoLdapProvisionerDn::dnAttributes
+   * @param  Array                  $coProvisioningTargetData CO Provisioning Target data
+   * @param  Array                  $provisioningData         CO Person or CO Group Data used for provisioning
+   * @param  Boolean                $modify                   Whether or not this will be for a modify operation
+   * @param  Array                  $dnAttributes             Attributes used to generate the DN for this person, as returned by CoLdapProvisionerDn::dnAttributes
+   * @param  LdapProvUnconfAttrEnum $uam                      How to handle unconfigured attributes
    * @return Array Attribute data suitable for passing to ldap_add, etc
    * @throws UnderflowException
    */
   
-  protected function assembleAttributes($coProvisioningTargetData, $provisioningData, $modify, $dnAttributes) {
+  protected function assembleAttributes($coProvisioningTargetData, $provisioningData, $modify, $dnAttributes, $uam) {
     // First see if we're working with a Group record or a Person record
     $person = isset($provisioningData['CoPerson']['id']);
     $group = isset($provisioningData['CoGroup']['id']);
@@ -673,11 +685,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 throw new InternalErrorException("Unknown attribute: " . $attr);
                 break;
             }
-          } elseif($modify) {
-            // In case this attribute is no longer being exported (but was previously),
-            // set an empty value to indicate delete. However, don't do this for serverInternal
-            // attributes since they may not actually be enabled on a given server
-            // (we don't currently have a good way to know).
+          } elseif($modify && $uam == LdapProvUnconfAttrEnum::Remove) {
+            // In case this attribute is probably no longer being exported (but was previously),
+            // set an empty value to indicate delete. Note there are use cases where this isn't
+            // desirable, such as when an attribute is externally managed, or when a server is
+            // using an older schema definition, so we let the admin configure this behavior.
+            
+            // If set to Remove, don't do this for serverInternal attributes since they may not
+            // actually be enabled on a given server (we don't currently have a good way to know).
             
             if(!isset($supportedAttributes[$oc]['attributes'][$attr]['serverInternal'])
                || !$supportedAttributes[$oc]['attributes'][$attr]['serverInternal']) {
@@ -935,7 +950,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       // Assemble an LDAP record
       
       try {
-        $attributes = $this->assembleAttributes($coProvisioningTargetData, $provisioningData, $modify, $dnAttributes);
+        // What is our unconfigured attribute mode?
+        $uam = !empty($coProvisioningTargetData['CoLdapProvisionerTarget']['unconf_attr_mode'])
+               ? $coProvisioningTargetData['CoLdapProvisionerTarget']['unconf_attr_mode']
+               : LdapProvUnconfAttrEnum::Remove;
+        
+        $attributes = $this->assembleAttributes($coProvisioningTargetData,
+                                                $provisioningData,
+                                                $modify,
+                                                $dnAttributes,
+                                                $uam);
       }
       catch(UnderflowException $e) {
         // We have a group with no members. Convert to a delete operation since

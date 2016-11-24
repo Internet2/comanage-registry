@@ -42,6 +42,7 @@
     <field name="opt_lang" type="L" />
     <field name="opt_role" type="L" />
     <field name="scope_suffix" type="C" size="128" />
+    <field name="unconf_attr_mode" type="C" size="2" />
     <field name="oc_eduperson" type="L" />
     <field name="oc_edumember" type="L" />
     <field name="oc_groupofnames" type="L" />

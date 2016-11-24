@@ -230,6 +230,35 @@
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.uam'); ?></strong><span class="required">*</span><br />
+        <span class="desc"><?php print _txt('pl.ldapprovisioner.uam.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          
+          $attrs = array();
+          $attrs['value'] = (isset($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['unconf_attr_mode'])
+                             ? $co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['unconf_attr_mode']
+                             : LdapProvUnconfAttrEnum::Remove);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('unconf_attr_mode',
+                                      $cm_texts[ $cm_lang ]['en.ldapprovisioner.unconfattr'],
+                                      $attrs);
+
+            if($this->Form->isFieldError('unconf_attr_mode')) {
+              print $this->Form->error('unconf_attr_mode');
+            }
+          } else {
+            print _txt('en.ldapprovisioner.unconfattr', null, $co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['unconf_attr_mode']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
         <strong class="fieldTitle"><?php print _txt('pl.ldapprovisioner.opts'); ?></strong><br />
         <span class="desc"><?php /* print _txt('pl.ldapprovisioner.opts.desc'); */ ?></span>
       </td>

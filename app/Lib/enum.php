@@ -730,3 +730,27 @@ $status_ti = array(
   'Declined'        => 'X',
   'Approved'        => 'Y'
 );
+
+/**
+ * Bootstrap plugin enums
+ *
+ * @since  COmanage Registry v1.1.0
+ */
+ 
+function _bootstrap_plugin_enum()
+{
+  $plugins = App::objects('plugin');
+  
+  foreach($plugins as $plugin) {
+    // Plugin lang files could be under APP or LOCAL
+    foreach(array(APP, LOCAL) as $dir) {
+      $enumfile = $dir . '/Plugin/' . $plugin . '/Lib/enum.php';
+      
+      if(is_readable($enumfile)) {
+        // Include the file
+        include $enumfile;        
+        break;
+      }
+    }
+  }
+}

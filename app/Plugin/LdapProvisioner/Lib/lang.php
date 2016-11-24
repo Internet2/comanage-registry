@@ -33,6 +33,12 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'ct.co_ldap_provisioner_targets.1'  => 'LDAP Provisioner Target',
   'ct.co_ldap_provisioner_targets.pl' => 'LDAP Provisioner Targets',
   
+  // Enumerations
+  'en.ldapprovisioner.unconfattr' => array(
+    LdapProvUnconfAttrEnum::Ignore => 'Ignore',
+    LdapProvUnconfAttrEnum::Remove => 'Remove'
+  ),
+  
   // Error messages
   'er.ldapprovisioner.basedn'         => 'Base DN not found',
   'er.ldapprovisioner.basedn.gr.none' => 'When the <code>groupOfNames</code> object class is enabled, the Group Base DN must be defined.',
@@ -75,5 +81,7 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'pl.ldapprovisioner.scope.desc'     => 'For attributes requiring scope, the scope to append (not including @)',
   'pl.ldapprovisioner.serverurl'      => 'Server URL',
   'pl.ldapprovisioner.serverurl.desc' => 'URL to connect to (<code>ldap[s]://hostname[:port]</code>)',
-  'pl.ldapprovisioner.types.all'      => 'All Types'
+  'pl.ldapprovisioner.types.all'      => 'All Types',
+  'pl.ldapprovisioner.uam'            => 'Unconfigured Attribute Mode',
+  'pl.ldapprovisioner.uam.desc'       => 'How to handle <a href="https://spaces.internet2.edu/x/ygYwAg#LDAPProvisioningPlugin-UnderstandingLDAPAttributeManagement">unconfigured attributes</a>'
 );
