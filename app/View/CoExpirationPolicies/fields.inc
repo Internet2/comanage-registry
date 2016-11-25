@@ -215,9 +215,10 @@
           </td>
           <td>
             <?php
-              // Mutually exclusive with before_expiry, so blank out on key up
+              // Mutually exclusive with before_expiry, so blank out on change
+              // (don't use onkeyup because that causes problems with tabbing through fields)
               $args = array();
-              $args['onkeyup'] = "document.getElementById('CoExpirationPolicyCondAfterExpiry').value = ''";
+              $args['onchange'] = "document.getElementById('CoExpirationPolicyCondAfterExpiry').value = ''";
               
               print ($e ? $this->Form->input('cond_before_expiry', $args)
                         : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['cond_before_expiry']));
@@ -233,9 +234,9 @@
           </td>
           <td>
             <?php
-              // Mutually exclusive with before_expiry, so blank out on key up
+              // Mutually exclusive with before_expiry, so blank out on change
               $args = array();
-              $args['onkeyup'] = "document.getElementById('CoExpirationPolicyCondBeforeExpiry').value = ''";
+              $args['onchange'] = "document.getElementById('CoExpirationPolicyCondBeforeExpiry').value = ''";
               
               print ($e ? $this->Form->input('cond_after_expiry', $args)
                         : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['cond_after_expiry']));
