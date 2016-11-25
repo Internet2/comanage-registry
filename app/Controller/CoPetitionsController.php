@@ -437,7 +437,11 @@ class CoPetitionsController extends StandardController {
         $authn = $this->CoPetition->CoEnrollmentFlow->field('require_authn',
                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
         
-        if($authn) {
+        // We'll also run T&C if authz != None, since we'll have an authenticated user that way, too
+        $authz = $this->CoPetition->CoEnrollmentFlow->field('authz_level',
+                                                            array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        
+        if($authn || $authz != EnrollmentAuthzEnum::None) {
           $tArgs = array();
           $tArgs['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
           $tArgs['conditions']['CoTermsAndConditions.cou_id'] = null;

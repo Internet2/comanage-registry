@@ -88,6 +88,8 @@
       $("#CoEnrollmentFlowRequireAuthn").closest("tr").hide('fade');
       $("#CoEnrollmentFlowDuplicateMode").closest("tr").hide('fade');
     }
+    
+    tandc_update_gadgets();
   }
   
   function authz_update_gadgets() {
@@ -114,12 +116,6 @@
         document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
       }
     } else {
-      if(authz == '<?php print EnrollmentAuthzEnum::None ?>') {
-        // If no authz is required, then T&C must be ignored
-        if (document.getElementById('CoEnrollmentFlowTAndCMode')) {
-          document.getElementById('CoEnrollmentFlowTAndCMode').value = "<?php print TAndCEnrollmentModeEnum::Ignore ?>";
-        }
-      }
       if (document.getElementById('CoEnrollmentFlowAuthzCoGroupId')) {
         document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
       }
@@ -127,6 +123,8 @@
         document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
       }
     }
+    
+    tandc_update_gadgets();
   }
   
   function fields_update_gadgets() {
@@ -170,6 +168,20 @@
       $("#CoEnrollmentFlowFinalizationTemplateId").closest("tr").show('fade');
     } else {
       $("#CoEnrollmentFlowFinalizationTemplateId").closest("tr").hide('fade');
+    }
+  }
+  
+  function tandc_update_gadgets() {
+    // T&C require some form of authentication
+    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode').value;
+    var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
+    var authz = document.getElementById('CoEnrollmentFlowAuthzLevel').value;
+    
+    if((confirm != '<?php print VerificationModeEnum::None; ?>' && authn)
+       || authz != '<?php print EnrollmentAuthzEnum::None ?>') {
+      $("#CoEnrollmentFlowTAndCMode").closest("tr").show('fade');
+    } else {
+      $("#CoEnrollmentFlowTAndCMode").closest("tr").hide('fade');
     }
   }
   
@@ -745,7 +757,7 @@
         <?php
           global $cm_lang, $cm_texts;
           $attrs = array();
-          $attrs['value'] = (isset($co_enrollment_flows)
+          $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode'])
                              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['t_and_c_mode']
                              : TAndCEnrollmentModeEnum::ExplicitConsent);
           $attrs['empty'] = false;
