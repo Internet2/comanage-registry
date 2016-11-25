@@ -284,7 +284,12 @@ class AppController extends Controller {
           
           if($this->modelClass != 'CoTermsAndConditions'
              // Also skip CoSetting so that an admin can change the mode
-             && $this->modelClass != 'CoSetting') {
+             && $this->modelClass != 'CoSetting'
+             // We skip CoPetition because of the situation where somebody is onboarded
+             // via conscription or an OIS sync (and so never actually logged into Registry)
+             // and then subsequently attempts to run an enrollment flow (eg account linking).
+             // Enrollment Flows can be configured to enforce T&C if needed.
+             && $this->modelClass != 'CoPetition') {
             $tandc = $this->Session->read('Auth.User.tandc.pending.' . $this->cur_co['Co']['id']);
             
             if(!empty($tandc)) {
