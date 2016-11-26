@@ -81,13 +81,20 @@ class CoEnrollmentSourcesController extends StandardController {
       // We need to pull a list of available Org Identity Sources, but we also
       // need to determine what capabilities they support.
       
+      // We actually need two lists, available and all, in case a source is suspended
+      // after being attached. (We still need the index view to correctly render.)
+      
       $args = array();
       $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];
-      $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
       $args['fields'] = array('id', 'description');
       $args['order'] = 'description';
       $args['contain'] = false;
+
+      $ois = $this->CoEnrollmentSource->OrgIdentitySource->find('list', $args);
+      $this->set('vv_all_ois', $ois);
       
+      $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+
       $ois = $this->CoEnrollmentSource->OrgIdentitySource->find('list', $args);
       $this->set('vv_avail_ois', $ois);
     }

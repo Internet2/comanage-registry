@@ -76,7 +76,6 @@
   }*/
 
   print $this->element("pageTitleAndButtons", $params);
-
 ?>
 
 <table id="co_enrollment_sources" class="ui-widget">
@@ -96,10 +95,15 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print $this->Html->link($vv_avail_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ],
+          print $this->Html->link($vv_all_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ],
                                   array('controller' => 'co_enrollment_sources',
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                                         $c['CoEnrollmentSource']['id']));
+          
+          if(!isset($vv_avail_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ])) {
+            // This source has been disabled
+            print "&nbsp;(" . _txt('en.status.susp', null, SuspendableStatusEnum::Suspended) . ")";
+          }
         ?>
       </td>
       <td><?php print _txt('en.enrollment.orgid', null, $c['CoEnrollmentSource']['org_identity_mode']); ?></td>
@@ -130,7 +134,7 @@
               . _txt('op.remove') . '\',\''    // dialog confirm button
               . _txt('op.cancel') . '\',\''    // dialog cancel button
               . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($vv_avail_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ]),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+              . filter_var(_jtxt($vv_all_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ]),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
               . '\']);">'
               . _txt('op.delete')
               . '</button>';
