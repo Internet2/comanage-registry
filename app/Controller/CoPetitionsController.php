@@ -1239,20 +1239,20 @@ class CoPetitionsController extends StandardController {
       // similar to what dispatch() does for plugins in general. However, here
       // we use configuration (not raw plugins), and we have a specified order.
     
-      // Before we get started, pull the list of Authenticate and Claim sources
+      // Before we get started, pull the list of Authenticate and Claim sources.
+      // While Enrollment Sources cannot be suspended, Org Identity Sources can.
       
-      $args = array();
-      $args['conditions']['CoEnrollmentSource.co_enrollment_flow_id'] = $this->cachedEnrollmentFlowID;
-      $args['conditions']['CoEnrollmentSource.org_identity_mode'] = EnrollmentOrgIdentityModeEnum::OISAuthenticate;
-      $args['contain'][] = 'OrgIdentitySource';
-      $args['order'] = 'CoEnrollmentSource.ordr ASC';
-      
-      $authsources = $this->CoPetition->CoEnrollmentFlow->CoEnrollmentSource->find('all', $args);
+      $authsources = $this->CoPetition
+                          ->CoEnrollmentFlow
+                          ->CoEnrollmentSource
+                          ->activeSources($this->cachedEnrollmentFlowID,
+                                          EnrollmentOrgIdentityModeEnum::OISAuthenticate);
   
-      // Note we're mostly reusing $args from above
-      $args['conditions']['CoEnrollmentSource.org_identity_mode'] = EnrollmentOrgIdentityModeEnum::OISClaim;
-      
-      $claimsources = $this->CoPetition->CoEnrollmentFlow->CoEnrollmentSource->find('all', $args);
+      $claimsources = $this->CoPetition
+                           ->CoEnrollmentFlow
+                           ->CoEnrollmentSource
+                           ->activeSources($this->cachedEnrollmentFlowID,
+                                           EnrollmentOrgIdentityModeEnum::OISClaim);
       
       if(!empty($authsources)) {
         // Find the next plugin (in authenticate mode) to run

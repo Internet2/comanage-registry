@@ -520,20 +520,38 @@ class ChangelogBehavior extends ModelBehavior {
         // eg: $query['contain'] = array('Model1.Model2');
         // For now, we don't support this second use case. Rewrite your contains
         // statement to use a different format.
+        // eg: $query['contain'] = array('Model1.field = "value"');
         
-        if($model->$v->Behaviors->enabled('Changelog')) {
+        $vmodel = $v;
+        $bits = array();
+        
+        if(strchr($v, '.')) {
+          // Third example
+          
+          $bits = explode('.', $v, 2);
+          $vmodel = $bits[0];
+        }
+        
+        if($model->$vmodel->Behaviors->enabled('Changelog')) {
           // Check to see if the contain'd model is set to relinkToArchive the
           // parent model. If so, we need to pull archived/deleted records.
           // XXX We probably need to do this below, too.
           
-          if(empty($model->$v->relinkToArchive)
-             || !in_array($model->name, $model->$v->relinkToArchive)) {
-            $cparentfk = Inflector::underscore($model->$v->name) . "_id";
+          if(empty($model->$vmodel->relinkToArchive)
+             || !in_array($model->name, $model->$vmodel->relinkToArchive)) {
+            $cparentfk = Inflector::underscore($model->$vmodel->name) . "_id";
             
-            $ret[$v]['conditions'] = array(
-              $v.'.'.$cparentfk => null,
-              $v.'.deleted IS NOT true'
+            $ret[$vmodel]['conditions'] = array(
+              $vmodel.'.'.$cparentfk => null,
+              $vmodel.'.deleted IS NOT true'
             );
+            
+            if(!empty($bits[1]) && strchr($bits[1], '=')) {
+              // Insert the originally requested condition
+              
+              $bits2 = explode('=', $bits[1], 2);
+              $ret[$vmodel]['conditions'][ $vmodel.'.'.trim($bits2[0]) ] = trim($bits2[1]);
+            }
             
             // Unset the original, which is keyed on an index number ($k)
             unset($ret[$k]);
