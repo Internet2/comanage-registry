@@ -290,29 +290,83 @@ class CoPersonRole extends AppModel {
     
     // If the validity of the role was changed, change the status appropriately
     
-    if(!empty($this->data['CoPersonRole']['valid_from'])) {
-      if(strtotime($this->data['CoPersonRole']['valid_from']) < time()
-         && $this->data['CoPersonRole']['status'] == StatusEnum::Pending) {
-        // Flag role as active
-        $this->data['CoPersonRole']['status'] = StatusEnum::Active;
-      } elseif(strtotime($this->data['CoPersonRole']['valid_from']) > time()
-         && $this->data['CoPersonRole']['status'] == StatusEnum::Active) {
-        // Flag role as pending
-        $this->data['CoPersonRole']['status'] = StatusEnum::Pending;
+    if(!empty($this->data['CoPersonRole']['status'])) {
+      if(!empty($this->data['CoPersonRole']['valid_from'])) {
+        if(strtotime($this->data['CoPersonRole']['valid_from']) < time()
+           && $this->data['CoPersonRole']['status'] == StatusEnum::Pending) {
+          // Flag role as active
+          $this->data['CoPersonRole']['status'] = StatusEnum::Active;
+        } elseif(strtotime($this->data['CoPersonRole']['valid_from']) > time()
+           && $this->data['CoPersonRole']['status'] == StatusEnum::Active) {
+          // Flag role as pending
+          $this->data['CoPersonRole']['status'] = StatusEnum::Pending;
+        }
       }
+      
+      if(!empty($this->data['CoPersonRole']['valid_through'])) {
+        if(strtotime($this->data['CoPersonRole']['valid_through']) < time()
+           && ($this->data['CoPersonRole']['status'] == StatusEnum::Active
+               ||
+               $this->data['CoPersonRole']['status'] == StatusEnum::GracePeriod)) {
+          // Flag role as expired
+          $this->data['CoPersonRole']['status'] = StatusEnum::Expired;
+        } elseif(strtotime($this->data['CoPersonRole']['valid_through']) > time()
+           && $this->data['CoPersonRole']['status'] == StatusEnum::Expired) {
+          // Flag role as active
+          $this->data['CoPersonRole']['status'] = StatusEnum::Active;
+        }
+      }
+    } else {
+      // If status is empty, we're probably in saveField. Ideally, we'd pull the
+      // current status, but the only place this is currently called this way
+      // is expire(), below.
     }
+  }
+  
+  /**
+   * Expire any roles for the specified CO Person ID. Specifically, set the status
+   * to Expired and set the valid through date to yesterday, if one was set.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $coPersonId      CO Person ID
+   * @param  Integer $couId           COU ID to expire roles for, or null for any role
+   * @param  Integer $actorCoPersonId CO Person ID of actor, if interactive
+   * @throws InvalidArgumentException
+   */
+  
+  public function expire($coPersonId, $couId=null, $actorCoPersonId=null) {
+    // First look for any matching roles
     
-    if(!empty($this->data['CoPersonRole']['valid_through'])) {
-      if(strtotime($this->data['CoPersonRole']['valid_through']) < time()
-         && ($this->data['CoPersonRole']['status'] == StatusEnum::Active
-             ||
-             $this->data['CoPersonRole']['status'] == StatusEnum::GracePeriod)) {
-        // Flag role as expired
-        $this->data['CoPersonRole']['status'] = StatusEnum::Expired;
-      } elseif(strtotime($this->data['CoPersonRole']['valid_through']) > time()
-         && $this->data['CoPersonRole']['status'] == StatusEnum::Expired) {
-        // Flag role as active
-        $this->data['CoPersonRole']['status'] = StatusEnum::Active;
+    $args = array();
+    $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
+    if($couId) {
+      $args['conditions']['CoPersonRole.cou_id'] = $couId;
+    }
+    $args['contain'] = array('Cou');
+    
+    $roles = $this->find('all', $args);
+    
+    if(!empty($roles)) {
+      foreach($roles as $role) {
+        $this->clear();
+        $this->id = $role['CoPersonRole']['id'];
+        
+        if(!empty($role['CoPersonRole']['valid_through'])) {
+          $this->saveField('valid_through', date('Y-m-d H:i:s',time()-1));
+        }
+        
+        $this->saveField('status', StatusEnum::Expired);
+        
+        // Record history
+        
+        $this->CoPerson->HistoryRecord->record($coPersonId,
+                                               $role['CoPersonRole']['id'],
+                                               null,
+                                               $actorCoPersonId,
+                                               ActionEnum::CoPersonRoleEditedExpiration,
+                                               !empty($role['Cou']['name'])
+                                               ? _txt('rs.xp.role-a', array($role['Cou']['name']))
+                                               : _txt('rs.xp.role'));
       }
     }
   }

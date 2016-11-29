@@ -1653,6 +1653,8 @@ original notification at
   'rs.uploaded-a2' => '%1$s "%2$s" Uploaded',
   'rs.xp.action' =>   'Expiration Policy "%1$s" (%2$s): %3$s',
   'rs.xp.match' =>    'Expiration Policy "%1$s" (%2$s) conditions matched',
+  'rs.xp.role' =>     'Role Expired',
+  'rs.xp.role-a' =>   '%1$s Role Expired',
   
   // Setup
   

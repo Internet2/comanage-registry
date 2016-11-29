@@ -224,8 +224,19 @@ class CoPipeline extends AppModel {
     }
     
     if($syncAction == SyncActionEnum::Add) {
-      // XXX if replace cou_id is set, expire any role in that COU for this CO Person
-      // (this will only really be useful with matching enabled)
+      if(!empty($pipeline['CoPipeline']['sync_replace_cou_id'])) {
+        // See if there is already a role in the specified COU for this CO Person,
+        // and if so expire it. (This will typically only be useful with a Match Strategy.)
+        
+        try {
+          $this->ReplaceCou->CoPersonRole->expire($coPersonId,
+                                                  $pipeline['CoPipeline']['sync_replace_cou_id'],
+                                                  $actorCoPersonId);
+        }
+        catch(Exception $e) {
+          // For now ignore any failure
+        }
+      }
     }
   }
   
