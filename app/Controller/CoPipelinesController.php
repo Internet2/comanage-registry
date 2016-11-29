@@ -38,6 +38,18 @@ class CoPipelinesController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  public $view_contains = array(
+    'CoEnrollmentFlow',
+    'CoSetting',
+    'OrgIdentitySource'
+  );
+  
+  public $edit_contains = array(
+    'CoEnrollmentFlow',
+    'CoSetting',
+    'OrgIdentitySource'
+  );
 
   /**
    * Callback after controller methods are invoked but before views are rendered.

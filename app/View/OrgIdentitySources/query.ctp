@@ -62,6 +62,9 @@
   $this->Html->addCrumb(_txt('ct.org_identity_sources.pl'), $args);
   $this->Html->addCrumb($title_for_layout);
 ?>
+<?php if(!empty($vv_search_results)): ?>
+<p><?php print _txt('rs.found.cnt', array(count($vv_search_results))); ?></p>
+<?php endif; ?>
 
 <div id="sourceSearch" class="topSearch">
   <p><?php print _txt('op.search');?>:</p>

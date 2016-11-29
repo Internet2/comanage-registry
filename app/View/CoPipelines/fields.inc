@@ -202,6 +202,13 @@
         <?php print _txt('fd.pi.sync.str'); ?>
       </a>
     </li>
+    <?php if($this->action != 'add'): ?>
+    <li>
+      <a href="#tabs-cxn">
+        <?php print _txt('fd.pi.connections'); ?>
+      </a>
+    </li>
+    <?php endif; ?>
   </ul>
   
   <div id="tabs-match">
@@ -242,7 +249,8 @@
           <td>
             <strong class="fieldTitle">
               <?php print ($e ? $this->Form->label('CoPipeline.match_type', _txt('fd.pi.match.type')) : _txt('fd.pi.match.type')); ?>
-            </strong><span class="required">*</span>
+            </strong><br />
+            <span class="descr"><?php print _txt('fd.pi.match.type.desc'); ?></span>
           </td>
           <td>
             <?php
@@ -250,7 +258,7 @@
               $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['match_type'])
                                  ? $co_pipelines[0]['CoPipeline']['match_type']
                                  : '');
-              $attrs['empty'] = false;
+              $attrs['empty'] = true;
               
               if($e) {
                 $this->Form->unlockField('CoPipeline.match_type');
@@ -441,6 +449,96 @@
       </tbody>
     </table>
   </div>
+  <?php if($this->action != 'add'): ?>
+  <div id="tabs-cxn">
+    <table id="connections" class="ui-widget">
+      <tbody>
+        <?php
+          $l=1;
+          if(!empty($co_pipelines[0]['CoSetting'][0]['id'])):
+        ?>
+        <tr class="line<?php print $l%2;$l++;?>">
+          <td>
+            <?php
+              print $this->Html->link(_txt('fd.pi.default'),
+                                      array(
+                                        'controller' => 'co_settings',
+                                        'action'     => 'add',
+                                        'co'         => $co_pipelines[0]['CoSetting'][0]['co_id']
+                                      ));
+            ?>
+          </td>
+          <td class="actions">
+            <?php
+              print $this->Html->link(_txt('op.edit'),
+                                      array(
+                                        'controller' => 'co_settings',
+                                        'action'     => 'add',
+                                        'co'         => $co_pipelines[0]['CoSetting'][0]['co_id']
+                                      ),
+                                      array('class' => 'editbutton'));
+            ?>
+          </td>
+        </tr>
+        <?php endif; ?>
+        <?php foreach($co_pipelines[0]['OrgIdentitySource'] as $ois): ?>
+        <tr class="line<?php print $l%2;$l++;?>">
+          <td>
+            <?php
+              print $this->Html->link($ois['description'],
+                                      array(
+                                        'controller' => 'org_identity_sources',
+                                        'action'     => 'edit',
+                                        $ois['id']
+                                      ));
+              
+              print " (" . _txt('ct.org_identity_sources.1') . ")";
+            ?>
+          </td>
+          <td class="actions">
+            <?php
+              print $this->Html->link(_txt('op.edit'),
+                                      array(
+                                        'controller' => 'org_identity_sources',
+                                        'action'     => 'edit',
+                                        $ois['id']
+                                      ),
+                                      array('class' => 'editbutton'));
+            ?>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+        <?php foreach($co_pipelines[0]['CoEnrollmentFlow'] as $ef): ?>
+        <tr class="line<?php print $l%2;$l++;?>">
+          <td>
+            <?php
+              print $this->Html->link($ef['name'],
+                                      array(
+                                        'controller' => 'co_enrollment_flows',
+                                        'action'     => 'edit',
+                                        $ef['id']
+                                      ));
+              
+              print " (" . _txt('ct.co_enrollment_flows.1') . ")";
+            ?>
+          </td>
+          <td class="actions">
+            <?php
+              print $this->Html->link(_txt('op.edit'),
+                                      array(
+                                        'controller' => 'co_enrollment_flows',
+                                        'action'     => 'edit',
+                                        $ef['id']
+                                      ),
+                                      array('class' => 'editbutton'));
+            ?>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+  <?php endif; // add ?>
 </div>
 
 <table>

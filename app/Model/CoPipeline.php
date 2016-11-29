@@ -88,7 +88,7 @@ class CoPipeline extends AppModel {
       // We should really use validateExtendedType, but it's a bit tricky since
       // it's dependent on match_strategy. We'd need a new custom validation rule.
       'rule' => array('maxLength', 32),
-      // Required only when match_strategy = Identifier (and, initially, EmailAddress)
+      // Required only when match_strategy = Identifier
       'required'   => false,
       'allowEmpty' => true
     ),

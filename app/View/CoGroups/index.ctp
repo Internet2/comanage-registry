@@ -405,8 +405,7 @@
                                                 'checked'    => $isOwner));
               print $this->Form->label('CoGroupMember.rows.'.$i.'.owner',_txt('fd.group.own'));
             }
-          }
-          else {
+          } else {
             if($e) {
               print $this->Html->link(_txt('op.edit'),
                                       array('controller' => 'co_groups',
@@ -444,6 +443,14 @@
                 . _txt('op.delete')
                 . '</button>';
             }
+          }
+          
+          if(!empty($c['CoGroupMember'][0]['source_org_identity_id'])) {
+            print $this->Html->link(_txt('op.view.source'),
+                                    array('controller' => 'org_identities',
+                                          'action' => 'view',
+                                          $c['CoGroupMember'][0]['source_org_identity_id']),
+                                    array('class' => 'viewbutton'));
           }
         ?>
         <?php ; ?>
