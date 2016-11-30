@@ -752,24 +752,25 @@ class CoPerson extends AppModel {
     // We rank status by "preference". More "preferred" statuses rank higher.
     // To faciliate comparison, we'll convert this to an integer value and store
     // it in a hash. Most preferred numbers are larger so we can say things like
-    // Active > Expired. Possibly this should go somewhere else, if useful.
+    // Active > Expired. Possibly this should go somewhere else, if useful. (CO-1360)
     
     $statusRanks = array(
       // Active statuses are most preferred
       StatusEnum::Active                => 14,
       StatusEnum::GracePeriod           => 13,
       
-      // Next come invitation statuses
-      StatusEnum::Approved              => 12,
-      StatusEnum::PendingApproval       => 11,
-      StatusEnum::Confirmed             => 10,
-      StatusEnum::PendingConfirmation   => 9,
-      StatusEnum::Invited               => 8,
-      StatusEnum::Pending               => 7,  // It's not clear this is used for anything
+      // Next come expired statuses, since there may be provisioned skeletal records
+      // that need to be maintained
+      StatusEnum::Suspended             => 12,
+      StatusEnum::Expired               => 11,
       
-      // Then expired statuses
-      StatusEnum::Suspended             => 6,
-      StatusEnum::Expired               => 5,
+      // Then invitation statuses
+      StatusEnum::Approved              => 10,
+      StatusEnum::PendingApproval       => 9,
+      StatusEnum::Confirmed             => 8,
+      StatusEnum::PendingConfirmation   => 7,
+      StatusEnum::Invited               => 6,
+      StatusEnum::Pending               => 5,  // It's not clear this is used for anything
       
       // Denied and Declined are below expired since other roles are more likely to have been used
       StatusEnum::Denied                => 4,
