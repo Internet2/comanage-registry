@@ -527,7 +527,11 @@ class CoPipeline extends AppModel {
         throw new RuntimeException(_txt('er.db.save-a', array('CoOrgIdentityLink')));
       }
       
-      // And create a Primary Name
+      // And create a Primary Name. We use the source's Primary Name here, but
+      // we don't actually link it to the source. This is in case the source record
+      // goes away and we want to ensure we still have a name record attached to the
+      // CO Person. (Under most circumstances the OIS name will be preserved, but eg
+      // an admin might try to clear out all associated data.)
       
       $name = array(
         'Name' => array(
@@ -539,7 +543,7 @@ class CoPipeline extends AppModel {
           'suffix'         => $orgIdentity['PrimaryName']['suffix'],
           'type'           => $orgIdentity['PrimaryName']['type'],
           'primary_name'   => true,
-          'source_name_id' => $orgIdentity['PrimaryName']['id'],
+//          'source_name_id' => $orgIdentity['PrimaryName']['id'],
         )
       );
       
@@ -660,15 +664,13 @@ class CoPipeline extends AppModel {
     }
     
     // Next handle associated models
-// XXX Implement Name
-// XXX Make sure source_model_id is defined in each model and add appropriate associations (and indexes)
     
     // Supported associated models and their parent relation
     $models = array(
       'Address'      => 'co_person_role_id',
       'EmailAddress' => 'co_person_id',
       'Identifier'   => 'co_person_id',
-      //'Name'         => 'co_person_id', // XXX Handle primary name specially?
+      'Name'         => 'co_person_id',
       'TelephoneNumber' => 'co_person_role_id'
     );
     
@@ -715,6 +717,11 @@ class CoPipeline extends AppModel {
                       $mkey,
                       'revision',
                       'deleted',
+                      // We explicitly get rid of any primary name attribute since we
+                      // should already have a primary name for the CO Person (either existing
+                      // or created above), and we don't want the OIS to directly change it.
+                      // (Election strategies should do that.)
+                      'primary_name',
                       'actor_identifier') as $k) {
           unset($newRecord[$k]);
         }

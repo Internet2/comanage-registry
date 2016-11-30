@@ -32,7 +32,7 @@ class NamesController extends MVPAController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'Family' => 'asc'
+      'Name.family' => 'asc'
     )
   );
 
@@ -375,17 +375,20 @@ class NamesController extends MVPAController {
     // Set the new primary name
     
     // Read the current data for this name
+    $args = array();
+    $args['conditions']['Name.id'] = $id;
+    $args['contain'] = false;
+    
+    $curdata = $this->Name->find('first', $args);
+    
     $this->Name->id = $id;
-    $this->Name->read();
     
     if($this->Name->saveField('primary_name', true)) {
       // Reread the current data for this name
-      $this->Name->id = $id;
-      $this->Name->read();
       
-      // XXX It would be nice to log the old primary name, but to do that we'd
-      // need to pull it first
-      if($this->recordHistory('primary', $this->Name->data, null)) {
+      $newdata = $this->Name->find('first', $args);
+      
+      if($this->recordHistory('primary', $newdata, $curdata)) {
         $ret = true;
       }
     }

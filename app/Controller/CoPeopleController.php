@@ -59,7 +59,7 @@ class CoPeopleController extends StandardController {
     // This deep nesting will allow us to display the source of the attribute
     'EmailAddress' => array('SourceEmailAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Identifier' => array('SourceIdentifier' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
-    'Name',
+    'Name' => array('SourceName' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'PrimaryName',
     'SshKey'
   );

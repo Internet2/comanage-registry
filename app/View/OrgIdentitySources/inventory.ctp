@@ -40,6 +40,9 @@
 
   print $this->element("pageTitleAndButtons", $params);
 ?>
+<?php if(!empty($vv_source_keys)): ?>
+<p><?php print _txt('rs.found.cnt', array(count($vv_source_keys))); ?></p>
+<?php endif; ?>
 
 <table id="org_identity_source_inventory" class="ui-widget">
   <thead>
@@ -49,6 +52,7 @@
     </tr>
   </thead>
   
+  <?php if(!empty($vv_source_keys)): ?>
   <tbody>
     <?php $i = 0; ?>
     <?php foreach($vv_source_keys as $skey): ?>
@@ -79,6 +83,7 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
+  <?php endif; // vv_source_keys ?>
   
   <tfoot>
     <tr class="ui-widget-header">

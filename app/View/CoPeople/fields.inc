@@ -543,6 +543,9 @@
 
                     print "&nbsp;("
                       . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
+                      . (!empty($n['SourceName']['id'])
+                         ? $n['SourceName']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] . ", "
+                         : "")
                       . $vv_cop_name_types[ $n['type'] ]
                       . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
                       . ")";
@@ -550,40 +553,50 @@
                   </div>
                   <div>
                     <?php
-                    if($perm == PermissionEnum::ReadWrite) {
-                      if(!$n['primary_name']) {
-                        print '<a class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
-                            array(
-                              'controller' => 'names',
-                              'action' => 'delete', $n['id'],
-                              'co' => $cur_co['Co']['id']
-                            )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt(generateCn($n)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</a>';
-
-                        print $this->Html->link(_txt('op.primary'),
-                            array('controller' => 'names',
-                              'action'     => 'primary',
-                              $n['id'],
-                              'copersonid' => $co_people[0]['CoPerson']['id']),
-                            array('class' => 'primarybutton')) . "\n";
+                      if(!empty($n['SourceName']['id'])) {
+                        // This name came from an OIS and so can't be edited, and for the moment
+                        // can't be made primary (though maybe that'll change with a use case).
+                        print $this->Html->link(_txt('op.view'),
+                                                array('controller' => 'names',
+                                                      'action' => 'view',
+                                                      $n['id']),
+                                                array('class' => 'viewbutton'));
+                      } else {
+                        if($perm == PermissionEnum::ReadWrite) {
+                          if(!$n['primary_name']) {
+                            print '<a class="deletebutton" title="' . _txt('op.delete')
+                              . '" onclick="javascript:js_confirm_generic(\''
+                              . _txt('js.remove') . '\',\''    // dialog body text
+                              . $this->Html->url(              // dialog confirm URL
+                                array(
+                                  'controller' => 'names',
+                                  'action' => 'delete', $n['id'],
+                                  'co' => $cur_co['Co']['id']
+                                )
+                              ) . '\',\''
+                              . _txt('op.remove') . '\',\''    // dialog confirm button
+                              . _txt('op.cancel') . '\',\''    // dialog cancel button
+                              . _txt('op.remove') . '\',[\''   // dialog title
+                              . filter_var(_jtxt(generateCn($n)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                              . '\']);">'
+                              . _txt('op.delete')
+                              . '</a>';
+    
+                            print $this->Html->link(_txt('op.primary'),
+                                array('controller' => 'names',
+                                  'action'     => 'primary',
+                                  $n['id'],
+                                  'copersonid' => $co_people[0]['CoPerson']['id']),
+                                array('class' => 'primarybutton')) . "\n";
+                          }
+    
+                          print $this->Html->link(_txt('op.edit'),
+                              array('controller' => 'names',
+                                    'action' => 'edit',
+                                    $n['id']),
+                              array('class' => 'editbutton')) . "\n";
+                        }
                       }
-
-                      print $this->Html->link(_txt('op.edit'),
-                          array('controller' => 'names',
-                                'action' => 'edit',
-                                $n['id']),
-                          array('class' => 'editbutton')) . "\n";
-                    }
                     ?>
                   </div>
                 </div>
@@ -925,7 +938,7 @@
                     <?php endif; ?>
                     <?php
                     if(isset($co_people[0]['CoGroupMember'])) {
-	              foreach($co_people[0]['CoGroupMember'] as $g) {
+      	              foreach($co_people[0]['CoGroupMember'] as $g) {
                         $isMembersGroup = ($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8)== 0);
                       	if($e && !$es && !$isMembersGroup) {
                           if($g['member'] || $g['owner']) {

@@ -40,18 +40,24 @@ class Name extends AppModel {
     // A name is attached to a CO Person
     "CoPerson",
     // A name is attached to an Org Identity
-    "OrgIdentity"
+    "OrgIdentity",
+    // A name created from a Pipeline has a Source Identifier
+    "SourceName" => array(
+      'className' => 'Name',
+      'foreignKey' => 'source_name_id'
+    )
   );
   
   // Default display field for cake generated views
   public $displayField = "family";
   
+/*
   // Default ordering for find operations
   public $order = array(
     "family",
     "given"
   );
-  
+*/  
   // Validation rules for table elements
   // Validation rules must be named 'content' for petition dynamic rule adjustment
   public $validate = array(
