@@ -757,7 +757,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // fairly large refactoring.)
     
     // While we're here, convert newlines to $ so the attribute doesn't end up
-    // base-64 encoded.
+    // base-64 encoded, and also trim leading and trailing whitespace. While
+    // normalization will typically handle this, in some cases (normalization
+    // disabled, some attributes that are not normalized) we can still end up
+    // with extra whitespace, which can be confusing/problematic in LDAP.
     
     foreach(array_keys($attributes) as $a) {
       if(is_array($attributes[$a])) {
@@ -773,9 +776,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $h = array();
         
         foreach($attributes[$a] as $v) {
-          if(!isset($h[ strtolower($v) ])) {
-            $newa[] = str_replace("\r\n", "$", $v);
-            $h[ strtolower($v) ] = true;
+          // Clean up the attribute before checking
+          $tv = str_replace("\r\n", "$", trim($v));
+          
+          if(!isset($h[ strtolower($tv) ])) {
+            $newa[] = $tv;
+            $h[ strtolower($tv) ] = true;
           }
         }
         
