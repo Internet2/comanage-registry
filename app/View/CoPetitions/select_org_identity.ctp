@@ -54,7 +54,7 @@
   print $this->Form->create(
     'CoPetition',
     array(
-      'action' => 'selectOrgIdentity/' . $vv_co_petition_id,
+      'url' => array('action' => 'selectOrgIdentity/' . $vv_co_petition_id),
       'inputDefaults' => array(
         'label' => false,
         'div' => false

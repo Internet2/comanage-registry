@@ -137,7 +137,7 @@
           
           // Start a new form (this will get closed by Standard/add/edit.ctp)
           print $this->Form->create('SshKey', array('type' => 'file',
-                                                    'action' => 'addKeyFile'));
+                                                    'url' => array('action' => 'addKeyFile')));
           
           // Since we started a new form, we need to re-insert the coperson id
           

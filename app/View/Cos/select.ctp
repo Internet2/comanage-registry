@@ -45,7 +45,7 @@
 
   // Generate form
   
-  print $this->Form->create('Co', array('action' => 'select'));
+  print $this->Form->create('Co', array('url' => array('action' => 'select')));
   print $this->Form->select('co', $a, array('empty' => false));
   print $this->Form->submit(_txt('op.select'));
   print $this->Form->end();
