@@ -673,7 +673,11 @@
                         print '<div class="identifier-container">';
                         print '<div class="action-buttons">';
                         print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id']));
-                        print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
+                        print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ]
+                              . ($id['status'] == SuspendableStatusEnum::Suspended
+                                 ? ", " . _txt('en.status.susp', null, SuspendableStatusEnum::Suspended)
+                                 : "")
+                              . ")";
                         print '</div> <!-- action-buttons -->';
                         print '<div class="identifier">';
                         // XXX we already checked for $permissions['edit'], but not ['delete']... should we?

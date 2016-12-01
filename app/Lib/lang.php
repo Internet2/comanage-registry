@@ -1717,6 +1717,7 @@ original notification at
   'sh.ug.105.attrdefault' => 'Clearing extraneous CO Enrollment Attribute defaults',
   'sh.ug.110.ef' =>       'Migrating enrollment flow configurations',
   'sh.ug.110.gr' =>       'Reconciling members groups (please wait, this may take some time)',
+  'sh.ug.110.is' =>       'Updating inactive identifier status',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

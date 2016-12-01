@@ -93,8 +93,8 @@ class Identifier extends AppModel {
     ),
     'status' => array(
       'content' => array(
-        'rule' => array('inList', array(StatusEnum::Active,
-                                        StatusEnum::Deleted)),
+        'rule' => array('inList', array(SuspendableStatusEnum::Active,
+                                        SuspendableStatusEnum::Suspended)),
         'required' => true,
         'allowEmpty' => false
       )
@@ -118,8 +118,27 @@ class Identifier extends AppModel {
   // Enum type hints
   
   public $cm_enum_types = array(
-    'status' => 'StatusEnum',
+    'status' => 'SuspendableStatusEnum',
   );
+  
+  /**
+   * Perform CoEnrollmentFlow model upgrade steps for version 1.1.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+
+  public function _ug110() {
+    // v1.1.0 uses SuspendableStatusEnum instead of StatusEnum. We need to replace any
+    // instances of 'D' with 'S'.
+    
+    // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
+    // We actually want to update archived rows so that petitions render properly
+    // (ie: so they show the confirmation steps as relevant).
+    
+    $this->updateAll(array('Identifier.status' => "'" . SuspendableStatusEnum::Suspended . "'"),
+                     array('Identifier.status' => StatusEnum::Deleted));
+  }
   
   /**
    * Actions to take after a save operation is executed.

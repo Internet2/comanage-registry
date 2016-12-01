@@ -189,14 +189,14 @@
           
           if($e) {
             print $this->Form->select('status',
-                                      $cm_texts[ $cm_lang ]['en.status'],
+                                      $cm_texts[ $cm_lang ]['en.status.susp'],
                                       $attrs);
             
             if($this->Form->isFieldError('status')) {
               print $this->Form->error('status');
             }
           } else {
-            print _txt('en.status', null, $identifiers[0]['Identifier']['status']);
+            print _txt('en.status.susp', null, $identifiers[0]['Identifier']['status']);
           }
         ?>
       </td>

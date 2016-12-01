@@ -29,7 +29,8 @@ class UpgradeVersionShell extends AppShell {
                     'Co',
                     'CoEnrollmentAttributeDefault',
                     'CoEnrollmentFlow',
-                    'CoGroup');
+                    'CoGroup',
+                    'Identifier');
   
   // A list of known versions, must be semantic versioning compliant. The value
   // is a "blocker" if it is a version that prevents an upgrade from happening.
@@ -343,5 +344,9 @@ class UpgradeVersionShell extends AppShell {
         }
       }
     }
+    
+    // 1.1.0 uses SuspendableStatusEnum for Identifier::status
+    $this->out(_txt('sh.ug.110.is'));
+    $this->Identifier->_ug110();
   }
 }

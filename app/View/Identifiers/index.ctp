@@ -66,7 +66,7 @@
         <?php
           global $status_t;
           
-          if(!empty($a['Identifier']['status'])) print _txt('en.status', null, $a['Identifier']['status']);
+          if(!empty($a['Identifier']['status'])) print _txt('en.status.susp', null, $a['Identifier']['status']);
         ?>
       </td>
       <td>
