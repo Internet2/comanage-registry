@@ -1620,6 +1620,12 @@
     <field name="comment" type="C" size="256" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="history_record_id" type="I">
+      <constraint>REFERENCES cm_history_records(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="history_records_i1">
       <col>co_person_id</col>
@@ -1632,6 +1638,9 @@
     </index>
     <index name="history_records_i4">
       <col>co_group_id</col>
+    </index>
+    <index name="history_records_i5">
+      <col>history_record_id</col>
     </index>
   </table>
   

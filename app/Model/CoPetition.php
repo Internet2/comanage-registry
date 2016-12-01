@@ -1765,7 +1765,6 @@ class CoPetition extends AppModel {
       if($this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
         // Create a history record
         try {
-          // XXX This history record gets deleted shortly after it's written (CO-1295)
           $this->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
                                                          $coPersonRoleId,
                                                          $orgIdentityId,

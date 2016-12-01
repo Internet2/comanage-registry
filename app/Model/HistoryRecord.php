@@ -47,7 +47,11 @@ class HistoryRecord extends AppModel {
   // Default display field for cake generated views
   public $displayField = "comment";
   
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable',
+                         // HistoryRecord doesn't really need to be changelog enabled,
+                         // except that its associated models are. Changelog keeps the
+                         // history around (in a flagged-as-deleted state).
+                         'Changelog' => array('priority' => 5));
   
   // Validation rules for table elements
   public $validate = array(
