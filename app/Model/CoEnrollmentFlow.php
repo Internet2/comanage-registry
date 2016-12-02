@@ -755,7 +755,8 @@ class CoEnrollmentFlow extends AppModel {
       'require_authn'           => true,
       'email_verification_mode' => VerificationModeEnum::Review,
       'notify_on_approval'      => false,
-      't_and_c_mode'            => TAndCEnrollmentModeEnum::Ignore
+      't_and_c_mode'            => TAndCEnrollmentModeEnum::Ignore,
+      'ignore_authoritative'    => true
     );
     
     // Define required attributes for this flow -- required here means the
