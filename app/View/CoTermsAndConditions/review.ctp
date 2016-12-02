@@ -116,7 +116,7 @@
     <?php foreach ($vv_co_terms_and_conditions as $c): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
-        <?php print $c['CoTermsAndConditions']['description']; ?>
+        <?php print filter_var($c['CoTermsAndConditions']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
       </td>
       <td>
         <?php

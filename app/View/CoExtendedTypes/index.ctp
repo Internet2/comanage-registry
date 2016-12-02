@@ -102,7 +102,7 @@
           if(isset($vv_supported_attrs[ $c['CoExtendedType']['attribute'] ])) {
             print $vv_supported_attrs[ $c['CoExtendedType']['attribute'] ];
           } else {
-            print Sanitize::html($c['CoExtendedType']['attribute']);
+            print filter_var($c['CoExtendedType']['attribute'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
           }
         ?>
       </td>
@@ -114,7 +114,7 @@
                                         $c['CoExtendedType']['id']));
         ?>
       </td>
-      <td><?php print Sanitize::html($c['CoExtendedType']['display_name']); ?></td>
+      <td><?php print filter_var($c['CoExtendedType']['display_name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
       <td><?php print _txt('en.status', null, $c['CoExtendedType']['status']); ?></td>
       <td>
         <?php

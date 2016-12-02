@@ -54,7 +54,7 @@
         <em><?php print _txt('fd.lan.desc'); ?></em>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['name'])); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($co_extended_attributes[0]['CoExtendedAttribute']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -62,7 +62,7 @@
         <?php print _txt('fd.name.d'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('display_name') : Sanitize::html($co_extended_attributes[0]['CoExtendedAttribute']['display_name'])); ?>
+        <?php print ($e ? $this->Form->input('display_name') : filter_var($co_extended_attributes[0]['CoExtendedAttribute']['display_name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">

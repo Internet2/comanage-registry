@@ -32,7 +32,7 @@ $(document).ready(function() {
       // 13 is enter/return... don't search on form submit
       // XXX Don't hardcode fields here, or /registry prefix
       $.ajax({
-        url: '/registry/co_people/match/coef:' + <?php print Sanitize::html($co_enrollment_flow_id); ?>
+        url: '/registry/co_people/match/coef:' + <?php print filter_var($co_enrollment_flow_id,FILTER_SANITIZE_URL); ?>
              + '/given:' + document.getElementById(givenNameAttr).value
              + '/family:' + document.getElementById(familyNameAttr).value
       }).done(function(data) {
@@ -45,7 +45,7 @@ $(document).ready(function() {
 <?php
   // Add breadcrumbs
   print $this->element("coCrumb");
-  $this->Html->addCrumb($title_for_layout);
+  $this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_FULL_SPECIAL_CHARS));
 
   // Add page title
   $params = array('title' => $title_for_layout);

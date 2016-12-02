@@ -72,8 +72,8 @@
                                         'co' => $cur_co['Co']['id']));
         ?>
       </td>
-      <td><?php print $c['CoLocalization']['language']; ?></td>
-      <td><?php print $c['CoLocalization']['text']; ?></td>
+      <td><?php print filter_var($c['CoLocalization']['language'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($c['CoLocalization']['text'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
       <td>
         <?php
           if($permissions['edit']) {

@@ -75,7 +75,7 @@
           );
         ?>
       </td>
-      <td><?php print Sanitize::html($c['Co']['description']); ?></td>
+      <td><?php print filter_var($c['Co']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
       <td>
         <?php print _txt('en.status', null, $c['Co']['status']); ?>
       </td>

@@ -145,7 +145,7 @@
         <font class="desc"><?php print _txt('pl.ldapprovisioner.serverurl.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['serverurl'])); ?>
+        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['serverurl'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -154,7 +154,7 @@
         <font class="desc"><?php print _txt('pl.ldapprovisioner.binddn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['binddn'])); ?>
+        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['binddn'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -163,7 +163,7 @@
         <font class="desc"><?php print _txt('pl.ldapprovisioner.password.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['password'])); ?>
+        <?php print ($e ? $this->Form->input('password') : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['password'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -185,7 +185,7 @@
                                                 'value' => $xval,
                                                 'empty' => false,
                                                 'onchange' => 'set_dn_attribute_name()'))
-                    : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_identifier_type'])); ?>
+                    : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_identifier_type'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -196,7 +196,7 @@
       <td>
         <?php print ($e ? $this->Form->input('dn_attribute_name',
                                              array('id' => 'dnIdentifierName'))
-                        : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_attribute_name'])); ?>
+                        : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_attribute_name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -205,7 +205,7 @@
         <font class="desc"><?php print _txt('pl.ldapprovisioner.basedn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['basedn'])); ?>
+        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['basedn'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -214,7 +214,7 @@
         <font class="desc"><?php print _txt('pl.ldapprovisioner.basedn.gr.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('group_basedn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_basedn'])); ?>
+        <?php print ($e ? $this->Form->input('group_basedn', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_basedn'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -455,7 +455,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('person_ocs')
-                     : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['person_ocs'])); ?>
+                     : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['person_ocs'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -466,7 +466,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('group_ocs')
-                     : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_ocs'])); ?>
+                     : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_ocs'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

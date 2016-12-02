@@ -53,7 +53,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.serverurl.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['serverurl'])); ?>
+        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['serverurl'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -62,7 +62,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.contextpath.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('contextpath', array('size' => 20)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['contextpath'])); ?>
+        <?php print ($e ? $this->Form->input('contextpath', array('size' => 20)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['contextpath'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -71,7 +71,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.login.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('login', array('size' => 24)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login'])); ?>
+        <?php print ($e ? $this->Form->input('login', array('size' => 24)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -80,7 +80,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.password.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['password'])); ?>
+        <?php print ($e ? $this->Form->input('password') : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['password'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -89,7 +89,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.stem.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('stem', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['stem'])); ?>
+        <?php print ($e ? $this->Form->input('stem', array('size' => 50)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['stem'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -104,7 +104,7 @@
             $args['empty'] = '(choose one)';
         		print $this->Form->select('login_identifier', $identifier_types, $args);
         	} else {
-        		print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier']); 
+        		print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         	}
         ?>
       </td>
@@ -121,7 +121,7 @@
             $args['empty'] = '(choose one)';
         		print $this->Form->select('email_identifier', $email_address_types, $args);
         	} else {
-        		print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier']); 
+        		print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         	}
         ?>
       </td>
@@ -141,7 +141,7 @@
           }
         	print $this->Form->input('subject_view', $args);
         } else {
-        	print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view']); 
+        	print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         }
         ?>
       </td>

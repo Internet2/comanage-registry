@@ -50,7 +50,7 @@
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('me.population'), $args);
   if($this->action == "canvas") {
-    $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']));
+    $this->Html->addCrumb(filter_var(generateCn($co_people[0]['PrimaryName']),FILTER_SANITIZE_FULL_SPECIAL_CHARS));
   } elseif($this->action == "invite") {
     $args = array(
       'controller' => 'org_identities',
@@ -369,7 +369,7 @@
                   print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
                   print ($e ? $this->Form->input('PrimaryName.honorific',
                     array('default' => $co_people[0]['PrimaryName']['honorific']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['honorific']));
+                    : filter_var($co_people[0]['PrimaryName']['honorific'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
                   ?>
                 </td>
               </tr>
@@ -380,7 +380,7 @@
                 <td>
                   <?php print ($e ? $this->Form->input('PrimaryName.given',
                     array('default' => $co_people[0]['PrimaryName']['given']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['given'])); ?>
+                    : filter_var($co_people[0]['PrimaryName']['given'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -390,7 +390,7 @@
                 <td>
                   <?php print ($e ? $this->Form->input('PrimaryName.middle',
                     array('default' => $co_people[0]['PrimaryName']['middle']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['middle'])); ?>
+                    : filter_var($co_people[0]['PrimaryName']['middle'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -400,7 +400,7 @@
                 <td>
                   <?php print ($e ? $this->Form->input('PrimaryName.family',
                     array('default' => $co_people[0]['PrimaryName']['family']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['family'])); ?>
+                    : filter_var($co_people[0]['PrimaryName']['family'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -414,7 +414,7 @@
                 <td>
                   <?php print ($e ? $this->Form->input('PrimaryName.suffix',
                     array('default' => $co_people[0]['PrimaryName']['suffix']))
-                    : Sanitize::html($co_people[0]['PrimaryName']['suffix'])); ?>
+                    : filter_var($co_people[0]['PrimaryName']['suffix'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -473,7 +473,7 @@
             <?php elseif($this->action == "compare"): ?>
               <!-- Simply list the org names and then the CO names -->
               <tr>
-                <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                <th class="ui-widget-header"><?php print filter_var($cur_co['Co']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></th>
               </tr>
               <?php foreach($co_people[0]['Name'] as $n): ?>
                 <tr>
@@ -490,7 +490,7 @@
                 </tr>
               <?php endforeach; ?>
               <tr>
-                <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+                <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) : _txt('fd.o')); ?></th>
               </tr>
               <?php foreach($org_identities[0]['Name'] as $n): ?>
                 <tr>
@@ -614,7 +614,7 @@
                   <tbody>
                   <?php if($this->action == "compare"): ?>
                     <tr>
-                      <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                      <th class="ui-widget-header"><?php print filter_var($cur_co['Co']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></th>
                       <?php if($e && !$es): ?>
                         <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                       <?php endif; ?>
@@ -632,7 +632,7 @@
                         print '<div>';
                         print '<div>';
                         print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id'], 'co' => $cur_co['Co']['id']));
-                        print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
+                        print " &#160;(" . filter_var($vv_cop_identifier_types[ $id['type'] ],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . ")";
                         print '</div>';
                         print '<div>';
                         // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
@@ -673,7 +673,7 @@
                         print '">';
                         $l++;
                         print '<td>';
-                        print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
+                        print filter_var($id['identifier'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . " (" . $id['type'] . ")<br />\n";
                         print '</td>';
                         print '</tr>';
                       }
@@ -688,7 +688,7 @@
                   <table>
                     <tbody>
                     <tr>
-                      <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+                      <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) : _txt('fd.o')); ?></th>
                     </tr>
                     <?php
                     if(isset($org_identities[0]['Identifier']))
@@ -700,7 +700,7 @@
                         print '">';
                         $l++;
                         print '<td>';
-                        print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
+                        print filter_var($id['identifier'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . " (" . $id['type'] . ")<br />\n";
                         print '</td>';
                         print '</tr>';
                       }
@@ -748,7 +748,7 @@
                   <tbody>
                   <?php if($this->action == "compare"): ?>
                     <tr>
-                      <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                      <th class="ui-widget-header"><?php print filter_var($cur_co['Co']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></th>
                       <?php if($e && !$es): ?>
                         <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                       <?php endif; ?>
@@ -802,7 +802,7 @@
                         print '">';
                         $l++;
                         print '<td>';
-                        print Sanitize::html($ea['mail']) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
+                        print filter_var($ea['mail'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
                         print '</td>';
                         print '</tr>';
                       }
@@ -820,7 +820,7 @@
                   <table>
                     <tbody>
                     <tr>
-                      <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+                      <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) : _txt('fd.o')); ?></th>
                     </tr>
                     <?php
                     if(isset($org_identities[0]['EmailAddress']))
@@ -832,7 +832,7 @@
                         print '">';
                         $l++;
                         print '<td>';
-                        print Sanitize::html($ea['mail']) . " (" . _txt('en.email_address.type', null, $ea['type']) . ")\n";
+                        print filter_var($ea['mail'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . " (" . _txt('en.email_address.type', null, $ea['type']) . ")\n";
                         print '</td>';
                         print '</tr>';
 
@@ -874,7 +874,7 @@
                   <table>
                     <?php if($this->action == "compare"): ?>
                       <tr>
-                        <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                        <th class="ui-widget-header"><?php print filter_var($cur_co['Co']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></th>
                         <?php if($e && !$es): ?>
                           <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                         <?php endif; ?>
@@ -920,9 +920,9 @@
                           $l++;
                           print '<td>';
                           if($g['member'])
-                            print Sanitize::html($g['CoGroup']['name']) . "<br />\n";
+                            print filter_var($g['CoGroup']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . "<br />\n";
                           if($g['owner'])
-                            print Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")<br />\n";
+                            print filter_var($g['CoGroup']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . " (" . _txt('fd.group.own') . ")<br />\n";
                           print '</td>';
                           print '</tr>';
                       	}      
@@ -1103,19 +1103,19 @@
                         <td>
                           <?php
                           if(isset($org_identities[0]['OrgIdentity']['o']))
-                            print Sanitize::html($org_identities[0]['OrgIdentity']['o']);
+                            print filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                           ?>
                         </td>
                         <td>
                           <?php
                           if(isset($org_identities[0]['OrgIdentity']['ou']))
-                            print Sanitize::html($org_identities[0]['OrgIdentity']['ou']);
+                            print filter_var($org_identities[0]['OrgIdentity']['ou'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                           ?>
                         </td>
                         <td>
                           <?php
                           if(isset($org_identities[0]['OrgIdentity']['title']))
-                            print Sanitize::html($org_identities[0]['OrgIdentity']['title']);
+                            print filter_var($org_identities[0]['OrgIdentity']['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                           ?>
                         </td>
                         <td>
@@ -1132,12 +1132,12 @@
                       ?>
                       <tr class="line<?php print ($l % 2); $l++; ?>">
                         <?php if($this->action == "compare"): ?>
-                          <td><?php if(isset($r['o'])) print Sanitize::html($r['o']); ?></td>
-                          <td><?php if(isset($r['ou'])) print Sanitize::html($r['ou']); ?></td>
+                          <td><?php if(isset($r['o'])) print filter_var($r['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+                          <td><?php if(isset($r['ou'])) print filter_var($r['ou'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
                         <?php else: // compare ?>
-                          <td><?php if(isset($r['Cou']['name'])) print Sanitize::html($r['Cou']['name']); ?></td>
+                          <td><?php if(isset($r['Cou']['name'])) print filter_var($r['Cou']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
                         <?php endif; // compare ?>
-                        <td><?php if(isset($r['title'])) print Sanitize::html($r['title']); ?></td>
+                        <td><?php if(isset($r['title'])) print filter_var($r['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
                         <td><?php if(isset($r['affiliation'])) print $vv_copr_affiliation_types[ $r['affiliation'] ]; ?></td>
                         <td><?php if(isset($r['valid_from']) && $r['valid_from'] > 0) print $this->Time->format('Y M d', $r['valid_from']); ?></td>
                         <td><?php if(isset($r['valid_through']) && $r['valid_through'] > 0) print $this->Time->format('Y M d', $r['valid_through']); ?></td>
@@ -1289,7 +1289,7 @@
                         $l++;
                         
                         print '<td>';
-                        print Sanitize::html($sk['comment']) . "\n";
+                        print filter_var($sk['comment'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . "\n";
                         print '</td>';
                         print '</tr>';
                       }
@@ -1344,22 +1344,22 @@
                       <td>
                         <?php
                           if(!empty($link['OrgIdentity']['PrimaryName'])) {
-                            print generateCn($link['OrgIdentity']['PrimaryName']);
+                            print filter_var(generateCn($link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                           }
 
-                          print " (" . $link['OrgIdentity']['id'] . ")";
+                          print " (" . filter_var($link['OrgIdentity']['id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . ")";
                         ?>
                       </td>
                       <td>
                         <?php
                         if(!empty($link['OrgIdentity']['o']))
-                          print Sanitize::html($link['OrgIdentity']['o']);
+                          print filter_var($link['OrgIdentity']['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         ?>
                       </td>
                       <td>
                         <?php
                         if(!empty($link['OrgIdentity']['affiliation']))
-                          print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $link['OrgIdentity']['affiliation'] ];
+                          print filter_var($cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $link['OrgIdentity']['affiliation'] ],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         ?>
                       </td>
                       <td>
@@ -1369,7 +1369,8 @@
                             if(!empty($id['identifier'])
                                && $id['login']
                                && $id['status'] == StatusEnum::Active) {
-                              print $id['identifier'] . " (" . $id['type'] . ")<br />";
+                              print filter_var($id['identifier'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+                                    . " (" . filter_var($id['type'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . ")<br />";
                             }
                           }
                         }

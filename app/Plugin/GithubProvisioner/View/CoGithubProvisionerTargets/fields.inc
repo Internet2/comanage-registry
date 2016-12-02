@@ -95,7 +95,7 @@
         <font class="desc"><?php print _txt('pl.githubprovisioner.github_user.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('github_user') : Sanitize::html($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_user'])); ?>
+        <?php print ($e ? $this->Form->input('github_user') : filter_var($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_user'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -106,7 +106,7 @@
       <td>
         <?php
           if(!empty($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_org'])) {
-            print Sanitize::html($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_org']);
+            print filter_var($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_org'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             
             print $this->Html->link(_txt('op.edit'),
                                     array(
@@ -128,7 +128,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('client_id', array('type' => 'string'))
-                     : Sanitize::html($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['client_id'])); ?>
+                     : filter_var($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['client_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

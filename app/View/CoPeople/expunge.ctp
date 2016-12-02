@@ -74,7 +74,7 @@
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
     <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.expunge.confirm', array(generateCn($vv_co_person['PrimaryName']))); ?></strong>
+    <strong><?php print _txt('op.expunge.confirm', array(filter_var(generateCn($vv_co_person['PrimaryName']),FILTER_SANITIZE_FULL_SPECIAL_CHARS))); ?></strong>
   </p>
 </div>
 <div class="innerContent">
@@ -82,7 +82,7 @@
     <?php print _txt('op.expunge.info'); ?>
     
     <ul>
-      <li><?php print _txt('op.expunge.info.cop', array(generateCn($vv_co_person['PrimaryName']),
+      <li><?php print _txt('op.expunge.info.cop', array(filter_var(generateCn($vv_co_person['PrimaryName']),FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                                                         $this->Html->url(array('controller' => 'co_people',
                                                                                'action'     => 'canvas',
                                                                                $vv_co_person['CoPerson']['id'])),
@@ -90,8 +90,8 @@
                                                                                'action'     => 'index',
                                                                                'copersonid' => $vv_co_person['CoPerson']['id'])))); ?></li>
       <?php foreach($vv_co_person['CoPersonRole'] as $cr): ?>
-      <li><?php print _txt('op.expunge.info.copr', array(!empty($cr['Cou']['name']) ? $cr['Cou']['name'] : $vv_co_person['Co']['name'],
-                                                         (!empty($cr['title']) ? $cr['title'] : _txt('fd.title.none')),
+      <li><?php print _txt('op.expunge.info.copr', array(!empty($cr['Cou']['name']) ? filter_var($cr['Cou']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) : filter_var($vv_co_person['Co']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                                                         (!empty($cr['title']) ? filter_var($cr['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) : _txt('fd.title.none')),
                                                          $this->Html->url(array('controller' => 'co_person_roles',
                                                                                 'action'     => 'view',
                                                                                 $cr['id'])))); ?></li>
@@ -100,12 +100,12 @@
         foreach($vv_co_person['CoOrgIdentityLink'] as $lnk) {
           if(count($lnk['OrgIdentity']['CoOrgIdentityLink']) > 1) {
             // There's a link to another identity, so we won't purge this org identity
-            print "<li>" . _txt('op.expunge.info.org.no', array(generateCn($lnk['OrgIdentity']['PrimaryName']),
+            print "<li>" . _txt('op.expunge.info.org.no', array(filter_var(generateCn($lnk['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                                                                 $this->Html->url(array('controller' => 'org_identities',
                                                                                        'action'     => 'view',
                                                                                        $lnk['org_identity_id'])))) . "</li>\n";
           } else {
-            print "<li>" . _txt('op.expunge.info.org', array(generateCn($lnk['OrgIdentity']['PrimaryName']),
+            print "<li>" . _txt('op.expunge.info.org', array(filter_var(generateCn($lnk['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                                                              $this->Html->url(array('controller' => 'org_identities',
                                                                                     'action'     => 'view',
                                                                                     $lnk['org_identity_id'])))) . "</li>\n";

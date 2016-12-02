@@ -102,8 +102,8 @@
         ?>
       </td>
       <td><?php print $vv_available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
-      <td><?php print Sanitize::html($c['CoEnrollmentAttribute']['ordr']); ?></td>
-      <td><?php print Sanitize::html(_txt('en.required', null, $c['CoEnrollmentAttribute']['required'])); ?></td>
+      <td><?php print filter_var($c['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var(_txt('en.required', null, $c['CoEnrollmentAttribute']['required']),FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
       <td>
         <?php
           if($permissions['edit']) {

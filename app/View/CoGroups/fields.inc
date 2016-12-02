@@ -75,7 +75,7 @@
         <?php print _txt('fd.name'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($co_groups[0]['CoGroup']['name'])); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($co_groups[0]['CoGroup']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -83,7 +83,7 @@
         <?php print _txt('fd.desc'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_groups[0]['CoGroup']['description'])); ?>
+        <?php print ($e ? $this->Form->input('description') : filter_var($co_groups[0]['CoGroup']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">

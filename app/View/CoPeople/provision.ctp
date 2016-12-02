@@ -42,7 +42,7 @@
       'controller' => 'co_people',
       'action' => 'canvas',
       $co_person['CoPerson']['id']);
-    $this->Html->addCrumb(generateCn($co_person['PrimaryName']), $args);
+    $this->Html->addCrumb($co_person['PrimaryName'], $args);
   } elseif(!empty($co_group)) {
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
     $args = array(
@@ -172,15 +172,15 @@
     <?php foreach ($co_provisioning_status as $c): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
-        <?php print Sanitize::html($c['CoProvisioningTarget']['description'])
-              . " (" . Sanitize::html($c['CoProvisioningTarget']['plugin']) . ")"; ?>
+        <?php print filter_var($c['CoProvisioningTarget']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+              . " (" . filter_var($c['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . ")"; ?>
       </td>
       <td>
         <?php
           print _txt('en.status.prov.target', null, ($c['status']['status']));
           
           if(!empty($c['status']['comment'])) {
-            print ": " . Sanitize::html($c['status']['comment']);
+            print ": " . filter_var($c['status']['comment'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
           }
         ?>
       </td>

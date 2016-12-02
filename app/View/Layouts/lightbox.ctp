@@ -36,7 +36,7 @@
       print chop(file_get_contents(APP . "Config/VERSION"));
     }
     ?> -->
-    <title><?php print _txt('coordinate') . ': ' . $title_for_layout?></title>
+    <title><?php print _txt('coordinate') . ': ' . filter_var($title_for_layout,FILTER_SANITIZE_STRING)?></title>
     <?php print $this->Html->charset(); ?>
     <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />

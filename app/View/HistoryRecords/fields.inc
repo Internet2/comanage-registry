@@ -46,7 +46,7 @@
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',
-      Sanitize::html($this->request->params['named']['copersonid']));
+      filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
     /* XXX When we carry the display name through all actions, we can uncomment this section;
        It works now for add, but not for the index of history records.
     if (isset($display_name)) {
@@ -58,7 +58,7 @@
     $args = array(
       'controller' => 'history_records',
       'action' => 'index',
-      'copersonid' => Sanitize::html($this->request->params['named']['copersonid']));
+      'copersonid' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
     $this->Html->addCrumb(_txt('ct.history_records.pl'), $args);
 
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
@@ -75,13 +75,13 @@
     $args = array(
       'controller' => 'orgIdentities',
       'action' => 'edit',
-      Sanitize::html($this->request->params['named']['orgidentityid']));
+      filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
 
     $args = array(
         'controller' => 'history_records',
         'action' => 'index',
-        'orgidentityid' => Sanitize::html($this->request->params['named']['orgidentityid']));
+        'orgidentityid' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
     $this->Html->addCrumb(_txt('ct.history_records.pl'), $args);
   }
 
@@ -91,10 +91,10 @@
   
   if(isset($this->request->params['named']['copersonid'])) {
     print $this->Form->hidden('co_person_id',
-                              array('default' => Sanitize::html($this->request->params['named']['copersonid']))). "\n";
+                              array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))). "\n";
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
     print $this->Form->hidden('org_identity_id',
-                              array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))). "\n";
+                              array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))). "\n";
   }
   
   print $this->Form->hidden('action', array('default' => ActionEnum::CommentAdded));
@@ -113,7 +113,7 @@
                      ? $this->Form->input('comment',
                                           array('class' => 'focusFirst',
                                                 'size'  => '80'))
-                     : Sanitize::html($history_records[0]['HistoryRecord']['comment'])); ?>
+                     : filter_var($history_records[0]['HistoryRecord']['comment'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php if($this->action == 'view'): ?>
@@ -122,7 +122,7 @@
         <?php print _txt('fd.action'); ?>
       </td>
       <td>
-        <?php print Sanitize::html($history_records[0]['HistoryRecord']['action']); ?>
+        <?php print filter_var($history_records[0]['HistoryRecord']['action'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line<?php print $l%2;$l++; ?>">
@@ -152,7 +152,7 @@
         <?php
           if(!empty($history_records[0]['CoPersonRole']['id'])) {
             print $this->Html->link(
-              Sanitize::html($history_records[0]['CoPersonRole']['title'])
+              filter_var($history_records[0]['CoPersonRole']['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)
               . " (" . $history_records[0]['CoPersonRole']['id'] . ")",
               array(
                 'controller' => 'co_person_roles',

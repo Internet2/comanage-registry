@@ -37,17 +37,17 @@
   
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonid'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->params['named']['copersonid']))) . "\n";
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   } elseif(isset($this->request->data['EmailAddress']['co_person_id'])) {
-    print $this->Form->hidden('co_person_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['co_person_id']))) . "\n";
-    $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['co_person_id']);
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['EmailAddress']['co_person_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['EmailAddress']['co_person_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))) . "\n";
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   } elseif(isset($this->request->data['EmailAddress']['org_identity_id'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => Sanitize::html($this->request->data['EmailAddress']['org_identity_id']))) . "\n";
-    $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['org_identity_id']);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->data['EmailAddress']['org_identity_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['EmailAddress']['org_identity_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   }
 
   if(isset($cur_co))
@@ -103,7 +103,7 @@
         <?php print _txt('fd.email_address.mail'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
+        <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : filter_var($email_addresses[0]['EmailAddress']['mail'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
       </td>
       <?php if($e && $isVerified): ?>
       <td>
@@ -130,7 +130,7 @@
               print $this->Form->error('type');
             }
           } else {
-            print Sanitize::html(_txt('en.email_address.type', null, $email_addresses[0]['EmailAddress']['type']));
+            print _txt('en.email_address.type', null, filter_var($email_addresses[0]['EmailAddress']['type'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
           }
         ?>
       </td>

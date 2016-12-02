@@ -205,7 +205,7 @@
                                           'action' => 'view',
                                           $coe_attributes[0]['CoEnrollmentAttribute']['id']));
           } else {
-            print $m;
+            print filter_var($m,FILTER_SANITIZE_FULL_SPECIAL_CHARS);
           }
         ?></b>
         <?php
@@ -227,7 +227,7 @@
           $descTypeCount = count(array_count_values($descriptions));
           
           if($descTypeCount == 1 && !empty($coe_attributes[0]['description'])) {
-            print "</br>\n<span class=\"desc\">" . $coe_attributes[0]['description'] . "</span>\n";
+            print "</br>\n<span class=\"desc\">" . filter_var($coe_attributes[0]['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . "</span>\n";
             $groupDesc = true; // Set flag for later
           }
           
@@ -250,7 +250,7 @@
           }
         ?>
       </div>
-      <table id="<?php print $this->action; ?>_co_petition_attrs_<?php print $m?>" class="ui-widget">
+      <table class="ui-widget">
         <tbody>
           <?php 
             $l = 0; // Reset zebra stripes for each box
@@ -271,7 +271,7 @@
               <td>
                 <?php
                   // Emit the label for this field 
-                  print "<b>" . $ea['label'] . "</b>";
+                  print "<b>" . filter_var($ea['label'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . "</b>";
                   
                   if($ea['required']) {
                     if($mvpa && !$ea['mvpa_required']) {
@@ -495,7 +495,7 @@
               ?>
             </td>
             <td>
-              <b><?php print $t['CoTermsAndConditions']['description']; ?></b>
+              <b><?php print filter_var($t['CoTermsAndConditions']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></b>
             </td>
             <td>
               <button class="checkbutton"
@@ -560,7 +560,7 @@
         <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td><?php print $hr['action']; ?></td>
-          <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? generateCn($hr['ActorCoPerson']['PrimaryName']) : _txt('fd.actor.self')); ?></td>
+          <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($hr['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_FULL_SPECIAL_CHARS) : _txt('fd.actor.self')); ?></td>
           <td><?php print $hr['comment']; ?></td>
           <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
         </tr>

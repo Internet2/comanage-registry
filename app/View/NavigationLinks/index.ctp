@@ -84,9 +84,9 @@
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['NavigationLink']['id']));
         ?>
       </td>
-      <td><?php print Sanitize::html($c['NavigationLink']['url']); ?></td>
-      <td><?php print Sanitize::html($c['NavigationLink']['description']); ?></td>
-      <td><?php print Sanitize::html($c['NavigationLink']['ordr']); ?></td>
+      <td><?php print filter_var($c['NavigationLink']['url'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($c['NavigationLink']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($c['NavigationLink']['ordr'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
       <td>
         <?php
           if($permissions['edit']) {

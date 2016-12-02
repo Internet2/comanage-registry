@@ -54,7 +54,7 @@
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
-  print $this->Form->hidden('co_enrollment_flow_id', array('default' => Sanitize::html($co_enrollment_flow_id)));
+  print $this->Form->hidden('co_enrollment_flow_id', array('default' => filter_var($co_enrollment_flow_id,FILTER_SANITIZE_STRING)));
 
   if($this->action == 'view') {
     // Add enrollment flow information to sidebar
@@ -219,7 +219,7 @@
           <td>
             <?php
               if(!empty($co_petitions[0]['CoPetition']['authenticated_identifier'])) {
-                print Sanitize::html($co_petitions[0]['CoPetition']['authenticated_identifier']);
+                print filter_var($co_petitions[0]['CoPetition']['authenticated_identifier'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
               }
             ?>
           </td>

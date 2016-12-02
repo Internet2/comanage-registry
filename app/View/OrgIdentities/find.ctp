@@ -72,10 +72,10 @@
                                               'action'                 => 'view',
                                               $p['OrgIdentity']['id'],
                                               'co'                     => ($pool_org_identities ? false : $cur_co['Co']['id']))); ?></td>
-      <td><?php print Sanitize::html($p['OrgIdentity']['o']); ?></td>
-      <td><?php print Sanitize::html($p['OrgIdentity']['title']); ?></td>
+      <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
       <td><?php if(!empty($p['OrgIdentity']['affiliation'])) { print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); } ?></td>
-      <td><?php foreach($p['EmailAddress'] as $ea) print Sanitize::html($ea['mail']) . "<br />"; ?></td>
+      <td><?php foreach($p['EmailAddress'] as $ea) print filter_var($ea['mail'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . "<br />"; ?></td>
       <td><?php
         // Don't offer an invite link for org identities that are already in the CO
         
@@ -95,7 +95,7 @@
             print $this->Html->link(_txt('op.link'),
                                        array('controller' => 'co_people',
                                              'action' => 'link',
-                                             Sanitize::html($this->request->params['named']['copersonid']),
+                                             filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS),
                                              'orgidentityid' => $p['OrgIdentity']['id']),
                                        array('class' => 'linkbutton'));
           } else {

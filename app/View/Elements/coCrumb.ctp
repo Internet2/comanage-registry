@@ -28,5 +28,5 @@
     $args['controller'] = 'co_dashboards';
     $args['action'] = 'dashboard';
     $args['co'] = $cur_co['Co']['id'];
-    $this->Html->addCrumb(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_STRING), $args);
+    $this->Html->addCrumb($cur_co['Co']['name'], $args);
   }

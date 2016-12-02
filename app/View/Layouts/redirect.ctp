@@ -117,7 +117,7 @@
           <div class="headerLeft">
             <?php
             if(!empty($cur_co['Co']['name'])) {
-              print "<h1>" . Sanitize::html($cur_co['Co']['name']) . "</h1>"; // more to go here.
+              print "<h1>" . filter_var($cur_co['Co']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . "</h1>"; // more to go here.
             } else {
               print "<h1>" . _txt('coordinate') . "</h1>";
             }
