@@ -1778,9 +1778,18 @@
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_terms_and_conditions_id" type="I">
+      <constraint>REFERENCES cm_co_terms_and_conditions(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_terms_and_conditions_i1">
       <col>co_id</col>
+    </index>
+    <index name="co_terms_and_conditions_i2">
+      <col>co_terms_and_conditions_id</col>
     </index>
   </table>
   

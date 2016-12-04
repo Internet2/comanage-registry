@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Terms and Conditions Review View
  *
- * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
@@ -123,10 +123,14 @@
           if(!empty($c['CoTAndCAgreement'])) {
             print _txt('fd.tc.agree.yes')
                   . " ("
-                  . $c['CoTAndCAgreement'][0]['identifier']
+                  . $c['CoTAndCAgreement']['identifier']
                   . ", "
-                  . $this->Time->format($c['CoTAndCAgreement'][0]['agreement_time'], "%c $vv_tz", false, $vv_tz)
+                  . $this->Time->format($c['CoTAndCAgreement']['agreement_time'], "%c $vv_tz", false, $vv_tz)
                   . ")";
+            
+            if(!empty($c['CoTermsAndConditions']['co_terms_and_conditions_id'])) {
+              print "</br>" . _txt('fd.tc.archived');
+            }
           } else {
             print _txt('fd.tc.agree.no');
           }
