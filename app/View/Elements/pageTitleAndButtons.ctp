@@ -24,7 +24,7 @@
 <div id="titleNavContainer">
   <div class="pageTitle">
     <h2>
-      <?php print filter_var($title,FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+      <?php print filter_var($title,FILTER_SANITIZE_SPECIAL_CHARS); ?>
     </h2>
   </div>
 

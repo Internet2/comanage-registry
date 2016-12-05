@@ -129,9 +129,9 @@
           print $this->Html->link($menuCoData['co_name'], $args);
           print '</td><td>';
           if (!empty($menuCoData['co_person']['Co']['description'])) {
-            print filter_var($menuCoData['co_person']['Co']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            print filter_var($menuCoData['co_person']['Co']['description'],FILTER_SANITIZE_SPECIAL_CHARS);
           } elseif (!empty($menuCoData['co_desc'])) {
-            print filter_var($menuCoData['co_desc'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            print filter_var($menuCoData['co_desc'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
           print '</td></tr>';
           $i++;

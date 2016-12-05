@@ -36,7 +36,7 @@
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',
-      filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+      filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS));
     if (isset($display_name)) {
       $this->Html->addCrumb($display_name, $args);
     } else {
@@ -57,7 +57,7 @@
     $args = array(
       'controller' => 'orgIdentities',
       'action' => 'edit',
-      filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+      filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS));
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
   }
   $this->Html->addCrumb(_txt('ct.history_records.pl'));
@@ -75,9 +75,9 @@
     $args['action'] = 'add';
 
     if(isset($this->request->params['named']['copersonid'])) {
-      $args['copersonid'] = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $args['copersonid'] = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
     } elseif(isset($this->request->params['named']['orgidentityid'])) {
-      $args['orgidentityid'] = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $args['orgidentityid'] = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     }
 
     $params['topLinks'][] = $this->Html->link(
@@ -110,7 +110,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td><?php print $h['HistoryRecord']['id']; ?></td>
       <td><?php print $this->Time->niceShort($h['HistoryRecord']['created'], $vv_tz); ?></td>
-      <td><?php print filter_var($h['HistoryRecord']['comment'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . "\n";?></td>
+      <td><?php print filter_var($h['HistoryRecord']['comment'],FILTER_SANITIZE_SPECIAL_CHARS) . "\n";?></td>
       <td>
         <?php
           if(!empty($h['ActorCoPerson']['id'])) {

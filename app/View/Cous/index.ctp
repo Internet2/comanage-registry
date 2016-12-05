@@ -89,7 +89,7 @@
           }
         ?>
       </td>
-      <td><?php print filter_var($c['Cou']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($c['Cou']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td>
         <?php
           if($permissions['edit']) {

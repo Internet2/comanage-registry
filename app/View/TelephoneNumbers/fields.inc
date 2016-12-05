@@ -37,21 +37,21 @@
 
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonroleid'])) {
-    print $this->Form->hidden('co_person_role_id', array('default' => filter_var($this->request->params['named']['copersonroleid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonroleid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('co_person_role_id', array('default' => filter_var($this->request->params['named']['copersonroleid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonroleid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
-    print $this->Form->hidden('co_person_role_id', array('default' => filter_var($this->request->data['TelephoneNumber']['co_person_role_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->data['TelephoneNumber']['co_person_role_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('co_person_role_id', array('default' => filter_var($this->request->data['TelephoneNumber']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['TelephoneNumber']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['TelephoneNumber']['org_identity_id'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->data['TelephoneNumber']['org_identity_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->data['TelephoneNumber']['org_identity_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->data['TelephoneNumber']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['TelephoneNumber']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
   }
 
   if(isset($this->params['named']['co']))
-    print $this->Form->hidden('co_id', array('default' => filter_var($this->params['named']['co'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
+    print $this->Form->hidden('co_id', array('default' => filter_var($this->params['named']['co'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
 
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -98,7 +98,7 @@
         <?php print _txt('fd.telephone_number.country_code'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('country_code') : filter_var($telephone_numbers[0]['TelephoneNumber']['country_code'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('country_code') : filter_var($telephone_numbers[0]['TelephoneNumber']['country_code'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -106,7 +106,7 @@
         <?php print _txt('fd.telephone_number.area_code'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('area_code') : filter_var($telephone_numbers[0]['TelephoneNumber']['area_code'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('area_code') : filter_var($telephone_numbers[0]['TelephoneNumber']['area_code'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -114,7 +114,7 @@
         <?php print _txt('fd.telephone_number.number'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('number', array('class' => 'focusFirst')) : filter_var($telephone_numbers[0]['TelephoneNumber']['number'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('number', array('class' => 'focusFirst')) : filter_var($telephone_numbers[0]['TelephoneNumber']['number'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -122,7 +122,7 @@
         <?php print _txt('fd.telephone_number.extension'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('extension') : filter_var($telephone_numbers[0]['TelephoneNumber']['extension'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('extension') : filter_var($telephone_numbers[0]['TelephoneNumber']['extension'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

@@ -49,7 +49,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print filter_var($c['CoEnrollmentFlow']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+          print filter_var($c['CoEnrollmentFlow']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
         ?>
       </td>
       <td>

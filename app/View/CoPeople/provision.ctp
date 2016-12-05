@@ -172,15 +172,15 @@
     <?php foreach ($co_provisioning_status as $c): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
-        <?php print filter_var($c['CoProvisioningTarget']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)
-              . " (" . filter_var($c['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . ")"; ?>
+        <?php print filter_var($c['CoProvisioningTarget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)
+              . " (" . filter_var($c['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS) . ")"; ?>
       </td>
       <td>
         <?php
           print _txt('en.status.prov.target', null, ($c['status']['status']));
           
           if(!empty($c['status']['comment'])) {
-            print ": " . filter_var($c['status']['comment'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            print ": " . filter_var($c['status']['comment'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>

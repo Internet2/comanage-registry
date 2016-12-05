@@ -274,7 +274,7 @@
       <td>
         <?php print ($e
           ? $this->Form->input('label', array('default' => _txt('fd.untitled'),'class' => 'focusFirst'))
-          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['label'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['label'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -285,7 +285,7 @@
       <td>
         <?php print ($e
           ? $this->Form->input('description', array('size' => 40))
-          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -310,7 +310,7 @@
             print $this->Form->error('status');
           }
         } else {
-          print filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+          print filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS);
         }
         ?>
         <div id="type_div" style="display: none">
@@ -429,7 +429,7 @@
       <td>
         <?php print ($e
           ? $this->Form->input('ordr')
-          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
   </tbody>
@@ -442,7 +442,7 @@
         <div id="attr_def_val_div">
           <?php print ($e
             ? $this->Form->input('CoEnrollmentAttributeDefault.0.value', array('size' => 40))
-            : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+            : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
         <div id="attr_def_val_affil_div">
           <?php if($e): ?>
@@ -451,8 +451,8 @@
                     onchange="set_attr_def_value('def_affil_val')">
               <option value=""></option>
               <?php foreach(array_keys($vv_affiliations) as $k): ?>
-                <option value="<?php print filter_var($k,FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>">
-                  <?php print filter_var($vv_affiliations[$k],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                  <?php print filter_var($vv_affiliations[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
                 </option>
               <?php endforeach; ?>
             </select>
@@ -465,8 +465,8 @@
                     onchange="set_attr_def_value('def_cou_val')">
               <option value=""></option>
               <?php foreach(array_keys($vv_cous) as $k): ?>
-                <option value="<?php print filter_var($k,FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>">
-                  <?php print filter_var($vv_cous[$k],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                  <?php print filter_var($vv_cous[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
                 </option>
               <?php endforeach; ?>
             </select>
@@ -528,8 +528,8 @@
                     onchange="set_attr_def_value('def_group_val')">
               <option value=""></option>
               <?php foreach(array_keys($vv_groups) as $k): ?>
-                <option value="<?php print filter_var($k,FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>">
-                  <?php print filter_var($vv_groups[$k],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                  <?php print filter_var($vv_groups[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
                 </option>
               <?php endforeach; ?>
             </select>
@@ -542,8 +542,8 @@
                     onchange="set_attr_def_value('def_sponsor_val')">
               <option value=""></option>
               <?php foreach(array_keys($vv_sponsors) as $k): ?>
-                <option value="<?php print filter_var($k,FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>">
-                  <?php print filter_var($vv_sponsors[$k],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                  <?php print filter_var($vv_sponsors[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
                 </option>
               <?php endforeach; ?>
             </select>

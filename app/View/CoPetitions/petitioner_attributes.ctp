@@ -45,7 +45,7 @@ $(document).ready(function() {
 <?php
   // Add breadcrumbs
   print $this->element("coCrumb");
-  $this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+  $this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_SPECIAL_CHARS));
 
   // Add page title
   $params = array('title' => $title_for_layout);

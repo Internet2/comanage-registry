@@ -37,10 +37,10 @@
 
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonid'])) {
-    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['SshKey']['co_person_id'])) {
-    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['SshKey']['co_person_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['SshKey']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
   }
 
   // Add breadcrumbs
@@ -70,7 +70,7 @@
         <?php print _txt('fd.sshkey.comment'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('comment', array('class' => 'focusFirst')) : filter_var($ssh_keys[0]['SshKey']['comment'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('comment', array('class' => 'focusFirst')) : filter_var($ssh_keys[0]['SshKey']['comment'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -92,7 +92,7 @@
               print $this->Form->error('type');
             }
           } else {
-            print filter_var($contact_t[ $ssh_keys[0]['SshKey']['type'] ],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            print filter_var($contact_t[ $ssh_keys[0]['SshKey']['type'] ],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
@@ -104,7 +104,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('skey')
-                     : filter_var($ssh_keys[0]['SshKey']['skey'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($ssh_keys[0]['SshKey']['skey'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>
@@ -142,9 +142,9 @@
           // Since we started a new form, we need to re-insert the coperson id
           
           if(isset($this->request->params['named']['copersonid']))
-            print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
+            print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
           elseif(isset($this->request->data['SshKey']['co_person_id']))
-            print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['SshKey']['co_person_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
+            print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['SshKey']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
           
           print $this->Form->file('SshKey.keyFile');
         ?>

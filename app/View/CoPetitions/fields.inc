@@ -219,7 +219,7 @@
           <td>
             <?php
               if(!empty($co_petitions[0]['CoPetition']['authenticated_identifier'])) {
-                print filter_var($co_petitions[0]['CoPetition']['authenticated_identifier'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                print filter_var($co_petitions[0]['CoPetition']['authenticated_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
               }
             ?>
           </td>

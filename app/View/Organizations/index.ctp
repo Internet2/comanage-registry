@@ -69,9 +69,9 @@
                     'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                     $o['Organization']['id'])
                 ); ?></td>
-      <td><?php print filter_var($o['Organization']['domain'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($o['Organization']['directory'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($o['Organization']['search_base'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($o['Organization']['domain'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($o['Organization']['directory'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($o['Organization']['search_base'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td>
         <?php
           print $this->Html->link(

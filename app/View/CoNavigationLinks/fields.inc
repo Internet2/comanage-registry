@@ -56,7 +56,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : filter_var($co_navigation_links[0]['CoNavigationLink']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -66,7 +66,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('title')
-                     : filter_var($co_navigation_links[0]['CoNavigationLink']['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['title'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -76,7 +76,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('url')
-                     : filter_var($co_navigation_links[0]['CoNavigationLink']['url'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     </tr>
@@ -87,7 +87,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('ordr')
-                     : filter_var($co_navigation_links[0]['CoNavigationLink']['ordr'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -103,7 +103,7 @@
             } 
           }
           else {
-            print filter_var($co_navigation_links[0]['CoNavigationLink']['location'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            print filter_var($co_navigation_links[0]['CoNavigationLink']['location'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
 
           if($this->Form->isFieldError('status')) {

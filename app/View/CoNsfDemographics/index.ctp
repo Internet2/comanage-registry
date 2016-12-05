@@ -71,7 +71,7 @@
           {
             if($counter > 0)
               print "; <br>";
-            print filter_var($demo,FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            print filter_var($demo,FILTER_SANITIZE_SPECIAL_CHARS);
             $counter++;
           }
         ?>
@@ -83,7 +83,7 @@
           {
             if($counter > 0)
               print "; <br>";
-            print filter_var($demo,FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            print filter_var($demo,FILTER_SANITIZE_SPECIAL_CHARS);
             $counter++;
           }
         ?>

@@ -104,7 +104,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('language', array('default' => 'en_US'))
-                     : filter_var($co_localizations[0]['CoLocalization']['language'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($co_localizations[0]['CoLocalization']['language'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -114,7 +114,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('text', array('size' => '80','class' => 'focusFirst'))
-                     : filter_var($co_localizations[0]['CoLocalization']['text'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($co_localizations[0]['CoLocalization']['text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">

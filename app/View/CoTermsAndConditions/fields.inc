@@ -55,7 +55,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('description', array('size' => '60','class' => 'focusFirst'))
-                     : filter_var($co_terms_and_conditions[0]['CoTermsAndConditions']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($co_terms_and_conditions[0]['CoTermsAndConditions']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -92,7 +92,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('url', array('size' => '60'))
-                     : filter_var($co_terms_and_conditions[0]['CoTermsAndConditions']['url'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($co_terms_and_conditions[0]['CoTermsAndConditions']['url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">

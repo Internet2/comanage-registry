@@ -37,17 +37,17 @@
   
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonid'])) {
-    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['Identifier']['co_person_id'])) {
-    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['Identifier']['co_person_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['co_person_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['Identifier']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->params['named']['orgidentityid'])){
-    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['Identifier']['org_identity_id'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->data['Identifier']['org_identity_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['org_identity_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->data['Identifier']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
   }
 
   if(isset($cur_co))
@@ -131,7 +131,7 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('identifier', array('type' => 'text','class' => 'focusFirst'))
-                       : filter_var($identifiers[0]['Identifier']['identifier'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                       : filter_var($identifiers[0]['Identifier']['identifier'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php if($isOrgIdentity): ?>
@@ -141,7 +141,7 @@
         <em><?php print _txt('fd.identifier.login.desc'); ?></em>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('login') : filter_var($identifiers[0]['Identifier']['login'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('login') : filter_var($identifiers[0]['Identifier']['login'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php else: // $isOrgIdentity ?>

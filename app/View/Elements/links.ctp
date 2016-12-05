@@ -31,13 +31,13 @@
       
       if(isset($vv_NavLinks)) {
         foreach($vv_NavLinks as $l){
-          print '<li><a href="' . $l['NavigationLink']['url'] . '">' . filter_var($l['NavigationLink']['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . '</a>';
+          print '<li><a href="' . $l['NavigationLink']['url'] . '">' . filter_var($l['NavigationLink']['title'],FILTER_SANITIZE_SPECIAL_CHARS) . '</a>';
         }
       }
       
       if(isset($vv_CoNavLinks)) {
         foreach($vv_CoNavLinks as $l){
-          print '<li><a href="' . $l['CoNavigationLink']['url'] . '">' . filter_var($l['CoNavigationLink']['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . '</a>';
+          print '<li><a href="' . $l['CoNavigationLink']['url'] . '">' . filter_var($l['CoNavigationLink']['title'],FILTER_SANITIZE_SPECIAL_CHARS) . '</a>';
         }
       }
     ?>

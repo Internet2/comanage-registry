@@ -24,14 +24,14 @@
 
 // Add breadcrumbs
 print $this->element("coCrumb");
-$this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+$this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_SPECIAL_CHARS));
 
 // Add page title
 $params = array('title' => $title_for_layout);
 print $this->element("pageTitleAndButtons", $params);
 
 print '<div id="enrollmentFlowIntro">';
-print filter_var($vv_intro_text,FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+print filter_var($vv_intro_text,FILTER_SANITIZE_SPECIAL_CHARS);
 print '</div>';
 
 print $this->Html->Link(_txt('op.begin'),

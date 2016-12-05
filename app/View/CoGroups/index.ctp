@@ -348,10 +348,10 @@
                                           'action' => ($e ? 'edit' : ($v ? 'view' : '')), $c['CoGroup']['id'], 'co' => $cur_co['Co']['id']));
           }
           else
-            print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
         ?>
       </td>
-      <td><?php print filter_var($c['CoGroup']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($c['CoGroup']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td><?php print $c['CoGroup']['open'] ? _txt('fd.open') : _txt('fd.closed'); ?></td>
       <td>
         <?php

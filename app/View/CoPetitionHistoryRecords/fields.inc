@@ -37,7 +37,7 @@
   
   if(isset($this->request->params['named']['copetitionid'])) {
     print $this->Form->hidden('co_petition_id',
-                              array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))). "\n";
+                              array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
   }
   
   print $this->Form->hidden('action', array('default' => PetitionActionEnum::CommentAdded));
@@ -58,7 +58,7 @@
   $args = array(
     'controller' => 'co_petitions',
     'action' => 'view',
-    filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+    filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS)
   );
   $this->Html->addCrumb(_txt('op.view') . ' ' . _txt('ct.petitions.1'), $args);
 

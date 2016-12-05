@@ -61,7 +61,7 @@
   } elseif($this->action == 'relink') {
     $this->Html->addCrumb(_txt('op.relink'));
   } elseif($this->action == 'select') {
-    $this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+    $this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_SPECIAL_CHARS));
   } else {
     $this->Html->addCrumb(_txt('me.population'));
     

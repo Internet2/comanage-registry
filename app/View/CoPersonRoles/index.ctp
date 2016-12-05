@@ -69,9 +69,9 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td><?php print $this->Html->link(generateCn($p['PrimaryName']),
                                       array('controller' => 'co_person_roles', 'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $p['CoPersonRole']['id'], 'co' => $cur_co['Co']['id'])); ?></td>
-      <td><?php print filter_var($p['CoPersonRole']['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
-      <td><?php if(isset($p['CoPersonRole']['Cou']['name'])) print filter_var($p['CoPersonRole']['Cou']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($p['CoPersonRole']['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($p['CoPersonRole']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php if(isset($p['CoPersonRole']['Cou']['name'])) print filter_var($p['CoPersonRole']['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($p['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td><?php print $vv_copr_affiliation_types[ $p['CoPersonRole']['affiliation']]; ?></td>
       <td><?php if($p['CoPersonRole']['valid_from'] > 0) print $this->Time->format('Y M d', $p['CoPersonRole']['valid_from']); ?></td>
       <td><?php if($p['CoPersonRole']['valid_through'] > 0) print $this->Time->format('Y M d', $p['CoPersonRole']['valid_through']); ?></td>

@@ -119,7 +119,7 @@
             }
           } else {
             if(!empty($co_self_service_permissions[0]['CoSelfServicePermission']['model'])) {
-              print filter_var($cous[ $co_self_service_permissions[0]['CoSelfServicePermission']['model'] ],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+              print filter_var($cous[ $co_self_service_permissions[0]['CoSelfServicePermission']['model'] ],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           }
         ?>

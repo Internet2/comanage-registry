@@ -37,17 +37,17 @@
 
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonid'])) {
-    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['Name']['co_person_id'])) {
-    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['Name']['co_person_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->data['Name']['co_person_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['Name']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['Name']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['Name']['org_identity_id'])) {
-    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->data['Name']['org_identity_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS))) . "\n";
-    $idForBreadcrumbs = filter_var($this->request->data['Name']['org_identity_id'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    print $this->Form->hidden('org_identity_id', array('default' => filter_var($this->request->data['Name']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = filter_var($this->request->data['Name']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
   }
 
   if(isset($cur_co))
@@ -109,7 +109,7 @@
         <?php
           // Carry the current status of primary_name, but to change it requires a different operation
           print $this->Form->hidden('Name.primary_name');
-          print ($e ? $this->Form->input('Name.honorific') : filter_var($names[0]['Name']['honorific'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+          print ($e ? $this->Form->input('Name.honorific') : filter_var($names[0]['Name']['honorific'],FILTER_SANITIZE_SPECIAL_CHARS));
         ?>
        </td>
     </tr>
@@ -123,7 +123,7 @@
         <?php endif; // required_fields ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('Name.given', array('class' => 'focusFirst')) : filter_var($names[0]['Name']['given'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('Name.given', array('class' => 'focusFirst')) : filter_var($names[0]['Name']['given'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php endif; // permitted fields ?>
@@ -136,7 +136,7 @@
         <?php endif; // required_fields ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('Name.middle') : filter_var($names[0]['Name']['middle'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('Name.middle') : filter_var($names[0]['Name']['middle'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php endif; // permitted fields ?>
@@ -149,7 +149,7 @@
         <?php endif; // required_fields ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('Name.family') : filter_var($names[0]['Name']['family'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('Name.family') : filter_var($names[0]['Name']['family'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php endif; // permitted fields ?>
@@ -164,7 +164,7 @@
         ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('Name.suffix') : filter_var($names[0]['Name']['suffix'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('Name.suffix') : filter_var($names[0]['Name']['suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php endif; // permitted fields ?>

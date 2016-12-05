@@ -46,7 +46,7 @@
     
   // Find the attribute
   if($this->action == 'add' && isset($this->request->query['attr'])) {
-    $attr = filter_var($this->request->query['attr'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $attr = filter_var($this->request->query['attr'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['CoExtendedType']['attribute'])) {
     $attr = $this->request->data['CoExtendedType']['attribute'];
   }
@@ -78,7 +78,7 @@
         <em><?php print _txt('fd.an.desc'); ?></em>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($co_extended_types[0]['CoExtendedType']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($co_extended_types[0]['CoExtendedType']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -86,7 +86,7 @@
         <?php print _txt('fd.name.d'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('display_name') : filter_var($co_extended_types[0]['CoExtendedType']['display_name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('display_name') : filter_var($co_extended_types[0]['CoExtendedType']['display_name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

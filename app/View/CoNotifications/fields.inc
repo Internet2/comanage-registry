@@ -58,7 +58,7 @@
         <b><?php print _txt('fd.comment'); ?></b>
       </td>
       <td>
-        <?php print filter_var($co_notifications[0]['CoNotification']['comment'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+        <?php print filter_var($co_notifications[0]['CoNotification']['comment'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -168,7 +168,7 @@
         <b><?php print _txt('fd.action'); ?></b>
       </td>
       <td>
-        <?php print filter_var($co_notifications[0]['CoNotification']['action'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+        <?php print filter_var($co_notifications[0]['CoNotification']['action'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -212,7 +212,7 @@
         <b><?php print _txt('fd.not.email.subject'); ?></b>
       </td>
       <td>
-        <?php print filter_var($co_notifications[0]['CoNotification']['email_subject'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+        <?php print filter_var($co_notifications[0]['CoNotification']['email_subject'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -221,7 +221,7 @@
       </td>
       <td>
         <pre>
-          <?php print filter_var($co_notifications[0]['CoNotification']['email_body'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+          <?php print filter_var($co_notifications[0]['CoNotification']['email_body'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </pre>
       </td>
     </tr>
@@ -230,7 +230,7 @@
         <b><?php print _txt('fd.not.res.subject'); ?></b>
       </td>
       <td>
-        <?php print filter_var($co_notifications[0]['CoNotification']['resolution_subject'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+        <?php print filter_var($co_notifications[0]['CoNotification']['resolution_subject'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -239,7 +239,7 @@
       </td>
       <td>
         <pre>
-          <?php print filter_var($co_notifications[0]['CoNotification']['resolution_body'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?>
+          <?php print filter_var($co_notifications[0]['CoNotification']['resolution_body'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </pre>
       </td>
     </tr>

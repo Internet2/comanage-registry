@@ -102,9 +102,9 @@ if(isset($permissions['search']) && $permissions['search'] ) {
         );
         ?>
       </td>
-      <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td><?php if(!empty($p['OrgIdentity']['affiliation'])) print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); ?></td>
 
       <td class="actions">

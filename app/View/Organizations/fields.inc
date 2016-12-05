@@ -46,7 +46,7 @@
         <?php print _txt('fd.name'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($organizations[0]['Organization']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($organizations[0]['Organization']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -54,7 +54,7 @@
         <?php print _txt('fd.domain'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('domain') : filter_var($organizations[0]['Organization']['domain'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('domain') : filter_var($organizations[0]['Organization']['domain'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -62,7 +62,7 @@
         <?php print _txt('fd.directory'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('directory') : filter_var($organizations[0]['Organization']['directory'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('directory') : filter_var($organizations[0]['Organization']['directory'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -70,7 +70,7 @@
         <?php print _txt('fd.searchbase'); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('search_base') : filter_var($organizations[0]['Organization']['search_base'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('search_base') : filter_var($organizations[0]['Organization']['search_base'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

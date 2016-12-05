@@ -88,7 +88,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -111,7 +111,7 @@
               print $this->Form->error('identifier_type');
             }
           } else {
-            print filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            print filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
@@ -151,7 +151,7 @@
         <span class="descr"><?php print _txt('fd.identifier.login.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('login') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['login'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('login') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['login'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -188,7 +188,7 @@
         <span class="descr"><?php print _txt('fd.ia.format.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('format') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['format'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('format') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['format'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         <?php if($e): ?>
         <select
           id="CoIdentifierAssignmentPrefabricatedFormats"
@@ -235,7 +235,7 @@
         <span class="descr"><?php print _txt('fd.ia.minimum.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('minimum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('minimum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -244,7 +244,7 @@
         <span class="descr"><?php print _txt('fd.ia.maximum.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('maximum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+        <?php print ($e ? $this->Form->input('maximum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">

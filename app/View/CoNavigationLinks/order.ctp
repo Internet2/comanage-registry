@@ -122,8 +122,8 @@
                                           'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoNavigationLink']['id']));
           ?>
         </td>
-        <td><?php print filter_var($c['CoNavigationLink']['url'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
-        <td><?php print filter_var($c['CoNavigationLink']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+        <td><?php print filter_var($c['CoNavigationLink']['url'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td><?php print filter_var($c['CoNavigationLink']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       </tr>
     <?php $i++; ?>
     <?php endforeach; ?>

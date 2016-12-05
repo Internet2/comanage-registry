@@ -153,7 +153,7 @@ $(function() {
                 print $this->Form->hidden('PrimaryName.id');
                 print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
                 print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
-                print ($e ? $this->Form->input('PrimaryName.honorific') : filter_var($org_identities[0]['PrimaryName']['honorific'],FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+                print ($e ? $this->Form->input('PrimaryName.honorific') : filter_var($org_identities[0]['PrimaryName']['honorific'],FILTER_SANITIZE_SPECIAL_CHARS));
               ?>
              </td>
           </tr>
@@ -162,7 +162,7 @@ $(function() {
                 <?php print _txt('fd.name.given'); ?><span class="required">*</span>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('PrimaryName.given') : filter_var($org_identities[0]['PrimaryName']['given'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.given') : filter_var($org_identities[0]['PrimaryName']['given'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -170,14 +170,14 @@ $(function() {
               <?php print _txt('fd.name.middle'); ?>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('PrimaryName.middle') : filter_var($org_identities[0]['PrimaryName']['middle'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.middle') : filter_var($org_identities[0]['PrimaryName']['middle'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php print _txt('fd.name.family'); ?>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('PrimaryName.family') : filter_var($org_identities[0]['PrimaryName']['family'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.family') : filter_var($org_identities[0]['PrimaryName']['family'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -190,7 +190,7 @@ $(function() {
               ?>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('PrimaryName.suffix') : filter_var($org_identities[0]['PrimaryName']['suffix'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.suffix') : filter_var($org_identities[0]['PrimaryName']['suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -261,7 +261,7 @@ $(function() {
                                                 $n['id'],
                                                 'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])));
                 } else {
-                  print filter_var(generateCn($n),FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                  print filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS);
                 }
                 
                 print " ("
@@ -349,7 +349,7 @@ $(function() {
             </td>
             <td>
               <?php print ($e ? $this->Form->input('title', array('size' => 60,'class' => 'focusFirst'))
-                             : filter_var($org_identities[0]['OrgIdentity']['title'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                             : filter_var($org_identities[0]['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -358,7 +358,7 @@ $(function() {
             </td>
             <td>
               <?php print ($e ? $this->Form->input('o', array('size' => 60))
-                             : filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                             : filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -367,7 +367,7 @@ $(function() {
             </td>
             <td>
               <?php print ($e ? $this->Form->input('ou', array('size' => 60))
-                             : filter_var($org_identities[0]['OrgIdentity']['ou'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                             : filter_var($org_identities[0]['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           </tr>
           <tr>
@@ -459,7 +459,7 @@ $(function() {
               foreach($org_identities[0]['Identifier'] as $id)
               {
                 print '<div>';
-                  print filter_var($id['identifier'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . " (" . $id['type'] . ")<br />\n";
+                  print filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS) . " (" . $id['type'] . ")<br />\n";
                 print '</div>';
               }
           }
@@ -534,7 +534,7 @@ $(function() {
               foreach($org_identities[0]['EmailAddress'] as $ea)
               {
                 print '<div>';
-                  print filter_var($ea['mail'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . " (" . _txt('en.email_address.type', null, $ea['type']) . ")<br />\n";
+                  print filter_var($ea['mail'],FILTER_SANITIZE_SPECIAL_CHARS) . " (" . _txt('en.email_address.type', null, $ea['type']) . ")<br />\n";
                 print '</div>';
               }
 
@@ -607,7 +607,7 @@ $(function() {
               foreach($org_identities[0]['TelephoneNumber'] as $t)
               {
                 print '<div>';
-                  print filter_var($t['number'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . " (" . _txt('en.telephone_number.type', null, $t['type']) . ")<br />\n";
+                  print filter_var($t['number'],FILTER_SANITIZE_SPECIAL_CHARS) . " (" . _txt('en.telephone_number.type', null, $t['type']) . ")<br />\n";
                 print '</div>';
               }
           }
@@ -681,7 +681,7 @@ $(function() {
               foreach($org_identities[0]['Address'] as $addr)
               {
                 print '<div>';
-                  print filter_var($addr['street'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . " (" . _txt('en.address.type', null, $addr['type']) . ")\n";
+                  print filter_var($addr['street'],FILTER_SANITIZE_SPECIAL_CHARS) . " (" . _txt('en.address.type', null, $addr['type']) . ")\n";
                 print '</div>';
               }
             }
@@ -702,7 +702,7 @@ $(function() {
                                                   'action'     => 'canvas',
                                                   $o['CoPerson']['id']));
                     
-                    print "&nbsp;(" . filter_var($o['CoPerson']['Co']['name'],FILTER_SANITIZE_FULL_SPECIAL_CHARS) . ")<br />\n";
+                    print "&nbsp;(" . filter_var($o['CoPerson']['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . ")<br />\n";
                   print '</div>';
                   print '<div>';
                   
@@ -734,7 +734,7 @@ $(function() {
             if(!empty($org_identities[0]['CoOrgIdentityLink'])) {
               foreach($org_identities[0]['CoOrgIdentityLink'] as $o) {
                 print '<div>';
-                  print filter_var(generateCn($o['CoPerson']['PrimaryName']),FILTER_SANITIZE_FULL_SPECIAL_CHARS) . "\n";
+                  print filter_var(generateCn($o['CoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) . "\n";
                 print '</div>';
               }
             }

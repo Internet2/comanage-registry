@@ -54,7 +54,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('username', array('class' => 'focusFirst'))
-                     : filter_var($api_users[0]['ApiUser']['username'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($api_users[0]['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
       <td>
         <span class="ui-icon ui-icon-info co-info"></span>
@@ -68,7 +68,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->password('password')
-                     : filter_var($api_users[0]['ApiUser']['password'],FILTER_SANITIZE_FULL_SPECIAL_CHARS)); ?>
+                     : filter_var($api_users[0]['ApiUser']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

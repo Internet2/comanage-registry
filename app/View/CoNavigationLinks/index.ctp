@@ -86,9 +86,9 @@
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoNavigationLink']['id'], 'co' => $cur_co['Co']['id']));
         ?>
       </td>
-      <td><?php print filter_var($c['CoNavigationLink']['url'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($c['CoNavigationLink']['description'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($c['CoNavigationLink']['ordr'],FILTER_SANITIZE_FULL_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($c['CoNavigationLink']['url'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($c['CoNavigationLink']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($c['CoNavigationLink']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td>
         <?php
           if($permissions['edit']) {
