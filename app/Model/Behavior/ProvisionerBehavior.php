@@ -242,28 +242,28 @@ class ProvisionerBehavior extends ModelBehavior {
     $copid = null;
     $gmodel = null;
     
+    // If we were called with saveField() or via manualProvisioning, $model->data will be likely be empty.
+    // We need to load it.
+    
+    if(empty($model->data)
+       && $provisioningAction != ProvisioningActionEnum::CoPersonDeleted) {
+      $args = array();
+      $args['conditions'][$model->alias.'.id'] = $model->id;
+      $args['contain'] = false;
+
+      try {
+        $model->data = $model->find('first', $args);
+      }
+      catch(Exception $e) {
+        // XXX We should really report this somehow
+        return;
+      }
+    }
+    
     // If a CO Person status has changed to or from a status that triggers group provisioning,
     // find all the groups with which that person has an association and rewrite them.
     
     if($model->name == 'CoPerson') {
-      // If we were called with saveField() or via manualProvisioning, $model->data will be likely be empty.
-      // We need to load it.
-      
-      if(empty($model->data)
-         && $provisioningAction != ProvisioningActionEnum::CoPersonDeleted) {
-        $args = array();
-        $args['conditions'][$model->alias.'.id'] = $model->id;
-        $args['contain'] = false;
-
-        try {
-          $model->data = $model->find('first', $args);
-        }
-        catch(Exception $e) {
-          // XXX We should really report this somehow
-          return;
-        }
-      }
-
       if(isset($model->cacheData[ $model->alias ]['status'])
          && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
          && (in_array($model->cacheData[ $model->alias ]['status'], $this->groupStatuses)
