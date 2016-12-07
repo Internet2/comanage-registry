@@ -689,6 +689,7 @@ original notification at
   'er.ia.none' =>     'No identifier assignments configured',
   'er.id.unk' =>      'Unknown Identifier',
   'er.id.unk-a' =>    'Unknown Identifier "%1$s"',
+  'er.input.invalid' => 'Invalid character found',
   'er.inv.exp' =>     'Invitation Expired',
   'er.inv.exp.use' => 'Processing of invitation failed due to invitation expiration',
   'er.inv.nf' =>      'Invitation Not Found',

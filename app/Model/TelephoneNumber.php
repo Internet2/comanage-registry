@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Telephone Number Model
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -58,6 +58,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 3),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'area_code' => array(
@@ -65,6 +68,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 8),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'number' => array(
@@ -72,6 +78,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 64),   // cake has telephone number validation, but US only
         'required' => false,                // We allow any chars to cover things like "ext 2009"
         'allowEmpty' => false
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'extension' => array(
@@ -79,6 +88,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 16),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'type' => array(
