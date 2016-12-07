@@ -639,6 +639,14 @@ body.view .modelbox-data {
   margin: 0;
   padding: 1em;
 }
+/* INVITATIONS */
+.invitation {
+  clear: both;
+  margin: 1em;
+}
+.invitation-text {
+  font-size: 1.2em;
+}
 /* PETITIONS */
 #view_co_petition .status {
   margin: 0 1em 0 0;
