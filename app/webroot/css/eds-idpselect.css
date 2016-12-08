@@ -1,7 +1,6 @@
 /* Top level is idpSelectIdPSelector */
-#idpSelectIdPSelector
-{
-    width: 389px;
+#idpSelectIdPSelector {
+    max-width: 500px;
     text-align: left;
     background-color: #FFFFFF;
     padding: 10px;
@@ -13,15 +12,13 @@
  * The preferred IdP tile (if present) has a specified height, so
  * we can fit the preselected * IdPs in there
  */
-#idpSelectPreferredIdPTile
-{
+#idpSelectPreferredIdPTile {
     height:138px; /* Force the height so that the  selector box
                    * goes below when there is only one preslect 
                    */
     padding-bottom: 10px;
 }
-#idpSelectPreferredIdPTileNoImg
-{
+#idpSelectPreferredIdPTileNoImg {
     height:60px;
 }
 
@@ -95,6 +92,7 @@ div.IdPSelectPreferredIdPButton div.IdPSelectTextDiv
 #idpSelectInput, #idpSelectSelector
 {
     width: 80%;
+    margin-right: 5px;
 }
 /*
  * For some reason a <select> width includes the border and an
@@ -108,8 +106,7 @@ div.IdPSelectPreferredIdPButton div.IdPSelectTextDiv
 }
 #idpSelectSelectButton, #idpSelectListButton
 {
-    margin-left: 5px;
-    width: 16%;
+    font-size: 1.1em;
 }
 #idpSelectSelectButton
 {

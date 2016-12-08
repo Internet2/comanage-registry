@@ -27,10 +27,11 @@
   
   print $this->Html->css('eds-idpselect', array('inline' => false));
 ?>
-
-<p><?php print _txt('eds.layout.preamble'); ?></p>
-
-<div id="idpSelect"></div>
+  
+<div id="idp-select-container">
+  <p><?php print _txt('eds.layout.preamble'); ?></p>
+  <div id="idpSelect"></div>
+</div>
 
 <script type="text/javascript" src="<?php print $this->Html->url(array('controller' => 'pages', 'action' => 'eds', 'idpselect_config')); ?>"></script>
 

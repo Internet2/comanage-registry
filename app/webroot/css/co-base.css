@@ -247,6 +247,11 @@ form#notificationStatus {
 .co-menu-button a:hover {
   background-color: #53B1F4;
 }
+/* Shib IDP */
+#idp-select-container {
+  clear: both;
+  padding: 1em;
+}
 /* NOTICES */
 .noty_text{
   font-weight: bold;
