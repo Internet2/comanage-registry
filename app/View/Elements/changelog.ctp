@@ -83,7 +83,7 @@
             <td>
               <?php
               if(!empty(${$modelpl}[0][$req]['actor_identifier'])) {
-                print ${$modelpl}[0][$req]['actor_identifier'];
+                print filter_var(${$modelpl}[0][$req]['actor_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
               }
               ?>
             </td>
