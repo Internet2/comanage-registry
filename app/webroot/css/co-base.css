@@ -250,7 +250,7 @@ form#notificationStatus {
 /* Shib IDP */
 #idp-select-container {
   clear: both;
-  padding: 1em;
+  padding: 1em 0;
 }
 /* NOTICES */
 .noty_text{
