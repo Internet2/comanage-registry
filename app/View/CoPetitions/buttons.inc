@@ -38,7 +38,7 @@ if($this->action != "add") {
 
     // Construct jQuery popup
     $onclickAction =  "javascript:js_confirm_generic('" .
-                      _txt('op.inv.resend.confirm', array(generateCn($co_petitions[0]['EnrolleeCoPerson']['PrimaryName']))) .
+                      _txt('op.inv.resend.confirm', array(filter_var(generateCn($co_petitions[0]['EnrolleeCoPerson']['PrimaryName']),FILTER_SANITIZE_STRING))) .
                       "', '" . Router::url($buttonUrl) . "', '" .
                       _txt('op.inv.resend') . "');
                       return false;";

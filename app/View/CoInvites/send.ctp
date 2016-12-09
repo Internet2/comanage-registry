@@ -23,7 +23,7 @@
  */
 ?>
 <?php
-  $params = array('title' => "Invitation for " . $cur_co['Co']['name'] . " Sent to " . generateCn($invitee['PrimaryName']));
+  $params = array('title' => "Invitation for " . $cur_co['Co']['name'] . " Sent to " . filter_var(generateCn($invitee['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS));
   print $this->element("pageTitle", $params);
 ?>
 

@@ -31,7 +31,7 @@
 ?>
 
 <h2 class="ui-state-default"><?php print _txt(($verifyEmail ? 'fd.ev.for' : 'fd.inv.for'),
-                                              array(generateCn($invitee['PrimaryName']))); ?></h2>
+                                              array(filter_var(generateCn($invitee['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))); ?></h2>
 
 <?php
   if($verifyEmail) {

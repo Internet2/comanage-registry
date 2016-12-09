@@ -187,7 +187,7 @@
           <td>
             <?php
               if(isset($co_petitions[0]['PetitionerCoPerson']['PrimaryName'])) {
-                print generateCn($co_petitions[0]['PetitionerCoPerson']['PrimaryName']);
+                print filter_var(generateCn($co_petitions[0]['PetitionerCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
               } else {
                 print _txt('fd.actor.self');
               }
@@ -199,7 +199,7 @@
           <td>
             <?php
               if(isset($co_petitions[0]['SponsorCoPerson']['PrimaryName'])) {
-                print generateCn($co_petitions[0]['SponsorCoPerson']['PrimaryName']);
+                print filter_var(generateCn($co_petitions[0]['SponsorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
               }
             ?>
           </td>
@@ -209,7 +209,7 @@
           <td>
             <?php
               if(isset($co_petitions[0]['ApproverCoPerson']['PrimaryName'])) {
-                print generateCn($co_petitions[0]['ApproverCoPerson']['PrimaryName']);
+                print filter_var(generateCn($co_petitions[0]['ApproverCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
               }
             ?>
           </td>

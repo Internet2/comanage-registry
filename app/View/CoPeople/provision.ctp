@@ -23,9 +23,9 @@
  */
 
   if(!empty($co_person)) {
-    $params = array('title' => _txt('fd.prov.status.for', array(generateCn($co_person['PrimaryName']))));
+    $params = array('title' => _txt('fd.prov.status.for', array(filter_var(generateCn($co_person['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))));
   } elseif(!empty($co_group)) {
-    $params = array('title' => _txt('fd.prov.status.for', array($co_group['CoGroup']['name'])));
+    $params = array('title' => _txt('fd.prov.status.for', array(filter_var($co_group['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
   }
   print $this->element("pageTitle", $params);
 

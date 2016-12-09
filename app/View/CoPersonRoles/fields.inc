@@ -197,7 +197,7 @@
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
-                  <?php print $cur_co['Co']['name'] . " " . _txt('fd.title'); ?>
+                  <?php print filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . " " . _txt('fd.title'); ?>
                 </td>
                 <td>
                   <?php print (($e && !$es) ? $this->Form->input('title', array('class' => 'focusFirst','default' =>

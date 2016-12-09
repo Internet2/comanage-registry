@@ -162,7 +162,7 @@
                                         'action' => 'canvas',
                                         $g['CoPerson']['id']));
         } else {
-          print generateCn($g['CoPerson']['PrimaryName']);
+          print filter_var(generateCn($g['CoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
         }
         print '</td>';
         
