@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Names Model
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -60,6 +60,9 @@ class Name extends AppModel {
         'rule' => array('maxLength', 32),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'given' => array(
@@ -68,6 +71,9 @@ class Name extends AppModel {
         'required' => true,
         'allowEmpty' => false,
         'message' => 'A given name must be provided'
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'middle' => array(
@@ -75,6 +81,9 @@ class Name extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'family' => array(
@@ -82,6 +91,12 @@ class Name extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        // We need to allow single quotes for names like O'Keefe
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_STRING,
+                              'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES))
       )
     ),
     'suffix' => array(
@@ -89,6 +104,9 @@ class Name extends AppModel {
         'rule' => array('maxLength', 32),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'type' => array(
