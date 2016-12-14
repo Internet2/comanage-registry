@@ -233,7 +233,7 @@
             
             $options = array();
             $options['class'] = 'invitebutton';
-            $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt(_txt('op.inv.resend.confirm', array(generateCn($p['EnrolleePrimaryName'])))) . "', '"
+            $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt(_txt('op.inv.resend.confirm', array(filter_var(generateCn($p['EnrolleePrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS)))) . "', '"
                                                                  . Router::url($url) . "', '"
                                                                  . _txt('op.inv.resend') . "');return false";
             

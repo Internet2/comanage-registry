@@ -73,8 +73,8 @@
                                         'co' => $cur_co['Co']['id']));
         ?>
       </td>
-      <td><?php print Sanitize::html($c['CoExtendedAttribute']['display_name']); ?></td>
-      <td><?php print Sanitize::html($c['CoExtendedAttribute']['type']); ?></td>
+      <td><?php print filter_var($c['CoExtendedAttribute']['display_name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($c['CoExtendedAttribute']['type'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td>
         <?php print $c['CoExtendedAttribute']['indx'] ? _txt('fd.yes') : _txt('fd.no'); ?>
       </td>

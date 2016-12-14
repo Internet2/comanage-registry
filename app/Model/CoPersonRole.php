@@ -97,6 +97,9 @@ class CoPersonRole extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'o' => array(
@@ -104,6 +107,9 @@ class CoPersonRole extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'ou' => array(
@@ -111,6 +117,9 @@ class CoPersonRole extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'valid_from' => array(

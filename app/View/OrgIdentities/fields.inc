@@ -25,14 +25,14 @@
 
 <script>
 $(function() {
-  // Ennumeration for tabs
-  var tabid = new Object();
-  tabid["name"]  = 0;
-  tabid["id"]    = 1;
-  tabid["email"] = 2;
-  tabid["phone"] = 3;
-  tabid["address"]  = 4;
-  tabid["copeople"] = 5;
+  // Enumeration for tabs
+  var tabid = {};
+  tabid.name = 0;
+  tabid.id = 1;
+  tabid.email = 2;
+  tabid.phone = 3;
+  tabid.address  = 4;
+  tabid.copeople = 5;
 
   // Turn on Tabs
   var $tabs = $( "#tabs" ).tabs();
@@ -158,7 +158,7 @@ $(function() {
                 print $this->Form->hidden('PrimaryName.id');
                 print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
                 print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
-                print ($e ? $this->Form->input('PrimaryName.honorific') : Sanitize::html($org_identities[0]['PrimaryName']['honorific']));
+                print ($e ? $this->Form->input('PrimaryName.honorific') : filter_var($org_identities[0]['PrimaryName']['honorific'],FILTER_SANITIZE_SPECIAL_CHARS));
               ?>
              </td>
           </tr>
@@ -167,7 +167,7 @@ $(function() {
                 <?php print ($e ? $this->Form->label('PrimaryName.given', _txt('fd.name.given')) : _txt('fd.name.given')); ?><span class="required">*</span>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.given') : filter_var($org_identities[0]['PrimaryName']['given'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -175,14 +175,14 @@ $(function() {
               <?php print ($e ? $this->Form->label('PrimaryName.middle', _txt('fd.name.middle')) : _txt('fd.name.middle')); ?>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.middle') : filter_var($org_identities[0]['PrimaryName']['middle'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php print ($e ? $this->Form->label('PrimaryName.family', _txt('fd.name.family')) :  _txt('fd.name.family')); ?>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.family') : filter_var($org_identities[0]['PrimaryName']['family'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -190,7 +190,7 @@ $(function() {
               <?php print ($e ? $this->Form->label('PrimaryName.suffix', _txt('fd.name.suffix') . " " . _txt('fd.name.s.desc')) :  _txt('fd.name.suffix')); ?>
             </td>
             <td>
-              <?php print ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
+              <?php print ($e ? $this->Form->input('PrimaryName.suffix') : filter_var($org_identities[0]['PrimaryName']['suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -312,7 +312,7 @@ $(function() {
             </td>
           </tr>
           <?php endforeach; ?>
-          <?php endif; // add ?>
+          <?php endif; // add / edit ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
@@ -382,7 +382,7 @@ $(function() {
                     
                     if(!empty($org_identities[0]['OrgIdentity']['title'])
                        && !array_search($org_identities[0]['OrgIdentity']['title'], $vv_enums_title)) {
-                      print $org_identities[0]['OrgIdentity']['title'];
+                      print filter_var($org_identities[0]['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
                       
                       print '<div>
                                <span class="ui-icon ui-icon-info co-info"></span>
@@ -403,7 +403,7 @@ $(function() {
                     print $this->Form->input('title', array('size' => 60, 'class' => 'focusFirst'));
                   }
                 } else {
-                  print Sanitize::html($org_identities[0]['OrgIdentity']['title']);
+                  print filter_var($org_identities[0]['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               ?>
             </td>
@@ -420,7 +420,7 @@ $(function() {
                     
                     if(!empty($org_identities[0]['OrgIdentity']['o'])
                       && !array_search($org_identities[0]['OrgIdentity']['o'], $vv_enums_o)) {
-                      print $org_identities[0]['OrgIdentity']['o'];
+                      print filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
                       
                       print '<div>
                                <span class="ui-icon ui-icon-info co-info"></span>
@@ -441,7 +441,7 @@ $(function() {
                     print $this->Form->input('o', array('size' => 60));
                   }
                 } else {
-                  print Sanitize::html($org_identities[0]['OrgIdentity']['o']);
+                  print filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               ?>
             </td>
@@ -458,7 +458,7 @@ $(function() {
                     
                     if(!empty($org_identities[0]['OrgIdentity']['ou'])
                       && !array_search($org_identities[0]['OrgIdentity']['ou'], $vv_enums_ou)) {
-                      print $org_identities[0]['OrgIdentity']['ou'];
+                      print filter_var($org_identities[0]['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
                       
                       print '<div>
                                <span class="ui-icon ui-icon-info co-info"></span>
@@ -479,7 +479,7 @@ $(function() {
                     print $this->Form->input('ou', array('size' => 60));
                   }
                 } else {
-                  print Sanitize::html($org_identities[0]['OrgIdentity']['ou']);
+                  print filter_var($org_identities[0]['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               ?>
             </td>

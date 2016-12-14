@@ -61,7 +61,7 @@
   } elseif($this->action == 'relink') {
     $this->Html->addCrumb(_txt('op.relink'));
   } elseif($this->action == 'select') {
-    $this->Html->addCrumb($title_for_layout);
+    $this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_SPECIAL_CHARS));
   } else {
     $this->Html->addCrumb(_txt('me.population'));
     
@@ -100,8 +100,8 @@
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
     <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.link.select', array(generateCn($vv_org_identity['PrimaryName']),
-                                                     $vv_org_identity['OrgIdentity']['id'])); ?></strong>
+    <strong><?php print _txt('op.link.select', array(filter_var(generateCn($vv_org_identity['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
+                                                     filter_var($vv_org_identity['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?></strong>
   </p>
 </div>
 <br />
@@ -109,8 +109,8 @@
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
     <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.relink.select', array(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),
-                                                       $vv_co_org_identity_link['OrgIdentity']['id'])); ?></strong>
+    <strong><?php print _txt('op.relink.select', array(filter_var(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
+                                                       filter_var($vv_co_org_identity_link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?></strong>
   </p>
 </div>
 <br />
@@ -118,8 +118,8 @@
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
     <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.relink.role.select', array($vv_co_person_role['CoPersonRole']['title'],
-                                                       $vv_co_person_role['CoPersonRole']['id'])); ?></strong>
+    <strong><?php print _txt('op.relink.role.select', array(filter_var($vv_co_person_role['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS),
+                                                       filter_var($vv_co_person_role['CoPersonRole']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?></strong>
   </p>
 </div>
 <br />

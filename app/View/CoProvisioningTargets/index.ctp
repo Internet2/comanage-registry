@@ -249,7 +249,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          $plugin = Sanitize::html($c['CoProvisioningTarget']['plugin']);
+          $plugin = filter_var($c['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
           $pl = Inflector::underscore($plugin);
           $plmodel = "Co" . $plugin . "Target";
           

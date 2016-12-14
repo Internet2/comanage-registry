@@ -39,7 +39,7 @@
 
   if(isset($this->request->params['named']['copersonid'])) {
     // Populate default CO Person ID for add
-    $args = array('default' => Sanitize::html($this->request->params['named']['copersonid']));
+    $args = array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS));
   }
 
   print $this->Form->hidden('co_person_id', $args). "\n";

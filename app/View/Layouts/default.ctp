@@ -36,7 +36,7 @@
         print chop(file_get_contents(APP . "Config/VERSION"));
       }
     ?> -->
-    <title><?php print _txt('coordinate') . ': ' . $title_for_layout; ?></title>
+    <title><?php print _txt('coordinate') . ': ' . filter_var($title_for_layout,FILTER_SANITIZE_STRING)?></title>
     <?php print $this->Html->charset(); ?>
     <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -156,7 +156,7 @@
           <div class="headerLeft">
             <?php
               if(!empty($cur_co['Co']['name'])) {
-                print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
+                print '<div id="collaborationTitle">' . filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . '</div>'; // more to go here.
               } else {
                 print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
               }

@@ -60,6 +60,9 @@ class Address extends AppModel {
         'rule' => array('maxLength', 400),
         'required' => false,
         'allowEmpty' => false
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'room' => array(
@@ -67,6 +70,9 @@ class Address extends AppModel {
         'rule' => array('maxLength', 64),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'locality' => array(
@@ -74,6 +80,9 @@ class Address extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'state' => array(
@@ -81,6 +90,9 @@ class Address extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'postal_code' => array(
@@ -88,6 +100,9 @@ class Address extends AppModel {
         'rule' => array('maxLength', 16),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'country' => array(
@@ -95,6 +110,9 @@ class Address extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'type' => array(

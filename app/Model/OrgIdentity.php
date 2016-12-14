@@ -130,7 +130,7 @@ class OrgIdentity extends AppModel {
     ),
     'o' => array(
       'content' => array(
-        'rule' => '/.*/',
+        'rule' => array('validateInput'),
         'required' => false,
         'allowEmpty' => true
       )
@@ -144,7 +144,7 @@ class OrgIdentity extends AppModel {
     ),
     'ou' => array(
       'content' => array(
-        'rule' => '/.*/',
+        'rule' => array('validateInput'),
         'required' => false,
         'allowEmpty' => true
       )
@@ -158,7 +158,7 @@ class OrgIdentity extends AppModel {
     ),
     'title' => array(
       'content' => array(
-        'rule' => '/.*/',
+        'rule' => array('validateInput'),
         'required' => false,
         'allowEmpty' => true
       )

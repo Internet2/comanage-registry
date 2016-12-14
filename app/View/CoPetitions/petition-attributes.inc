@@ -208,7 +208,7 @@
                                             $coe_attributes[0]['CoEnrollmentAttribute']['id']),
                                             array('class' => 'boxtitle-link', 'tabindex' => '-1'));
             } else {
-              print $m;
+              print filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </strong>
@@ -231,7 +231,7 @@
           $descTypeCount = count(array_count_values($descriptions));
           
           if($descTypeCount == 1 && !empty($coe_attributes[0]['description'])) {
-            print "</br>\n<span class=\"desc\">" . $coe_attributes[0]['description'] . "</span>\n";
+            print "</br>\n<span class=\"desc\">" . filter_var($coe_attributes[0]['description'],FILTER_SANITIZE_SPECIAL_CHARS) . "</span>\n";
             $groupDesc = true; // Set flag for later
           }
           
@@ -275,7 +275,7 @@
               <td>
                 <?php
                   // Emit the label for this field 
-                  print "<b>" . $ea['label'] . "</b>";
+                  print "<b>" . filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . "</b>";
                   
                   if($ea['required']) {
                     if($mvpa && !$ea['mvpa_required']) {
@@ -520,7 +520,7 @@
               ?>
             </td>
             <td>
-              <b><?php print $t['CoTermsAndConditions']['description']; ?></b>
+              <b><?php print filter_var($t['CoTermsAndConditions']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></b>
             </td>
             <td>
               <button class="checkbutton"
@@ -584,7 +584,7 @@
         <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td><?php print $hr['action']; ?></td>
-          <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? generateCn($hr['ActorCoPerson']['PrimaryName']) : _txt('fd.actor.self')); ?></td>
+          <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($hr['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.actor.self')); ?></td>
           <td><?php print $hr['comment']; ?></td>
           <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
         </tr>

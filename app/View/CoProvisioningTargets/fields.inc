@@ -64,7 +64,7 @@
         </strong><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['description'])); ?>
+        <?php print ($e ? $this->Form->input('description') : filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -81,20 +81,20 @@
               print $this->Form->input('plugin');
               break;
             case 'edit':
-              print '<strong>' . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . '</strong>';
+              print '<strong>' . filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS) . '</strong>';
               // Send the value as hidden since it can't be changed (but is required by the model)
-              print $this->Form->hidden('plugin', array('default' => Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']))) . "\n";
+              print $this->Form->hidden('plugin', array('default' => filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
               break;
             default:
-              print Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']);
+              print filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
               break;
           }
           
           if($this->action == 'edit') {
             // And render a link to the plugin target
             
-            $pl = Inflector::underscore(Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']));
-            $plmodel = "Co" . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . "Target";
+            $pl = Inflector::underscore(filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS));
+            $plmodel = "Co" . filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS) . "Target";
             
             print ' ' . $this->Html->link(_txt('op.config'),
                                                array(
@@ -175,7 +175,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('ordr')
-                     : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['ordr'])); ?>
+                     : filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

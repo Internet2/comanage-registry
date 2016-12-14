@@ -128,7 +128,7 @@
         <?php print ($e
                      ? $this->Form->input('invitation_validity',
                                           array('default' => DEF_INV_VALIDITY))
-                     : Sanitize::html($co_settings[0]['CoSetting']['invitation_validity'])); ?>
+                     : filter_var($co_settings[0]['CoSetting']['invitation_validity'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

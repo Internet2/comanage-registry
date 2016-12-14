@@ -68,7 +68,9 @@ class CoExpirationPolicy extends AppModel {
       'allowEmpty' => false
     ),
     'description' => array(
-      'rule' => 'notBlank',
+      'rule' => array('validateInput',
+                      array('filter' => FILTER_SANITIZE_STRING,
+                            'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES)),
       'required' => true,
       'allowEmpty' => false
     ),

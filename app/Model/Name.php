@@ -66,6 +66,9 @@ class Name extends AppModel {
         'rule' => array('maxLength', 32),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'given' => array(
@@ -74,6 +77,9 @@ class Name extends AppModel {
         'required' => true,
         'allowEmpty' => false,
         'message' => 'A given name must be provided'
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'middle' => array(
@@ -81,6 +87,9 @@ class Name extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'family' => array(
@@ -88,6 +97,12 @@ class Name extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        // We need to allow single quotes for names like O'Keefe
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_STRING,
+                              'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES))
       )
     ),
     'suffix' => array(
@@ -95,6 +110,9 @@ class Name extends AppModel {
         'rule' => array('maxLength', 32),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'type' => array(

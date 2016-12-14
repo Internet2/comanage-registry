@@ -56,7 +56,7 @@
         <?php print $this->Form->label('name',_txt('fd.name')); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cous[0]['Cou']['name'])); ?>
+        <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($cous[0]['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -64,7 +64,7 @@
         <?php print $this->Form->label('description',_txt('fd.desc')); ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($cous[0]['Cou']['description'])); ?>
+        <?php print ($e ? $this->Form->input('description') : filter_var($cous[0]['Cou']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -91,7 +91,7 @@
             }
           }
           else {
-            print Sanitize::html($cous[0]['Cou']['parent_id']);
+            print filter_var($cous[0]['Cou']['parent_id'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
 
           if($this->Form->isFieldError('status')) {

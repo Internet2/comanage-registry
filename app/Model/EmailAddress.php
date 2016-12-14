@@ -72,6 +72,10 @@ class EmailAddress extends AppModel {
         'required' => false,
         'allowEmpty' => false,
         'message' => 'Please enter a valid email address'
+      ),
+      'filter' => array(
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_EMAIL))
       )
     ),
     'type' => array(

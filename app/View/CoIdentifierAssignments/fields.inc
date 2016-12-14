@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Identifier Assignment Fields
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -90,7 +90,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['description'])); ?>
+                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -115,7 +115,7 @@
               print $this->Form->error('identifier_type');
             }
           } else {
-            print Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type']);
+            print filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
@@ -161,7 +161,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('login') . ' ' . $this->Form->label('login', _txt('fd.identifier.login'))
-                     : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['login'])); ?>
+                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['login'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -202,7 +202,7 @@
         <span class="descr"><?php print _txt('fd.ia.format.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('format') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['format'])); ?>
+        <?php print ($e ? $this->Form->input('format') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['format'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         <?php if($e): ?>
         <br/><label for="CoIdentifierAssignmentPrefabricatedFormats"><?php print  _txt('fd.ia.format.pattern') . ': '; ?></label>
         <select
@@ -254,7 +254,7 @@
         <span class="descr"><?php print _txt('fd.ia.minimum.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('minimum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'])); ?>
+        <?php print ($e ? $this->Form->input('minimum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -265,7 +265,7 @@
         <span class="descr"><?php print _txt('fd.ia.maximum.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('maximum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'])); ?>
+        <?php print ($e ? $this->Form->input('maximum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">

@@ -38,22 +38,22 @@
   
   // Migrate the target person from a named argument to a form field
   if($this->action == 'add' && isset($this->request->params['named']['copersonroleid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonroleid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonroleid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'role';
   } elseif(isset($this->request->data['Address']['co_person_role_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Address']['co_person_role_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Address']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'role';
   } elseif(!empty($addresses[0]['Address']['co_person_role_id'])) {
-    $idForBreadcrumbs = $addresses[0]['Address']['co_person_role_id'];
+    $idForBreadcrumbs = filter_var($addresses[0]['Address']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'role';
   } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(isset($this->request->data['Address']['org_identity_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Address']['org_identity_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Address']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(!empty($addresses[0]['Address']['org_identity_id'])) {
-    $idForBreadcrumbs = $addresses[0]['Address']['org_identity_id'];
+    $idForBreadcrumbs = filter_var($addresses[0]['Address']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   }
   
@@ -64,7 +64,7 @@
   }
   
   if(isset($this->request->params['named']['co']))
-    print $this->Form->hidden('co_id', array('default' => Sanitize::html($this->request->params['named']['co']))) . "\n";
+    print $this->Form->hidden('co_id', array('default' => filter_var($this->request->params['named']['co'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
 
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -114,7 +114,7 @@
         <?php endif; // required_fields ?>
       </td>
       <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('street', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['street'])); ?>
+        <?php print ($e ? $this->Form->input('street', array('class' => 'focusFirst')) : filter_var($addresses[0]['Address']['street'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -125,7 +125,7 @@
         <?php endif; // required_fields ?>
       </td>
       <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('room') : Sanitize::html($addresses[0]['Address']['room'])); ?>
+        <?php print ($e ? $this->Form->input('room') : filter_var($addresses[0]['Address']['room'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -136,7 +136,7 @@
         <?php endif; // required_fields ?>
       </td>
       <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
+        <?php print ($e ? $this->Form->input('locality') : filter_var($addresses[0]['Address']['locality'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -147,7 +147,7 @@
         <?php endif; // required_fields ?>
       </td>
       <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
+        <?php print ($e ? $this->Form->input('state') : filter_var($addresses[0]['Address']['state'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -158,7 +158,7 @@
         <?php endif; // required_fields ?>
       </td>
       <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
+        <?php print ($e ? $this->Form->input('postal_code') : filter_var($addresses[0]['Address']['postal_code'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -169,7 +169,7 @@
         <?php endif; // required_fields ?>
       </td>
       <td class="fieldVal">
-        <?php print ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>
+        <?php print ($e ? $this->Form->input('country') : filter_var($addresses[0]['Address']['country'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

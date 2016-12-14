@@ -58,7 +58,7 @@
         <b><?php print _txt('fd.comment'); ?></b>
       </td>
       <td>
-        <?php print Sanitize::html($co_notifications[0]['CoNotification']['comment']); ?>
+        <?php print filter_var($co_notifications[0]['CoNotification']['comment'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -132,7 +132,7 @@
       <td>
         <?php
           if(!empty($co_notifications[0]['SubjectCoPerson']['PrimaryName'])) {
-            print generateCn($co_notifications[0]['SubjectCoPerson']['PrimaryName']);
+            print filter_var(generateCn($co_notifications[0]['SubjectCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
@@ -144,9 +144,9 @@
       <td>
         <?php
           if(!empty($co_notifications[0]['RecipientCoPerson']['PrimaryName'])) {
-            print generateCn($co_notifications[0]['RecipientCoPerson']['PrimaryName']);
+            print filter_var(generateCn($co_notifications[0]['RecipientCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
           } elseif(!empty($co_notifications[0]['RecipientCoGroup']['name'])) {
-            print $co_notifications[0]['RecipientCoGroup']['name'];
+            print filter_var($co_notifications[0]['RecipientCoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
@@ -158,7 +158,7 @@
       <td>
         <?php
           if(!empty($co_notifications[0]['ActorCoPerson']['PrimaryName'])) {
-            print generateCn($co_notifications[0]['ActorCoPerson']['PrimaryName']);
+            print filter_var(generateCn($co_notifications[0]['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
@@ -168,7 +168,7 @@
         <b><?php print _txt('fd.action'); ?></b>
       </td>
       <td>
-        <?php print Sanitize::html($co_notifications[0]['CoNotification']['action']); ?>
+        <?php print filter_var($co_notifications[0]['CoNotification']['action'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -201,7 +201,7 @@
             print $this->Time->format($co_notifications[0]['CoNotification']['resolution_time'], "%c $vv_tz", false, $vv_tz);
             
             if(!empty($co_notifications[0]['ResolverCoPerson']['PrimaryName'])) {
-              print " (" . generateCn($co_notifications[0]['ResolverCoPerson']['PrimaryName']) . ")";
+              print " (" . filter_var(generateCn($co_notifications[0]['ResolverCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) . ")";
             }
           }
         ?>
@@ -212,7 +212,7 @@
         <b><?php print _txt('fd.not.email.subject'); ?></b>
       </td>
       <td>
-        <?php print Sanitize::html($co_notifications[0]['CoNotification']['email_subject']); ?>
+        <?php print filter_var($co_notifications[0]['CoNotification']['email_subject'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -221,7 +221,7 @@
       </td>
       <td>
         <pre>
-          <?php print Sanitize::html($co_notifications[0]['CoNotification']['email_body']); ?>
+          <?php print filter_var($co_notifications[0]['CoNotification']['email_body'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </pre>
       </td>
     </tr>
@@ -230,7 +230,7 @@
         <b><?php print _txt('fd.not.res.subject'); ?></b>
       </td>
       <td>
-        <?php print Sanitize::html($co_notifications[0]['CoNotification']['resolution_subject']); ?>
+        <?php print filter_var($co_notifications[0]['CoNotification']['resolution_subject'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -239,7 +239,7 @@
       </td>
       <td>
         <pre>
-          <?php print Sanitize::html($co_notifications[0]['CoNotification']['resolution_body']); ?>
+          <?php print filter_var($co_notifications[0]['CoNotification']['resolution_body'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </pre>
       </td>
     </tr>

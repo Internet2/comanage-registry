@@ -93,7 +93,7 @@ class CoEnrollmentFlow extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'name' => array(
-      'rule' => 'notBlank',
+      'rule' => array('validateInput'),
       'required' => true,
       'message' => 'A name must be provided'
     ),

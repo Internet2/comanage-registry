@@ -56,7 +56,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['description'])); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -66,7 +66,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('title')
-                     : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['title'])); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['title'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -76,7 +76,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('url')
-                     : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['url'])); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -86,7 +86,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('ordr')
-                     : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['ordr'])); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -102,7 +102,7 @@
             } 
           }
           else {
-            print Sanitize::html($co_navigation_links[0]['CoNavigationLink']['location']);
+            print filter_var($co_navigation_links[0]['CoNavigationLink']['location'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
 
           if($this->Form->isFieldError('status')) {

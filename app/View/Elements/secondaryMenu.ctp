@@ -6,7 +6,7 @@
  * Version: $Revision$
  * Date: $Date$
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -135,13 +135,15 @@
         <li class="dropMenu">
           <a href="#" class="menuTop" id="co-top-username">
             <span id="co-top-id">
-              <span id="co-top-id-name"><?php print $this->Session->read('Auth.User.username'); ?></span>
+              <span id="co-top-id-name"><?php
+                print filter_var($this->Session->read('Auth.User.username'),FILTER_SANITIZE_SPECIAL_CHARS);
+              ?></span>
               <span id="co-top-id-arrow"></span>
             </span>
             <span id="comanage-gear"></span>
             <?php
               // Print the user's name
-              print generateCn($this->Session->read('Auth.User.name'));
+              print filter_var(generateCn($this->Session->read('Auth.User.name')),FILTER_SANITIZE_SPECIAL_CHARS);
             ?>
           </a>
           <!-- Account Dropdown -->

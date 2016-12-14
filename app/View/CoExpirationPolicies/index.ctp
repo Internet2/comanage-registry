@@ -74,7 +74,7 @@
       <td>
         <?php
           if(!empty($c['CondCou']['name'])) {
-            print $c['CondCou']['name'];
+            print filter_var($c['CondCou']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>

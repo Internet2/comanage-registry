@@ -75,7 +75,9 @@ class CoIdentifierAssignment extends AppModel {
       )
     ),
     'description' => array(
-      'rule' => '/.*/',
+      'rule' => array('validateInput',
+                      array('filter' => FILTER_SANITIZE_STRING,
+                            'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES)),
       'required' => false,
       'allowEmpty' => true
     ),

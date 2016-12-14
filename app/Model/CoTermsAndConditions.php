@@ -59,7 +59,9 @@ class CoTermsAndConditions extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'description' => array(
-      'rule' => '/.*/',
+      'rule' => array('validateInput',
+                      array('filter' => FILTER_SANITIZE_STRING,
+                            'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES)),
       'required' => true,
       'allowEmpty' => false
     ),

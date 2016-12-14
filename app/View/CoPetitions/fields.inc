@@ -54,7 +54,7 @@
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
-  print $this->Form->hidden('co_enrollment_flow_id', array('default' => Sanitize::html($co_enrollment_flow_id)));
+  print $this->Form->hidden('co_enrollment_flow_id', array('default' => filter_var($co_enrollment_flow_id,FILTER_SANITIZE_STRING)));
 
   if($this->action == 'view') {
     // Add enrollment flow information to sidebar
@@ -187,7 +187,7 @@
           <td>
             <?php
               if(isset($co_petitions[0]['PetitionerCoPerson']['PrimaryName'])) {
-                print generateCn($co_petitions[0]['PetitionerCoPerson']['PrimaryName']);
+                print filter_var(generateCn($co_petitions[0]['PetitionerCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
               } else {
                 print _txt('fd.actor.self');
               }
@@ -199,7 +199,7 @@
           <td>
             <?php
               if(isset($co_petitions[0]['SponsorCoPerson']['PrimaryName'])) {
-                print generateCn($co_petitions[0]['SponsorCoPerson']['PrimaryName']);
+                print filter_var(generateCn($co_petitions[0]['SponsorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
               }
             ?>
           </td>
@@ -209,7 +209,7 @@
           <td>
             <?php
               if(isset($co_petitions[0]['ApproverCoPerson']['PrimaryName'])) {
-                print generateCn($co_petitions[0]['ApproverCoPerson']['PrimaryName']);
+                print filter_var(generateCn($co_petitions[0]['ApproverCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
               }
             ?>
           </td>
@@ -219,7 +219,7 @@
           <td>
             <?php
               if(!empty($co_petitions[0]['CoPetition']['authenticated_identifier'])) {
-                print Sanitize::html($co_petitions[0]['CoPetition']['authenticated_identifier']);
+                print filter_var($co_petitions[0]['CoPetition']['authenticated_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
               }
             ?>
           </td>

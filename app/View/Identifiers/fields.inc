@@ -38,22 +38,22 @@
   
   // Migrate the target person from a named argument to a form field
   if($this->action == 'add' && isset($this->request->params['named']['copersonid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif(isset($this->request->data['Identifier']['co_person_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Identifier']['co_person_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif(!empty($identifiers[0]['Identifier']['co_person_id'])) {
-    $idForBreadcrumbs = $identifiers[0]['Identifier']['co_person_id'];
+    $idForBreadcrumbs = filter_var($identifiers[0]['Identifier']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif($this->action == 'add' && isset($this->params['named']['orgidentityid'])){
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(isset($this->request->data['Identifier']['org_identity_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Identifier']['org_identity_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(!empty($identifiers[0]['Identifier']['org_identity_id'])) {
-    $idForBreadcrumbs = $identifiers[0]['Identifier']['org_identity_id'];
+    $idForBreadcrumbs = filter_var($identifiers[0]['Identifier']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   }
   
@@ -116,7 +116,7 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('identifier', array('type' => 'text','class' => 'focusFirst'))
-                       : Sanitize::html($identifiers[0]['Identifier']['identifier'])); ?>
+                     : filter_var($identifiers[0]['Identifier']['identifier'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print $l % 2;$l++; ?>">

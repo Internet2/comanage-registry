@@ -91,12 +91,16 @@ class CoGroup extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'name' => array(
-      'rule' => 'notBlank',
+      'rule' => array('validateInput',
+                      array('filter' => FILTER_SANITIZE_STRING,
+                            'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES)),
       'required' => true,
       'message' => 'A name must be provided'
     ),
     'description' => array(
-      'rule' => '/.*/',
+      'rule' => array('validateInput',
+                      array('filter' => FILTER_SANITIZE_STRING,
+                            'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES)),
       'required' => false,
       'allowEmpty' => true
     ),

@@ -38,22 +38,22 @@
 
   // Migrate the target person from a named argument to a form field
   if($this->action == 'add' && isset($this->request->params['named']['copersonid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
      $idType = 'person';
   } elseif(isset($this->request->data['Name']['co_person_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Name']['co_person_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Name']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
      $idType = 'person';
   } elseif(!empty($names[0]['Name']['co_person_id'])) {
-    $idForBreadcrumbs = $names[0]['Name']['co_person_id'];
+    $idForBreadcrumbs = filter_var($names[0]['Name']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(isset($this->request->data['Name']['org_identity_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Name']['org_identity_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Name']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(!empty($names[0]['Name']['org_identity_id'])) {
-    $idForBreadcrumbs = $names[0]['Name']['org_identity_id'];
+    $idForBreadcrumbs = filter_var($names[0]['Name']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   }
 
@@ -122,7 +122,7 @@
         <?php
           // Carry the current status of primary_name, but to change it requires a different operation
           print $this->Form->hidden('Name.primary_name');
-          print ($e ? $this->Form->input('Name.honorific') : Sanitize::html($names[0]['Name']['honorific']));
+          print ($e ? $this->Form->input('Name.honorific') : filter_var($names[0]['Name']['honorific'],FILTER_SANITIZE_SPECIAL_CHARS));
         ?>
        </td>
     </tr>
@@ -142,7 +142,7 @@
         ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('Name.given', array('class' => 'focusFirst')) : Sanitize::html($names[0]['Name']['given'])); ?>
+        <?php print ($e ? $this->Form->input('Name.given', array('class' => 'focusFirst')) : filter_var($names[0]['Name']['given'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php endif; // permitted fields ?>
@@ -161,7 +161,7 @@
         ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('Name.middle') : Sanitize::html($names[0]['Name']['middle'])); ?>
+        <?php print ($e ? $this->Form->input('Name.middle') : filter_var($names[0]['Name']['middle'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php endif; // permitted fields ?>
@@ -180,7 +180,7 @@
         ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('Name.family') : Sanitize::html($names[0]['Name']['family'])); ?>
+        <?php print ($e ? $this->Form->input('Name.family') : filter_var($names[0]['Name']['family'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php endif; // permitted fields ?>
@@ -197,7 +197,7 @@
         ?>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('Name.suffix') : Sanitize::html($names[0]['Name']['suffix'])); ?>
+        <?php print ($e ? $this->Form->input('Name.suffix') : filter_var($names[0]['Name']['suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <?php endif; // permitted fields ?>

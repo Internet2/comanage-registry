@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CMP Enrollment Configuration Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -153,7 +153,7 @@
           <td>
             <?php print ($e
                          ? $this->Form->input('attrs_from_ldap', array('onClick' => 'fields_update_gadgets()', 'disabled' => true))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_ldap'])); ?>
+                         : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_ldap'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
           </td>
         </tr>
         <tr class="line2">
@@ -164,7 +164,7 @@
           <td>
             <?php print ($e
                          ? $this->Form->input('attrs_from_saml', array('onClick' => 'fields_update_gadgets()', 'disabled' => true))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_saml'])); ?>
+                         : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_saml'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
           </td>
         </tr>
 <?php endif; ?>
@@ -176,7 +176,7 @@
           <td>
             <?php print ($e
                          ? $this->Form->input('attrs_from_env', array('onClick' => 'fields_update_gadgets()'))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_env']));
+                         : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_env'],FILTER_SANITIZE_SPECIAL_CHARS));
               if($e) {
                 print $this->Form->label('attrs_from_env', _txt('op.enable'));
               }
@@ -191,7 +191,7 @@
           <td>
             <?php print ($e
                          ? $this->Form->input('attrs_from_coef', array('onClick' => 'fields_update_gadgets()'))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_coef']));
+                         : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_coef'],FILTER_SANITIZE_SPECIAL_CHARS));
               if($e) {
                 print $this->Form->label('attrs_from_coef', _txt('op.enable'));
               }
@@ -207,7 +207,7 @@
             <?php print ($e
                          ? $this->Form->input('pool_org_identities', array('onClick' => 'confirm_pool_state_swap()',
                                                                            'disabled' => true))
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['pool_org_identities']));
+                         : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['pool_org_identities'],FILTER_SANITIZE_SPECIAL_CHARS));
               if($e) {
                 print $this->Form->label('pool_org_identities', _txt('op.pool'));
               }
@@ -224,7 +224,7 @@
           <td>
             <?php print ($e
                          ? $this->Form->input('eds_help_url')
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_help_url'])); ?>
+                         : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_help_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
           </td>
         </tr>
         <tr class="line1">
@@ -237,7 +237,7 @@
           <td>
             <?php print ($e
                          ? $this->Form->input('eds_preferred_idps')
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_preferred_idps'])); ?>
+                         : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_preferred_idps'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
           </td>
         </tr>
         <tr class="line2">
@@ -250,7 +250,7 @@
           <td>
             <?php print ($e
                          ? $this->Form->input('eds_hidden_idps')
-                         : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_hidden_idps'])); ?>
+                         : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_hidden_idps'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
           </td>
         </tr>
       </tbody>
@@ -306,13 +306,13 @@
             $xindex++;
             
             print $this->Form->hidden($xprefix . '.cmp_enrollment_configuration_id',
-              array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'])));
+              array('value' => filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
             print $this->Form->hidden($xprefix . '.attribute',
               array('value' => $attr));
 
             if(!empty($vv_availableAttributes[$attr]['type'])) {
               print $this->Form->hidden($xprefix . '.type',
-                array('value' => Sanitize::html($vv_availableAttributes[$attr]['type'])));
+                array('value' => filter_var($vv_availableAttributes[$attr]['type'],FILTER_SANITIZE_SPECIAL_CHARS)));
             }
 
             if(isset($currentAttributes[$attr]['id'])) {
@@ -365,19 +365,19 @@
                 
                 print ($e
                        ? $this->Form->input($xprefix . '.env_name', $attrs)
-                       : Sanitize::html($vv_availableAttributes[$attr]['env_name'])); ?>
+                       : filter_var($vv_availableAttributes[$attr]['env_name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
           </td>
           <!--
           <td><?php /*print ($e
                            ? $this->Form->input($xprefix . '.ldap_name',
                                                 array('default' => $vv_availableAttributes[$attr]['ldap_name'],
                                                       'size'    => '40'))
-                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?></td>
+                           : filter_var($vv_availableAttributes[$attr]['env_name'],FILTER_SANITIZE_SPECIAL_CHARS));*/ ?></td>
           <td><?php /*print ($e
                            ? $this->Form->input($xprefix . '.saml_name',
                                                 array('default' => $vv_availableAttributes[$attr]['saml_name'],
                                                       'size'    => '40'))
-                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?></td>
+                           : filter_var($vv_availableAttributes[$attr]['env_name'],FILTER_SANITIZE_SPECIAL_CHARS));*/ ?></td>
           -->
         </tr>
         <?php endforeach; ?>

@@ -63,6 +63,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 3),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'area_code' => array(
@@ -70,6 +73,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 8),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'number' => array(
@@ -77,6 +83,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 64),   // cake has telephone number validation, but US only
         'required' => false,                // We allow any chars to cover things like "ext 2009"
         'allowEmpty' => false
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'extension' => array(
@@ -84,6 +93,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 16),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'type' => array(

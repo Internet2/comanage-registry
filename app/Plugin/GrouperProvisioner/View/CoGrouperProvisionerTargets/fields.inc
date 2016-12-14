@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Grouper Provisioning Target Fields
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8.3
@@ -51,7 +51,6 @@
       $("#CoGrouperProvisionerTargetSubjectIdentifier").removeAttr("required");
       $("#CoGrouperProvisionerTargetSubjectView").closest("tr").show('fade');
       $("#CoGrouperProvisionerTargetSubjectView").attr("required", true);
-
     } else {
       $("#CoGrouperProvisionerTargetSubjectIdentifier").closest("tr").show('fade');
       $("#CoGrouperProvisionerTargetSubjectIdentifier").attr("required", true);
@@ -79,7 +78,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.serverurl.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['serverurl'])); ?>
+        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -88,7 +87,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.contextpath.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('contextpath', array('size' => 20)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['contextpath'])); ?>
+        <?php print ($e ? $this->Form->input('contextpath', array('size' => 20)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['contextpath'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -97,7 +96,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.login.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('login', array('size' => 24)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login'])); ?>
+        <?php print ($e ? $this->Form->input('login', array('size' => 24)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -106,7 +105,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.password.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['password'])); ?>
+        <?php print ($e ? $this->Form->input('password') : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -115,7 +114,7 @@
         <font class="desc"><?php print _txt('pl.grouperprovisioner.stem.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('stem', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['stem'])); ?>
+        <?php print ($e ? $this->Form->input('stem', array('size' => 50)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['stem'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -130,7 +129,7 @@
           if ($e) { 
             print $this->Form->input('legacy_comanage_subject', $args);
           } else {
-            print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['legacy_comanage_subject']); 
+            print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['legacy_comanage_subject'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
@@ -150,7 +149,7 @@
           }
           print $this->Form->input('subject_view', $args);
         } else {
-          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view']); 
+          print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view'],FILTER_SANITIZE_SPECIAL_CHARS); 
         }
         ?>
       </td>
@@ -167,7 +166,7 @@
             $args['empty'] = '(choose one)';
             print $this->Form->select('subject_identifier', $identifier_types, $args);
           } else {
-            print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_identifier']); 
+            print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
@@ -184,8 +183,7 @@
             $args['empty'] = '(choose one)';
             print $this->Form->select('login_identifier', $identifier_types, $args);
           } else {
-            print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier']); 
-          }
+            print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
         ?>
       </td>
     </tr>
@@ -201,7 +199,7 @@
             $args['empty'] = '(choose one)';
             print $this->Form->select('email_identifier', $email_address_types, $args);
           } else {
-            print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier']); 
+            print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>

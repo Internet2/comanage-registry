@@ -34,7 +34,7 @@
   $curstatus = "";
   
   if(!empty($this->request->query['status'])) {
-    $curstatus = Sanitize::paranoid($this->request->query['status']);
+    $curstatus = filter_var($this->request->query['status'], FILTER_SANITIZE_SPECIAL_CHARS);
   }
   
   // Construct an action URL, trying to preserve sort direction
@@ -42,11 +42,11 @@
   $sortdir = "desc";
   
   if(!empty($this->request->query['sort'])) {
-    $sorttype = Sanitize::paranoid($this->request->query['sort']);
+    $sorttype = filter_var($this->request->query['sort'], FILTER_SANITIZE_SPECIAL_CHARS);
   }
   
   if(!empty($this->request->query['direction'])) {
-    $sortdir = Sanitize::paranoid($this->request->query['direction']);
+    $sortdir = filter_var($this->request->query['direction'], FILTER_SANITIZE_SPECIAL_CHARS);
   }
   
   $furl = "/registry/co_notifications/index/sort:" . $sorttype
@@ -87,8 +87,8 @@
     <?php $i = 0; ?>
     <?php foreach ($co_notifications as $c): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
-      <td><?php print Sanitize::html($c['CoNotification']['action']); ?></td>
-      <td><?php print $this->Html->link(Sanitize::html($c['CoNotification']['comment']),
+      <td><?php print filter_var($c['CoNotification']['action'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print $this->Html->link(filter_var($c['CoNotification']['comment'],FILTER_SANITIZE_SPECIAL_CHARS),
                                         array(
                                           'controller' => 'co_notifications',
                                           'action'     => 'view',

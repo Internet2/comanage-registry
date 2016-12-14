@@ -134,7 +134,7 @@
           <div class="headerLeft">
             <?php
               if(!empty($cur_co['Co']['name'])) {
-                print '<div id="collaborationTitle">' . Sanitize::html($cur_co['Co']['name']) . '</div>'; // more to go here.
+                print '<div id="collaborationTitle">' . filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . '</div>'; // more to go here.
               } else {
                 print '<div id="collaborationTitle">' . _txt('coordinate') . '</div>';
               }

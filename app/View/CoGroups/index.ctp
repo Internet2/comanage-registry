@@ -346,11 +346,11 @@
                                     array('controller' => 'co_groups',
                                           'action' => ($e ? 'edit' : ($v ? 'view' : '')), $c['CoGroup']['id']));
           } else {
-            print Sanitize::html($c['CoGroup']['name']);
+            print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
-      <td><?php print Sanitize::html($c['CoGroup']['description']); ?></td>
+      <td><?php print filter_var($c['CoGroup']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td><?php print $c['CoGroup']['open'] ? _txt('fd.open') : _txt('fd.closed'); ?></td>
       <td>
         <?php

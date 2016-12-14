@@ -125,11 +125,13 @@
                 <tr class="line<?php print ($l % 2); $l++; ?>">
                   <td>
                     <?php
+                      $label = _txt('fd.cou-a', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));
+                      
                       if($e && !$es) {
-                        print $this->Form->label('cou_id',Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'));
+                        print $this->Form->label('cou_id', $label);
                         print ' <span class="required">*</span>';
                       } else {
-                        print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou');
+                        print $label;
                       }
                     ?>
                   </td>
@@ -139,7 +141,7 @@
                       ? $co_person_roles[0]['CoPersonRole']['cou_id']
                       : 0);
                     $attrs['empty'] = false;
-
+                    
                     if($e && !$es) {
                       print $this->Form->select('cou_id',
                         $permissions['cous'],
@@ -149,7 +151,7 @@
                         print $this->Form->error('cou_id');
                       }
                     } else {
-                      print Sanitize::html($co_person_roles[0]['Cou']['name']);
+                      print filter_var($cur_co['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
                     }
                     ?>
                   </td>
@@ -158,11 +160,13 @@
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
                   <?php
+                    $label = _txt('fd.affil-a', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));
+                    
                     if($e && !$es) {
-                      print $this->Form->label('affiliation', Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'));
+                      print $this->Form->label('affiliation', $label);
                       print ' <span class="required">*</span>';
                     } else {
-                      print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation');
+                      print $label;
                     }
                   ?>
                 </td>
@@ -237,10 +241,12 @@
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
                   <?php
-                    if ($e && !$es) {
-                      print $this->Form->label('title', _txt('fd.title-a', array($cur_co['Co']['name'])));
+                    $label = _txt('fd.title-a', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));
+                    
+                    if($e && !$es) {
+                      print $this->Form->label('title', $label);
                     } else {
-                      print $cur_co['Co']['name'] . " " . _txt('fd.title');
+                      print $label;
                     }
                   ?>
                 </td>
@@ -252,7 +258,7 @@
                         
                         if(!empty($co_person_roles[0]['CoPersonRole']['title'])
                           && !array_search($co_person_roles[0]['CoPersonRole']['title'], $vv_enums_title)) {
-                          print $co_person_roles[0]['CoPersonRole']['title'];
+                          print filter_var($co_person_roles[0]['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
                           
                           print '<div>
                                    <span class="ui-icon ui-icon-info co-info"></span>
@@ -273,7 +279,7 @@
                         print $this->Form->input('title', array('size' => 60, 'class' => 'focusFirst'));
                       }
                     } else {
-                      print Sanitize::html($co_person_roles[0]['CoPersonRole']['title']);
+                      print filter_var($co_person_roles[0]['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
                     }
                   ?>
                 </td>
@@ -296,7 +302,7 @@
                         
                         if(!empty($co_person_roles[0]['CoPersonRole']['o'])
                           && !array_search($co_person_roles[0]['CoPersonRole']['o'], $vv_enums_o)) {
-                          print $co_person_roles[0]['CoPersonRole']['o'];
+                          print filter_var($co_person_roles[0]['CoPersonRole']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
                           
                           print '<div>
                                    <span class="ui-icon ui-icon-info co-info"></span>
@@ -319,13 +325,13 @@
                         );
                         
                         if($this->action == 'add') {
-                          $args['default'] = $cur_co['Co']['name'];
+                          $args['default'] = filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
                         }
                         
                         print $this->Form->input('o', $args);
                       }
                     } else {
-                      print Sanitize::html($co_person_roles[0]['CoPersonRole']['o']);
+                      print filter_var($co_person_roles[0]['CoPersonRole']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
                     }
                   ?>
                 </td>
@@ -348,7 +354,7 @@
                         
                         if(!empty($co_person_roles[0]['CoPersonRole']['ou'])
                            && !array_search($co_person_roles[0]['CoPersonRole']['ou'], $vv_enums_ou)) {
-                          print $co_person_roles[0]['CoPersonRole']['ou'];
+                          print filter_var($co_person_roles[0]['CoPersonRole']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
                           
                           print '<div>
                                    <span class="ui-icon ui-icon-info co-info"></span>
@@ -369,7 +375,7 @@
                         print $this->Form->input('ou', array('size' => 60));
                       }
                     } else {
-                      print Sanitize::html($co_person_roles[0]['CoPersonRole']['ou']);
+                      print filter_var($co_person_roles[0]['CoPersonRole']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
                     }
                   ?>
                 </td>
@@ -405,7 +411,7 @@
                     if($e && !$es) {
                       print $this->Form->select('sponsor_co_person_id', $vv_sponsors);
                     } elseif(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) {
-                      print Sanitize::html($vv_sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ]);
+                      print filter_var($vv_sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
                     }
                   }
                   ?>
@@ -458,9 +464,10 @@
                     <td>
                       <?php
                         if($e && !$es) {
-                          print $this->Form->label($cl.'.'.$attr, $c['CoExtendedAttribute']['display_name']);
+                          print $this->Form->label($cl.'.'.$attr,
+                                                   filter_var($c['CoExtendedAttribute']['display_name'],FILTER_SANITIZE_SPECIAL_CHARS));
                         } else {
-                          print $c['CoExtendedAttribute']['display_name'];
+                          print filter_var($c['CoExtendedAttribute']['display_name'],FILTER_SANITIZE_SPECIAL_CHARS);
                         }
                       ?>
                     </td>
@@ -472,7 +479,7 @@
                       } else {
                         print ($e && !$es ? $this->Form->input($cl.'.'.$attr,
                           isset($co_person_roles[0][$cl][$attr]) ? array('default' => $co_person_roles[0][$cl][$attr]) : array())
-                          : Sanitize::html($co_person_roles[0][$cl][$attr]));
+                          : filter_var($co_person_roles[0][$cl][$attr],FILTER_SANITIZE_SPECIAL_CHARS));
                       }
                       ?>
                     </td>
@@ -599,7 +606,7 @@
 
                   <?php elseif($perm == PermissionEnum::ReadOnly): ?>
                     <div class="fieldData">
-                      <?php print Sanitize::html(formatTelephone($t)); ?>
+                      <?php print filter_var(formatTelephone($t),FILTER_SANITIZE_SPECIAL_CHARS); ?>
                       <span class="dataDesc">
                       (<?php print $vv_copr_telephonenumber_types[ $t['type'] ]; ?>)
                     </span>
@@ -713,7 +720,7 @@
                     </div>
                   <?php elseif($perm == PermissionEnum::ReadOnly): ?>
                     <div class="fieldData">
-                      <?php print Sanitize::html($addr['street']); ?>
+                      <?php print filter_var($addr['street'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
                       <span class="dataDesc">
                       (<?php $vv_copr_address_types[ $addr['type'] ]; ?>)
                     </span>
