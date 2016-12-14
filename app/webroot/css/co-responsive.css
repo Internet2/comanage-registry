@@ -269,10 +269,10 @@
     color: white;
     min-height: 27px; /* essential */
   }
-  #user-defined-links-top #links li {
+  #user-defined-links-top .custom-links li {
     display: inline-block;
   }
-  #user-defined-links-top #links a {
+  #user-defined-links-top .custom-links a {
     color: white;
   }
 

@@ -25,7 +25,7 @@
 ?>
 
 <?php if(isset($vv_NavLinks) || isset($vv_CoNavLinks)): ?>
-<div id="links">
+<div class="custom-links">
   <ul>
     <?php
       // Emit dynamically configured (via Navigation Links) links

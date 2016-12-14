@@ -131,7 +131,7 @@
         </div>
       <?php endif; ?>
 
-      <header id="banner" role="banner" class="mdl-layout__header mdl-layout__header--scroll">
+      <header id="banner" class="mdl-layout__header mdl-layout__header--scroll">
         <div class="mdl-layout__header-row">
           <div id="logo">
             <?php
@@ -159,7 +159,7 @@
 
       <?php if($this->Session->check('Auth.User')): ?>
         <div id="navigation-drawer" class="mdl-layout__drawer">
-          <nav id="navigation" role="navigation" aria-label="main menu" class="mdl-navigation">
+          <nav id="navigation" aria-label="main menu" class="mdl-navigation">
             <?php print $this->element('menuMain'); ?>
             <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
               <div id="user-defined-links-left">
@@ -205,7 +205,7 @@
           }
 
           // insert the anchor that is the target of accessible "skip to content" link
-          print '<a name="content-start" id="content-start"></a>';
+          print '<a id="content-start"></a>';
 
           // insert the page internal content
           print $this->fetch('content');

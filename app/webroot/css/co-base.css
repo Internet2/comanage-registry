@@ -362,18 +362,18 @@ form#notificationStatus {
   margin-right: 6px;
   vertical-align: bottom;
 }
-#links ul {
+.custom-links ul {
   margin: 0;
   padding: 0;
 }
-#links li {
+.custom-links li {
   font-size: 0.9em;
   list-style: none;
   margin: 0;
   padding: 0;
   line-height: 1em;
 }
-#links a {
+.custom-links a {
   display: block;
   padding: 7px 7px 7px 20px;
   color: #92B6D1;

@@ -491,145 +491,137 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       }
     }
 
-  ?>
+    // Platform Menu
+    if(!empty($permissions['menu']['admin']) && $permissions['menu']['admin']) {
+      print'<li class="platformMenu">';
+      print'<a href="#" class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
+      print'<i class="material-icons">settings</i>';
+      print '<span class="menuTitle">' . _txt('me.platform') . '</span>';
+      print '<span class="fa arrow fa-fw"></span>';
+      print '<span class="mdl-ripple"></span>';
+      print '</a>';
+      print '<ul aria-expanded="false">';
 
-  <!-- Platform Menu -->
-  <?php if(!empty($permissions['menu']['admin']) && $permissions['menu']['admin']): ?>
-    <li class="platformMenu">
-      <a href="#" class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">
-        <i class="material-icons">settings</i>
-        <?php print '<span class="menuTitle">' . _txt('me.platform') . '</span>';?>
-        <span class="fa arrow fa-fw"></span>
-        <span class="mdl-ripple"></span>
-      </a>
-      <ul aria-expanded="false">
-        <li class="mdl-js-ripple-effect">
-          <?php
-            $args = array();
-            $args['plugin'] = null;
-            $args['controller'] = 'api_users';
-            $args['action'] = 'index';
+      print '<li class="mdl-js-ripple-effect">';
+      $args = array();
+      $args['plugin'] = null;
+      $args['controller'] = 'api_users';
+      $args['action'] = 'index';
+      print $this->Html->link(_txt('ct.api_users.pl'), $args);
+      print '<span class="mdl-ripple"></span>';
+      print '</li>';
 
-            print $this->Html->link(_txt('ct.api_users.pl'), $args);
-          ?>
-          <span class="mdl-ripple"></span>
-        </li>
-        <?php if($pool_org_identities): ?>
-          <li class="mdl-js-ripple-effect">
-            <?php
-              $args = array();
-              $args['plugin'] = null;
-              $args['controller'] = 'attribute_enumerations';
-              $args['action'] = 'index';
+      if($pool_org_identities) {
+        print '<li class="mdl-js-ripple-effect">';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'attribute_enumerations';
+        $args['action'] = 'index';
 
-              print $this->Html->link(_txt('ct.attribute_enumerations.pl'), $args);
-            ?>
-            <span class="mdl-ripple"></span>
-          </li>
-        <?php endif; // pool_org_identities ?>
-        <li class="mdl-js-ripple-effect">
-          <?php
-            $args = array();
-            $args['plugin'] = null;
-            $args['controller'] = 'cmp_enrollment_configurations';
-            $args['action'] = 'select';
+        print $this->Html->link(_txt('ct.attribute_enumerations.pl'), $args);
+        print '<span class="mdl-ripple"></span>';
+        print '</li>';
+      } // pool_org_identities
 
-            print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $args);
-          ?>
-          <span class="mdl-ripple"></span>
-        </li>
-        <li class="mdl-js-ripple-effect">
-          <?php
-            $args = array();
-            $args['plugin'] = null;
-            $args['controller'] = 'cos';
-            $args['action'] = 'index';
+      print '<li class="mdl-js-ripple-effect">';
+      $args = array();
+      $args['plugin'] = null;
+      $args['controller'] = 'cmp_enrollment_configurations';
+      $args['action'] = 'select';
 
-            print $this->Html->link(_txt('ct.cos.pl'), $args);
-          ?>
-          <span class="mdl-ripple"></span>
-        </li>
-        <li class="mdl-js-ripple-effect">
-          <?php
-            $args = array();
-            $args['plugin'] = null;
-            $args['controller'] = 'navigation_links';
-            $args['action'] = 'index';
+      print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $args);
+      print '<span class="mdl-ripple"></span>';
+      print '</li>';
 
-            print $this->Html->link(_txt('ct.navigation_links.pl'), $args);
-          ?>
-          <span class="mdl-ripple"></span>
-        </li>
-        <?php if($pool_org_identities): ?>
-          <li class="mdl-js-ripple-effect">
-            <?php
-              // If org identities are pooled, only CMP admins can define sources
-              $args = array();
-              $args['plugin'] = null;
-              $args['controller'] = 'org_identity_sources';
-              $args['action'] = 'index';
+      print '<li class="mdl-js-ripple-effect">';
+      $args = array();
+      $args['plugin'] = null;
+      $args['controller'] = 'cos';
+      $args['action'] = 'index';
 
-              print $this->Html->link(_txt('ct.org_identity_sources.pl'), $args);
-            ?>
-            <span class="mdl-ripple"></span>
-          </li>
-        <?php endif; // pool_org_identities ?>
-        <?php
-          if(!empty($menuContent['plugins'])) {
-            render_plugin_menus($this->Html, $menuContent['plugins'], 'cmp');
-          }
-        ?>
-      </ul>
-    </li>
-  <?php endif; ?>
+      print $this->Html->link(_txt('ct.cos.pl'), $args);
+      print '<span class="mdl-ripple"></span>';
+      print '</li>';
 
-  <!-- Collaborations Menu -->
-  <li class="collabMenu">
-    <a class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">
-      <i class="material-icons">assignment_turned_in</i>
-      <?php print '<span class="menuTitle">' . _txt('me.collaborations') . '</span>'; ?>
-      <span class="fa arrow fa-fw"></span>
-      <span class="mdl-ripple"></span>
-    </a>
-    <?php
-      //loop over each CO
-      if(count($cos) > 0) {
-        print '<ul aria-expanded="false">';
+      print '<li class="mdl-js-ripple-effect">';
+      $args = array();
+      $args['plugin'] = null;
+      $args['controller'] = 'navigation_links';
+      $args['action'] = 'index';
 
-        foreach($cos as $menuCoName => $menuCoData) {
-          $collabMenuCoId = $menuCoData['co_id'];
+      print $this->Html->link(_txt('ct.navigation_links.pl'), $args);
+      print '<span class="mdl-ripple"></span>';
+      print '</li>';
 
-          if((!isset($menuCoData['co_person']['status'])
-              || ($menuCoData['co_person']['status'] != StatusEnum::Active
-                && $menuCoData['co_person']['status'] != StatusEnum::GracePeriod))
-            && !$permissions['menu']['admin']) {
-            // Don't render this CO, the person is not an active member (or a CMP admin)
-            continue;
-          }
+      if($pool_org_identities) {
+        print '<li class="mdl-js-ripple-effect">';
+        // If org identities are pooled, only CMP admins can define sources
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'org_identity_sources';
+        $args['action'] = 'index';
 
-          print '<li class="mdl-js-ripple-effect">';
+        print $this->Html->link(_txt('ct.org_identity_sources.pl'), $args);
+        print '<span class="mdl-ripple"></span>';
+        print '</li>';
+      } // pool_org_identities
 
-          // We use $menuCoData here and not $menuCoName because the former will indicate
-          // 'Not a Member' for CMP Admins (where they are not a member of the CO)
-          $args = array();
-          $args['plugin'] = null;
-          $args['controller'] = 'co_dashboards';
-          $args['action'] = 'dashboard';
-          $args['co'] = $collabMenuCoId;
-
-          print $this->Html->link($menuCoData['co_name'], $args);
-          print '<span class="mdl-ripple"></span>';
-          print "</li>";
-        }
-
-        // Plugins
-        if (!empty($menuContent['plugins'])) {
-          render_plugin_menus($this->Html, $menuContent['plugins'], 'cos');
-        }
-
-        print "</ul>";
+      // Plugins
+      if(!empty($menuContent['plugins'])) {
+        render_plugin_menus($this->Html, $menuContent['plugins'], 'cmp');
       }
-    ?>
-  </li>
+
+      print '</ul>';
+      print '</li>';
+    }
+
+    // Collaborations Menu
+    print '<li class="collabMenu">';
+    print '<a class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
+    print '<i class="material-icons">assignment_turned_in</i>';
+    print '<span class="menuTitle">' . _txt('me.collaborations') . '</span>';
+    print '<span class="fa arrow fa-fw"></span>';
+    print '<span class="mdl-ripple"></span>';
+    print '</a>';
+
+    //loop over each CO
+    if(count($cos) > 0) {
+      print '<ul aria-expanded="false">';
+
+      foreach($cos as $menuCoName => $menuCoData) {
+        $collabMenuCoId = $menuCoData['co_id'];
+
+        if((!isset($menuCoData['co_person']['status'])
+            || ($menuCoData['co_person']['status'] != StatusEnum::Active
+              && $menuCoData['co_person']['status'] != StatusEnum::GracePeriod))
+          && !$permissions['menu']['admin']) {
+          // Don't render this CO, the person is not an active member (or a CMP admin)
+          continue;
+        }
+
+        print '<li class="mdl-js-ripple-effect">';
+
+        // We use $menuCoData here and not $menuCoName because the former will indicate
+        // 'Not a Member' for CMP Admins (where they are not a member of the CO)
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_dashboards';
+        $args['action'] = 'dashboard';
+        $args['co'] = $collabMenuCoId;
+
+        print $this->Html->link($menuCoData['co_name'], $args);
+        print '<span class="mdl-ripple"></span>';
+        print '</li>';
+      }
+
+      // Plugins
+      if (!empty($menuContent['plugins'])) {
+        render_plugin_menus($this->Html, $menuContent['plugins'], 'cos');
+      }
+
+      print '</ul>';
+      print '</li>';
+    }
+  ?>
 
 </ul>
