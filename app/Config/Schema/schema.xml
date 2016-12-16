@@ -928,10 +928,10 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <index name="co_cmp_enrollment_attributes_i1">
+    <index name="cmp_enrollment_attributes_i1">
       <col>cmp_enrollment_configuration_id</col>
     </index>
-    <index name="co_cmp_enrollment_attributes_i2">
+    <index name="cmp_enrollment_attributes_i2">
       <col>cmp_enrollment_configuration_id</col>
       <col>attribute</col>
       <col>type</col>
