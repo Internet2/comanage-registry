@@ -88,7 +88,6 @@
   }
 
   print $this->element("pageTitleAndButtons", $params);
-
 ?>
 
 <table id="org_identities" class="ui-widget">
@@ -115,7 +114,7 @@
         <?php
           if(!empty($h['ActorCoPerson']['id'])) {
             print $this->Html->link(
-              generateCn($h['ActorCoPerson']['PrimaryName']),
+              (!empty($h['ActorCoPerson']['PrimaryName']) ? generateCn($h['ActorCoPerson']['PrimaryName']) : _txt('fd.deleted')),
               array(
                 'controller' => 'co_people',
                 'action' => 'view',
@@ -129,7 +128,7 @@
         <?php
           if(!empty($h['OrgIdentity']['id'])) {
             print $this->Html->link(
-              generateCn($h['OrgIdentity']['PrimaryName']),
+              (!empty($h['OrgIdentity']['PrimaryName']) ? generateCn($h['OrgIdentity']['PrimaryName']) : _txt('fd.deleted')),
               array(
                 'controller' => 'org_identities',
                 'action' => 'view',
@@ -143,7 +142,7 @@
         <?php
           if(!empty($h['CoPerson']['id'])) {
             print $this->Html->link(
-              generateCn($h['CoPerson']['PrimaryName']),
+              (!empty($h['CoPerson']['PrimaryName']) ? generateCn($h['CoPerson']['PrimaryName']) : _txt('fd.deleted')),
               array(
                 'controller' => 'co_people',
                 'action' => 'canvas',
