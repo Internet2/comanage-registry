@@ -288,7 +288,7 @@ class CoExpirationPolicy extends AppModel {
         }
         // Restrict matching records to the requested CO
         $args['conditions']['CoPerson.co_id'] = $coId;
-        $args['contain']['CoPerson'] = 'PrimaryName';
+        $args['contain']['CoPerson'] = array('PrimaryName', 'Identifier');
         $args['contain']['SponsorCoPerson'] = 'PrimaryName';
         $args['contain'][] = 'Cou';
         
@@ -477,11 +477,19 @@ class CoExpirationPolicy extends AppModel {
             $body = null;
             
             if(!empty($p['ActNotifyMessageTemplate']['id'])) {
-              $subject = processTemplate($p['ActNotifyMessageTemplate']['message_subject'], $substitutions);
-              $body = processTemplate($p['ActNotifyMessageTemplate']['message_body'], $substitutions);
+              $subject = processTemplate($p['ActNotifyMessageTemplate']['message_subject'],
+                                         $substitutions,
+                                         $role['CoPerson']['Identifier']);
+              $body = processTemplate($p['ActNotifyMessageTemplate']['message_body'],
+                                      $substitutions,
+                                      $role['CoPerson']['Identifier']);
             } else {
-              $subject = processTemplate($p['CoExpirationPolicy']['act_notification_subject'], $substitutions);
-              $body = processTemplate($p['CoExpirationPolicy']['act_notification_body'], $substitutions);
+              $subject = processTemplate($p['CoExpirationPolicy']['act_notification_subject'],
+                                         $substitutions,
+                                         $role['CoPerson']['Identifier']);
+              $body = processTemplate($p['CoExpirationPolicy']['act_notification_body'],
+                                      $substitutions,
+                                      $role['CoPerson']['Identifier']);
             }
             
             if(isset($p['CoExpirationPolicy']['act_notify_co_admin'])

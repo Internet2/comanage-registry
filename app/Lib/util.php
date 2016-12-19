@@ -262,19 +262,38 @@ function getPreferredLanguage() {
  * @since  COmanage Registry v0.9
  * @param  String Template text
  * @param  Array Array of substitution parameters
+ * @param  Array Array of identifiers (complex format, as returned by find) to use for identifier substitutions
  * @return String Processed template
  */
 
-function processTemplate($template, $subtitutions) {
+function processTemplate($template, $substitutions, $identifiers=array()) {
   $searchKeys = array();
   $replaceVals = array();
   
-  foreach(array_keys($subtitutions) as $k) {
-    $searchKeys[] = "(@" . $k . ")";
-    $replaceVals[] = $subtitutions[$k];
+  $subs = $substitutions;
+  
+  // If any identifiers were provided, process the appropriate substitutions
+  if($identifiers) {
+    // Identifier substitutions are of the form (@IDENTIFER:type)
+    foreach($identifiers as $i) {
+      if($i['status'] == SuspendableStatusEnum::Active) {
+        $t = 'IDENTIFIER:'.$i['type'];
+        
+        if(!empty($subs[$t])) {
+          $subs[$t] .= "," . $i['identifier'];
+        } else {
+          $subs[$t] = $i['identifier'];
+        }
+      }
+    }
   }
   
-  return str_replace($searchKeys, $replaceVals, $template);  
+  foreach(array_keys($subs) as $k) {
+    $searchKeys[] = "(@" . $k . ")";
+    $replaceVals[] = $subs[$k];
+  }
+  
+  return str_replace($searchKeys, $replaceVals, $template);
 }
 
 /**
