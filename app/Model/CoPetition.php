@@ -1958,18 +1958,6 @@ class CoPetition extends AppModel {
       // Note if multiple identifiers of a given type are found,
       // we'll concatenate them.
       
-      foreach($pt['EnrolleeCoPerson']['Identifier'] as $i) {
-        if($i['status'] == SuspendableStatusEnum::Active) {
-          $t = 'IDENTIFIER:'.$i['type'];
-          
-          if(!empty($subs[$t])) {
-            $subs[$t] .= "," . $i['identifier'];
-          } else {
-            $subs[$t] = $i['identifier'];
-          }
-        }
-      }
-      
       if($action == 'approval') {
         if(!empty($pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['id'])) {
           $subject = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['message_subject'];
@@ -2001,8 +1989,8 @@ class CoPetition extends AppModel {
         // else should probably throw an error
       }
       
-      $subject = processTemplate($subject, $subs);
-      $body = processTemplate($body, $subs);
+      $subject = processTemplate($subject, $subs, $pt['EnrolleeCoPerson']['Identifier']);
+      $body = processTemplate($body, $subs, $pt['EnrolleeCoPerson']['Identifier']);
       
       $this->Co
            ->CoPerson

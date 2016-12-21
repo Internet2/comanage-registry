@@ -665,8 +665,11 @@ class OrgIdentitySource extends AppModel {
       
       $status = 'unknown';
       
-      if(isset($brec['raw']) && isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
-         && $brec['raw'] == $cursrcrec['OrgIdentitySourceRecord']['source_record']) {
+      if((isset($brec['raw']) && isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
+          && $brec['raw'] == $cursrcrec['OrgIdentitySourceRecord']['source_record'])
+         || // was record previously deleted?
+         (!$brec['raw'] && (!isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
+                            || !$cursrcrec['OrgIdentitySourceRecord']['source_record']))) {
         // Source record has not changed, so don't bother doing anything
         
         if($jobId) {
@@ -1231,7 +1234,7 @@ class OrgIdentitySource extends AppModel {
             
             $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
                                                          $sourceKey,
-                                                         $e->getMessage(),
+                                                         $e->getMessage() . " (" . $ea['EmailAddress']['mail'] . ")",
                                                          null,
                                                          null,
                                                          JobStatusEnum::Failed);

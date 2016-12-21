@@ -244,7 +244,7 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
           $r2 = $this->makeNetForumQuery('Key', $r->cst_key);
           
           // There should be only one response per key
-          if($r2) {
+          if($r2 && (string)$r2->MemberStatus == 'Active') {
             // Use the customer key as the unique ID
             $ret[ (string)$r->cst_key ] = $this->resultToOrgIdentity($r2->Result[0]);
           }

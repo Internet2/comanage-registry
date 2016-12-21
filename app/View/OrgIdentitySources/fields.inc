@@ -284,3 +284,4 @@
   </tbody>
 </table>
 <?php endif; /* plugins */
+  print $this->element("changelog");
