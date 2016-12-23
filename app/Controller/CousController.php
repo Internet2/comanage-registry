@@ -65,12 +65,9 @@ class CousController extends StandardController {
       if($this->action == 'edit') {
         $options = $this->Cou->potentialParents($this->request->data['Cou']['id'],
                                                 $this->request->data['Cou']['co_id']);
-      } else {
-        $optionArrays = $this->Cou->findAllByCoId($this->cur_co['Co']['id']);
-        $options = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name');
+        
+        $this->set('parent_options', $options);
       }
-      
-      $this->set('parent_options', $options);
     }
     
     parent::beforeRender();
