@@ -139,13 +139,6 @@ class CoPerson extends AppModel {
         'message' => 'A CO ID must be provided'
       )
     ),
-    'primary_name_id' => array(
-      'content' => array(
-        'rule' => 'numeric',
-        'required' => false,
-        'allowEmpty' => true
-      )
-    ),
     'status' => array(
       'content' => array(
         'rule' => array('inList', array(StatusEnum::Active,

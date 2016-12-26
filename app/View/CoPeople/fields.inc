@@ -1402,7 +1402,8 @@
                   <tr class="line<?php print ($l % 2); $l++; ?>">
                     <th class="ui-widget-header"><?php print _txt('fd.name'); ?></th>
                     <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
-                    <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
+                    <th class="ui-widget-header"><?php print _txt('fd.valid_from'); ?></th>
+                    <th class="ui-widget-header"><?php print _txt('fd.valid_through'); ?></th>
                     <th class="ui-widget-header"><?php print _txt('fd.identifier.ids.login'); ?></th>
                     <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                   </tr>
@@ -1420,14 +1421,20 @@
                       </td>
                       <td>
                         <?php
-                        if(!empty($link['OrgIdentity']['o']))
-                          print filter_var($link['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
+                          if(!empty($link['OrgIdentity']['o']))
+                            print filter_var($link['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
                         ?>
                       </td>
                       <td>
                         <?php
-                        if(!empty($link['OrgIdentity']['affiliation']))
-                          print filter_var($cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $link['OrgIdentity']['affiliation'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+                          if(isset($link['OrgIdentity']['valid_from']) && $link['OrgIdentity']['valid_from'] > 0)
+                            print $this->Time->format('Y M d', $link['OrgIdentity']['valid_from']);
+                        ?>
+                      </td>
+                      <td>
+                        <?php
+                          if(isset($link['OrgIdentity']['valid_through']) && $link['OrgIdentity']['valid_through'] > 0)
+                            print $this->Time->format('Y M d', $link['OrgIdentity']['valid_through']);
                         ?>
                       </td>
                       <td>

@@ -104,7 +104,20 @@ class UsersController extends AppController {
           // Join on identifiers that aren't deleted (including if they have no status)
           $oargs['conditions']['OR'][] = 'Identifier.status IS NULL';
           $oargs['conditions']['OR'][]['Identifier.status <>'] = StatusEnum::Deleted;
+          // As of v1.1.0, OrgIdentities have validity dates, so only accept valid dates (if specified)
           // Through the magic of containable behaviors, we can get all the associated
+          $oargs['conditions']['AND'][] = array(
+            'OR' => array(
+              'OrgIdentity.valid_from IS NULL',
+              'OrgIdentity.valid_from < ' => date('Y-m-d H:i:s', time())
+            )
+          );
+          $oargs['conditions']['AND'][] = array(
+            'OR' => array(
+              'OrgIdentity.valid_through IS NULL',
+              'OrgIdentity.valid_through > ' => date('Y-m-d H:i:s', time())
+            )
+          );
           // data we need in one clever find
           $oargs['contain'][] = 'PrimaryName';
           $oargs['contain'][] = 'Identifier';

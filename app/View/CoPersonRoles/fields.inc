@@ -430,7 +430,7 @@
                 <td>
                   <?php print (($e && !$es)
                     ? $this->Form->text('valid_from', array('class' => 'datepicker-f'))
-                    : (($co_person_roles[0]['CoPersonRole']['valid_from'] > 0) ? strftime("%F", strtotime($co_person_roles[0]['CoPersonRole']['valid_from'])) : "")); ?>
+                    : (($co_person_roles[0]['CoPersonRole']['valid_from'] > 0) ? strftime("%F %T", strtotime($co_person_roles[0]['CoPersonRole']['valid_from'])) : "")); ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -446,7 +446,7 @@
                 <td>
                   <?php print (($e && !$es)
                     ? $this->Form->text('valid_through', array('class' => 'datepicker-u'))
-                    : (($co_person_roles[0]['CoPersonRole']['valid_through'] > 0) ? strftime("%F", strtotime($co_person_roles[0]['CoPersonRole']['valid_through'])) : "")); ?>
+                    : (($co_person_roles[0]['CoPersonRole']['valid_through'] > 0) ? strftime("%F %T", strtotime($co_person_roles[0]['CoPersonRole']['valid_through'])) : "")); ?>
                 </td>
               </tr>
               <?php

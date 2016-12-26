@@ -121,6 +121,8 @@
     <field name="co_id" type="I">
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
+    <field name="valid_from" type="T" />
+    <field name="valid_through" type="T" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="org_identity_id" type="I">

@@ -871,6 +871,23 @@ class ProvisionerBehavior extends ModelBehavior {
       }
     }
     
+    // Remove any inactive org identities
+    
+    if(!empty($coPersonData['CoOrgIdentityLink'])) {
+      for($i = (count($coPersonData['CoOrgIdentityLink']) - 1);$i >= 0;$i--) {
+        // We don't currently look at Org Identity status since it's primarily used to track
+        // OIS sync state. However, this could change in the future.
+        
+        if((!empty($coPersonData['CoOrgIdentityLink'][$i]['OrgIdentity']['valid_from'])
+            && strtotime($coPersonData['CoOrgIdentityLink'][$i]['OrgIdentity']['valid_from']) >= time())
+           ||
+           (!empty($coPersonData['CoOrgIdentityLink'][$i]['OrgIdentity']['valid_through'])
+            && strtotime($coPersonData['CoOrgIdentityLink'][$i]['OrgIdentity']['valid_through']) < time())) {
+          unset($coPersonData['CoOrgIdentityLink'][$i]);
+        }
+      }
+    }
+    
     return $coPersonData;
   }
   

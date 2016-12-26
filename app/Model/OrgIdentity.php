@@ -149,16 +149,23 @@ class OrgIdentity extends AppModel {
         'allowEmpty' => true
       )
     ),
-    'primary_name_id' => array(
+    'title' => array(
       'content' => array(
-        'rule' => 'numeric',
+        'rule' => array('validateInput'),
         'required' => false,
         'allowEmpty' => true
       )
     ),
-    'title' => array(
+    'valid_from' => array(
       'content' => array(
-        'rule' => array('validateInput'),
+        'rule' => array('validateTimestamp'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'valid_through' => array(
+      'content' => array(
+        'rule' => array('validateTimestamp'),
         'required' => false,
         'allowEmpty' => true
       )

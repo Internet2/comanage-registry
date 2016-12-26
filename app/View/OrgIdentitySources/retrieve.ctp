@@ -217,6 +217,30 @@
       </tr>
       <tr class="line<?php print $l++ % 2; ?>">
         <td>
+          <?php print _txt('fd.valid_from'); ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($vv_org_source_record['OrgIdentity']['valid_from'])) {
+              print $vv_org_source_record['OrgIdentity']['valid_from'];
+            }
+          ?>
+        </td>
+      </tr>
+      <tr class="line<?php print $l++ % 2; ?>">
+        <td>
+          <?php print _txt('fd.valid_through'); ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($vv_org_source_record['OrgIdentity']['valid_through'])) {
+              print $vv_org_source_record['OrgIdentity']['valid_through'];
+            }
+          ?>
+        </td>
+      </tr>
+      <tr class="line<?php print $l++ % 2; ?>">
+        <td>
           <?php print _txt('fd.title'); ?>
         </td>
         <td>

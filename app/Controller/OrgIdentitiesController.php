@@ -658,14 +658,11 @@ class OrgIdentitiesController extends StandardController {
    */
   
   function performRedirect() {
-    // On add, redirect to edit view again so MVPAs are available
+    // On add, redirect to edit view again so MVPAs are available.
+    // In general, also redirect back to edit as a logical destination
 
-    if($this->action == 'add')
-      $this->redirect(array('action' => 'edit',
-                            $this->OrgIdentity->id,
-                            'co' => (isset($this->viewVars['cur_co']['Co']['id']) ? $this->viewVars['cur_co']['Co']['id'] : false)));
-    else
-      parent::performRedirect();
+    $this->redirect(array('action' => 'edit',
+                          $this->OrgIdentity->id));
   }
   
   /**

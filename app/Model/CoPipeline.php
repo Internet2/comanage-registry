@@ -591,11 +591,13 @@ class CoPipeline extends AppModel {
         'CoPersonRole' => array(
           'affiliation' => $affil,
           // Set the cou_id even if null so the diff operates correctly
-          'cou_id'      => $coPipeline['CoPipeline']['sync_cou_id'],
-          'o'           => $orgIdentity['OrgIdentity']['o'],
-          'ou'          => $orgIdentity['OrgIdentity']['ou'],
-          'title'       => $orgIdentity['OrgIdentity']['title'],
-          'status'      => StatusEnum::Active
+          'cou_id'        => $coPipeline['CoPipeline']['sync_cou_id'],
+          'o'             => $orgIdentity['OrgIdentity']['o'],
+          'ou'            => $orgIdentity['OrgIdentity']['ou'],
+          'title'         => $orgIdentity['OrgIdentity']['title'],
+          'valid_from'    => $orgIdentity['OrgIdentity']['valid_from'],
+          'valid_through' => $orgIdentity['OrgIdentity']['valid_through'],
+          'status'        => StatusEnum::Active
         )
       );
       
@@ -606,8 +608,15 @@ class CoPipeline extends AppModel {
         
         $curCoPersonRole = array();
         
-        // Note there are a bunch of unsupported attributes at the moment (valid_from, etc)
-        foreach(array('id', 'affiliation', 'cou_id', 'o', 'ou', 'title', 'status') as $attr) {
+        foreach(array('id',
+                      'affiliation',
+                      'cou_id',
+                      'o',
+                      'ou',
+                      'title',
+                      'valid_from',
+                      'valid_through',
+                      'status') as $attr) {
           $curCoPersonRole['CoPersonRole'][$attr] = $orgIdentity['PipelineCoPersonRole'][$attr];
         }
         

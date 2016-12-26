@@ -167,6 +167,12 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
       );
     }
     
+    if(!empty($result[19]))
+      $orgdata['OrgIdentity']['valid_from'] = strftime("%F %T", strtotime($result[19]));
+    
+    if(!empty($result[20]))
+      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", strtotime($result[20]));
+    
     return $orgdata;
   }
   

@@ -323,6 +323,12 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
     if(!empty($result->ind_title))
       $orgdata['OrgIdentity']['title'] = (string)$result->ind_title;
     
+    if(!empty($result->MemberExpireDate)) {
+      // netFORUM format is 12/31/2016 12:00:00 AM, we need to convert to YYYY-MM-DD HH:MM:SS
+      $time = strtotime($result->MemberExpireDate);
+      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", $time);
+    }
+    
     $orgdata['Name'] = array();
     if(!empty($result->ind_first_name))
       $orgdata['Name'][0]['given'] = (string)$result->ind_first_name;

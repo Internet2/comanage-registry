@@ -484,6 +484,38 @@ $(function() {
               ?>
             </td>
           </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td>
+              <?php
+                if($e) {
+                  print $this->Form->label('valid_from', _txt('fd.valid_from') . " " . _txt('fd.valid_from.desc'));
+                } else {
+                  print _txt('fd.valid_from');
+                }
+              ?>
+            </td>
+            <td>
+              <?php print ($e
+                           ? $this->Form->text('valid_from', array('class' => 'datepicker-f'))
+                           : (($org_identities[0]['OrgIdentity']['valid_from'] > 0) ? strftime("%F %T", strtotime($org_identities[0]['OrgIdentity']['valid_from'])) : "")); ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td>
+              <?php
+                if($e) {
+                  print $this->Form->label('valid_through', _txt('fd.valid_through') . " " . _txt('fd.valid_through.desc'));
+                } else {
+                  print _txt('fd.valid_through');
+                }
+              ?>
+            </td>
+            <td>
+              <?php print ($e
+                           ? $this->Form->text('valid_through', array('class' => 'datepicker-u'))
+                           : (($org_identities[0]['OrgIdentity']['valid_through'] > 0) ? strftime("%F %T", strtotime($org_identities[0]['OrgIdentity']['valid_through'])) : "")); ?>
+            </td>
+          </tr> 
           <tr>
             <td>
               <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
