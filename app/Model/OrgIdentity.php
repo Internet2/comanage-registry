@@ -130,7 +130,10 @@ class OrgIdentity extends AppModel {
     ),
     'o' => array(
       'content' => array(
-        'rule' => array('validateInput'),
+        // Allow apostrophes in organization names
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_STRING,
+                              'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES)),
         'required' => false,
         'allowEmpty' => true
       )
@@ -144,14 +147,20 @@ class OrgIdentity extends AppModel {
     ),
     'ou' => array(
       'content' => array(
-        'rule' => array('validateInput'),
+        // Allow apostrophes in department names
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_STRING,
+                              'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES)),
         'required' => false,
         'allowEmpty' => true
       )
     ),
     'title' => array(
       'content' => array(
-        'rule' => array('validateInput'),
+        // Allow apostrophes in titles
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_STRING,
+                              'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES)),
         'required' => false,
         'allowEmpty' => true
       )

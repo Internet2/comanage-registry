@@ -99,7 +99,10 @@ class CoPersonRole extends AppModel {
         'allowEmpty' => true
       ),
       'filter' => array(
-        'rule' => array('validateInput')
+        // Allow apostrophes in titles
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_STRING,
+                              'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES))
       )
     ),
     'o' => array(
@@ -109,7 +112,10 @@ class CoPersonRole extends AppModel {
         'allowEmpty' => true
       ),
       'filter' => array(
-        'rule' => array('validateInput')
+        // Allow apostrophes in organization names
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_STRING,
+                              'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES))
       )
     ),
     'ou' => array(
@@ -119,7 +125,10 @@ class CoPersonRole extends AppModel {
         'allowEmpty' => true
       ),
       'filter' => array(
-        'rule' => array('validateInput')
+        // Allow apostrophes in department names
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_STRING,
+                              'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES)),
       )
     ),
     'valid_from' => array(
