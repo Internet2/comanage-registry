@@ -195,13 +195,16 @@ class LdapSourceBackend extends OrgIdentitySourceBackend {
     $uidattr = 'uid';
     
     if(!empty($this->pluginCfg['uid_attr'])) {
-      $uidattr = strtolower($this->pluginCfg['key_attribute']);
+      $uidattr = strtolower($this->pluginCfg['uid_attr']);
     }
+    
+    $ulogin = (isset($this->pluginCfg['uid_attr_login'])
+               && $this->pluginCfg['uid_attr_login']);
     
     if(!empty($result[ $uidattr ][0])) {
       $orgdata['Identifier'][] = array(
         'identifier' => $result[ $uidattr ][0],
-        'login'      => false,
+        'login'      => $ulogin,
         'status'     => StatusEnum::Active,
         'type'       => IdentifierEnum::UID
       );
@@ -329,11 +332,14 @@ class LdapSourceBackend extends OrgIdentitySourceBackend {
         
         if($keyAttr == 'dn') {
           $ka = $res[$i]['dn'];
-        } else {
+        } elseif(!empty($res[$i][$keyAttr][0])) {
           $ka = $res[$i][$keyAttr][0];
         }
         
-        $ret[ $ka ] = $this->resultToOrgIdentity($res[$i]);
+        if($ka) {
+          $ret[ $ka ] = $this->resultToOrgIdentity($res[$i]);
+        }
+        // XXX else we should probably log something here
       }
     }
     

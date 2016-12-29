@@ -661,8 +661,10 @@ class OrgIdentitiesController extends StandardController {
     // On add, redirect to edit view again so MVPAs are available.
     // In general, also redirect back to edit as a logical destination
 
-    $this->redirect(array('action' => 'edit',
-                          $this->OrgIdentity->id));
+    if($this->action != 'delete') {
+      $this->redirect(array('action' => 'edit',
+                            $this->OrgIdentity->id));
+    }
   }
   
   /**

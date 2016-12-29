@@ -726,6 +726,9 @@ class CoPipeline extends AppModel {
                       $mkey,
                       'revision',
                       'deleted',
+                      // We drop login (from Identifier) since CO Person Identifiers
+                      // aren't flagged for login (that's an Org Identity Identifier thing).
+                      'login',
                       // We explicitly get rid of any primary name attribute since we
                       // should already have a primary name for the CO Person (either existing
                       // or created above), and we don't want the OIS to directly change it.
@@ -776,6 +779,8 @@ class CoPipeline extends AppModel {
                       $mkey,
                       'revision',
                       'deleted',
+                      'login',
+                      'primary_name',
                       'actor_identifier') as $k) {
           unset($curRecord[$k]);
         }

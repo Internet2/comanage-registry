@@ -109,6 +109,15 @@
         <?php print ($e ? $this->Form->input('uid_attr', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['uid_attr'])); ?>
       </td>
     </tr>
+    <tr class="line2">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('pl.ldapsource.uidattr_login'); ?></strong><br />
+        <font class="desc"><?php print _txt('pl.ldapsource.uidattr_login.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('uid_attr_login') : _txt($ldap_sources[0]['LdapSource']['uid_attr'] ? 'fd.yes' : 'fd.no')); ?>
+      </td>
+    </tr>
     <tr>
       <td>
         <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />

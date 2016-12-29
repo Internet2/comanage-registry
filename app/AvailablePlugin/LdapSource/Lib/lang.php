@@ -53,4 +53,6 @@ $cm_ldap_source_texts['en_US'] = array(
   'pl.ldapsource.serverurl.desc' => 'URL to connect to (<font style="font-family:monospace">ldap[s]://hostname[:port]</font>)',
   'pl.ldapsource.uidattr'        => 'UID Attribute',
   'pl.ldapsource.uidattr.desc'   => 'Attribute to map to identifier of type UID',
+  'pl.ldapsource.uidattr_login'  => 'UID Attribute Login',
+  'pl.ldapsource.uidattr_login.desc' => 'Allow the identifier mapped to type UID to login to Registry',
 );

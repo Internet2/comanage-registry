@@ -42,6 +42,7 @@
     <field name="search_filter" type="C" size="128" />
     <!-- temporary, to be replaced by CO-1346 -->
     <field name="uid_attr" type="C" size="64" />
+    <field name="uid_attr_login" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
