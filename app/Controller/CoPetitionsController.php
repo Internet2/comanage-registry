@@ -309,6 +309,9 @@ class CoPetitionsController extends StandardController {
     $vrule[1]['coid'] = $this->cur_co['Co']['id'];
     
     $this->CoPetition->EnrolleeCoPerson->Identifier->validator()->getField('type')->getRule('content')->rule = $vrule;
+    
+    // Set the current timezone, primarily for saveAttributes()
+    $this->CoPetition->setTimeZone($this->viewVars['vv_tz']);
   }
   
   /**

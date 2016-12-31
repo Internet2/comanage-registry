@@ -151,7 +151,7 @@
                         print $this->Form->error('cou_id');
                       }
                     } else {
-                      print filter_var($cur_co['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+                      print filter_var($co_person_roles[0]['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
                     }
                     ?>
                   </td>
@@ -421,32 +421,72 @@
                 <td>
                   <?php
                     if($e && !$es) {
-                      print $this->Form->label('valid_from', _txt('fd.valid_from') . " " . _txt('fd.valid_from.desc'));
+                      print $this->Form->label('valid_from', _txt('fd.valid_from.tz', array($vv_tz)));
                     } else {
                       print _txt('fd.valid_from');
                     }
-                  ?>
+                  ?><br />
+                  <span class="descr"><?php print _txt('fd.valid_from.desc'); ?></span>
                 </td>
                 <td>
-                  <?php print (($e && !$es)
-                    ? $this->Form->text('valid_from', array('class' => 'datepicker-f'))
-                    : (($co_person_roles[0]['CoPersonRole']['valid_from'] > 0) ? strftime("%F %T", strtotime($co_person_roles[0]['CoPersonRole']['valid_from'])) : "")); ?>
+                  <?php
+                    if($e && !$es) {
+                      $args = array(
+                        'class' => 'datepicker-f'
+                      );
+                      
+                      if($co_person_roles[0]['CoPersonRole']['valid_from'] > 0) {
+                        if(!empty($vv_tz)) {
+                          // We need to adjust the UTC value to the user's local time
+                          $args['value'] = $this->Time->format($co_person_roles[0]['CoPersonRole']['valid_from'], "%F %T", false, $vv_tz);
+                        } else {
+                          $args['value'] = $co_person_roles[0]['CoPersonRole']['valid_from'];
+                        }
+                      }
+                      
+                      print $this->Form->text('valid_from', $args);
+                    } else {
+                      if($co_person_roles[0]['CoPersonRole']['valid_from'] > 0) {
+                        print $this->Time->format($co_person_roles[0]['CoPersonRole']['valid_from'], "%c $vv_tz", false, $vv_tz);
+                      }
+                    }
+                  ?>
                 </td>
               </tr>
               <tr class="line<?php print ($l % 2); $l++; ?>">
                 <td>
                   <?php
                     if($e && !$es) {
-                      print $this->Form->label('valid_through', _txt('fd.valid_through') . " " . _txt('fd.valid_through.desc'));
+                      print $this->Form->label('valid_through', _txt('fd.valid_through.tz', array($vv_tz)));
                     } else {
                       print _txt('fd.valid_through');
                     }
-                  ?>
+                  ?><br />
+                  <span class="descr"><?php print _txt('fd.valid_through.desc'); ?></span>
                 </td>
                 <td>
-                  <?php print (($e && !$es)
-                    ? $this->Form->text('valid_through', array('class' => 'datepicker-u'))
-                    : (($co_person_roles[0]['CoPersonRole']['valid_through'] > 0) ? strftime("%F %T", strtotime($co_person_roles[0]['CoPersonRole']['valid_through'])) : "")); ?>
+                  <?php
+                    if($e && !$es) {
+                      $args = array(
+                        'class' => 'datepicker-u'
+                      );
+                      
+                      if($co_person_roles[0]['CoPersonRole']['valid_through'] > 0) {
+                        if(!empty($vv_tz)) {
+                          // We need to adjust the UTC value to the user's local time
+                          $args['value'] = $this->Time->format($co_person_roles[0]['CoPersonRole']['valid_through'], "%F %T", false, $vv_tz);
+                        } else {
+                          $args['value'] = $co_person_roles[0]['CoPersonRole']['valid_through'];
+                        }
+                      }
+                      
+                      print $this->Form->text('valid_through', $args);
+                    } else {
+                      if($co_person_roles[0]['CoPersonRole']['valid_through'] > 0) {
+                        print $this->Time->format($co_person_roles[0]['CoPersonRole']['valid_through'], "%c $vv_tz", false, $vv_tz);
+                      }
+                    }
+                  ?>
                 </td>
               </tr>
               <?php

@@ -488,32 +488,72 @@ $(function() {
             <td>
               <?php
                 if($e) {
-                  print $this->Form->label('valid_from', _txt('fd.valid_from') . " " . _txt('fd.valid_from.desc'));
+                  print $this->Form->label('valid_from', _txt('fd.valid_from.tz', array($vv_tz)));
                 } else {
                   print _txt('fd.valid_from');
                 }
-              ?>
+              ?><br />
+              <span class="descr"><?php print _txt('fd.valid_from.desc'); ?></span>
             </td>
             <td>
-              <?php print ($e
-                           ? $this->Form->text('valid_from', array('class' => 'datepicker-f'))
-                           : (($org_identities[0]['OrgIdentity']['valid_from'] > 0) ? strftime("%F %T", strtotime($org_identities[0]['OrgIdentity']['valid_from'])) : "")); ?>
+              <?php
+                if($e) {
+                  $args = array(
+                    'class' => 'datepicker-f'
+                  );
+                  
+                  if($org_identities[0]['OrgIdentity']['valid_from'] > 0) {
+                    if(!empty($vv_tz)) {
+                      // We need to adjust the UTC value to the user's local time
+                      $args['value'] = $this->Time->format($org_identities[0]['OrgIdentity']['valid_from'], "%F %T", false, $vv_tz);
+                    } else {
+                      $args['value'] = $org_identities[0]['OrgIdentity']['valid_from'];
+                    }
+                  }
+                  
+                  print $this->Form->text('valid_from', $args);
+                } else {
+                  if($org_identities[0]['OrgIdentity']['valid_from'] > 0) {
+                    print $this->Time->format($org_identities[0]['OrgIdentity']['valid_from'], "%c $vv_tz", false, $vv_tz);
+                  }
+                }
+              ?>
             </td>
           </tr>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td>
               <?php
                 if($e) {
-                  print $this->Form->label('valid_through', _txt('fd.valid_through') . " " . _txt('fd.valid_through.desc'));
+                  print $this->Form->label('valid_through', _txt('fd.valid_through.tz', array($vv_tz)));
                 } else {
                   print _txt('fd.valid_through');
                 }
-              ?>
+              ?><br />
+              <span class="descr"><?php print _txt('fd.valid_from.desc'); ?></span>
             </td>
             <td>
-              <?php print ($e
-                           ? $this->Form->text('valid_through', array('class' => 'datepicker-u'))
-                           : (($org_identities[0]['OrgIdentity']['valid_through'] > 0) ? strftime("%F %T", strtotime($org_identities[0]['OrgIdentity']['valid_through'])) : "")); ?>
+              <?php
+                if($e) {
+                  $args = array(
+                    'class' => 'datepicker-u'
+                  );
+                  
+                  if($org_identities[0]['OrgIdentity']['valid_through'] > 0) {
+                    if(!empty($vv_tz)) {
+                      // We need to adjust the UTC value to the user's local time
+                      $args['value'] = $this->Time->format($org_identities[0]['OrgIdentity']['valid_through'], "%F %T", false, $vv_tz);
+                    } else {
+                      $args['value'] = $org_identities[0]['OrgIdentity']['valid_through'];
+                    }
+                  }
+                  
+                  print $this->Form->text('valid_through', $args);
+                } else {
+                  if($org_identities[0]['OrgIdentity']['valid_through'] > 0) {
+                    print $this->Time->format($org_identities[0]['OrgIdentity']['valid_through'], "%c $vv_tz", false, $vv_tz);
+                  }
+                }
+              ?>
             </td>
           </tr> 
           <tr>

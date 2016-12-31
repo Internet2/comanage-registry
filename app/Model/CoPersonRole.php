@@ -296,42 +296,65 @@ class CoPersonRole extends AppModel {
     // Cache the current record
     $this->cachedData = null;
     
-    if(!empty($this->data['CoPersonRole']['id'])) {
+    if(!empty($this->data[$this->alias]['id'])) {
       // We have an existing record
       
       $args = array();
-      $args['conditions']['CoPersonRole.id'] = $this->data['CoPersonRole']['id'];
+      $args['conditions'][$this->alias.'.id'] = $this->data[$this->alias]['id'];
       $args['contain'] = false;
 
       $this->cachedData = $this->find('first', $args);
     }
     
+    // Possibly convert the requested timestamps to UTC from browser time.
+    // Do this before the strtotime/time calls below, both of which use UTC.
+    
+    if($this->tz) {
+      $localTZ = new DateTimeZone($this->tz);
+      
+      if(!empty($this->data[$this->alias]['valid_from'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data[$this->alias]['valid_from'], $localTZ);
+        
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data[$this->alias]['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+      
+      if(!empty($this->data[$this->alias]['valid_through'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data[$this->alias]['valid_through'], $localTZ);
+        
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data[$this->alias]['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+    }
+    
     // If the validity of the role was changed, change the status appropriately
     
-    if(!empty($this->data['CoPersonRole']['status'])) {
-      if(!empty($this->data['CoPersonRole']['valid_from'])) {
-        if(strtotime($this->data['CoPersonRole']['valid_from']) < time()
-           && $this->data['CoPersonRole']['status'] == StatusEnum::Pending) {
+    if(!empty($this->data[$this->alias]['status'])) {
+      if(!empty($this->data[$this->alias]['valid_from'])) {
+        if(strtotime($this->data[$this->alias]['valid_from']) < time()
+           && $this->data[$this->alias]['status'] == StatusEnum::Pending) {
           // Flag role as active
-          $this->data['CoPersonRole']['status'] = StatusEnum::Active;
-        } elseif(strtotime($this->data['CoPersonRole']['valid_from']) > time()
-           && $this->data['CoPersonRole']['status'] == StatusEnum::Active) {
+          $this->data[$this->alias]['status'] = StatusEnum::Active;
+        } elseif(strtotime($this->data[$this->alias]['valid_from']) > time()
+           && $this->data[$this->alias]['status'] == StatusEnum::Active) {
           // Flag role as pending
-          $this->data['CoPersonRole']['status'] = StatusEnum::Pending;
+          $this->data[$this->alias]['status'] = StatusEnum::Pending;
         }
       }
       
-      if(!empty($this->data['CoPersonRole']['valid_through'])) {
-        if(strtotime($this->data['CoPersonRole']['valid_through']) < time()
-           && ($this->data['CoPersonRole']['status'] == StatusEnum::Active
+      if(!empty($this->data[$this->alias]['valid_through'])) {
+        if(strtotime($this->data[$this->alias]['valid_through']) < time()
+           && ($this->data[$this->alias]['status'] == StatusEnum::Active
                ||
-               $this->data['CoPersonRole']['status'] == StatusEnum::GracePeriod)) {
+               $this->data[$this->alias]['status'] == StatusEnum::GracePeriod)) {
           // Flag role as expired
-          $this->data['CoPersonRole']['status'] = StatusEnum::Expired;
-        } elseif(strtotime($this->data['CoPersonRole']['valid_through']) > time()
-           && $this->data['CoPersonRole']['status'] == StatusEnum::Expired) {
+          $this->data[$this->alias]['status'] = StatusEnum::Expired;
+        } elseif(strtotime($this->data[$this->alias]['valid_through']) > time()
+           && $this->data[$this->alias]['status'] == StatusEnum::Expired) {
           // Flag role as active
-          $this->data['CoPersonRole']['status'] = StatusEnum::Active;
+          $this->data[$this->alias]['status'] = StatusEnum::Active;
         }
       }
     } else {

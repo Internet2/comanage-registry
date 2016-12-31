@@ -1701,6 +1701,9 @@ class CoPetition extends AppModel {
       $coRoleData['EnrolleeCoPersonRole']['co_person_id'] = $coPersonId;
       $coRoleData['EnrolleeCoPersonRole']['status'] = StatusEnum::Pending;
       
+      // Set the current timezone for CoPersonRole::afterSave
+      $this->EnrolleeCoPersonRole->setTimeZone($this->tz);
+      
       // Loop through all Addresses and Telephone Numbers to see if there are any
       // we should copy to the CO Person Role.
       foreach(array('Address', 'TelephoneNumber') as $m) {

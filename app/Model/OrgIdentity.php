@@ -188,6 +188,37 @@ class OrgIdentity extends AppModel {
   );
   
   /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+  
+  public function beforeSave($options = array()) {    
+    // Possibly convert the requested timestamps to UTC from browser time.
+    // Do this before the strtotime/time calls below, both of which use UTC.
+    
+    if($this->tz) {
+      $localTZ = new DateTimeZone($this->tz);
+      
+      if(!empty($this->data['OrgIdentity']['valid_from'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data['OrgIdentity']['valid_from'], $localTZ);
+        
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data['OrgIdentity']['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+      
+      if(!empty($this->data['OrgIdentity']['valid_through'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data['OrgIdentity']['valid_through'], $localTZ);
+        
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data['OrgIdentity']['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+    }
+  }
+  
+  /**
    * Duplicate an Organizational Identity, including all of its related
    * (has one/has many) models.
    * - postcondition: Duplicate identity created.

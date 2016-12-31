@@ -116,6 +116,9 @@ class OrgIdentitiesController extends StandardController {
     
     $enums_title = $this->AttributeEnumeration->active($coId, "OrgIdentity.title");
     $this->set('vv_enums_title', $enums_title);
+    
+    // Set the current timezone, primarily for beforeSave
+    $this->OrgIdentity->setTimeZone($this->viewVars['vv_tz']);
   }
   
   /**

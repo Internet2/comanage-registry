@@ -39,6 +39,9 @@ class AppModel extends Model {
   // (Commiting the wrong number of times confuses saveAssociated.)
   protected $inTxn = false;
   
+  // Track timezone for models that need to convert to/from UTC
+  protected $tz = null;
+  
   /**
    * Wrapper for begin(), primarily intended for use in callbacks.
    *
@@ -984,6 +987,20 @@ class AppModel extends Model {
         $this->$assoc->reloadBehavior($behavior, $params);
       }
     }
+  }
+  
+  /**
+   * Set the current timezone for use within the model.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  String $tz Timezone, eg as determined by AppController::beforeFilter
+   */
+  
+  public function setTimeZone($tz) {
+    // This is initially intended for CO Person Role, Org Identity, and CO Petition to
+    // be able to convert valid from/through from browser localtime to UTC on save.
+    
+    $this->tz = $tz;
   }
   
   /**

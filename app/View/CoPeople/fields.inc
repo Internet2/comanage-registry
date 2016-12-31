@@ -1159,8 +1159,8 @@
                       <?php endif; // compare ?>
                       <th class="ui-widget-header"><?php print _txt('fd.title'); ?></th>
                       <th class="ui-widget-header"><?php print _txt('fd.affiliation'); ?></th>
-                      <th class="ui-widget-header"><?php print _txt('fd.valid_from'); ?></th>
-                      <th class="ui-widget-header"><?php print _txt('fd.valid_through'); ?></th>
+                      <th class="ui-widget-header"><?php print _txt('fd.valid_from.tz', array($vv_tz)); ?></th>
+                      <th class="ui-widget-header"><?php print _txt('fd.valid_through.tz', array($vv_tz)); ?></th>
                       <?php if($this->action != "compare"): ?>
                         <th class="ui-widget-header"><?php print _txt('fd.status'); ?></th>
                         <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
@@ -1205,10 +1205,24 @@
                         <?php else: // compare ?>
                           <td><?php if(isset($r['Cou']['name'])) print filter_var($r['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
                         <?php endif; // compare ?>
-                        <td><?php if(isset($r['title'])) print filter_var($r['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-                        <td><?php if(isset($r['affiliation'])) print $vv_copr_affiliation_types[ $r['affiliation'] ]; ?></td>
-                        <td><?php if(isset($r['valid_from']) && $r['valid_from'] > 0) print $this->Time->format('Y M d', $r['valid_from']); ?></td>
-                        <td><?php if(isset($r['valid_through']) && $r['valid_through'] > 0) print $this->Time->format('Y M d', $r['valid_through']); ?></td>
+                        <td>
+                          <?php if(isset($r['title'])) print filter_var($r['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                        </td>
+                        <td>
+                          <?php if(isset($r['affiliation'])) print $vv_copr_affiliation_types[ $r['affiliation'] ]; ?>
+                        </td>
+                        <td>
+                          <?php
+                            if(isset($r['valid_from']) && $r['valid_from'] > 0)
+                              print $this->Time->format($r['valid_from'], "%F %T", false, $vv_tz);
+                          ?>
+                        </td>
+                        <td>
+                          <?php
+                            if(isset($r['valid_through']) && $r['valid_through'] > 0)
+                              print $this->Time->format($r['valid_through'], "%F %T", false, $vv_tz);
+                          ?>
+                        </td>
                         <?php if($this->action != "compare"): ?>
                           <td><?php if(isset($r['status'])) print _txt('en.status', null, $r['status']); ?></td>
                           <td>
@@ -1402,8 +1416,8 @@
                   <tr class="line<?php print ($l % 2); $l++; ?>">
                     <th class="ui-widget-header"><?php print _txt('fd.name'); ?></th>
                     <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
-                    <th class="ui-widget-header"><?php print _txt('fd.valid_from'); ?></th>
-                    <th class="ui-widget-header"><?php print _txt('fd.valid_through'); ?></th>
+                    <th class="ui-widget-header"><?php print _txt('fd.valid_from.tz', array($vv_tz)); ?></th>
+                    <th class="ui-widget-header"><?php print _txt('fd.valid_through.tz', array($vv_tz)); ?></th>
                     <th class="ui-widget-header"><?php print _txt('fd.identifier.ids.login'); ?></th>
                     <th class="ui-widget-header"><?php print _txt('fd.actions'); ?></th>
                   </tr>
@@ -1428,13 +1442,13 @@
                       <td>
                         <?php
                           if(isset($link['OrgIdentity']['valid_from']) && $link['OrgIdentity']['valid_from'] > 0)
-                            print $this->Time->format('Y M d', $link['OrgIdentity']['valid_from']);
+                            print $this->Time->format($link['OrgIdentity']['valid_from'], "%F %T", false, $vv_tz);
                         ?>
                       </td>
                       <td>
                         <?php
                           if(isset($link['OrgIdentity']['valid_through']) && $link['OrgIdentity']['valid_through'] > 0)
-                            print $this->Time->format('Y M d', $link['OrgIdentity']['valid_through']);
+                            print $this->Time->format($link['OrgIdentity']['valid_through'], "%F %T", false, $vv_tz);
                         ?>
                       </td>
                       <td>
@@ -1455,9 +1469,8 @@
                         <?php
                         print $this->Html->link(_txt($e && !$es ? 'op.edit' : 'op.view'),
                             array('controller' => 'org_identities',
-                              'action' => ($e && !$es ? 'edit' : 'view'),
-                              $link['OrgIdentity']['id'],
-                              'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
+                                  'action' => ($e && !$es ? 'edit' : 'view'),
+                                  $link['OrgIdentity']['id']),
                             array('class' => ($e && !$es ? 'editbutton' : 'viewbutton'))) . "\n";
 
                         if($permissions['relink']) {
