@@ -217,7 +217,7 @@
       </tr>
       <tr class="line<?php print $l++ % 2; ?>">
         <td>
-          <?php print _txt('fd.valid_from'); ?>
+          <?php print _txt('fd.valid_from.tz', array('UTC')); ?>
         </td>
         <td>
           <?php
@@ -229,7 +229,7 @@
       </tr>
       <tr class="line<?php print $l++ % 2; ?>">
         <td>
-          <?php print _txt('fd.valid_through'); ?>
+          <?php print _txt('fd.valid_through.tz', array('UTC')); ?>
         </td>
         <td>
           <?php
