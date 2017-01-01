@@ -31,7 +31,7 @@ $params = array('title' => $title_for_layout);
 print $this->element("pageTitleAndButtons", $params);
 
 print '<div id="enrollmentFlowIntro">';
-print filter_var($vv_intro_text,FILTER_SANITIZE_SPECIAL_CHARS);
+print $vv_intro_text;
 print '</div>';
 
 print $this->Html->Link(_txt('op.begin'),
