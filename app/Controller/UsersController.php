@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Users Controller
  *
- * Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -25,7 +25,8 @@
 class UsersController extends AppController {
   public $name = 'Users';
   
-  public $uses = array("CmpEnrollmentConfiguration",
+  public $uses = array("AuthenticationEvent",
+                       "CmpEnrollmentConfiguration",
                        "CoGroup",
                        "CoGroupMember",
                        "CoSetting",
@@ -255,9 +256,31 @@ class UsersController extends AppController {
             }
           }
           
+          // Determine last login for the identifier. Do this before we record
+          // the current login. We don't currently check identifiers associated with
+          // other Org Identities because doing so would be a bit challenging...
+          // we're logging in at a platform level, which COs do we query? For now,
+          // someone who wants more login details can view them via their canvas.
+          
+          $lastlogins = array();
+          
+          foreach($orgIdentities[0]['Identifier'] as $id) {
+            if(!empty($id['identifier']) && isset($id['login']) && $id['login']) {
+              $lastlogins[ $id['identifier'] ] = $this->AuthenticationEvent->lastlogin($id['identifier']);
+            }
+          }
+          
+          $this->Session->write('Auth.User.lastlogin', $lastlogins);
+          
+          // Record the login
+          $this->AuthenticationEvent->record($u, AuthenticationEventEnum::RegistryLogin, $_SERVER['REMOTE_ADDR']);
+          
           $this->redirect($this->Auth->redirectUrl());
         } else {
-          // This is an API user. We don't do anything special at the moment.
+          // This is an API user. We don't do anything special at the moment, other
+          // than record the login event
+          
+          $this->AuthenticationEvent->record($u, AuthenticationEventEnum::ApiLogin, $_SERVER['REMOTE_ADDR']);
         }
       } else {
         throw new RuntimeException(_txt('er.auth.empty'));

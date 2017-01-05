@@ -63,6 +63,16 @@
                 print $this->Html->link(_txt('ct.api_users.pl'), $args);
               ?>
             </li>
+            <li>
+              <?php
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'authentication_events';
+                $args['action'] = 'index';
+                
+                print $this->Html->link(_txt('ct.authentication_events.pl'), $args);
+              ?>
+            </li>
             <?php if($pool_org_identities): ?>
             <li>
               <?php

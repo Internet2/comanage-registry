@@ -2,7 +2,7 @@
 <!--
   COmanage Registry Database Schema
 
-  Copyright (C) 2010-2016 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2010-2017 University Corporation for Advanced Internet Development, Inc.
    
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
   the License. You may obtain a copy of the License at
@@ -1971,6 +1971,22 @@
     <index name="co_settings_i1">
       <col>co_id</col>
       <unique />
+    </index>
+  </table>
+  
+  <table name="authentication_events">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="authenticated_identifier" type="C" size="256" />
+    <field name="authentication_event" type="C" size="2" />
+    <field name="remote_ip" type="C" size="40" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="authentication_events_i1">
+      <col>authenticated_identifier</col>
     </index>
   </table>
 </schema>

@@ -592,6 +592,14 @@ $(function() {
                 print '</div>';
                 print '<div>';
                 
+                if(isset($id['login']) && $id['login']) {
+                  print $this->Html->link(_txt('ct.authentication_events.pl'),
+                                          array('controller' => 'authentication_events',
+                                                'action' => 'index',
+                                                'identifier' => $id['identifier']),
+                                          array('class' => 'notebutton'));
+                }
+                
                 if($e) {
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                   print '<a class="deletebutton" title="' . _txt('op.delete')
@@ -624,6 +632,7 @@ $(function() {
                                           $id['id']),
                                     array('class' => 'viewbutton')) . "\n";
                 }
+                
                 print '</div>';
               print '</div>';
             }

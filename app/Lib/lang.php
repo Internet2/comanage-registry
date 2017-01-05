@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Language File
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -67,6 +67,8 @@ $cm_texts['en_US'] = array(
   'ct.api_users.pl' =>          'API Users',
   'ct.attribute_enumerations.1'  => 'Attribute Enumeration',
   'ct.attribute_enumerations.pl' => 'Attribute Enumerations',
+  'ct.authentication_events.1'  => 'Authentication Event',
+  'ct.authentication_events.pl' => 'Authentication Events',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
   'ct.co_enrollment_attributes.1'  => 'Enrollment Attribute',
@@ -327,6 +329,11 @@ original notification at
   'en.admin' =>       array(AdministratorEnum::NoAdmin => 'None',
                             AdministratorEnum::CoAdmin => 'CO Admin',
                             AdministratorEnum::CoOrCouAdmin => 'CO or COU Admin'),
+  
+  'en.auth.event' => array(
+    AuthenticationEventEnum::ApiLogin      => 'API Login',
+    AuthenticationEventEnum::RegistryLogin => 'Registry Login'
+  ),
   
   'en.chars.permitted' => array(
     PermittedCharacterEnum::AlphaNumeric      => 'AlphaNumeric Only',
@@ -1067,6 +1074,7 @@ original notification at
   'fd.ev.for' =>      'Verification for %1$s',
   'fd.ev.verify' =>   'Verify email address %1$s',
   'fd.ev.verify.desc' => 'Please confirm %1$s is your email address by clicking the <b>Confirm</b> button, below.',
+  'fd.event' =>       'Event',
   'fd.false' =>       'False',
   'fd.group.desc.adm' => '%1$s Administrators',
   'fd.group.desc.mem' => '%1$s Members',
@@ -1114,6 +1122,7 @@ original notification at
   'fd.inv.exp' =>     'Invitation Expiration',
   'fd.inv.for' =>     'Invitation for %1$s',
   'fd.inv.to' =>      'Invitation to %1$s',
+  'fd.ip' =>          'IP Address',
   'fd.key' =>         'Key',
   'fd.language' =>    'Language',
   'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
@@ -1351,6 +1360,7 @@ original notification at
   // Informational messages
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.idval.plugins'   => 'There are no Identifier Validator plugins currently installed.',
+  'in.login.last'      => 'Your last login as %1$s was at %2$s from %3$s',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
   'in.orgid.co'        => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
@@ -1482,6 +1492,7 @@ original notification at
   'op.link.select' => 'Please select the CO Person you would like to attach the Organizational Identity "%1$s" (%2$s) to by clicking the associated link button.',
   'op.link.to.co' =>  'Link to %1$s CO Person',
   'op.login' =>       'Login',
+  'op.logins.view' => 'View Login History',
   'op.logout' =>      'Logout',
   'op.next' =>        'Next',
   'op.ois.conf.gr' => 'Configure Group Mapping',
