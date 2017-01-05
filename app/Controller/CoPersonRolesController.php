@@ -225,8 +225,10 @@ class CoPersonRolesController extends StandardController {
     $enums_title = $this->AttributeEnumeration->active($coId, "CoPersonRole.title");
     $this->set('vv_enums_title', $enums_title);
     
-    // Set the current timezone, primarily for beforeSave
-    $this->CoPersonRole->setTimeZone($this->viewVars['vv_tz']);
+    if(!empty($this->viewVars['vv_tz'])) {
+      // Set the current timezone, primarily for beforeSave
+      $this->CoPersonRole->setTimeZone($this->viewVars['vv_tz']);
+    }
   }
 
   /**
