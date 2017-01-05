@@ -693,6 +693,8 @@ class StandardController extends AppController {
     
     // XXX The various sub-filters here (eg: findByCoPersonId) should be merged into
     // the new paginationConditions method.
+    
+    // XXX Model specific logic should be moved to individual Controllers.
 
     if($this->request->is('restful')) {
       if(!empty($this->request->query['search_identifier'])) {
@@ -724,8 +726,12 @@ class StandardController extends AppController {
         
         $this->set($modelpl, $this->Api->convertRestResponse($model->find('all', $args)));
       } elseif($this->requires_person
-               // This is a bit of a hack, we should really refactor this
-               || $req == 'CoOrgIdentityLink') {
+               // XXX This is a bit of a hack, we should really refactor this
+               || $req == 'CoOrgIdentityLink'
+               // CO Person Role doesn't require person, but can still be searched that way.
+               // (But we need to fall through to the other logic if copersonid is not specified, hack hack.)
+               || ($req == 'CoPersonRole'
+                   && !empty($this->params['url']['copersonid']))) {
         if(!empty($this->params['url']['copersonid'])) {
           $t = $model->findAllByCoPersonId($this->params['url']['copersonid']);
           
