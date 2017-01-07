@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Controller
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -39,6 +39,12 @@ class CoGroupsController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  public $edit_contains = array(
+  );
+  
+  public $view_contains = array(
+  );
   
   /**
    * Callback to set relevant tab to open when redirecting to another page
