@@ -2,7 +2,7 @@
 /**
  * COmanage Registry OrgIdentity Fields
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
@@ -502,7 +502,8 @@ $(function() {
                     'class' => 'datepicker-f'
                   );
                   
-                  if($org_identities[0]['OrgIdentity']['valid_from'] > 0) {
+                  if(isset($org_identities[0]['OrgIdentity']['valid_from'])
+                     && $org_identities[0]['OrgIdentity']['valid_from'] > 0) {
                     if(!empty($vv_tz)) {
                       // We need to adjust the UTC value to the user's local time
                       $args['value'] = $this->Time->format($org_identities[0]['OrgIdentity']['valid_from'], "%F %T", false, $vv_tz);
@@ -513,7 +514,8 @@ $(function() {
                   
                   print $this->Form->text('valid_from', $args);
                 } else {
-                  if($org_identities[0]['OrgIdentity']['valid_from'] > 0) {
+                  if(isset($org_identities[0]['OrgIdentity']['valid_from'])
+                     && $org_identities[0]['OrgIdentity']['valid_from'] > 0) {
                     print $this->Time->format($org_identities[0]['OrgIdentity']['valid_from'], "%c $vv_tz", false, $vv_tz);
                   }
                 }
@@ -538,7 +540,8 @@ $(function() {
                     'class' => 'datepicker-u'
                   );
                   
-                  if($org_identities[0]['OrgIdentity']['valid_through'] > 0) {
+                  if(isset($org_identities[0]['OrgIdentity']['valid_through'])
+                     && $org_identities[0]['OrgIdentity']['valid_through'] > 0) {
                     if(!empty($vv_tz)) {
                       // We need to adjust the UTC value to the user's local time
                       $args['value'] = $this->Time->format($org_identities[0]['OrgIdentity']['valid_through'], "%F %T", false, $vv_tz);
@@ -549,7 +552,8 @@ $(function() {
                   
                   print $this->Form->text('valid_through', $args);
                 } else {
-                  if($org_identities[0]['OrgIdentity']['valid_through'] > 0) {
+                  if(isset($org_identities[0]['OrgIdentity']['valid_through'])
+                     && $org_identities[0]['OrgIdentity']['valid_through'] > 0) {
                     print $this->Time->format($org_identities[0]['OrgIdentity']['valid_through'], "%c $vv_tz", false, $vv_tz);
                   }
                 }
