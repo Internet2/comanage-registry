@@ -447,15 +447,6 @@ class CoPersonRole extends AppModel {
       return;
     }
     
-    // If the role is Active or GracePeriod, we want to make sure the
-    // person is in the relevant Members group. However, because this model
-    // is changelog enabled and we are retrieving based on ID (which will
-    // return deleted attributes), we need to also check the deleted flag.
-    $status = $this->field('status');
-    $deleted = $this->field('deleted');
-    
-    $eligible = (!$deleted && ($status == StatusEnum::Active || $status == StatusEnum::GracePeriod));
-    
     // Construct the members group name
     $couId = $this->field('cou_id');
     
@@ -464,17 +455,26 @@ class CoPersonRole extends AppModel {
       return;
     }
     
+    // We need to examine the status of all roles in the COU, not just the current
+    // one, to see if the person is eligible for the relevant members group.
+    
     $args = array();
-    $args['conditions']['Cou.id'] = $couId;
+    $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
+    $args['conditions']['CoPersonRole.cou_id'] = $couId;
+    $args['fields'] = array('id', 'status');
     $args['contain'] = false;
     
-    $cou = $this->Cou->find('first', $args);
+    $status = $this->find('list', $args);
     
-    if(!$cou) {
+    $eligible = array_search(StatusEnum::Active, $status) || array_search(StatusEnum::GracePeriod, $status);
+    
+    $couName = $this->Cou->field('name', array('Cou.id' => $couId));
+    
+    if(!$couName) {
       throw new InvalidArgumentException(_txt('er.unknown', array($couId)));
     }
     
-    $coGroupName = 'members:' . $cou['Cou']['name'];
+    $coGroupName = 'members:' . $couName;
     
     $this->CoPerson->CoGroupMember->syncMembership($coGroupName, $coPersonId, $eligible, $provision);
   }
