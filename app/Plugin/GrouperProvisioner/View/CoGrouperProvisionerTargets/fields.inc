@@ -184,6 +184,7 @@
             print $this->Form->select('login_identifier', $identifier_types, $args);
           } else {
             print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
+          }
         ?>
       </td>
     </tr>
