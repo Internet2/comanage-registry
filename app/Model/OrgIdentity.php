@@ -138,13 +138,13 @@ class OrgIdentity extends AppModel {
         'allowEmpty' => true
       )
     ),
-    'organization_id' => array(
+/*    'organization_id' => array(
       'content' => array(
         'rule' => 'numeric',
         'required' => false,
         'allowEmpty' => true
       )
-    ),
+    ),*/
     'ou' => array(
       'content' => array(
         // Allow apostrophes in department names

@@ -579,7 +579,7 @@ class OrgIdentitySourcesController extends StandardController {
       $args['conditions']['CoPetition.id'] = $this->request->params['named']['copetitionid'];
       $args['conditions']['CoEnrollmentSource.org_identity_mode'] = EnrollmentOrgIdentityModeEnum::OISSelect;
     }
-    // else where here from Org Identities > Add From OIS
+    // else we're here from Org Identities > Add From OIS
     
     $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
     $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];

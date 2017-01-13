@@ -756,6 +756,17 @@ class OrgIdentitySource extends AppModel {
         // Set the status (just in case)
         $newOrgId['OrgIdentity']['status'] = OrgIdentityStatusEnum::Synced;
         
+        // Make sure all OrgIdentity keys are set, even if null. This will allow
+        // a value to go from set to not set (eg: a valid from date is NULL'd.)
+        
+        $nullAttrs = array_diff_key($this->OrgIdentitySourceRecord->OrgIdentity->validate,
+                                    $newOrgId['OrgIdentity']);
+        
+        // We're sort of behaving like array_fill_keys() here
+        foreach(array_keys($nullAttrs) as $k) {
+          $newOrgId['OrgIdentity'][$k] = null;
+        }
+        
         // Diff array to see if we should save
         $cstr = $this->OrgIdentitySourceRecord->OrgIdentity->changesToString($newOrgId,
                                                                              $curorgid);
