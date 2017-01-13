@@ -640,6 +640,8 @@ class OrgIdentitySource extends AppModel {
       $curorgid = $this->OrgIdentitySourceRecord->OrgIdentity->find('first', $args);
       
       if(!isset($curorgid['OrgIdentity']['id'])) {
+        $this->rollback();
+        
         if($jobId) {
           // Do this after the rollback so we don't lose it
           $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
@@ -962,8 +964,25 @@ class OrgIdentitySource extends AppModel {
           $oisrec['OrgIdentitySourceRecord']['id'] = $cursrcrec['OrgIdentitySourceRecord']['id'];
         }
         
-        $this->OrgIdentitySourceRecord->clear();
-        $this->OrgIdentitySourceRecord->save($oisrec);
+        try {
+          $this->OrgIdentitySourceRecord->clear();
+          $this->OrgIdentitySourceRecord->save($oisrec);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          
+          if($jobId) {
+            // Do this after the rollback so we don't lose it
+            $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                         $sourceKey,
+                                                         $e->getMessage(),
+                                                         null,
+                                                         $curorgid['OrgIdentity']['id'],
+                                                         JobStatusEnum::Failed);
+          }
+          
+          throw new RuntimeException($e->getMessage());
+        }
         
         if($jobId) {
           $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
@@ -973,7 +992,6 @@ class OrgIdentitySource extends AppModel {
                                                        $curorgid['OrgIdentity']['id'],
                                                        JobStatusEnum::Complete);
         }
-  
         
         $status = 'synced';
       }
@@ -984,12 +1002,29 @@ class OrgIdentitySource extends AppModel {
         // This should allow more obvious behavior if (eg) the pipeline definition
         // is updated.
         
-        $this->executePipeline($id,
-                               $curorgid['OrgIdentity']['id'],
-                               ($status == 'removed')
-                               ? SyncActionEnum::Delete
-                               : SyncActionEnum::Update,
-                               $actorCoPersonId);
+        try {
+          $this->executePipeline($id,
+                                 $curorgid['OrgIdentity']['id'],
+                                 ($status == 'removed')
+                                 ? SyncActionEnum::Delete
+                                 : SyncActionEnum::Update,
+                                 $actorCoPersonId);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          
+          if($jobId) {
+            // Do this after the rollback so we don't lose it
+            $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                         $sourceKey,
+                                                         $e->getMessage(),
+                                                         null,
+                                                         $curorgid['OrgIdentity']['id'],
+                                                         JobStatusEnum::Failed);
+          }
+          
+          throw new RuntimeException($e->getMessage());
+        }
       }
       
       // Commit
