@@ -459,8 +459,8 @@ class CoPersonRole extends AppModel {
     // one, to see if the person is eligible for the relevant members group.
     
     $args = array();
-    $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
-    $args['conditions']['CoPersonRole.cou_id'] = $couId;
+    $args['conditions'][$modelName.'.co_person_id'] = $coPersonId;
+    $args['conditions'][$modelName.'.cou_id'] = $couId;
     $args['fields'] = array('id', 'status');
     $args['contain'] = false;
     
