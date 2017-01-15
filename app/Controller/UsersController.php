@@ -264,9 +264,11 @@ class UsersController extends AppController {
           
           $lastlogins = array();
           
-          foreach($orgIdentities[0]['Identifier'] as $id) {
-            if(!empty($id['identifier']) && isset($id['login']) && $id['login']) {
-              $lastlogins[ $id['identifier'] ] = $this->AuthenticationEvent->lastlogin($id['identifier']);
+          if(!empty($orgIdentities[0]['Identifier'])) {
+            foreach($orgIdentities[0]['Identifier'] as $id) {
+              if(!empty($id['identifier']) && isset($id['login']) && $id['login']) {
+                $lastlogins[ $id['identifier'] ] = $this->AuthenticationEvent->lastlogin($id['identifier']);
+              }
             }
           }
           
