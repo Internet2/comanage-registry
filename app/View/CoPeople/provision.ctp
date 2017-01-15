@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person/CO Group Provision View
  *
- * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -42,7 +42,7 @@
       'controller' => 'co_people',
       'action' => 'canvas',
       $co_person['CoPerson']['id']);
-    $this->Html->addCrumb($co_person['PrimaryName'], $args);
+    $this->Html->addCrumb(generateCn($co_person['PrimaryName']), $args);
   } elseif(!empty($co_group)) {
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
     $args = array(
