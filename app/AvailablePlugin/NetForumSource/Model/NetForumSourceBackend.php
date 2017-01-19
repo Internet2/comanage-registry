@@ -65,7 +65,8 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
     
     $NF = null;
     
-    if(preg_match('/.*netforumpro.com$/', $serverUrl)) {
+    if(preg_match('/.*netforumpro.com$/', $serverUrl)
+       || preg_match('/.*netforum.avectra.com$/', $serverUrl)) {
       $NF = new NetForumPro();
     } else {
       $NF = new NetForumEnterprise();
