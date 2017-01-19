@@ -1948,7 +1948,9 @@ class CoPetitionsController extends StandardController {
         'co' => $this->cur_co['Co']['id']
       ));
     } elseif(!empty($this->request->params['pass'][0])
-             && $this->viewVars['permissions']['view']) {
+             && $this->viewVars['permissions']['view']
+             // For delete we want to go back to the petition index
+             && $this->action != 'delete') {
       // A petition ID is set, redirect back to the same petition (since it has
       // probably just been updated and this way we can provide the latest version)
       

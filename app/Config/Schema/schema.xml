@@ -1417,6 +1417,12 @@
     <field name="attribute_foreign_key" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_petition_attribute_id" type="I">
+      <constraint>REFERENCES cm_co_petition_attributes(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_petition_attributes_i1">
       <col>co_petition_id</col>
@@ -1424,6 +1430,10 @@
     
     <index name="co_petition_attributes_i2">
       <col>co_enrollment_attribute_id</col>
+    </index>
+    
+    <index name="co_petition_attributes_i3">
+      <col>co_petition_attribute_id</col>
     </index>
   </table>
   
@@ -1443,9 +1453,19 @@
     <field name="comment" type="C" size="160" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="co_petition_history_record_id" type="I">
+      <constraint>REFERENCES cm_co_petition_history_records(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_petition_history_records_i1">
       <col>co_petition_id</col>
+    </index>
+    
+    <index name="co_petition_history_records_i2">
+      <col>co_petition_history_record_id</col>
     </index>
   </table>
   
