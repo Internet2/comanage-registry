@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Service Fields
  *
- * Copyright (C) 2016 SURFnet BV
+ * Copyright (C) 2016-17 SURFnet BV
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2016 SURFnet BV
+ * @copyright     Copyright (C) 2016-17 SURFnet BV
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v1.1.0
@@ -54,8 +54,20 @@
     <tr class="line<?php print ($l % 2); $l++; ?>">
       <td>
         <strong class="fieldTitle">
-          <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+          <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
         </strong><span class="required">*</span>
+      </td>
+      <td>
+        <?php print ($e
+                     ? $this->Form->input('name', array('class' => 'focusFirst'))
+                     : Sanitize::html($co_services[0]['CoService']['name'])); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <strong class="fieldTitle">
+          <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+        </strong>
       </td>
       <td>
         <?php print ($e

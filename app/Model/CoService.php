@@ -49,10 +49,15 @@ class CoService extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
-    'description' => array(
+    'name' => array(
       'rule' => 'notBlank',
       'required' => true,
       'allowEmpty' => false
+    ),
+    'description' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
     ),
     'co_group_id' => array(
       'rule' => 'numeric',

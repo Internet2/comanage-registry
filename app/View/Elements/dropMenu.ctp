@@ -244,7 +244,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         
         foreach($menuContent['services'] as $svc) {
           print "<li>";
-          print $this->Html->link($svc['CoService']['description'], $svc['CoService']['service_url']);
+          print $this->Html->link($svc['CoService']['name'], $svc['CoService']['service_url']);
           print "</li>";
         }
         

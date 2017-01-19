@@ -1909,6 +1909,7 @@
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
+    <field name="name" type="C" size="128" />
     <field name="description" type="C" size="128" />
     <field name="co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
