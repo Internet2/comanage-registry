@@ -23,6 +23,7 @@
  */
 
 App::uses("NetForumServer", "NetForumSource.Model");
+App::uses("CoSoapClient", "Lib");
 
 class NetForumPro extends NetForumServer {
   /**
@@ -48,9 +49,9 @@ class NetForumPro extends NetForumServer {
     );
     
     $scontext = stream_context_create($opts);
-    $sclient = new SoapClient($this->serverUrl . "/xWeb/Signon.asmx?WSDL",
-                              array('stream_context' => $scontext,
-                                    'cache_wsdl' => WSDL_CACHE_NONE));
+    $sclient = new CoSoapClient($this->serverUrl . "/xWeb/Signon.asmx?WSDL",
+                                array('stream_context' => $scontext,
+                                      'cache_wsdl' => WSDL_CACHE_NONE));
     
     $response = $sclient->Authenticate($requestParams);
     
@@ -171,11 +172,11 @@ class NetForumPro extends NetForumServer {
     );
 
     $scontext = stream_context_create($opts);
-    $sclient = new SoapClient($this->serverUrl . "/xweb/netFORUMXMLONDemand.asmx?WSDL",
-                              array('stream_context' => $scontext,
-                                    'cache_wsdl' => WSDL_CACHE_NONE,
-                                    // trace needed for get headers
-                                    'trace' => true));
+    $sclient = new CoSoapClient($this->serverUrl . "/xweb/netFORUMXMLONDemand.asmx?WSDL",
+                                array('stream_context' => $scontext,
+                                      'cache_wsdl' => WSDL_CACHE_NONE,
+                                      // trace needed for get headers
+                                      'trace' => true));
     
     $authParams = array();
     $authParams['Token'] = $this->token;

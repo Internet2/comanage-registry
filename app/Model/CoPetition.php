@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Petition Model
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
@@ -379,10 +379,14 @@ class CoPetition extends AppModel {
     
     if(!empty($pt['CoEnrollmentFlow']['CoEnrollmentSource'])) {
       foreach($pt['CoEnrollmentFlow']['CoEnrollmentSource'] as $es) {
-        if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
-          $searchSources[ $es['id'] ] = false;
-        } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
-          $requiredSources[ $es['id'] ] = false;
+        // If an OIS is suspended, we treat it as though it weren't attached in the first place
+        if(isset($es['OrgIdentitySource']['status'])
+           && $es['OrgIdentitySource']['status'] == SuspendableStatusEnum::Active) {
+          if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
+            $searchSources[ $es['id'] ] = false;
+          } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
+            $requiredSources[ $es['id'] ] = false;
+          }
         }
       }
     }
@@ -438,68 +442,71 @@ class CoPetition extends AppModel {
     foreach($emailAddresses as $ea) {
       if(!empty($ea['EmailAddress']['mail'])) {
         foreach($pt['CoEnrollmentFlow']['CoEnrollmentSource'] as $es) {
-          if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch
-             || $es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
-            // Since this is search and not retrieve, it's technically possible to get
-            // more than one result back from a source, if (eg) there are multiple records
-            // with the same email address. It's not exactly clear what to do in that situation,
-            // so for now we just add each record.
-            
-            try {
-              $oisResults = $this->Co->OrgIdentitySource->search($es['org_identity_source_id'],
-                                                                 array('mail' => $ea['EmailAddress']['mail']));
-            }
-            catch(Exception $e) {
-              // It's not really clear what to do on a failure, other than than we want to
-              // keep going. For now we'll record the failure in the log, but we need a better
-              // way to handle this. Also, this isn't I18n'd.
-              
-              $this->log("ERROR: OrgIdentitySource " . $es['org_identity_source_id'] . " : " . $e->getMessage());
-              continue;
-            }
-            
-            foreach($oisResults as $sourceKey => $oisRecord) {
-              // createOrgIdentity will also create the link to the CO Person. It may also
-              // run a pipeline (if configured). Which Pipeline we want to run is a bit confusing,
-              // since the Enrollment Flow, the OIS, and the CO can all have a pipeline configured.
-              // The normal priority is EF > OIS > CO (as per OrgIdentity.php. However, since a
-              // given EF can only create a single Org Identity, Org Identities created here aren't
-              // attached to the Petition and therefore aren't considered to have been created
-              // by an Enrollment Flow. So the Pipeline that will execute is either the one
-              // attached to the OIS, or if none the one attached to the CO.
+          if(isset($es['OrgIdentitySource']['status'])
+           && $es['OrgIdentitySource']['status'] == SuspendableStatusEnum::Active) {
+            if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch
+               || $es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
+              // Since this is search and not retrieve, it's technically possible to get
+              // more than one result back from a source, if (eg) there are multiple records
+              // with the same email address. It's not exactly clear what to do in that situation,
+              // so for now we just add each record.
               
               try {
-                $newOrgIdentityId = $this->Co->OrgIdentitySource->createOrgIdentity($es['org_identity_source_id'],
-                                                                                    $sourceKey,
-                                                                                    $actorCoPersonId,
-                                                                                    $pt['CoPetition']['co_id'],
-                                                                                    $pt['CoPetition']['enrollee_co_person_id'],
-                                                                                    false);
-                
-                // Note that we found something
-                if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
-                  $searchSources[ $es['id'] ] = true;
-                } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISRequired) {
-                  $requiredSources[ $es['id'] ] = true;
-                }
-                
-                $this->CoPetitionHistoryRecord->record($id,
-                                                       $actorCoPersonId,
-                                                       PetitionActionEnum::IdentityLinked,
-                                                       _txt('rs.pt.ois.link', array($newOrgIdentityId,
-                                                                                    $es['OrgIdentitySource']['description'],
-                                                                                    $es['org_identity_source_id'])));
-              } 
-              catch(OverflowException $e) {
-                // If there's already an org identity associated with the OIS, we
-                // definitely don't link it, but should we throw an error of some
-                // sort? It's a bit complicated... it could be a duplicate
-                // enrollment... or we're rechecking eligibility... or there's already
-                // an org identity linked to the same CO Person that this enrollment
-                // is linked to, which might be OK in some circumstances. For now, we
-                // won't do anything, just continue.
+                $oisResults = $this->Co->OrgIdentitySource->search($es['org_identity_source_id'],
+                                                                   array('mail' => $ea['EmailAddress']['mail']));
               }
-              // else let the exception pass back up the stack
+              catch(Exception $e) {
+                // It's not really clear what to do on a failure, other than than we want to
+                // keep going. For now we'll record the failure in the log, but we need a better
+                // way to handle this. Also, this isn't I18n'd.
+                
+                $this->log("ERROR: OrgIdentitySource " . $es['org_identity_source_id'] . " : " . $e->getMessage());
+                continue;
+              }
+              
+              foreach($oisResults as $sourceKey => $oisRecord) {
+                // createOrgIdentity will also create the link to the CO Person. It may also
+                // run a pipeline (if configured). Which Pipeline we want to run is a bit confusing,
+                // since the Enrollment Flow, the OIS, and the CO can all have a pipeline configured.
+                // The normal priority is EF > OIS > CO (as per OrgIdentity.php. However, since a
+                // given EF can only create a single Org Identity, Org Identities created here aren't
+                // attached to the Petition and therefore aren't considered to have been created
+                // by an Enrollment Flow. So the Pipeline that will execute is either the one
+                // attached to the OIS, or if none the one attached to the CO.
+                
+                try {
+                  $newOrgIdentityId = $this->Co->OrgIdentitySource->createOrgIdentity($es['org_identity_source_id'],
+                                                                                      $sourceKey,
+                                                                                      $actorCoPersonId,
+                                                                                      $pt['CoPetition']['co_id'],
+                                                                                      $pt['CoPetition']['enrollee_co_person_id'],
+                                                                                      false);
+                  
+                  // Note that we found something
+                  if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
+                    $searchSources[ $es['id'] ] = true;
+                  } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISRequired) {
+                    $requiredSources[ $es['id'] ] = true;
+                  }
+                  
+                  $this->CoPetitionHistoryRecord->record($id,
+                                                         $actorCoPersonId,
+                                                         PetitionActionEnum::IdentityLinked,
+                                                         _txt('rs.pt.ois.link', array($newOrgIdentityId,
+                                                                                      $es['OrgIdentitySource']['description'],
+                                                                                      $es['org_identity_source_id'])));
+                } 
+                catch(OverflowException $e) {
+                  // If there's already an org identity associated with the OIS, we
+                  // definitely don't link it, but should we throw an error of some
+                  // sort? It's a bit complicated... it could be a duplicate
+                  // enrollment... or we're rechecking eligibility... or there's already
+                  // an org identity linked to the same CO Person that this enrollment
+                  // is linked to, which might be OK in some circumstances. For now, we
+                  // won't do anything, just continue.
+                }
+                // else let the exception pass back up the stack
+              }
             }
           }
         }

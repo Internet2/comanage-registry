@@ -51,11 +51,11 @@ class NetForumEnterprise extends NetForumServer {
     );
     
     $scontext = stream_context_create($opts);
-    $sclient = new SoapClient($this->serverUrl . "/xWeb/secure/netForumXML.asmx?WSDL",
-                              array('stream_context' => $scontext,
-                                    'cache_wsdl' => WSDL_CACHE_NONE,
-                                    // trace needed for get headers
-                                    'trace' => true));
+    $sclient = new CoSoapClient($this->serverUrl . "/xWeb/secure/netForumXML.asmx?WSDL",
+                                array('stream_context' => $scontext,
+                                      'cache_wsdl' => WSDL_CACHE_NONE,
+                                      // trace needed for get headers
+                                      'trace' => true));
     
     $headers = array();
     
@@ -185,11 +185,11 @@ class NetForumEnterprise extends NetForumServer {
     );
     
     $scontext = stream_context_create($opts);
-    $sclient = new SoapClient($this->serverUrl . "/xWeb/secure/netForumXML.asmx?WSDL",
-                              array('stream_context' => $scontext,
-                                    'cache_wsdl' => WSDL_CACHE_NONE,
-                                    // trace needed for get headers
-                                    'trace' => true));
+    $sclient = new CoSoapClient($this->serverUrl . "/xWeb/secure/netForumXML.asmx?WSDL",
+                                array('stream_context' => $scontext,
+                                      'cache_wsdl' => WSDL_CACHE_NONE,
+                                      // trace needed for get headers
+                                      'trace' => true));
     
     // Create header for next request
     $sheader = new SoapHeader($this->xwebNamespace,
