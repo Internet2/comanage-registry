@@ -30,13 +30,14 @@ class CoSoapClient extends SoapClient {
     // So we first try to open the WSDL manually. If that fails, we'll throw
     // an error rather than continue the initialization.
     
-    $wsdl = @fopen($wsdl);
+    // Note this should throw an error on failure, so probably don't need the extra check
+    $w = fopen($wsdl, "r");
 
-    if(!$wsdl) {
+    if(!$w) {
       throw new RuntimeException(_txt('er.soap.wsdl', array($wsdl)));
     }
     
-    fclose($wsdl);
+    fclose($w);
     
     parent::__construct($wsdl, $options);
   }
