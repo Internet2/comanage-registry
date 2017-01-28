@@ -23,6 +23,7 @@
  */
 
 App::uses("NetForumServer", "NetForumSource.Model");
+App::uses("CoSoapClient", "Lib");
 
 class NetForumEnterprise extends NetForumServer {
   // namespace returned from server
