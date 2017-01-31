@@ -1502,7 +1502,7 @@ original notification at
   'op.order.attr' =>  'Reorder Attributes',
   'op.order.link' =>  'Reorder Links',
   'op.orgid.add.ois' => 'Add New Org Identity From Source',
-  'op.orgid.edit.ois' => 'This Organizational Identity was created from an Organizational Identity Source and therefore cannot be edited.',
+  'op.orgid.edit.ois' => 'This Organizational Identity was created from an Organizational Identity Source (%1$s) and therefore cannot be edited.',
   'op.orgid.petition.ois' => 'Add New Org Identity From Source and Link To Petition',
   'op.orgid.sync.ois' => 'Resync Org Identity From Source',
   'op.petition' =>    'Petition',

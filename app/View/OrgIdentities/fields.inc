@@ -96,11 +96,13 @@ $(function() {
 
   $l = 1;
 ?>
-<?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['id'])): ?>
+<?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['id'])): ?>
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
     <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.orgid.edit.ois'); ?></strong>
+    <strong><?php
+      print _txt('op.orgid.edit.ois', array($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['description']));
+    ?></strong>
   </p>
 </div>
 <br />

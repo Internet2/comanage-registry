@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Standard View View
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -76,11 +76,13 @@
 
   print $this->element("pageTitleAndButtons", $params);
 ?>
-<?php if(!empty($d[0]['OrgIdentity']['OrgIdentitySourceRecord']['id'])): ?>
+<?php if(!empty($d[0]['OrgIdentity']['OrgIdentitySourceRecord']['description'])): ?>
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
     <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.orgid.edit.ois'); ?></strong>
+    <strong><?php
+      print _txt('op.orgid.edit.ois', array($d[0]['OrgIdentity']['OrgIdentitySourceRecord']['description']));
+    ?></strong>
   </p>
 </div>
 <br />

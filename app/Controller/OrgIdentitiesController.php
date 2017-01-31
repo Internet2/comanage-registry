@@ -55,7 +55,7 @@ class OrgIdentitiesController extends StandardController {
     'EmailAddress',
     'Identifier',
     'Name',
-    'OrgIdentitySourceRecord',
+    'OrgIdentitySourceRecord' => array('OrgIdentitySource'),
     'PrimaryName',
     'TelephoneNumber'
   );
@@ -67,7 +67,7 @@ class OrgIdentitiesController extends StandardController {
     'EmailAddress',
     'Identifier',
     'Name',
-    'OrgIdentitySourceRecord',
+    'OrgIdentitySourceRecord' => array('OrgIdentitySource'),
     'PipelineCoPersonRole',
     'PipelineCoGroupMember' => array('CoGroup'),
     'PrimaryName',
