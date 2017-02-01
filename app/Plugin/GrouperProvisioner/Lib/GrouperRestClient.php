@@ -247,6 +247,64 @@ class GrouperRestClient extends HttpSocket {
   }
 
   /**
+   * Get group memberships for a subject
+   * - precondition: Subject is known to Grouper
+   *
+   * @since         COmanage Directory 1.1.0
+   * @param         string $subject Subject for which to retrieve group memberships
+   * @return        array List of names of the groups to which the subjet belongs
+   * @throws        GrouperRestClientException
+   */
+  public function getGroups($subject) {
+    $body = array(
+      'WsRestGetGroupsRequest' => array(
+        'actAsSubjectLookup' => array(
+          'subjectId' => 'GrouperSystem'
+          ),
+        'includeGroupDetail' => 'T',
+        'subjectLookups' => array(
+          array('subjectId' => $subject)
+          )
+        )
+      );
+
+    $body = json_encode($body);
+
+    $request = array(
+      'uri' => array(
+        'path' => 'subjects'
+        ),
+      'body' => $body
+      );
+
+    $result = $this->grouperRequest($request, 201);
+    $success = $result->WsGetGroupsResults->resultMetadata->success;
+    if ($success != 'T') {
+      $msg = 'Result from get groups was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
+    }
+
+    $results = $result->WsGetGroupsResults->results;
+
+    $groups = array();
+
+    foreach ($results as $r) {
+      if (array_key_exists('wsGroups', $r)) {
+        foreach ($r->wsGroups as $g) {
+          $groups[] = $g->name;
+        }
+      }
+    }
+
+    return $groups;
+  }
+
+  /**
    * Get members of a Grouper group.
    * - precondition: 
    * - postcondition: 
