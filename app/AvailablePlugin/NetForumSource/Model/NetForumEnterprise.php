@@ -208,10 +208,9 @@ class NetForumEnterprise extends NetForumServer {
     // Store the new authtoken (before any recursion)
     $this->token = $outHeaders['AuthorizationToken']->Token;
     
-    // GetIndividualInformationResult includes 'xsi:schemaLocation="http://www.avectra.com/2005/ Individual.xsd"'
-    // which causes validation errors. Toss it.
-    $sresponse->$resultName->any = preg_replace('/xsi.*xsd\"/', '', $sresponse->$resultName->any);
-    $r = new SimpleXMLElement($sresponse->$resultName->any);
+    // Flags suppress namespace warning since there doesn't appear to be a way to load the
+    // namespace before the XML is loaded
+    $r = new SimpleXMLElement($sresponse->$resultName->any, LIBXML_NOERROR+LIBXML_NOWARNING);
     
     if(isset($r->Result)) {
       foreach($r->Result as $entry) {
@@ -237,6 +236,30 @@ class NetForumEnterprise extends NetForumServer {
       }
     } elseif(!empty($r->IndividualObject)) {
       if($raw) {
+        // Look for members validity dates
+            
+        $mret = $this->queryNetForumEnterprise('GetQuery',
+                                               'GetQueryResult',
+                                               array(
+                                                'szObjectName'  => 'mb_membership',
+                                                'szColumnList'  => 'mbr_cst_key, mbt_code, mbs_code, mbr_join_date, mbr_expire_date, mbr_terminate_date, mbr_terminate_reason',
+                                                'szWhereClause' => "mbr_cst_key = '" . (string)$r->IndividualObject->ind_cst_key . "'",
+                                                'szOrderBy'     => 'mbr_cst_key'
+                                               ),
+                                               $active,
+                                               true);
+        
+        // Merge the raw record so a change in expiration date triggers a sync
+        $mxml = $r->IndividualObject->addChild('Membership');
+        
+        if(!empty($mret[(string)$r->IndividualObject->ind_cst_key]['raw']['from'])) {
+          $mxml->addChild('ValidFrom', $mret[(string)$r->IndividualObject->ind_cst_key]['raw']['from']);
+        }
+
+        if(!empty($mret[(string)$r->IndividualObject->ind_cst_key]['raw']['through'])) {
+          $mxml->addChild('ValidThrough', $mret[(string)$r->IndividualObject->ind_cst_key]['raw']['through']);
+        }
+        
         // Use the customer key as the unique ID
         $results[ (string)$r->IndividualObject->ind_cst_key ]['orgidentity'] = $this->resultToOrgIdentity($r->IndividualObject);
         
@@ -245,6 +268,37 @@ class NetForumEnterprise extends NetForumServer {
       } else {
         // Use the customer key as the unique ID
         $results[ (string)$r->IndividualObject->ind_cst_key ] = $this->resultToOrgIdentity($r->IndividualObject);
+      }
+    } elseif(!empty($r->mb_membershipObject)) {
+      if($raw) {
+        // It's not clear how much of this logic is generic vs CAA specific.
+        // A person can have multiple memberships. We take the earliest valid join date
+        // and the latest valid expiration date.
+        
+        // Store as unix timestamps to facilitate comparison
+        $join = null;
+        $expire = null;
+        
+        foreach($r->mb_membershipObject as $m) {
+          if(!$active || $m->mbs_code == 'Active') {
+            $j = strtotime($m->mbr_join_date);
+            $x = strtotime($m->mbr_expire_date);
+            
+            if($j && (!$join || $j < $join)) {
+              $join = $j;
+            }
+            
+            if($x && (!$expire || $x > $expire)) {
+              $expire = $x;
+            }
+          }
+        }
+        
+        // Return an array of the dates. We'll let the parent call format stuff.
+        $results[ (string)$r->mb_membershipObject->mbr_cst_key ]['raw'] = array(
+          'from' => $join,
+          'through' => $expire
+        );
       }
     }
     
@@ -273,12 +327,11 @@ class NetForumEnterprise extends NetForumServer {
     if(!empty($result->ixo_title))
       $orgdata['OrgIdentity']['title'] = (string)$result->ixo_title;
     
-/*
-    if(!empty($result->MemberExpireDate)) {
-      // netFORUM format is 12/31/2016 12:00:00 AM, we need to convert to YYYY-MM-DD HH:MM:SS
-      $time = strtotime($result->MemberExpireDate);
-      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", $time);
-    }*/
+    // The format here is a Unix timestamp, which we created when we parsed the membership records
+    if(!empty($result->Membership->ValidFrom))
+      $orgdata['OrgIdentity']['valid_from'] = strftime("%F %T", (integer)$result->Membership->ValidFrom);
+    if(!empty($result->Membership->ValidThrough))
+      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", (integer)$result->Membership->ValidThrough);
     
     $orgdata['Name'] = array();
     if(!empty($result->ind_first_name))
