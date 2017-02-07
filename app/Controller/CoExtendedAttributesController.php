@@ -242,8 +242,8 @@ class CoExtendedAttributesController extends StandardController {
         $sql = "CREATE TABLE " . $cotable . " (
                 id SERIAL PRIMARY KEY,
                 co_person_role_id INTEGER REFERENCES " . $this->CoExtendedAttribute->tablePrefix . "co_person_roles(id),
-                created TIMESTAMP,
-                modified TIMESTAMP
+                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
               );";
         
         if($this->CoExtendedAttribute->query($sql) === false) {
