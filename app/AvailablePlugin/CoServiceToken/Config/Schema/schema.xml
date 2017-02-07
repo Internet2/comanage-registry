@@ -32,6 +32,7 @@
       <autoincrement />
     </field>
     <field name="co_service_id" type="I">
+      <notnull />
       <constraint>REFERENCES cm_co_services(id)</constraint>
     </field>
     <field name="enabled" type="L" />
@@ -41,7 +42,6 @@
 
     <index name="co_service_token_settings_i1">
       <col>co_service_id</col>
-      <unique />
     </index>
   </table>
 
@@ -51,9 +51,11 @@
       <autoincrement />
     </field>
     <field name="co_service_id" type="I">
+      <notnull />
       <constraint>REFERENCES cm_co_services(id)</constraint>
     </field>
     <field name="co_person_id" type="I">
+      <notnull />
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
     <field name="token" type="C" size="64" />
@@ -63,7 +65,11 @@
 
     <index name="co_service_tokens_i1">
       <col>co_person_id</col>
-      <unique />
+    </index>
+
+    <index name="co_service_tokens_i2">
+      <col>co_person_id</col>
+      <col>co_service_id</col>
     </index>
   </table>
 </schema>
