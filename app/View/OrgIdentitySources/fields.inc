@@ -253,7 +253,9 @@
               print $this->Form->error('eppn_identifier_type');
             }
           } else {
-            print $vv_identifier_types[ $org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'] ];
+            if(!empty($org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'])) {
+              print $vv_identifier_types[ $org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'] ];
+            }
           }
         ?>
       </td>
