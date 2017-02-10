@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Member Controller
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -209,12 +209,12 @@ class CoGroupMembersController extends StandardController {
       return false;
     }
     
-    // Make sure this is not a members group.
-    if($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8) == 0) {
+    // Make sure this is not an automatic group.
+    if(isset($g['CoGroup']['auto']) && $g['CoGroup']['auto']) {
       if($this->request->is('restful')) {
-        $this->Api->restResultHeader(403, "Memberships in members groups cat not be edited");
+        $this->Api->restResultHeader(403, "Memberships in automatic groups can not be edited");
       } else {
-        $this->Flash->set(_txt('er.gr.members.edit'), array('key' => 'error'));
+        $this->Flash->set(_txt('er.gr.auto.edit'), array('key' => 'error'));
         $this->performRedirect();
       }
       return false;
@@ -415,31 +415,34 @@ class CoGroupMembersController extends StandardController {
         $member = true;
     }
     
+    // Is this specified group read only?
+    $readOnly = ($this->gid ? $this->CoGroupMember->CoGroup->readOnly($this->gid) : false);
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
     // Add a new member to a group?
     // XXX probably need to check if group is open here and in delete
-    $p['add'] = ($roles['cmadmin'] || $managed);
+    $p['add'] = !$readOnly && ($roles['cmadmin'] || $managed);
     
     // Delete a member from a group?
-    $p['delete'] = ($roles['cmadmin'] || $managed);
+    $p['delete'] = !$readOnly && ($roles['cmadmin'] || $managed);
     
     // Edit members of a group?
-    $p['edit'] = ($roles['cmadmin'] || $managed);
+    $p['edit'] = !$readOnly && ($roles['cmadmin'] || $managed);
     
     // View a list of members of a group?
     // This is for REST
     $p['index'] = ($this->request->is('restful') && ($roles['cmadmin'] || $roles['coadmin']));
     
     // Select from a list of potential members to add?
-    $p['select'] = ($roles['cmadmin'] || $managed);
+    $p['select'] = !$readOnly && ($roles['cmadmin'] || $managed);
     
     // Update accepts a CO Person's worth of potential group memberships and performs the appropriate updates
-    $p['update'] = ($roles['cmadmin'] || $roles['comember']);
+    $p['update'] = !$readOnly && ($roles['cmadmin'] || $roles['comember']);
     
     // Select from a list of potential members to add?
-    $p['updateGroup'] = ($roles['cmadmin'] || $managed);
+    $p['updateGroup'] = !$readOnly && ($roles['cmadmin'] || $managed);
     
     // View members of a group?
     $p['view'] = ($roles['cmadmin'] || $managed || $member);
@@ -549,23 +552,6 @@ class CoGroupMembersController extends StandardController {
     $coGroup = $this->CoGroupMember->CoGroup->find('first', $args);
     
     $this->set('co_group', $coGroup);
-    
-    // Also signal if this is a members group and so checkboxes and save button
-    // should be disabled.
-    
-    // Check for CO members group and if not then check for COU members group.
-    $isMembersGroup = false;
-    if($coGroup['CoGroup']['name'] == 'members') {
-      $isMembersGroup = true;
-    } else {
-      foreach($coGroup['Co']['Cou'] as $cou) {
-        if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
-          $isMembersGroup = true;
-        }
-      }            
-    }
-    
-    $this->set('isMembersGroup', $isMembersGroup);
   }
   
   /**

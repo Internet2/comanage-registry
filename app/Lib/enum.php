@@ -254,6 +254,18 @@ class IdentifierAssignmentExclusionEnum
   const Superstitious = 'S';
 }
 
+// Note CO or COU is determined by co_groups:cou_id
+class GroupEnum
+{
+  const Standard      = "S";
+  const ActiveMembers = "MA";
+  const Admins        = "A";
+  const AllMembers    = "M";
+  // XXX CO-1100, not yet supported
+  const NestedAdmins  = "AN";
+  const NestedMembers = "MN";
+}
+
 class IdentifierEnum
 {
   const Badge      = 'badge';

@@ -120,10 +120,10 @@
           print $this->Form->hidden('CoGroupMember.rows.'.$i.'.co_person_id',
                                    array('default' => $p['CoPerson']['id'])) . "\n";
           print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
-                                      array('checked' => $isMember, 'disabled' => $isMembersGroup));
+                                      array('checked' => $isMember, 'disabled' => $co_group['CoGroup']['auto']));
           print $this->Form->label('CoGroupMember.rows.'.$i.'.member',_txt('fd.group.mem')) . "\n";
           print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
-                                      array('checked' => $isOwner, 'disabled' => $isMembersGroup));
+                                      array('checked' => $isOwner, 'disabled' => $co_group['CoGroup']['auto']));
           print $this->Form->label('CoGroupMember.rows.'.$i.'.owner', _txt('fd.group.own')) . "\n";
         ?>
       </td>
@@ -142,7 +142,7 @@
       <td>
         <?php
           $options = array('style' => 'float:left;');
-          if(!$isMembersGroup){
+          if(!$co_group['CoGroup']['auto']){
             print $this->Form->submit(_txt('op.save'), $options);
 
             print $this->Form->button(_txt('op.reset'), 

@@ -530,41 +530,35 @@ class CoExpirationPolicy extends AppModel {
             if(isset($p['CoExpirationPolicy']['act_notify_cou_admin'])
                && $p['CoExpirationPolicy']['act_notify_cou_admin']
                && !empty($role['CoPersonRole']['cou_id'])) {
-              // Map this COU ID to it's name so we can then map that to its admin group
-              
-              $couName = $this->CondCou->field('name', array('CondCou.id' => $role['CoPersonRole']['cou_id']));
-              
-              if(!empty($couName)) {
-                try {
-                  $cogroupid = $this->Co->CoGroup->adminCoGroupId($coId, $couName);
-                  
-                  $this->Co
-                       ->CoGroup
-                       ->CoNotificationRecipientGroup
-                       ->register($role['CoPersonRole']['co_person_id'],
-                                  null,
-                                  null,
-                                  'cogroup',
-                                  $cogroupid,
-                                  ActionEnum::ExpirationPolicyMatched,
-                                  _txt('rs.xp.match', array($p['CoExpirationPolicy']['description'],
-                                                            $p['CoExpirationPolicy']['id'])),
-                                  array(
-                                    // XXX Not really clear this is the right source, but there's not a clear alternate
-                                    // Should we create a log of expirations that are fired off? (seems redundant vs history_records)
-                                    'controller' => 'co_person_roles',
-                                    'action'     => 'edit',
-                                    'id'         => $role['CoPersonRole']['id']
-                                  ),
-                                  false,
-                                  null,
-                                  $subject,
-                                  $body);
-                }
-                catch(Exception $e) {
-                  if($appShell) {
-                    $appShell->out($e->getMessage(), 1, Shell::QUIET);
-                  }
+              try {
+                $cogroupid = $this->Co->CoGroup->adminCoGroupId($coId, $role['CoPersonRole']['cou_id']);
+                
+                $this->Co
+                     ->CoGroup
+                     ->CoNotificationRecipientGroup
+                     ->register($role['CoPersonRole']['co_person_id'],
+                                null,
+                                null,
+                                'cogroup',
+                                $cogroupid,
+                                ActionEnum::ExpirationPolicyMatched,
+                                _txt('rs.xp.match', array($p['CoExpirationPolicy']['description'],
+                                                          $p['CoExpirationPolicy']['id'])),
+                                array(
+                                  // XXX Not really clear this is the right source, but there's not a clear alternate
+                                  // Should we create a log of expirations that are fired off? (seems redundant vs history_records)
+                                  'controller' => 'co_person_roles',
+                                  'action'     => 'edit',
+                                  'id'         => $role['CoPersonRole']['id']
+                                ),
+                                false,
+                                null,
+                                $subject,
+                                $body);
+              }
+              catch(Exception $e) {
+                if($appShell) {
+                  $appShell->out($e->getMessage(), 1, Shell::QUIET);
                 }
               }
             }

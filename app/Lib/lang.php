@@ -460,7 +460,16 @@ original notification at
   'en.extattr' =>     array(ExtendedAttributeEnum::Integer => 'Integer',
                             ExtendedAttributeEnum::Timestamp => 'Timestamp',
                             ExtendedAttributeEnum::Varchar32 => 'String (32)'),
-
+  
+  'en.group.type' => array(
+    GroupEnum::Standard      => 'Standard',
+    GroupEnum::ActiveMembers => 'Active Members',
+    GroupEnum::Admins        => 'Administrators',
+    GroupEnum::AllMembers    => 'All Members',
+    GroupEnum::NestedAdmins  => 'Nested Administrators',
+    GroupEnum::NestedMembers => 'Nested Members'
+  ),
+  
   'en.ia.algorithm' => array(IdentifierAssignmentEnum::Random => 'Random',
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
 
@@ -796,6 +805,8 @@ original notification at
   'er.file.none' =>   'No file specified',
   'er.file.read' =>   'Unable to open "%1$s" for reading',
   'er.file.write' =>  'Unable to open "%1$s" for writing',
+  'er.gr.auto.edit' => 'Members of automatic groups may not be edited directly',
+  'er.gr.delete' =>   'This group cannot be deleted',
   'er.gr.exists' =>   'A group named "%1$s" already exists within the CO',
   'er.gr.init' =>     'Group created, but failed to set initial owner/member',
   'er.gr.nf' =>       'Group %1$s Not Found',
@@ -803,9 +814,9 @@ original notification at
   'er.gr.admin.delete' => 'Admin groups for COs and COUs may not be deleted directly',
   'er.gr.members.delete' => 'Members groups for COs and COUs may not be deleted directly',
   'er.gr.members.edit' => 'Members groups for COs and COUs may not be edited directly',
-  'er.gr.members.res' => 'Groups named "members" or prefixed "members:" are reserved',
   'er.gr.reconcile'    => 'Members group reconciliation failed: ',
   'er.gr.reconcile.inv' => 'Specified group is not eligible for reconciliation',
+  'er.gr.reserved' => 'Groups named with the prefix "CO:" are reserved',
   'er.grm.already' => 'CO Person %1$s is already a member of group %2$s',
   'er.grm.history' =>  'Error creating history record when automatically adding CO Person ID %1$s to group %2$s',
   'er.grm.history.members' => 'Error creating history record when automatically adding CO Person ID %1$s to members group',
@@ -939,6 +950,8 @@ original notification at
   'fd.cou' =>         'COU',
   'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',  
   'fd.cou-a' =>       '%1$s COU',
+  'fd.co_group.auto' => 'Automatic',
+  'fd.co_group.group_type' => 'Group Type',
   'fd.co_people.search' => 'CO Person Search',
   'fd.co_people.status' => 'CO Person Status',
   'fd.created' =>     'Created',
@@ -1079,6 +1092,7 @@ original notification at
   'fd.false' =>       'False',
   'fd.group.desc.adm' => '%1$s Administrators',
   'fd.group.desc.mem' => '%1$s Members',
+  'fd.group.desc.mem.act' => '%1$s Active Members',
   'fd.group.grmem' => 'Group Member',
   'fd.group.grmemown' => 'Group Member and Owner',
   'fd.group.mem' =>   'Member',
@@ -1735,7 +1749,7 @@ original notification at
   'sh.ug.100.cmpdefault' => 'Verifying default CMP Enrollment Configuration',
   'sh.ug.105.attrdefault' => 'Clearing extraneous CO Enrollment Attribute defaults',
   'sh.ug.110.ef' =>       'Migrating enrollment flow configurations',
-  'sh.ug.110.gr' =>       'Reconciling members groups (please wait, this may take some time)',
+  'sh.ug.110.gr' =>       'Renaming and reconciling automatic groups (please wait, this may take some time)',
   'sh.ug.110.is' =>       'Updating inactive identifier status',
 );
 

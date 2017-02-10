@@ -1145,7 +1145,7 @@ class AppModel extends Model {
    *
    * @since  COmanage Registry v1.0.6
    * @param  array Array of fields to validate
-   * @param  array Array with up to two keys: 'filter' and 'flags', corresponding to filter_var options
+   * @param  array Array Supported options: 'filter' and 'flags', corresponding to filter_var options, or "invalidchars" as a string of not permitted characters
    * @return mixed True if all field strings validate, an error message otherwise
    */
   
@@ -1185,8 +1185,16 @@ class AppModel extends Model {
     } else {
       // Perform a basic string search.
       
+      $invalid = "<>";
+      
+      // We use isset here rather than !empty because we'll accept an empty string
+      // as a way to skip the check.
+      if(isset($d['invalidchars'])) {
+        $invalid = $d['invalidchars'];
+      }
+      
       foreach($a as $k => $v) {
-        if(strlen($v) != strcspn($v, "<>")) {
+        if(strlen($v) != strcspn($v, $invalid)) {
           // Mismatch, implying bad input
           return _txt('er.input.invalid');
         }

@@ -40,6 +40,9 @@ class CoGroupsController extends StandardController {
   // This controller needs a CO to be set
   public $requires_co = true;
   
+  public $delete_contains = array(
+  );
+  
   public $edit_contains = array(
   );
   
@@ -72,28 +75,19 @@ class CoGroupsController extends StandardController {
    */
   
   function checkDeleteDependencies($curdata) {
-    $name = $curdata['CoGroup']['name'];
-
-    // Admin groups for CO or COU cannot be deleted by user through controller.
-    if ($name == 'admin' || strncmp($name, 'admin:', 6) == 0) {
+    // It would be preferable to move this to beforeDelete, but ChangelogBehavior
+    // prevents that since beforeDelete callbacks don't fire.
+    
+    if(isset($curdata['CoGroup']['group_type'])
+       && $curdata['CoGroup']['group_type'] != GroupEnum::Standard) {
       if($this->request->is('restful')) {
-        $this->Api->restResultHeader(403, "Admin groups cannot be deleted");
+        $this->Api->restResultHeader(403, "This group cannot be deleted");
       } else {
-        $this->Flash->set(_txt('er.gr.admin.delete'), array('key' => 'error'));
+        $this->Flash->set(_txt('er.gr.delete'), array('key' => 'error'));
       }
       return false;
     }
-
-    // Members groups for CO or COU cannot be deleted by user through controller.
-    if ($name == 'members' || strncmp($name, 'members:', 8) == 0) {
-      if($this->request->is('restful')) {
-        $this->Api->restResultHeader(403, "Members groups cannot be deleted");
-      } else {
-        $this->Flash->set(_txt('er.gr.members.delete'), array('key' => 'error'));
-      }
-      return false;
-    }
-
+    
     return true;
   }
 
@@ -125,15 +119,12 @@ class CoGroupsController extends StandardController {
         }
       }
       
-      // Disallow names beginning with 'members' in order to prevent
-      // a members group being created by hand before a COU is later defined
-      // with the overlapping name.
-      
-      if($reqdata['CoGroup']['name'] == 'members' || strncmp($reqdata['CoGroup']['name'], 'members:', 8) == 0) {
+      // Disallow names beginning with 'CO:', which are reserved.
+      if(strncmp($reqdata['CoGroup']['name'], 'CO:', 3) == 0) {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Name Reserved");
         } else {
-          $this->Flash->set(_txt('er.gr.members.res'), array('key' => 'error'));
+          $this->Flash->set(_txt('er.gr.reserved'), array('key' => 'error'));
         }
   
         return false;
@@ -156,17 +147,17 @@ class CoGroupsController extends StandardController {
       }
     }
     
-    // Do not allow edits to members groups.
-    if($reqdata['CoGroup']['name'] == 'members' 
-       || strncmp($reqdata['CoGroup']['name'], 'members:', 8) == 0) {
+    // Do not allow edits to automatic groups. This probably isn't exactly right, as
+    // ultimately it should be possible to (eg) change the description of an automatic group.
+    if($curdata['CoGroup']['auto']) {
       if($this->request->is('restful')) {
-        $this->Api->restResultHeader(403, "Members groups may not be edited directly");
+        $this->Api->restResultHeader(403, "Automatic groups may not be edited directly");
       } else {
-        $this->Flash->set(_txt('er.gr.members.edit'), array('key' => 'error'));
+        $this->Flash->set(_txt('er.gr.auto.edit'), array('key' => 'error'));
       }
-  
-        return false;
-      }
+      
+      return false;
+    }
     
     return true;
   }
@@ -233,32 +224,6 @@ class CoGroupsController extends StandardController {
       // Specify containable behavior to get necessary relations.
       
       $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
-      
-      // Signal if this is a members group so that the edit and delete
-      // buttons on memberships can not be included.
-      
-      $conditions = array();
-      $conditions['CoGroup.id'] = $id;
-      $contain = array();
-      $contain['Co'][] = 'Cou';
-      
-      $args = array();
-      $args['conditions'] = $conditions;
-      $args['contain'] = $contain;
-      $coGroup = $this->CoGroup->find('first', $args);
-      
-      $isMembersGroup = false;
-      if($coGroup['CoGroup']['name'] == 'members') {
-        $isMembersGroup = true;
-      } else {
-        foreach($coGroup['Co']['Cou'] as $cou) {
-          if($coGroup['CoGroup']['name'] == ('members' . ':' . $cou['name'])) {
-            $isMembersGroup = true;
-          }
-        }
-      }
-      
-      $this->set('isMembersGroup', $isMembersGroup);
     }
     
     // Invoke the StandardController edit
@@ -423,7 +388,8 @@ class CoGroupsController extends StandardController {
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     
     // Reconcile memberships in a members group?
-    $p['reconcile'] = ($readonly && ($roles['cmadmin'] || $roles['coadmin']));
+    $p['reconcile'] = ((empty($this->request->params['pass'][0]) || $readonly)
+                       && ($roles['cmadmin'] || $roles['coadmin']));
     
     if($this->action == 'index' && $p['index']
        && ($roles['cmadmin'] || $roles['coadmin'])) {
@@ -533,23 +499,24 @@ class CoGroupsController extends StandardController {
   }
   
   /**
-   * Reconcile existence of members group and memberships.
+   * Reconcile existence of automatic groups and memberships.
    * - postcondition: HTTP status returned (REST)
    * - postcondition: Redirect issued (HTML)
    * 
    * @since COmanage Registry v0.9.3
-   * @param integer CO Group ID of members group or null to reconcile existence of members groups
+   * @param integer CO Group ID of automatic group to reconcile, or null to reconcile existence of automatic groups
    */
+  
   function reconcile($id = null) {
     if(!$this->request->is('restful')) {
       // Not currently supported
       $this->performRedirect();
     }
   
-    // If no id then reconcile the existence of the CO members group
-    // and the COU members groups.
-    if(!isset($id)) {
+    // If no id then reconcile the existence of the default groups
+    if(!$id) {
       $coId = $this->request->query('coid');
+      
       if(!isset($coId)) {
         $this->Api->restResultHeader(404, 'CO Unknown');
         return;
@@ -559,57 +526,58 @@ class CoGroupsController extends StandardController {
       $args['conditions']['Co.id'] = $coId;
       $args['contain'] = false;
       $co = $this->CoGroup->Co->find('first', $args);
+      
       if(empty($co)) {
         $this->Api->restResultHeader(404, 'CO Unknown');
         return;
       }
       
-      $success = $this->CoGroup->reconcileMembersGroupsExistence($coId);  
-      if(!$success) {
-        $this->Api->restResultHeader(500, 'Error reconciling existence of members groups');
-        return;
+      try {
+        $this->CoGroup->addDefaults($coId);
+      }
+      catch(Exception $e) {
+        $this->Api->restResultHeader(500, $e->getMessage());
+        return;        
       }
       
-      // Now find and return all members groups for the CO.
+      // Now find and return all automatic groups for the CO.
       $args = array();
       $args['conditions']['CoGroup.co_id'] = $coId;
-      $args['conditions']['OR']['CoGroup.name'] = 'members';
-      $args['conditions']['OR']['CoGroup.name LIKE'] = 'members:%';
+      $args['conditions']['CoGroup.auto'] = true;
       $args['contain'] = false;
       $groups = $this->CoGroup->find('all', $args);
       
       $this->set('co_groups', $this->Api->convertRestResponse($groups));
       $this->Api->restResultHeader(200, 'OK');
       return; 
-    }
-    
-    // Find the group with the input id.
-    $args = array();
-    $args['conditions']['CoGroup.id'] = $id;
-    $args['contain'] = false;
-    $group = $this->CoGroup->find('first', $args);
-    
-    if(empty($group)) {
-      $this->Api->restResultHeader(400, 'Not a valid id');
-      return;
-    }
-    
-    $name = $group['CoGroup']['name'];
-    if($name != 'members' && strncmp($name, 'members:', 8) != 0) {
-      $this->Api->restResultHeader(400, 'Not a members group');
-      return;
-    }
-    
-    try {
-      $this->CoGroup->reconcileMembersGroup($id);
-      $this->Api->restResultHeader(200, 'OK');
-    }
-    catch(Exception $e) {
-      $this->Api->restResultHeader(500, $e->getMessage());
-      return; 
-    }      
+    } else {
+      // Find the group with the input id.
+      $args = array();
+      $args['conditions']['CoGroup.id'] = $id;
+      $args['contain'] = false;
+      $group = $this->CoGroup->find('first', $args);
       
-    return;
+      if(empty($group)) {
+        $this->Api->restResultHeader(400, 'Not a valid id');
+        return;
+      }
+      
+      if(!$group['CoGroup']['auto']) {
+        $this->Api->restResultHeader(400, 'Not an automatic group');
+        return;
+      }
+      
+      try {
+        $this->CoGroup->reconcileAutomaticGroup($id);
+        $this->Api->restResultHeader(200, 'OK');
+      }
+      catch(Exception $e) {
+        $this->Api->restResultHeader(500, $e->getMessage());
+        return; 
+      }      
+      
+      return;
+    }
   }
   
   /**

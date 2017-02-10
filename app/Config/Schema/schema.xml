@@ -58,6 +58,12 @@
     <field name="rght" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="cous_i1">
       <col>co_id</col>
@@ -68,7 +74,9 @@
     <index name="cous_i3">
       <col>co_id</col>
       <col>name</col>
-      <unique />
+    </index>
+    <index name="cous_i4">
+      <col>cou_id</col>
     </index>
   </table>
   
@@ -601,10 +609,15 @@
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
+    <field name="cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
     <field name="name" type="C" size="128" />
     <field name="description" type="C" size="256" />
     <field name="open" type="L" />
     <field name="status" type="C" size="2" />
+    <field name="group_type" type="C" size="2" />
+    <field name="auto" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_group_id" type="I">
@@ -629,6 +642,10 @@
     </index>
     <index name="co_groups_i4">
       <col>co_group_id</col>
+    </index>
+    <index name="co_groups_i5">
+      <col>co_id</col>
+      <col>group_type</col>
     </index>
   </table>
   

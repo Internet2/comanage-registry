@@ -408,14 +408,15 @@ class CoPersonRole extends AppModel {
    * CoPersonRole(s) for a CoPerson and the Cou(s) for those roles.
    *
    * @since  COmanage Registry v0.9.3
-   * @param  Integer $id CoPersonRole ID
-   * @param  String $alias Alias for the CoPersonRole model
-   * @param  Boolean $provision Whether to run provisioners
+   * @param  Integer $id           CoPersonRole ID
+   * @param  String  $alias        Alias for the CoPersonRole model
+   * @param  Boolean $provision    Whether to run provisioners
+   * @param  Boolean $personActive If false, role is not eligible for ActiveMembers
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function reconcileCouMembersGroupMemberships($id, $alias = null, $provision = true) {
+  public function reconcileCouMembersGroupMemberships($id, $alias=null, $provision=true, $personActive=true) {
     // Since the Provisioner Behavior will only provision group memberships
     // for CO People with an Active status we do not need to manage 
     // membership in the members group based on status here.  
@@ -431,15 +432,14 @@ class CoPersonRole extends AppModel {
     // Map the CO Person Role ID to a CO Person ID. Because CoPersonRole is
     // changelog enabled, this will work even on a delete or expunge.
     
-    $coPersonId = $this->field('co_person_id');
+    $coPersonId = $this->field('co_person_id', array('CoPersonRole.id' => $id));
     
     if(!$coPersonId) {
       // We're probably deleting the CO
       return;
     }
     
-    // Construct the members group name
-    $couId = $this->field('cou_id');
+    $couId = $this->field('cou_id', array('CoPersonRole.id' => $id));
     
     if(!$couId) {
       // There is no COU associated with this role, so nothing to do
@@ -457,16 +457,20 @@ class CoPersonRole extends AppModel {
     
     $status = $this->find('list', $args);
     
-    $eligible = array_search(StatusEnum::Active, $status) || array_search(StatusEnum::GracePeriod, $status);
+    // This logic is similar to CoGroup::reconcileAutomaticGroup()
+    $activeEligible = $personActive && (array_search(StatusEnum::Active, $status) || array_search(StatusEnum::GracePeriod, $status));
     
-    $couName = $this->Cou->field('name', array('Cou.id' => $couId));
+    // For $allEligible, we need at least one role not Deleted
+    $allEligible = false;
     
-    if(!$couName) {
-      throw new InvalidArgumentException(_txt('er.unknown', array($couId)));
+    foreach($status as $s) {
+      if($s != StatusEnum::Deleted) {
+        $allEligible = true;
+        break;
+      }
     }
     
-    $coGroupName = 'members:' . $couName;
-    
-    $this->CoPerson->CoGroupMember->syncMembership($coGroupName, $coPersonId, $eligible, $provision);
+    $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $couId, $coPersonId, $activeEligible, $provision);
+    $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::AllMembers, $couId, $coPersonId, $allEligible, $provision);
   }
 }

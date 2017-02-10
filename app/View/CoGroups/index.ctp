@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Group Index View
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -42,7 +42,6 @@
     // Add page title
     $params = array();
     $params['title'] = _txt('op.gr.memadd', array($name_for_title));
-
   } else {
     // Add breadcrumbs
     $this->Html->addCrumb(_txt('ct.co_groups.pl'));
@@ -320,27 +319,28 @@
           $v = $permissions['view'] || $c['CoGroup']['open'];
           
           if(!empty($permissions['owner'])
-             && in_array($c['CoGroup']['id'], $permissions['owner']))
-          {
+             && in_array($c['CoGroup']['id'], $permissions['owner'])) {
             $d = true;
             $e = true;
           }
           
           if(!empty($permissions['member'])
-             && in_array($c['CoGroup']['id'], $permissions['member']))
+             && in_array($c['CoGroup']['id'], $permissions['member'])) {
             $v = true;
-
-          // Admin groups cannot be deleted.
-          if($c['CoGroup']['name'] == 'admin' || strncmp($c['CoGroup']['name'], 'admin:', 6) == 0) {
-            $d = false;
           }
+          
+          if(!empty($c['CoGroup']['group_type'])) {
+            if($c['CoGroup']['group_type'] != GroupEnum::Standard) {
+              // Non-standard groups can't be deleted
+              $d = false;
+            }
             
-          // Members groups cannot be edited or deleted.
-          if($c['CoGroup']['name'] == 'members' || strncmp($c['CoGroup']['name'], 'members:', 8) == 0) {
-            $e = false;
-            $d = false;
+            if($c['CoGroup']['auto']) {
+              // Automatic groups can't be edited
+              $e = false;
+            }
           }
-        
+          
           if($e || $v) {
             print $this->Html->link($c['CoGroup']['name'],
                                     array('controller' => 'co_groups',
@@ -391,15 +391,13 @@
                                           array('default' => $gmID)) . "\n";
               }
               
-              $isMembersGroup = ($c['CoGroup']['name'] == 'members' || strncmp($c['CoGroup']['name'], 'members:', 8) == 0); 
-              
-              $disabled = !($e || $permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $isMembersGroup;
+              $disabled = !($e || $permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $c['CoGroup']['auto'];
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
                                           array('disabled' => $disabled,
                                                 'checked'    => $isMember));
               print $this->Form->label('CoGroupMember.rows.'.$i.'.member',_txt('fd.group.mem'));
               
-              $disabled = !($e || $permissions['selectany'] || $isOwner) || $isMembersGroup;
+              $disabled = !($e || $permissions['selectany'] || $isOwner) || $c['CoGroup']['auto'];
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
                                           array('disabled' => $disabled,
                                                 'checked'    => $isOwner));

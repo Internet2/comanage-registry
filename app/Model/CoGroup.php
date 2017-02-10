@@ -70,7 +70,10 @@ class CoGroup extends AppModel {
     "HistoryRecord"
   );
 
-  public $belongsTo = array("Co");           // A CoGroup is attached to one CO
+  public $belongsTo = array(
+    "Co",
+    "Cou"
+  );
    
   // Default display field for cake generated views
   public $displayField = "name";
@@ -108,6 +111,24 @@ class CoGroup extends AppModel {
                                       SuspendableStatusEnum::Suspended)),
       'required' => true,
       'message' => 'A valid status must be selected'
+    ),
+    'group_type' => array(
+      'rule' => array('inList', array(GroupEnum::Standard,
+                                      GroupEnum::ActiveMembers,
+                                      GroupEnum::Admins,
+                                      GroupEnum::AllMembers)),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'auto' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'cou_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -118,23 +139,245 @@ class CoGroup extends AppModel {
   );
   
   /**
+   * Perform CoGroup model upgrade steps for version 1.1.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $coId    CO ID
+   * @param  String  $coName  CO Name
+   * @param  Integer $couId   COU ID
+   * @param  String  $couName COU Name
+   */
+
+  public function _ug110($coId, $coName, $couId=null, $couName=null) {
+    // Unlike most _ug functions, this one is intended to be called by
+    // UpgradeVersionShell multiple times, to allow for progress reporting.
+    // There is a bit of duplication here and in addDefaults, but since this
+    // function is not needed in the long term (and so doesn't need updating) that's OK.
+    
+    // We'll check for the existence of each group before creating it, just in case
+    
+    $ckArgs = array();
+    $ckArgs['conditions']['CoGroup.co_id'] = $coId;
+    $ckArgs['conditions']['CoGroup.cou_id'] = $couId;
+    $ckArgs['contain'] = false;
+    
+    // First find and rename the admin group and add the new metadata.
+    
+    $ckArgs['conditions']['CoGroup.group_type'] = GroupEnum::Admins;
+    
+    if(!$this->find('count', $ckArgs)) {
+      $args = array();
+      $args['conditions']['CoGroup.name'] = 'admin' . ($couName ? ":" . $couName : "");
+      $args['conditions']['CoGroup.co_id'] = $coId;
+      $args['contain'] = false;
+      
+      $group = $this->find('first', $args);
+      
+      if($group) {
+        $data = array(
+          'CoGroup' => array(
+            'id'          => $group['CoGroup']['id'],
+            'name'        => "CO" . ($couName ? ":COU:".$couName : "") . ":admins",
+            'group_type'  => GroupEnum::Admins,
+            'auto'        => true,
+            'description' => _txt('fd.group.desc.adm', array($couName ?: $coName)),
+            'open'        => false,
+            'status'      => SuspendableStatusEnum::Active,
+            'co_id'       => $coId,
+            'cou_id'      => ($couId ?: null)
+          )
+        );
+        
+        $this->clear();
+        
+        if(!$this->save($data)) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::_ug101')));
+        }
+        
+        // Admin groups are not automatically managed, so do not reconcile
+      }
+    }
+    
+    // Next, convert the "members" group to All Members (matching pre-1.1.0 behavior).
+    
+    $ckArgs['conditions']['CoGroup.group_type'] = GroupEnum::AllMembers;
+    
+    if(!$this->find('count', $ckArgs)) {
+      $args = array();
+      $args['conditions']['CoGroup.name'] = 'members' . ($couName ? ":" . $couName : "");
+      $args['conditions']['CoGroup.co_id'] = $coId;
+      $args['contain'] = false;
+      
+      $group = $this->find('first', $args);
+      
+      if($group) {
+        $data = array(
+          'CoGroup' => array(
+            'id'          => $group['CoGroup']['id'],
+            'name'        => "CO" . ($couName ? ":COU:".$couName : "") . ":members:all",
+            'group_type'  => GroupEnum::AllMembers,
+            'auto'        => true,
+            'description' => _txt('fd.group.desc.mem', array($couName ?: $coName)),
+            'open'        => false,
+            'status'      => SuspendableStatusEnum::Active,
+            'co_id'       => $coId,
+            'cou_id'      => ($couId ?: null)
+          )
+        );
+        
+        $this->clear();
+        
+        if(!$this->save($data)) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::_ug101')));
+        }
+        
+        $this->reconcileAutomaticGroup($this->id);
+      }
+    }
+    
+    // Finally, create a new Active Members group.
+    
+    $ckArgs['conditions']['CoGroup.group_type'] = GroupEnum::ActiveMembers;
+    
+    if(!$this->find('count', $ckArgs)) {
+      $data = array(
+        'CoGroup' => array(
+          'name'        => "CO" . ($couName ? ":COU:".$couName : "") . ":members:active",
+          'group_type'  => GroupEnum::ActiveMembers,
+          'auto'        => true,
+          'description' => _txt('fd.group.desc.mem.act', array($couName ?: $coName)),
+          'open'        => false,
+          'status'      => SuspendableStatusEnum::Active,
+          'co_id'       => $coId,
+          'cou_id'      => ($couId ?: null)
+        )
+      );
+        
+      $this->clear();
+      
+      if(!$this->save($data)) {
+        throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::_ug101')));
+      }
+        
+      $this->reconcileAutomaticGroup($this->id);
+    }
+  }
+  
+  /**
+   * Add all default groups for the specified CO.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  Integer $coId   CO ID
+   * @param  Integer $couId  COU ID
+   * @param  Boolean $rename If true, rename any existing groups
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+
+  public function addDefaults($coId, $couId=null, $rename=false) {
+    // Pull the name of the CO/COU
+    
+    $coName = $this->Co->field('name', array('Co.id' => $coId));
+    
+    if(!$coName) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.cos.1'), $coId)));
+    }
+    
+    $couName = null;
+    
+    if($couId) {
+      // We rely on COU name validation not permitting a COU Name with a colon.
+      $couName = $this->Cou->field('name', array('Cou.id' => $couId));
+      
+      if(!$couName) {
+        throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.cous.1'), $couId)));
+      }
+    }
+    
+    // The names get prefixed "CO" or "CO:COU:<couname>", as appropriate
+    
+    $defaultGroups = array(
+      ':admins' => array(
+        'group_type'  => GroupEnum::Admins,
+        'auto'        => false,
+        'description' => _txt('fd.group.desc.adm', array($couName ?: $coName)),
+        'open'        => false,
+        'status'      => SuspendableStatusEnum::Active,
+        'cou_id'      => ($couId ?: null)
+      ),
+      ':members:active' => array(
+        'group_type'  => GroupEnum::ActiveMembers,
+        'auto'        => true,
+        'description' => _txt('fd.group.desc.mem.act', array($couName ?: $coName)),
+        'open'        => false,
+        'status'      => SuspendableStatusEnum::Active,
+        'cou_id'      => ($couId ?: null)
+      ),
+      ':members:all' => array(
+        'group_type'  => GroupEnum::AllMembers,
+        'auto'        => true,
+        'description' => _txt('fd.group.desc.mem', array($couName ?: $coName)),
+        'open'        => false,
+        'status'      => SuspendableStatusEnum::Active,
+        'cou_id'      => ($couId ?: null)
+      ),
+    );
+    
+    foreach($defaultGroups as $suffix => $attrs) {
+      // Construct the full group name
+      $gname = "CO" . ($couName ? ":COU:".$couName : "") . $suffix;
+      
+      // See if there is already a group with this type
+      $args = array();
+      $args['conditions']['CoGroup.group_type'] = $attrs['group_type'];
+      $args['conditions']['CoGroup.cou_id'] = $couId ?: null;
+      
+      $grp = $this->find('first', $args);
+      
+      if(!$grp || $rename) {
+        // Proceed with the save
+        
+        $this->clear();
+        
+        $data = array();
+        $data['CoGroup'] = $attrs;
+        $data['CoGroup']['co_id'] = $coId;
+        $data['CoGroup']['name'] = $gname;
+        
+        if(!empty($grp['CoGroup']['id'])) {
+          // Insert the key of the existing record.
+          // All we really need to update is the name and description,
+          // but then we have to deal with required fields and save vs update.
+          // So for now we reset the metadata if it happened to have been changed.
+          
+          $data['CoGroup']['id'] = $grp['CoGroup']['id'];
+        }
+        
+        if(!$this->save($data)) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::addDefaults')));
+        }
+      }
+    }
+  }
+  
+  /**
    * Obtain the ID of the CO or COU admin group.
    *
    * @since  COmanage Registry v0.9.2
    * @param  Integer $coId    CO ID
-   * @param  String  $couName COU Name, within $coId
+   * @param  String  $couId   COU ID, within $coId
    * @return Integer CO Group ID
    * @throws InvalidArgumentException
    */
   
-  public function adminCoGroupId($coId, $couName=null) {
+  public function adminCoGroupId($coId, $couId=null) {
     $args = array();
-    if($couName) {
-      $args['conditions']['CoGroup.name'] = 'admin:' . $couName;
-    } else {
-      $args['conditions']['CoGroup.name'] = 'admin';
-    }
     $args['conditions']['CoGroup.co_id'] = $coId;
+    // For the CO Admin group, $couId must be null
+    $args['conditions']['CoGroup.cou_id'] = $couId;
+    $args['conditions']['CoGroup.group_type'] = GroupEnum::Admins;
     $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
     $args['contain'] = false;
     
@@ -145,39 +388,6 @@ class CoGroup extends AppModel {
     }
     
     throw new InvalidArgumentException(_txt('er.gr.nf', array($args['conditions']['CoGroup.name'])));
-  }
-  
-  /**
-   * Find name of Cou from a Cou admin or members group.
-   * 
-   * @since COmanage Registry v0.9.3
-   * @param Array CoGroup
-   * @return String name of the Cou
-   */
-  function couNameFromAdminOrMembersGroup($group) {
-    if($this->isCouAdminGroup($group)) {
-      return substr($group['CoGroup']['name'], 6);  
-    } elseif ($this->isCouMembersGroup($group)) {
-      return substr($group['CoGroup']['name'], 8);  
-    }
-  }
-  
-  /**
-   * Find a group for a CO by its name.
-   * 
-   * @since COmanage Registry v0.9.3
-   * @param Inteter CO ID
-   * @param String name
-   * @return Array Group information, as returned by find
-   */
-  function findByName($coId, $name) {
-    $args = array();
-    $args['conditions']['CoGroup.co_id'] = $coId;
-    $args['conditions']['CoGroup.name'] = $name;
-    $args['contain'] = false;
-    $group = $this->find('first', $args);
-    
-    return $group;
   }
 
   /**
@@ -277,55 +487,53 @@ class CoGroup extends AppModel {
    * @param Array representing CoGroup
    * @return Boolean true if admin group
    */
+  
   public function isCouAdminGroup($group) {
-    // Right now we simply look at the name of the group.
-    if (strncmp($group['CoGroup']['name'], 'admin:', 6) == 0) {
-      return true;
-    }
-    return false;
+    return ($group['CoGroup']['group_type'] == GroupEnum::Admins
+            && !empty($group['CoGroup']['cou_id']));
   }
   
   /**
-   * Determine if the group is an admin or members group for COU.
+   * Determine if the group is an admin or members group for a COU.
    * 
    * @since COmanage Registry v0.9.3
    * @param Array representing CoGroup
    * @return Boolean true if admin or members group
    */
+  
   public function isCouAdminOrMembersGroup($group) {
-      $admin = $this->isCouAdminGroup($group);
-      $members = $this->isCouMembersGroup($group);
-      return ($admin || $members);
+    $ret = $this->isCouAdminGroup($group)
+           || $this->isCouMembersGroup($group);
+    
+    return $ret;
   }
 
   /**
-   * Determine if the group is the members group for CO.
+   * Determine if the group is a members group (all or active) for a CO.
    * 
    * @since COmanage Registry v0.9.4
    * @param Array representing CoGroup
    * @return Boolean true if members group
    */
+  
   public function isCoMembersGroup($group) {
-    // Right now we simply look at the name of the group.
-    if ($group['CoGroup']['name'] == 'members') {
-      return true;
-    }
-    return false;
+    return (($group['CoGroup']['group_type'] == GroupEnum::ActiveMembers
+             || $group['CoGroup']['group_type'] == GroupEnum::AllMembers)
+            && empty($group['CoGroup']['cou_id']));
   }
   
   /**
-   * Determine if the group is a members group for COU.
+   * Determine if the group is a members group (all or active) for a COU.
    * 
    * @since COmanage Registry v0.9.3
    * @param Array representing CoGroup
    * @return Boolean true if members group
    */
+  
   public function isCouMembersGroup($group) {
-    // Right now we simply look at the name of the group.
-    if (strncmp($group['CoGroup']['name'], 'members:', 8) == 0) {
-      return true;
-    }
-    return false;
+    return (($group['CoGroup']['group_type'] == GroupEnum::ActiveMembers
+             || $group['CoGroup']['group_type'] == GroupEnum::AllMembers)
+            && !empty($group['CoGroup']['cou_id']));
   }
   
   /**
@@ -388,19 +596,18 @@ class CoGroup extends AppModel {
    */
 
   public function readOnly($id) {
-    // A CO Group is read only if it is a members group.
+    // A CO Group is read only if the auto field is true.
+
+    // XXX This isn't quite right. The metadata (name, description) should be
+    // editable even though the members can't be.
+
+    $auto = $this->field('auto', array('CoGroup.id' => $id));
     
-    $name = $this->field('name', array('CoGroup.id' => $id));
-    
-    if(!$name) {
-      throw new InvalidArgumentException(_txt('er.gr.nf', array($id)));
-    }
-    
-    return !strncmp($name, 'members', 7);
+    return (bool)$auto;
   }
   
   /**
-   * Reconcile CO Person memberships in a members group.
+   * Reconcile CO Person memberships in an automatic group.
    * 
    * @since COmanage Registry 0.9.3
    * @param Integer CoGroup Id
@@ -408,7 +615,7 @@ class CoGroup extends AppModel {
    * @throws InvalidArgumentException
    */
   
-  public function reconcileMembersGroup($id) {
+  public function reconcileAutomaticGroup($id) {
     // First find the group
     $args = array();
     $args['conditions']['CoGroup.id'] = $id;
@@ -416,48 +623,38 @@ class CoGroup extends AppModel {
     
     $group = $this->find('first', $args);
       
-    if(empty($group)) {
+    if(empty($group['CoGroup'])) {
       throw new InvalidArgumentException(_txt('er.gr.nf', array($id)));
     }
     
-    // Make sure the group is a members group.    
-    $name = $group['CoGroup']['name'];
-    
-    if($name != 'members' && strncmp($name, 'members:', 8) != 0) {
+    // Make sure the group is an automatic group.    
+    if(!$group['CoGroup']['auto']) {
       throw new InvalidArgumentException(_txt('er.gr.reconcile.inv'));
     }
-    
-    $cou = null;
-    
-    // Determine if this is a members group for a COU and if so
-    // the ID for the COU.
-    if($name != 'members') {
-      $couName = substr($name, 8);
-      
-      $args = array();
-      $args['conditions']['Cou.name'] = $couName;
-      $args['contain'] = false;
-      
-      $cou = $this->Co->Cou->find('first', $args);
-      
-      if(!$cou) {
-        throw new InvalidArgumentException(_txt('er.gr.nf', array($name)));
-      }
-    }
-    
+
     // Determine the set of people who should be in the target group.
-    // As of v1.1.0, we only want active people (with active roles in the COU, if specified).
+    // Currently we only support ActiveMembers and AllMembers.
     
     $args = array();
-    $args['conditions']['CoPerson.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+    // This logic is similar to CoPersonRole::reconcileCouMembersGroupMemberships()
+    // and CoPerson::afterSave().
+    if($group['CoGroup']['group_type'] == GroupEnum::ActiveMembers) {
+      $args['conditions']['CoPerson.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+    } else {
+      $args['conditions']['NOT']['CoPerson.status'] = StatusEnum::Deleted;
+    }
     $args['conditions']['CoPerson.co_id'] = $group['CoGroup']['co_id'];
-    if($cou) {
+    if(!empty($group['CoGroup']['cou_id'])) {
       $args['joins'][0]['table'] = 'co_person_roles';
       $args['joins'][0]['alias'] = 'CoPersonRole';
       $args['joins'][0]['type'] = 'INNER';
       $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
-      $args['conditions']['CoPersonRole.cou_id'] = $cou['Cou']['id'];
-      $args['conditions']['CoPersonRole.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+      $args['conditions']['CoPersonRole.cou_id'] = $group['CoGroup']['cou_id'];
+      if($group['CoGroup']['group_type'] == GroupEnum::ActiveMembers) {
+        $args['conditions']['CoPersonRole.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+      } else {
+        $args['conditions']['NOT']['CoPersonRole.status'] = StatusEnum::Deleted;
+      }
     }
     $args['contain'] = false;
     
@@ -500,89 +697,5 @@ class CoGroup extends AppModel {
     }
     
     return true;  
-  }
-  
-  /**
-   * Reconcile the existence of the CO and COU members groups
-   * 
-   * @since COmanage Registry 0.9.3
-   * @param Integer CO Id
-   * @return true for success or false for failure
-   */
-  
-  public function reconcileMembersGroupsExistence($coId) {
-    // Loop over groups looking for CO members group.
-    
-    $args = array();
-    $args['conditions']['CoGroup.name'] = 'members';
-    $args['conditions']['CoGroup.co_id'] = $coId;
-    $args['contain'] = false;
-    
-    if($this->find('count', $args) == 0) {
-      // Create the CO members group.
-      $this->clear();
-      $data = array();
-      $data['CoGroup']['co_id'] = $coId;
-      $data['CoGroup']['name'] = 'members';
-      $data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($co['Co']['name']));
-      $data['CoGroup']['open'] = false;
-      $data['CoGroup']['status'] = StatusEnum::Active;
-      if(!$this->save($data)) {
-        return false;
-      }
-    }
-    
-    // Loop over the COUs looking for COU members groups.
-    $args = array();
-    $args['conditions']['Cou.co_id'] = $coId;
-    $args['fields'] = array('Cou.name', 'Cou.id');
-    $args['contain'] = false;
-    
-    $cous = $this->Co->Cou->find('list', $args);
-    
-    foreach($cous as $couName => $couId) {
-      $membersGroupName = 'members:' . $couName;
-      
-      $args = array();
-      $args['conditions']['CoGroup.name'] = $membersGroupName;
-      $args['conditions']['CoGroup.co_id'] = $coId;
-      $args['contain'] = false;
-      
-      if($this->find('count', $args) == 0) {
-        // Create the CO members group.
-        $this->clear();
-        $data = array();
-        $data['CoGroup']['co_id'] = $coId;
-        $data['CoGroup']['name'] = $membersGroupName;
-        $data['CoGroup']['description'] = _txt('fd.group.desc.mem', array($couName));
-        $data['CoGroup']['open'] = false;
-        $data['CoGroup']['status'] = StatusEnum::Active;
-        if(!$this->save($data)) {
-          return false;
-        }
-      }
-    }
-    
-    // Loop over groups looking for groups that match the
-    // COU members groups structure but that don't have
-    // matching COU.
-    $args = array();
-    $args['conditions']['CoGroup.name LIKE'] = 'members:%';
-    $args['conditions']['CoGroup.co_id'] = $coId;
-    $args['fields'] = array('CoGroup.name', 'CoGroup.id');
-    $args['contain'] = false;
-    
-    $groups = $this->find('list', $args);
-    
-    foreach($groups as $group => $gid) {
-      $cou = substr($group, 8);
-      
-      if(!isset($cous[$cou])) {
-        // COU does not exist
-        $this->delete($gid);
-      }
-    }
-    
-    return true;    
   }
 }
