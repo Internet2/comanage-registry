@@ -68,7 +68,8 @@ class OrgIdentitiesController extends StandardController {
     'Identifier',
     'Name',
     'OrgIdentitySourceRecord' => array('OrgIdentitySource'),
-    'PipelineCoPersonRole',
+// This causes slowness on MariaDB. See CO-1406.
+//    'PipelineCoPersonRole',
     'PipelineCoGroupMember' => array('CoGroup'),
     'PrimaryName',
     'TelephoneNumber'
@@ -158,6 +159,15 @@ class OrgIdentitiesController extends StandardController {
         
         $this->set('vv_pipeline', $this->OrgIdentity->Co->CoPipeline->find('first', $args));
       }
+      
+      // Pull any CO Person Role associated with this as the source org id. We should be able to get
+      // this via $view_contains, but CO-1406.
+      
+      $args = array();
+      $args['conditions']['PipelineCoPersonRole.source_org_identity_id'] = $this->request->params['pass'][0];
+      $args['contain'] = false;
+      
+      $this->set('vv_co_person_roles', $this->OrgIdentity->PipelineCoPersonRole->find('first', $args));
     }
     
     parent::beforeRender();
