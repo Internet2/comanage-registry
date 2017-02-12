@@ -329,8 +329,9 @@ class CoGroup extends AppModel {
       // Construct the full group name
       $gname = "CO" . ($couName ? ":COU:".$couName : "") . $suffix;
       
-      // See if there is already a group with this type
+      // See if there is already a group with this type for this CO
       $args = array();
+      $args['conditions']['CoGroup.co_id'] = $coId;
       $args['conditions']['CoGroup.group_type'] = $attrs['group_type'];
       $args['conditions']['CoGroup.cou_id'] = $couId ?: null;
       
