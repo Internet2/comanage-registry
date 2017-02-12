@@ -959,6 +959,7 @@ original notification at
   // Enrollment configuration fields
   'fd.ea.attr.copy2cop' => 'Copy this attribute to the CO Person record',
   'fd.ea.ignauth' =>  'Ignore Authoritative Values',
+  'fd.ea.ignauth.flow.desc' => 'Ignore authoritative values for attributes attached to this flow, such as those provided via environment variables, SAML, or LDAP',
   'fd.ea.ignauth.desc' => 'Ignore authoritative values for this attribute, such as those provided via environment variables, SAML, or LDAP',
   'fd.ea.desc'    =>  'Description',
   'fd.ea.desc.desc' => 'Descriptive text to be displayed when prompting for this attribute (like this text you\'re reading now)',
