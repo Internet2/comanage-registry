@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Role Component
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
@@ -413,8 +413,10 @@ class RoleComponent extends Component {
     }
     
     // Also store the co_person_id directly in the session to make it easier to find.
-    // The above check will only succeed if $coPersonId has an active role, but (at
-    // least for now) we set the session value regardless.
+    // The above check will only succeed if $coPersonId has an active role, but we have
+    // use cases for having a CO Person ID even if not in the current CO (typically recording
+    // ActorCoPersonId of a CMP Admin when acting in a CO). Code that requires a current
+    // CO Member should use isCoPerson to check.
     
     if($coPersonId) {
       $this->Session->write('Auth.User.co_person_id', $coPersonId);

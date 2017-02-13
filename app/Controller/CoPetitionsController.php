@@ -715,7 +715,14 @@ class CoPetitionsController extends StandardController {
                                                             array('CoEnrollmentFlow.id' => $efId));
         
         if($authz != EnrollmentAuthzEnum::None) {
-          $petitionerCoPersonId = $this->Session->read('Auth.User.co_person_id');
+          // We only want the CO Person ID if it's in the current CO, otherwise we
+          // want a token to be generated so subsequent authn checks succeed.
+          
+          $curCoPersonId = $this->Session->read('Auth.User.co_person_id');
+          
+          if($this->Role->isCoPerson($curCoPersonId, $coId)) {
+            $petitionerCoPersonId = $curCoPersonId;
+          }
         }
         
         $ptid = $this->CoPetition->initialize($efId,
