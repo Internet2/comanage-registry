@@ -61,12 +61,22 @@ class CousController extends StandardController {
     //
     // REST calls do not need to compute options for parents.
     if(!$this->request->is('restful')) {
-      // Loop check only needed for the edit page, model does not know CO for new COUs
-      if($this->action == 'edit') {
-        $options = $this->Cou->potentialParents($this->request->data['Cou']['id'],
-                                                $this->request->data['Cou']['co_id']);
-        
-        $this->set('parent_options', $options);
+      if($this->action == 'edit' || $this->action == 'add') {
+
+      switch ($this->action) {
+        case 'edit':
+          $couId = $this->request->data['Cou']['id'];
+          $coId  = $this->request->data['Cou']['co_id'];
+          break;
+
+        case 'add':
+          $couId = null;
+          $coId = $this->cur_co['Co']['id'];
+          break;
+      }
+
+      $options = $this->Cou->potentialParents($couId, $coId);
+      $this->set('parent_options', $options);
       }
     }
     
@@ -100,9 +110,15 @@ class CousController extends StandardController {
     
     // A COU can't be removed if it has children.
 
-    $childCous = $curdata['ChildCou'];
+    $allChildCous = $curdata['ChildCou'];
+    $currentChildCous = array();
+    foreach($allChildCous as $child) {
+      if(!$child['deleted'] && !isset($child['cou_id'])) {
+        $currentChildCous[] = $child;
+      }
+    }
 
-    if(!empty($childCous)) {
+    if(!empty($currentChildCous)) {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Child COU Exists");
       } else {
