@@ -38,6 +38,10 @@ class CousController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  public $delete_contains = array(
+    'ChildCou'
+  );
 
   public $edit_contains = array(
     'ParentCou'
@@ -109,16 +113,10 @@ class CousController extends StandardController {
     }
     
     // A COU can't be removed if it has children.
-
-    $allChildCous = $curdata['ChildCou'];
-    $currentChildCous = array();
-    foreach($allChildCous as $child) {
-      if(!$child['deleted'] && !isset($child['cou_id'])) {
-        $currentChildCous[] = $child;
-      }
-    }
-
-    if(!empty($currentChildCous)) {
+    
+    $childCous = $curdata['ChildCou'];
+    
+    if(!empty($childCous)) {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Child COU Exists");
       } else {
