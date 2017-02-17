@@ -390,6 +390,36 @@ class CoGroup extends AppModel {
     
     throw new InvalidArgumentException(_txt('er.gr.nf', array($args['conditions']['CoGroup.name'])));
   }
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v1.1.0
+   */
+
+  public function beforeSave($options = array()) {
+    // On edit, we don't want to allow certain metadata to be changed.
+    
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $this->data['CoGroup']['id'];
+    $args['contain'] = false;
+
+    $curdata = $this->find('first', $args);
+    
+    if(!empty($curdata)) {
+      // We don't allow group_type or auto to be changed
+      
+      if(!empty($curdata['CoGroup']['auto'])) {
+        $this->data['CoGroup']['auto'] = $curdata['CoGroup']['auto'];
+      }
+      
+      if(!empty($curdata['CoGroup']['group_type'])) {
+        $this->data['CoGroup']['group_type'] = $curdata['CoGroup']['group_type'];
+      }
+    }
+    
+    return true;
+  }
 
   /**
    * Obtain all groups for a CO person.
