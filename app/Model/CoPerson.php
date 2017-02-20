@@ -810,16 +810,13 @@ class CoPerson extends AppModel {
         
         // Record history
         try {
-          $ctxt = $this->changesToString(array('CoPerson' => array('status' => $newStatus)),
-                                         array('CoPerson' => array('status' => $curStatus)),
-                                         $coId);
-          
           $this->HistoryRecord->record($role['CoPersonRole']['co_person_id'],
                                        null,
                                        null,
                                        null,
                                        ActionEnum::CoPersonStatusRecalculated,
-                                       _txt('rs.cop.recalc', array($ctxt)));
+                                       _txt('rs.cop.recalc',
+                                            array(_txt('en.status', null, $newStatus))));
         }
         catch(Exception $e) {
           throw new RuntimeException($e->getMessage());
