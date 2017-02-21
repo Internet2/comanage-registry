@@ -65,7 +65,7 @@ class OrgIdentitySource extends AppModel {
       )
     ),
     'description' => array(
-      'rule' => 'notBlank',
+      'rule' => array('validateInput'),
       'required' => false,
       'allowEmpty' => true
     ),
@@ -236,6 +236,10 @@ class OrgIdentitySource extends AppModel {
     $args = array();
     $args['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $id;
     $args['conditions']['OrgIdentitySourceRecord.sorid'] = $sourceKey;
+    // Finding via a join to OrgIdentity bypasses ChangelogBehavior, so we need to
+    // manually exclude those records.
+    $args['conditions']['OrgIdentitySourceRecord.deleted'] = false;
+    $args['conditions'][] = 'OrgIdentitySourceRecord.org_identity_source_record_id IS NULL';
     
     $cnt = $this->OrgIdentitySourceRecord->OrgIdentity->find('count', $args);
     

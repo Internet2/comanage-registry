@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Service Model
  *
- * Copyright (C) 2016 SURFnet BV
+ * Copyright (C) 2016-17 SURFnet BV
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2016 SURFnet BV
+ * @copyright     Copyright (C) 2016-17 SURFnet BV
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v1.1.0
@@ -50,12 +50,12 @@ class CoService extends AppModel {
       'allowEmpty' => false
     ),
     'name' => array(
-      'rule' => 'notBlank',
+      'rule' => array('validateInput'),
       'required' => true,
       'allowEmpty' => false
     ),
     'description' => array(
-      'rule' => 'notBlank',
+      'rule' => array('validateInput'),
       'required' => false,
       'allowEmpty' => true
     ),
