@@ -54,7 +54,7 @@
         <font class="desc"><?php print _txt('pl.orcidsource.clientid.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('clientid', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['clientid'])); ?>
+        <?php print ($e ? $this->Form->input('clientid', array('size' => 50)) : filter_var($orcid_sources[0]['OrcidSource']['clientid'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -63,7 +63,7 @@
         <font class="desc"><?php print _txt('pl.orcidsource.secret.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('client_secret', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['client_secret'])); ?>
+        <?php print ($e ? $this->Form->input('client_secret', array('size' => 50)) : filter_var($orcid_sources[0]['OrcidSource']['client_secret'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

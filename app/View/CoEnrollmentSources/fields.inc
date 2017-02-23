@@ -140,14 +140,14 @@
       <td>
         <?php print ($e
           ? $this->Form->input('ordr')
-          : Sanitize::html($co_enrollment_sources[0]['CoEnrollmentSource']['ordr'])); ?>
+          : filter_var($co_enrollment_sources[0]['CoEnrollmentSource']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
   </tbody>
   <tfoot>
     <tr>
       <td>
-        <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />
+        <em class="required"><?php print _txt('fd.req'); ?></em>
       </td>
       <td>
         <?php

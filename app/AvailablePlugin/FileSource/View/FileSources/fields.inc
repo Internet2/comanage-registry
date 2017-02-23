@@ -50,7 +50,7 @@
         <strong class="fieldTitle"><?php print _txt('pl.filesource.filepath'); ?></strong><font class="required">*</font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('filepath', array('size' => 50)) : Sanitize::html($ldap_sources[0]['FileSource']['filepath'])); ?>
+        <?php print ($e ? $this->Form->input('filepath', array('size' => 50)) : filter_var($ldap_sources[0]['FileSource']['filepath'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

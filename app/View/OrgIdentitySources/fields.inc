@@ -90,7 +90,7 @@
         <?php print _txt('fd.desc'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['description'])); ?>
+        <?php print ($e ? $this->Form->input('description') : filter_var($org_identity_sources[0]['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -108,17 +108,17 @@
               print $this->Form->input('plugin', array('disabled' => true));
               // We need to re-include the value as hidden since it can't be changed (but is required by the model)
               print $this->Form->hidden('plugin',
-                                        array('default' => Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']))) . "\n";
+                                        array('default' => filter_var($org_identity_sources[0]['OrgIdentitySource']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
               break;
             default:
-              print Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
+              print filter_var($org_identity_sources[0]['OrgIdentitySource']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
               break;
           }
           
           if($this->action == 'edit') {
             // And render a link to the plugin target
             
-            $plmodel = Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
+            $plmodel = filter_var($org_identity_sources[0]['OrgIdentitySource']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
             $pl = Inflector::underscore($plmodel);
             $plm = Inflector::tableize($plmodel);
             
@@ -266,7 +266,7 @@
         <span class="descr"><?php print _txt('fd.ois.eppn.suffix.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('eppn_suffix') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['eppn_suffix'])); ?>
+        <?php print ($e ? $this->Form->input('eppn_suffix') : filter_var($org_identity_sources[0]['OrgIdentitySource']['eppn_suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

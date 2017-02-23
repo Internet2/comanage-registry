@@ -105,7 +105,7 @@
             $xid = $oisid . "/" . $key;
             $xlabel = $c['OrgIdentitySource']['description'] . ": "
                       . "<b>" . generateCn($c['OrgIdentitySourceData']['PrimaryName']) . "</b>"
-                      . " (" . Sanitize::html($key) . ")";
+                      . " (" . filter_var($key,FILTER_SANITIZE_SPECIAL_CHARS) . ")";
             
             $options[$xid] = $xlabel;
             

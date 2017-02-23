@@ -81,7 +81,7 @@
         <?php print _txt('ct.org_identity_sources.1'); ?>
       </td>
       <td>
-        <?php print Sanitize::html($org_identity_source_records[0]['OrgIdentitySource']['description']); ?>
+        <?php print filter_var($org_identity_source_records[0]['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -89,7 +89,7 @@
         <?php print _txt('fd.sorid'); ?>
       </td>
       <td>
-        <?php print Sanitize::html($org_identity_source_records[0]['OrgIdentitySourceRecord']['sorid']); ?>
+        <?php print filter_var($org_identity_source_records[0]['OrgIdentitySourceRecord']['sorid'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -108,7 +108,7 @@
       </td>
       <td>
         <pre>
-          <?php print Sanitize::html($org_identity_source_records[0]['OrgIdentitySourceRecord']['source_record']); ?>
+          <?php print filter_var($org_identity_source_records[0]['OrgIdentitySourceRecord']['source_record'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </pre>
       </td>
     </tr>

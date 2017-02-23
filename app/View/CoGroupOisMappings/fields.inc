@@ -99,7 +99,7 @@
         <?php print $this->Form->label('pattern', _txt('fd.pattern')); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('pattern') : Sanitize::html($co_group_ois_mappings[0]['CoGroupOisMapping']['pattern'])); ?>
+        <?php print ($e ? $this->Form->input('pattern') : filter_var($co_group_ois_mappings[0]['CoGroupOisMapping']['pattern'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">

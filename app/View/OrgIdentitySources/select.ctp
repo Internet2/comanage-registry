@@ -48,7 +48,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print Sanitize::html($desc);
+          print filter_var($desc,FILTER_SANITIZE_SPECIAL_CHARS);
         ?>
       </td>
       <td>
@@ -61,7 +61,7 @@
             );
             
             if(!empty($this->request->params['named']['copetitionid'])) {
-              $args['copetitionid'] = Sanitize::html($this->request->params['named']['copetitionid']);
+              $args['copetitionid'] = filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
             
             print $this->Html->link(_txt('op.select'),

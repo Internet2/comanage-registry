@@ -29,7 +29,7 @@
     'plugin'     => 'identifier_enroller',
     'controller' => 'identifier_enroller_co_petitions',
     'action'     => 'collectIdentifier',
-    Sanitize::html($this->request->params['pass'][0])
+    filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS)
   );
   
   print $this->Form->create('CoPetition', $args);

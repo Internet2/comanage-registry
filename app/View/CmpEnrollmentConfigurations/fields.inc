@@ -280,13 +280,13 @@
             $xindex++;
             
             print $this->Form->hidden($xprefix . '.cmp_enrollment_configuration_id',
-              array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'])));
+              array('value' => filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
             print $this->Form->hidden($xprefix . '.attribute',
               array('value' => $attr));
 
             if(!empty($vv_availableAttributes[$attr]['type'])) {
               print $this->Form->hidden($xprefix . '.type',
-                array('value' => Sanitize::html($vv_availableAttributes[$attr]['type'])));
+                array('value' => filter_var($vv_availableAttributes[$attr]['type'],FILTER_SANITIZE_SPECIAL_CHARS)));
             }
 
             if(isset($currentAttributes[$attr]['id'])) {

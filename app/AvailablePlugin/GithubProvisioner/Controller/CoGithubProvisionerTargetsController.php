@@ -103,7 +103,7 @@ class CoGithubProvisionerTargetsController extends SPTController {
             $this->Flash->set(_txt('er.githubprovisioner.access_token'), array('key' => 'error'));
           }
         } else {
-          $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_github_provisioner_targets.1'), Sanitize::html($id))),
+          $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_github_provisioner_targets.1'), filter_var($id,FILTER_SANITIZE_SPECIAL_CHARS))),
                             array('key' => 'error'));
         }
       } else {
@@ -254,7 +254,7 @@ class CoGithubProvisionerTargetsController extends SPTController {
           $this->Flash->set($e->getMessage(), array('key' => 'error'));
         }
       } else {
-        $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_github_provisioner_targets.1'), Sanitize::html($id))),
+        $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_github_provisioner_targets.1'), filter_var($id,FILTER_SANITIZE_SPECIAL_CHARS))),
                           array('key' => 'error'));
       }
     } else {

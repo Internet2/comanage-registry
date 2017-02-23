@@ -871,7 +871,7 @@ $(function() {
                                                 'action'     => 'canvas',
                                                 $o['CoPerson']['id']));
                   
-                  print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
+                  print "&nbsp;(" . filter_var($o['CoPerson']['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . ")<br />\n";
                 print '</div>';
                 print '<div>';
                 
@@ -908,7 +908,7 @@ $(function() {
             foreach($org_identities[0]['PipelineCoGroupMember'] as $g) {
               print '<div>';
                 print '<div>';
-                  print _txt('in.orgid.pi.group', array(Sanitize::html($g['CoGroup']['name']))) . "<br />\n";
+                  print _txt('in.orgid.pi.group', array(filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))) . "<br />\n";
                 print '</div>';
                 print '<div>';
                 

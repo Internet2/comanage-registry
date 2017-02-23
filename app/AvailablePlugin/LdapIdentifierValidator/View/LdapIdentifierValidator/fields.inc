@@ -74,7 +74,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.serverurl.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['serverurl'])); ?>
+        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -83,7 +83,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.binddn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['binddn'])); ?>
+        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['binddn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -92,7 +92,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.password.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['password'])); ?>
+        <?php print ($e ? $this->Form->input('password') : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -101,7 +101,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.basedn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['basedn'])); ?>
+        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['basedn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -110,7 +110,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.filter.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('filter') : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['filter'])); ?>
+        <?php print ($e ? $this->Form->input('filter') : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['filter'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

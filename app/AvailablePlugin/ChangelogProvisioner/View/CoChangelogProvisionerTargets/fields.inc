@@ -52,7 +52,7 @@
         <font class="desc"><?php print _txt('pl.changelogprovisioner.logfile.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('logfile', array('size' => 50)) : Sanitize::html($co_changelog_provisioner_targets[0]['CoChangelogProvisionerTarget']['logfile'])); ?>
+        <?php print ($e ? $this->Form->input('logfile', array('size' => 50)) : filter_var($co_changelog_provisioner_targets[0]['CoChangelogProvisionerTarget']['logfile'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

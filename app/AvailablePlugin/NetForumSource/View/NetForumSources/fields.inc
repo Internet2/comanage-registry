@@ -52,7 +52,7 @@
         <font class="desc"><?php print _txt('pl.netforumsource.serverurl.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($net_forum_sources[0]['NetForumSource']['serverurl'])); ?>
+        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($net_forum_sources[0]['NetForumSource']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -61,7 +61,7 @@
         <font class="desc"><?php print _txt('pl.netforumsource.username.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('username', array('size' => 50)) : Sanitize::html($net_forum_sources[0]['NetForumSource']['username'])); ?>
+        <?php print ($e ? $this->Form->input('username', array('size' => 50)) : filter_var($net_forum_sources[0]['NetForumSource']['username'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -70,7 +70,7 @@
         <font class="desc"><?php print _txt('pl.netforumsource.password.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($net_forum_sources[0]['NetForumSource']['password'])); ?>
+        <?php print ($e ? $this->Form->input('password') : filter_var($net_forum_sources[0]['NetForumSource']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">

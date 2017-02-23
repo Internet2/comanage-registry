@@ -111,7 +111,7 @@
                 array('class' => 'editbutton')) . "\n";
             
             // Create a direct link to configuration if this plugin is instantiated
-            $plugin = Sanitize::html($c['CoIdentifierValidator']['plugin']);
+            $plugin = filter_var($c['CoIdentifierValidator']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
             $pl = Inflector::underscore($plugin);
             $plm = Inflector::tableize($plugin);
             

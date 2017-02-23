@@ -57,7 +57,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('name', array('size' => '80','class' => 'focusFirst'))
-                     : Sanitize::html($co_themes[0]['CoTheme']['name'])); ?>
+                     : filter_var($co_themes[0]['CoTheme']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -93,7 +93,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('header')
-                     : Sanitize::html($co_themes[0]['CoTheme']['header'])); ?>
+                     : filter_var($co_themes[0]['CoTheme']['header'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -105,7 +105,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('footer')
-                     : Sanitize::html($co_themes[0]['CoTheme']['footer'])); ?>
+                     : filter_var($co_themes[0]['CoTheme']['footer'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -117,7 +117,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('css')
-                     : Sanitize::html($co_themes[0]['CoTheme']['css'])); ?>
+                     : filter_var($co_themes[0]['CoTheme']['css'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

@@ -52,7 +52,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.serverurl.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['serverurl'])); ?>
+        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -61,7 +61,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.binddn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['binddn'])); ?>
+        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['binddn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -70,7 +70,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.password.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($ldap_sources[0]['LdapSource']['password'])); ?>
+        <?php print ($e ? $this->Form->input('password') : filter_var($ldap_sources[0]['LdapSource']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -79,7 +79,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.basedn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['basedn'])); ?>
+        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['basedn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -88,7 +88,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.key_attribute.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('key_attribute') : Sanitize::html($ldap_sources[0]['LdapSource']['key_attribute'])); ?>
+        <?php print ($e ? $this->Form->input('key_attribute') : filter_var($ldap_sources[0]['LdapSource']['key_attribute'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -97,7 +97,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.search_filter.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('search_filter', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['search_filter'])); ?>
+        <?php print ($e ? $this->Form->input('search_filter', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['search_filter'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -106,7 +106,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.uidattr.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('uid_attr', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['uid_attr'])); ?>
+        <?php print ($e ? $this->Form->input('uid_attr', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['uid_attr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">

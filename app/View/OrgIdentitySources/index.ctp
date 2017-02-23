@@ -66,7 +66,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          $plugin = Sanitize::html($o['OrgIdentitySource']['plugin']);
+          $plugin = filter_var($o['OrgIdentitySource']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
           $pl = Inflector::underscore($plugin);
           $plmodel = $plugin;
           $plm = Inflector::tableize($plmodel);

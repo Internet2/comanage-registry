@@ -488,7 +488,7 @@
               <table>
                 <!-- Simply list the org names and then the CO names -->
                 <tr>
-                  <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                  <th class="ui-widget-header"><?php print filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></th>
                 </tr>
                 <?php foreach($co_people[0]['Name'] as $n): ?>
                   <tr>
@@ -505,7 +505,7 @@
                   </tr>
                 <?php endforeach; ?>
                 <tr>
-                  <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+                  <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.o')); ?></th>
                 </tr>
                 <?php foreach($org_identities[0]['Name'] as $n): ?>
                   <tr>

@@ -253,7 +253,7 @@
           <td>
             <?php
               print ($e ? $this->Form->input('cond_count', $args)
-                        : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['cond_count']));
+                        : filter_var($co_expiration_policies[0]['CoExpirationPolicy']['cond_count'],FILTER_SANITIZE_SPECIAL_CHARS));
             ?>
           </td>
         </tr>
@@ -526,7 +526,7 @@
                 }
               } else {
                 if(!empty($co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'])) {
-                  print Sanitize::html($vv_message_templates[ $co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'] ]);
+                  print filter_var($vv_message_templates[ $co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               }
             ?>

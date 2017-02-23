@@ -57,7 +57,7 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
-                        : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['description'])); ?>
+                        : filter_var($co_message_templates[0]['CoMessageTemplate']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -96,7 +96,7 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('cc')
-                        : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['cc'])); ?>
+                        : filter_var($co_message_templates[0]['CoMessageTemplate']['cc'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -106,7 +106,7 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('bcc')
-                        : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['bcc'])); ?>
+                        : filter_var($co_message_templates[0]['CoMessageTemplate']['bcc'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -117,7 +117,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('message_subject')
-                     : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['message_subject'])); ?>
+                     : filter_var($co_message_templates[0]['CoMessageTemplate']['message_subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -128,7 +128,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('message_body')
-                     : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['message_body'])); ?>
+                     : filter_var($co_message_templates[0]['CoMessageTemplate']['message_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

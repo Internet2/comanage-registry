@@ -59,7 +59,7 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print Sanitize::html($skey);
+          print filter_var($skey,FILTER_SANITIZE_SPECIAL_CHARS);
         ?>
       </td>
       <td>

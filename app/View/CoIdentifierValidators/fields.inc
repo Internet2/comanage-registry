@@ -57,7 +57,7 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
-                        : Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['description'])); ?>
+                        : filter_var($co_identifier_validators[0]['CoIdentifierValidator']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -87,12 +87,12 @@
               }
             break;
           case 'edit':
-            print Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']);
+            print filter_var($co_identifier_validators[0]['CoIdentifierValidator']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
             // Send the value as hidden since it can't be changed (but is required by the model)
-            print $this->Form->hidden('plugin', array('default' => Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']))) . "\n";
+            print $this->Form->hidden('plugin', array('default' => filter_var($co_identifier_validators[0]['CoIdentifierValidator']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
             
             // Create a direct link to configuration if this plugin is instantiated
-            $plugin = Sanitize::html($co_identifier_validators[0]['CoIdentifierValidator']['plugin']);
+            $plugin = filter_var($co_identifier_validators[0]['CoIdentifierValidator']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
             $pl = Inflector::underscore($plugin);
             $plm = Inflector::tableize($plugin);
             

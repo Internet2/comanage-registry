@@ -73,7 +73,7 @@
           if(isset($vv_supported_attrs[ $c['AttributeEnumeration']['attribute'] ])) {
             print $vv_supported_attrs[ $c['AttributeEnumeration']['attribute'] ];
           } else {
-            print Sanitize::html($c['AttributeEnumeration']['attribute']);
+            print filter_var($c['AttributeEnumeration']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>

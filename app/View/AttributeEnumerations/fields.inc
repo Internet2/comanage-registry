@@ -90,7 +90,7 @@
       <td>
         <?php print ($e ?
                      $this->Form->input('optvalue', array('class' => 'focusFirst', 'size' => 60))
-                     : Sanitize::html($attribute_enumerations[0]['AttributeEnumeration']['name'])); ?>
+                     : filter_var($attribute_enumerations[0]['AttributeEnumeration']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

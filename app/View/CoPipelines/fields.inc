@@ -156,7 +156,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('name')
-                     : Sanitize::html($co_pipelines[0]['CoPipeline']['name'])); ?>
+                     : filter_var($co_pipelines[0]['CoPipeline']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -270,7 +270,7 @@
                   print $this->Form->error('match_type');
                 }
               } else {
-                print Sanitize::html($co_pipelines[0]['CoPipeline']['match_type']);
+                print filter_var($co_pipelines[0]['CoPipeline']['match_type'],FILTER_SANITIZE_SPECIAL_CHARS);
               }
             ?>
           </td>

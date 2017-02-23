@@ -65,7 +65,7 @@
         <font class="desc"><?php print _txt('pl.regexidentifier.pattern.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('pattern') : Sanitize::html($regex_identifier_validators[0]['RegexIdentifierValidator']['pattern'])); ?>
+        <?php print ($e ? $this->Form->input('pattern') : filter_var($regex_identifier_validators[0]['RegexIdentifierValidator']['pattern'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

@@ -23,7 +23,7 @@
  */
   
   $key = isset($this->request->params['named']['key'])
-         ? Sanitize::html($this->request->params['named']['key'])
+         ? filter_var($this->request->params['named']['key'],FILTER_SANITIZE_SPECIAL_CHARS)
          : null;
 
   // Add page title
@@ -77,7 +77,7 @@
         
         if(!empty($this->request->params['named']['copetitionid'])) {
           $label = _txt('op.orgid.petition.ois');
-          $args['copetitionid'] = Sanitize::html($this->request->params['named']['copetitionid']);
+          $args['copetitionid'] = filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS);
         }
         
         $params['topLinks'][] = $this->Html->link(

@@ -225,7 +225,7 @@
         <span class="desc"><?php print _txt('pl.ldapprovisioner.scope.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('scope_suffix', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['scope_suffix'])); ?>
+        <?php print ($e ? $this->Form->input('scope_suffix', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['scope_suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

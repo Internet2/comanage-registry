@@ -60,7 +60,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('name', array('class' => 'focusFirst'))
-                     : Sanitize::html($co_services[0]['CoService']['name'])); ?>
+                     : filter_var($co_services[0]['CoService']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -72,7 +72,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : Sanitize::html($co_services[0]['CoService']['description'])); ?>
+                     : filter_var($co_services[0]['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -161,7 +161,7 @@
             }
           } else {
             if(!empty( $co_services[0]['CoService']['co_group_id'])) {
-              print Sanitize::html($vv_co_groups[  $co_services[0]['CoService']['co_group_id'] ]);
+              print filter_var($vv_co_groups[  $co_services[0]['CoService']['co_group_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           }
         ?>
@@ -177,7 +177,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('service_url')
-                     : Sanitize::html($co_services[0]['CoService']['service_url'])); ?>
+                     : filter_var($co_services[0]['CoService']['service_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -190,7 +190,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('contact_email')
-                     : Sanitize::html($co_services[0]['CoService']['contact_email'])); ?>
+                     : filter_var($co_services[0]['CoService']['contact_email'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -203,7 +203,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('entitlement_uri')
-                     : Sanitize::html($co_services[0]['CoService']['entitlement_uri'])); ?>
+                     : filter_var($co_services[0]['CoService']['entitlement_uri'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     

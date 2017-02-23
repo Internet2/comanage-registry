@@ -80,7 +80,7 @@
       print $this->Form->create('OrgIdentitySource', $options);
       
       if(!empty($this->request->params['named']['copetitionid'])) {
-        print $this->Form->hidden('copetitionid', array('default' => Sanitize::html($this->request->params['named']['copetitionid'])));
+        print $this->Form->hidden('copetitionid', array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS)));
       }
       
       $index = 1;
@@ -91,7 +91,7 @@
         $args['placeholder'] = $label;
         $args['tabindex'] = $index++;
         $args['value'] = (!empty($this->request->params['named']['Search.' . $field])
-                          ? Sanitize::html($this->request->params['named']['Search.' . $field]) : '');
+                          ? filter_var($this->request->params['named']['Search.' . $field],FILTER_SANITIZE_SPECIAL_CHARS) : '');
         
         print $this->Form->input('Search.' . $field, $args);
       }
@@ -138,7 +138,7 @@
           );
           
           if(!empty($this->request->params['named']['copetitionid'])) {
-            $retrieveUrl['copetitionid'] = Sanitize::html($this->request->params['named']['copetitionid']);
+            $retrieveUrl['copetitionid'] = filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
           
           // We could walk the set of names to look for primary, but it's easier
