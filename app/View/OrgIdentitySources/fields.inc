@@ -2,7 +2,7 @@
 /**
  * COmanage Registry Organizational Identity Sources Fields
  *
- * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v1.1.0
@@ -67,6 +67,17 @@
       $("#OrgIdentitySourceEppnSuffix").closest('tr').show('fade');
     } else {
       $("#OrgIdentitySourceEppnSuffix").closest('tr').hide('fade');
+    }
+    
+    // Set query options visibility
+    var syncmode = document.getElementById('OrgIdentitySourceSyncMode').value;
+    
+    if(syncmode == '<?php print SyncModeEnum::Query; ?>') {
+      $("#OrgIdentitySourceSyncQuerySkipKnown").closest('tr').show('fade');
+      $("#OrgIdentitySourceSyncQueryMismatchMode").closest('tr').show('fade');
+    } else {
+      $("#OrgIdentitySourceSyncQuerySkipKnown").closest('tr').hide('fade');
+      $("#OrgIdentitySourceSyncQueryMismatchMode").closest('tr').hide('fade');
     }
   }
   
@@ -184,6 +195,7 @@
                              ? $org_identity_sources[0]['OrgIdentitySource']['sync_mode']
                              : SyncModeEnum::Manual);
           $attrs['empty'] = false;
+          $attrs['onChange'] = 'fields_update_gadgets();';
           
           if($e) {
             print $this->Form->select('sync_mode',
@@ -195,6 +207,43 @@
             }
           } else {
             print _txt('en.sync.mode', null, $org_identity_sources[0]['OrgIdentitySource']['sync_mode']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.ois.sync.skipknown'); ?><br />
+        <span class="descr"><?php print _txt('fd.ois.sync.skipknown.desc'); ?></span>
+      </td>
+      <td>
+        <?php print $this->Form->input('sync_query_skip_known'); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.ois.sync.mismatch'); ?><br />
+        <span class="descr"><?php print _txt('fd.ois.sync.mismatch.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['sync_query_mismatch_mode'])
+                             ? $org_identity_sources[0]['OrgIdentitySource']['sync_query_mismatch_mode']
+                             : OrgIdentityMismatchEnum::CreateNew);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('sync_query_mismatch_mode',
+                                      $cm_texts[ $cm_lang ]['en.sync.query.mismatch.mode'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('sync_query_mismatch_mode')) {
+              print $this->Form->error('sync_query_mismatch_mode');
+            }
+          } else {
+            print _txt('en.sync.query.mismatch.mode', null, $org_identity_sources[0]['OrgIdentitySource']['sync_query_mismatch_mode']);
           }
         ?>
       </td>

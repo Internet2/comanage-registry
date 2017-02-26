@@ -71,6 +71,7 @@ class CoJobHistoryRecord extends AppModel {
       'rule' => array('inList', array(JobStatusEnum::Complete,
                                       JobStatusEnum::Failed,
                                       JobStatusEnum::InProgress,
+                                      JobStatusEnum::Notice,
                                       JobStatusEnum::Queued)),
       'required' => true,
       'allowEmpty' => false

@@ -699,6 +699,11 @@ original notification at
     SyncModeEnum::Update                    => 'Update'
   ),
   
+  'en.sync.query.mismatch.mode' => array(
+    OrgIdentityMismatchEnum::CreateNew      => 'Create New Org Identity',
+    OrgIdentityMismatchEnum::Ignore         => 'Ignore'
+  ),
+  
   'en.tandc.mode.enroll' => array(
     TAndCEnrollmentModeEnum::ExplicitConsent => 'Explicit Consent',
     TAndCEnrollmentModeEnum::ImpliedConsent  => 'Implied Consent',
@@ -840,6 +845,7 @@ original notification at
   'er.notprov' =>     'Not Provided',
   'er.notprov.id' =>  '%1$s ID Not Provided',
   'er.ois.linked' =>  'The specified Source Key is already linked to an existing Org Identity',
+  'er.ois.mismatch' => 'Email address "%1$s" not found in result from backend',
   'er.ois.nolink' =>  'The specified Source Key is not linked to an existing Org Identity',
   'er.ois.noorg' =>   'Backend did not provide Org Identity',
   'er.ois.pt.linked' => 'This record is already linked to an existing Org Identity and cannot be used for the current petition.',
@@ -1184,6 +1190,10 @@ original notification at
   'fd.ois.sync.disable' => 'Disable Org Identity Source Sync',
   'fd.ois.sync.disable.desc' => 'Disable automatic (scheduled) syncing of Organizational Identity Sources<br />This setting does not impact manual syncing',
   'fd.ois.sync.mode' => 'Sync Mode',
+  'fd.ois.sync.mismatch' => 'Email Mismatch Mode',
+  'fd.ois.sync.mismatch.desc' => 'If a returned record has a different email address than the one that was searched, how the record should be handled',
+  'fd.ois.sync.skipknown' => 'Do Not Query for Known Email Addresses',
+  'fd.ois.sync.skipknown.desc' => 'If an email address is already attached to an Org Identity associated with this Source, do not query for it',
   'fd.open' =>        'Open',
   'fd.order' =>       'Order',
   'fd.order.es.desc' => 'The order in which this source will be queried, among all sources configured for this enrollment flow with this mode',
@@ -1393,6 +1403,14 @@ original notification at
   // Can be changed to a static array of internationalized characters, for example:
   //'me.alpha' => array('a','ä','b','c'),
   'me.alpha' => range('a','z'),
+  
+  // Job related messages
+  'jb.ois.sync.full.finish' => 'Sync of new org identities from source complete',
+  'jb.ois.sync.full.start' => 'Beginning sync of new org identities from source (%1$s in source; %2$s already known, %3$s new)',
+  'jb.ois.sync.query.finish' => 'Query for matching org identities from source complete',
+  'jb.ois.sync.query.start' => 'Beginning query for matching org identities from source (%1$s email addresses to query of %2$s known)',
+  'jb.ois.sync.update.finish' => 'Sync of existing org identities from source complete',
+  'jb.ois.sync.update.start' => 'Beginning sync of existing org identities from source (%1$s current total)',
 
   // JavaScript dialog box strings
   // Can include token replacements in the form of {0}, {1}, {2}, etc.

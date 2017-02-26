@@ -275,6 +275,7 @@ class JobStatusEnum
   const Complete   = 'OK';
   const Failed     = 'X';
   const InProgress = 'GO';
+  const Notice     = 'NT';
   const Queued     = 'Q';
 }
 
@@ -359,6 +360,12 @@ class NSFRaceEnum
   const Black            = 'B';
   const NativeHawaiian   = 'N';
   const White            = 'W';
+}
+
+class OrgIdentityMismatchEnum
+{
+  const CreateNew        = 'N';
+  const Ignore           = 'X';
 }
 
 class OrgIdentityStatusEnum
