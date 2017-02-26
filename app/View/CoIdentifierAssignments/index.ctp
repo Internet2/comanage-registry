@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Identifier Assignment Index View
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2012-17 University Corporation for Advanced Internet Development, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2012-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
@@ -96,16 +96,28 @@
 
       // Update the progress bar
       $("#autogenerate-progressbar").progressbar("option", "value", index);
+      
+      var jsondoc = '{"RequestType":"Identifiers",' +
+                     '"Version":"1.0",' +
+                     '"Identifiers":[{' +
+                      '"Version":"1.0",' +
+                      '"Person":{"Type":"CO","Id":"' + id + '"}' +
+                      '}]}';
 
       // Initiate the autogenerate request
-      var jqxhr = $.post(targetUrl,
-          '{ "RequestType":"Identifiers",\
-              "Version":"1.0",\
-              "Identifiers":[{\
-               "Version":"1.0",\
-               "Person":{"Type":"CO","Id":"' + id + '"}\
-                            }]\
-                          }');
+      
+      // We need to set the contentType to json (which, as an aside, PHP does not
+      // automatically parse -- see ApiComponent::parseRestRequestDocument), so we
+      // need to use ajax() instead of post().
+      // var jqxhr = $.post(targetUrl, jsondoc);
+
+      var jqxhr = $.ajax({
+        type: "POST",
+        url: targetUrl,
+   			contentType: "application/json",
+        data: jsondoc
+        //JSON.stringify(reqdoc)
+      });
 
       // On success, fire the next request
       jqxhr.done(function(data, textStatus, jqXHR) {

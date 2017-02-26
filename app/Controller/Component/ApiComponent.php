@@ -277,6 +277,8 @@ class ApiComponent extends Component {
       }
     } else {
       // In some instances, PHP doesn't set $_POST and so Cake doesn't see the request body.
+      // $_POST isn't set when the client sets the content type to application/json.
+      // PHP can't handle that by default, and Cake seems not to pick up on it.
       // Here's a workaround, based on CakeRequest::_readInput().
       
       switch($this->request->params['ext']) {
