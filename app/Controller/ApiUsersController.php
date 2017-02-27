@@ -49,34 +49,37 @@ class ApiUsersController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    // Make sure identifier doesn't conflict with an existing identifier
-    
-    $args = array();
-    $args['conditions']['Identifier.identifier'] = $reqdata['ApiUser']['username'];
-    $args['conditions']['Identifier.login'] = true;
-    $args['conditions']['Identifier.status'] = StatusEnum::Active;
-    $args['contain'] = false;
-    
-    if($this->Identifier->find('count', $args)) {
-      $this->Flash->set(_txt('er.ia.exists',
-                             array(Sanitize::html($reqdata['ApiUser']['username']))),
-                        array('key' => 'error'));
+    if(!isset($curdata['ApiUser']['username'])
+       || $curdata['ApiUser']['username'] != $reqdata['ApiUser']['username']) {
+      // Make sure identifier doesn't conflict with an existing identifier
       
-      return false;
-    }
-    
-    // Or with an existing API user
-    
-    $args = array();
-    $args['conditions']['ApiUser.username'] = $reqdata['ApiUser']['username'];
-    $args['contain'] = false;
-    
-    if($this->ApiUser->find('count', $args)) {
-      $this->Flash->set(_txt('er.ia.exists',
-                             array(Sanitize::html($reqdata['ApiUser']['username']))),
-                        array('key' => 'error'));
+      $args = array();
+      $args['conditions']['Identifier.identifier'] = $reqdata['ApiUser']['username'];
+      $args['conditions']['Identifier.login'] = true;
+      $args['conditions']['Identifier.status'] = StatusEnum::Active;
+      $args['contain'] = false;
       
-      return false;
+      if($this->Identifier->find('count', $args)) {
+        $this->Flash->set(_txt('er.ia.exists',
+                               array(Sanitize::html($reqdata['ApiUser']['username']))),
+                          array('key' => 'error'));
+        
+        return false;
+      }
+      
+      // Or with an existing API user
+      
+      $args = array();
+      $args['conditions']['ApiUser.username'] = $reqdata['ApiUser']['username'];
+      $args['contain'] = false;
+      
+      if($this->ApiUser->find('count', $args)) {
+        $this->Flash->set(_txt('er.ia.exists',
+                               array(Sanitize::html($reqdata['ApiUser']['username']))),
+                          array('key' => 'error'));
+        
+        return false;
+      }
     }
     
     return true;
