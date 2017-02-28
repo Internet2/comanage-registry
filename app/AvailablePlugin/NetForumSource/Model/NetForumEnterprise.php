@@ -116,7 +116,7 @@ class NetForumEnterprise extends NetForumServer {
                                           true,
                                           false,
                                           false,
-                                          false); // We maybe want true, but it's slow and doesn't return much more
+                                          true); // We need membership validity
   }
   
   /**
@@ -138,7 +138,7 @@ class NetForumEnterprise extends NetForumServer {
                                           true,
                                           false,
                                           false,
-                                          false); // We maybe want true, but it's slow and doesn't return much more
+                                          true); // We need membership validity
   }
   
   /**
@@ -226,6 +226,8 @@ class NetForumEnterprise extends NetForumServer {
                                                    $events,
                                                    false);
             
+            // As for below, we need at least one membership to return a record.
+            
             if(!empty($dret)) {
               $results = array_merge($results, $dret);
             }
@@ -235,20 +237,22 @@ class NetForumEnterprise extends NetForumServer {
         }
       }
     } elseif(!empty($r->IndividualObject)) {
-      if($raw) {
-        // Look for members validity dates
-            
-        $mret = $this->queryNetForumEnterprise('GetQuery',
-                                               'GetQueryResult',
-                                               array(
-                                                'szObjectName'  => 'mb_membership',
-                                                'szColumnList'  => 'mbr_cst_key, mbt_code, mbs_code, mbr_join_date, mbr_expire_date, mbr_terminate_date, mbr_terminate_reason',
-                                                'szWhereClause' => "mbr_cst_key = '" . (string)$r->IndividualObject->ind_cst_key . "'",
-                                                'szOrderBy'     => 'mbr_cst_key'
-                                               ),
-                                               $active,
-                                               true);
-        
+      // Look for members validity dates
+          
+      $mret = $this->queryNetForumEnterprise('GetQuery',
+                                             'GetQueryResult',
+                                             array(
+                                              'szObjectName'  => 'mb_membership',
+                                              'szColumnList'  => 'mbr_cst_key, mbt_code, mbs_code, mbr_join_date, mbr_expire_date, mbr_terminate_date, mbr_terminate_reason',
+                                              'szWhereClause' => "mbr_cst_key = '" . (string)$r->IndividualObject->ind_cst_key . "'",
+                                              'szOrderBy'     => 'mbr_cst_key'
+                                             ),
+                                             $active,
+                                             true);
+      
+      // We need at least one membership to return a record.
+      
+      if(!empty($mret)) {
         // Merge the raw record so a change in expiration date triggers a sync
         $mxml = $r->IndividualObject->addChild('Membership');
         
@@ -260,18 +264,21 @@ class NetForumEnterprise extends NetForumServer {
           $mxml->addChild('ValidThrough', $mret[(string)$r->IndividualObject->ind_cst_key]['raw']['through']);
         }
         
-        // Use the customer key as the unique ID
-        $results[ (string)$r->IndividualObject->ind_cst_key ]['orgidentity'] = $this->resultToOrgIdentity($r->IndividualObject);
-        
-        // Insert the raw record for use by retrieve()
-        $results[ (string)$r->IndividualObject->ind_cst_key ]['raw'] = $r->IndividualObject->asXML();
-      } else {
-        // Use the customer key as the unique ID
-        $results[ (string)$r->IndividualObject->ind_cst_key ] = $this->resultToOrgIdentity($r->IndividualObject);
+        if($raw) {
+          // Use the customer key as the unique ID
+          $results[ (string)$r->IndividualObject->ind_cst_key ]['orgidentity'] = $this->resultToOrgIdentity($r->IndividualObject);
+          
+          // Insert the raw record for use by retrieve()
+          $results[ (string)$r->IndividualObject->ind_cst_key ]['raw'] = $r->IndividualObject->asXML();
+        } else {
+          // Use the customer key as the unique ID
+          $results[ (string)$r->IndividualObject->ind_cst_key ] = $this->resultToOrgIdentity($r->IndividualObject);
+        }
       }
     } elseif(!empty($r->mb_membershipObject)) {
       if($raw) {
-        // It's not clear how much of this logic is generic vs CAA specific.
+        // It's not clear how much of this logic is generic vs specific to the one instance
+        // we currently have access to.
         // A person can have multiple memberships. We take the earliest valid join date
         // and the latest valid expiration date.
         
