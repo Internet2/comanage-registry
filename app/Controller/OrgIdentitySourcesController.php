@@ -180,7 +180,7 @@ class OrgIdentitySourcesController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_petitions.1'),
-                                                      Sanitize::html($this->request->params['named']['copetitionid']))));
+                                                      filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -229,7 +229,7 @@ class OrgIdentitySourcesController extends StandardController {
   public function create($id) {
     if(!empty($this->request->params['named']['key'])) {
       try {
-        $key = Sanitize::html($this->request->params['named']['key']);
+        $key = filter_var($this->request->params['named']['key'],FILTER_SANITIZE_SPECIAL_CHARS);
         
         $coId = null;
         $targetCoPersonId = null;
@@ -257,7 +257,7 @@ class OrgIdentitySourcesController extends StandardController {
           $args = array(
             'controller'    => 'co_petitions',
             'action'        => 'selectOrgIdentity',
-            Sanitize::html($this->request->params['named']['copetitionid']),
+            filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS),
             'orgidentityid' => $orgid
           );
         } else {
@@ -491,7 +491,7 @@ class OrgIdentitySourcesController extends StandardController {
         $r = $this->OrgIdentitySource->retrieve($id, $this->request->params['named']['key']);
         
         $this->set('title_for_layout',
-                   _txt('op.view-a', array(Sanitize::html($this->request->params['named']['key']))));
+                   _txt('op.view-a', array(filter_var($this->request->params['named']['key'],FILTER_SANITIZE_SPECIAL_CHARS))));
         
         if(!empty($r['orgidentity'])) {
           $this->set('vv_org_source_record', $r['orgidentity']);
@@ -528,7 +528,7 @@ class OrgIdentitySourcesController extends StandardController {
         // No records found. We'll let this fall through to the view in case an admin
         // is looking at an OrgIdentity record where the source is no longer available.
         $this->set('vv_not_found', true);
-        $this->set('title_for_layout', _txt('er.notfound', array(_txt('fd.key'), Sanitize::html($this->request->params['named']['key']))));
+        $this->set('title_for_layout', _txt('er.notfound', array(_txt('fd.key'), filter_var($this->request->params['named']['key'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
@@ -599,7 +599,7 @@ class OrgIdentitySourcesController extends StandardController {
   public function sync($id) {
     if(!empty($this->request->params['named']['key'])) {
       try {
-        $key = Sanitize::html($this->request->params['named']['key']);
+        $key = filter_var($this->request->params['named']['key'],FILTER_SANITIZE_SPECIAL_CHARS);
         
         $ret = $this->OrgIdentitySource->syncOrgIdentity($id,
                                                          $key,

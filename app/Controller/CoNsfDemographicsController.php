@@ -297,7 +297,7 @@ class CoNsfDemographicsController extends StandardController {
       $args = array(
         'controller' => 'co_people',
         'action'     => 'canvas',
-        Sanitize::html($this->params['data']['CoNsfDemographic']['co_person_id'])
+        filter_var($this->params['data']['CoNsfDemographic']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS)
       );
     } elseif($this->viewVars['permissions']['index'] == true) {
       // If the id is not available and we have permission to view index, go there

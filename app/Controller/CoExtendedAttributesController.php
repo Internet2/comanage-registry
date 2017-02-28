@@ -107,7 +107,7 @@ class CoExtendedAttributesController extends StandardController {
     // Construct dynamic names
     
     $cotable = $this->CoExtendedAttribute->tablePrefix . "co"
-             . Sanitize::paranoid($curdata['CoExtendedAttribute']['co_id'])
+             . filter_var($curdata['CoExtendedAttribute']['co_id'],FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK)
              . "_person_extended_attributes";
     
     // Start a transaction
@@ -117,7 +117,7 @@ class CoExtendedAttributesController extends StandardController {
     // Drop the specified column. This will also drop any index.
     
     $sql = "ALTER TABLE " . $cotable . " DROP COLUMN "
-         . Sanitize::escape($curdata['CoExtendedAttribute']['name'], $dbc->configKeyName);
+         . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES);
     
     if($this->CoExtendedAttribute->query($sql) === false) {
       if($this->request->is('restful')) {
@@ -217,10 +217,10 @@ class CoExtendedAttributesController extends StandardController {
     // so table names need to be inflectable.
     
     $cotable = $this->CoExtendedAttribute->tablePrefix . "co"
-             . Sanitize::paranoid($reqdata['CoExtendedAttribute']['co_id'])
+             . filter_var($reqdata['CoExtendedAttribute']['co_id'],FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK)
              . "_person_extended_attributes";
     
-    $coindex = $cotable . "_" . Sanitize::paranoid($reqdata['CoExtendedAttribute']['name']) . "_i";
+    $coindex = $cotable . "_" . filter_var($reqdata['CoExtendedAttribute']['name'],FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK) . "_i";
     
     // Start a transaction
     
@@ -268,7 +268,7 @@ class CoExtendedAttributesController extends StandardController {
       }
       
       $sql = "ALTER TABLE " . $cotable . "
-              ADD COLUMN " . Sanitize::escape($reqdata['CoExtendedAttribute']['name'], $dbc->configKeyName)
+              ADD COLUMN " . filter_var($reqdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
            . " " . $reqdata['CoExtendedAttribute']['type'];
            // Type must match an enumerated value (as defined in the model) and so doesn't need sanitization
       
@@ -289,7 +289,7 @@ class CoExtendedAttributesController extends StandardController {
          && $reqdata['CoExtendedAttribute']['indx'])
       {
         $sql = "CREATE INDEX " . $coindex . " ON " . $cotable
-             . " (" . Sanitize::escape($reqdata['CoExtendedAttribute']['name'], $dbc->configKeyName) . ")";
+             . " (" . filter_var($reqdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES) . ")";
         
         if($this->CoExtendedAttribute->query($sql) === false) {
           if($this->request->is('restful')) {
@@ -318,7 +318,7 @@ class CoExtendedAttributesController extends StandardController {
         
         $sql = "ALTER TABLE "
              . $this->CoExtendedAttribute->tablePrefix . "co_" . $reqdata['CoExtendedAttribute']['co_id'] . "_person_extended_attributes
-                RENAME COLUMN " . Sanitize::escape($curdata['CoExtendedAttribute']['name'], $dbc->configKeyName)
+                RENAME COLUMN " . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
              . " TO " . $reqdata['CoExtendedAttribute']['name'];
       
         if($this->CoExtendedAttribute->query($sql) === false) {
@@ -354,7 +354,7 @@ class CoExtendedAttributesController extends StandardController {
           // Create the index
 
           $sql = "CREATE INDEX " . $coindex . " ON " . $cotable
-               . " (" . Sanitize::escape($reqdata['CoExtendedAttribute']['name'], $dbc->configKeyName) . ")";
+               . " (" . filter_var($reqdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES) . ")";
         }
         
         if($sql != "")

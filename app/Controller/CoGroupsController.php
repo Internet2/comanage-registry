@@ -396,7 +396,7 @@ class CoGroupsController extends StandardController {
     }
     
     if(!empty($this->request->params['pass'][0])) {
-      $readonly = $this->CoGroup->readOnly(Sanitize::paranoid($this->request->params['pass'][0]));
+      $readonly = $this->CoGroup->readOnly(filter_var($this->request->params['pass'][0], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK));
     }
     
     // Construct the permission set for this user, which will also be passed to the view.
@@ -635,7 +635,7 @@ class CoGroupsController extends StandardController {
 
     if(!empty($coPerson)) {
       // Set name for page title
-      $this->set('name_for_title', Sanitize::html(generateCn($coPerson['PrimaryName'])));
+      $this->set('name_for_title', filter_var(generateCn($coPerson['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS));
       $this->set('vv_co_person_id', $coPerson['CoPerson']['id']);
     } else {
       // Most likely CMP admin trying to view "their" groups in a CO they're not actually a member of

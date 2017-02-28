@@ -105,8 +105,8 @@ class CoLocalizationsController extends StandardController {
         //$this->Api->restResultHeader(403, "Identifier In Use");
       } else {
         $this->Flash->set(_txt('er.loc.exists',
-                               array(Sanitize::html($reqdata['CoLocalization']['lkey']),
-                                     Sanitize::html($reqdata['CoLocalization']['language']))),
+                               array(filter_var($reqdata['CoLocalization']['lkey'],FILTER_SANITIZE_SPECIAL_CHARS),
+                                     filter_var($reqdata['CoLocalization']['language'],FILTER_SANITIZE_SPECIAL_CHARS))),
                           array('key' => 'error'));
       }
         

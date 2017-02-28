@@ -135,7 +135,7 @@ class StandardController extends AppController {
       $ret = $model->saveAll($data);
     }
     catch(Exception $e) {
-      $err = Sanitize::html($e->getMessage());
+      $err = filter_var($e->getMessage(),FILTER_SANITIZE_SPECIAL_CHARS);
     }
     
     if($ret) {
@@ -156,7 +156,7 @@ class StandardController extends AppController {
         $this->set($modelid, $model->id);
       } else {
         // Redirect to index view
-        $this->Flash->set(_txt('rs.added-a', array(Sanitize::html($this->generateDisplayKey()))), array('key' => 'success'));
+        $this->Flash->set(_txt('rs.added-a', array(filter_var($this->generateDisplayKey(),FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'success'));
         $this->performRedirect();
       }
     } else {
@@ -328,7 +328,7 @@ class StandardController extends AppController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(200, "Deleted");
         } else {
-          $this->Flash->set(_txt('er.deleted-a', array(Sanitize::html($name))), array('key' => 'success'));
+          $this->Flash->set(_txt('er.deleted-a', array(filter_var($name,FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'success'));
         }
       }
     } else {
@@ -558,7 +558,7 @@ class StandardController extends AppController {
       $ret = $model->saveAll($data);
     }
     catch(Exception $e) {
-      $err = Sanitize::html($e->getMessage());
+      $err = filter_var($e->getMessage(),FILTER_SANITIZE_SPECIAL_CHARS);
     }
     
     if($ret) {
@@ -597,7 +597,7 @@ class StandardController extends AppController {
       } else {
         // Redirect to index view
         
-        $this->Flash->set(_txt('rs.updated', array(Sanitize::html($this->generateDisplayKey()))), array('key' => 'success'));
+        $this->Flash->set(_txt('rs.updated', array(filter_var($this->generateDisplayKey(),FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'success'));
         $this->performRedirect();
       }
     } else {
@@ -1044,7 +1044,7 @@ class StandardController extends AppController {
       $this->set('redirect', $redirect);
       $this->redirect($redirect);
     } elseif(isset($this->cur_co)) {
-      $this->redirect(array('action' => 'index', 'co' => Sanitize::html($this->cur_co['Co']['id'])));
+      $this->redirect(array('action' => 'index', 'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
     } else {
       $this->redirect(array('action' => 'index'));
     }

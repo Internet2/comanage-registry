@@ -213,7 +213,7 @@ class OrgIdentitiesController extends StandardController {
         } else {
           $this->Flash->set(_txt('er.comember',
                                  array(generateCn($curdata['PrimaryName']),
-                                       Sanitize::html(join(',', array_values($memberships))))),
+                                       filter_var(join(',', array_values($memberships))),FILTER_SANITIZE_SPECIAL_CHARS)),
                             array('key' => 'error'));
         }
         
@@ -288,7 +288,7 @@ class OrgIdentitiesController extends StandardController {
         $this->set('title_for_layout', _txt('op.find.link', array(generateCn($cop['PrimaryName']))));
       } else {
         $this->Flash->set(_txt('er.notfound',
-                               array(_txt('ct.co_people.1'), Sanitize::html($this->request->params['named']['copersonid']))),
+                               array(_txt('ct.co_people.1'), filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))),
                           array('key' => 'error'));
         $this->performRedirect();
       }
@@ -466,7 +466,7 @@ class OrgIdentitiesController extends StandardController {
         $args = array(
           'controller' => 'org_identities',
           'action'     => 'view',
-          Sanitize::html($this->request->params['pass'][0])
+          filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS)
         );
         
         $this->redirect($args);

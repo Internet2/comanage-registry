@@ -177,7 +177,7 @@ class CoPeopleController extends StandardController {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.org_identities.1'),
-                                                        Sanitize::html($this->request->params['named']['orgidentityid']))));
+                                                        filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       }
     } elseif($this->action == "match"
@@ -192,7 +192,7 @@ class CoPeopleController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_enrollment_flows.1'),
-                                                      Sanitize::html($this->request->params['named']['coef']))));
+                                                      filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     } elseif($this->action == "select"
              && !empty($this->request->params['named']['copetitionid'])) {
@@ -206,7 +206,7 @@ class CoPeopleController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_petitions.1'),
-                                                      Sanitize::html($this->request->params['named']['copetitionid']))));
+                                                      filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -268,7 +268,7 @@ class CoPeopleController extends StandardController {
           
           $this->Flash->set(_txt('er.coumember',
                                  array(generateCn($curdata['PrimaryName']),
-                                       Sanitize::html($couname))),
+                                       filter_var($couname,FILTER_SANITIZE_SPECIAL_CHARS))),
                             array('key' => 'error'));
           
           return false;
@@ -1028,7 +1028,7 @@ class CoPeopleController extends StandardController {
       $r['controller'] = 'co_people';
       $r['action'] = 'invite';
       if(isset($this->request->data['CoOrgIdentityLink'][0]['org_identity_id'])) {
-        $r['orgidentityid'] = Sanitize::html($this->request->data['CoOrgIdentityLink'][0]['org_identity_id']);
+        $r['orgidentityid'] = filter_var($this->request->data['CoOrgIdentityLink'][0]['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
       }
       $r['co'] = $this->cur_co['Co']['id'];
       

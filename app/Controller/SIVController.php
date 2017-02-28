@@ -44,7 +44,7 @@ class SIVController extends StandardController {
     $ivid = -1;
     
     if(!empty($this->params->named['ivid'])) {
-      $ivid = Sanitize::html($this->params->named['ivid']);
+      $ivid = filter_var($this->params->named['ivid'],FILTER_SANITIZE_SPECIAL_CHARS);
     } elseif(!empty($this->viewVars[$modelpl][0][$req])) {
       $ivid = $this->viewVars[$modelpl][0][$req]['co_identifier_validator_id'];
     }

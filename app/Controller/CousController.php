@@ -106,7 +106,7 @@ class CousController extends StandardController {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Child COU Exists");
       } else {
-        $this->Flash->set(_txt('er.cou.child', array(Sanitize::html($curdata['Cou']['name']))), array('key' => 'error'));
+        $this->Flash->set(_txt('er.cou.child', array(filter_var($curdata['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'error'));
       }
       
       return false;

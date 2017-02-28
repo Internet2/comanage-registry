@@ -124,7 +124,7 @@ class HistoryRecordsController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_people.1'),
-                                                      Sanitize::html($this->request->params['named']['actorcopersonid']))));
+                                                      filter_var($this->request->params['named']['actorcopersonid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     } elseif(!empty($this->request->params['named']['cogroupid'])) {
       $coId = $this->HistoryRecord->CoGroup->field('co_id',
@@ -135,7 +135,7 @@ class HistoryRecordsController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_groups.1'),
-                                                      Sanitize::html($this->request->params['named']['cogroupid']))));
+                                                      filter_var($this->request->params['named']['cogroupid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     } elseif(!empty($this->request->params['pass'][0])) {
       // This one's tricky, how do we determine the CO of a history record? 
@@ -148,7 +148,7 @@ class HistoryRecordsController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.history_records.1'),
-                                                      Sanitize::html($this->request->params['pass'][0]))));
+                                                      filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     

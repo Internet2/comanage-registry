@@ -62,7 +62,7 @@ class CoExtendedTypesController extends StandardController {
     if(!empty($this->request->query['attr'])) {
       try {
         $this->CoExtendedType->addDefault($this->cur_co['Co']['id'],
-                                          Sanitize::html($this->request->query['attr']));
+                                          filter_var($this->request->query['attr'],FILTER_SANITIZE_SPECIAL_CHARS));
         
         $this->Flash->set(_txt('rs.types.defaults'), array('key' => 'success'));
       }
@@ -315,7 +315,7 @@ class CoExtendedTypesController extends StandardController {
     }
     
     if(!empty($this->request->query['attr'])) {
-      $ret['conditions']['CoExtendedType.attribute'] = Sanitize::html($this->request->query['attr']);
+      $ret['conditions']['CoExtendedType.attribute'] = filter_var($this->request->query['attr'],FILTER_SANITIZE_SPECIAL_CHARS);
     }
     
     return $ret;
@@ -362,7 +362,7 @@ class CoExtendedTypesController extends StandardController {
     $this->redirect(array('action' => 'index',
                           'co' => $this->cur_co['Co']['id'],
                           '?' => array(
-                            'attr' => Sanitize::html($attr)
+                            'attr' => filter_var($attr,FILTER_SANITIZE_SPECIAL_CHARS)
                           )));
   }
   

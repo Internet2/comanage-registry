@@ -60,7 +60,7 @@ class CoEnrollmentSourcesController extends StandardController {
         // Accept coefid from the url or the form
         
         if(!empty($this->request->params['named']['coef'])) {
-          $coefid = Sanitize::html($this->request->params['named']['coef']);
+          $coefid = filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS);
         } elseif(!empty($this->request->data['CoEnrollmentSource']['co_enrollment_flow_id'])) {
           $coefid = $this->request->data['CoEnrollmentSource']['co_enrollment_flow_id'];
         }
@@ -270,7 +270,7 @@ class CoEnrollmentSourcesController extends StandardController {
     if(isset($this->request->data['CoEnrollmentSource']['co_enrollment_flow_id']))
       $coefid = $this->request->data['CoEnrollmentSource']['co_enrollment_flow_id'];
     elseif(isset($this->request->params['named']['coef']))
-      $coefid = Sanitize::html($this->request->params['named']['coef']);
+      $coefid = filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS);
     
     $this->redirect(array('controller' => 'co_enrollment_sources',
                           'action' => 'index',

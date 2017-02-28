@@ -39,7 +39,7 @@
     switch(attrname) {
     <?php foreach(array_keys($vv_enums) as $k): ?>
       case "<?php print $k; ?>":
-        ret = new Array(<?php print '"' . join('","', array_values($vv_enums[$k])) . '"'; ?>);
+        ret = new Array(<?php print '"' . join('","', array_values(filter_var($vv_enums[$k],FILTER_SANITIZE_SPECIAL_CHARS))) . '"'; ?>);
         break;
     <?php endforeach; ?>
     }
@@ -54,7 +54,7 @@
     switch(attrname) {
     <?php foreach(array_keys($vv_ext_attr_types) as $xa): ?>
       case "<?php print $xa; ?>":
-        return "<?php print $vv_ext_attr_types[$xa]; ?>";
+        return "<?php print filter_var($vv_ext_attr_types[$xa],FILTER_SANITIZE_SPECIAL_CHARS); ?>";
         break;
     <?php endforeach; ?>
     }

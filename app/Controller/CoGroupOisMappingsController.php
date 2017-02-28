@@ -146,7 +146,7 @@ class CoGroupOisMappingsController extends StandardController {
           // Note that we currently don't support org identities pooled (where $coID would be null)
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.org_identity_sources.1'),
-                                                        Sanitize::html($oisId))));
+                                                        filter_var($oisId,FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       } else {
         // Throw error, we need an OIS

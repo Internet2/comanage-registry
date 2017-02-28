@@ -1326,7 +1326,7 @@ class CoPetitionsController extends StandardController {
         $this->set('vv_ois_mode', 'email');
         
         if(!empty($this->request->data['OrgIdentitySource']['mail'])) {
-          $this->set('vv_ois_mail', Sanitize::html($this->request->data['OrgIdentitySource']['mail']));
+          $this->set('vv_ois_mail', filter_var($this->request->data['OrgIdentitySource']['mail'],FILTER_SANITIZE_SPECIAL_CHARS));
           
           if(!empty($this->request->data['OrgIdentitySource']['token'])) {
             // We're back from the form with a token. Verify it, then search for
@@ -2144,7 +2144,7 @@ class CoPetitionsController extends StandardController {
     
     if(empty($oiscfg)) {
       $this->Flash->set(_txt('er.notfound',
-                             array('ct.org_identity_sources.1', Sanitize::html($this->request->params['named']['oisid']))),
+                             array('ct.org_identity_sources.1', filter_var($this->request->params['named']['oisid'],FILTER_SANITIZE_SPECIAL_CHARS))),
                         array('key' => 'error'));
       $this->redirect("/");
     }

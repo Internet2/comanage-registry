@@ -45,7 +45,7 @@ class SPTController extends StandardController {
     $ptid = -1;
     
     if(!empty($this->params->named['ptid'])) {
-      $ptid = Sanitize::html($this->params->named['ptid']);
+      $ptid = filter_var($this->params->named['ptid'],FILTER_SANITIZE_SPECIAL_CHARS);
     } elseif(!empty($this->viewVars[$modelpl][0][$req])) {
       $ptid = $this->viewVars[$modelpl][0][$req]['co_provisioning_target_id'];
     }

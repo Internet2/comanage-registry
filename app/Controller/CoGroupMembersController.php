@@ -390,12 +390,12 @@ class CoGroupMembersController extends StandardController {
     
     if(($this->action == 'add' || $this->action == 'updateGroup')
        && isset($this->request->data['CoGroupMember']['co_group_id']))
-      $this->gid = Sanitize::paranoid($this->request->data['CoGroupMember']['co_group_id']);
+      $this->gid = filter_var($this->request->data['CoGroupMember']['co_group_id'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
     elseif(($this->action == 'delete' || $this->action == 'edit' || $this->action == 'view')
            && isset($this->request->params['pass'][0]))
       $this->gid = $this->CoGroupMember->field('co_group_id', array('CoGroupMember.id' => $this->request->params['pass'][0]));
     elseif($this->action == 'select' && isset($this->request->params['named']['cogroup']))
-      $this->gid = Sanitize::paranoid($this->request->params['named']['cogroup']);
+      $this->gid = filter_var($this->request->params['named']['cogroup'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
     
     $managed = false;
     $owner = false;

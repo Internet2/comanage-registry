@@ -122,7 +122,7 @@ class CoTAndCAgreementsController extends StandardController {
       $this->set($modelid, $model->id);
     }
     catch(Exception $e) {
-      $err = Sanitize::html($e->getMessage());
+      $err = filter_var($e->getMessage(),FILTER_SANITIZE_SPECIAL_CHARS);
       
       $fs = $model->invalidFields();
       

@@ -675,14 +675,14 @@ class CoPersonRolesController extends StandardController {
             // for the new CO Person.
             
             $args = array();
-            $args['conditions']['CoPerson.id'] = Sanitize::html($this->request->data['CoPersonRole']['co_person_id']);
+            $args['conditions']['CoPerson.id'] = filter_var($this->request->data['CoPersonRole']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
             $args['contain'][] = 'PrimaryName';
             
             $newcop = $this->CoPersonRole->CoPerson->find('first', $args);
             
             if($newcop) {
               $res = _txt('rs.moved.copr', array($copr['CoPersonRole']['title'],
-                                                 Sanitize::html($id),
+                                                 filter_var($id,FILTER_SANITIZE_SPECIAL_CHARS),
                                                  generateCn($copr['CoPerson']['PrimaryName']),
                                                  $copr['CoPersonRole']['co_person_id'],
                                                  generateCn($newcop['PrimaryName']),
@@ -714,14 +714,14 @@ class CoPersonRolesController extends StandardController {
               }
             } else {
               $this->Flash->set(_txt('er.notfound',
-                                     array(_txt('ct.co_people.1'), Sanitize::html($this->request->data['CoPersonRole']['co_person_id']))),
+                                     array(_txt('ct.co_people.1'), filter_var($this->request->data['CoPersonRole']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))),
                                 array('key' => 'error'));
             }
           } else {
             $this->Flash->set(_txt('er.db.save'), array('key' => 'error'));
           }
         } else {
-          $this->Flash->set(_txt('er.cop.nf', array(Sanitize::html($id))), array('key' => 'error'));
+          $this->Flash->set(_txt('er.cop.nf', array(filter_var($id,FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'error'));
         }
       }
       

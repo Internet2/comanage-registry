@@ -153,7 +153,9 @@ class CoPipeline extends AppModel {
                                     SyncActionEnum::Delete,
                                     SyncActionEnum::Update))) {
       throw new InvalidArgumentException(_txt('er.unknown',
-                                              array(Sanitize::paranoid($syncAction))));
+                                              array(filter_var($syncAction,
+                                                FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_HIGH |
+                                                FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK)))); /* was Cake's Sanitize::paranoid */
     }
     
     // And that $orgIdentityId is in the CO. Pull the whole record since we'll

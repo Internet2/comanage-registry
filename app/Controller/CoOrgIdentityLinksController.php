@@ -270,7 +270,7 @@ class CoOrgIdentityLinksController extends StandardController {
     } else {
       $this->redirect(array('controller' => 'co_people',
                             'action' => 'index',
-                            'co' => Sanitize::html($this->cur_co['Co']['id'])));
+                            'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
     }
   }
 }

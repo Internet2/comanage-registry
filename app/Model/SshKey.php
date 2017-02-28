@@ -134,7 +134,9 @@ class SshKey extends AppModel {
     }
     
     if(!$keyType) {
-      throw new InvalidArgumentException(_txt('er.ssh.type', array(Sanitize::paranoid($bits[0]))));
+      throw new InvalidArgumentException(_txt('er.ssh.type', array(filter_var($bits[0],
+        FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_HIGH |
+        FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK)))); /* was Cake's Sanitize::paranoid */
     }
     
     $key = $bits[1];

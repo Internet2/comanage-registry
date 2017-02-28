@@ -61,7 +61,7 @@ class ApiUsersController extends StandardController {
       
       if($this->Identifier->find('count', $args)) {
         $this->Flash->set(_txt('er.ia.exists',
-                               array(Sanitize::html($reqdata['ApiUser']['username']))),
+                               array(filter_var($reqdata['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS))),
                           array('key' => 'error'));
         
         return false;
@@ -75,7 +75,7 @@ class ApiUsersController extends StandardController {
       
       if($this->ApiUser->find('count', $args)) {
         $this->Flash->set(_txt('er.ia.exists',
-                               array(Sanitize::html($reqdata['ApiUser']['username']))),
+                               array(filter_var($reqdata['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS))),
                           array('key' => 'error'));
         
         return false;

@@ -106,7 +106,7 @@ class AddressesController extends MVPAController {
           $args = array(
             'controller' => 'addresses',
             'action'     => 'view',
-            Sanitize::html($this->request->params['pass'][0])
+            filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS)
           );
           
           $this->redirect($args);

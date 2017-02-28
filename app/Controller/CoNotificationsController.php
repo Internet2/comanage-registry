@@ -101,7 +101,7 @@ class CoNotificationsController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_notifications.1'),
-                                                      Sanitize::html($this->request->params['pass'][0]))));
+                                                      filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     } elseif(!empty($this->request->params['named']['actorcopersonid'])) {
       $copersontype = 'actorcopersonid';
@@ -123,7 +123,7 @@ class CoNotificationsController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_people.1'),
-                                                      Sanitize::html($this->request->params['named'][$copersontype]))));
+                                                      filter_var($this->request->params['named'][$copersontype],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -268,7 +268,7 @@ class CoNotificationsController extends StandardController {
       // Status is expected to be the corresponding short code. (Or omitted, for unresolved,
       // or "all" for all.) An unknown status code should generate some noise, but nothing more.
       
-      $status = Sanitize::paranoid($this->request->query['status']);
+      $status = filter_var($this->request->query['status'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
       
       if($status == 'all') {
         $this->cur_request_filter_txt = _txt('fd.all');

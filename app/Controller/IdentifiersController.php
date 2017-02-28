@@ -70,7 +70,7 @@ class IdentifiersController extends MVPAController {
       // While the controller doesn't require_co, this method does.
       
       $coid = $this->parseCOID($this->request->data);
-      $copersonid = Sanitize::html($this->request->params['named']['copersonid']);
+      $copersonid = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
     }
     
     if($coid != -1) {
@@ -177,7 +177,7 @@ class IdentifiersController extends MVPAController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_people.1'),
-                                                      Sanitize::html($this->request->params['named']['copersonid']))));
+                                                      filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -218,7 +218,7 @@ class IdentifiersController extends MVPAController {
         $args = array(
           'controller' => 'identifiers',
           'action'     => 'view',
-          Sanitize::html($this->request->params['pass'][0])
+          filter_var($this->request->params['pass'][0])
         );
         
         $this->redirect($args);

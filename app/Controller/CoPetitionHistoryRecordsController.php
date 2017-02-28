@@ -140,7 +140,7 @@ class CoPetitionHistoryRecordsController extends StandardController {
       $this->redirect(array(
         'controller' => 'co_petitions',
         'action' => 'view',
-        Sanitize::html($this->petitionID())
+        filter_var($this->petitionID(),FILTER_SANITIZE_SPECIAL_CHARS)
       ));
     } else {
       parent::performRedirect();

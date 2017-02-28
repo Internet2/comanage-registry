@@ -72,7 +72,7 @@ class SOISController extends StandardController {
     $oisid = -1;
     
     if(!empty($this->params->named['oisid'])) {
-      $oisid = Sanitize::html($this->params->named['oisid']);
+      $oisid = filter_var($this->params->named['oisid'],FILTER_SANITIZE_SPECIAL_CHARS);
     } elseif(!empty($this->viewVars[$modelpl][0][$req])) {
       $oisid = $this->viewVars[$modelpl][0][$req]['org_identity_source_id'];
     }

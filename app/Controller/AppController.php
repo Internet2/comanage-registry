@@ -415,7 +415,7 @@ class AppController extends Controller {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.co_people.1'),
-                                                        Sanitize::html($p['copersonid']))));
+                                                        filter_var($p['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       } elseif(!empty($p['copersonroleid']) && isset($model->CoPersonRole)) {
         $args = array();
@@ -433,7 +433,7 @@ class AppController extends Controller {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.co_person_roles.1'),
-                                                        Sanitize::html($p['copersonroleid']))));
+                                                        filter_var($p['copersonroleid'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       } elseif(!empty($p['orgidentityid'])) {
         if(isset($model->OrgIdentity)) {
@@ -447,7 +447,7 @@ class AppController extends Controller {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.org_identities.1'),
-                                                        Sanitize::html($p['orgidentityid']))));
+                                                        filter_var($p['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       } elseif(!empty($this->request->params['named']['cogroup']) && isset($model->CoGroup)) {
         // Map the group to a CO
@@ -458,7 +458,7 @@ class AppController extends Controller {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.co_groups.1'),
-                                                        Sanitize::html($this->request->params['named']['cogroup']))));
+                                                        filter_var($this->request->params['named']['cogroup'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       }
     }

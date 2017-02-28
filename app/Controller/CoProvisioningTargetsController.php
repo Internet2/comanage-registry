@@ -280,7 +280,7 @@ class CoProvisioningTargetsController extends StandardController {
     if($this->action == 'add' && !empty($this->request->data['CoProvisioningTarget']['plugin'])) {
       // Redirect to the appropriate plugin to set up whatever it wants
       
-      $pluginName = Sanitize::html($this->request->data['CoProvisioningTarget']['plugin']);
+      $pluginName = filter_var($this->request->data['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
       $modelName = 'Co'. $pluginName . 'Target';
       $pluginModelName = $pluginName . "." . $modelName;
       

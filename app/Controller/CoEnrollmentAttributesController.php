@@ -64,7 +64,8 @@ class CoEnrollmentAttributesController extends StandardController {
       if(!isset($this->request->data['CoEnrollmentAttribute']['ordr'])
          || $this->request->data['CoEnrollmentAttribute']['ordr'] == '') {
         $args['fields'][] = "MAX(ordr) as m";
-        $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = Sanitize::paranoid($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id']);
+        $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = filter_var($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'],
+          FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
         $args['order'][] = "m";
         
         $o = $this->CoEnrollmentAttribute->find('first', $args);
@@ -111,7 +112,7 @@ class CoEnrollmentAttributesController extends StandardController {
       // Accept coefid from the url or the form
       
       if(!empty($this->request->params['named']['coef'])) {
-        $coefid = Sanitize::html($this->request->params['named']['coef']);
+        $coefid = filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS);
       } elseif(!empty($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'])) {
         $coefid = $this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'];
       }
@@ -126,7 +127,7 @@ class CoEnrollmentAttributesController extends StandardController {
       // XXX much of this could probably be moved to beforeRender()
       $this->CoEnrollmentAttribute->CoEnrollmentFlow->id = $coefid;
       
-      $this->set('vv_coefid', Sanitize::html($coefid));
+      $this->set('vv_coefid', filter_var($coefid,FILTER_SANITIZE_SPECIAL_CHARS));
       
       $coid = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('co_id');
       
@@ -431,7 +432,7 @@ class CoEnrollmentAttributesController extends StandardController {
     if(isset($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id']))
       $coefid = $this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'];
     elseif(isset($this->request->params['named']['coef']))
-      $coefid = Sanitize::html($this->request->params['named']['coef']);
+      $coefid = filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS);
     
     $this->redirect(array('controller' => 'co_enrollment_attributes',
                           'action' => 'index',

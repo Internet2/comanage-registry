@@ -134,7 +134,7 @@ class CoInvitesController extends AppController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_invites.1'),
-                                                      Sanitize::html($this->request->params['pass'][0]))));
+                                                      filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -147,7 +147,7 @@ class CoInvitesController extends AppController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_people.1'),
-                                                      Sanitize::html($this->request->params['named']['copersonid']))));
+                                                      filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -795,7 +795,7 @@ class CoInvitesController extends AppController {
       } else {
         $this->Flash->set(_txt('er.notfound',
                                array(_txt('ct.email_addresses.1'),
-                                     Sanitize::html($this->request->params['named']['email_address_id']))),
+                                     filter_var($this->request->params['named']['email_address_id'],FILTER_SANITIZE_SPECIAL_CHARS))),
                           array('key' => 'error'));
       }
     } else {
