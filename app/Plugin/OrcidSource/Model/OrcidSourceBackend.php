@@ -56,7 +56,11 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function exchangeCode($redirectUri, $clientId, $clientSecret, $code) {
-    $HttpSocket = new HttpSocket();
+    $HttpSocket = new HttpSocket(array(
+      // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
+      // on PHP <= ~5.5.6. See CO-1428 for more details.
+      'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
+    ));
 
     $params = array(
       'client_id'     => $clientId,
@@ -126,7 +130,11 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function obtainAccessToken($clientId, $clientSecret) {
-    $HttpSocket = new HttpSocket();
+    $HttpSocket = new HttpSocket(array(
+      // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
+      // on PHP <= ~5.5.6. See CO-1428 for more details.
+      'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
+    ));
 
     $params = array(
       'client_id'     => $clientId,
@@ -209,7 +217,11 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
       )
     );
     
-    $HttpSocket = new HttpSocket();
+    $HttpSocket = new HttpSocket(array(
+      // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
+      // on PHP <= ~5.5.6. See CO-1428 for more details.
+      'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
+    ));
     
     if(isset($attributes['orcid'])) {
       // Retrieve
