@@ -1198,7 +1198,7 @@ class RoleComponent extends Component {
       // We don't need to walk the tree since we only care if a person is a COU Admin
       // for *any* group, not which groups (which would require getting the child COUs).
       
-      return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admin, true);
+      return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins, true);
     }
   }
   
