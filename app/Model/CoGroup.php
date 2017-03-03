@@ -398,23 +398,25 @@ class CoGroup extends AppModel {
    */
 
   public function beforeSave($options = array()) {
-    // On edit, we don't want to allow certain metadata to be changed.
-    
-    $args = array();
-    $args['conditions']['CoGroup.id'] = $this->data['CoGroup']['id'];
-    $args['contain'] = false;
-
-    $curdata = $this->find('first', $args);
-    
-    if(!empty($curdata)) {
-      // We don't allow group_type or auto to be changed
+    if(!empty($this->data['CoGroup']['id'])) {
+      // On edit, we don't want to allow certain metadata to be changed.
       
-      if(!empty($curdata['CoGroup']['auto'])) {
-        $this->data['CoGroup']['auto'] = $curdata['CoGroup']['auto'];
-      }
+      $args = array();
+      $args['conditions']['CoGroup.id'] = $this->data['CoGroup']['id'];
+      $args['contain'] = false;
+  
+      $curdata = $this->find('first', $args);
       
-      if(!empty($curdata['CoGroup']['group_type'])) {
-        $this->data['CoGroup']['group_type'] = $curdata['CoGroup']['group_type'];
+      if(!empty($curdata)) {
+        // We don't allow group_type or auto to be changed
+        
+        if(!empty($curdata['CoGroup']['auto'])) {
+          $this->data['CoGroup']['auto'] = $curdata['CoGroup']['auto'];
+        }
+        
+        if(!empty($curdata['CoGroup']['group_type'])) {
+          $this->data['CoGroup']['group_type'] = $curdata['CoGroup']['group_type'];
+        }
       }
     }
     
