@@ -62,7 +62,7 @@ class UpgradeVersionShell extends AppShell {
     "1.0.4" => array('block' => false),
     "1.0.5" => array('block' => false, 'post' => 'post105'),
     "1.0.6" => array('block' => false),
-    "1.1.0" => array('block' => false, 'post' => 'post110')
+    "2.0.0" => array('block' => false, 'post' => 'post110')
   );
   
   public function getOptionParser() {
@@ -302,11 +302,14 @@ class UpgradeVersionShell extends AppShell {
   }
   
   public function post110() {
-    // 1.1.0 replaces CoEnrollmentFlow::verify_email with email_verification_mode.
+    // 2.0.0 was originally going to be 1.1.0. Rather than rename all this internal
+    // stuff and risk breaking something, we'll leave the 1.1.0 references in place.
+    
+    // 2.0.0 replaces CoEnrollmentFlow::verify_email with email_verification_mode.
     $this->out(_txt('sh.ug.110.ef'));
     $this->CoEnrollmentFlow->_ug110();
     
-    // 1.1.0 changes how automatic groups are populated.
+    // 2.0.0 changes how automatic groups are populated.
     $this->out(_txt('sh.ug.110.gr'));
     
     // Start by pulling the list of COs and its COUs.
@@ -336,7 +339,7 @@ class UpgradeVersionShell extends AppShell {
       }
     }
     
-    // 1.1.0 uses SuspendableStatusEnum for Identifier::status
+    // 2.0.0 uses SuspendableStatusEnum for Identifier::status
     $this->out(_txt('sh.ug.110.is'));
     $this->Identifier->_ug110();
   }
