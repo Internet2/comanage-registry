@@ -858,7 +858,14 @@ class ProvisionerBehavior extends ModelBehavior {
         // Count backwards so we don't trip over indices when we unset invalid memberships.
         
         // We need for CO Person to be in a status that provisions *group* memberships here,
-        // not a status for person provisioning
+        // not a status for person provisioning. However, we always leave the AllMembers group
+        // in place.
+        
+        if(!empty($coPersonData['CoGroupMember'][$i]['CoGroup']['group_type'])
+           && $coPersonData['CoGroupMember'][$i]['CoGroup']['group_type'] == GroupEnum::AllMembers) {
+          continue;
+        }
+        
         if(!in_array($coPersonData[$coPersonModel->alias]['status'], $this->groupStatuses)
            ||
            $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active) {

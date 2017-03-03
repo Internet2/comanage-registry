@@ -941,8 +941,7 @@
                     <?php
                     if(isset($co_people[0]['CoGroupMember'])) {
       	              foreach($co_people[0]['CoGroupMember'] as $g) {
-                        $isMembersGroup = ($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8)== 0);
-                      	if($e && !$es && !$isMembersGroup) {
+                        if($e && !$es && !$g['CoGroup']['auto']) {
                           if($g['member'] || $g['owner']) {
                             print '<div>';
                             print '<div>';

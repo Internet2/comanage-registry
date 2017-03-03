@@ -2,7 +2,7 @@
 /**
  * COmanage Upgrade Shell (not called "UpgradeShell" to avoid conflict with Cake's Upgrade shell)
  *
- * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2015-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2015-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.4
@@ -306,43 +306,33 @@ class UpgradeVersionShell extends AppShell {
     $this->out(_txt('sh.ug.110.ef'));
     $this->CoEnrollmentFlow->_ug110();
     
-    // 1.1.0 changes how members groups are populated. This will reconcile the groups.
+    // 1.1.0 changes how automatic groups are populated.
     $this->out(_txt('sh.ug.110.gr'));
     
     // Start by pulling the list of COs and its COUs.
     
     $args = array();
-    $args['contain'] = 'Cou';
+    // Because CO is not Changelog but COU is, we have to pull COUs separately
+    $args['contain'] = false;
     
     $cos = $this->Co->find('all', $args);
     
     // We update inactive COs as well, in case they become active again
     foreach($cos as $co) {
       $this->out('- ' . $co['Co']['name']);
+
+      $this->CoGroup->_ug110($co['Co']['id'], $co['Co']['name']);
       
-      // Reconcile the CO members group
       $args = array();
-      $args['conditions']['CoGroup.name'] = 'members';
-      $args['conditions']['CoGroup.co_id'] = $co['Co']['id'];
+      $args['conditions']['Cou.co_id'] = $co['Co']['id'];
       $args['contain'] = false;
       
-      $group = $this->CoGroup->find('first', $args);
+      $cous = $this->Co->Cou->find('all', $args);
       
-      if($group) {
-        $this->CoGroup->reconcileMembersGroup($group['CoGroup']['id']);
-      }
-      
-      foreach($co['Cou'] as $cou) {
-        $this->out('-- ' . $cou['name']);
+      foreach($cous as $cou) {
+        $this->out('-- ' . $cou['Cou']['name']);
         
-        // Reconcile the COU members group
-        $args['conditions']['CoGroup.name'] = 'members:' . $cou['name'];
-        
-        $group = $this->CoGroup->find('first', $args);
-        
-        if($group) {
-          $this->CoGroup->reconcileMembersGroup($group['CoGroup']['id']);
-        }
+        $this->CoGroup->_ug110($co['Co']['id'],  $co['Co']['name'], $cou['Cou']['id'], $cou['Cou']['name']);
       }
     }
     

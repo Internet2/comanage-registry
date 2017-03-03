@@ -2,7 +2,7 @@
 /**
  * COmanage Registry CO Person Model
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -200,9 +200,12 @@ class CoPerson extends AppModel {
     $coPersonId = $this->id;
     $coId = $this->field('co_id');
     $status = $this->field('status');
-    $eligible = ($status == StatusEnum::Active || $status == StatusEnum::GracePeriod);
+    // This is similar logic to CoPersonRole and CoGroup::reconcileAutomaticGroup
+    $activeEligible = ($status == StatusEnum::Active || $status == StatusEnum::GracePeriod);
+    $allEligible = ($status != StatusEnum::Deleted);
     
-    $this->CoGroupMember->syncMembership('members', $coPersonId, $eligible, $provision);
+    $this->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, null, $coPersonId, $activeEligible, $provision);
+    $this->CoGroupMember->syncMembership(GroupEnum::AllMembers, null, $coPersonId, $allEligible, $provision);
     
     // We also need to update any COU members groups. Start by pulling the list of COUs,
     // in id => name format.
@@ -210,38 +213,37 @@ class CoPerson extends AppModel {
     $cous = $this->Co->Cou->allCous($coId);
     
     if(!empty($cous)) {
-      if($eligible) {
-        // Restore any members: groups. We need the list of current roles, but we only want
-        // those attached to a COU.
-        
-        $args = array();
-        $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
-        $args['conditions']['CoPersonRole.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
-        $args['conditions'][] = 'CoPersonRole.cou_id IS NOT NULL';
-        $args['fields'] = array('CoPersonRole.id', 'CoPersonRole.cou_id');
-        $args['contain'] = false;
-        
-        $roles = $this->CoPersonRole->find('list', $args);
-        
-        foreach($roles as $roleId => $couId) {
-          $coGroupName = 'members:' . $cous[$couId];
+      // We need to pull the COUs this CO Person has a role for (even if not active).
+      // If the Person is not active, then we'll also remove the Role active group(s).
+      
+      $args = array();
+      $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
+      $args['conditions'][] = 'CoPersonRole.cou_id IS NOT NULL';
+      // If a person has more than one COU membership, we'll lose all but one of the
+      // role IDs, but currently we don't need them.
+      $args['fields'] = array('CoPersonRole.cou_id', 'CoPersonRole.id');
+      $args['contain'] = false;
+      
+      $roles = $this->CoPersonRole->find('list', $args);
+      
+      // Walk the COUs
+      
+      foreach($cous as $couId => $couName) {
+        // If the CO Person is not $allEligible, then no COU groups are eligible either.
+        if($allEligible && !empty($roles[$couId])) {
+          // The CO Person has at least one role in this COU, so let CoPersonRole sync things.
+          // Note we only need to do this once per COU, as reconcileCouMembersGroupMemberships
+          // will correctly handle multiple roles in the same COU.
           
-          $this->CoGroupMember->syncMembership($coGroupName, $coPersonId, true, $provision);
+          $this->CoPersonRole->reconcileCouMembersGroupMemberships($roles[$couId],
+                                                                   $this->CoPersonRole->alias,
+                                                                   $provision,
+                                                                   $activeEligible);
+        } else {
+          // Make sure there are no memberships for this COU
           
-          // We could try to remove ineligible groups, but under most cases we would have
-          // already done that (eg: via CoPersonRole::afterSave). Note that a person could
-          // have multiple roles in a COU, only some of which are active or grace period,
-          // so we'd also need to account for that in processing removals (by removing first
-          // then adding).
-        }
-      } else {
-        // Remove any members groups. We walk the list of COUs
-        // in case there are any inconsistencies that need to be cleaned up.
-        
-        foreach($cous as $couId => $couName) {
-          $coGroupName = 'members:' . $couName;
-          
-          $this->CoGroupMember->syncMembership($coGroupName, $coPersonId, false, $provision);
+          $this->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $couId, $coPersonId, false, $provision);
+          $this->CoGroupMember->syncMembership(GroupEnum::AllMembers, $couId, $coPersonId, false, $provision);
         }
       }
     }
@@ -848,11 +850,11 @@ class CoPerson extends AppModel {
     switch($mode) {
       case SponsorEligibilityEnum::CoOrCouAdmin:
         // First pull the list of COUs
-        $cous = $this->Co->Cou->allcous($coId, "names");
+        $cous = $this->Co->Cou->allcous($coId, "ids");
         
-        foreach($cous as $cou) {
+        foreach($cous as $couId) {
           // Find the admin group ID
-          $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId, $cou);
+          $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId, $couId);
         }
         // Fall through, we want the CO Admin group as well
       case SponsorEligibilityEnum::CoAdmin:

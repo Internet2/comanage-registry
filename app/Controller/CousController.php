@@ -38,6 +38,10 @@ class CousController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  public $delete_contains = array(
+    'ChildCou'
+  );
 
   public $edit_contains = array(
     'ParentCou'
@@ -61,12 +65,22 @@ class CousController extends StandardController {
     //
     // REST calls do not need to compute options for parents.
     if(!$this->request->is('restful')) {
-      // Loop check only needed for the edit page, model does not know CO for new COUs
-      if($this->action == 'edit') {
-        $options = $this->Cou->potentialParents($this->request->data['Cou']['id'],
-                                                $this->request->data['Cou']['co_id']);
-        
-        $this->set('parent_options', $options);
+      if($this->action == 'edit' || $this->action == 'add') {
+
+      switch ($this->action) {
+        case 'edit':
+          $couId = $this->request->data['Cou']['id'];
+          $coId  = $this->request->data['Cou']['co_id'];
+          break;
+
+        case 'add':
+          $couId = null;
+          $coId = $this->cur_co['Co']['id'];
+          break;
+      }
+
+      $options = $this->Cou->potentialParents($couId, $coId);
+      $this->set('parent_options', $options);
       }
     }
     
@@ -99,9 +113,9 @@ class CousController extends StandardController {
     }
     
     // A COU can't be removed if it has children.
-
+    
     $childCous = $curdata['ChildCou'];
-
+    
     if(!empty($childCous)) {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Child COU Exists");
@@ -198,74 +212,13 @@ class CousController extends StandardController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
-    if(!$this->request->is('restful') && $this->action == 'add') {
-    	// Create admin and members Groups for the new COU. As of now, we don't try to populate
-    	// them with the current user, since it may not be desirable for the current
-    	// user to be a member of the new CO.
-    
-    	// Only do this via HTTP.
+    if(!$this->request->is('restful') && $this->action == 'edit') {
+      if(!empty($reqdata['Cou']['name'])
+         && !empty($curdata['Cou']['name'])
+         && $reqdata['Cou']['name'] != $curdata['Cou']['name']) {
+        // The COU has been renamed, so update the relevant group names
         
-      if(isset($this->Cou->id)) {
-        $a['CoGroup'] = array(
-          'co_id' => $reqdata['Cou']['co_id'],
-          'name' => 'admin:' . $reqdata['Cou']['name'],
-          'description' => _txt('fd.group.desc.adm', array($reqdata['Cou']['name'])),
-          'open' => false,
-          'status' => 'A'
-        );
-        
-        $admin_create = $this->Cou->Co->CoGroup->save($a);
-        
-        $this->Cou->Co->CoGroup->clear();
-        
-        $a['CoGroup'] = array(
-          'co_id' => $reqdata['Cou']['co_id'],
-          'name' => 'members:' . $reqdata['Cou']['name'],
-          'description' => _txt('fd.group.desc.mem', array($reqdata['Cou']['name'])),
-          'open' => false,
-          'status' => 'A'
-        );
-        
-        $members_create = $this->Cou->Co->CoGroup->save($a);
-        
-        if(!$admin_create and !$members_create) {
-          $this->Flash->set(_txt('er.cou.gr.adminmembers'), array('key' => 'information'));
-          return false;
-        } elseif (!$admin_create) {
-          $this->Flash->set(_txt('er.cou.gr.admin'), array('key' => 'information'));
-          return false;
-        } elseif (!$members_create) {
-          $this->Flash->set(_txt('er.cou.gr.members'), array('key' => 'information'));
-          return false;
-        }
-      }
-    } elseif(!$this->request->is('restful') && $this->action == 'edit') {
-      // Manage name changes in admin and members groups.
-      // Only do this via HTTP.
-      if(isset($this->Cou->id)) {
-        $couName = $curdata['Cou']['name'];
-        $prefixes = array('admin:' => 'Administrators', 'members:' => 'Members');
-        $manyData = array();
-        
-        foreach($prefixes as $prefix => $suffix) {
-          $groupName = $prefix . $couName;
-          $group = $this->Cou->Co->CoGroup->findByName($reqdata['Cou']['co_id'], $groupName);
-          
-          if(!empty($group)) {
-            $data = array();
-            $data['CoGroup']['id'] = $group['CoGroup']['id'];
-            $data['CoGroup']['co_id'] = $group['CoGroup']['co_id'];
-            $data['CoGroup']['open'] = $group['CoGroup']['open'];
-            $data['CoGroup']['status'] = $group['CoGroup']['status'];
-            $data['CoGroup']['name'] = $prefix . $reqdata['Cou']['name'];
-            $data['CoGroup']['description'] = $reqdata['Cou']['name'] . ' ' . $suffix; 
-            $manyData[] = $data;
-          }
-        }
-      	
-        if(!$this->Cou->Co->CoGroup->saveMany($manyData)) {
-          $this->log("Error saving group after name change for COU");
-    	}
+        $this->Cou->Co->CoGroup->addDefaults($reqdata['Cou']['co_id'], $this->Cou->id, true);
       }
     }
     

@@ -2079,11 +2079,9 @@ class CoPetition extends AppModel {
       // To see if we should notify COU Admins, we need to see if this petition was
       // attached to a COU
       
-      if(!empty($pt['Cou']['name'])) {
-        // Use the COU name so we can map to its admin group
-        
+      if(!empty($pt['Cou']['id'])) {
         try {
-          $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id'], $pt['Cou']['name']);
+          $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id'], $pt['Cou']['id']);
         }
         catch(Exception $e) {
           $fail = true;

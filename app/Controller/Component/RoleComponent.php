@@ -187,14 +187,22 @@ class RoleComponent extends Component {
    * @param  String Group name or SQL pattern to check
    * @param  String SQL parameter (eg: "LIKE") to use in search conditions
    * @param  Integer CO Group ID
+   * @param  GroupEnum Group Type
+   * @param  Integer COU ID, or null for no COU ID (ie: CO level groups only), or true for any COU ID
    * @param  Boolean Check for ownership instead of membership
    * @return Boolean True if the CO Person is in the matching group, false otherwise
    */
   
-  protected function cachedGroupCheck($coPersonId, $groupName="", $searchParam="", $groupId=null, $owner=false) {
+  protected function cachedGroupCheck($coPersonId,
+                                      $groupName="",
+                                      $searchParam="",
+                                      $groupId=null,
+                                      $owner=false,
+                                      $groupType=null,
+                                      $couId=null) {
     // Since cachedGroupGet is also cached, we don't need to do another cache here
     
-    $groups = $this->cachedGroupGet($coPersonId, $groupName, $searchParam, $groupId, $owner);
+    $groups = $this->cachedGroupGet($coPersonId, $groupName, $searchParam, $groupId, $owner, $groupType, $couId);
     
     return (boolean)count($groups);
   }
@@ -208,10 +216,18 @@ class RoleComponent extends Component {
    * @param  String SQL parameter (eg: "LIKE") to use in search conditions
    * @param  Integer CO Group ID
    * @param  Boolean Check for ownership instead of membership
+   * @param  Integer COU ID, or null for no COU ID (ie: CO level groups only), or true for any COU ID
+   * @param  GroupEnum Group Type
    * @return Array Array of CO Groups as returned by find()
    */
   
-  protected function cachedGroupGet($coPersonId, $groupName="", $searchParam="", $groupId=null, $owner=false) {
+  protected function cachedGroupGet($coPersonId,
+                                    $groupName="",
+                                    $searchParam="",
+                                    $groupId=null,
+                                    $owner=false,
+                                    $groupType=null,
+                                    $couId=null) {
     if(!$coPersonId) {
       return false;
     }
@@ -228,6 +244,9 @@ class RoleComponent extends Component {
     } elseif($groupId != null) {
       $condKey = 'CoGroup.id';
       $condValue = $groupId;
+    } elseif($groupType != null) {
+      $condKey = 'CoGroup.group_type';
+      $condValue = $groupType;
     }
     
     if(isset($this->cache['coperson'][$coPersonId][$condKey][$condValue][$groupRole])) {
@@ -243,6 +262,13 @@ class RoleComponent extends Component {
     $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
     if($condValue != null) {
       $args['conditions'][$condKey] = $condValue;
+    }
+    if($couId === true) {
+      $args['conditions'][] = 'CoGroup.cou_id IS NOT NULL';
+    } elseif($couId) {
+      $args['conditions']['CoGroup.cou_id'] = $couId;
+    } else {
+      $args['conditions']['CoGroup.cou_id'] = null;
     }
     $args['conditions']['CoGroup.status'] = StatusEnum::Active;
     $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
@@ -553,7 +579,7 @@ class RoleComponent extends Component {
     
     // First pull the COUs $coPersonId is explicitly an admin for
     
-    $couGroups = $this->cachedGroupGet($coPersonId, "admin" . $group_sep . "%", "LIKE");
+    $couGroups = $this->cachedGroupGet($coPersonId, "", "", null, false, GroupEnum::Admins, true);
     
     // What we actually have are the groups associated with each COU for which
     // coPersonId is an admin.
@@ -561,16 +587,15 @@ class RoleComponent extends Component {
     $Cou = ClassRegistry::init('Cou');
     
     foreach($couGroups as $couGroup) {
-      $couName = substr($couGroup['CoGroup']['name'],
-                        strpos($couGroup['CoGroup']['name'], $group_sep) + 1);
-      
-      // Pull the COU and its children (if any)
-      
-      try {
-        $childCous = array_unique($childCous + $Cou->childCous($couName, $coId, true));
-      }
-      catch(InvalidArgumentException $e) {
-        throw new InvalidArgumentException($e->getMessage());
+      if(!empty($couGroup['CoGroup']['cou_id'])) {
+        // Pull the COU and its children (if any)
+        
+        try {
+          $childCous = array_unique($childCous + $Cou->childCousById($couGroup['CoGroup']['cou_id'], true));
+        }
+        catch(InvalidArgumentException $e) {
+          throw new InvalidArgumentException($e->getMessage());
+        }
       }
     }
     
@@ -627,10 +652,11 @@ class RoleComponent extends Component {
       $args['joins'][0]['type'] = 'INNER';
       $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
       $args['conditions']['CoGroupMember.co_person_id'] = $coPersonIds;
+      $args['conditions']['CoGroup.group_type'] = GroupEnum::Admins;
       if($adminType == 'coadmin') {
-        $args['conditions']['CoGroup.name'] = 'admin';
+        $args['conditions']['CoGroup.cou_id'] = null;
       } else {
-        $args['conditions']['CoGroup.name LIKE'] = 'admin' . $group_sep . '%';
+        $args['conditions'][] = 'CoGroup.cou_id IS NOT NULL';
       }
       $args['conditions']['CoGroup.status'] = StatusEnum::Active;
       $args['contain'] = false;
@@ -703,8 +729,7 @@ class RoleComponent extends Component {
     // Now that we have the right data, we can hand off to cachedGroupCheck.
     
     if(isset($coPerson['CoPerson'])) {
-      $isAdmin = $this->cachedGroupCheck($coPerson['CoPerson']['id'],
-                                         "admin");
+      $isAdmin = $this->cachedGroupCheck($coPerson['CoPerson']['id'], "", "", null, false, GroupEnum::Admins);
       
       // Cache the result
       $this->cache['identifier'][$identifier]['cmpadmin'] = $isAdmin;
@@ -933,8 +958,7 @@ class RoleComponent extends Component {
       }
     }
     
-    // XXX define "admin" somewhere? CO-457 (also used in other places in this file)
-    return $this->cachedGroupCheck($coPersonId, "admin");
+    return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins);
   }
   
   /**
@@ -988,8 +1012,8 @@ class RoleComponent extends Component {
    */
   
   public function isCoOrCouAdmin($coPersonId, $coId=null) {
-    // A person is a CO Admin if they are a member of the "admin" group for the specified CO.
-    // A person is a COU Admin if they are a member of an "admin:*" group within the specified CO.
+    // A person is a CO Admin if they are a member of the GroupEnum::Admins group for the specified CO.
+    // A person is a COU Admin if they are a member of the GroupEnum::Admins group within the specified COU.
     
     global $group_sep;
     
@@ -1006,12 +1030,11 @@ class RoleComponent extends Component {
     // since chances are we've already cached the results to isCoAdmin() (if we're being
     // called from CoEnrollmentFlow::authorize(), at least).
     
-    // XXX define "admin" somewhere? CO-457
-    if($this->cachedGroupCheck($coPersonId, "admin")) {
+    if($this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins)) {
       return true;
     }
     
-    return $this->cachedGroupCheck($coPersonId, "admin" . $group_sep . "%", "LIKE");
+    return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins, true);
   }
   
   /**
@@ -1162,8 +1185,8 @@ class RoleComponent extends Component {
         // for our purposes it doesn't matter where we find the admin membership
         
         foreach($cous as $c) {
-          if(!empty($c['Cou']['name'])
-             && $this->cachedGroupCheck($coPersonId, "admin" . $group_sep . $c['Cou']['name'])) {
+          if(!empty($c['Cou']['id'])
+             && $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins, $c['Cou']['id'])) {
             return true;
           }
         }
@@ -1175,7 +1198,7 @@ class RoleComponent extends Component {
       // We don't need to walk the tree since we only care if a person is a COU Admin
       // for *any* group, not which groups (which would require getting the child COUs).
       
-      return $this->cachedGroupCheck($coPersonId, "admin" . $group_sep . "%", "LIKE");
+      return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admin, true);
     }
   }
   

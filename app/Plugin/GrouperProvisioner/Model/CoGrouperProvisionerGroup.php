@@ -1,9 +1,8 @@
 <?php
-use Github\Exception\RuntimeException;
 /**
  * COmanage Registry CO Grouper Provisioner Group Model
  *
- * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * Copyright (C) 2013-17 University Corporation for Advanced Internet Development, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -15,7 +14,7 @@ use Github\Exception\RuntimeException;
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  *
- * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * @copyright     Copyright (C) 2013-17 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8.3
@@ -63,18 +62,17 @@ class CoGrouperProvisionerGroup extends AppModel {
    * Add a mapping between a CO Group, provisioner target, and Grouper group.
    *
    * @since  COmanage Registry v0.8.3
-   * @param  Array CO Provisioning Target data
-   * @param  Array CO Provisioning data
-   * @return Array
+   * @param  array $coProvisioningTargetData CO provisioning target data
+   * @param  array $coGroup CoGroup being provisioned
+   * @return array New provisioner group mapping
    * @throws RuntimeException
    */
 
-  public function addProvisionerGroup($coProvisioningTargetData, $provisioningData) {
-    $newProvisionerGroup = $this->computeProvisionerGroup($coProvisioningTargetData, $provisioningData);
+  public function addProvisionerGroup($coProvisioningTargetData, $coGroup) {
+    $newProvisionerGroup = $this->computeProvisionerGroup($coProvisioningTargetData, $coGroup);
 
     $this->clear();
     if(!$this->save($newProvisionerGroup)) {
-      $this->log("database save failed");
       throw new RuntimeException(_txt('er.db.save'));
     }
 
@@ -87,48 +85,46 @@ class CoGrouperProvisionerGroup extends AppModel {
    * Compute a mapping between a CO Group, provisioner target, and Grouper group.
    *
    * @since  COmanage Registry v0.8.3
-   * @param  Array CO Provisioning Target data
-   * @param  Array CO Provisioning data
-   * @return Array
+   * @param  array $coProvisioningTargetData CO provisioning target data
+   * @param  array $coGroup CoGroup to map
+   * @return array New provisioner group mapping
    */
 
-  public function computeProvisionerGroup($coProvisioningTargetData, $provisioningData) {
+  public function computeProvisionerGroup($coProvisioningTargetData, $coGroup) {
     // Replace colon with underscore in COmanage group name to
     // create Grouper group extension (name without stem).
-    $groupName = $provisioningData['CoGroup']['name'];
+    $groupName = $coGroup['CoGroup']['name'];
     $extension = str_replace(":", "_", $groupName);
+
+    $stem = $coProvisioningTargetData['CoGrouperProvisionerTarget']['stem'];
     
     // If this is a COU members or admin group we need to create the necessary
     // hierarchy of stems that represent the parent child relationships
     // (if any) of the COUs.
-    if($this->CoGroup->isCouAdminOrMembersGroup($provisioningData)) {
-	    // Find the corresponding COU.
+    if($this->CoGroup->isCouAdminOrMembersGroup($coGroup)) {
+      // Find the corresponding COU.
       $args = array();
-      $args['conditions']['Cou.co_id'] = $provisioningData['CoGroup']['co_id'];
-      $args['conditions']['Cou.name'] = $this->CoGroup->couNameFromAdminOrMembersGroup($provisioningData);
+      $args['conditions']['Cou.id'] = $coGroup['CoGroup']['cou_id'];
       $args['contain'] = true;
-	    $cou = $this->CoGroup->Co->Cou->find('first', $args);
+      $cou = $this->CoGroup->Co->Cou->find('first', $args);
       if(empty($cou)) {
         $message = 'Error finding Cou for admin or members group ' . $groupName;
-      	throw new RuntimeException($message);
+        throw new RuntimeException($message);
       }
       
       // Find the 'parent path', if any, for this COU.
-      $parents = $this->CoGroup->Co->Cou->getPath($cou['Cou']['id']);
-      $stem = $coProvisioningTargetData['CoGrouperProvisionerTarget']['stem'];
+      $parents = $this->CoGroup->Co->Cou->getPath($coGroup['CoGroup']['cou_id']);
       foreach($parents as $cou) {
           $stem = $stem . ':' . $cou['Cou']['name'];
       }
-    } else {
-    	$stem = $coProvisioningTargetData['CoGrouperProvisionerTarget']['stem'];
-    }
+    } 
 
     $newProvisionerGroup = array();
     $newProvisionerGroup['CoGrouperProvisionerGroup']['co_grouper_provisioner_target_id'] = $coProvisioningTargetData['CoGrouperProvisionerTarget']['id'];
-    $newProvisionerGroup['CoGrouperProvisionerGroup']['co_group_id'] = $provisioningData['CoGroup']['id'];
+    $newProvisionerGroup['CoGrouperProvisionerGroup']['co_group_id'] = $coGroup['CoGroup']['id'];
     $newProvisionerGroup['CoGrouperProvisionerGroup']['stem'] = $stem;
     $newProvisionerGroup['CoGrouperProvisionerGroup']['extension'] = $extension;
-    $newProvisionerGroup['CoGrouperProvisionerGroup']['description'] = $provisioningData['CoGroup']['description'];
+    $newProvisionerGroup['CoGrouperProvisionerGroup']['description'] = $coGroup['CoGroup']['description'];
 
     return $newProvisionerGroup;
   }
@@ -137,9 +133,8 @@ class CoGrouperProvisionerGroup extends AppModel {
    * Delete a mapping between a CO Group, provisioner target, and Grouper name.
    *
    * @since  COmanage Registry v0.8.3
-   * @param  Grouper group name
-   * @param  Array CoGrouperProvisionerGroup data
-   * @return None
+   * @param  array CoGrouperProvisionerGroup to be deleted
+   * @return void
    */
 
   public function delProvisionerGroup($provisionerGroup) {
@@ -148,37 +143,53 @@ class CoGrouperProvisionerGroup extends AppModel {
   }
 
   /**
-   * Return an empty CoProvisionerGroup data set
+   * Determine if two CoGrouperProvisionerGroup objects are equal.
    *
-   * @since  COmanage Registry v0.8.3
-   * @return Array
+   * @since COmanage Registry 1.1.0
+   * @param array $pGroup1 first CoGrouperProvisionerGroup for comparison
+   * @param array $pGroup2 second CoGrouperProvisionerGroup for comparison
+   * @return boolean true if equal otherwise false
    */
 
-  public function emptyProvisionerGroup() {
-    $newProvisionerGroup = array();
+  public function equal($pGroup1, $pGroup2) {
+    if ($pGroup1['CoGrouperProvisionerGroup']['co_grouper_provisioner_target_id'] 
+          != $pGroup2['CoGrouperProvisionerGroup']['co_grouper_provisioner_target_id']) {
+            return false;
+    }
+    if ($pGroup1['CoGrouperProvisionerGroup']['co_group_id'] 
+          != $pGroup2['CoGrouperProvisionerGroup']['co_group_id']) {
+            return false;
+    }
+    if ($pGroup1['CoGrouperProvisionerGroup']['stem'] 
+          != $pGroup2['CoGrouperProvisionerGroup']['stem']) {
+            return false;
+    }
+    if ($pGroup1['CoGrouperProvisionerGroup']['extension'] 
+          != $pGroup2['CoGrouperProvisionerGroup']['extension']) {
+            return false;
+    }
+    if ($pGroup1['CoGrouperProvisionerGroup']['description'] 
+          != $pGroup2['CoGrouperProvisionerGroup']['description']) {
+            return false;
+    }
 
-    $newProvisionerGroup['CoGrouperProvisionerGroup']['co_grouper_provisioner_target_id'] = NULL;
-    $newProvisionerGroup['CoGrouperProvisionerGroup']['co_group_id'] = NULL;
-    $newProvisionerGroup['CoGrouperProvisionerGroup']['stem'] = NULL;
-    $newProvisionerGroup['CoGrouperProvisionerGroup']['extension'] = NULL;
-    $newProvisionerGroup['CoGrouperProvisionerGroup']['description'] = NULL;
-
-    return $newProvisionerGroup;
+    return true;
   }
 
   /**
    * Find current mapping between a CO Group, provisioner target, and Grouper name.
    *
    * @since  COmanage Registry v0.8.3
-   * @param  Array CO Provisioning Target data
-   * @param  Array CO Provisioning data
-   * @return Group name
+   * @param  array $coProvisioningTargetData CO provisioning target data
+   * @param  array $coGroup CoGroup for which to find the mapping
+   * @return CoGrouperProvisionerGroup or NULL if mapping not found
    */
 
-  public function findProvisionerGroup($coProvisioningTargetData, $provisioningData) {
+  public function findProvisionerGroup($coProvisioningTargetData, $coGroup) {
     $args = array();
-    $args['conditions']['CoGrouperProvisionerGroup.co_group_id'] = $provisioningData['CoGroup']['id'];
+    $args['conditions']['CoGrouperProvisionerGroup.co_group_id'] = $coGroup['CoGroup']['id'];
     $args['conditions']['CoGrouperProvisionerGroup.co_grouper_provisioner_target_id'] = $coProvisioningTargetData['CoGrouperProvisionerTarget']['id'];
+    $args['contain'] = false;
 
     $group = $this->find('first', $args);
 
@@ -190,14 +201,33 @@ class CoGrouperProvisionerGroup extends AppModel {
   }
 
   /**
+   * Find current mapping between a CO Group, provisioner target, 
+   * and Grouper name by CoGroup ID.
+   *
+   * @since  COmanage Registry v1.1.0
+   * @param  integer $id CoGroup id
+   * @return CoGrouperProvisionerGroup
+   */
+
+  public function findProvisionerGroupByCoGroupId($coGroupId) {
+    $args = array();
+    $args['conditions']['CoGrouperProvisionerGroup.co_group_id'] = $coGroupId;
+    $args['contain'] = false;
+
+    $group = $this->find('first', $args);
+
+    return $group;
+  }
+
+  /**
    * Construct the Grouper group name by combining stem and extension
    *
    * @since  COmanage Registry v0.8.3
-   * @param  Array CoGrouperProvisionerGroup data
-   * @return String
+   * @param  array $provisionerGroup CoGrouperProvisionerGroup data
+   * @return string
    */
 
-  public function getGroupName($provisionerGroup) {
+  public function getGrouperGroupName($provisionerGroup) {
     $stem = $provisionerGroup['CoGrouperProvisionerGroup']['stem'];
     $extension = $provisionerGroup['CoGrouperProvisionerGroup']['extension'];
 
@@ -210,11 +240,11 @@ class CoGrouperProvisionerGroup extends AppModel {
    * Return the Grouper group description
    *
    * @since  COmanage Registry v0.8.3
-   * @param  Array CoGrouperProvisionerGroup data
-   * @return String
+   * @param  array $provisionerGroup CoGrouperProvisionerGroup data
+   * @return string
    */
 
-  public function getGroupDescription($provisionerGroup) {
+  public function getGrouperGroupDescription($provisionerGroup) {
     // Grouper group description is just the COmanage group description.
     return $provisionerGroup['CoGrouperProvisionerGroup']['description'];
   }
@@ -223,8 +253,8 @@ class CoGrouperProvisionerGroup extends AppModel {
    * Return the Grouper group stem
    *
    * @since  COmanage Registry v0.9.3
-   * @param  Array CoGrouperProvisionerGroup data
-   * @return String
+   * @param  array $provisionerGroup CoGrouperProvisionerGroup data
+   * @return string
    */
 
   public function getStem($provisionerGroup) {
@@ -235,8 +265,8 @@ class CoGrouperProvisionerGroup extends AppModel {
    * Return the Grouper group display extension
    *
    * @since  COmanage Registry v0.8.3
-   * @param  Array CoGrouperProvisionerGroup data
-   * @return String
+   * @param  array $provisionerGroup CoGrouperProvisionerGroup data
+   * @return string
    */
 
   public function getGroupDisplayExtension($provisionerGroup) {
@@ -249,22 +279,43 @@ class CoGrouperProvisionerGroup extends AppModel {
    * Update a mapping between a CO Group, provisioner target, and Grouper name.
    *
    * @since  COmanage Registry v0.8.3
-   * @param  Current mapping
-   * @param  New mapping
-   * @return None
+   * @param  array $provisionerGroup CoGrouperProvisionerGroup to update
+   * @return void
    * @throws RuntimeException
    */
 
-  public function updateProvisionerGroup($current, &$updated) {
-    if (array_key_exists('id', $current['CoGrouperProvisionerGroup'])) {
-      $updated['CoGrouperProvisionerGroup']['id'] = $current['CoGrouperProvisionerGroup']['id'];
-      unset($updated['CoGrouperProvisionerGroup']['modified']);
+  /**
+   * Determine if a CoGroup name has changed because of a change in COU name.
+   *
+   * @param  array $coProvisioningTargetData CO provisioning target data
+   * @param  array $coGroup CoGroup to examine
+   * @return boolean true if group is COU auto managed and COU name changed
+   * 
+   */
+
+  public function isCouNameChange($coProvisioningTargetData, $coGroup) {
+    if(!$this->CoGroup->isCouAdminOrMembersGroup($coGroup)) {
+      return false;
+    }
+
+    $current = $this->findProvisionerGroup($coProvisioningTargetData, $coGroup);
+    $new = $this->computeProvisionerGroup($coProvisioningTargetData, $coGroup);
+    $currentExtension = $this->getGroupDisplayExtension($current);
+    $newExtension = $this->getGroupDisplayExtension($new);
+    if ($currentExtension != $newExtension) {
+        return true;
+    } else {
+      return false;
+    }
+  }
+
+  public function updateProvisionerGroup($provisionerGroup) {
+    if(isset($provisionerGroup['CoGrouperProvisionerGroup']['modified'])) {
+      unset($provisionerGroup['CoGrouperProvisionerGroup']['modified']);
     }
     
-    if(!$this->save($updated)) {
+    if(!$this->save($provisionerGroup)) {
       throw new RuntimeException(_txt('er.db.save'));
     }
-    
-    $updated['CoGrouperProvisionerGroup']['id'] = $this->id;
   }
 }

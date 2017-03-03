@@ -110,6 +110,7 @@ class Co extends AppModel {
    * @param  Array $options Options, as based to model::save()
    * @return Boolean True on success
    */
+  
   public function afterSave($created, $options = Array()) {
     if($created && !empty($this->data['Co']['id'])) {
       // Run setup for new CO
@@ -129,9 +130,11 @@ class Co extends AppModel {
    */
   
   public function setup($coId) {
-    // Setup currently consists of setting up the default values for extended types.
-    
+    // Set up the default values for extended types
     $this->CoExtendedType->addDefaults($coId);
+    
+    // Create the default groups
+    $this->CoGroup->addDefaults($coId);
     
     return true;
   }
