@@ -275,6 +275,8 @@ class CoPersonRole extends AppModel {
                                       ($this->cachedData[$this->alias]['valid_through']
                                        != $curdata[$this->alias]['valid_through']));
     }
+    
+    return true;
   }
   
   /**

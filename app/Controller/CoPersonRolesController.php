@@ -327,6 +327,8 @@ class CoPersonRolesController extends StandardController {
     // repopulated $reqdata post-save to account for normalizations, but we haven't
     // yet saved the extended attributes yet.
     
+    $d = array();
+    
     if(!empty($origdata[$eaModel])) {
       // Create a temporary copy of the data to save
       $d = array(
@@ -386,11 +388,11 @@ class CoPersonRolesController extends StandardController {
       }
       
       $this->CoPersonRole->$eaModel->save($d);
-      
-      // Manually trigger history. The StandardController call would still have the
-      // original attributes.
-      $this->generateHistory('x'.$this->action, array_merge($reqdata, $d), $curdata);
     }
+    
+    // Manually trigger history. The StandardController call would still have the
+    // original attributes.
+    $this->generateHistory('x'.$this->action, array_merge($reqdata, $d), $curdata);
     
     // If the role status changed, check to see if the overall person status changed.
     // CoPersonRole::afterSave will do the actual recalculation, but we still want to
