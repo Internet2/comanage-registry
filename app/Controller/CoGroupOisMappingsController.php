@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Group OIS Mappings Controller
  *
- * Copyright (C) 2016 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -42,7 +45,7 @@ class CoGroupOisMappingsController extends StandardController {
   /**
    * Callback before other controller methods are invoked or views are rendered.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   function beforeFilter() {
@@ -77,7 +80,7 @@ class CoGroupOisMappingsController extends StandardController {
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request->params
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   function beforeRender() {
@@ -118,7 +121,7 @@ class CoGroupOisMappingsController extends StandardController {
   /**
    * Determine the CO ID based on some attribute of the request.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $data Array of data for parsing Person ID
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
@@ -162,7 +165,7 @@ class CoGroupOisMappingsController extends StandardController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array Permissions
    */
   
@@ -196,7 +199,7 @@ class CoGroupOisMappingsController extends StandardController {
   /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array An array suitable for use in $this->paginate
    */
   
@@ -218,7 +221,7 @@ class CoGroupOisMappingsController extends StandardController {
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   function performRedirect() {
