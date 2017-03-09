@@ -17,7 +17,7 @@
  * @copyright     Copyright (C) 2016-17 SURFnet BV
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * @version       $Id$
  */
@@ -90,7 +90,7 @@ class CoService extends AppModel {
   /**
    * Map a list of groups to the entitlements they are associated with.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer String CO ID
    * @param  Array Array of CO Group IDs
    * @return Array Array of entitlements, keyed on CO Service ID
@@ -103,6 +103,7 @@ class CoService extends AppModel {
     $args['conditions']['OR'][] = 'CoService.co_group_id IS NULL';
     $args['conditions']['CoService.status'] = SuspendableStatusEnum::Active;
     $args['conditions'][] = 'CoService.entitlement_uri IS NOT NULL';
+    $args['conditions']['NOT']['CoService.entitlement_uri'] = '';
     $args['fields'] = array('CoService.id', 'CoService.entitlement_uri');
     $args['contain'] = false;
     
@@ -112,7 +113,7 @@ class CoService extends AppModel {
   /**
    * Find CO Services visible to the specified CO Person.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  RoleComponent
    * @param  Integer $coId       CO ID
    * @param  Integer $coPersonId CO Person ID, or null for public services
