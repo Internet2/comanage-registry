@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Organizational Identity Source Model
  *
- * Copyright (C) 2015-17 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2015-17 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class OrgIdentitySource extends AppModel {
@@ -130,7 +133,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Callback after model save.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Boolean $created True if new model is saved (ie: add)
    * @param  Array $options Options, as based to model::save()
    * @return Boolean True on success
@@ -159,7 +162,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Bind the specified plugin's backend model
    *
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param Integer $id OrgIdentitySource ID
    * @return Object Plugin Backend Model reference
    * @throws InvalidArgumentException
@@ -229,7 +232,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Create a new organizational identity record based on a result from an Org Identity Source.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to query
    * @param  String $sourceKey Record key to retrieve as basis of new Org Identity
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
@@ -371,7 +374,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Execute the appropriate pipeline for the specified Org Identity.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource
    * @param  Integer $orgIdentityId OrgIdentity ID
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
@@ -393,7 +396,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Obtain all source keys from a backend.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to query
    * @return Array Array of source keys
    * @throws DomainException, if backend does not support this query
@@ -411,7 +414,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Map a raw result into a list of group attributes suitable for mapping.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource ID
    * @param  String $raw Raw result record
    * @return Array Attributes configured for group processing
@@ -427,7 +430,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Retrieve a record from an Org Identity Source Backend.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    * @param  String $key Record key to retrieve
    * @return Array Raw record and Array in OrgIdentity format
@@ -484,7 +487,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Perform a search against an Org Identity Source Backend.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    * @param  Array $attributes Array in key/value format, where key is the same as returned by searchAttributes()
    * @return Array Array in OrgIdentity format
@@ -500,12 +503,12 @@ class OrgIdentitySource extends AppModel {
   /**
    * Search all available backends for records matching the specified email address.
    *
-   * @since  COmanange Registry v1.1.0
+   * @since  COmanange Registry v2.0.0
    * @param  String $email Email address to use as a search key
    * @param  Integer $coId CO ID, if org identities not pooled
    * @return Array Array of search results and (if available) associated Org Identities, sorted by backend
    * @throws InvalidArgumentException
-   * @deprecated since v1.1.0 CoEnrollmentSources make this function no longer useful
+   * @deprecated since v2.0.0 CoEnrollmentSources make this function no longer useful
    */
   
   public function searchAllByEmail($email, $coId=null) {
@@ -556,7 +559,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Obtain the set of searchable attributes for the Org Identity Source Backend.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    * @return Array Array of searchable attributes
    * @throws InvalidArgumentException
@@ -571,7 +574,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Sync all Org Identity Sources. Intended primarily for use by CronShell
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  integer $coId CO ID
    * @return boolean True on success
    */
@@ -598,7 +601,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Sync an existing organizational identity record based on a result from an Org Identity Source.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id              OrgIdentitySource to query
    * @param  String  $sourceKey       Record key to retrieve as basis of new Org Identity
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
@@ -1069,7 +1072,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Sync an Org Identity Source.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array   $orgIdentitySource Org Identity Source to process
    * @return boolean                    True on success
    * @throws RuntimeException
@@ -1440,7 +1443,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Validate Org Identity Source Record
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array   $backendRecord Record from OIS Backend
    * @throws InvalidArgumentException
    */

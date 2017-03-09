@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Group Model
  *
- * Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
   
 class CoGroup extends AppModel {
@@ -139,10 +142,10 @@ class CoGroup extends AppModel {
   );
   
   /**
-   * Perform CoGroup model upgrade steps for version 1.1.0.
+   * Perform CoGroup model upgrade steps for version 2.0.0.
    * This function should only be called by UpgradeVersionShell.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $coId    CO ID
    * @param  String  $coName  CO Name
    * @param  Integer $couId   COU ID
@@ -154,6 +157,7 @@ class CoGroup extends AppModel {
     // UpgradeVersionShell multiple times, to allow for progress reporting.
     // There is a bit of duplication here and in addDefaults, but since this
     // function is not needed in the long term (and so doesn't need updating) that's OK.
+    // v2.0.0 was previously v1.1.0.
     
     // We'll check for the existence of each group before creating it, just in case
     
@@ -199,7 +203,7 @@ class CoGroup extends AppModel {
       }
     }
     
-    // Next, convert the "members" group to All Members (matching pre-1.1.0 behavior).
+    // Next, convert the "members" group to All Members (matching pre-2.0.0 behavior).
     
     $ckArgs['conditions']['CoGroup.group_type'] = GroupEnum::AllMembers;
     
@@ -267,7 +271,7 @@ class CoGroup extends AppModel {
   /**
    * Add all default groups for the specified CO.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $coId   CO ID
    * @param  Integer $couId  COU ID
    * @param  Boolean $rename If true, rename any existing groups
@@ -394,7 +398,7 @@ class CoGroup extends AppModel {
   /**
    * Actions to take before a save operation is executed.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
 
   public function beforeSave($options = array()) {
@@ -622,7 +626,7 @@ class CoGroup extends AppModel {
  /**
    * Determine if a CO Group is read only.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id CO Group ID
    * @return True if the CO Group is read only, false otherwise
    * @throws InvalidArgumentException

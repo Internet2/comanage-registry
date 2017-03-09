@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Petition Model
  *
- * Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses('CakeEmail', 'Network/Email');
@@ -347,7 +350,7 @@ class CoPetition extends AppModel {
   /**
    * Check the eligibility for a CO Petition.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id CO Petition ID
    * @param  Integer $actorCoPersonId CO Person ID of the person triggering the relink
    * @throws InvalidArgumentException
@@ -1074,7 +1077,7 @@ class CoPetition extends AppModel {
   /**
    * Link an existing Org Identity to a CO Petition.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer CO Petition ID
    * @param  Integer Org Identity ID to link
    * @param  Integer CO Person ID of the petitioner
@@ -1934,7 +1937,7 @@ class CoPetition extends AppModel {
     
     if(isset($pt['CoEnrollmentFlow']['notify_on_' . $action])
        && $pt['CoEnrollmentFlow']['notify_on_' . $action]) {
-      // As of v1.1.0, this uses the notification infrastructure instead of its own
+      // As of v2.0.0, this uses the notification infrastructure instead of its own
       // email code. A side effect is that all new users will have one notification
       // pending acknowledgment when they login... it might be better for it to
       // automatically expire shortly after being sent (CO-852).
@@ -1947,7 +1950,7 @@ class CoPetition extends AppModel {
         $enrolleeName = generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']);
       }
       
-      // Pull the message components from the template (as of v1.1.0) or configuration
+      // Pull the message components from the template (as of v2.0.0) or configuration
       // (now deprecated), if either is set. (Finalize only supports templates.)
       
       $subject = null;
@@ -2187,7 +2190,7 @@ class CoPetition extends AppModel {
                                                                    $pt['CoPetition']['co_enrollment_flow_id'])));
     }
     
-    // Pull the message components from the template (as of v1.1.0) or configuration
+    // Pull the message components from the template (as of v2.0.0) or configuration
     // (now deprecated), if either is set.
     
     $subject = null;

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Attribute Enumeration Model
  *
- * Copyright (C) 2016 SCG
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016 SCG
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
   
 class AttributeEnumeration extends AppModel {
@@ -79,7 +82,7 @@ class AttributeEnumeration extends AppModel {
   /**
    * Determine if there are any defined, active enumerations for a specific attribute.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer CO ID (or null for CMP level attributes)
    * @param  String Attribute, of the form Model.attribute (or null for all)
    * @param  String Format ('all' or 'list', as for Cake find, or 'validation' to return as a validation rule)
@@ -134,7 +137,7 @@ class AttributeEnumeration extends AppModel {
   /**
    * Actions to take before a save operation is executed.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   public function beforeSave($options = array()) {
@@ -170,7 +173,7 @@ class AttributeEnumeration extends AppModel {
   /**
    * Assemble a list of supported attributes, suitable for use in generating a select button.
    *
-   * @since  COmanage Registry 1.1.0
+   * @since  COmanage Registry 2.0.0
    * @param  Boolean $pooled Whether or not OrgIdentities are pooled
    * @param  Boolean $orgOnly Whether or not to only return OrgIdentity attributes
    * @return Array Hash of supported attributes, with model name as key and localized text as value
