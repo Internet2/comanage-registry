@@ -2,24 +2,27 @@
 /**
  * COmanage Registry netFORUM Pro Implementation Model
  *
- * Copyright (C) 2017 MLA
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2017 MLA
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("NetForumServer", "NetForumSource.Model");
@@ -29,7 +32,7 @@ class NetForumPro extends NetForumServer {
   /**
    * Make an initial authentication request.
    *
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @throws RuntimeException
    * @throws SoapFault
    */
@@ -65,7 +68,7 @@ class NetForumPro extends NetForumServer {
   /**
    * Issue a query by customer key. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $searchKey   Search key (customer key)
    * @param Boolean $queryEvents Whether to also query for events for which the customer has registered
    * @return Array Array of OrgIdentity and raw (XML) data
@@ -87,7 +90,7 @@ class NetForumPro extends NetForumServer {
   /**
    * Issue a query by email address. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $searchKey   Search key (email address)
    * @return Array Array of OrgIdentity data
    */
@@ -110,7 +113,7 @@ class NetForumPro extends NetForumServer {
   /**
    * Issue a query by name. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $searchKey   Search key (sort name, ie "family given")
    * @return Array Array of OrgIdentity data
    */
@@ -126,7 +129,7 @@ class NetForumPro extends NetForumServer {
   /**
    * Issue a query for customer events. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $searchKey   Search key (customer key)
    * @return Array Array of OrgIdentity data
    */
@@ -144,7 +147,7 @@ class NetForumPro extends NetForumServer {
   /**
    * Issue a query against a netFORUM Pro instance. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $callName   SOAP call name
    * @param String  $resultName SOAP result name
    * @param Array   $attributes Attributes to search by
@@ -253,7 +256,7 @@ class NetForumPro extends NetForumServer {
   /**
    * Convert a search result into an Org Identity.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $result netFORUM Search Result
    * @return Array Org Identity and related models, in the usual format
    */
