@@ -30,4 +30,55 @@ the Contributer License Agreement by,
  SURFnet BV
  https://www.surf.nl
 
+This project uses the following third party utilities, see the appropriate
+files and utilities for further information:
+
+ CakePHP (lib/Cake)
+ MIT License
+ http://cakephp.org
+ 
+ ADOdb (app/Vendor/adodb5)
+ BSD 3-Clause License
+ http://adodb.org
+ 
+ Guzzle (app/AvailablePlugin/GithubProvisioner/Vendor/guzzle) 
+ MIT License
+ https://github.com/guzzle/guzzle
+ 
+ jQuery (app/webroot/js/jquery)
+ MIT License
+ http://jquery.com
+  
+ jQuery UI (app/webroot/js/jquery/jquery-ui-*)
+ MIT License
+ http://jquery.com
+ 
+ jsTimezoneDetect (app/webroot/js/jstimezonedetect)
+ MIT License
+ https://bitbucket.org/pellepim/jstimezonedetect
+ 
+ Magnific Popup (app/webroot/js/jquery/magnificpopup)
+ MIT License
+ http://dimsemenov.com/plugins/magnific-popup
+ 
+ noty (app/webroot/js/jquery/noty)
+ MIT License
+ http://ned.im/noty
+ 
+ PHP GitHub API 2.0 (app/AvailablePlugin/GithubProvisioner/Vendor/guzzle/guzzle)
+ MIT License
+ https://github.com/KnpLabs/php-github-api
+ 
+ spin.js (app/webroot/js/jquery/spin*)
+ MIT License
+ http://spin.js.org
+ 
+ Shibboleth Embedded Discovery Service (app/webroot/js/eds)
+ Apache 2.0
+ https://shibboleth.net/products/embedded-discovery-service.html
+ 
+ Superfish (app/webroot/js/superfish)
+ MIT License
+ https://superfish.joelbirch.co
+
 ---------------------------------------------------------------------------

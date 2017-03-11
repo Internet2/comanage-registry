@@ -255,7 +255,7 @@ FROM
   /**
    * Create and return an instance of the GrouperRestClient.
    *
-   * @since COmanage Registry 1.1.0
+   * @since COmanage Registry 2.0.0
    * @param array $coProvisioningTargetData CO provisioning target data
    * @return instance GrouperRestClient or null if unable to create the instance
    */
@@ -280,7 +280,7 @@ FROM
   /**
    * Process a COU name change.
    *
-   * @since COmanage Registry 1.1.0
+   * @since COmanage Registry 2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coGroup CoGroup provisioning data
    * @return void
@@ -375,7 +375,7 @@ FROM
   /**
    * Provision a CoGroupAdded event
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $provisioningData CoGroup provisioning data
    * @return boolean true on success
@@ -409,7 +409,7 @@ FROM
   /**
    * Provision a CoGroupDeleted event
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coGroup CoGroup provisioning data
    * @return boolean true on success
@@ -453,7 +453,7 @@ FROM
   /**
    * Provision a CoGroupReprovisionRequested event
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coGroup CoGroup provisioning data
    * @return boolean true on success
@@ -508,7 +508,7 @@ FROM
   /**
    * Provision a CoGroupUpdated event
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coGroup CoGroup provisioning data
    * @return boolean true on success
@@ -552,7 +552,7 @@ FROM
   /**
    * Take action on CoPerson provisioning events
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coPerson CoPerson provisioning data
    * @return boolean true on success
@@ -659,7 +659,7 @@ FROM
   /**
    * Provision a Grouper group and any stems if necessary
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $groupName Grouper group full name including stems
    * @param  array $groupDescription Grouper group description
@@ -707,7 +707,7 @@ FROM
   /**
    * Reprovision memberships using paging to prevent memory issues
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coGroup CoGroup provisioning data
    * @return boolean true on success
@@ -861,7 +861,7 @@ FROM
   /**
    * Synchronize memberships using paging to prevent memory issues
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coGroup CoGroup provisioning data
    * @return boolean true on success
@@ -988,7 +988,7 @@ FROM
   /**
    * Update CoGrouperProvisionerGroup mappings for child COU managed groups.
    *
-   * @since COmanage Registry 1.1.0
+   * @since COmanage Registry 2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coGroup CoGroup provisioning data
    * @return void
@@ -1037,7 +1037,7 @@ FROM
   /**
    * Update a group because CoGroup metadata like name has changed.
    *
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coGroup CoGroup provisioning data
    * @return boolean true on success
@@ -1083,7 +1083,7 @@ FROM
   /**
    * Update a group membership.
    *
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param  array $coProvisioningTargetData CO provisioning target data
    * @param  array $coGroup CoGroup provisioning data
    * @return boolean true on success

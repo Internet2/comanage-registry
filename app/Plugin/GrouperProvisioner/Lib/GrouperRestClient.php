@@ -253,7 +253,7 @@ class GrouperRestClient extends HttpSocket {
    * Get group memberships for a subject
    * - precondition: Subject is known to Grouper
    *
-   * @since         COmanage Directory 1.1.0
+   * @since         COmanage Directory 2.0.0
    * @param         string $subject Subject for which to retrieve group memberships
    * @return        array List of names of the groups to which the subjet belongs
    * @throws        GrouperRestClientException

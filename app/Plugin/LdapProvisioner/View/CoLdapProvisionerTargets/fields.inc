@@ -406,7 +406,7 @@
                 
                 $xname = 'CoLdapProvisionerAttribute.' . $xindex . '.export';
                 $xlabel = '<code>' . $attr . '</code>';
-                // Prior to v1.1.0, default was to check for new entries, but that
+                // Prior to v2.0.0, default was to check for new entries, but that
                 // probably isn't desirable for stable deployments (and is also
                 // unintuitive from the UI), so new default is unchecked.
                 $xchecked = (isset($currentAttributes[$attr]['export'])
