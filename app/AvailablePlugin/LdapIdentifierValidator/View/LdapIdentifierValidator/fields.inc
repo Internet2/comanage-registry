@@ -3,24 +3,27 @@
  * COmanage Registry LDAP Identifier Validator Plugin Fields
  * XXX unclear why this isn't in /LdapIdentifierValidator*s*/field.inc
  *
- * Copyright (C) 2016 SCG
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016 SCG
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 -->
 <?php
@@ -74,7 +77,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.serverurl.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['serverurl'])); ?>
+        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -83,7 +86,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.binddn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['binddn'])); ?>
+        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['binddn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -92,7 +95,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.password.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['password'])); ?>
+        <?php print ($e ? $this->Form->input('password') : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -101,7 +104,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.basedn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['basedn'])); ?>
+        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['basedn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -110,7 +113,7 @@
         <font class="desc"><?php print _txt('pl.ldapidentifier.filter.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('filter') : Sanitize::html($ldap_identifier_validators[0]['LdapIdentifierValidator']['filter'])); ?>
+        <?php print ($e ? $this->Form->input('filter') : filter_var($ldap_identifier_validators[0]['LdapIdentifierValidator']['filter'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

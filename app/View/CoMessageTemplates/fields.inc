@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Message Templates Fields
  *
- * Copyright (C) 2016 SCG
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016 SCG
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 <?php
@@ -57,7 +60,7 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
-                        : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['description'])); ?>
+                        : filter_var($co_message_templates[0]['CoMessageTemplate']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -96,7 +99,7 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('cc')
-                        : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['cc'])); ?>
+                        : filter_var($co_message_templates[0]['CoMessageTemplate']['cc'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -106,7 +109,7 @@
       </td>
       <td>
         <?php print ($e ? $this->Form->input('bcc')
-                        : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['bcc'])); ?>
+                        : filter_var($co_message_templates[0]['CoMessageTemplate']['bcc'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -117,7 +120,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('message_subject')
-                     : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['message_subject'])); ?>
+                     : filter_var($co_message_templates[0]['CoMessageTemplate']['message_subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -128,7 +131,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('message_body')
-                     : Sanitize::html($co_message_templates[0]['CoMessageTemplate']['message_body'])); ?>
+                     : filter_var($co_message_templates[0]['CoMessageTemplate']['message_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">

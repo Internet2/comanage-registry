@@ -2,24 +2,27 @@
 /**
  * COmanage Registry LDAP Source Plugin Fields
  *
- * Copyright (C) 2016 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 -->
 <?php
@@ -52,7 +55,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.serverurl.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['serverurl'])); ?>
+        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -61,7 +64,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.binddn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['binddn'])); ?>
+        <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['binddn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -70,7 +73,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.password.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($ldap_sources[0]['LdapSource']['password'])); ?>
+        <?php print ($e ? $this->Form->input('password') : filter_var($ldap_sources[0]['LdapSource']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -79,7 +82,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.basedn.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['basedn'])); ?>
+        <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['basedn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -88,7 +91,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.key_attribute.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('key_attribute') : Sanitize::html($ldap_sources[0]['LdapSource']['key_attribute'])); ?>
+        <?php print ($e ? $this->Form->input('key_attribute') : filter_var($ldap_sources[0]['LdapSource']['key_attribute'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -97,7 +100,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.search_filter.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('search_filter', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['search_filter'])); ?>
+        <?php print ($e ? $this->Form->input('search_filter', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['search_filter'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -106,7 +109,7 @@
         <font class="desc"><?php print _txt('pl.ldapsource.uidattr.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('uid_attr', array('size' => 50)) : Sanitize::html($ldap_sources[0]['LdapSource']['uid_attr'])); ?>
+        <?php print ($e ? $this->Form->input('uid_attr', array('size' => 50)) : filter_var($ldap_sources[0]['LdapSource']['uid_attr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">

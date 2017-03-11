@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Group Fields
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable or viewable
@@ -66,11 +69,29 @@
 
   // Populate the reference
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])). "\n";
-
+  
+  // Populate group metadata.
+  print $this->Form->hidden('group_type', array('default' => GroupEnum::Standard)). "\n";
+  print $this->Form->hidden('auto', array('default' => false)). "\n";
+  // COU ID is not currently supported except for automatic groups
+  print $this->Form->hidden('cou_id', array('default' => null)). "\n";
+  
+  $l = 1;
 ?>
 <table id="<?php print $this->action; ?>_co_group" class="ui-widget">
   <tbody>
-    <tr class="line1">
+    <?php if(!empty($co_groups[0]['CoGroup']['group_type'])
+             && $co_groups[0]['CoGroup']['group_type'] != GroupEnum::Standard): ?>
+    <tr class="line<?php print ($l%2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.type'); ?>
+      </td>
+      <td>
+        <?php print filter_var(_txt('en.group.type', null, $co_groups[0]['CoGroup']['group_type']),FILTER_SANITIZE_SPECIAL_CHARS); ?>
+      </td>
+    </tr>
+    <?php endif; // group_type ?>
+    <tr class="line<?php print ($l%2); $l++; ?>">
       <td>
         <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?><span class="required">*</span>
       </td>
@@ -78,7 +99,7 @@
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($co_groups[0]['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l%2); $l++; ?>">
       <td>
         <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
       </td>
@@ -86,7 +107,7 @@
         <?php print ($e ? $this->Form->input('description') : filter_var($co_groups[0]['CoGroup']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
-    <tr class="line1">
+    <tr class="line<?php print ($l%2); $l++; ?>">
       <td>
         <?php print _txt('fd.open'); ?>
       </td>
@@ -99,7 +120,7 @@
         ?>
       </td>
     </tr>
-    <tr class="line2">
+    <tr class="line<?php print ($l%2); $l++; ?>">
       <td>
         <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
       </td>
@@ -193,8 +214,8 @@
         
         print '<td class="actions">';
         if($e) {
-          // Do not show edit or delete buttons if this is a members group.
-          if(!$isMembersGroup) {
+          // Do not show edit or delete buttons if this is an automatic group.
+          if(!$co_groups[0]['CoGroup']['auto']) {
             print $this->Html->link(
               _txt('op.edit'),
               array(

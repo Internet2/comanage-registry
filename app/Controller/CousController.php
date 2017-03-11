@@ -2,24 +2,27 @@
 /**
  * COmanage Registry COU Controller
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -38,6 +41,10 @@ class CousController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  public $delete_contains = array(
+    'ChildCou'
+  );
 
   public $edit_contains = array(
     'ParentCou'
@@ -61,12 +68,22 @@ class CousController extends StandardController {
     //
     // REST calls do not need to compute options for parents.
     if(!$this->request->is('restful')) {
-      // Loop check only needed for the edit page, model does not know CO for new COUs
-      if($this->action == 'edit') {
-        $options = $this->Cou->potentialParents($this->request->data['Cou']['id'],
-                                                $this->request->data['Cou']['co_id']);
-        
-        $this->set('parent_options', $options);
+      if($this->action == 'edit' || $this->action == 'add') {
+
+      switch ($this->action) {
+        case 'edit':
+          $couId = $this->request->data['Cou']['id'];
+          $coId  = $this->request->data['Cou']['co_id'];
+          break;
+
+        case 'add':
+          $couId = null;
+          $coId = $this->cur_co['Co']['id'];
+          break;
+      }
+
+      $options = $this->Cou->potentialParents($couId, $coId);
+      $this->set('parent_options', $options);
       }
     }
     
@@ -99,14 +116,14 @@ class CousController extends StandardController {
     }
     
     // A COU can't be removed if it has children.
-
+    
     $childCous = $curdata['ChildCou'];
-
+    
     if(!empty($childCous)) {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Child COU Exists");
       } else {
-        $this->Flash->set(_txt('er.cou.child', array(Sanitize::html($curdata['Cou']['name']))), array('key' => 'error'));
+        $this->Flash->set(_txt('er.cou.child', array(filter_var($curdata['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'error'));
       }
       
       return false;
@@ -198,74 +215,13 @@ class CousController extends StandardController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
-    if(!$this->request->is('restful') && $this->action == 'add') {
-    	// Create admin and members Groups for the new COU. As of now, we don't try to populate
-    	// them with the current user, since it may not be desirable for the current
-    	// user to be a member of the new CO.
-    
-    	// Only do this via HTTP.
+    if(!$this->request->is('restful') && $this->action == 'edit') {
+      if(!empty($reqdata['Cou']['name'])
+         && !empty($curdata['Cou']['name'])
+         && $reqdata['Cou']['name'] != $curdata['Cou']['name']) {
+        // The COU has been renamed, so update the relevant group names
         
-      if(isset($this->Cou->id)) {
-        $a['CoGroup'] = array(
-          'co_id' => $reqdata['Cou']['co_id'],
-          'name' => 'admin:' . $reqdata['Cou']['name'],
-          'description' => _txt('fd.group.desc.adm', array($reqdata['Cou']['name'])),
-          'open' => false,
-          'status' => 'A'
-        );
-        
-        $admin_create = $this->Cou->Co->CoGroup->save($a);
-        
-        $this->Cou->Co->CoGroup->clear();
-        
-        $a['CoGroup'] = array(
-          'co_id' => $reqdata['Cou']['co_id'],
-          'name' => 'members:' . $reqdata['Cou']['name'],
-          'description' => _txt('fd.group.desc.mem', array($reqdata['Cou']['name'])),
-          'open' => false,
-          'status' => 'A'
-        );
-        
-        $members_create = $this->Cou->Co->CoGroup->save($a);
-        
-        if(!$admin_create and !$members_create) {
-          $this->Flash->set(_txt('er.cou.gr.adminmembers'), array('key' => 'information'));
-          return false;
-        } elseif (!$admin_create) {
-          $this->Flash->set(_txt('er.cou.gr.admin'), array('key' => 'information'));
-          return false;
-        } elseif (!$members_create) {
-          $this->Flash->set(_txt('er.cou.gr.members'), array('key' => 'information'));
-          return false;
-        }
-      }
-    } elseif(!$this->request->is('restful') && $this->action == 'edit') {
-      // Manage name changes in admin and members groups.
-      // Only do this via HTTP.
-      if(isset($this->Cou->id)) {
-        $couName = $curdata['Cou']['name'];
-        $prefixes = array('admin:' => 'Administrators', 'members:' => 'Members');
-        $manyData = array();
-        
-        foreach($prefixes as $prefix => $suffix) {
-          $groupName = $prefix . $couName;
-          $group = $this->Cou->Co->CoGroup->findByName($reqdata['Cou']['co_id'], $groupName);
-          
-          if(!empty($group)) {
-            $data = array();
-            $data['CoGroup']['id'] = $group['CoGroup']['id'];
-            $data['CoGroup']['co_id'] = $group['CoGroup']['co_id'];
-            $data['CoGroup']['open'] = $group['CoGroup']['open'];
-            $data['CoGroup']['status'] = $group['CoGroup']['status'];
-            $data['CoGroup']['name'] = $prefix . $reqdata['Cou']['name'];
-            $data['CoGroup']['description'] = $reqdata['Cou']['name'] . ' ' . $suffix; 
-            $manyData[] = $data;
-          }
-        }
-      	
-        if(!$this->Cou->Co->CoGroup->saveMany($manyData)) {
-          $this->log("Error saving group after name change for COU");
-    	}
+        $this->Cou->Co->CoGroup->addDefaults($reqdata['Cou']['co_id'], $this->Cou->id, true);
       }
     }
     

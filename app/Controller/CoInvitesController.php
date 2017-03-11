@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Invite Controller
  *
- * Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class CoInvitesController extends AppController {
@@ -134,7 +137,7 @@ class CoInvitesController extends AppController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_invites.1'),
-                                                      Sanitize::html($this->request->params['pass'][0]))));
+                                                      filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -147,7 +150,7 @@ class CoInvitesController extends AppController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_people.1'),
-                                                      Sanitize::html($this->request->params['named']['copersonid']))));
+                                                      filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -795,7 +798,7 @@ class CoInvitesController extends AppController {
       } else {
         $this->Flash->set(_txt('er.notfound',
                                array(_txt('ct.email_addresses.1'),
-                                     Sanitize::html($this->request->params['named']['email_address_id']))),
+                                     filter_var($this->request->params['named']['email_address_id'],FILTER_SANITIZE_SPECIAL_CHARS))),
                           array('key' => 'error'));
       }
     } else {

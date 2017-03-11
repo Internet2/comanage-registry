@@ -2,17 +2,22 @@
 <!--
   COmanage Registry Database Schema
 
-  Copyright (C) 2010-2017 University Corporation for Advanced Internet Development, Inc.
-   
-  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-  the License. You may obtain a copy of the License at
-   
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
   http://www.apache.org/licenses/LICENSE-2.0
-  
-  Unless required by applicable law or agreed to in writing, software distributed under
-  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied. See the License for the specific language governing
-  permissions and limitations under the License.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
 -->
 <!--
   While this schema mostly works with database prefixes, foreign key constraints
@@ -58,6 +63,12 @@
     <field name="rght" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="cous_i1">
       <col>co_id</col>
@@ -68,7 +79,9 @@
     <index name="cous_i3">
       <col>co_id</col>
       <col>name</col>
-      <unique />
+    </index>
+    <index name="cous_i4">
+      <col>cou_id</col>
     </index>
   </table>
   
@@ -601,10 +614,15 @@
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
+    <field name="cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
     <field name="name" type="C" size="128" />
     <field name="description" type="C" size="256" />
     <field name="open" type="L" />
     <field name="status" type="C" size="2" />
+    <field name="group_type" type="C" size="2" />
+    <field name="auto" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_group_id" type="I">
@@ -629,6 +647,10 @@
     </index>
     <index name="co_groups_i4">
       <col>co_group_id</col>
+    </index>
+    <index name="co_groups_i5">
+      <col>co_id</col>
+      <col>group_type</col>
     </index>
   </table>
   
@@ -998,6 +1020,8 @@
     </field>
     <field name="status" type="C" size="2" />
     <field name="sync_mode" type="C" size="2" />
+    <field name="sync_query_mismatch_mode" type="C" size="2" />
+    <field name="sync_query_skip_known" type="L" />
     <field name="eppn_identifier_type" type="C" size="128" />
     <field name="eppn_suffix" type="C" size="128" />
     <field name="created" type="T" />
@@ -1156,7 +1180,7 @@
     <field name="approver_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
-    <!-- verify_email is no longer used (as of v1.1.0), but we can't
+    <!-- verify_email is no longer used (as of v2.0.0), but we can't
          drop the column since that would break changelog history -->
     <field name="verify_email" type="L" />
     <field name="email_verification_mode" type="C" size="2" />

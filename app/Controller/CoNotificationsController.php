@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Notifications Controller
  *
- * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -101,7 +104,7 @@ class CoNotificationsController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_notifications.1'),
-                                                      Sanitize::html($this->request->params['pass'][0]))));
+                                                      filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     } elseif(!empty($this->request->params['named']['actorcopersonid'])) {
       $copersontype = 'actorcopersonid';
@@ -123,7 +126,7 @@ class CoNotificationsController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_people.1'),
-                                                      Sanitize::html($this->request->params['named'][$copersontype]))));
+                                                      filter_var($this->request->params['named'][$copersontype],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -268,7 +271,7 @@ class CoNotificationsController extends StandardController {
       // Status is expected to be the corresponding short code. (Or omitted, for unresolved,
       // or "all" for all.) An unknown status code should generate some noise, but nothing more.
       
-      $status = Sanitize::paranoid($this->request->query['status']);
+      $status = filter_var($this->request->query['status'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
       
       if($status == 'all') {
         $this->cur_request_filter_txt = _txt('fd.all');

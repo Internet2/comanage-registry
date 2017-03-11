@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Organizational Identity Sources Controller
  *
- * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -55,7 +58,7 @@ class OrgIdentitySourcesController extends StandardController {
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: $plugins set
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @throws InvalidArgumentException
    */
   
@@ -147,7 +150,7 @@ class OrgIdentitySourcesController extends StandardController {
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
 
   public function beforeRender() {
@@ -162,7 +165,7 @@ class OrgIdentitySourcesController extends StandardController {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -180,7 +183,7 @@ class OrgIdentitySourcesController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_petitions.1'),
-                                                      Sanitize::html($this->request->params['named']['copetitionid']))));
+                                                      filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -191,7 +194,7 @@ class OrgIdentitySourcesController extends StandardController {
    * Perform any dependency checks required prior to a delete operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array Current data
    * @return boolean true if dependency checks succeed, false otherwise.
    */
@@ -222,14 +225,14 @@ class OrgIdentitySourcesController extends StandardController {
   /**
    * Create an Org Identity from an Org Identity Source.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    */
   
   public function create($id) {
     if(!empty($this->request->params['named']['key'])) {
       try {
-        $key = Sanitize::html($this->request->params['named']['key']);
+        $key = filter_var($this->request->params['named']['key'],FILTER_SANITIZE_SPECIAL_CHARS);
         
         $coId = null;
         $targetCoPersonId = null;
@@ -257,7 +260,7 @@ class OrgIdentitySourcesController extends StandardController {
           $args = array(
             'controller'    => 'co_petitions',
             'action'        => 'selectOrgIdentity',
-            Sanitize::html($this->request->params['named']['copetitionid']),
+            filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS),
             'orgidentityid' => $orgid
           );
         } else {
@@ -292,7 +295,7 @@ class OrgIdentitySourcesController extends StandardController {
    * Obtain all records from a backend. Because this just obtains record keys,
    * it is primarily intended for developers and debugging.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to inventory
    */
   
@@ -316,7 +319,7 @@ class OrgIdentitySourcesController extends StandardController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array Permissions
    */
   
@@ -376,7 +379,7 @@ class OrgIdentitySourcesController extends StandardController {
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   function performRedirect() {
@@ -403,7 +406,7 @@ class OrgIdentitySourcesController extends StandardController {
    * Query an Org Identity Source. This is not called "search" because it
    * would conflict with the function signature for StandardController::search.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    */
   
@@ -481,7 +484,7 @@ class OrgIdentitySourcesController extends StandardController {
   /**
    * Retrieve a record from an Org Identity Source.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    */
   
@@ -491,7 +494,7 @@ class OrgIdentitySourcesController extends StandardController {
         $r = $this->OrgIdentitySource->retrieve($id, $this->request->params['named']['key']);
         
         $this->set('title_for_layout',
-                   _txt('op.view-a', array(Sanitize::html($this->request->params['named']['key']))));
+                   _txt('op.view-a', array(filter_var($this->request->params['named']['key'],FILTER_SANITIZE_SPECIAL_CHARS))));
         
         if(!empty($r['orgidentity'])) {
           $this->set('vv_org_source_record', $r['orgidentity']);
@@ -528,7 +531,7 @@ class OrgIdentitySourcesController extends StandardController {
         // No records found. We'll let this fall through to the view in case an admin
         // is looking at an OrgIdentity record where the source is no longer available.
         $this->set('vv_not_found', true);
-        $this->set('title_for_layout', _txt('er.notfound', array(_txt('fd.key'), Sanitize::html($this->request->params['named']['key']))));
+        $this->set('title_for_layout', _txt('er.notfound', array(_txt('fd.key'), filter_var($this->request->params['named']['key'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
@@ -543,7 +546,7 @@ class OrgIdentitySourcesController extends StandardController {
   /**
    * Select an Org Identity Source to operate over.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   public function select() {
@@ -592,14 +595,14 @@ class OrgIdentitySourcesController extends StandardController {
   /**
    * Sync an Org Identity from an Org Identity Source.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    */
   
   public function sync($id) {
     if(!empty($this->request->params['named']['key'])) {
       try {
-        $key = Sanitize::html($this->request->params['named']['key']);
+        $key = filter_var($this->request->params['named']['key'],FILTER_SANITIZE_SPECIAL_CHARS);
         
         $ret = $this->OrgIdentitySource->syncOrgIdentity($id,
                                                          $key,

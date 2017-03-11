@@ -2,27 +2,31 @@
 /**
  * COmanage Registry netFORUM Enterprise Implementation Model
  *
- * Copyright (C) 2017 MLA
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2017 MLA
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("NetForumServer", "NetForumSource.Model");
+App::uses("CoSoapClient", "Lib");
 
 class NetForumEnterprise extends NetForumServer {
   // namespace returned from server
@@ -31,7 +35,7 @@ class NetForumEnterprise extends NetForumServer {
   /**
    * Make an initial authentication request.
    *
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @throws RuntimeException
    * @throws SoapFault
    */
@@ -51,11 +55,11 @@ class NetForumEnterprise extends NetForumServer {
     );
     
     $scontext = stream_context_create($opts);
-    $sclient = new SoapClient($this->serverUrl . "/xWeb/secure/netForumXML.asmx?WSDL",
-                              array('stream_context' => $scontext,
-                                    'cache_wsdl' => WSDL_CACHE_NONE,
-                                    // trace needed for get headers
-                                    'trace' => true));
+    $sclient = new CoSoapClient($this->serverUrl . "/xWeb/secure/netForumXML.asmx?WSDL",
+                                array('stream_context' => $scontext,
+                                      'cache_wsdl' => WSDL_CACHE_NONE,
+                                      // trace needed for get headers
+                                      'trace' => true));
     
     $headers = array();
     
@@ -76,7 +80,7 @@ class NetForumEnterprise extends NetForumServer {
   /**
    * Issue a query by customer key. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $searchKey   Search key (customer key)
    * @param Boolean $queryEvents Whether to also query for events for which the customer has registered
    * @return Array Array of OrgIdentity and raw (XML) data
@@ -98,7 +102,7 @@ class NetForumEnterprise extends NetForumServer {
   /**
    * Issue a query by email address. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $searchKey   Search key (email address)
    * @return Array Array of OrgIdentity data
    */
@@ -115,13 +119,13 @@ class NetForumEnterprise extends NetForumServer {
                                           true,
                                           false,
                                           false,
-                                          false); // We maybe want true, but it's slow and doesn't return much more
+                                          true); // We need membership validity
   }
   
   /**
    * Issue a query by name. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $searchKey   Search key (sort name, ie "family given")
    * @return Array Array of OrgIdentity data
    */
@@ -137,13 +141,13 @@ class NetForumEnterprise extends NetForumServer {
                                           true,
                                           false,
                                           false,
-                                          false); // We maybe want true, but it's slow and doesn't return much more
+                                          true); // We need membership validity
   }
   
   /**
    * Issue a query for customer events. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $searchKey   Search key (customer key)
    * @return Array Array of OrgIdentity data
    */
@@ -157,7 +161,7 @@ class NetForumEnterprise extends NetForumServer {
   /**
    * Issue a query against a netFORUM Enterprise instance. Be sure to call connect() first.
    * 
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param String  $callName   SOAP call name
    * @param String  $resultName SOAP result name
    * @param Array   $attributes Attributes to search by
@@ -185,11 +189,11 @@ class NetForumEnterprise extends NetForumServer {
     );
     
     $scontext = stream_context_create($opts);
-    $sclient = new SoapClient($this->serverUrl . "/xWeb/secure/netForumXML.asmx?WSDL",
-                              array('stream_context' => $scontext,
-                                    'cache_wsdl' => WSDL_CACHE_NONE,
-                                    // trace needed for get headers
-                                    'trace' => true));
+    $sclient = new CoSoapClient($this->serverUrl . "/xWeb/secure/netForumXML.asmx?WSDL",
+                                array('stream_context' => $scontext,
+                                      'cache_wsdl' => WSDL_CACHE_NONE,
+                                      // trace needed for get headers
+                                      'trace' => true));
     
     // Create header for next request
     $sheader = new SoapHeader($this->xwebNamespace,
@@ -207,10 +211,9 @@ class NetForumEnterprise extends NetForumServer {
     // Store the new authtoken (before any recursion)
     $this->token = $outHeaders['AuthorizationToken']->Token;
     
-    // GetIndividualInformationResult includes 'xsi:schemaLocation="http://www.avectra.com/2005/ Individual.xsd"'
-    // which causes validation errors. Toss it.
-    $sresponse->$resultName->any = preg_replace('/xsi.*xsd\"/', '', $sresponse->$resultName->any);
-    $r = new SimpleXMLElement($sresponse->$resultName->any);
+    // Flags suppress namespace warning since there doesn't appear to be a way to load the
+    // namespace before the XML is loaded
+    $r = new SimpleXMLElement($sresponse->$resultName->any, LIBXML_NOERROR+LIBXML_NOWARNING);
     
     if(isset($r->Result)) {
       foreach($r->Result as $entry) {
@@ -226,6 +229,8 @@ class NetForumEnterprise extends NetForumServer {
                                                    $events,
                                                    false);
             
+            // As for below, we need at least one membership to return a record.
+            
             if(!empty($dret)) {
               $results = array_merge($results, $dret);
             }
@@ -235,15 +240,75 @@ class NetForumEnterprise extends NetForumServer {
         }
       }
     } elseif(!empty($r->IndividualObject)) {
-      if($raw) {
-        // Use the customer key as the unique ID
-        $results[ (string)$r->IndividualObject->ind_cst_key ]['orgidentity'] = $this->resultToOrgIdentity($r->IndividualObject);
+      // Look for members validity dates
+          
+      $mret = $this->queryNetForumEnterprise('GetQuery',
+                                             'GetQueryResult',
+                                             array(
+                                              'szObjectName'  => 'mb_membership',
+                                              'szColumnList'  => 'mbr_cst_key, mbt_code, mbs_code, mbr_join_date, mbr_expire_date, mbr_terminate_date, mbr_terminate_reason',
+                                              'szWhereClause' => "mbr_cst_key = '" . (string)$r->IndividualObject->ind_cst_key . "'",
+                                              'szOrderBy'     => 'mbr_cst_key'
+                                             ),
+                                             $active,
+                                             true);
+      
+      // We need at least one membership to return a record.
+      
+      if(!empty($mret)) {
+        // Merge the raw record so a change in expiration date triggers a sync
+        $mxml = $r->IndividualObject->addChild('Membership');
         
-        // Insert the raw record for use by retrieve()
-        $results[ (string)$r->IndividualObject->ind_cst_key ]['raw'] = $r->IndividualObject->asXML();
-      } else {
-        // Use the customer key as the unique ID
-        $results[ (string)$r->IndividualObject->ind_cst_key ] = $this->resultToOrgIdentity($r->IndividualObject);
+        if(!empty($mret[(string)$r->IndividualObject->ind_cst_key]['raw']['from'])) {
+          $mxml->addChild('ValidFrom', $mret[(string)$r->IndividualObject->ind_cst_key]['raw']['from']);
+        }
+
+        if(!empty($mret[(string)$r->IndividualObject->ind_cst_key]['raw']['through'])) {
+          $mxml->addChild('ValidThrough', $mret[(string)$r->IndividualObject->ind_cst_key]['raw']['through']);
+        }
+        
+        if($raw) {
+          // Use the customer key as the unique ID
+          $results[ (string)$r->IndividualObject->ind_cst_key ]['orgidentity'] = $this->resultToOrgIdentity($r->IndividualObject);
+          
+          // Insert the raw record for use by retrieve()
+          $results[ (string)$r->IndividualObject->ind_cst_key ]['raw'] = $r->IndividualObject->asXML();
+        } else {
+          // Use the customer key as the unique ID
+          $results[ (string)$r->IndividualObject->ind_cst_key ] = $this->resultToOrgIdentity($r->IndividualObject);
+        }
+      }
+    } elseif(!empty($r->mb_membershipObject)) {
+      if($raw) {
+        // It's not clear how much of this logic is generic vs specific to the one instance
+        // we currently have access to.
+        // A person can have multiple memberships. We take the earliest valid join date
+        // and the latest valid expiration date.
+        
+        // Store as unix timestamps to facilitate comparison
+        $join = null;
+        $expire = null;
+        
+        foreach($r->mb_membershipObject as $m) {
+          if(!$active || $m->mbs_code == 'Active') {
+            $j = strtotime($m->mbr_join_date);
+            $x = strtotime($m->mbr_expire_date);
+            
+            if($j && (!$join || $j < $join)) {
+              $join = $j;
+            }
+            
+            if($x && (!$expire || $x > $expire)) {
+              $expire = $x;
+            }
+          }
+        }
+        
+        // Return an array of the dates. We'll let the parent call format stuff.
+        $results[ (string)$r->mb_membershipObject->mbr_cst_key ]['raw'] = array(
+          'from' => $join,
+          'through' => $expire
+        );
       }
     }
     
@@ -253,7 +318,7 @@ class NetForumEnterprise extends NetForumServer {
   /**
    * Convert a search result into an Org Identity.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $result netFORUM Search Result
    * @return Array Org Identity and related models, in the usual format
    */
@@ -272,12 +337,11 @@ class NetForumEnterprise extends NetForumServer {
     if(!empty($result->ixo_title))
       $orgdata['OrgIdentity']['title'] = (string)$result->ixo_title;
     
-/*
-    if(!empty($result->MemberExpireDate)) {
-      // netFORUM format is 12/31/2016 12:00:00 AM, we need to convert to YYYY-MM-DD HH:MM:SS
-      $time = strtotime($result->MemberExpireDate);
-      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", $time);
-    }*/
+    // The format here is a Unix timestamp, which we created when we parsed the membership records
+    if(!empty($result->Membership->ValidFrom))
+      $orgdata['OrgIdentity']['valid_from'] = strftime("%F %T", (integer)$result->Membership->ValidFrom);
+    if(!empty($result->Membership->ValidThrough))
+      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", (integer)$result->Membership->ValidThrough);
     
     $orgdata['Name'] = array();
     if(!empty($result->ind_first_name))

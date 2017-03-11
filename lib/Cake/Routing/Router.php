@@ -523,6 +523,7 @@ class Router {
  * - 'id' - The regular expression fragment to use when matching IDs. By default, matches
  *    integer values and UUIDs.
  * - 'prefix' - URL prefix to use for the generated routes. Defaults to '/'.
+ * - 'connectOptions' – Custom options for connecting the routes.
  *
  * @param string|array $controller A controller name or array of controller names (i.e. "Posts" or "ListItems")
  * @param array $options Options to use when generating REST routes
@@ -664,7 +665,7 @@ class Router {
  * created later in the request.
  *
  * Nested requests will create a stack of requests. You can remove requests using
- * Router::popRequest(). This is done automatically when using Object::requestAction().
+ * Router::popRequest(). This is done automatically when using CakeObject::requestAction().
  *
  * Will accept either a CakeRequest object or an array of arrays. Support for
  * accepting arrays may be removed in the future.

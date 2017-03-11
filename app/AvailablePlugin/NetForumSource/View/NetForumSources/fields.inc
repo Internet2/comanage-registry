@@ -2,24 +2,27 @@
 /**
  * COmanage Registry NetFORUM Source Plugin Fields
  *
- * Copyright (C) 2016 MLA
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016 MLA
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 -->
 <?php
@@ -52,7 +55,7 @@
         <font class="desc"><?php print _txt('pl.netforumsource.serverurl.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($net_forum_sources[0]['NetForumSource']['serverurl'])); ?>
+        <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($net_forum_sources[0]['NetForumSource']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">
@@ -61,7 +64,7 @@
         <font class="desc"><?php print _txt('pl.netforumsource.username.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('username', array('size' => 50)) : Sanitize::html($net_forum_sources[0]['NetForumSource']['username'])); ?>
+        <?php print ($e ? $this->Form->input('username', array('size' => 50)) : filter_var($net_forum_sources[0]['NetForumSource']['username'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line1">
@@ -70,7 +73,7 @@
         <font class="desc"><?php print _txt('pl.netforumsource.password.desc'); ?></font>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('password') : Sanitize::html($net_forum_sources[0]['NetForumSource']['password'])); ?>
+        <?php print ($e ? $this->Form->input('password') : filter_var($net_forum_sources[0]['NetForumSource']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line2">

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Group Member Select View
  *
- * Copyright (C) 2010-13 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-13 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 
@@ -120,10 +123,10 @@
           print $this->Form->hidden('CoGroupMember.rows.'.$i.'.co_person_id',
                                    array('default' => $p['CoPerson']['id'])) . "\n";
           print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
-                                      array('checked' => $isMember, 'disabled' => $isMembersGroup));
+                                      array('checked' => $isMember, 'disabled' => $co_group['CoGroup']['auto']));
           print $this->Form->label('CoGroupMember.rows.'.$i.'.member',_txt('fd.group.mem')) . "\n";
           print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
-                                      array('checked' => $isOwner, 'disabled' => $isMembersGroup));
+                                      array('checked' => $isOwner, 'disabled' => $co_group['CoGroup']['auto']));
           print $this->Form->label('CoGroupMember.rows.'.$i.'.owner', _txt('fd.group.own')) . "\n";
         ?>
       </td>
@@ -142,7 +145,7 @@
       <td>
         <?php
           $options = array('style' => 'float:left;');
-          if(!$isMembersGroup){
+          if(!$co_group['CoGroup']['auto']){
             print $this->Form->submit(_txt('op.save'), $options);
 
             print $this->Form->button(_txt('op.reset'), 

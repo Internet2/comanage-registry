@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Expiration Policies Fields
  *
- * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 <script type="text/javascript">
@@ -253,7 +256,7 @@
           <td>
             <?php
               print ($e ? $this->Form->input('cond_count', $args)
-                        : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['cond_count']));
+                        : filter_var($co_expiration_policies[0]['CoExpirationPolicy']['cond_count'],FILTER_SANITIZE_SPECIAL_CHARS));
             ?>
           </td>
         </tr>
@@ -526,7 +529,7 @@
                 }
               } else {
                 if(!empty($co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'])) {
-                  print Sanitize::html($vv_message_templates[ $co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'] ]);
+                  print filter_var($vv_message_templates[ $co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               }
             ?>

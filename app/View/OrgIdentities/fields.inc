@@ -2,24 +2,27 @@
 /**
  * COmanage Registry OrgIdentity Fields
  *
- * Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 
@@ -96,11 +99,13 @@ $(function() {
 
   $l = 1;
 ?>
-<?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['id'])): ?>
+<?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['id'])): ?>
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <p>
     <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.orgid.edit.ois'); ?></strong>
+    <strong><?php
+      print _txt('op.orgid.edit.ois', array($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['description']));
+    ?></strong>
   </p>
 </div>
 <br />
@@ -869,7 +874,7 @@ $(function() {
                                                 'action'     => 'canvas',
                                                 $o['CoPerson']['id']));
                   
-                  print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
+                  print "&nbsp;(" . filter_var($o['CoPerson']['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . ")<br />\n";
                 print '</div>';
                 print '<div>';
                 
@@ -886,7 +891,7 @@ $(function() {
             }
           }
           
-          if(!empty($org_identities[0]['PipelineCoPersonRole']['id'])) {
+          if(!empty($vv_co_person_roles['PipelineCoPersonRole']['id'])) {
             print '<div>';
               print '<div>';
                 print _txt('in.orgid.pi.role') . "<br />\n";
@@ -896,7 +901,7 @@ $(function() {
               print $this->Html->link(_txt('op.view'),
                                       array('controller' => 'co_person_roles',
                                             'action'     => 'edit',
-                                            $org_identities[0]['PipelineCoPersonRole']['id']),
+                                            $vv_co_person_roles['PipelineCoPersonRole']['id']),
                                       array('class' => 'editbutton')) . "\n";
               print '</div>';
             print '</div>';
@@ -906,7 +911,7 @@ $(function() {
             foreach($org_identities[0]['PipelineCoGroupMember'] as $g) {
               print '<div>';
                 print '<div>';
-                  print _txt('in.orgid.pi.group', array(Sanitize::html($g['CoGroup']['name']))) . "<br />\n";
+                  print _txt('in.orgid.pi.group', array(filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))) . "<br />\n";
                 print '</div>';
                 print '<div>';
                 

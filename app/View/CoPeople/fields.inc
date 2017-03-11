@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Person Fields
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Globals
@@ -488,7 +491,7 @@
               <table>
                 <!-- Simply list the org names and then the CO names -->
                 <tr>
-                  <th class="ui-widget-header"><?php print Sanitize::html($cur_co['Co']['name']); ?></th>
+                  <th class="ui-widget-header"><?php print filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></th>
                 </tr>
                 <?php foreach($co_people[0]['Name'] as $n): ?>
                   <tr>
@@ -505,7 +508,7 @@
                   </tr>
                 <?php endforeach; ?>
                 <tr>
-                  <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? Sanitize::html($org_identities[0]['OrgIdentity']['o']) : _txt('fd.o')); ?></th>
+                  <th class="ui-widget-header"><?php print (!empty($org_identities[0]['OrgIdentity']['o']) ? filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.o')); ?></th>
                 </tr>
                 <?php foreach($org_identities[0]['Name'] as $n): ?>
                   <tr>
@@ -941,8 +944,7 @@
                     <?php
                     if(isset($co_people[0]['CoGroupMember'])) {
       	              foreach($co_people[0]['CoGroupMember'] as $g) {
-                        $isMembersGroup = ($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8)== 0);
-                      	if($e && !$es && !$isMembersGroup) {
+                        if($e && !$es && !$g['CoGroup']['auto']) {
                           if($g['member'] || $g['owner']) {
                             print '<div>';
                             print '<div>';
@@ -1415,6 +1417,7 @@
                   <tbody>
                   <tr class="line<?php print ($l % 2); $l++; ?>">
                     <th class="ui-widget-header"><?php print _txt('fd.name'); ?></th>
+                    <th class="ui-widget-header"><?php print _txt('fd.source'); ?></th>
                     <th class="ui-widget-header"><?php print _txt('fd.o'); ?></th>
                     <th class="ui-widget-header"><?php print _txt('fd.valid_from.tz', array($vv_tz)); ?></th>
                     <th class="ui-widget-header"><?php print _txt('fd.valid_through.tz', array($vv_tz)); ?></th>
@@ -1431,6 +1434,13 @@
                           }
 
                           print " (" . filter_var($link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS) . ")";
+                        ?>
+                      </td>
+                      <td>
+                        <?php
+                          if(!empty($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])) {
+                            print filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS);
+                          }
                         ?>
                       </td>
                       <td>

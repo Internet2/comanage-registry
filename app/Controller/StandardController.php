@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Standard Controller
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class StandardController extends AppController {
@@ -135,7 +138,7 @@ class StandardController extends AppController {
       $ret = $model->saveAll($data);
     }
     catch(Exception $e) {
-      $err = Sanitize::html($e->getMessage());
+      $err = filter_var($e->getMessage(),FILTER_SANITIZE_SPECIAL_CHARS);
     }
     
     if($ret) {
@@ -156,7 +159,7 @@ class StandardController extends AppController {
         $this->set($modelid, $model->id);
       } else {
         // Redirect to index view
-        $this->Flash->set(_txt('rs.added-a', array(Sanitize::html($this->generateDisplayKey()))), array('key' => 'success'));
+        $this->Flash->set(_txt('rs.added-a', array(filter_var($this->generateDisplayKey(),FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'success'));
         $this->performRedirect();
       }
     } else {
@@ -328,7 +331,7 @@ class StandardController extends AppController {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(200, "Deleted");
         } else {
-          $this->Flash->set(_txt('er.deleted-a', array(Sanitize::html($name))), array('key' => 'success'));
+          $this->Flash->set(_txt('er.deleted-a', array(filter_var($name,FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'success'));
         }
       }
     } else {
@@ -558,7 +561,7 @@ class StandardController extends AppController {
       $ret = $model->saveAll($data);
     }
     catch(Exception $e) {
-      $err = Sanitize::html($e->getMessage());
+      $err = filter_var($e->getMessage(),FILTER_SANITIZE_SPECIAL_CHARS);
     }
     
     if($ret) {
@@ -597,7 +600,7 @@ class StandardController extends AppController {
       } else {
         // Redirect to index view
         
-        $this->Flash->set(_txt('rs.updated', array(Sanitize::html($this->generateDisplayKey()))), array('key' => 'success'));
+        $this->Flash->set(_txt('rs.updated', array(filter_var($this->generateDisplayKey(),FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'success'));
         $this->performRedirect();
       }
     } else {
@@ -1044,7 +1047,7 @@ class StandardController extends AppController {
       $this->set('redirect', $redirect);
       $this->redirect($redirect);
     } elseif(isset($this->cur_co)) {
-      $this->redirect(array('action' => 'index', 'co' => Sanitize::html($this->cur_co['Co']['id'])));
+      $this->redirect(array('action' => 'index', 'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
     } else {
       $this->redirect(array('action' => 'index'));
     }

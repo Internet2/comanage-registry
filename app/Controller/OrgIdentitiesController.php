@@ -2,24 +2,27 @@
 /**
  * COmanage Registry OrgIdentity Controller
  *
- * Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-17 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -55,7 +58,7 @@ class OrgIdentitiesController extends StandardController {
     'EmailAddress',
     'Identifier',
     'Name',
-    'OrgIdentitySourceRecord',
+    'OrgIdentitySourceRecord' => array('OrgIdentitySource'),
     'PrimaryName',
     'TelephoneNumber'
   );
@@ -67,8 +70,9 @@ class OrgIdentitiesController extends StandardController {
     'EmailAddress',
     'Identifier',
     'Name',
-    'OrgIdentitySourceRecord',
-    'PipelineCoPersonRole',
+    'OrgIdentitySourceRecord' => array('OrgIdentitySource'),
+// This causes slowness on MariaDB. See CO-1406.
+//    'PipelineCoPersonRole',
     'PipelineCoGroupMember' => array('CoGroup'),
     'PrimaryName',
     'TelephoneNumber'
@@ -129,7 +133,7 @@ class OrgIdentitiesController extends StandardController {
    * - postcondition: If a CO must be specifed, a named parameter may be set.
    * - postcondition: $co_enrollment_attributes may be set.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   function beforeRender() {
@@ -158,6 +162,15 @@ class OrgIdentitiesController extends StandardController {
         
         $this->set('vv_pipeline', $this->OrgIdentity->Co->CoPipeline->find('first', $args));
       }
+      
+      // Pull any CO Person Role associated with this as the source org id. We should be able to get
+      // this via $view_contains, but CO-1406.
+      
+      $args = array();
+      $args['conditions']['PipelineCoPersonRole.source_org_identity_id'] = $this->request->params['pass'][0];
+      $args['contain'] = false;
+      
+      $this->set('vv_co_person_roles', $this->OrgIdentity->PipelineCoPersonRole->find('first', $args));
     }
     
     parent::beforeRender();
@@ -203,7 +216,7 @@ class OrgIdentitiesController extends StandardController {
         } else {
           $this->Flash->set(_txt('er.comember',
                                  array(generateCn($curdata['PrimaryName']),
-                                       Sanitize::html(join(',', array_values($memberships))))),
+                                       filter_var(join(',', array_values($memberships))),FILTER_SANITIZE_SPECIAL_CHARS)),
                             array('key' => 'error'));
         }
         
@@ -278,7 +291,7 @@ class OrgIdentitiesController extends StandardController {
         $this->set('title_for_layout', _txt('op.find.link', array(generateCn($cop['PrimaryName']))));
       } else {
         $this->Flash->set(_txt('er.notfound',
-                               array(_txt('ct.co_people.1'), Sanitize::html($this->request->params['named']['copersonid']))),
+                               array(_txt('ct.co_people.1'), filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))),
                           array('key' => 'error'));
         $this->performRedirect();
       }
@@ -456,7 +469,7 @@ class OrgIdentitiesController extends StandardController {
         $args = array(
           'controller' => 'org_identities',
           'action'     => 'view',
-          Sanitize::html($this->request->params['pass'][0])
+          filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS)
         );
         
         $this->redirect($args);

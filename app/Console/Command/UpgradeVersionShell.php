@@ -2,24 +2,27 @@
 /**
  * COmanage Upgrade Shell (not called "UpgradeShell" to avoid conflict with Cake's Upgrade shell)
  *
- * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class UpgradeVersionShell extends AppShell {
@@ -62,7 +65,7 @@ class UpgradeVersionShell extends AppShell {
     "1.0.4" => array('block' => false),
     "1.0.5" => array('block' => false, 'post' => 'post105'),
     "1.0.6" => array('block' => false),
-    "1.1.0" => array('block' => false, 'post' => 'post110')
+    "2.0.0" => array('block' => false, 'post' => 'post110')
   );
   
   public function getOptionParser() {
@@ -302,51 +305,44 @@ class UpgradeVersionShell extends AppShell {
   }
   
   public function post110() {
-    // 1.1.0 replaces CoEnrollmentFlow::verify_email with email_verification_mode.
+    // 2.0.0 was originally going to be 1.1.0. Rather than rename all this internal
+    // stuff and risk breaking something, we'll leave the 1.1.0 references in place.
+    
+    // 2.0.0 replaces CoEnrollmentFlow::verify_email with email_verification_mode.
     $this->out(_txt('sh.ug.110.ef'));
     $this->CoEnrollmentFlow->_ug110();
     
-    // 1.1.0 changes how members groups are populated. This will reconcile the groups.
+    // 2.0.0 changes how automatic groups are populated.
     $this->out(_txt('sh.ug.110.gr'));
     
     // Start by pulling the list of COs and its COUs.
     
     $args = array();
-    $args['contain'] = 'Cou';
+    // Because CO is not Changelog but COU is, we have to pull COUs separately
+    $args['contain'] = false;
     
     $cos = $this->Co->find('all', $args);
     
     // We update inactive COs as well, in case they become active again
     foreach($cos as $co) {
       $this->out('- ' . $co['Co']['name']);
+
+      $this->CoGroup->_ug110($co['Co']['id'], $co['Co']['name']);
       
-      // Reconcile the CO members group
       $args = array();
-      $args['conditions']['CoGroup.name'] = 'members';
-      $args['conditions']['CoGroup.co_id'] = $co['Co']['id'];
+      $args['conditions']['Cou.co_id'] = $co['Co']['id'];
       $args['contain'] = false;
       
-      $group = $this->CoGroup->find('first', $args);
+      $cous = $this->Co->Cou->find('all', $args);
       
-      if($group) {
-        $this->CoGroup->reconcileMembersGroup($group['CoGroup']['id']);
-      }
-      
-      foreach($co['Cou'] as $cou) {
-        $this->out('-- ' . $cou['name']);
+      foreach($cous as $cou) {
+        $this->out('-- ' . $cou['Cou']['name']);
         
-        // Reconcile the COU members group
-        $args['conditions']['CoGroup.name'] = 'members:' . $cou['name'];
-        
-        $group = $this->CoGroup->find('first', $args);
-        
-        if($group) {
-          $this->CoGroup->reconcileMembersGroup($group['CoGroup']['id']);
-        }
+        $this->CoGroup->_ug110($co['Co']['id'],  $co['Co']['name'], $cou['Cou']['id'], $cou['Cou']['name']);
       }
     }
     
-    // 1.1.0 uses SuspendableStatusEnum for Identifier::status
+    // 2.0.0 uses SuspendableStatusEnum for Identifier::status
     $this->out(_txt('sh.ug.110.is'));
     $this->Identifier->_ug110();
   }

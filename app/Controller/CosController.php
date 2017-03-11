@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Controller
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -126,52 +129,16 @@ class CosController extends StandardController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
-    // Create an admin and member Group for the new CO. As of now, we don't try to populate
-    // them with the current user, since it may not be desirable for the current
-    // user (say, the CMP admin) to be a member of the new CO. See also CO-84.
-    
-    // Only do this via HTTP.
-    
-    if(!$this->request->is('restful') && $this->action == 'add')
-    {
-      if(isset($this->Co->id))
-      {
-        $a['CoGroup'] = array(
-          'co_id' => $this->Co->id,
-          'name' => 'admin',
-          'description' => _txt('fd.group.desc.adm', array($reqdata['Co']['name'])),
-          'open' => false,
-          'status' => 'A'
-        );
-        
-        $admin_create = $this->Co->CoGroup->save($a);
-        
-        $this->Co->CoGroup->clear();
-        
-        $a['CoGroup'] = array(
-          'co_id' => $this->Co->id,
-          'name' => 'members',
-          'description' => _txt('fd.group.desc.mem', array($reqdata['Co']['name'])),
-          'open' => false,
-          'status' => 'A'
-        );
-        
-        $members_create = $this->Co->CoGroup->save($a);
-        
-        if(!$admin_create and !$members_create) {
-          $this->Flash->set(_txt('er.co.gr.adminmembers'), array('key' => 'information'));
-          return(false);
-        } elseif (!$admin_create) {
-          $this->Flash->set(_txt('er.co.gr.admin'), array('key' => 'information'));
-          return(false);
-        } elseif(!$members_create) {
-          $this->Flash->set(_txt('er.co.gr.members'), array('key' => 'information'));
-          return(false);
-        }
-      }
+    if(!empty($reqdata['Co']['name'])
+       && !empty($curdata['Co']['name'])
+       && $reqdata['Co']['name'] != $curdata['Co']['name']) {
+      // The CO has been renamed, so update the relevant group descriptions.
+      // (The CO name is not currently embedded in the group, just the description.)
+      
+      $this->Co->CoGroup->addDefaults($this->Co->id, null, true);
     }
 
-    return(true);
+    return true;
   }
 
   /**

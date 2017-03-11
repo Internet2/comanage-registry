@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Service Fields
  *
- * Copyright (C) 2016-17 SURFnet BV
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016-17 SURFnet BV
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 <?php
@@ -60,7 +63,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('name', array('class' => 'focusFirst'))
-                     : Sanitize::html($co_services[0]['CoService']['name'])); ?>
+                     : filter_var($co_services[0]['CoService']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -72,7 +75,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : Sanitize::html($co_services[0]['CoService']['description'])); ?>
+                     : filter_var($co_services[0]['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -161,7 +164,7 @@
             }
           } else {
             if(!empty( $co_services[0]['CoService']['co_group_id'])) {
-              print Sanitize::html($vv_co_groups[  $co_services[0]['CoService']['co_group_id'] ]);
+              print filter_var($vv_co_groups[  $co_services[0]['CoService']['co_group_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           }
         ?>
@@ -177,7 +180,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('service_url')
-                     : Sanitize::html($co_services[0]['CoService']['service_url'])); ?>
+                     : filter_var($co_services[0]['CoService']['service_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -190,7 +193,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('contact_email')
-                     : Sanitize::html($co_services[0]['CoService']['contact_email'])); ?>
+                     : filter_var($co_services[0]['CoService']['contact_email'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -203,7 +206,7 @@
       <td>
         <?php print ($e
                      ? $this->Form->input('entitlement_uri')
-                     : Sanitize::html($co_services[0]['CoService']['entitlement_uri'])); ?>
+                     : filter_var($co_services[0]['CoService']['entitlement_uri'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Person Role Model
  *
- * Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-17 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class CoPersonRole extends AppModel {
@@ -275,6 +278,8 @@ class CoPersonRole extends AppModel {
                                       ($this->cachedData[$this->alias]['valid_through']
                                        != $curdata[$this->alias]['valid_through']));
     }
+    
+    return true;
   }
   
   /**
@@ -359,7 +364,7 @@ class CoPersonRole extends AppModel {
    * Expire any roles for the specified CO Person ID. Specifically, set the status
    * to Expired and set the valid through date to yesterday, if one was set.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $coPersonId      CO Person ID
    * @param  Integer $couId           COU ID to expire roles for, or null for any role
    * @param  Integer $actorCoPersonId CO Person ID of actor, if interactive
@@ -408,14 +413,15 @@ class CoPersonRole extends AppModel {
    * CoPersonRole(s) for a CoPerson and the Cou(s) for those roles.
    *
    * @since  COmanage Registry v0.9.3
-   * @param  Integer $id CoPersonRole ID
-   * @param  String $alias Alias for the CoPersonRole model
-   * @param  Boolean $provision Whether to run provisioners
+   * @param  Integer $id           CoPersonRole ID
+   * @param  String  $alias        Alias for the CoPersonRole model
+   * @param  Boolean $provision    Whether to run provisioners
+   * @param  Boolean $personActive If false, role is not eligible for ActiveMembers
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function reconcileCouMembersGroupMemberships($id, $alias = null, $provision = true) {
+  public function reconcileCouMembersGroupMemberships($id, $alias=null, $provision=true, $personActive=true) {
     // Since the Provisioner Behavior will only provision group memberships
     // for CO People with an Active status we do not need to manage 
     // membership in the members group based on status here.  
@@ -431,15 +437,14 @@ class CoPersonRole extends AppModel {
     // Map the CO Person Role ID to a CO Person ID. Because CoPersonRole is
     // changelog enabled, this will work even on a delete or expunge.
     
-    $coPersonId = $this->field('co_person_id');
+    $coPersonId = $this->field('co_person_id', array('CoPersonRole.id' => $id));
     
     if(!$coPersonId) {
       // We're probably deleting the CO
       return;
     }
     
-    // Construct the members group name
-    $couId = $this->field('cou_id');
+    $couId = $this->field('cou_id', array('CoPersonRole.id' => $id));
     
     if(!$couId) {
       // There is no COU associated with this role, so nothing to do
@@ -457,16 +462,20 @@ class CoPersonRole extends AppModel {
     
     $status = $this->find('list', $args);
     
-    $eligible = array_search(StatusEnum::Active, $status) || array_search(StatusEnum::GracePeriod, $status);
+    // This logic is similar to CoGroup::reconcileAutomaticGroup()
+    $activeEligible = $personActive && (array_search(StatusEnum::Active, $status) || array_search(StatusEnum::GracePeriod, $status));
     
-    $couName = $this->Cou->field('name', array('Cou.id' => $couId));
+    // For $allEligible, we need at least one role not Deleted
+    $allEligible = false;
     
-    if(!$couName) {
-      throw new InvalidArgumentException(_txt('er.unknown', array($couId)));
+    foreach($status as $s) {
+      if($s != StatusEnum::Deleted) {
+        $allEligible = true;
+        break;
+      }
     }
     
-    $coGroupName = 'members:' . $couName;
-    
-    $this->CoPerson->CoGroupMember->syncMembership($coGroupName, $coPersonId, $eligible, $provision);
+    $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $couId, $coPersonId, $activeEligible, $provision);
+    $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::AllMembers, $couId, $coPersonId, $allEligible, $provision);
   }
 }

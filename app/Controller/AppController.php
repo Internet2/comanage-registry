@@ -2,24 +2,27 @@
 /**
  * Application level Controller
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses('Controller', 'Controller');
@@ -415,7 +418,7 @@ class AppController extends Controller {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.co_people.1'),
-                                                        Sanitize::html($p['copersonid']))));
+                                                        filter_var($p['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       } elseif(!empty($p['copersonroleid']) && isset($model->CoPersonRole)) {
         $args = array();
@@ -433,7 +436,7 @@ class AppController extends Controller {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.co_person_roles.1'),
-                                                        Sanitize::html($p['copersonroleid']))));
+                                                        filter_var($p['copersonroleid'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       } elseif(!empty($p['orgidentityid'])) {
         if(isset($model->OrgIdentity)) {
@@ -447,7 +450,7 @@ class AppController extends Controller {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.org_identities.1'),
-                                                        Sanitize::html($p['orgidentityid']))));
+                                                        filter_var($p['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       } elseif(!empty($this->request->params['named']['cogroup']) && isset($model->CoGroup)) {
         // Map the group to a CO
@@ -458,7 +461,7 @@ class AppController extends Controller {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.co_groups.1'),
-                                                        Sanitize::html($this->request->params['named']['cogroup']))));
+                                                        filter_var($this->request->params['named']['cogroup'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       }
     }
@@ -733,7 +736,7 @@ class AppController extends Controller {
    * Obtain configured theme, if any
    * - postcondition: Theme view variable set
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   protected function getTheme() {

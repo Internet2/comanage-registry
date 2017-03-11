@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Organizational Identity Sources Fields
  *
- * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -68,6 +71,17 @@
     } else {
       $("#OrgIdentitySourceEppnSuffix").closest('tr').hide('fade');
     }
+    
+    // Set query options visibility
+    var syncmode = document.getElementById('OrgIdentitySourceSyncMode').value;
+    
+    if(syncmode == '<?php print SyncModeEnum::Query; ?>') {
+      $("#OrgIdentitySourceSyncQuerySkipKnown").closest('tr').show('fade');
+      $("#OrgIdentitySourceSyncQueryMismatchMode").closest('tr').show('fade');
+    } else {
+      $("#OrgIdentitySourceSyncQuerySkipKnown").closest('tr').hide('fade');
+      $("#OrgIdentitySourceSyncQueryMismatchMode").closest('tr').hide('fade');
+    }
   }
   
   function js_local_onload() {
@@ -90,7 +104,7 @@
         <?php print _txt('fd.desc'); ?><span class="required">*</span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('description') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['description'])); ?>
+        <?php print ($e ? $this->Form->input('description') : filter_var($org_identity_sources[0]['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -108,17 +122,17 @@
               print $this->Form->input('plugin', array('disabled' => true));
               // We need to re-include the value as hidden since it can't be changed (but is required by the model)
               print $this->Form->hidden('plugin',
-                                        array('default' => Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']))) . "\n";
+                                        array('default' => filter_var($org_identity_sources[0]['OrgIdentitySource']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
               break;
             default:
-              print Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
+              print filter_var($org_identity_sources[0]['OrgIdentitySource']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
               break;
           }
           
           if($this->action == 'edit') {
             // And render a link to the plugin target
             
-            $plmodel = Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['plugin']);
+            $plmodel = filter_var($org_identity_sources[0]['OrgIdentitySource']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
             $pl = Inflector::underscore($plmodel);
             $plm = Inflector::tableize($plmodel);
             
@@ -184,6 +198,7 @@
                              ? $org_identity_sources[0]['OrgIdentitySource']['sync_mode']
                              : SyncModeEnum::Manual);
           $attrs['empty'] = false;
+          $attrs['onChange'] = 'fields_update_gadgets();';
           
           if($e) {
             print $this->Form->select('sync_mode',
@@ -195,6 +210,43 @@
             }
           } else {
             print _txt('en.sync.mode', null, $org_identity_sources[0]['OrgIdentitySource']['sync_mode']);
+          }
+        ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.ois.sync.skipknown'); ?><br />
+        <span class="descr"><?php print _txt('fd.ois.sync.skipknown.desc'); ?></span>
+      </td>
+      <td>
+        <?php print $this->Form->input('sync_query_skip_known'); ?>
+      </td>
+    </tr>
+    <tr class="line<?php print ($l % 2); $l++; ?>">
+      <td>
+        <?php print _txt('fd.ois.sync.mismatch'); ?><br />
+        <span class="descr"><?php print _txt('fd.ois.sync.mismatch.desc'); ?></span>
+      </td>
+      <td>
+        <?php
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (isset($org_identity_sources[0]['OrgIdentitySource']['sync_query_mismatch_mode'])
+                             ? $org_identity_sources[0]['OrgIdentitySource']['sync_query_mismatch_mode']
+                             : OrgIdentityMismatchEnum::CreateNew);
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('sync_query_mismatch_mode',
+                                      $cm_texts[ $cm_lang ]['en.sync.query.mismatch.mode'],
+                                      $attrs);
+            
+            if($this->Form->isFieldError('sync_query_mismatch_mode')) {
+              print $this->Form->error('sync_query_mismatch_mode');
+            }
+          } else {
+            print _txt('en.sync.query.mismatch.mode', null, $org_identity_sources[0]['OrgIdentitySource']['sync_query_mismatch_mode']);
           }
         ?>
       </td>
@@ -253,7 +305,9 @@
               print $this->Form->error('eppn_identifier_type');
             }
           } else {
-            print $vv_identifier_types[ $org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'] ];
+            if(!empty($org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'])) {
+              print $vv_identifier_types[ $org_identity_sources[0]['OrgIdentitySource']['eppn_identifier_type'] ];
+            }
           }
         ?>
       </td>
@@ -264,7 +318,7 @@
         <span class="descr"><?php print _txt('fd.ois.eppn.suffix.desc'); ?></span>
       </td>
       <td>
-        <?php print ($e ? $this->Form->input('eppn_suffix') : Sanitize::html($org_identity_sources[0]['OrgIdentitySource']['eppn_suffix'])); ?>
+        <?php print ($e ? $this->Form->input('eppn_suffix') : filter_var($org_identity_sources[0]['OrgIdentitySource']['eppn_suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr>

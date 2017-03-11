@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO People Controller
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -177,7 +180,7 @@ class CoPeopleController extends StandardController {
         } else {
           throw new InvalidArgumentException(_txt('er.notfound',
                                                   array(_txt('ct.org_identities.1'),
-                                                        Sanitize::html($this->request->params['named']['orgidentityid']))));
+                                                        filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
       }
     } elseif($this->action == "match"
@@ -192,7 +195,7 @@ class CoPeopleController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_enrollment_flows.1'),
-                                                      Sanitize::html($this->request->params['named']['coef']))));
+                                                      filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     } elseif($this->action == "select"
              && !empty($this->request->params['named']['copetitionid'])) {
@@ -206,7 +209,7 @@ class CoPeopleController extends StandardController {
       } else {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_petitions.1'),
-                                                      Sanitize::html($this->request->params['named']['copetitionid']))));
+                                                      filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
     
@@ -268,7 +271,7 @@ class CoPeopleController extends StandardController {
           
           $this->Flash->set(_txt('er.coumember',
                                  array(generateCn($curdata['PrimaryName']),
-                                       Sanitize::html($couname))),
+                                       filter_var($couname,FILTER_SANITIZE_SPECIAL_CHARS))),
                             array('key' => 'error'));
           
           return false;
@@ -1028,7 +1031,7 @@ class CoPeopleController extends StandardController {
       $r['controller'] = 'co_people';
       $r['action'] = 'invite';
       if(isset($this->request->data['CoOrgIdentityLink'][0]['org_identity_id'])) {
-        $r['orgidentityid'] = Sanitize::html($this->request->data['CoOrgIdentityLink'][0]['org_identity_id']);
+        $r['orgidentityid'] = filter_var($this->request->data['CoOrgIdentityLink'][0]['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
       }
       $r['co'] = $this->cur_co['Co']['id'];
       
