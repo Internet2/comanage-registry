@@ -437,14 +437,14 @@ class CoPersonRole extends AppModel {
     // Map the CO Person Role ID to a CO Person ID. Because CoPersonRole is
     // changelog enabled, this will work even on a delete or expunge.
     
-    $coPersonId = $this->field('co_person_id', array('CoPersonRole.id' => $id));
+    $coPersonId = $this->field('co_person_id', array($modelName.'.id' => $id));
     
     if(!$coPersonId) {
       // We're probably deleting the CO
       return;
     }
     
-    $couId = $this->field('cou_id', array('CoPersonRole.id' => $id));
+    $couId = $this->field('cou_id', array($modelName.'.id' => $id));
     
     if(!$couId) {
       // There is no COU associated with this role, so nothing to do
