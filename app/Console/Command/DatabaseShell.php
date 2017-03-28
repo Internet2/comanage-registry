@@ -50,7 +50,13 @@
       if($db_driver[0] != 'Database') {
         throw new RuntimeException("Unsupported db_method: " . $db_driver[0]);
       }
-      $dbc = ADONewConnection($db_driver[1]);
+
+      $db_driverName = $db_driver[1];
+      if(preg_match("/mysql/i", $db_driverName) && PHP_MAJOR_VERSION >= 7) {
+        $db_driverName = 'mysqli';
+      }
+
+      $dbc = ADONewConnection($db_driverName);
       
       if($dbc->Connect($db->config['host'],
                        $db->config['login'],

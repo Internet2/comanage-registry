@@ -184,7 +184,7 @@ class CoGroup extends AppModel {
             'id'          => $group['CoGroup']['id'],
             'name'        => "CO" . ($couName ? ":COU:".$couName : "") . ":admins",
             'group_type'  => GroupEnum::Admins,
-            'auto'        => true,
+            'auto'        => false,
             'description' => _txt('fd.group.desc.adm', array($couName ?: $coName)),
             'open'        => false,
             'status'      => SuspendableStatusEnum::Active,
