@@ -362,6 +362,20 @@
   body.petitionerAttributes .modelbox {
     margin: 0 0.5em 1.5em 0;
   }
+  /* SERVICE PORTAL */
+  .co-card {
+    float: left;
+    margin: 0 1.25em 1.25em 0;
+    padding: 0.75em 1.25em 1.25em 1.25em;
+    min-height: 100px; /* XXX if images and descriptions are added, make this 200px;*/
+    min-width: 0;
+    width: 200px;
+  }
+  .co-card .co-card-icons {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+  }
 }
 
 /* MEDIUM DESKTOP */

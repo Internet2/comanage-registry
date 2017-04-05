@@ -209,14 +209,17 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         $args['co'] = $menuCoId;
         print $this->Html->link(_txt('fd.svc.portal'), $args);
         print "</li>";
-        
+
         foreach($menuContent['services'] as $svc) {
           print '<li class="mdl-js-ripple-effect">';
-          print $this->Html->link($svc['CoService']['description'], $svc['CoService']['service_url']);
+          print $this->Html->link('<i class="material-icons">grade</i>' .
+            filter_var($svc['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
+            filter_var($svc['CoService']['service_url'],FILTER_SANITIZE_SPECIAL_CHARS),
+            array('escape' => false)); // filter user values explicitly so we can pass the icon into the link
           print '<span class="mdl-ripple"></span>';
           print "</li>";
         }
-        
+
         // Plugins
         if(!empty($menuContent['plugins'])) {
           render_plugin_menus($this->Html, $menuContent['plugins'], 'coservices', $menuCoId);
@@ -623,5 +626,9 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       print '</li>';
     }
   ?>
+
+  <li>
+    <div aria-expanded="false" role="button" tabindex="0" class="mdl-layout__drawer-button"><i class="fa fa-angle-double-left" aria-hidden="true"></i></div>
+  </li>
 
 </ul>

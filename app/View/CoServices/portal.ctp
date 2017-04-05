@@ -33,48 +33,82 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<table id="co_services">
-  <thead>
-    <tr>
-      <th><?php print _txt('fd.desc'); ?></th>
-      <th><?php print _txt('fd.svc.url'); ?></th>
-      <th><?php print _txt('fd.svc.mail'); ?></th>
-    </tr>
-  </thead>
+<div id="co-services">
   
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_services as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          if(!empty($c['CoService']['service_url'])) {
-            print $this->Html->link($c['CoService']['description'],
-                                    $c['CoService']['service_url']);
-          } else {
-            print $c['CoService']['description'];
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($c['CoService']['service_url'])) {
-            print $this->Html->link($c['CoService']['service_url'],
-                                    $c['CoService']['service_url']);
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($c['CoService']['contact_email'])) {
-            print $this->Html->link($c['CoService']['contact_email'],
-                                    'mailto:'.$c['CoService']['contact_email']);
-          }
-        ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
+  <?php foreach ($co_services as $c): ?>
+  <div class="co-card">
+    <h2><?php print $c['CoService']['description']; ?></h2>
+    <div class="co-card-content">
+      <?php /* XXX keep the following for future RFE; these improve the portal layout:
+      <div class="co-card-image">
+        <img src="http://www.npr.org/about/images/press/Logos/npr_logo_rgb.JPG"/>
+      </div>
+      <div class="co-card-description">
+        How about a description?
+      </div> */ ?>
+      <div class="co-card-icons">
+      <?php
 
-</table>
+        if(!empty($c['CoService']['service_url'])) {
+          print $this->Html->link('<i class="material-icons">public</i>',
+            $c['CoService']['service_url'],
+            array(
+              'class' => 'co-card-link',
+              'escape' => false,
+              'title' => $c['CoService']['service_url']
+            ));
+        }
+        if(!empty($c['CoService']['contact_email'])) {
+          print $this->Html->link('<i class="material-icons">email</i>',
+            'mailto:'.$c['CoService']['contact_email'],
+            array(
+              'class' => 'co-card-link',
+              'escape' => false,
+              'title' => 'mailto:'.$c['CoService']['contact_email']
+            ));
+        }
+
+      ?>
+      </div>
+
+      <?php
+/*
+        if(!empty($c['CoService']['service_url'])) {
+          print "Web: " . $this->Html->link($c['CoService']['service_url'],
+              $c['CoService']['service_url'],
+              array(
+                'class' => 'co-card-link',
+                'escape' => false,
+                'title' => $c['CoService']['service_url']
+              ));
+        }
+        print '<br/>';
+        if(!empty($c['CoService']['contact_email'])) {
+          print "Email: " . $this->Html->link($c['CoService']['contact_email'],
+              'mailto:'.$c['CoService']['contact_email'],
+              array(
+                'class' => 'co-card-link',
+                'escape' => false,
+                'title' => 'mailto:'.$c['CoService']['contact_email']
+              ));
+        }
+*/
+      ?>
+
+    </div>
+  </div>
+  <?php endforeach; ?>
+
+</div>
+
+<script type="text/javascript">
+$(function() {
+  $(".co-card").click(function() {
+    var url = $(this).find(".co-card-link").attr("href");
+    if (url == "") {
+      return;
+    }
+    location.href = url;
+  });
+});
+</script>

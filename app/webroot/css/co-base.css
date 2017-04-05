@@ -362,6 +362,12 @@ form#notificationStatus {
   margin-right: 6px;
   vertical-align: bottom;
 }
+#main-menu .serviceMenu ul .material-icons {
+  font-size: 1.1em;
+  position: relative;
+  top: -2px;
+  color: #bbb;
+}
 .custom-links ul {
   margin: 0;
   padding: 0;
@@ -380,10 +386,9 @@ form#notificationStatus {
 }
 /* CONTENT */
 #collaborationTitle {
-  /*background-color: #92B6D1; original - blue-gray */
-  /*background-color: #2395E0; darker blue */
-  background-color: #53b1f4;
-  color: #fff;
+  background-color: #53b1f4; /* favorite blue */
+  /*background: #AED9F9; /* COmanage blue */
+  color: #fff; /* prefer #fff */
   font-size: 20px;
   min-height: 23px;
   padding: 10px 0 8px 15px;
@@ -1091,6 +1096,36 @@ a#top-search-toggle:hover {
   line-height: 24px;
   height: 28px;
   margin: 0.25em;
+}
+/* SERVICE PORTAL */
+#co-services {
+  clear: both;
+}
+.co-card h2  {
+  font-size: 1.2em;
+}
+.co-card {
+  position: relative;
+  background-color: #f5f5f5;
+  margin: 0 0 1em 0;
+  padding: 0.75em 1.25em 1.25em 1.25em;
+  cursor: pointer;
+  min-height: 3em; /* XXX if images and descriptions are added, make this 5em;*/
+  min-width: 90%;
+  border: 1px solid #eee;
+}
+.co-card img {
+  min-width: 100%;
+  max-width: 100%;
+  margin: 0 0 0.5em 0;
+}
+#content .co-card .co-card-icons .material-icons {
+  font-size: 2em;
+  margin-right: 4px;
+}
+.co-card .co-card-icons {
+  text-align: right;
+  margin-top: 0.75em;
 }
 /* PERSON CANVAS */
 .personExplorer ul {
