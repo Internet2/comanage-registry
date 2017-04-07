@@ -65,6 +65,7 @@ class UpgradeVersionShell extends AppShell {
     "1.0.4" => array('block' => false),
     "1.0.5" => array('block' => false, 'post' => 'post105'),
     "1.0.6" => array('block' => false),
+    "1.0.7" => array('block' => false),
     "2.0.0" => array('block' => false, 'post' => 'post110')
   );
   
