@@ -108,7 +108,7 @@ class CoGrouperProvisionerGroup extends AppModel {
       // Find the corresponding COU.
       $args = array();
       $args['conditions']['Cou.id'] = $coGroup['CoGroup']['cou_id'];
-      $args['contain'] = true;
+      $args['contain'] = false;
       $cou = $this->CoGroup->Co->Cou->find('first', $args);
       if(empty($cou)) {
         $message = 'Error finding Cou for admin or members group ' . $groupName;
