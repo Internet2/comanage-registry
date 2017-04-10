@@ -64,4 +64,7 @@ $cm_grouper_provisioner_texts['en_US'] = array(
   'pl.grouperprovisioner.subjectidentifier.desc' => 'CO person identifier used by Grouper as the unique subject',
   'pl.grouperprovisioner.subjectview'      => 'Subject source view',
   'pl.grouperprovisioner.subjectview.desc' => 'Name for the Grouper subject source view in database',
+
+  // Shell texts
+  'sh.grouperprovisioner.ug.110.gp' =>       'Migrating GrouperProvisioner configurations',
 );
