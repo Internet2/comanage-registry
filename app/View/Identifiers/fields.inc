@@ -169,9 +169,9 @@
         ?>
       </div>
     </li>
-  <?php else: // org identity ?>
-  <?php print $this->Form->hidden('login', array('default' => false)) . "\n"; ?>
-  <?php endif; // org identity ?>
+  <?php else: // org identity
+      print $this->Form->hidden('login', array('default' => false)) . "\n";
+    endif; // org identity ?>
 
   <li>
     <div class="field-name">

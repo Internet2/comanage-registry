@@ -456,18 +456,20 @@
               ?>
             </div>
           </li>
-          <tr class="line<?php print ($l % 2); $l++; ?>">
-            <td>
+          <li>
+            <div class="field-name">
               <?php
                 if($e) {
                   print $this->Form->label('valid_from', _txt('fd.valid_from.tz', array($vv_tz)));
                 } else {
                   print _txt('fd.valid_from');
                 }
-              ?><br />
-              <span class="descr"><?php print _txt('fd.valid_from.desc'); ?></span>
-            </td>
-            <td>
+              ?>
+              <div class="field-desc">
+                <?php print _txt('fd.valid_from.desc'); ?>
+              </div>
+            </div>
+            <div class="field-info">
               <?php
                 if($e) {
                   $args = array(
@@ -492,20 +494,22 @@
                   }
                 }
               ?>
-            </td>
-          </tr>
-          <tr class="line<?php print ($l % 2); $l++; ?>">
-            <td>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
               <?php
                 if($e) {
                   print $this->Form->label('valid_through', _txt('fd.valid_through.tz', array($vv_tz)));
                 } else {
                   print _txt('fd.valid_through');
                 }
-              ?><br />
-              <span class="descr"><?php print _txt('fd.valid_from.desc'); ?></span>
-            </td>
-            <td>
+              ?>
+              <div class="field-desc">
+                <?php print _txt('fd.valid_from.desc'); ?>
+              </div>
+            </div>
+            <div class="field-info">
               <?php
                 if($e) {
                   $args = array(
@@ -530,8 +534,8 @@
                   }
                 }
               ?>
-            </td>
-          </tr>
+            </div>
+          </li>
           <?php if($e): ?>
             <li class="fields-submit">
               <div class="field-name">
@@ -627,23 +631,6 @@
               }
             ?>
           </ul><!-- tabs-id -->
-          
-          <?php
-            if($e) {
-              $linktarget = array('controller'    => 'identifiers',
-                'action'        => 'add',
-                'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
-              );
-              $linkparams = array('class'  => 'addbutton');
-
-              print $this->Html->link(_txt('op.add'),
-                $linktarget,
-                $linkparams
-              );
-            }
-          ?>
-          
         </li><!-- fields-id -->
 
         <!-- Email -->

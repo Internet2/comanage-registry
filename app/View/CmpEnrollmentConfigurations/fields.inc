@@ -188,7 +188,6 @@
         <tbody>
         <tr>
           <th><?php print _txt('fd.attribute'); ?></th>
-          <th><?php print _txt('fd.attribute'); ?></th>
           <th><?php print _txt('fd.required'); ?></th>
           <th><?php print _txt('fd.attr.env'); ?></th>
           <!-- <th><?php /*print _txt('fd.attr.ldap');*/ ?></th>
@@ -211,33 +210,7 @@
                   print $this->Form->hidden($xprefix . '.type',
                     array('value' => filter_var($vv_availableAttributes[$attr]['type'],FILTER_SANITIZE_SPECIAL_CHARS)));
                 }
-
-                if(isset($currentAttributes[$attr]['id'])) {
-                  print $this->Form->hidden($xprefix . '.id',
-                    array('value' => $currentAttributes[$attr]['id']));
-                }
-              ?>
-              <?php
-                print ($e
-                  ? $this->Form->label($xprefix . '.env_name', $vv_availableAttributes[$attr]['label'])
-                  : $vv_availableAttributes[$attr]['label']);
-              ?>
-            </td>
-            <td>
-              <?php
-                $xprefix = 'CmpEnrollmentAttribute.' . $xindex;
-                $xindex++;
-
-                print $this->Form->hidden($xprefix . '.cmp_enrollment_configuration_id',
-                  array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'])));
-                print $this->Form->hidden($xprefix . '.attribute',
-                  array('value' => $attr));
-
-                if(!empty($vv_availableAttributes[$attr]['type'])) {
-                  print $this->Form->hidden($xprefix . '.type',
-                    array('value' => Sanitize::html($vv_availableAttributes[$attr]['type'])));
-                }
-
+                
                 if(isset($currentAttributes[$attr]['id'])) {
                   print $this->Form->hidden($xprefix . '.id',
                     array('value' => $currentAttributes[$attr]['id']));
@@ -316,7 +289,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('attrs_from_coef', array('onClick' => 'fields_update_gadgets()'))
-                   : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_coef']));
+                   : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_coef'],FILTER_SANITIZE_SPECIAL_CHARS));
         if($e) {
           print $this->Form->label('attrs_from_coef', _txt('op.enable'));
         }
@@ -332,7 +305,7 @@
       <?php print ($e
                    ? $this->Form->input('pool_org_identities', array('onClick' => 'confirm_pool_state_swap()',
                                                                      'disabled' => true))
-                   : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['pool_org_identities']));
+                    : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['pool_org_identities'],FILTER_SANITIZE_SPECIAL_CHARS));
         if($e) {
           print $this->Form->label('pool_org_identities', _txt('op.pool'));
         }
@@ -349,7 +322,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('eds_help_url')
-                   : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_help_url'])); ?>
+                   : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_help_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li class="field-stack">
@@ -362,7 +335,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('eds_preferred_idps')
-                   : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_preferred_idps'])); ?>
+        : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_preferred_idps'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li class="field-stack">
@@ -375,7 +348,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('eds_hidden_idps')
-                   : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_hidden_idps'])); ?>
+        : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['eds_hidden_idps'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
 

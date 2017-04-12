@@ -40,7 +40,7 @@
   
   <?php foreach ($co_services as $c): ?>
   <div class="co-card">
-    <h2><?php print $c['CoService']['description']; ?></h2>
+    <h2><?php print filter_var($c['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></h2>
     <div class="co-card-content">
       <?php /* XXX keep the following for future RFE; these improve the portal layout:
       <div class="co-card-image">
@@ -73,31 +73,6 @@
 
       ?>
       </div>
-
-      <?php
-/*
-        if(!empty($c['CoService']['service_url'])) {
-          print "Web: " . $this->Html->link($c['CoService']['service_url'],
-              $c['CoService']['service_url'],
-              array(
-                'class' => 'co-card-link',
-                'escape' => false,
-                'title' => $c['CoService']['service_url']
-              ));
-        }
-        print '<br/>';
-        if(!empty($c['CoService']['contact_email'])) {
-          print "Email: " . $this->Html->link($c['CoService']['contact_email'],
-              'mailto:'.$c['CoService']['contact_email'],
-              array(
-                'class' => 'co-card-link',
-                'escape' => false,
-                'title' => 'mailto:'.$c['CoService']['contact_email']
-              ));
-        }
-*/
-      ?>
-
     </div>
   </div>
   <?php endforeach; ?>
