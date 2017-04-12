@@ -122,6 +122,31 @@ class CoGrouperProvisionerTarget extends CoProvisionerPluginTarget {
       )
     )
   );
+
+  /**
+   * Perform CoGrouperProvisionerTarget model upgrade steps for version 2.0.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v2.0.0
+   */
+
+  public function _ug110() {
+    // We set any existing provisioner targets that already do not have a subject
+    // identifier set to using the legacy method for determining the Grouper 
+    // subject for the user.
+    
+    // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
+    $fields = array(
+      'CoGrouperProvisionerTarget.legacy_comanage_subject' => true
+    );
+    $conditions = array(
+      'OR' => array(
+        array('CoGrouperProvisionerTarget.subject_identifier' => ''),
+        array('CoGrouperProvisionerTarget.subject_identifier' => null )
+      )
+    );
+    $this->updateAll($fields, $conditions);
+  }
   
   /**
    * Called after each successful save operation. Right now used
@@ -239,7 +264,7 @@ FROM
 
     // We might have been passed the identifier marked as deleted if this is 
     // a CoPersonDeleted operation.
-    if(isset($provisioningData['Identifier']) && $op == ProvisioningActionEnum::CoPersonDeleted) {
+    if(isset($provisioningData['Identifier'])) {
       foreach($provisioningData['Identifier'] as $id) {
         if($id['type'] == $idType && $id['status'] == SuspendableStatusEnum::Active && $id['deleted']) {
           return $id['identifier'];

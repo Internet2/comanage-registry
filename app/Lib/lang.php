@@ -1285,7 +1285,7 @@ original notification at
   'fd.ssp.type.desc' => '"Default" applies this permission to all types not otherwise specified',
   'fd.status' =>      'Status',
   'fd.status.ae.desc' => 'Making an Attribute Enumeration inactive will not affect existing records using it',
-  'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petiton',
+  'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petition',
   'fd.status.et.desc' => 'An Extended Type that is in use cannot be made inactive',
   'fd.subject' =>     'Subject',
   'fd.svc.euri' =>    'Entitlement URI',
