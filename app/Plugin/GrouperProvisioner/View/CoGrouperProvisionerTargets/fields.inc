@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Grouper Provisioning Target Fields
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 
@@ -51,7 +54,6 @@
       $("#CoGrouperProvisionerTargetSubjectIdentifier").removeAttr("required");
       $("#CoGrouperProvisionerTargetSubjectView").closest("li").show('fade');
       $("#CoGrouperProvisionerTargetSubjectView").attr("required", true);
-
     } else {
       $("#CoGrouperProvisionerTargetSubjectIdentifier").closest("li").show('fade');
       $("#CoGrouperProvisionerTargetSubjectIdentifier").attr("required", true);
@@ -77,7 +79,7 @@
       <div class="field-desc"><?php print _txt('pl.grouperprovisioner.serverurl.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['serverurl'])); ?>
+      <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -89,7 +91,7 @@
       <div class="field-desc"><?php print _txt('pl.grouperprovisioner.contextpath.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('contextpath', array('size' => 20)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['contextpath'])); ?>
+      <?php print ($e ? $this->Form->input('contextpath', array('size' => 20)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['contextpath'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -101,7 +103,7 @@
       <div class="field-desc"><?php print _txt('pl.grouperprovisioner.login.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('login', array('size' => 24)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login'])); ?>
+      <?php print ($e ? $this->Form->input('login', array('size' => 24)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -113,7 +115,7 @@
       <div class="field-desc"><?php print _txt('pl.grouperprovisioner.password.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['password'])); ?>
+      <?php print ($e ? $this->Form->input('password') : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -125,7 +127,7 @@
       <div class="field-desc"><?php print _txt('pl.grouperprovisioner.stem.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('stem', array('size' => 50)) : Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['stem'])); ?>
+      <?php print ($e ? $this->Form->input('stem', array('size' => 50)) : filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['stem'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -142,7 +144,7 @@
         if ($e) { 
           print $this->Form->input('legacy_comanage_subject', $args);
         } else {
-          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['legacy_comanage_subject']); 
+          print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['legacy_comanage_subject'],FILTER_SANITIZE_SPECIAL_CHARS); 
         }
       ?>
     </div>
@@ -165,7 +167,7 @@
         }
         print $this->Form->input('subject_view', $args);
       } else {
-        print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view']); 
+        print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_view'],FILTER_SANITIZE_SPECIAL_CHARS); 
       }
       ?>
     </div>
@@ -185,7 +187,7 @@
           $args['empty'] = '(choose one)';
           print $this->Form->select('subject_identifier', $identifier_types, $args);
         } else {
-          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['subject_identifier']); 
+          print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier'],FILTER_SANITIZE_SPECIAL_CHARS); 
         }
       ?>
     </div>
@@ -205,7 +207,7 @@
           $args['empty'] = '(choose one)';
           print $this->Form->select('login_identifier', $identifier_types, $args);
         } else {
-          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier']); 
+          print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['login_identifier'],FILTER_SANITIZE_SPECIAL_CHARS); 
         }
       ?>
     </div>
@@ -225,7 +227,7 @@
           $args['empty'] = '(choose one)';
           print $this->Form->select('email_identifier', $email_address_types, $args);
         } else {
-          print Sanitize::html($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier']); 
+          print filter_var($co_grouper_provisioner_targets[0]['CoGrouperProvisionerTarget']['email_identifier'],FILTER_SANITIZE_SPECIAL_CHARS); 
         }
       ?>
     </div>

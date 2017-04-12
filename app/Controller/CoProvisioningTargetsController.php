@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Provisioning Target Controller
  *
- * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -70,7 +73,7 @@ class CoProvisioningTargetsController extends StandardController {
   /**
    * Callback after controller methods are invoked but before views are rendered.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
 
   function beforeRender() {
@@ -280,7 +283,7 @@ class CoProvisioningTargetsController extends StandardController {
     if($this->action == 'add' && !empty($this->request->data['CoProvisioningTarget']['plugin'])) {
       // Redirect to the appropriate plugin to set up whatever it wants
       
-      $pluginName = Sanitize::html($this->request->data['CoProvisioningTarget']['plugin']);
+      $pluginName = filter_var($this->request->data['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
       $modelName = 'Co'. $pluginName . 'Target';
       $pluginModelName = $pluginName . "." . $modelName;
       

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Terms and Conditions Review View
  *
- * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -111,17 +114,21 @@
     <?php foreach ($vv_co_terms_and_conditions as $c): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
-        <?php print $c['CoTermsAndConditions']['description']; ?>
+        <?php print filter_var($c['CoTermsAndConditions']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </td>
       <td>
         <?php
           if(!empty($c['CoTAndCAgreement'])) {
             print _txt('fd.tc.agree.yes')
                   . " ("
-                  . $c['CoTAndCAgreement'][0]['identifier']
+                  . $c['CoTAndCAgreement']['identifier']
                   . ", "
-                  . $this->Time->format($c['CoTAndCAgreement'][0]['agreement_time'], "%c $vv_tz", false, $vv_tz)
+                  . $this->Time->format($c['CoTAndCAgreement']['agreement_time'], "%c $vv_tz", false, $vv_tz)
                   . ")";
+            
+            if(!empty($c['CoTermsAndConditions']['co_terms_and_conditions_id'])) {
+              print "</br>" . _txt('fd.tc.archived');
+            }
           } else {
             print _txt('fd.tc.agree.no');
           }

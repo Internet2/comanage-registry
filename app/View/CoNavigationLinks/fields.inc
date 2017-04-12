@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Navigation Link Fields
  *
- * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -55,7 +58,7 @@
       <div class="field-info"> 
         <?php print ($e
                      ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['description'])); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -65,7 +68,7 @@
       <div class="field-info"> 
         <?php print ($e
                      ? $this->Form->input('title')
-                     : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['title'])); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['title'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -75,7 +78,7 @@
       <div class="field-info"> 
         <?php print ($e
                      ? $this->Form->input('url')
-                     : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['url'])); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -85,7 +88,7 @@
       <div class="field-info"> 
         <?php print ($e
                      ? $this->Form->input('ordr')
-                     : Sanitize::html($co_navigation_links[0]['CoNavigationLink']['ordr'])); ?>
+                     : filter_var($co_navigation_links[0]['CoNavigationLink']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -101,7 +104,7 @@
             } 
           }
           else {
-            print Sanitize::html($co_navigation_links[0]['CoNavigationLink']['location']);
+            print filter_var($co_navigation_links[0]['CoNavigationLink']['location'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
 
           if($this->Form->isFieldError('status')) {

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO LDAP Provisioner Target Model
  *
- * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("CoProvisionerPluginTarget", "Model");
@@ -106,6 +109,17 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       'required' => false,
       'allowEmpty' => true
     ),
+    'scope_suffix' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'unconf_attr_mode' => array(
+      'rule' => array('inList', array(LdapProvUnconfAttrEnum::Ignore,
+                                      LdapProvUnconfAttrEnum::Remove)),
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'opt_lang' => array(
       'rule' => 'boolean'
     ),
@@ -136,15 +150,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
    * Assemble attributes for an LDAP record.
    *
    * @since  COmanage Registry v0.8
-   * @param  Array CO Provisioning Target data
-   * @param  Array CO Person or CO Group Data used for provisioning
-   * @param  Boolean Whether or not this will be for a modify operation
-   * @param  Array Attributes used to generate the DN for this person, as returned by CoLdapProvisionerDn::dnAttributes
+   * @param  Array                  $coProvisioningTargetData CO Provisioning Target data
+   * @param  Array                  $provisioningData         CO Person or CO Group Data used for provisioning
+   * @param  Boolean                $modify                   Whether or not this will be for a modify operation
+   * @param  Array                  $dnAttributes             Attributes used to generate the DN for this person, as returned by CoLdapProvisionerDn::dnAttributes
+   * @param  LdapProvUnconfAttrEnum $uam                      How to handle unconfigured attributes
    * @return Array Attribute data suitable for passing to ldap_add, etc
    * @throws UnderflowException
    */
   
-  protected function assembleAttributes($coProvisioningTargetData, $provisioningData, $modify, $dnAttributes) {
+  protected function assembleAttributes($coProvisioningTargetData, $provisioningData, $modify, $dnAttributes, $uam) {
     // First see if we're working with a Group record or a Person record
     $person = isset($provisioningData['CoPerson']['id']);
     $group = isset($provisioningData['CoGroup']['id']);
@@ -620,13 +635,15 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 break;
               // eduPersonEntitlement is based on Group memberships
               case 'eduPersonEntitlement':
-                $entGroupIds = Hash::extract($provisioningData['CoGroupMember'], '{n}.co_group_id');
-                
-                $attributes[$attr] = $this->CoProvisioningTarget
-                                          ->Co
-                                          ->CoGroup
-                                          ->CoService
-                                          ->mapCoGroupsToEntitlements($provisioningData['Co']['id'], $entGroupIds);
+                if(!empty($provisioningData['CoGroupMember'])) {
+                  $entGroupIds = Hash::extract($provisioningData['CoGroupMember'], '{n}.co_group_id');
+                  
+                  $attributes[$attr] = $this->CoProvisioningTarget
+                                            ->Co
+                                            ->CoGroup
+                                            ->CoService
+                                            ->mapCoGroupsToEntitlements($provisioningData['Co']['id'], $entGroupIds);
+                }
                 
                 if(!$modify && empty($attributes[$attr])) {
                   // Can't have empty values on add
@@ -671,11 +688,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 throw new InternalErrorException("Unknown attribute: " . $attr);
                 break;
             }
-          } elseif($modify) {
-            // In case this attribute is no longer being exported (but was previously),
-            // set an empty value to indicate delete. However, don't do this for serverInternal
-            // attributes since they may not actually be enabled on a given server
-            // (we don't currently have a good way to know).
+          } elseif($modify && $uam == LdapProvUnconfAttrEnum::Remove) {
+            // In case this attribute is probably no longer being exported (but was previously),
+            // set an empty value to indicate delete. Note there are use cases where this isn't
+            // desirable, such as when an attribute is externally managed, or when a server is
+            // using an older schema definition, so we let the admin configure this behavior.
+            
+            // If set to Remove, don't do this for serverInternal attributes since they may not
+            // actually be enabled on a given server (we don't currently have a good way to know).
             
             if(!isset($supportedAttributes[$oc]['attributes'][$attr]['serverInternal'])
                || !$supportedAttributes[$oc]['attributes'][$attr]['serverInternal']) {
@@ -740,7 +760,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // fairly large refactoring.)
     
     // While we're here, convert newlines to $ so the attribute doesn't end up
-    // base-64 encoded.
+    // base-64 encoded, and also trim leading and trailing whitespace. While
+    // normalization will typically handle this, in some cases (normalization
+    // disabled, some attributes that are not normalized) we can still end up
+    // with extra whitespace, which can be confusing/problematic in LDAP.
     
     foreach(array_keys($attributes) as $a) {
       if(is_array($attributes[$a])) {
@@ -756,9 +779,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $h = array();
         
         foreach($attributes[$a] as $v) {
-          if(!isset($h[ strtolower($v) ])) {
-            $newa[] = str_replace("\r\n", "$", $v);
-            $h[ strtolower($v) ] = true;
+          // Clean up the attribute before checking
+          $tv = str_replace("\r\n", "$", trim($v));
+          
+          if(!isset($h[ strtolower($tv) ])) {
+            $newa[] = $tv;
+            $h[ strtolower($tv) ] = true;
           }
         }
         
@@ -933,7 +959,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       // Assemble an LDAP record
       
       try {
-        $attributes = $this->assembleAttributes($coProvisioningTargetData, $provisioningData, $modify, $dnAttributes);
+        // What is our unconfigured attribute mode?
+        $uam = !empty($coProvisioningTargetData['CoLdapProvisionerTarget']['unconf_attr_mode'])
+               ? $coProvisioningTargetData['CoLdapProvisionerTarget']['unconf_attr_mode']
+               : LdapProvUnconfAttrEnum::Remove;
+        
+        $attributes = $this->assembleAttributes($coProvisioningTargetData,
+                                                $provisioningData,
+                                                $modify,
+                                                $dnAttributes,
+                                                $uam);
       }
       catch(UnderflowException $e) {
         // We have a group with no members. Convert to a delete operation since

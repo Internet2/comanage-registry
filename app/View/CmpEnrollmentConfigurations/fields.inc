@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CMP Enrollment Configuration Fields
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -146,7 +149,7 @@
       <div class="field-info">
         <?php print ($e
                      ? $this->Form->input('attrs_from_ldap', array('onClick' => 'fields_update_gadgets()', 'disabled' => true))
-                     : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_ldap'])); ?>
+          : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_ldap'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -157,7 +160,7 @@
       <div class="field-info">
         <?php print ($e
                      ? $this->Form->input('attrs_from_saml', array('onClick' => 'fields_update_gadgets()', 'disabled' => true))
-                     : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_saml'])); ?>
+          : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_saml'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
   <?php endif; ?>
@@ -170,7 +173,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('attrs_from_env', array('onClick' => 'fields_update_gadgets()'))
-                   : Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_env']));
+        : filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['attrs_from_env'],FILTER_SANITIZE_SPECIAL_CHARS));
         if($e) {
           print $this->Form->label('attrs_from_env', _txt('op.enable'));
         }
@@ -200,13 +203,13 @@
                 $xindex++;
 
                 print $this->Form->hidden($xprefix . '.cmp_enrollment_configuration_id',
-                  array('value' => Sanitize::html($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'])));
+                  array('value' => filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
                 print $this->Form->hidden($xprefix . '.attribute',
                   array('value' => $attr));
 
                 if(!empty($vv_availableAttributes[$attr]['type'])) {
                   print $this->Form->hidden($xprefix . '.type',
-                    array('value' => Sanitize::html($vv_availableAttributes[$attr]['type'])));
+                    array('value' => filter_var($vv_availableAttributes[$attr]['type'],FILTER_SANITIZE_SPECIAL_CHARS)));
                 }
 
                 if(isset($currentAttributes[$attr]['id'])) {
@@ -285,19 +288,19 @@
 
                 print ($e
                   ? $this->Form->input($xprefix . '.env_name', $attrs)
-                  : Sanitize::html($vv_availableAttributes[$attr]['env_name'])); ?>
+                  : filter_var($vv_availableAttributes[$attr]['env_name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </td>
             <!--
           <td><?php /*print ($e
                            ? $this->Form->input($xprefix . '.ldap_name',
                                                 array('default' => $vv_availableAttributes[$attr]['ldap_name'],
                                                       'size'    => '40'))
-                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?></td>
+                           : filter_var($vv_availableAttributes[$attr]['env_name'],FILTER_SANITIZE_SPECIAL_CHARS));*/ ?></td>
           <td><?php /*print ($e
                            ? $this->Form->input($xprefix . '.saml_name',
                                                 array('default' => $vv_availableAttributes[$attr]['saml_name'],
                                                       'size'    => '40'))
-                           : Sanitize::html($vv_availableAttributes[$attr]['env_name']));*/ ?></td>
+                           : filter_var($vv_availableAttributes[$attr]['env_name'],FILTER_SANITIZE_SPECIAL_CHARS));*/ ?></td>
           -->
           </tr>
         <?php endforeach; ?>

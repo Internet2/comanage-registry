@@ -2,24 +2,27 @@
 /**
  * COmanage Registry ORCID OrgIdentitySource Backend Model
  *
- * Copyright (C) 2016 SCG
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- *
- * @copyright     Copyright (C) 2016 SCG
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("OrgIdentitySourceBackend", "Model");
@@ -31,7 +34,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   /**
    * Generate an ORCID callback URL.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array URL, in Cake array format
    */
   
@@ -46,7 +49,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   /**
    * Exchange an authorization code for an access token and ORCID.
    * 
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  String $redirectUrl Callback URL used for initial request
    * @param  String $clientId ORCID API Client ID
    * @param  String $clientSecret ORCID API Client Secret
@@ -56,7 +59,11 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function exchangeCode($redirectUri, $clientId, $clientSecret, $code) {
-    $HttpSocket = new HttpSocket();
+    $HttpSocket = new HttpSocket(array(
+      // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
+      // on PHP <= ~5.5.6. See CO-1428 for more details.
+      'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
+    ));
 
     $params = array(
       'client_id'     => $clientId,
@@ -91,7 +98,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * only return a non-empty array if they wish to take advantage of the automatic
    * group mapping service.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array As specified
    */
   
@@ -105,7 +112,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * Obtain all available records in the IdentitySource, as a list of unique keys
    * (ie: suitable for passing to retrieve()).
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array Array of unique keys
    * @throws DomainException If the backend does not support this type of requests
    */
@@ -118,7 +125,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   /**
    * Obtain an access token from an API ID and secret.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  String $clientId ORCID API Client ID
    * @param  String $clientSecret ORCID API Client Secret
    * @return String Access token
@@ -126,7 +133,11 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function obtainAccessToken($clientId, $clientSecret) {
-    $HttpSocket = new HttpSocket();
+    $HttpSocket = new HttpSocket(array(
+      // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
+      // on PHP <= ~5.5.6. See CO-1428 for more details.
+      'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
+    ));
 
     $params = array(
       'client_id'     => $clientId,
@@ -159,7 +170,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   /**
    * Obtain the root URL for the ORCID API.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  String $api API type: auth, public, or member
    * @param  String $tier API tier: prod or sandbox
    * @return String URL prefix
@@ -187,7 +198,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   /**
    * Query the ORCID API.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $attributes Search attributes
    * @return StdClass JSON decoded results
    */
@@ -209,7 +220,11 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
       )
     );
     
-    $HttpSocket = new HttpSocket();
+    $HttpSocket = new HttpSocket(array(
+      // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
+      // on PHP <= ~5.5.6. See CO-1428 for more details.
+      'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
+    ));
     
     if(isset($attributes['orcid'])) {
       // Retrieve
@@ -248,7 +263,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * Convert a raw result, as from eg retrieve(), into an array of attributes that
    * can be used for group mapping.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  String $raw Raw record, as obtained via retrieve()
    * @return Array Array, where keys are attribute names and values are lists (arrays) of attributes
    */
@@ -262,7 +277,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   /**
    * Convert a search result into an Org Identity.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $result ORCID Search Result (orcid-profile)
    * @return Array Org Identity and related models, in the usual format
    */
@@ -304,7 +319,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * of two entries: 'raw', a string containing the raw record as returned by the
    * IdentitySource backend, and 'orgidentity', the data in OrgIdentity format.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  String $id Unique key to identify record
    * @return Array As specified
    * @throws InvalidArgumentException if not found
@@ -331,7 +346,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * to obtain the same record and attributes represent an OrgIdentity, including
    * related models.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $attributes Array in key/value format, where key is the same as returned by searchAttributes()
    * @return Array Array of search results, as specified
    * @throws InvalidArgumentException
@@ -371,7 +386,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * to the IdentitySource (eg: a number or a field name) and label is the localized
    * string to be displayed to the user.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array As specified
    */
   

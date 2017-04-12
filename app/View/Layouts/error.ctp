@@ -24,7 +24,7 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 	<?php print $this->Html->charset(); ?>
 	<title>
 		<?php print $cakeDescription ?>:
-		<?php print $title_for_layout; ?>
+		<?php print filter_var($title_for_layout,FILTER_SANITIZE_STRING); ?>
 	</title>
 	<?php
 		print $this->Html->meta('icon');

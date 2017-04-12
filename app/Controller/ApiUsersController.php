@@ -2,24 +2,27 @@
 /**
  * COmanage Registry API Users Controller
  *
- * Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2013-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -49,34 +52,37 @@ class ApiUsersController extends StandardController {
    */
   
   function checkWriteDependencies($reqdata, $curdata = null) {
-    // Make sure identifier doesn't conflict with an existing identifier
-    
-    $args = array();
-    $args['conditions']['Identifier.identifier'] = $reqdata['ApiUser']['username'];
-    $args['conditions']['Identifier.login'] = true;
-    $args['conditions']['Identifier.status'] = StatusEnum::Active;
-    $args['contain'] = false;
-    
-    if($this->Identifier->find('count', $args)) {
-      $this->Flash->set(_txt('er.ia.exists',
-                             array(Sanitize::html($reqdata['ApiUser']['username']))),
-                        array('key' => 'error'));
+    if(!isset($curdata['ApiUser']['username'])
+       || $curdata['ApiUser']['username'] != $reqdata['ApiUser']['username']) {
+      // Make sure identifier doesn't conflict with an existing identifier
       
-      return false;
-    }
-    
-    // Or with an existing API user
-    
-    $args = array();
-    $args['conditions']['ApiUser.username'] = $reqdata['ApiUser']['username'];
-    $args['contain'] = false;
-    
-    if($this->ApiUser->find('count', $args)) {
-      $this->Flash->set(_txt('er.ia.exists',
-                             array(Sanitize::html($reqdata['ApiUser']['username']))),
-                        array('key' => 'error'));
+      $args = array();
+      $args['conditions']['Identifier.identifier'] = $reqdata['ApiUser']['username'];
+      $args['conditions']['Identifier.login'] = true;
+      $args['conditions']['Identifier.status'] = StatusEnum::Active;
+      $args['contain'] = false;
       
-      return false;
+      if($this->Identifier->find('count', $args)) {
+        $this->Flash->set(_txt('er.ia.exists',
+                               array(filter_var($reqdata['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS))),
+                          array('key' => 'error'));
+        
+        return false;
+      }
+      
+      // Or with an existing API user
+      
+      $args = array();
+      $args['conditions']['ApiUser.username'] = $reqdata['ApiUser']['username'];
+      $args['contain'] = false;
+      
+      if($this->ApiUser->find('count', $args)) {
+        $this->Flash->set(_txt('er.ia.exists',
+                               array(filter_var($reqdata['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS))),
+                          array('key' => 'error'));
+        
+        return false;
+      }
     }
     
     return true;

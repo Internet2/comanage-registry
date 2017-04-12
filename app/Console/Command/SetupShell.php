@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Setup Shell
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   App::import('Model', 'ConnectionManager');
@@ -163,41 +166,6 @@ WHERE i.login=true;
       $this->Co->save($co);
       $co_id = $this->Co->id;
       
-      // Create the COmanage admin group
-      
-      $this->out("- " . _txt('se.db.admingroup'));
-      
-      $gr = array(
-        'CoGroup' => array(
-          'co_id'       => $co_id,
-          'name'        => 'admin',
-          'description' => _txt('co.cm.gradmin'),
-          'open'        => false,
-          'status'      => StatusEnum::Active
-        )
-      );
-
-      $this->CoGroup->save($gr);
-      $grAdminId = $this->CoGroup->id;
-      
-      // Create the COmanage members group
-      
-      $this->out("- " . _txt('se.db.membersgroup'));
-      
-      $this->CoGroup->clear();
-      $gr = array(
-        'CoGroup' => array(
-          'co_id'       => $co_id,
-          'name'        => 'members',
-          'description' => _txt('co.cm.grmembers'),
-          'open'        => false,
-          'status'      => StatusEnum::Active
-        )
-      );
-
-      $this->CoGroup->save($gr);
-      $grMembersId = $this->CoGroup->id;
-
       // Create the OrgIdentity. By default, Org Identities are not pooled, so
       // we attach this org_identity to the new CO.
 
@@ -281,29 +249,16 @@ WHERE i.login=true;
       $this->CoOrgIdentityLink->save($coil);
       $coil_id = $this->CoOrgIdentityLink->id;
       
-      // Add the CO Person Role to the admin group
+      // Add the CO Person to the admin group
       
+      $grAdminId = $this->CoGroup->adminCoGroupId($co_id);
+
       $grm = array(
         'CoGroupMember' => array(
           'co_group_id'   => $grAdminId,
           'co_person_id'  => $cop_id,
           'member'        => true,
           'owner'         => true
-        )
-      );
-
-      $this->CoGroupMember->save($grm);
-      
-      // Add the CO Person Role to the members group
-      
-      $this->CoGroupMember->clear();
-      
-      $grm = array(
-        'CoGroupMember' => array(
-          'co_group_id'   => $grMembersId,
-          'co_person_id'  => $cop_id,
-          'member'        => true,
-          'owner'         => false
         )
       );
 

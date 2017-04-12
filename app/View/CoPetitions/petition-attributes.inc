@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Petition Fields (used to display both petitions and petition-based invitations)
  *
- * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Enumerate over all attributes defined for the enrollment flow associated with this petition.
@@ -119,8 +122,6 @@
   $(function() {
     $("#dialog-review").dialog({
       autoOpen: false,
-      //height: 725,
-      //width: 750,
       modal: true,
       buttons: {
         "<?php print _txt('op.ok'); ?>": function() {
@@ -205,7 +206,7 @@
                                           $coe_attributes[0]['CoEnrollmentAttribute']['id']),
                                           array('class' => 'boxtitle-link', 'tabindex' => '-1'));
           } else {
-            print $m;
+            print filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS);
           }
 
           // Is the MVPA required? We'll just check the first attribute since they
@@ -226,7 +227,7 @@
           $descTypeCount = count(array_count_values($descriptions));
           
           if($descTypeCount == 1 && !empty($coe_attributes[0]['description'])) {
-            print "\n<div class=\"desc\">" . $coe_attributes[0]['description'] . "</div>\n";
+            print "\n<div class=\"desc\">" . filter_var($coe_attributes[0]['description'],FILTER_SANITIZE_SPECIAL_CHARS) . "</div>\n";
             $groupDesc = true; // Set flag for later
           }
           
@@ -424,7 +425,7 @@
               // Render the form field, label, and error (if any)
               // error is output by default with class "error-message"
               print $this->Form->input($fieldName, $args);
-              print $this->Form->label($fieldName, $ea['label'] . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+              print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
 
               print "</div>\n";
 
@@ -449,7 +450,7 @@
             print '<div class="modelbox-data-field">';
             // Emit the label
             print '<div class="modelbox-data-label">';
-            print $ea['label'];
+            print filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS);
 
             /* XXX Don't show required status for view (read-only):
             if($ea['required']) {
@@ -532,7 +533,7 @@
       <ul id="co_petition_tandc">
         <?php foreach($vv_terms_and_conditions as $t): ?>
           <li class="line<?php print ($l % 2); $l++; ?>">
-              <strong><?php print $t['CoTermsAndConditions']['description']; ?></strong><br/>
+              <strong><?php print filter_var($t['CoTermsAndConditions']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></strong><br/>
               <button class="checkbutton spin"
                       type="button"
                       onClick="open_tandc('<?php print addslashes($t['CoTermsAndConditions']['description']); ?>',
@@ -613,7 +614,7 @@
           <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
           <tr class="line<?php print ($l % 2); $l++; ?>">
             <td><?php print $hr['action']; ?></td>
-            <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? generateCn($hr['ActorCoPerson']['PrimaryName']) : _txt('fd.actor.self')); ?></td>
+            <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($hr['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.actor.self')); ?></td>
             <td><?php print $hr['comment']; ?></td>
             <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
           </tr>

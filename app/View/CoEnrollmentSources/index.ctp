@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Enrollment Source Index View
  *
- * Copyright (C) 2016 SCG
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016 SCG
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Add breadcrumbs
@@ -76,7 +79,6 @@
   }*/
 
   print $this->element("pageTitleAndButtons", $params);
-
 ?>
 
 <table id="co_enrollment_sources">
@@ -96,10 +98,15 @@
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td>
         <?php
-          print $this->Html->link($vv_avail_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ],
+          print $this->Html->link($vv_all_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ],
                                   array('controller' => 'co_enrollment_sources',
                                         'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                                         $c['CoEnrollmentSource']['id']));
+          
+          if(!isset($vv_avail_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ])) {
+            // This source has been disabled
+            print "&nbsp;(" . _txt('en.status.susp', null, SuspendableStatusEnum::Suspended) . ")";
+          }
         ?>
       </td>
       <td><?php print _txt('en.enrollment.orgid', null, $c['CoEnrollmentSource']['org_identity_mode']); ?></td>
@@ -130,7 +137,7 @@
               . _txt('op.remove') . '\',\''    // dialog confirm button
               . _txt('op.cancel') . '\',\''    // dialog cancel button
               . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($vv_avail_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ]),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+              . filter_var(_jtxt($vv_all_ois[ $c['CoEnrollmentSource']['org_identity_source_id'] ]),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
               . '\']);">'
               . _txt('op.delete')
               . '</button>';

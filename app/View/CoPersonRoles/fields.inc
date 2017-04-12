@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Person Role Fields
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Globals
@@ -102,36 +105,56 @@
           </a>
 
           <ul id="<?php print $this->action; ?>_co_person_role" class="fields form-list">
+            <?php if(!empty($co_person_roles[0]['CoPersonRole']['source_org_identity_id'])): ?>
+              <li>
+                <div class="field-name">
+                  <?php print _txt('fd.source'); ?>
+                </div>
+                <div class="field-info">
+                  <?php
+                    $args = array(
+                      'controller' => 'org_identities',
+                      'action'     => 'view',
+                      $co_person_roles[0]['CoPersonRole']['source_org_identity_id']
+                    );
+
+                    print $this->Html->link(_txt('ct.org_identities.1'), $args);
+                  ?>
+                </div>
+              </li>
+            <?php endif; ?>
             <?php if(!empty($permissions['cous'])): ?>
               <li>
                 <div class="field-name">
                   <?php
+                    $label = _txt('fd.cou-a', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));
+
                     if($e && !$es) {
-                      print $this->Form->label('cou_id',Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou'));
+                      print $this->Form->label('cou_id', $label);
                       print ' <span class="required">*</span>';
                     } else {
-                      print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.cou');
+                      print $label;
                     }
                   ?>
                 </div>
                 <div class="field-info">
                   <?php
-                  $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['cou_id'])
-                    ? $co_person_roles[0]['CoPersonRole']['cou_id']
-                    : 0);
-                  $attrs['empty'] = false;
+                    $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['cou_id'])
+                      ? $co_person_roles[0]['CoPersonRole']['cou_id']
+                      : 0);
+                    $attrs['empty'] = false;
 
-                  if($e && !$es) {
-                    print $this->Form->select('cou_id',
-                      $permissions['cous'],
-                      $attrs);
+                    if($e && !$es) {
+                      print $this->Form->select('cou_id',
+                        $permissions['cous'],
+                        $attrs);
 
-                    if($this->Form->isFieldError('cou_id')) {
-                      print $this->Form->error('cou_id');
+                      if($this->Form->isFieldError('cou_id')) {
+                        print $this->Form->error('cou_id');
+                      }
+                    } else {
+                      print filter_var($co_person_roles[0]['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
                     }
-                  } else {
-                    print Sanitize::html($co_person_roles[0]['Cou']['name']);
-                  }
                   ?>
                 </div>
               </li>
@@ -139,34 +162,36 @@
             <li>
               <div class="field-name">
                 <?php
+                  $label = _txt('fd.affil-a', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));
+
                   if($e && !$es) {
-                    print $this->Form->label('affiliation', Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation'));
+                    print $this->Form->label('affiliation', $label);
                     print ' <span class="required">*</span>';
                   } else {
-                    print Sanitize::html($cur_co['Co']['name']) . " " . _txt('fd.affiliation');
+                    print $label;
                   }
                 ?>
               </div>
               <div class="field-info">
                 <?php
-                global $cm_lang, $cm_texts;
-                $attrs = array();
-                $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
-                  ? $co_person_roles[0]['CoPersonRole']['affiliation']
-                  : AffiliationEnum::Member);
-                $attrs['empty'] = false;
+                  global $cm_lang, $cm_texts;
+                  $attrs = array();
+                  $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
+                    ? $co_person_roles[0]['CoPersonRole']['affiliation']
+                    : AffiliationEnum::Member);
+                  $attrs['empty'] = false;
 
-                if($e && !$es) {
-                  print $this->Form->select('affiliation',
-                    $vv_copr_affiliation_types,
-                    $attrs);
+                  if($e && !$es) {
+                    print $this->Form->select('affiliation',
+                      $vv_copr_affiliation_types,
+                      $attrs);
 
-                  if($this->Form->isFieldError('affiliation')) {
-                    print $this->Form->error('affiliation');
+                    if($this->Form->isFieldError('affiliation')) {
+                      print $this->Form->error('affiliation');
+                    }
+                  } elseif(!empty($co_person_roles[0]['CoPersonRole']['affiliation'])) {
+                    print $vv_copr_affiliation_types[ $co_person_roles[0]['CoPersonRole']['affiliation'] ];
                   }
-                } elseif(!empty($co_person_roles[0]['CoPersonRole']['affiliation'])) {
-                  print $vv_copr_affiliation_types[ $co_person_roles[0]['CoPersonRole']['affiliation'] ];
-                }
                 ?>
               </div>
             </li>
@@ -218,10 +243,12 @@
             <li>
               <div class="field-name">
                 <?php
-                  if ($e && !$es) {
-                    print $this->Form->label('title', _txt('fd.title-a', array($cur_co['Co']['name'])));
+                  $label = _txt('fd.title-a', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));
+
+                  if($e && !$es) {
+                    print $this->Form->label('title', $label);
                   } else {
-                    print $cur_co['Co']['name'] . " " . _txt('fd.title');
+                    print $label;
                   }
                 ?>
               </div>
@@ -233,7 +260,7 @@
 
                       if(!empty($co_person_roles[0]['CoPersonRole']['title'])
                         && !array_search($co_person_roles[0]['CoPersonRole']['title'], $vv_enums_title)) {
-                        print $co_person_roles[0]['CoPersonRole']['title'];
+                        print filter_var($co_person_roles[0]['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
 
                         print '<div class="field-desc">
                                  <span class="ui-icon ui-icon-info co-info"></span>
@@ -254,7 +281,7 @@
                       print $this->Form->input('title', array('size' => 60, 'class' => 'focusFirst'));
                     }
                   } else {
-                    print Sanitize::html($co_person_roles[0]['CoPersonRole']['title']);
+                    print filter_var($co_person_roles[0]['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 ?>
               </div>
@@ -277,7 +304,7 @@
 
                       if(!empty($co_person_roles[0]['CoPersonRole']['o'])
                         && !array_search($co_person_roles[0]['CoPersonRole']['o'], $vv_enums_o)) {
-                        print $co_person_roles[0]['CoPersonRole']['o'];
+                        print filter_var($co_person_roles[0]['CoPersonRole']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
 
                         print '<div class="field-desc">
                                  <span class="ui-icon ui-icon-info co-info"></span>
@@ -300,13 +327,13 @@
                       );
 
                       if($this->action == 'add') {
-                        $args['default'] = $cur_co['Co']['name'];
+                        $args['default'] = filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
                       }
 
                       print $this->Form->input('o', $args);
                     }
                   } else {
-                    print Sanitize::html($co_person_roles[0]['CoPersonRole']['o']);
+                    print filter_var($co_person_roles[0]['CoPersonRole']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 ?>
               </div>
@@ -329,7 +356,7 @@
 
                       if(!empty($co_person_roles[0]['CoPersonRole']['ou'])
                          && !array_search($co_person_roles[0]['CoPersonRole']['ou'], $vv_enums_ou)) {
-                        print $co_person_roles[0]['CoPersonRole']['ou'];
+                        print filter_var($co_person_roles[0]['CoPersonRole']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
 
                         print '<div class="field-desc">
                                  <span class="ui-icon ui-icon-info co-info"></span>
@@ -350,7 +377,7 @@
                       print $this->Form->input('ou', array('size' => 60));
                     }
                   } else {
-                    print Sanitize::html($co_person_roles[0]['CoPersonRole']['ou']);
+                    print filter_var($co_person_roles[0]['CoPersonRole']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 ?>
               </div>
@@ -386,7 +413,7 @@
                   if($e && !$es) {
                     print $this->Form->select('sponsor_co_person_id', $vv_sponsors);
                   } elseif(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) {
-                    print Sanitize::html($vv_sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ]);
+                    print filter_var($vv_sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 }
                 ?>
@@ -396,66 +423,104 @@
               <div class="field-name">
                 <?php
                   if($e && !$es) {
-                    print $this->Form->label('valid_from', _txt('fd.valid_from') . " " . _txt('fd.valid_from.desc'));
+                    print $this->Form->label('valid_from', _txt('fd.valid_from.tz', array($vv_tz)));
                   } else {
                     print _txt('fd.valid_from');
                   }
-                ?>
+                ?><br />
+                <span class="field-descr"><?php print _txt('fd.valid_from.desc'); ?></span>
               </div>
               <div class="field-info">
-                <?php print (($e && !$es)
-                  ? $this->Form->text('valid_from', array('class' => 'datepicker-f'))
-                  : (($co_person_roles[0]['CoPersonRole']['valid_from'] > 0) ? strftime("%F", strtotime($co_person_roles[0]['CoPersonRole']['valid_from'])) : "")); ?>
+                <?php
+                  if($e && !$es) {
+                    $args = array(
+                      'class' => 'datepicker-f'
+                    );
+
+                    if(!empty($co_person_roles[0]['CoPersonRole']['valid_from'])) {
+                      if(!empty($vv_tz)) {
+                        // We need to adjust the UTC value to the user's local time
+                        $args['value'] = $this->Time->format($co_person_roles[0]['CoPersonRole']['valid_from'], "%F %T", false, $vv_tz);
+                      } else {
+                        $args['value'] = $co_person_roles[0]['CoPersonRole']['valid_from'];
+                      }
+                    }
+
+                    print $this->Form->text('valid_from', $args);
+                  } else {
+                    if(!empty($co_person_roles[0]['CoPersonRole']['valid_from'])) {
+                      print $this->Time->format($co_person_roles[0]['CoPersonRole']['valid_from'], "%c $vv_tz", false, $vv_tz);
+                    }
+                  }
+                ?>
               </div>
             </li>
             <li>
               <div class="field-name">
                 <?php
                   if($e && !$es) {
-                    print $this->Form->label('valid_through', _txt('fd.valid_through') . " " . _txt('fd.valid_through.desc'));
+                    print $this->Form->label('valid_through', _txt('fd.valid_through.tz', array($vv_tz)));
                   } else {
                     print _txt('fd.valid_through');
                   }
-                ?>
+                ?><br />
+                <span class="field-descr"><?php print _txt('fd.valid_through.desc'); ?></span>
               </div>
               <div class="field-info">
-                <?php print (($e && !$es)
-                  ? $this->Form->text('valid_through', array('class' => 'datepicker-u'))
-                  : (($co_person_roles[0]['CoPersonRole']['valid_through'] > 0) ? strftime("%F", strtotime($co_person_roles[0]['CoPersonRole']['valid_through'])) : "")); ?>
+                <?php
+                  if($e && !$es) {
+                    $args = array(
+                      'class' => 'datepicker-u'
+                    );
+
+                    if(!empty($co_person_roles[0]['CoPersonRole']['valid_through'])) {
+                      if(!empty($vv_tz)) {
+                        // We need to adjust the UTC value to the user's local time
+                        $args['value'] = $this->Time->format($co_person_roles[0]['CoPersonRole']['valid_through'], "%F %T", false, $vv_tz);
+                      } else {
+                        $args['value'] = $co_person_roles[0]['CoPersonRole']['valid_through'];
+                      }
+                    }
+
+                    print $this->Form->text('valid_through', $args);
+                  } else {
+                    if(!empty($co_person_roles[0]['CoPersonRole']['valid_through'])) {
+                      print $this->Time->format($co_person_roles[0]['CoPersonRole']['valid_through'], "%c $vv_tz", false, $vv_tz);
+                    }
+                  }
+                ?>
               </div>
-              <?php
-                // Check for extended attributes and insert hidden field
-                if(!empty($vv_extended_attributes)) {
-                  $cl = 'Co' . $cur_co['Co']['id'] . 'PersonExtendedAttribute';
-                  print $this->Form->hidden($cl . '.id');
-                }
-              ?>
             </li>
             <?php
             // Check for extended attributes and render
             if(!empty($vv_extended_attributes)) {
+
+              $cl = 'Co' . $cur_co['Co']['id'] . 'PersonExtendedAttribute';
+              print '<li class="hidden">' .  $this->Form->hidden($cl . '.id') . '</li>';
+
               foreach($vv_extended_attributes as $c) {
                 $attr = strtolower($c['CoExtendedAttribute']['name']);
                 ?>
                 <li>
                   <div class="field-name">
                     <?php
-                      if ($e && !$es) {
-                        print $this->Form->label($cl . '.' . $attr, $c['CoExtendedAttribute']['display_name']);
+                      if($e && !$es) {
+                        print $this->Form->label($cl.'.'.$attr,
+                          filter_var($c['CoExtendedAttribute']['display_name'],FILTER_SANITIZE_SPECIAL_CHARS));
                       } else {
-                        print $c['CoExtendedAttribute']['display_name'];
+                        print filter_var($c['CoExtendedAttribute']['display_name'],FILTER_SANITIZE_SPECIAL_CHARS);
                       }
                     ?>
                   </div>
                   <div class="field-info">
                     <?php
-                      if ($c['CoExtendedAttribute']['type'] == 'TIMESTAMP') {
-                        print ($e && !$es ? $this->Form->text($cl . '.' . $attr, array('class' => 'datepicker'))
+                      if($c['CoExtendedAttribute']['type'] == 'TIMESTAMP') {
+                        print ($e && !$es ? $this->Form->text($cl.'.'.$attr, array('class' => 'datepicker'))
                           : (($co_person_roles[0][$cl][$attr] > 0) ? strftime("%F", strtotime($co_person_roles[0][$cl][$attr])) : ""));
                       } else {
-                        print ($e && !$es ? $this->Form->input($cl . '.' . $attr,
+                        print ($e && !$es ? $this->Form->input($cl.'.'.$attr,
                           isset($co_person_roles[0][$cl][$attr]) ? array('default' => $co_person_roles[0][$cl][$attr]) : array())
-                          : Sanitize::html($co_person_roles[0][$cl][$attr]));
+                          : filter_var($co_person_roles[0][$cl][$attr],FILTER_SANITIZE_SPECIAL_CHARS));
                       }
                     ?>
                   </div>
@@ -576,7 +641,7 @@
 
                   <?php elseif($perm == PermissionEnum::ReadOnly): ?>
                     <div class="field-data">
-                      <?php print Sanitize::html(formatTelephone($t)); ?>
+                      <?php print filter_var(formatTelephone($t),FILTER_SANITIZE_SPECIAL_CHARS); ?>
                       <span class="data-desc">
                         (<?php print $vv_copr_telephonenumber_types[ $t['type'] ]; ?>)
                       </span>
@@ -688,7 +753,7 @@
                       </div>
                     <?php elseif($perm == PermissionEnum::ReadOnly): ?>
                       <div class="field-data">
-                        <?php print Sanitize::html($addr['street']); ?>
+                        <?php print filter_var($addr['street'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
                         <span class="data-desc">
                           (<?php $vv_copr_address_types[ $addr['type'] ]; ?>)
                         </span>

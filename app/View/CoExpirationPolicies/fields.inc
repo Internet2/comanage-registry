@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Expiration Policies Fields
  *
- * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 <script type="text/javascript">
@@ -95,7 +98,7 @@
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
-                      : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['description'])); ?>
+        : filter_var($co_expiration_policies[0]['CoExpirationPolicy']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -175,7 +178,7 @@
                   }
                 } else {
                   if(!empty($co_expiration_policies[0]['CoExpirationPolicy']['cond_cou_id'])) {
-                    print Sanitize::html($co_expiration_policies[0]['CondCou']['name']);
+                    print filter_var($co_expiration_policies[0]['CondCou']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 }
               ?>
@@ -206,7 +209,7 @@
                   }
                 } else {
                   if(!empty($co_expiration_policies[0]['CoExpirationPolicy']['cond_affiliation'])) {
-                    print Sanitize::html($vv_copr_affiliation_types[ $co_expiration_policies[0]['CoExpirationPolicy']['cond_affiliation'] ]);
+                    print filter_var($vv_copr_affiliation_types[ $co_expiration_policies[0]['CoExpirationPolicy']['cond_affiliation'] ],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 }
               ?>
@@ -226,7 +229,7 @@
                 $args['onkeyup'] = "document.getElementById('CoExpirationPolicyCondAfterExpiry').value = ''";
 
                 print ($e ? $this->Form->input('cond_before_expiry', $args)
-                          : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['cond_before_expiry']));
+                          : filter_var($co_expiration_policies[0]['CoExpirationPolicy']['cond_before_expiry'],FILTER_SANITIZE_SPECIAL_CHARS));
               ?>
             </div>
           </li>
@@ -244,7 +247,7 @@
                 $args['onkeyup'] = "document.getElementById('CoExpirationPolicyCondBeforeExpiry').value = ''";
 
                 print ($e ? $this->Form->input('cond_after_expiry', $args)
-                          : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['cond_after_expiry']));
+                          : filter_var($co_expiration_policies[0]['CoExpirationPolicy']['cond_after_expiry'],FILTER_SANITIZE_SPECIAL_CHARS));
               ?>
             </div>
           </li>
@@ -258,7 +261,7 @@
             <div class="field-info">
               <?php
                 print ($e ? $this->Form->input('cond_count', $args)
-                          : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['cond_count']));
+                          : filter_var($co_expiration_policies[0]['CoExpirationPolicy']['cond_count'],FILTER_SANITIZE_SPECIAL_CHARS));
               ?>
             </div>
           </li>
@@ -348,7 +351,7 @@
                   }
                 } else {
                   if(!empty($co_expiration_policies[0]['CoExpirationPolicy']['act_cou_id'])) {
-                    print Sanitize::html($co_expiration_policies[0]['ActCou']['name']);
+                    print filter_var($co_expiration_policies[0]['ActCou']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 }
               ?>
@@ -379,7 +382,7 @@
                   }
                 } else {
                   if(!empty($co_expiration_policies[0]['CoExpirationPolicy']['act_affiliation'])) {
-                    print Sanitize::html($vv_copr_affiliation_types[ $co_expiration_policies[0]['CoExpirationPolicy']['act_affiliation'] ]);
+                    print filter_var($vv_copr_affiliation_types[ $co_expiration_policies[0]['CoExpirationPolicy']['act_affiliation'] ],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 }
               ?>
@@ -480,7 +483,7 @@
                   }
                 } else {
                   if(!empty($co_expiration_policies[0]['CoExpirationPolicy']['act_notify_co_group_id'])) {
-                    print Sanitize::html($vv_co_groups[ $co_expiration_policies[0]['CoExpirationPolicy']['act_notify_co_group_id'] ]);
+                    print filter_var($vv_co_groups[ $co_expiration_policies[0]['CoExpirationPolicy']['act_notify_co_group_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 }
               ?>
@@ -536,7 +539,7 @@
                   }
                 } else {
                   if(!empty($co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'])) {
-                    print Sanitize::html($vv_message_templates[ $co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'] ]);
+                    print filter_var($vv_message_templates[ $co_expiration_policies[0]['CoExpirationPolicy']['act_notification_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
                   }
                 }
               ?>
@@ -553,7 +556,7 @@
               <?php print ($e
                            ? $this->Form->input('act_notification_subject',
                                                 array('default' => _txt('em.expiration.subject')))
-                           : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['act_notification_subject'])); ?>
+                           : filter_var($co_expiration_policies[0]['CoExpirationPolicy']['act_notification_subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </div>
           </li>
           <li class="field-stack">
@@ -567,7 +570,7 @@
               <?php print ($e
                            ? $this->Form->input('act_notification_body',
                                                 array('default' => _txt('em.expiration.body')))
-                           : Sanitize::html($co_expiration_policies[0]['CoExpirationPolicy']['act_notification_body'])); ?>
+                           : filter_var($co_expiration_policies[0]['CoExpirationPolicy']['act_notification_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
             </div>
           </li>
         </ul>

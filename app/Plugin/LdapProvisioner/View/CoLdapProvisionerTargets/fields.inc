@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO LDAP Provisioning Target Fields
  *
- * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.8
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 -->
 <script type="text/javascript">
@@ -142,7 +145,7 @@
       <div class="field-desc"><?php print _txt('pl.ldapprovisioner.serverurl.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['serverurl'])); ?>
+      <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -151,7 +154,7 @@
       <div class="field-desc"><?php print _txt('pl.ldapprovisioner.binddn.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['binddn'])); ?>
+      <?php print ($e ? $this->Form->input('binddn', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['binddn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -160,7 +163,7 @@
       <div class="field-desc"><?php print _txt('pl.ldapprovisioner.password.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('password') : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['password'])); ?>
+      <?php print ($e ? $this->Form->input('password') : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -182,7 +185,7 @@
                                               'value' => $xval,
                                               'empty' => false,
                                               'onchange' => 'set_dn_attribute_name()'))
-                  : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_identifier_type'])); ?>
+          : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -193,7 +196,7 @@
     <div class="field-info">
       <?php print ($e ? $this->Form->input('dn_attribute_name',
                                            array('id' => 'dnIdentifierName'))
-                      : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_attribute_name'])); ?>
+        : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['dn_attribute_name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -202,7 +205,7 @@
       <div class="field-desc"><?php print _txt('pl.ldapprovisioner.basedn.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['basedn'])); ?>
+      <?php print ($e ? $this->Form->input('basedn', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['basedn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -211,7 +214,7 @@
       <div class="field-desc"><?php print _txt('pl.ldapprovisioner.basedn.gr.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('group_basedn', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_basedn'])); ?>
+      <?php print ($e ? $this->Form->input('group_basedn', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_basedn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -220,7 +223,36 @@
       <div class="field-desc"><?php print _txt('pl.ldapprovisioner.scope.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('scope_suffix', array('size' => 50)) : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['scope_suffix'])); ?>
+      <?php print ($e ? $this->Form->input('scope_suffix', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['scope_suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.ldapprovisioner.uam'); ?><span class="required">*</span></div>
+      <div class="field-desc"><?php print _txt('pl.ldapprovisioner.uam.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+
+        $attrs = array();
+        $attrs['value'] = (isset($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['unconf_attr_mode'])
+          ? $co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['unconf_attr_mode']
+          : LdapProvUnconfAttrEnum::Remove);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('unconf_attr_mode',
+            $cm_texts[ $cm_lang ]['en.ldapprovisioner.unconfattr'],
+            $attrs);
+
+          if($this->Form->isFieldError('unconf_attr_mode')) {
+            print $this->Form->error('unconf_attr_mode');
+          }
+        } else {
+          print _txt('en.ldapprovisioner.unconfattr', null, $co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['unconf_attr_mode']);
+        }
+      ?>
     </div>
   </li>
   <li>
@@ -370,7 +402,7 @@
                 
                 $xname = 'CoLdapProvisionerAttribute.' . $xindex . '.export';
                 $xlabel = '<code>' . $attr . '</code>';
-                // Prior to v1.1.0, default was to check for new entries, but that
+                // Prior to v2.0.0, default was to check for new entries, but that
                 // probably isn't desirable for stable deployments (and is also
                 // unintuitive from the UI), so new default is unchecked.
                 $xchecked = (isset($currentAttributes[$attr]['export'])
@@ -463,7 +495,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('person_ocs')
-                   : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['person_ocs'])); ?>
+        : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['person_ocs'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -474,7 +506,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('group_ocs')
-                   : Sanitize::html($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_ocs'])); ?>
+        : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['group_ocs'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <?php if($e): ?>

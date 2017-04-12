@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Enrollment Attributes Controller
  *
- * Copyright (C) 2016 SCG
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016 SCG
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -45,7 +48,7 @@ class CoEnrollmentSourcesController extends StandardController {
   /**
    * Callback before views are rendered.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   function beforeRender() {
@@ -60,7 +63,7 @@ class CoEnrollmentSourcesController extends StandardController {
         // Accept coefid from the url or the form
         
         if(!empty($this->request->params['named']['coef'])) {
-          $coefid = Sanitize::html($this->request->params['named']['coef']);
+          $coefid = filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS);
         } elseif(!empty($this->request->data['CoEnrollmentSource']['co_enrollment_flow_id'])) {
           $coefid = $this->request->data['CoEnrollmentSource']['co_enrollment_flow_id'];
         }
@@ -81,13 +84,20 @@ class CoEnrollmentSourcesController extends StandardController {
       // We need to pull a list of available Org Identity Sources, but we also
       // need to determine what capabilities they support.
       
+      // We actually need two lists, available and all, in case a source is suspended
+      // after being attached. (We still need the index view to correctly render.)
+      
       $args = array();
       $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];
-      $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
       $args['fields'] = array('id', 'description');
       $args['order'] = 'description';
       $args['contain'] = false;
+
+      $ois = $this->CoEnrollmentSource->OrgIdentitySource->find('list', $args);
+      $this->set('vv_all_ois', $ois);
       
+      $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+
       $ois = $this->CoEnrollmentSource->OrgIdentitySource->find('list', $args);
       $this->set('vv_avail_ois', $ois);
     }
@@ -97,7 +107,7 @@ class CoEnrollmentSourcesController extends StandardController {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -133,7 +143,7 @@ class CoEnrollmentSourcesController extends StandardController {
   /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array Request data
    * @param  Array Current data
    * @return boolean true if dependency checks succeed, false otherwise.
@@ -161,11 +171,42 @@ class CoEnrollmentSourcesController extends StandardController {
   }
   
   /**
+   * Generate a display key to be used in messages such as "Item Added".
+   *
+   * @since  COmanage Registry v2.0.0
+   * @param  Array A cached object (eg: from prior to a delete)
+   * @return string A string to be included for display.
+   */
+  
+  function generateDisplayKey($c = null) {
+    // Pull the description of the associated org identity source
+    
+    $oisid = null;
+    $desc = null;
+    
+    if(!empty($this->request->data['CoEnrollmentSource']['org_identity_source_id'])) {
+      $oisid = $this->request->data['CoEnrollmentSource']['org_identity_source_id'];
+    } elseif(!empty($c['CoEnrollmentSource']['org_identity_source_id'])) {
+      $oisid = $c['CoEnrollmentSource']['org_identity_source_id'];
+    }
+    
+    if($oisid) {
+      // We have an OIS ID, look up the description
+      
+      $desc = $this->CoEnrollmentSource
+                   ->OrgIdentitySource
+                   ->field('description', array('OrgIdentitySource.id' => $oisid));
+    }
+    
+    return $desc ?: _txt('ct.co_enrollment_sources.1');
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array Permissions
    */
   
@@ -205,7 +246,7 @@ class CoEnrollmentSourcesController extends StandardController {
   /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array An array suitable for use in $this->paginate
    */
   
@@ -223,7 +264,7 @@ class CoEnrollmentSourcesController extends StandardController {
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   function performRedirect() {
@@ -232,7 +273,7 @@ class CoEnrollmentSourcesController extends StandardController {
     if(isset($this->request->data['CoEnrollmentSource']['co_enrollment_flow_id']))
       $coefid = $this->request->data['CoEnrollmentSource']['co_enrollment_flow_id'];
     elseif(isset($this->request->params['named']['coef']))
-      $coefid = Sanitize::html($this->request->params['named']['coef']);
+      $coefid = filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS);
     
     $this->redirect(array('controller' => 'co_enrollment_sources',
                           'action' => 'index',

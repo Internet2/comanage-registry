@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Address Fields
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -38,22 +41,22 @@
   
   // Migrate the target person from a named argument to a form field
   if($this->action == 'add' && isset($this->request->params['named']['copersonroleid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonroleid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonroleid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'role';
   } elseif(isset($this->request->data['Address']['co_person_role_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Address']['co_person_role_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Address']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'role';
   } elseif(!empty($addresses[0]['Address']['co_person_role_id'])) {
-    $idForBreadcrumbs = $addresses[0]['Address']['co_person_role_id'];
+    $idForBreadcrumbs = filter_var($addresses[0]['Address']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'role';
   } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(isset($this->request->data['Address']['org_identity_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Address']['org_identity_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Address']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(!empty($addresses[0]['Address']['org_identity_id'])) {
-    $idForBreadcrumbs = $addresses[0]['Address']['org_identity_id'];
+    $idForBreadcrumbs = filter_var($addresses[0]['Address']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   }
   
@@ -64,7 +67,7 @@
   }
   
   if(isset($this->request->params['named']['co']))
-    print $this->Form->hidden('co_id', array('default' => Sanitize::html($this->request->params['named']['co']))) . "\n";
+    print $this->Form->hidden('co_id', array('default' => filter_var($this->request->params['named']['co'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
 
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -113,7 +116,7 @@
       <?php endif; // required_fields ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('street', array('class' => 'focusFirst')) : Sanitize::html($addresses[0]['Address']['street'])); ?>
+      <?php print ($e ? $this->Form->input('street', array('class' => 'focusFirst')) : filter_var($addresses[0]['Address']['street'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -124,7 +127,7 @@
       <?php endif; // required_fields ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('room') : Sanitize::html($addresses[0]['Address']['room'])); ?>
+      <?php print ($e ? $this->Form->input('room') : filter_var($addresses[0]['Address']['room'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -135,7 +138,7 @@
       <?php endif; // required_fields ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('locality') : Sanitize::html($addresses[0]['Address']['locality'])); ?>
+      <?php print ($e ? $this->Form->input('locality') : filter_var($addresses[0]['Address']['locality'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -146,7 +149,7 @@
       <?php endif; // required_fields ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('state') : Sanitize::html($addresses[0]['Address']['state'])); ?>
+      <?php print ($e ? $this->Form->input('state') : filter_var($addresses[0]['Address']['state'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -157,7 +160,7 @@
       <?php endif; // required_fields ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('postal_code') : Sanitize::html($addresses[0]['Address']['postal_code'])); ?>
+      <?php print ($e ? $this->Form->input('postal_code') : filter_var($addresses[0]['Address']['postal_code'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -168,7 +171,7 @@
       <?php endif; // required_fields ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('country') : Sanitize::html($addresses[0]['Address']['country'])); ?>
+      <?php print ($e ? $this->Form->input('country') : filter_var($addresses[0]['Address']['country'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Pipeline Model
  *
- * Copyright (C) 2016 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2016 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class CoPipeline extends AppModel {
@@ -65,7 +68,7 @@ class CoPipeline extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'name' => array(
-      'rule' => 'notBlank',
+      'rule' => array('validateInput'),
       'required' => true,
       'allowEmpty' => false
     ),
@@ -88,7 +91,7 @@ class CoPipeline extends AppModel {
       // We should really use validateExtendedType, but it's a bit tricky since
       // it's dependent on match_strategy. We'd need a new custom validation rule.
       'rule' => array('maxLength', 32),
-      // Required only when match_strategy = Identifier (and, initially, EmailAddress)
+      // Required only when match_strategy = Identifier
       'required'   => false,
       'allowEmpty' => true
     ),
@@ -136,7 +139,7 @@ class CoPipeline extends AppModel {
    * Execute a CO Pipeline. Note: This function should be called from within
    * a transaction.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id CO Pipeline to execute
    * @param  Integer $orgIdentityId Source Org Identity to run
    * @param  SyncActionEnum $syncAction Add, Update, or Delete
@@ -153,7 +156,9 @@ class CoPipeline extends AppModel {
                                     SyncActionEnum::Delete,
                                     SyncActionEnum::Update))) {
       throw new InvalidArgumentException(_txt('er.unknown',
-                                              array(Sanitize::paranoid($syncAction))));
+                                              array(filter_var($syncAction,
+                                                FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_HIGH |
+                                                FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK)))); /* was Cake's Sanitize::paranoid */
     }
     
     // And that $orgIdentityId is in the CO. Pull the whole record since we'll
@@ -218,44 +223,25 @@ class CoPipeline extends AppModel {
     
     if($syncAction == SyncActionEnum::Delete
        && !empty($pipeline['CoPipeline']['sync_status_on_delete'])) {
-      // Find the role associated with this Org Identity and update the status
-      
-      $args = array();
-      $args['conditions']['CoPersonRole.source_org_identity_id'] = $orgIdentityId;
-      $args['contain'] = false;
-      
-      $roles = $this->Co->CoPerson->CoPersonRole->find('all', $args);
-      
-      if(!empty($roles)) {
-        // There should be only one such role, but that could change over time
-        foreach($roles as $role) {
-          $roleId = $role['CoPersonRole']['id'];
-          
-          // Update the role to the specified status
-          $this->Co->CoPerson->CoPersonRole->clear();
-          $this->Co->CoPerson->CoPersonRole->id = $roleId;
-          // This will also recalculate Person status
-          $this->Co->CoPerson->CoPersonRole->saveField('status',
-                                                       $pipeline['CoPipeline']['sync_status_on_delete'],
-                                                       array('provision' => $provision));
-          
-          // Create history
-          $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                     $roleId,
-                                                     $orgIdentityId,
-                                                     $actorCoPersonId,
-                                                     ActionEnum::CoPersonRoleEditedPipeline,
-                                                     _txt('rs.pi.role.status',
-                                                          array(_txt('en.status', null, $pipeline['CoPipeline']['sync_status_on_delete']))));
-        }
-      }
+      $this->processDelete($pipeline, $orgIdentityId, $actorCoPersonId, $provision);
     } else {
       $this->syncOrgIdentityToCoPerson($pipeline, $orgIdentity, $coPersonId, $actorCoPersonId, $provision);
     }
     
     if($syncAction == SyncActionEnum::Add) {
-      // XXX if replace cou_id is set, expire any role in that COU for this CO Person
-      // (this will only really be useful with matching enabled)
+      if(!empty($pipeline['CoPipeline']['sync_replace_cou_id'])) {
+        // See if there is already a role in the specified COU for this CO Person,
+        // and if so expire it. (This will typically only be useful with a Match Strategy.)
+        
+        try {
+          $this->ReplaceCou->CoPersonRole->expire($coPersonId,
+                                                  $pipeline['CoPipeline']['sync_replace_cou_id'],
+                                                  $actorCoPersonId);
+        }
+        catch(Exception $e) {
+          // For now ignore any failure
+        }
+      }
     }
   }
   
@@ -263,7 +249,7 @@ class CoPipeline extends AppModel {
    * Find the target CO Person ID for the Pipeline.
    * If a matching, unlinked Person is found, a new CoOrgIdentityLink will be created.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $pipeline Array of Pipeline configuration data
    * @param  Integer $orgIdentityId Source Org Identity to run query for
    * @param  Integer $actorCoPersonId CO Person ID of actor, if interactive
@@ -406,13 +392,98 @@ class CoPipeline extends AppModel {
   }
   
   /**
+   * Process an Org Identity delete action.
+   *
+   * @since  COmanage Registry v2.0.0
+   * @param  Array $coPipeline Array of CO Pipeline configuration
+   * @param  Integer $orgIdentityId Org Identity ID
+   * @param  Integer $actorCoPersonId CO Person ID of actor
+   * @param  Boolean $provision Whether to trigger provisioning
+   * @return Boolean true on success
+   */
+  
+  protected function processDelete($coPipeline, $orgIdentityId, $actorCoPersonId=null, $provision=true) {
+    // First, find the role associated with this Org Identity and update the status
+    
+    $args = array();
+    $args['conditions']['CoPersonRole.source_org_identity_id'] = $orgIdentityId;
+    $args['contain'] = false;
+    
+    $roles = $this->Co->CoPerson->CoPersonRole->find('all', $args);
+    
+    if(!empty($roles)) {
+      // There should be only one such role, but that could change over time
+      foreach($roles as $role) {
+        $roleId = $role['CoPersonRole']['id'];
+        
+        // Update the role to the specified status
+        $this->Co->CoPerson->CoPersonRole->clear();
+        $this->Co->CoPerson->CoPersonRole->id = $roleId;
+        // This will also recalculate Person status
+        $this->Co->CoPerson->CoPersonRole->saveField('status',
+                                                     $coPipeline['CoPipeline']['sync_status_on_delete'],
+                                                     array('provision' => $provision));
+        
+        // Create history
+        $this->Co->CoPerson->HistoryRecord->record($role['CoPersonRole']['co_person_id'],
+                                                   $roleId,
+                                                   $orgIdentityId,
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoPersonRoleEditedPipeline,
+                                                   _txt('rs.pi.role.status',
+                                                        array(_txt('en.status', null, $coPipeline['CoPipeline']['sync_status_on_delete']))));
+      }
+    }
+    
+    // We also need to delete any group memberships associated with this org identity.
+    // This is similar to the code in syncOrgIdentityToCoPerson, below.
+    
+    $args = array();
+    $args['conditions']['CoGroupMember.source_org_identity_id'] = $orgIdentityId;
+    $args['contain'][] = 'CoGroup';
+    
+    $memberships = $this->Co->CoPerson->CoGroupMember->find('all', $args);
+    
+    if(!empty($memberships)) {
+      foreach($memberships as $gm) {
+        if(!$this->Co->CoPerson->CoGroupMember->delete($gm['CoGroupMember']['id'], array("provision" => $provision))) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoGroupMember')));
+        }
+        
+        // Cut history
+        $this->Co->CoPerson->HistoryRecord->record($gm['CoGroupMember']['co_person_id'],
+                                                   null,
+                                                   $orgIdentityId,
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoGroupMemberDeletedPipeline,
+                                                   _txt('rs.grm.deleted',
+                                                        array($gm['CoGroup']['name'],
+                                                              $gm['CoGroupMember']['co_group_id'])),
+                                                   $gm['CoGroupMember']['co_group_id']);
+        
+        $this->Co->CoPerson->HistoryRecord->record($gm['CoGroupMember']['co_person_id'],
+                                                   null,
+                                                   $orgIdentityId,
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoGroupMemberDeletedPipeline,
+                                                   _txt('rs.pi.sync-a', array(_txt('ct.co_group_members.1'),
+                                                                              $coPipeline['CoPipeline']['name'],
+                                                                              $coPipeline['CoPipeline']['id'])),
+                                                   $gm['CoGroupMember']['co_group_id']);
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Sync Org Identity attributes to a CO Person record. Suitable for add or update
    * sync actions.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $coPipeline Array of CO Pipeline configuration
    * @param  Array $orgIdentity Array of Org Identity data and related models
-   * @param  Integer $coPersonId Target CO Person ID, if known
+   * @param  Integer $targetCoPersonId Target CO Person ID, if known
    * @param  Integer $actorCoPersonId CO Person ID of actor
    * @param  Boolean $provision Whether to trigger provisioning
    * @return Boolean true, on success
@@ -461,7 +532,11 @@ class CoPipeline extends AppModel {
         throw new RuntimeException(_txt('er.db.save-a', array('CoOrgIdentityLink')));
       }
       
-      // And create a Primary Name
+      // And create a Primary Name. We use the source's Primary Name here, but
+      // we don't actually link it to the source. This is in case the source record
+      // goes away and we want to ensure we still have a name record attached to the
+      // CO Person. (Under most circumstances the OIS name will be preserved, but eg
+      // an admin might try to clear out all associated data.)
       
       $name = array(
         'Name' => array(
@@ -473,7 +548,7 @@ class CoPipeline extends AppModel {
           'suffix'         => $orgIdentity['PrimaryName']['suffix'],
           'type'           => $orgIdentity['PrimaryName']['type'],
           'primary_name'   => true,
-          'source_name_id' => $orgIdentity['PrimaryName']['id'],
+//          'source_name_id' => $orgIdentity['PrimaryName']['id'],
         )
       );
       
@@ -521,11 +596,13 @@ class CoPipeline extends AppModel {
         'CoPersonRole' => array(
           'affiliation' => $affil,
           // Set the cou_id even if null so the diff operates correctly
-          'cou_id'      => $coPipeline['CoPipeline']['sync_cou_id'],
-          'o'           => $orgIdentity['OrgIdentity']['o'],
-          'ou'          => $orgIdentity['OrgIdentity']['ou'],
-          'title'       => $orgIdentity['OrgIdentity']['title'],
-          'status'      => StatusEnum::Active
+          'cou_id'        => $coPipeline['CoPipeline']['sync_cou_id'],
+          'o'             => $orgIdentity['OrgIdentity']['o'],
+          'ou'            => $orgIdentity['OrgIdentity']['ou'],
+          'title'         => $orgIdentity['OrgIdentity']['title'],
+          'valid_from'    => $orgIdentity['OrgIdentity']['valid_from'],
+          'valid_through' => $orgIdentity['OrgIdentity']['valid_through'],
+          'status'        => StatusEnum::Active
         )
       );
       
@@ -536,8 +613,15 @@ class CoPipeline extends AppModel {
         
         $curCoPersonRole = array();
         
-        // Note there are a bunch of unsupported attributes at the moment (valid_from, etc)
-        foreach(array('id', 'affiliation', 'cou_id', 'o', 'ou', 'title', 'status') as $attr) {
+        foreach(array('id',
+                      'affiliation',
+                      'cou_id',
+                      'o',
+                      'ou',
+                      'title',
+                      'valid_from',
+                      'valid_through',
+                      'status') as $attr) {
           $curCoPersonRole['CoPersonRole'][$attr] = $orgIdentity['PipelineCoPersonRole'][$attr];
         }
         
@@ -594,15 +678,13 @@ class CoPipeline extends AppModel {
     }
     
     // Next handle associated models
-// XXX Implement Name
-// XXX Make sure source_model_id is defined in each model and add appropriate associations (and indexes)
     
     // Supported associated models and their parent relation
     $models = array(
       'Address'      => 'co_person_role_id',
       'EmailAddress' => 'co_person_id',
       'Identifier'   => 'co_person_id',
-      //'Name'         => 'co_person_id', // XXX Handle primary name specially?
+      'Name'         => 'co_person_id',
       'TelephoneNumber' => 'co_person_role_id'
     );
     
@@ -649,6 +731,14 @@ class CoPipeline extends AppModel {
                       $mkey,
                       'revision',
                       'deleted',
+                      // We drop login (from Identifier) since CO Person Identifiers
+                      // aren't flagged for login (that's an Org Identity Identifier thing).
+                      'login',
+                      // We explicitly get rid of any primary name attribute since we
+                      // should already have a primary name for the CO Person (either existing
+                      // or created above), and we don't want the OIS to directly change it.
+                      // (Election strategies should do that.)
+                      'primary_name',
                       'actor_identifier') as $k) {
           unset($newRecord[$k]);
         }
@@ -694,6 +784,8 @@ class CoPipeline extends AppModel {
                       $mkey,
                       'revision',
                       'deleted',
+                      'login',
+                      'primary_name',
                       'actor_identifier') as $k) {
           unset($curRecord[$k]);
         }

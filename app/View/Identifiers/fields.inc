@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Identifier Fields
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -38,22 +41,22 @@
   
   // Migrate the target person from a named argument to a form field
   if($this->action == 'add' && isset($this->request->params['named']['copersonid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif(isset($this->request->data['Identifier']['co_person_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Identifier']['co_person_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif(!empty($identifiers[0]['Identifier']['co_person_id'])) {
-    $idForBreadcrumbs = $identifiers[0]['Identifier']['co_person_id'];
+    $idForBreadcrumbs = filter_var($identifiers[0]['Identifier']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif($this->action == 'add' && isset($this->params['named']['orgidentityid'])){
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(isset($this->request->data['Identifier']['org_identity_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Identifier']['org_identity_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(!empty($identifiers[0]['Identifier']['org_identity_id'])) {
-    $idForBreadcrumbs = $identifiers[0]['Identifier']['org_identity_id'];
+    $idForBreadcrumbs = filter_var($identifiers[0]['Identifier']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   }
   
@@ -100,11 +103,6 @@
   $this->Html->addCrumb($crumbTxt);
   
   $l = 1;
-
-  // hidden fields
-  if($idType != 'org') {
-    print $this->Form->hidden('login', array('default' => false)) . "\n";
-  }
 ?>
 
 <ul id="<?php print $this->action; ?>_identifier" class="fields form-list">
@@ -121,7 +119,7 @@
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('identifier', array('type' => 'text','class' => 'focusFirst'))
-                     : Sanitize::html($identifiers[0]['Identifier']['identifier'])); ?>
+                      : filter_var($identifiers[0]['Identifier']['identifier'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -171,6 +169,8 @@
         ?>
       </div>
     </li>
+  <?php else: // org identity ?>
+  <?php print $this->Form->hidden('login', array('default' => false)) . "\n"; ?>
   <?php endif; // org identity ?>
 
   <li>

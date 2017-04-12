@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Org Identity Find View
  *
- * Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 <?php
@@ -71,10 +74,10 @@
                                               'action'                 => 'view',
                                               $p['OrgIdentity']['id'],
                                               'co'                     => ($pool_org_identities ? false : $cur_co['Co']['id']))); ?></td>
-      <td><?php print Sanitize::html($p['OrgIdentity']['o']); ?></td>
-      <td><?php print Sanitize::html($p['OrgIdentity']['title']); ?></td>
+      <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td><?php if(!empty($p['OrgIdentity']['affiliation'])) { print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); } ?></td>
-      <td><?php foreach($p['EmailAddress'] as $ea) print Sanitize::html($ea['mail']) . "<br />"; ?></td>
+      <td><?php foreach($p['EmailAddress'] as $ea) print filter_var($ea['mail'],FILTER_SANITIZE_SPECIAL_CHARS) . "<br />"; ?></td>
       <td><?php
         // Don't offer an invite link for org identities that are already in the CO
         
@@ -94,7 +97,7 @@
             print $this->Html->link(_txt('op.link'),
                                        array('controller' => 'co_people',
                                              'action' => 'link',
-                                             Sanitize::html($this->request->params['named']['copersonid']),
+                                             filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS),
                                              'orgidentityid' => $p['OrgIdentity']['id']),
                                        array('class' => 'linkbutton'));
           } else {

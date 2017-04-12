@@ -80,10 +80,12 @@
       $("#CoPipelineSyncReplaceCouId").closest('li').hide('fade');
     }
     
+    <?php /* XXX #CoPipelineSyncStatusOnDelete is not in the DOM
+             ...remove these two lines? */ ?>
     if(createrole && syncdel) {
-      $("#CoPipelineStatusOnDelete").closest('li').show('fade');
+      $("#CoPipelineSyncStatusOnDelete").closest('li').show('fade');
     } else {
-      $("#CoPipelineStatusOnDelete").closest('li').hide('fade');
+      $("#CoPipelineSyncStatusOnDelete").closest('li').hide('fade');
     }
   }
   
@@ -165,7 +167,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('name')
-                   : Sanitize::html($co_pipelines[0]['CoPipeline']['name'])); ?>
+                   : filter_var($co_pipelines[0]['CoPipeline']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -248,6 +250,7 @@
                 <?php print ($e ? $this->Form->label('CoPipeline.match_type', _txt('fd.pi.match.type')) : _txt('fd.pi.match.type')); ?>
                 <span class="required">*</span>
               </div>
+              <span class="field-desc"><?php print _txt('fd.pi.match.type.desc'); ?></span>
             </div>
             <div class="field-info">
               <?php
@@ -267,7 +270,7 @@
                     print $this->Form->error('match_type');
                   }
                 } else {
-                  print Sanitize::html($co_pipelines[0]['CoPipeline']['match_type']);
+                  print filter_var($co_pipelines[0]['CoPipeline']['match_type'],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               ?>
             </div>
@@ -453,6 +456,105 @@
         </ul><!-- tabs-sync -->
       </li><!-- fields-sync -->
 
+      <?php if($this->action != 'add'): ?>
+
+      <li id="fields-cxn" class="fieldGroup">
+
+        <a href="#tabs-cxn" class="fieldGroupName">
+          <i class="material-icons">add_box</i>
+          <?php print _txt('fd.pi.connections'); ?>
+        </a>
+
+        <li id="tabs-cxn">
+          <table id="connections" class="ui-widget">
+            <tbody>
+              <?php
+                $l=1;
+                if(!empty($co_pipelines[0]['CoSetting'][0]['id'])):
+                  ?>
+                  <tr class="line<?php print $l%2;$l++;?>">
+                    <td>
+                      <?php
+                        print $this->Html->link(_txt('fd.pi.default'),
+                          array(
+                            'controller' => 'co_settings',
+                            'action'     => 'add',
+                            'co'         => $co_pipelines[0]['CoSetting'][0]['co_id']
+                          ));
+                      ?>
+                    </td>
+                    <td class="actions">
+                      <?php
+                        print $this->Html->link(_txt('op.edit'),
+                          array(
+                            'controller' => 'co_settings',
+                            'action'     => 'add',
+                            'co'         => $co_pipelines[0]['CoSetting'][0]['co_id']
+                          ),
+                          array('class' => 'editbutton'));
+                      ?>
+                    </td>
+                  </tr>
+                <?php endif; ?>
+              <?php foreach($co_pipelines[0]['OrgIdentitySource'] as $ois): ?>
+                <tr class="line<?php print $l%2;$l++;?>">
+                  <td>
+                    <?php
+                      print $this->Html->link($ois['description'],
+                        array(
+                          'controller' => 'org_identity_sources',
+                          'action'     => 'edit',
+                          $ois['id']
+                        ));
+
+                      print " (" . _txt('ct.org_identity_sources.1') . ")";
+                    ?>
+                  </td>
+                  <td class="actions">
+                    <?php
+                      print $this->Html->link(_txt('op.edit'),
+                        array(
+                          'controller' => 'org_identity_sources',
+                          'action'     => 'edit',
+                          $ois['id']
+                        ),
+                        array('class' => 'editbutton'));
+                    ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+              <?php foreach($co_pipelines[0]['CoEnrollmentFlow'] as $ef): ?>
+                <tr class="line<?php print $l%2;$l++;?>">
+                  <td>
+                    <?php
+                      print $this->Html->link($ef['name'],
+                        array(
+                          'controller' => 'co_enrollment_flows',
+                          'action'     => 'edit',
+                          $ef['id']
+                        ));
+
+                      print " (" . _txt('ct.co_enrollment_flows.1') . ")";
+                    ?>
+                  </td>
+                  <td class="actions">
+                    <?php
+                      print $this->Html->link(_txt('op.edit'),
+                        array(
+                          'controller' => 'co_enrollment_flows',
+                          'action'     => 'edit',
+                          $ef['id']
+                        ),
+                        array('class' => 'editbutton'));
+                    ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table><!-- tabs-cxn -->
+        </li><!-- fields-cxn -->
+      <?php endif; // add ?>
+
       <?php if($e): ?>
         <li class="fieldGroup">
           <ul class="fields form-list">
@@ -467,4 +569,5 @@
       <?php endif; ?>
     </ul>
   </div>
+ 
 </div>

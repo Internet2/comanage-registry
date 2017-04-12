@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO GitHub Provisioning Target Fields
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v0.9.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 -->
 <?php
@@ -92,7 +95,7 @@
         <div class="field-desc"><?php print _txt('pl.githubprovisioner.github_user.desc'); ?></div>
       </div>
       <div class="field-info">
-        <?php print ($e ? $this->Form->input('github_user') : Sanitize::html($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_user'])); ?>
+        <?php print ($e ? $this->Form->input('github_user') : filter_var($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_user'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -105,7 +108,7 @@
       <div class="field-info">
         <?php
           if(!empty($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_org'])) {
-            print Sanitize::html($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_org']);
+            print filter_var($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['github_org'],FILTER_SANITIZE_SPECIAL_CHARS);
             
             print $this->Html->link(_txt('op.edit'),
                                     array(
@@ -130,7 +133,7 @@
       <div class="field-info">
         <?php print ($e
                      ? $this->Form->input('client_id', array('type' => 'string'))
-                     : Sanitize::html($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['client_id'])); ?>
+          : filter_var($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['client_id'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Petitions Fields
  *
- * Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 
@@ -54,7 +57,7 @@
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
-  print $this->Form->hidden('co_enrollment_flow_id', array('default' => Sanitize::html($co_enrollment_flow_id)));
+  print $this->Form->hidden('co_enrollment_flow_id', array('default' => filter_var($co_enrollment_flow_id,FILTER_SANITIZE_STRING)));
 
   if($this->action == 'view') {
     // Add enrollment flow information to sidebar
@@ -190,7 +193,7 @@
                 <div class="field-info">
                   <?php
                     if(isset($co_petitions[0]['PetitionerCoPerson']['PrimaryName'])) {
-                      print generateCn($co_petitions[0]['PetitionerCoPerson']['PrimaryName']);
+                      print filter_var(generateCn($co_petitions[0]['PetitionerCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
                     } else {
                       print _txt('fd.actor.self');
                     }
@@ -202,7 +205,7 @@
                 <div class="field-info">
                   <?php
                     if(isset($co_petitions[0]['SponsorCoPerson']['PrimaryName'])) {
-                      print generateCn($co_petitions[0]['SponsorCoPerson']['PrimaryName']);
+                      print filter_var(generateCn($co_petitions[0]['SponsorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
                     }
                   ?>
                 </div>
@@ -212,7 +215,7 @@
                 <div class="field-info">
                   <?php
                     if(isset($co_petitions[0]['ApproverCoPerson']['PrimaryName'])) {
-                      print generateCn($co_petitions[0]['ApproverCoPerson']['PrimaryName']);
+                      print filter_var(generateCn($co_petitions[0]['ApproverCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
                     }
                   ?>
                 </div>
@@ -222,7 +225,7 @@
                 <div class="field-info">
                   <?php
                     if(!empty($co_petitions[0]['CoPetition']['authenticated_identifier'])) {
-                      print Sanitize::html($co_petitions[0]['CoPetition']['authenticated_identifier']);
+                      print filter_var($co_petitions[0]['CoPetition']['authenticated_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
                     }
                   ?>
                 </div>

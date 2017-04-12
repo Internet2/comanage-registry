@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Provisioning Target Fields
  *
- * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -61,7 +64,7 @@
       </div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('description') : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['description'])); ?>
+      <?php print ($e ? $this->Form->input('description') : filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -79,21 +82,21 @@
             print $this->Form->input('plugin');
             break;
           case 'edit':
-            print Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']);
+            print filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
             // Send the value as hidden since it can't be changed (but is required by the model)
-            print $this->Form->hidden('plugin', array('default' => Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']))) . "\n";
+            print $this->Form->hidden('plugin', array('default' => filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
             break;
           default:
-            print Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']);
+            print filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
             break;
         }
         
         if($this->action == 'edit') {
           // And render a link to the plugin target
-          
-          $pl = Inflector::underscore(Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']));
-          $plmodel = "Co" . Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['plugin']) . "Target";
-          
+
+          $pl = Inflector::underscore(filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS));
+          $plmodel = "Co" . filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS) . "Target";
+
           print ' ' . $this->Html->link(_txt('op.config'),
                                              array(
                                                'plugin' => $pl,
@@ -173,7 +176,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('ordr')
-                   : Sanitize::html($co_provisioning_targets[0]['CoProvisioningTarget']['ordr'])); ?>
+                   : filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   

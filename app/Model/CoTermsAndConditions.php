@@ -2,24 +2,10 @@
 /**
  * COmanage Registry CO Terms and Conditions Model
  *
- * Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- *
- * @copyright     Copyright (C) 2013-14 University Corporation for Advanced Internet Development, Inc.
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 /*
@@ -40,11 +26,15 @@ class CoTermsAndConditions extends AppModel {
   );
 
   public $belongsTo = array("Co", "Cou");
-   
+  
+  // Associated models that should be relinked to the archived attribute during Changelog archiving
+  public $relinkToArchive = array('CoTAndCAgreement');
+  
   // Default display field for cake generated views
   public $displayField = "description";
   
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable',
+                         'Changelog' => array('priority' => 5));
   
   // Validation rules for table elements
   public $validate = array(
@@ -55,7 +45,7 @@ class CoTermsAndConditions extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'description' => array(
-      'rule' => '/.*/',
+      'rule' => array('validateInput'),
       'required' => true,
       'allowEmpty' => false
     ),
@@ -81,7 +71,7 @@ class CoTermsAndConditions extends AppModel {
   // Enum type hints
   
   public $cm_enum_types = array(
-    'status' => 'status_t'
+    'status' => 'StatusEnum'
   );
   
   /**
@@ -139,8 +129,43 @@ class CoTermsAndConditions extends AppModel {
       array('CoTermsAndConditions.cou_id' => NULL),
       array('CoTermsAndConditions.cou_id' => $cous)
     );
-    $args['contain'][] = 'CoTAndCAgreement.co_person_id = ' . Sanitize::escape($copersonid);
+    $args['contain'] = false;
     
-    return $this->find('all', $args);
+    $tandc = $this->find('all', $args);
+    
+    // Pull the list of agreements separately since changelog behavior makes it a bit
+    // tricky to figure out that an agreement linked to an archived T&C is actually sufficient.
+    
+    $args = array();
+    $args['conditions']['CoTAndCAgreement.co_person_id'] = $copersonid;
+    $args['contain'][] = 'CoTermsAndConditions';
+    
+    $agreements = $this->CoTAndCAgreement->find('all', $args);
+    
+    // Walk through each T&C and merge in any existing agreements. There's probably
+    // a more optimal way to handle this, but typically there will only be a handful
+    // of agreements.
+    
+    for($i = 0;$i < count($tandc);$i++) {
+      // This is the ID of the current T&C
+      $tid = $tandc[$i]['CoTermsAndConditions']['id'];
+      
+      foreach($agreements as $a) {
+        if($a['CoTermsAndConditions']['id'] == $tid) {
+          // Agreement is to the current T&C
+          $tandc[$i]['CoTAndCAgreement'] = $a['CoTAndCAgreement'];
+          break;
+        } elseif($a['CoTermsAndConditions']['co_terms_and_conditions_id'] == $tid) {
+          // Agreement is to a previous version of the current T&C,
+          // which for now at least is considered sufficient
+          $tandc[$i]['CoTAndCAgreement'] = $a['CoTAndCAgreement'];
+          // Replace with the version actually agreed to
+          $tandc[$i]['CoTermsAndConditions'] = $a['CoTermsAndConditions'];
+          break;
+        }
+      }
+    }
+    
+    return $tandc;
   }
 }

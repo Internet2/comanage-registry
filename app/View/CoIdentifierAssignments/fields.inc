@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Identifier Assignment Fields
  *
- * Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2012-14 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -90,7 +93,7 @@
       <div class="field-info">
         <?php print ($e
                      ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['description'])); ?>
+                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -115,7 +118,7 @@
               print $this->Form->error('identifier_type');
             }
           } else {
-            print Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type']);
+            print filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </div>
@@ -161,7 +164,7 @@
       <div class="field-info checkbox">
         <?php print ($e
                      ? $this->Form->input('login') . ' ' . $this->Form->label('login', _txt('fd.identifier.login'))
-                     : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['login'])); ?>
+                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['login'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -202,7 +205,7 @@
         <div class="field-desc"><?php print _txt('fd.ia.format.desc'); ?></div>
       </div>
       <div class="field-info">
-        <?php print ($e ? $this->Form->input('format') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['format'])); ?>
+        <?php print ($e ? $this->Form->input('format') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['format'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         <?php if($e): ?>
           <label for="CoIdentifierAssignmentPrefabricatedFormats"><?php print  _txt('fd.ia.format.pattern') . ': '; ?></label>
           <select
@@ -254,7 +257,7 @@
         <div class="field-desc"><?php print _txt('fd.ia.minimum.desc'); ?></div>
       </div>
       <div class="field-info">
-        <?php print ($e ? $this->Form->input('minimum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'])); ?>
+        <?php print ($e ? $this->Form->input('minimum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -265,7 +268,7 @@
         <div class="field-desc"><?php print _txt('fd.ia.maximum.desc'); ?></div>
       </div>
       <div class="field-info">
-        <?php print ($e ? $this->Form->input('maximum') : Sanitize::html($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'])); ?>
+        <?php print ($e ? $this->Form->input('maximum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>

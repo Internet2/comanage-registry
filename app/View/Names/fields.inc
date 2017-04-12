@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Names Fields
  *
- * Copyright (C) 2013-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2013-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -38,22 +41,22 @@
 
   // Migrate the target person from a named argument to a form field
   if($this->action == 'add' && isset($this->request->params['named']['copersonid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
      $idType = 'person';
   } elseif(isset($this->request->data['Name']['co_person_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Name']['co_person_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Name']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
      $idType = 'person';
   } elseif(!empty($names[0]['Name']['co_person_id'])) {
-    $idForBreadcrumbs = $names[0]['Name']['co_person_id'];
+    $idForBreadcrumbs = filter_var($names[0]['Name']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(isset($this->request->data['Name']['org_identity_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['Name']['org_identity_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['Name']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(!empty($names[0]['Name']['org_identity_id'])) {
-    $idForBreadcrumbs = $names[0]['Name']['org_identity_id'];
+    $idForBreadcrumbs = filter_var($names[0]['Name']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   }
 
@@ -120,7 +123,7 @@
         <?php
           // Carry the current status of primary_name, but to change it requires a different operation
           print $this->Form->hidden('Name.primary_name');
-          print ($e ? $this->Form->input('Name.honorific') : Sanitize::html($names[0]['Name']['honorific']));
+          print ($e ? $this->Form->input('Name.honorific') : filter_var($names[0]['Name']['honorific'],FILTER_SANITIZE_SPECIAL_CHARS));
         ?>
        </span>
     </li>
@@ -141,7 +144,7 @@
         ?>
       </span>
       <span class="field-info">
-        <?php print ($e ? $this->Form->input('Name.given', array('class' => 'focusFirst')) : Sanitize::html($names[0]['Name']['given'])); ?>
+        <?php print ($e ? $this->Form->input('Name.given', array('class' => 'focusFirst')) : filter_var($names[0]['Name']['given'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </span>
     </li>
   <?php endif; // permitted fields ?>
@@ -160,7 +163,7 @@
         ?>
       </span>
       <span class="field-info">
-        <?php print ($e ? $this->Form->input('Name.middle') : Sanitize::html($names[0]['Name']['middle'])); ?>
+        <?php print ($e ? $this->Form->input('Name.middle') : filter_var($names[0]['Name']['middle'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </span>
     </li>
     <?php endif; // permitted fields ?>
@@ -179,7 +182,7 @@
         ?>
       </span>
       <span class="field-info">
-        <?php print ($e ? $this->Form->input('Name.family') : Sanitize::html($names[0]['Name']['family'])); ?>
+        <?php print ($e ? $this->Form->input('Name.family') : filter_var($names[0]['Name']['family'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </span>
     </li>
     <?php endif; // permitted fields ?>
@@ -196,7 +199,7 @@
         ?>
       </span>
       <span class="field-info">
-        <?php print ($e ? $this->Form->input('Name.suffix') : Sanitize::html($names[0]['Name']['suffix'])); ?>
+        <?php print ($e ? $this->Form->input('Name.suffix') : filter_var($names[0]['Name']['suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </span>
     </li>
   <?php endif; // permitted fields ?>

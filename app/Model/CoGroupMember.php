@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Group Member Model
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
   
 class CoGroupMember extends AppModel {
@@ -283,16 +286,17 @@ class CoGroupMember extends AppModel {
    * Sync a group membership based. This function is primarily intended for
    * syncing automatically managed groups (eg: "members").
    *
-   * @since  COmanage Registry v1.1.0
-   * @param  String $coGroupName Name of CO Group to sync membership
-   * @param  Integer $coPersonId CO Person ID of member
-   * @param  Boolean $eligible Whether the person should be in the group
-   * @param  Boolean $provision Whether to run provisioners
-   * @param  Boolean $owner Whether $coPersonId should also be an owner
+   * @since  COmanage Registry v2.0.0
+   * @param  GroupEnum $coGroupType Type of CO Group to sync membership
+   * @param  Integer   $couId       If set, COU ID
+   * @param  Integer   $coPersonId CO Person ID of member
+   * @param  Boolean   $eligible Whether the person should be in the group
+   * @param  Boolean   $provision Whether to run provisioners
+   * @param  Boolean   $owner Whether $coPersonId should also be an owner
    * @throws InvalidArgumentException
    */
   
-  public function syncMembership($coGroupName, $coPersonId, $eligible, $provision=true, $owner=false) {
+  public function syncMembership($coGroupType, $couId, $coPersonId, $eligible, $provision=true, $owner=false) {
     // Find the CO ID
     $coId = $this->CoPerson->field('co_id', array('CoPerson.id' => $coPersonId));
     
@@ -301,9 +305,18 @@ class CoGroupMember extends AppModel {
     }
     
     // Find the requested group
-
-    $targetGroup = $this->CoGroup->findByName($coId, $coGroupName);
     
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['conditions']['CoGroup.group_type'] = $coGroupType;
+    // $couId will be NULL for CO level groups
+    $args['conditions']['CoGroup.cou_id'] = $couId;
+    // We should only sync auto groups
+    $args['conditions']['CoGroup.auto'] = true;
+    $args['contain'] = false;
+
+    $targetGroup = $this->CoGroup->find('first', $args);
+
     if(!$targetGroup) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_groups.1'), $coId)));
     }
@@ -402,11 +415,9 @@ class CoGroupMember extends AppModel {
         
         $grp = $this->CoGroup->find('first', $args);
         
-        // If this is a members group for CO or COU then 
-        // go onto the next membership.
+        // If this is an automatic group skip it
         if(!empty($grp)) {
-          if($this->CoGroup->isCouMembersGroup($grp) 
-             || $this->CoGroup->isCoMembersGroup($grp)) {
+          if(isset($grp['CoGroup']['auto']) && $grp['CoGroup']['auto']) {
             continue;
           }
         } else {

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Notification Index View
  *
- * Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2014-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.5
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -34,7 +37,7 @@
   $curstatus = "";
   
   if(!empty($this->request->query['status'])) {
-    $curstatus = Sanitize::paranoid($this->request->query['status']);
+    $curstatus = filter_var($this->request->query['status'], FILTER_SANITIZE_SPECIAL_CHARS);
   }
   
   // Construct an action URL, trying to preserve sort direction
@@ -42,11 +45,11 @@
   $sortdir = "desc";
   
   if(!empty($this->request->query['sort'])) {
-    $sorttype = Sanitize::paranoid($this->request->query['sort']);
+    $sorttype = filter_var($this->request->query['sort'], FILTER_SANITIZE_SPECIAL_CHARS);
   }
   
   if(!empty($this->request->query['direction'])) {
-    $sortdir = Sanitize::paranoid($this->request->query['direction']);
+    $sortdir = filter_var($this->request->query['direction'], FILTER_SANITIZE_SPECIAL_CHARS);
   }
   
   $furl = "/registry/co_notifications/index/sort:" . $sorttype
@@ -87,8 +90,8 @@
     <?php $i = 0; ?>
     <?php foreach ($co_notifications as $c): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
-      <td><?php print Sanitize::html($c['CoNotification']['action']); ?></td>
-      <td><?php print $this->Html->link(Sanitize::html($c['CoNotification']['comment']),
+      <td><?php print filter_var($c['CoNotification']['action'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+      <td><?php print $this->Html->link(filter_var($c['CoNotification']['comment'],FILTER_SANITIZE_SPECIAL_CHARS),
                                         array(
                                           'controller' => 'co_notifications',
                                           'action'     => 'view',

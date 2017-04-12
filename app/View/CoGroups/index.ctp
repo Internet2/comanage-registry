@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Group Index View
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   if($this->action == 'select') {
@@ -42,7 +45,6 @@
     // Add page title
     $params = array();
     $params['title'] = _txt('op.gr.memadd', array($name_for_title));
-
   } else {
     // Add breadcrumbs
     $this->Html->addCrumb(_txt('ct.co_groups.pl'));
@@ -320,37 +322,38 @@
           $v = $permissions['view'] || $c['CoGroup']['open'];
           
           if(!empty($permissions['owner'])
-             && in_array($c['CoGroup']['id'], $permissions['owner']))
-          {
+             && in_array($c['CoGroup']['id'], $permissions['owner'])) {
             $d = true;
             $e = true;
           }
           
           if(!empty($permissions['member'])
-             && in_array($c['CoGroup']['id'], $permissions['member']))
+             && in_array($c['CoGroup']['id'], $permissions['member'])) {
             $v = true;
-
-          // Admin groups cannot be deleted.
-          if($c['CoGroup']['name'] == 'admin' || strncmp($c['CoGroup']['name'], 'admin:', 6) == 0) {
-            $d = false;
           }
+          
+          if(!empty($c['CoGroup']['group_type'])) {
+            if($c['CoGroup']['group_type'] != GroupEnum::Standard) {
+              // Non-standard groups can't be deleted
+              $d = false;
+            }
             
-          // Members groups cannot be edited or deleted.
-          if($c['CoGroup']['name'] == 'members' || strncmp($c['CoGroup']['name'], 'members:', 8) == 0) {
-            $e = false;
-            $d = false;
+            if($c['CoGroup']['auto']) {
+              // Automatic groups can't be edited
+              $e = false;
+            }
           }
-        
+          
           if($e || $v) {
             print $this->Html->link($c['CoGroup']['name'],
                                     array('controller' => 'co_groups',
                                           'action' => ($e ? 'edit' : ($v ? 'view' : '')), $c['CoGroup']['id']));
           } else {
-            print Sanitize::html($c['CoGroup']['name']);
+            print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
           }
         ?>
       </td>
-      <td><?php print Sanitize::html($c['CoGroup']['description']); ?></td>
+      <td><?php print filter_var($c['CoGroup']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
       <td><?php print $c['CoGroup']['open'] ? _txt('fd.open') : _txt('fd.closed'); ?></td>
       <td>
         <?php
@@ -391,22 +394,19 @@
                                           array('default' => $gmID)) . "\n";
               }
               
-              $isMembersGroup = ($c['CoGroup']['name'] == 'members' || strncmp($c['CoGroup']['name'], 'members:', 8) == 0); 
-              
-              $disabled = !($e || $permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $isMembersGroup;
+              $disabled = !($e || $permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $c['CoGroup']['auto'];
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
                                           array('disabled' => $disabled,
                                                 'checked'    => $isMember));
               print $this->Form->label('CoGroupMember.rows.'.$i.'.member',_txt('fd.group.mem'));
               
-              $disabled = !($e || $permissions['selectany'] || $isOwner) || $isMembersGroup;
+              $disabled = !($e || $permissions['selectany'] || $isOwner) || $c['CoGroup']['auto'];
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
                                           array('disabled' => $disabled,
                                                 'checked'    => $isOwner));
               print $this->Form->label('CoGroupMember.rows.'.$i.'.owner',_txt('fd.group.own'));
             }
-          }
-          else {
+          } else {
             if($e) {
               print $this->Html->link(_txt('op.edit'),
                                       array('controller' => 'co_groups',
@@ -444,6 +444,14 @@
                 . _txt('op.delete')
                 . '</button>';
             }
+          }
+          
+          if(!empty($c['CoGroupMember'][0]['source_org_identity_id'])) {
+            print $this->Html->link(_txt('op.view.source'),
+                                    array('controller' => 'org_identities',
+                                          'action' => 'view',
+                                          $c['CoGroupMember'][0]['source_org_identity_id']),
+                                    array('class' => 'viewbutton'));
           }
         ?>
         <?php ; ?>

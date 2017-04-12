@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Person Role Model
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class CoPersonRole extends AppModel {
@@ -97,6 +100,9 @@ class CoPersonRole extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'o' => array(
@@ -104,6 +110,9 @@ class CoPersonRole extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'ou' => array(
@@ -111,6 +120,9 @@ class CoPersonRole extends AppModel {
         'rule' => array('maxLength', 128),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'valid_from' => array(
@@ -266,6 +278,8 @@ class CoPersonRole extends AppModel {
                                       ($this->cachedData[$this->alias]['valid_through']
                                        != $curdata[$this->alias]['valid_through']));
     }
+    
+    return true;
   }
   
   /**
@@ -278,41 +292,118 @@ class CoPersonRole extends AppModel {
     // Cache the current record
     $this->cachedData = null;
     
-    if(!empty($this->data['CoPersonRole']['id'])) {
+    if(!empty($this->data[$this->alias]['id'])) {
       // We have an existing record
       
       $args = array();
-      $args['conditions']['CoPersonRole.id'] = $this->data['CoPersonRole']['id'];
+      $args['conditions'][$this->alias.'.id'] = $this->data[$this->alias]['id'];
       $args['contain'] = false;
 
       $this->cachedData = $this->find('first', $args);
     }
     
-    // If the validity of the role was changed, change the status appropriately
+    // Possibly convert the requested timestamps to UTC from browser time.
+    // Do this before the strtotime/time calls below, both of which use UTC.
     
-    if(!empty($this->data['CoPersonRole']['valid_from'])) {
-      if(strtotime($this->data['CoPersonRole']['valid_from']) < time()
-         && $this->data['CoPersonRole']['status'] == StatusEnum::Pending) {
-        // Flag role as active
-        $this->data['CoPersonRole']['status'] = StatusEnum::Active;
-      } elseif(strtotime($this->data['CoPersonRole']['valid_from']) > time()
-         && $this->data['CoPersonRole']['status'] == StatusEnum::Active) {
-        // Flag role as pending
-        $this->data['CoPersonRole']['status'] = StatusEnum::Pending;
+    if($this->tz) {
+      $localTZ = new DateTimeZone($this->tz);
+      
+      if(!empty($this->data[$this->alias]['valid_from'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data[$this->alias]['valid_from'], $localTZ);
+        
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data[$this->alias]['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+      
+      if(!empty($this->data[$this->alias]['valid_through'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data[$this->alias]['valid_through'], $localTZ);
+        
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data[$this->alias]['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
       }
     }
     
-    if(!empty($this->data['CoPersonRole']['valid_through'])) {
-      if(strtotime($this->data['CoPersonRole']['valid_through']) < time()
-         && ($this->data['CoPersonRole']['status'] == StatusEnum::Active
-             ||
-             $this->data['CoPersonRole']['status'] == StatusEnum::GracePeriod)) {
-        // Flag role as expired
-        $this->data['CoPersonRole']['status'] = StatusEnum::Expired;
-      } elseif(strtotime($this->data['CoPersonRole']['valid_through']) > time()
-         && $this->data['CoPersonRole']['status'] == StatusEnum::Expired) {
-        // Flag role as active
-        $this->data['CoPersonRole']['status'] = StatusEnum::Active;
+    // If the validity of the role was changed, change the status appropriately
+    
+    if(!empty($this->data[$this->alias]['status'])) {
+      if(!empty($this->data[$this->alias]['valid_from'])) {
+        if(strtotime($this->data[$this->alias]['valid_from']) < time()
+           && $this->data[$this->alias]['status'] == StatusEnum::Pending) {
+          // Flag role as active
+          $this->data[$this->alias]['status'] = StatusEnum::Active;
+        } elseif(strtotime($this->data[$this->alias]['valid_from']) > time()
+           && $this->data[$this->alias]['status'] == StatusEnum::Active) {
+          // Flag role as pending
+          $this->data[$this->alias]['status'] = StatusEnum::Pending;
+        }
+      }
+      
+      if(!empty($this->data[$this->alias]['valid_through'])) {
+        if(strtotime($this->data[$this->alias]['valid_through']) < time()
+           && ($this->data[$this->alias]['status'] == StatusEnum::Active
+               ||
+               $this->data[$this->alias]['status'] == StatusEnum::GracePeriod)) {
+          // Flag role as expired
+          $this->data[$this->alias]['status'] = StatusEnum::Expired;
+        } elseif(strtotime($this->data[$this->alias]['valid_through']) > time()
+           && $this->data[$this->alias]['status'] == StatusEnum::Expired) {
+          // Flag role as active
+          $this->data[$this->alias]['status'] = StatusEnum::Active;
+        }
+      }
+    } else {
+      // If status is empty, we're probably in saveField. Ideally, we'd pull the
+      // current status, but the only place this is currently called this way
+      // is expire(), below.
+    }
+  }
+  
+  /**
+   * Expire any roles for the specified CO Person ID. Specifically, set the status
+   * to Expired and set the valid through date to yesterday, if one was set.
+   *
+   * @since  COmanage Registry v2.0.0
+   * @param  Integer $coPersonId      CO Person ID
+   * @param  Integer $couId           COU ID to expire roles for, or null for any role
+   * @param  Integer $actorCoPersonId CO Person ID of actor, if interactive
+   * @throws InvalidArgumentException
+   */
+  
+  public function expire($coPersonId, $couId=null, $actorCoPersonId=null) {
+    // First look for any matching roles
+    
+    $args = array();
+    $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
+    if($couId) {
+      $args['conditions']['CoPersonRole.cou_id'] = $couId;
+    }
+    $args['contain'] = array('Cou');
+    
+    $roles = $this->find('all', $args);
+    
+    if(!empty($roles)) {
+      foreach($roles as $role) {
+        $this->clear();
+        $this->id = $role['CoPersonRole']['id'];
+        
+        if(!empty($role['CoPersonRole']['valid_through'])) {
+          $this->saveField('valid_through', date('Y-m-d H:i:s',time()-1));
+        }
+        
+        $this->saveField('status', StatusEnum::Expired);
+        
+        // Record history
+        
+        $this->CoPerson->HistoryRecord->record($coPersonId,
+                                               $role['CoPersonRole']['id'],
+                                               null,
+                                               $actorCoPersonId,
+                                               ActionEnum::CoPersonRoleEditedExpiration,
+                                               !empty($role['Cou']['name'])
+                                               ? _txt('rs.xp.role-a', array($role['Cou']['name']))
+                                               : _txt('rs.xp.role'));
       }
     }
   }
@@ -322,14 +413,15 @@ class CoPersonRole extends AppModel {
    * CoPersonRole(s) for a CoPerson and the Cou(s) for those roles.
    *
    * @since  COmanage Registry v0.9.3
-   * @param  Integer $id CoPersonRole ID
-   * @param  String $alias Alias for the CoPersonRole model
-   * @param  Boolean $provision Whether to run provisioners
+   * @param  Integer $id           CoPersonRole ID
+   * @param  String  $alias        Alias for the CoPersonRole model
+   * @param  Boolean $provision    Whether to run provisioners
+   * @param  Boolean $personActive If false, role is not eligible for ActiveMembers
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function reconcileCouMembersGroupMemberships($id, $alias = null, $provision = true) {
+  public function reconcileCouMembersGroupMemberships($id, $alias=null, $provision=true, $personActive=true) {
     // Since the Provisioner Behavior will only provision group memberships
     // for CO People with an Active status we do not need to manage 
     // membership in the members group based on status here.  
@@ -345,42 +437,45 @@ class CoPersonRole extends AppModel {
     // Map the CO Person Role ID to a CO Person ID. Because CoPersonRole is
     // changelog enabled, this will work even on a delete or expunge.
     
-    $coPersonId = $this->field('co_person_id');
+    $coPersonId = $this->field('co_person_id', array($modelName.'.id' => $id));
     
     if(!$coPersonId) {
       // We're probably deleting the CO
       return;
     }
     
-    // If the role is Active or GracePeriod, we want to make sure the
-    // person is in the relevant Members group. However, because this model
-    // is changelog enabled and we are retrieving based on ID (which will
-    // return deleted attributes), we need to also check the deleted flag.
-    $status = $this->field('status');
-    $deleted = $this->field('deleted');
-    
-    $eligible = (!$deleted && ($status == StatusEnum::Active || $status == StatusEnum::GracePeriod));
-    
-    // Construct the members group name
-    $couId = $this->field('cou_id');
+    $couId = $this->field('cou_id', array($modelName.'.id' => $id));
     
     if(!$couId) {
       // There is no COU associated with this role, so nothing to do
       return;
     }
     
+    // We need to examine the status of all roles in the COU, not just the current
+    // one, to see if the person is eligible for the relevant members group.
+    
     $args = array();
-    $args['conditions']['Cou.id'] = $couId;
+    $args['conditions'][$modelName.'.co_person_id'] = $coPersonId;
+    $args['conditions'][$modelName.'.cou_id'] = $couId;
+    $args['fields'] = array('id', 'status');
     $args['contain'] = false;
     
-    $cou = $this->Cou->find('first', $args);
+    $status = $this->find('list', $args);
     
-    if(!$cou) {
-      throw new InvalidArgumentException(_txt('er.unknown', array($couId)));
+    // This logic is similar to CoGroup::reconcileAutomaticGroup()
+    $activeEligible = $personActive && (array_search(StatusEnum::Active, $status) || array_search(StatusEnum::GracePeriod, $status));
+    
+    // For $allEligible, we need at least one role not Deleted
+    $allEligible = false;
+    
+    foreach($status as $s) {
+      if($s != StatusEnum::Deleted) {
+        $allEligible = true;
+        break;
+      }
     }
     
-    $coGroupName = 'members:' . $cou['Cou']['name'];
-    
-    $this->CoPerson->CoGroupMember->syncMembership($coGroupName, $coPersonId, $eligible, $provision);
+    $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $couId, $coPersonId, $activeEligible, $provision);
+    $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::AllMembers, $couId, $coPersonId, $allEligible, $provision);
   }
 }

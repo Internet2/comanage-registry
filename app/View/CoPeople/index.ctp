@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Person Index View
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 
@@ -62,7 +65,7 @@
   } elseif($this->action == 'relink') {
     $this->Html->addCrumb(_txt('op.relink'));
   } elseif($this->action == 'select') {
-    $this->Html->addCrumb($title_for_layout);
+    $this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_SPECIAL_CHARS));
   } else {
     $this->Html->addCrumb(_txt('me.population'));
   }
@@ -71,20 +74,20 @@
 <?php if($this->action == 'link'): ?>
   <div class="co-info-topbox">
     <i class="material-icons">info</i>
-    <?php print _txt('op.link.select', array(generateCn($vv_org_identity['PrimaryName']),
-                                                       $vv_org_identity['OrgIdentity']['id'])); ?>
+    <?php print _txt('op.link.select', array(filter_var(generateCn($vv_org_identity['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
+      filter_var($vv_org_identity['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
   </div>
 <?php elseif($this->action == 'relink' && !empty($vv_co_org_identity_link['OrgIdentity'])): ?>
   <div class="co-info-topbox">
     <i class="material-icons">info</i>
-    <?php print _txt('op.relink.select', array(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),
-                                                         $vv_co_org_identity_link['OrgIdentity']['id'])); ?>
+    <?php print _txt('op.relink.select', array(filter_var(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
+      filter_var($vv_co_org_identity_link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
   </div>
 <?php elseif($this->action == 'relink' && !empty($vv_co_person_role['CoPersonRole'])): ?>
   <div class="co-info-topbox">
     <i class="material-icons">info</i>
-    <?php print _txt('op.relink.role.select', array($vv_co_person_role['CoPersonRole']['title'],
-                                                         $vv_co_person_role['CoPersonRole']['id'])); ?>
+    <?php print _txt('op.relink.role.select', array(filter_var($vv_co_person_role['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS),
+      filter_var($vv_co_person_role['CoPersonRole']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
   </div>
 <?php elseif($this->action == 'select'): ?>
   <div class="co-info-topbox">

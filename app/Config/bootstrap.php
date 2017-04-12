@@ -80,11 +80,11 @@ Inflector::rules('plural', array('uninflected' => array('meta', 'Meta')));
  */
 
 include APP."Lib/enum.php";
+_bootstrap_plugin_enum();
 include APP."Lib/lang.php";
 include APP."Lib/util.php";
 
 CakePlugin::loadAll();
-
 
 /**
  * You can attach event listeners to the request lifecyle as Dispatcher Filter . By Default CakePHP bundles two filters:

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Extended Types Controller
  *
- * Copyright (C) 2013-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2013-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.6
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -62,7 +65,7 @@ class CoExtendedTypesController extends StandardController {
     if(!empty($this->request->query['attr'])) {
       try {
         $this->CoExtendedType->addDefault($this->cur_co['Co']['id'],
-                                          Sanitize::html($this->request->query['attr']));
+                                          filter_var($this->request->query['attr'],FILTER_SANITIZE_SPECIAL_CHARS));
         
         $this->Flash->set(_txt('rs.types.defaults'), array('key' => 'success'));
       }
@@ -315,7 +318,7 @@ class CoExtendedTypesController extends StandardController {
     }
     
     if(!empty($this->request->query['attr'])) {
-      $ret['conditions']['CoExtendedType.attribute'] = Sanitize::html($this->request->query['attr']);
+      $ret['conditions']['CoExtendedType.attribute'] = filter_var($this->request->query['attr'],FILTER_SANITIZE_SPECIAL_CHARS);
     }
     
     return $ret;
@@ -362,7 +365,7 @@ class CoExtendedTypesController extends StandardController {
     $this->redirect(array('action' => 'index',
                           'co' => $this->cur_co['Co']['id'],
                           '?' => array(
-                            'attr' => Sanitize::html($attr)
+                            'attr' => filter_var($attr,FILTER_SANITIZE_SPECIAL_CHARS)
                           )));
   }
   

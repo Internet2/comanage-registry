@@ -2,24 +2,27 @@
 /**
  * COmanage Registry OrgIdentity Model
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class OrgIdentity extends AppModel {
@@ -49,10 +52,6 @@ class OrgIdentity extends AppModel {
     "PipelineCoPersonRole" => array(
       'className'  => 'CoPersonRole',
       'foreignKey' => 'source_org_identity_id'
-    ),
-    "PipelineCoGroupMember" => array(
-      'className'  => 'CoGroupMember',
-      'foreignKey' => 'source_org_identity_id'
     )
   );
   
@@ -80,6 +79,10 @@ class OrgIdentity extends AppModel {
     // A person can have many identifiers within an organization
     "Identifier" => array('dependent' => true),
     "Name" => array('dependent' => true),
+    "PipelineCoGroupMember" => array(
+      'className'  => 'CoGroupMember',
+      'foreignKey' => 'source_org_identity_id'
+    ),
     // A person can have one or more telephone numbers
     "TelephoneNumber" => array('dependent' => true)
   );
@@ -130,35 +133,42 @@ class OrgIdentity extends AppModel {
     ),
     'o' => array(
       'content' => array(
-        'rule' => '/.*/',
+        'rule' => array('validateInput'),
         'required' => false,
         'allowEmpty' => true
       )
     ),
-    'organization_id' => array(
+/*    'organization_id' => array(
       'content' => array(
         'rule' => 'numeric',
         'required' => false,
         'allowEmpty' => true
       )
-    ),
+    ),*/
     'ou' => array(
       'content' => array(
-        'rule' => '/.*/',
-        'required' => false,
-        'allowEmpty' => true
-      )
-    ),
-    'primary_name_id' => array(
-      'content' => array(
-        'rule' => 'numeric',
+        'rule' => array('validateInput'),
         'required' => false,
         'allowEmpty' => true
       )
     ),
     'title' => array(
       'content' => array(
-        'rule' => '/.*/',
+        'rule' => array('validateInput'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'valid_from' => array(
+      'content' => array(
+        'rule' => array('validateTimestamp'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'valid_through' => array(
+      'content' => array(
+        'rule' => array('validateTimestamp'),
         'required' => false,
         'allowEmpty' => true
       )
@@ -170,6 +180,37 @@ class OrgIdentity extends AppModel {
   public $cm_enum_txt = array(
     'affiliation' => 'en.co_person_role.affiliation'
   );
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v2.0.0
+   */
+  
+  public function beforeSave($options = array()) {    
+    // Possibly convert the requested timestamps to UTC from browser time.
+    // Do this before the strtotime/time calls below, both of which use UTC.
+    
+    if($this->tz) {
+      $localTZ = new DateTimeZone($this->tz);
+      
+      if(!empty($this->data['OrgIdentity']['valid_from'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data['OrgIdentity']['valid_from'], $localTZ);
+        
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data['OrgIdentity']['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+      
+      if(!empty($this->data['OrgIdentity']['valid_through'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data['OrgIdentity']['valid_through'], $localTZ);
+        
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data['OrgIdentity']['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+    }
+  }
   
   /**
    * Duplicate an Organizational Identity, including all of its related
@@ -310,7 +351,7 @@ class OrgIdentity extends AppModel {
    *  (3) The CO Setting
    * Note this implies the Pipeline an OrgIdentity is processed by can change over time.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer Org Identity ID
    * @return Integer CO Pipeline ID, or null
    */
@@ -382,7 +423,7 @@ class OrgIdentity extends AppModel {
   /**
    * Determine if an Org Identity is read only.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id Org Identity ID
    * @return True if the Org Identity is read only, false otherwise
    */

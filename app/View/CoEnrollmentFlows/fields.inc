@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Enrollment Configuration Fields
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -88,6 +91,8 @@
       $("#CoEnrollmentFlowRequireAuthn").closest("li").hide('fade');
       $("#CoEnrollmentFlowDuplicateMode").closest("li").hide('fade');
     }
+    
+    tandc_update_gadgets();
   }
   
   function authz_update_gadgets() {
@@ -114,12 +119,6 @@
         document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
       }
     } else {
-      if(authz == '<?php print EnrollmentAuthzEnum::None ?>') {
-        // If no authz is required, then T&C must be ignored
-        if (document.getElementById('CoEnrollmentFlowTAndCMode')) {
-          document.getElementById('CoEnrollmentFlowTAndCMode').value = "<?php print TAndCEnrollmentModeEnum::Ignore ?>";
-        }
-      }
       if (document.getElementById('CoEnrollmentFlowAuthzCoGroupId')) {
         document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
       }
@@ -127,6 +126,8 @@
         document.getElementById('CoEnrollmentFlowAuthzCouId').value = "";
       }
     }
+    
+    tandc_update_gadgets();
   }
   
   function fields_update_gadgets() {
@@ -173,6 +174,20 @@
     }
   }
   
+  function tandc_update_gadgets() {
+    // T&C require some form of authentication
+    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode').value;
+    var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
+    var authz = document.getElementById('CoEnrollmentFlowAuthzLevel').value;
+    
+    if((confirm != '<?php print VerificationModeEnum::None; ?>' && authn)
+       || authz != '<?php print EnrollmentAuthzEnum::None ?>') {
+      $("#CoEnrollmentFlowTAndCMode").closest("li").show('fade');
+    } else {
+      $("#CoEnrollmentFlowTAndCMode").closest("li").hide('fade');
+    }
+  }
+  
   function js_local_onload() {
     approver_update_gadgets();
     fields_update_gadgets();
@@ -190,7 +205,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('name', array('default' => _txt('fd.untitled'),'class' => 'focusFirst'))
-                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['name'])); ?>
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -370,7 +385,7 @@
       <?php print ($e
                    ? $this->Form->input('approval_required', array('onClick' => 'approver_update_gadgets()')) . ' ' .
                      $this->Form->label('approval_required', _txt('fd.ef.appr'))
-                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_required'])); ?>
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_required'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       <div id="approvergroupdiv" class="subfield" style="display:none">
         <?php
           if(!empty($co_groups)) {
@@ -441,7 +456,7 @@
           <?php print ($e
             ? $this->Form->input('invitation_validity',
               array('default' => DEF_INV_VALIDITY))
-            : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['invitation_validity'])); ?>
+            : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['invitation_validity'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
       </li>
       <li>
@@ -470,7 +485,7 @@
                 print $this->Form->error('verification_template_id');
               }
             } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'])) {
-              print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentVerification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'] ]);
+              print filter_var($vv_message_templates[MessageTemplateEnum::EnrollmentVerification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['verification_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </div>
@@ -486,7 +501,7 @@
           <?php print ($e
             ? $this->Form->input('verification_subject',
               array('default' => _txt('em.invite.subject.ef')))
-            : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_subject'])); ?>
+            : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
       </li>
       <li class="field-stack">
@@ -500,7 +515,7 @@
           <?php print ($e
             ? $this->Form->input('verification_body',
               array('default' => _txt('em.invite.body.ef')))
-            : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_body'])); ?>
+            : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['verification_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
       </li>
       <li>
@@ -514,7 +529,7 @@
           <?php print ($e
             ? $this->Form->input('require_authn', array('onClick' => 'authn_update_gadgets()')) . ' ' .
             $this->Form->label('require_authn', _txt('fd.ef.authn'))
-            : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'])); ?>
+            : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
       </li>
       <li style="display:none">
@@ -559,7 +574,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('notify_from')
-                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_from'])); ?>
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_from'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -604,7 +619,7 @@
       <?php print ($e
                    ? $this->Form->input('notify_on_approval', array('onChange' => 'fields_update_gadgets();')) . ' ' .
                      $this->Form->label('notify_on_approval', _txt('fd.ef.noap'))
-                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'])); ?>
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
     <ul class="field-children">
 
@@ -634,7 +649,7 @@
                 print $this->Form->error('approval_template_id');
               }
             } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])) {
-              print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentApproval][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'] ]);
+              print filter_var($vv_message_templates[MessageTemplateEnum::EnrollmentApproval][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </div>
@@ -650,7 +665,7 @@
           <?php print ($e
             ? $this->Form->input('approval_subject',
               array('default' => _txt('em.approval.subject.ef')))
-            : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_subject'])); ?>
+            : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
       </li>
       <li class="field-stack" style="display:none">
@@ -664,7 +679,7 @@
           <?php print ($e
             ? $this->Form->input('approval_body',
               array('default' => _txt('em.approval.body.ef')))
-            : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'])); ?>
+            : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
       </li>
     </ul>
@@ -680,7 +695,7 @@
       <?php print ($e
                    ? $this->Form->input('notify_on_finalize', array('onChange' => 'fields_update_gadgets();')) . ' ' .
                      $this->Form->label('notify_on_finalize', _txt('fd.ef.nof'))
-                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_finalize'])); ?>
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_finalize'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
     <ul class="field-children">
       <li style="display:none">
@@ -708,7 +723,7 @@
                 print $this->Form->error('finalization_template_id');
               }
             } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'])) {
-              print Sanitize::html($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization][ $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'] ]);
+              print filter_var($vv_message_templates[MessageTemplateEnum::EnrollmentFinalization][ $co_enrollment_flows[0]['CoEnrollmentFlow']['finalization_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </div>
@@ -725,7 +740,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('introduction_text')
-                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['introduction_text'])); ?>
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['introduction_text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li class="field-stack">
@@ -738,7 +753,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('conclusion_text')
-                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['conclusion_text'])); ?>
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['conclusion_text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -782,7 +797,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('redirect_on_submit', array('size' => 60))
-                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_submit'])); ?>
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_submit'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -795,7 +810,7 @@
     <div class="field-info">
       <?php print ($e
                    ? $this->Form->input('redirect_on_confirm', array('size' => 60))
-                   : Sanitize::html($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_confirm'])); ?>
+        : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_confirm'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>

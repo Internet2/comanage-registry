@@ -2,24 +2,27 @@
 /**
  * COmanage Registry COU Fields
  *
- * Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-12 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -55,7 +58,7 @@
       <?php print $this->Form->label('name',_txt('fd.name')); ?><span class="required">*</span>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : Sanitize::html($cous[0]['Cou']['name'])); ?>
+      <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($cous[0]['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -63,7 +66,7 @@
       <?php print $this->Form->label('description',_txt('fd.desc')); ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('description') : Sanitize::html($cous[0]['Cou']['description'])); ?>
+      <?php print ($e ? $this->Form->input('description') : filter_var($cous[0]['Cou']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -90,7 +93,7 @@
           }
         }
         else {
-          print Sanitize::html($cous[0]['Cou']['parent_id']);
+          print filter_var($cous[0]['Cou']['parent_id'],FILTER_SANITIZE_SPECIAL_CHARS);
         }
 
         if($this->Form->isFieldError('status')) {

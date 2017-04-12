@@ -2,24 +2,27 @@
 /**
  * COmanage Registry OrgIdentity Fields
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Globals
@@ -90,10 +93,10 @@
   });
 </script>
 
-<?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['id'])): ?>
+<?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['id'])): ?>
   <div class="co-info-topbox">
     <i class="material-icons">info</i>
-    <?php print _txt('op.orgid.edit.ois'); ?>
+    <?php print _txt('op.orgid.edit.ois', array($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])); ?>
   </div>
 <?php endif; // view ?>
 
@@ -142,7 +145,7 @@
                     print $this->Form->hidden('PrimaryName.id');
                     print $this->Form->hidden('PrimaryName.type', array('default' => NameEnum::Official));
                     print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
-                    print ($e ? $this->Form->input('PrimaryName.honorific', array('class' => 'focusFirst')) : Sanitize::html($org_identities[0]['PrimaryName']['honorific']));
+                    print ($e ? $this->Form->input('PrimaryName.honorific') : filter_var($org_identities[0]['PrimaryName']['honorific'],FILTER_SANITIZE_SPECIAL_CHARS));
                   ?>
                 </div>
               </li>
@@ -151,7 +154,7 @@
                   <?php print ($e ? $this->Form->label('PrimaryName.given', _txt('fd.name.given')) . ' <span class="required">*</span>' : _txt('fd.name.given')); ?>
                 </div>
                 <div class="field-info">
-                  <?php print ($e ? $this->Form->input('PrimaryName.given') : Sanitize::html($org_identities[0]['PrimaryName']['given'])); ?>
+                  <?php print ($e ? $this->Form->input('PrimaryName.given') : filter_var($org_identities[0]['PrimaryName']['given'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
                 </div>
               </li>
               <li>
@@ -159,7 +162,7 @@
                   <?php print ($e ? $this->Form->label('PrimaryName.middle', _txt('fd.name.middle')) : _txt('fd.name.middle')); ?>
                 </div>
                 <div class="field-info">
-                  <?php print ($e ? $this->Form->input('PrimaryName.middle') : Sanitize::html($org_identities[0]['PrimaryName']['middle'])); ?>
+                  <?php print ($e ? $this->Form->input('PrimaryName.middle') : filter_var($org_identities[0]['PrimaryName']['middle'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
                 </div>
               </li>
               <li>
@@ -167,7 +170,7 @@
                   <?php print ($e ? $this->Form->label('PrimaryName.family', _txt('fd.name.family')) :  _txt('fd.name.family')); ?>
                 </div>
                 <div class="field-info">
-                  <?php print ($e ? $this->Form->input('PrimaryName.family') : Sanitize::html($org_identities[0]['PrimaryName']['family'])); ?>
+                  <?php print ($e ? $this->Form->input('PrimaryName.family') : filter_var($org_identities[0]['PrimaryName']['family'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
                 </div>
               </li>
               <li>
@@ -175,7 +178,7 @@
                   <?php print ($e ? $this->Form->label('PrimaryName.suffix', _txt('fd.name.suffix') . " " . _txt('fd.name.s.desc')) :  _txt('fd.name.suffix')); ?>
                 </div>
                 <div class="field-info">
-                  <?php print ($e ? $this->Form->input('PrimaryName.suffix') : Sanitize::html($org_identities[0]['PrimaryName']['suffix'])); ?>
+                  <?php print ($e ? $this->Form->input('PrimaryName.suffix') : filter_var($org_identities[0]['PrimaryName']['suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
                 </div>
               </li>
               <li>
@@ -280,7 +283,7 @@
                 </li>
               <?php endforeach; ?>
             </ul>
-          <?php endif; // add ?>
+          <?php endif; // add / edit ?>
           <ul id="tabs-name-fields" class="fields form-list">
           <li>
             <div class="field-name">
@@ -350,13 +353,13 @@
                     // Attribute enumerations defined
 
                     if(!empty($org_identities[0]['OrgIdentity']['title'])
-                      && !array_search($org_identities[0]['OrgIdentity']['title'], $vv_enums_title)) {
-                      print $org_identities[0]['OrgIdentity']['title'];
-
+                       && !array_search($org_identities[0]['OrgIdentity']['title'], $vv_enums_title)) {
+                      print filter_var($org_identities[0]['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
+                      
                       print '<div>
-                         <span class="ui-icon ui-icon-info co-info"></span>
-                         <em>' . _txt('er.ae.val.inv') . '</em>
-                       </div>';
+                               <span class="ui-icon ui-icon-info co-info"></span>
+                               <em>' . _txt('er.ae.val.inv') . '</em>
+                             </div>';
                     }
 
                     $attrs = array();
@@ -372,7 +375,7 @@
                     print $this->Form->input('title', array('size' => 60));
                   }
                 } else {
-                  print Sanitize::html($org_identities[0]['OrgIdentity']['title']);
+                  print filter_var($org_identities[0]['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               ?>
             </div>
@@ -389,8 +392,8 @@
 
                     if(!empty($org_identities[0]['OrgIdentity']['o'])
                       && !array_search($org_identities[0]['OrgIdentity']['o'], $vv_enums_o)) {
-                      print $org_identities[0]['OrgIdentity']['o'];
-
+                      print filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
+                      
                       print '<div>
                          <span class="ui-icon ui-icon-info co-info"></span>
                          <em>' . _txt('er.ae.val.inv') . '</em>
@@ -410,7 +413,7 @@
                     print $this->Form->input('o', array('size' => 60));
                   }
                 } else {
-                  print Sanitize::html($org_identities[0]['OrgIdentity']['o']);
+                  print filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               ?>
             </div>
@@ -427,8 +430,8 @@
 
                     if(!empty($org_identities[0]['OrgIdentity']['ou'])
                       && !array_search($org_identities[0]['OrgIdentity']['ou'], $vv_enums_ou)) {
-                      print $org_identities[0]['OrgIdentity']['ou'];
-
+                      print filter_var($org_identities[0]['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
+                      
                       print '<div>
                          <span class="ui-icon ui-icon-info co-info"></span>
                          <em>' . _txt('er.ae.val.inv') . '</em>
@@ -448,11 +451,87 @@
                     print $this->Form->input('ou', array('size' => 60));
                   }
                 } else {
-                  print Sanitize::html($org_identities[0]['OrgIdentity']['ou']);
+                  print filter_var($org_identities[0]['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               ?>
             </div>
           </li>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td>
+              <?php
+                if($e) {
+                  print $this->Form->label('valid_from', _txt('fd.valid_from.tz', array($vv_tz)));
+                } else {
+                  print _txt('fd.valid_from');
+                }
+              ?><br />
+              <span class="descr"><?php print _txt('fd.valid_from.desc'); ?></span>
+            </td>
+            <td>
+              <?php
+                if($e) {
+                  $args = array(
+                    'class' => 'datepicker-f'
+                  );
+
+                  if(isset($org_identities[0]['OrgIdentity']['valid_from'])
+                    && $org_identities[0]['OrgIdentity']['valid_from'] > 0) {
+                    if(!empty($vv_tz)) {
+                      // We need to adjust the UTC value to the user's local time
+                      $args['value'] = $this->Time->format($org_identities[0]['OrgIdentity']['valid_from'], "%F %T", false, $vv_tz);
+                    } else {
+                      $args['value'] = $org_identities[0]['OrgIdentity']['valid_from'];
+                    }
+                  }
+
+                  print $this->Form->text('valid_from', $args);
+                } else {
+                  if(isset($org_identities[0]['OrgIdentity']['valid_from'])
+                    && $org_identities[0]['OrgIdentity']['valid_from'] > 0) {
+                    print $this->Time->format($org_identities[0]['OrgIdentity']['valid_from'], "%c $vv_tz", false, $vv_tz);
+                  }
+                }
+              ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <td>
+              <?php
+                if($e) {
+                  print $this->Form->label('valid_through', _txt('fd.valid_through.tz', array($vv_tz)));
+                } else {
+                  print _txt('fd.valid_through');
+                }
+              ?><br />
+              <span class="descr"><?php print _txt('fd.valid_from.desc'); ?></span>
+            </td>
+            <td>
+              <?php
+                if($e) {
+                  $args = array(
+                    'class' => 'datepicker-u'
+                  );
+
+                  if(isset($org_identities[0]['OrgIdentity']['valid_through'])
+                    && $org_identities[0]['OrgIdentity']['valid_through'] > 0) {
+                    if(!empty($vv_tz)) {
+                      // We need to adjust the UTC value to the user's local time
+                      $args['value'] = $this->Time->format($org_identities[0]['OrgIdentity']['valid_through'], "%F %T", false, $vv_tz);
+                    } else {
+                      $args['value'] = $org_identities[0]['OrgIdentity']['valid_through'];
+                    }
+                  }
+
+                  print $this->Form->text('valid_through', $args);
+                } else {
+                  if(isset($org_identities[0]['OrgIdentity']['valid_through'])
+                    && $org_identities[0]['OrgIdentity']['valid_through'] > 0) {
+                    print $this->Time->format($org_identities[0]['OrgIdentity']['valid_through'], "%c $vv_tz", false, $vv_tz);
+                  }
+                }
+              ?>
+            </td>
+          </tr>
           <?php if($e): ?>
             <li class="fields-submit">
               <div class="field-name">
@@ -502,6 +581,14 @@
                   print '</div>';
                   print '<div class="field-actions">';
 
+                  if(isset($id['login']) && $id['login']) {
+                    print $this->Html->link(_txt('ct.authentication_events.pl'),
+                      array('controller' => 'authentication_events',
+                        'action' => 'index',
+                        'identifier' => $id['identifier']),
+                      array('class' => 'notebutton'));
+                  }
+
                   if($e) {
                     // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                     print '<a class="deletebutton" title="' . _txt('op.delete')
@@ -540,6 +627,23 @@
               }
             ?>
           </ul><!-- tabs-id -->
+          
+          <?php
+            if($e) {
+              $linktarget = array('controller'    => 'identifiers',
+                'action'        => 'add',
+                'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
+              );
+              $linkparams = array('class'  => 'addbutton');
+
+              print $this->Html->link(_txt('op.add'),
+                $linktarget,
+                $linkparams
+              );
+            }
+          ?>
+          
         </li><!-- fields-id -->
 
         <!-- Email -->
@@ -794,7 +898,7 @@
                       'action'     => 'canvas',
                       $o['CoPerson']['id']));
 
-                  print "&nbsp;(" . Sanitize::html($o['CoPerson']['Co']['name']) . ")<br />\n";
+                  print "&nbsp;(" . filter_var($o['CoPerson']['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . ")<br />\n";
                   print '</div>';
                   print '<div class="field-actions">';
 
@@ -810,6 +914,41 @@
                   print '</li>';
                 }
               }
+
+              if(!empty($vv_co_person_roles['PipelineCoPersonRole']['id'])) {
+                print '<li class="field-data-container">';
+                print '<div class="field-data">';
+                print _txt('in.orgid.pi.role') . "<br />\n";
+                print '</div>';
+                print '<div class="field-actions">';
+
+                print $this->Html->link(_txt('op.view'),
+                    array('controller' => 'co_person_roles',
+                      'action'     => 'edit',
+                      $vv_co_person_roles['PipelineCoPersonRole']['id']),
+                    array('class' => 'editbutton')) . "\n";
+                print '</div>';
+                print '</li>';
+              }
+
+              if(!empty($org_identities[0]['PipelineCoGroupMember'])) {
+                foreach($org_identities[0]['PipelineCoGroupMember'] as $g) {
+                  print '<li class="field-data-container">';
+                  print '<div class="field-data">';
+                  print _txt('in.orgid.pi.group', array(filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))) . "<br />\n";
+                  print '</div>';
+                  print '<div class="field-actions">';
+
+                  print $this->Html->link(_txt('op.view'),
+                      array('controller' => 'co_group_members',
+                        'action'     => 'edit',
+                        $g['id']),
+                      array('class' => 'editbutton')) . "\n";
+                  print '</div>';
+                  print '</li>';
+                }
+              }
+
             ?>
           </ul>
         </li>

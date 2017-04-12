@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Notifications Fields
  *
- * Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2014-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -131,7 +134,7 @@
     <div class="field-info">
       <?php
         if(!empty($co_notifications[0]['SubjectCoPerson']['PrimaryName'])) {
-          print generateCn($co_notifications[0]['SubjectCoPerson']['PrimaryName']);
+          print filter_var(generateCn($co_notifications[0]['SubjectCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
         }
       ?>
     </div>
@@ -143,9 +146,9 @@
     <div class="field-info">
       <?php
         if(!empty($co_notifications[0]['RecipientCoPerson']['PrimaryName'])) {
-          print generateCn($co_notifications[0]['RecipientCoPerson']['PrimaryName']);
+          print filter_var(generateCn($co_notifications[0]['RecipientCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
         } elseif(!empty($co_notifications[0]['RecipientCoGroup']['name'])) {
-          print $co_notifications[0]['RecipientCoGroup']['name'];
+          print filter_var($co_notifications[0]['RecipientCoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
         }
       ?>
     </div>
@@ -157,7 +160,7 @@
     <div class="field-info">
       <?php
         if(!empty($co_notifications[0]['ActorCoPerson']['PrimaryName'])) {
-          print generateCn($co_notifications[0]['ActorCoPerson']['PrimaryName']);
+          print filter_var(generateCn($co_notifications[0]['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
         }
       ?>
     </div>
@@ -200,7 +203,7 @@
           print $this->Time->format($co_notifications[0]['CoNotification']['resolution_time'], "%c $vv_tz", false, $vv_tz);
           
           if(!empty($co_notifications[0]['ResolverCoPerson']['PrimaryName'])) {
-            print " (" . generateCn($co_notifications[0]['ResolverCoPerson']['PrimaryName']) . ")";
+            print " (" . filter_var(generateCn($co_notifications[0]['ResolverCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) . ")";
           }
         }
       ?>

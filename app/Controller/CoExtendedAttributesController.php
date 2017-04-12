@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Extended Attributes Controller
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses("StandardController", "Controller");
@@ -107,7 +110,7 @@ class CoExtendedAttributesController extends StandardController {
     // Construct dynamic names
     
     $cotable = $this->CoExtendedAttribute->tablePrefix . "co"
-             . Sanitize::paranoid($curdata['CoExtendedAttribute']['co_id'])
+             . filter_var($curdata['CoExtendedAttribute']['co_id'],FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK)
              . "_person_extended_attributes";
     
     // Start a transaction
@@ -117,7 +120,7 @@ class CoExtendedAttributesController extends StandardController {
     // Drop the specified column. This will also drop any index.
     
     $sql = "ALTER TABLE " . $cotable . " DROP COLUMN "
-         . Sanitize::escape($curdata['CoExtendedAttribute']['name'], $dbc->configKeyName);
+         . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES);
     
     if($this->CoExtendedAttribute->query($sql) === false) {
       if($this->request->is('restful')) {
@@ -217,10 +220,10 @@ class CoExtendedAttributesController extends StandardController {
     // so table names need to be inflectable.
     
     $cotable = $this->CoExtendedAttribute->tablePrefix . "co"
-             . Sanitize::paranoid($reqdata['CoExtendedAttribute']['co_id'])
+             . filter_var($reqdata['CoExtendedAttribute']['co_id'],FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK)
              . "_person_extended_attributes";
     
-    $coindex = $cotable . "_" . Sanitize::paranoid($reqdata['CoExtendedAttribute']['name']) . "_i";
+    $coindex = $cotable . "_" . filter_var($reqdata['CoExtendedAttribute']['name'],FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK) . "_i";
     
     // Start a transaction
     
@@ -268,7 +271,7 @@ class CoExtendedAttributesController extends StandardController {
       }
       
       $sql = "ALTER TABLE " . $cotable . "
-              ADD COLUMN " . Sanitize::escape($reqdata['CoExtendedAttribute']['name'], $dbc->configKeyName)
+              ADD COLUMN " . filter_var($reqdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
            . " " . $reqdata['CoExtendedAttribute']['type'];
            // Type must match an enumerated value (as defined in the model) and so doesn't need sanitization
       
@@ -289,7 +292,7 @@ class CoExtendedAttributesController extends StandardController {
          && $reqdata['CoExtendedAttribute']['indx'])
       {
         $sql = "CREATE INDEX " . $coindex . " ON " . $cotable
-             . " (" . Sanitize::escape($reqdata['CoExtendedAttribute']['name'], $dbc->configKeyName) . ")";
+             . " (" . filter_var($reqdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES) . ")";
         
         if($this->CoExtendedAttribute->query($sql) === false) {
           if($this->request->is('restful')) {
@@ -318,7 +321,7 @@ class CoExtendedAttributesController extends StandardController {
         
         $sql = "ALTER TABLE "
              . $this->CoExtendedAttribute->tablePrefix . "co_" . $reqdata['CoExtendedAttribute']['co_id'] . "_person_extended_attributes
-                RENAME COLUMN " . Sanitize::escape($curdata['CoExtendedAttribute']['name'], $dbc->configKeyName)
+                RENAME COLUMN " . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
              . " TO " . $reqdata['CoExtendedAttribute']['name'];
       
         if($this->CoExtendedAttribute->query($sql) === false) {
@@ -354,7 +357,7 @@ class CoExtendedAttributesController extends StandardController {
           // Create the index
 
           $sql = "CREATE INDEX " . $coindex . " ON " . $cotable
-               . " (" . Sanitize::escape($reqdata['CoExtendedAttribute']['name'], $dbc->configKeyName) . ")";
+               . " (" . filter_var($reqdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES) . ")";
         }
         
         if($sql != "")

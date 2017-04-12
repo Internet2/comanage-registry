@@ -2,24 +2,27 @@
 /**
  * Application level Model
  *
- * Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-15 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses('Model', 'Model');
@@ -39,10 +42,13 @@ class AppModel extends Model {
   // (Commiting the wrong number of times confuses saveAssociated.)
   protected $inTxn = false;
   
+  // Track timezone for models that need to convert to/from UTC
+  protected $tz = null;
+  
   /**
    * Wrapper for begin(), primarily intended for use in callbacks.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   protected function _begin() {
@@ -55,7 +61,7 @@ class AppModel extends Model {
   /**
    * Wrapper for commit(), primarily intended for use in callbacks.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   protected function _commit() {
@@ -70,7 +76,7 @@ class AppModel extends Model {
   /**
    * Wrapper for rollback(), primarily intended for use in callbacks.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    */
   
   protected function _rollback() {
@@ -575,7 +581,7 @@ class AppModel extends Model {
   /**
    * Compare changes in a two arrays worth of a model's data.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  String  $model   Model being examined
    * @param  Array   $newdata New data, in Cake single instance format
    * @param  Array   $olddata Old data, in Cake single instance format
@@ -914,7 +920,7 @@ class AppModel extends Model {
   /**
    * Determine if the current model represents a plugin of the specified type.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  String $type Plugin type (eg: "provisioner"), or null for any type
    * @return True if the model is a plugin of the requested type, false otherwise
    */
@@ -942,7 +948,7 @@ class AppModel extends Model {
    * Determine which plugins of a given type are available, and load them if not already loaded.
    *
    * @param  String Plugin type, or 'all' for all available plugins
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array Available plugins, ModelName => ModelPointer format
    * @todo   Merge with AppController::loadAvailablePlugins
    */
@@ -984,6 +990,20 @@ class AppModel extends Model {
         $this->$assoc->reloadBehavior($behavior, $params);
       }
     }
+  }
+  
+  /**
+   * Set the current timezone for use within the model.
+   *
+   * @since  COmanage Registry v2.0.0
+   * @param  String $tz Timezone, eg as determined by AppController::beforeFilter
+   */
+  
+  public function setTimeZone($tz) {
+    // This is initially intended for CO Person Role, Org Identity, and CO Petition to
+    // be able to convert valid from/through from browser localtime to UTC on save.
+    
+    $this->tz = $tz;
   }
   
   /**
@@ -1044,7 +1064,7 @@ class AppModel extends Model {
   /**
    * Update the validation rules for the model based on dynamic configurations.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $coId Current CO ID, if known and applicable
    * @return Boolean True on success
    */
@@ -1124,6 +1144,70 @@ class AppModel extends Model {
   }
   
   /**
+   * Determine if a string is a valid input.
+   *
+   * @since  COmanage Registry v1.0.6
+   * @param  array Array of fields to validate
+   * @param  array Array Supported options: 'filter' and 'flags', corresponding to filter_var options, or "invalidchars" as a string of not permitted characters
+   * @return mixed True if all field strings validate, an error message otherwise
+   */
+  
+  public function validateInput($a, $d) {
+    // By default, we'll accept anything except < and >. Arguably, we should accept
+    // anything at all for input (and filter only on output), but this was agreed to
+    // as an extra "line of defense" against unsanitized HTML output, since there are
+    // currently no known cases where user-entered input should permit angle brackets.
+    
+    if(!empty($d['filter']) || !empty($d['flags'])) {
+      // If requested, we'll use PHP's filter_var() (to match output filters).
+      // eg: Used by Email Address to match email format.
+      
+      $filter = FILTER_SANITIZE_SPECIAL_CHARS;
+      $flags = null;
+      
+      if(!empty($d['filter'])) {
+        // Use the requested filter instead
+        $filter = $d['filter'];
+      }
+      
+      if(!empty($d['flags'])) {
+        $flags = $d['flags'];
+      }
+      
+      foreach($a as $k => $v) {
+        // We use filter_var for consistency with the views, and simply check
+        // that we end up with the same string we started with.
+        
+        $filtered = filter_var($v, $filter, $flags);
+        
+        if($v != $filtered) {
+          // Mismatch, implying bad input
+          return _txt('er.input.invalid');
+        }
+      }
+    } else {
+      // Perform a basic string search.
+      
+      $invalid = "<>";
+      
+      // We use isset here rather than !empty because we'll accept an empty string
+      // as a way to skip the check.
+      if(isset($d['invalidchars'])) {
+        $invalid = $d['invalidchars'];
+      }
+      
+      foreach($a as $k => $v) {
+        if(strlen($v) != strcspn($v, $invalid)) {
+          // Mismatch, implying bad input
+          return _txt('er.input.invalid');
+        }
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Determine if a string represents a defined/supported language. This function
    * is intended to be used as a validation rule.
    *
@@ -1181,7 +1265,7 @@ class AppModel extends Model {
        && $this->validate[$field]['content']['rule'][0] == 'inList'
        && isset($this->validate[$field]['content']['rule'][1])) {
       // This is the list of valid values for this field. Map these to their
-      // translated names. Note as of v1.1.0 there may not be "translated"
+      // translated names. Note as of v2.0.0 there may not be "translated"
       // names (ie: for attribute enumerations), in which case we just want
       // the original string.
       

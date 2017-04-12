@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Telephone Number Fields
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -38,22 +41,22 @@
 
   // Migrate the target person from a named argument to a form field
   if($this->action == 'add' && isset($this->request->params['named']['copersonroleid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonroleid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonroleid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'role';
   } elseif(isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['TelephoneNumber']['co_person_role_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['TelephoneNumber']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'role';
   } elseif(!empty($telephone_numbers[0]['TelephoneNumber']['co_person_role_id'])) {
-    $idForBreadcrumbs = $telephone_numbers[0]['TelephoneNumber']['co_person_role_id'];
+    $idForBreadcrumbs = filter_var($telephone_numbers[0]['TelephoneNumber']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'role';
   } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(isset($this->request->data['TelephoneNumber']['org_identity_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['TelephoneNumber']['org_identity_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['TelephoneNumber']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(!empty($telephone_numbers[0]['TelephoneNumber']['org_identity_id'])) {
-    $idForBreadcrumbs = $telephone_numbers[0]['TelephoneNumber']['org_identity_id'];
+    $idForBreadcrumbs = filter_var($telephone_numbers[0]['TelephoneNumber']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   }
   
@@ -64,7 +67,7 @@
   }
 
   if(isset($this->params['named']['co']))
-    print $this->Form->hidden('co_id', array('default' => Sanitize::html($this->params['named']['co']))) . "\n";
+    print $this->Form->hidden('co_id', array('default' => filter_var($this->params['named']['co'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
 
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -110,7 +113,7 @@
       <?php print _txt('fd.telephone_number.country_code'); ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('country_code') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['country_code'])); ?>
+      <?php print ($e ? $this->Form->input('country_code') : filter_var($telephone_numbers[0]['TelephoneNumber']['country_code'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -118,7 +121,7 @@
       <?php print _txt('fd.telephone_number.area_code'); ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('area_code') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['area_code'])); ?>
+      <?php print ($e ? $this->Form->input('area_code') : filter_var($telephone_numbers[0]['TelephoneNumber']['area_code'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -126,7 +129,7 @@
       <?php print _txt('fd.telephone_number.number'); ?><span class="required">*</span>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('number', array('class' => 'focusFirst')) : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['number'])); ?>
+      <?php print ($e ? $this->Form->input('number', array('class' => 'focusFirst')) : filter_var($telephone_numbers[0]['TelephoneNumber']['number'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -134,7 +137,7 @@
       <?php print _txt('fd.telephone_number.extension'); ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('extension') : Sanitize::html($telephone_numbers[0]['TelephoneNumber']['extension'])); ?>
+      <?php print ($e ? $this->Form->input('extension') : filter_var($telephone_numbers[0]['TelephoneNumber']['extension'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>

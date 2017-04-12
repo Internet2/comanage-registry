@@ -2,24 +2,27 @@
 /**
  * COmanage Registry History Record Fields
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -46,7 +49,7 @@
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',
-      Sanitize::html($this->request->params['named']['copersonid']));
+      filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS));
     /* XXX When we carry the display name through all actions, we can uncomment this section;
        It works now for add, but not for the index of history records.
     if (isset($display_name)) {
@@ -58,7 +61,7 @@
     $args = array(
       'controller' => 'history_records',
       'action' => 'index',
-      'copersonid' => Sanitize::html($this->request->params['named']['copersonid']));
+      'copersonid' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS));
     $this->Html->addCrumb(_txt('ct.history_records.pl'), $args);
 
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
@@ -75,13 +78,13 @@
     $args = array(
       'controller' => 'orgIdentities',
       'action' => 'edit',
-      Sanitize::html($this->request->params['named']['orgidentityid']));
+      filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS));
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
 
     $args = array(
         'controller' => 'history_records',
         'action' => 'index',
-        'orgidentityid' => Sanitize::html($this->request->params['named']['orgidentityid']));
+        'orgidentityid' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS));
     $this->Html->addCrumb(_txt('ct.history_records.pl'), $args);
   }
 
@@ -91,10 +94,10 @@
   
   if(isset($this->request->params['named']['copersonid'])) {
     print $this->Form->hidden('co_person_id',
-                              array('default' => Sanitize::html($this->request->params['named']['copersonid']))). "\n";
+                              array('default' => filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
     print $this->Form->hidden('org_identity_id',
-                              array('default' => Sanitize::html($this->request->params['named']['orgidentityid']))). "\n";
+                              array('default' => filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
   }
   
   print $this->Form->hidden('action', array('default' => ActionEnum::CommentAdded));
@@ -112,7 +115,7 @@
                    ? $this->Form->input('comment',
                                         array('class' => 'focusFirst',
                                               'size'  => '80'))
-                   : Sanitize::html($history_records[0]['HistoryRecord']['comment'])); ?>
+                   : filter_var($history_records[0]['HistoryRecord']['comment'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <?php if($this->action == 'view'): ?>
@@ -121,7 +124,7 @@
       <?php print _txt('fd.action'); ?>
     </div>
     <div class="field-info">
-      <?php print Sanitize::html($history_records[0]['HistoryRecord']['action']); ?>
+      <?php print filter_var($history_records[0]['HistoryRecord']['action'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
     </div>
   </li>
   <li>
@@ -151,7 +154,7 @@
       <?php
         if(!empty($history_records[0]['CoPersonRole']['id'])) {
           print $this->Html->link(
-            Sanitize::html($history_records[0]['CoPersonRole']['title'])
+            filter_var($history_records[0]['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS)
             . " (" . $history_records[0]['CoPersonRole']['id'] . ")",
             array(
               'controller' => 'co_person_roles',

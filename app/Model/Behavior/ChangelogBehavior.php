@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Changelog Behavior
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.4
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class ChangelogBehavior extends ModelBehavior {
@@ -520,20 +523,38 @@ class ChangelogBehavior extends ModelBehavior {
         // eg: $query['contain'] = array('Model1.Model2');
         // For now, we don't support this second use case. Rewrite your contains
         // statement to use a different format.
+        // eg: $query['contain'] = array('Model1.field = "value"');
         
-        if($model->$v->Behaviors->enabled('Changelog')) {
+        $vmodel = $v;
+        $bits = array();
+        
+        if(strchr($v, '.')) {
+          // Third example
+          
+          $bits = explode('.', $v, 2);
+          $vmodel = $bits[0];
+        }
+        
+        if($model->$vmodel->Behaviors->enabled('Changelog')) {
           // Check to see if the contain'd model is set to relinkToArchive the
           // parent model. If so, we need to pull archived/deleted records.
           // XXX We probably need to do this below, too.
           
-          if(empty($model->$v->relinkToArchive)
-             || !in_array($model->name, $model->$v->relinkToArchive)) {
-            $cparentfk = Inflector::underscore($model->$v->name) . "_id";
+          if(empty($model->$vmodel->relinkToArchive)
+             || !in_array($model->name, $model->$vmodel->relinkToArchive)) {
+            $cparentfk = Inflector::underscore($model->$vmodel->name) . "_id";
             
-            $ret[$v]['conditions'] = array(
-              $v.'.'.$cparentfk => null,
-              $v.'.deleted IS NOT true'
+            $ret[$vmodel]['conditions'] = array(
+              $vmodel.'.'.$cparentfk => null,
+              $vmodel.'.deleted IS NOT true'
             );
+            
+            if(!empty($bits[1]) && strchr($bits[1], '=')) {
+              // Insert the originally requested condition
+              
+              $bits2 = explode('=', $bits[1], 2);
+              $ret[$vmodel]['conditions'][ $vmodel.'.'.trim($bits2[0]) ] = trim($bits2[1]);
+            }
             
             // Unset the original, which is keyed on an index number ($k)
             unset($ret[$k]);

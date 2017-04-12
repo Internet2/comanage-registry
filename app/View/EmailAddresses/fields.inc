@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Email Address Fields
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Determine if fields are editable
@@ -38,22 +41,22 @@
   
   // Migrate the target person from a named argument to a form field
   if($this->action == 'add' && isset($this->request->params['named']['copersonid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['copersonid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif(isset($this->request->data['EmailAddress']['co_person_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['co_person_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['EmailAddress']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif(!empty($email_addresses[0]['EmailAddress']['co_person_id'])) {
-    $idForBreadcrumbs = $email_addresses[0]['EmailAddress']['co_person_id'];
+    $idForBreadcrumbs = filter_var($email_addresses[0]['EmailAddress']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'person';
   } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->params['named']['orgidentityid']);
+    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(isset($this->request->data['EmailAddress']['org_identity_id'])) {
-    $idForBreadcrumbs = Sanitize::html($this->request->data['EmailAddress']['org_identity_id']);
+    $idForBreadcrumbs = filter_var($this->request->data['EmailAddress']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   } elseif(!empty($email_addresses[0]['EmailAddress']['org_identity_id'])) {
-    $idForBreadcrumbs = $email_addresses[0]['EmailAddress']['org_identity_id'];
+    $idForBreadcrumbs = filter_var($email_addresses[0]['EmailAddress']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
     $idType = 'org';
   }
 
@@ -120,7 +123,7 @@
       ?>
     </span>
     <span class="field-info">
-      <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : Sanitize::html($email_addresses[0]['EmailAddress']['mail'])); ?>
+      <?php print ($e ? $this->Form->input('mail', array('class' => 'focusFirst')) : filter_var($email_addresses[0]['EmailAddress']['mail'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       <?php if($e && $isVerified): ?>
         <span class="ui-icon ui-icon-info co-info"></span>
         <em><?php print _txt('fd.email_address.verified.warn'); ?></em>
@@ -151,7 +154,7 @@
             print $this->Form->error('type');
           }
         } else {
-          print Sanitize::html(_txt('en.email_address.type', null, $email_addresses[0]['EmailAddress']['type']));
+          print _txt('en.email_address.type', null, filter_var($email_addresses[0]['EmailAddress']['type'],FILTER_SANITIZE_SPECIAL_CHARS));
         }
       ?>
     </span>
@@ -171,10 +174,6 @@
             'action' => 'verifyEmailAddress',
             'email_address_id' => $email_addresses[0]['EmailAddress']['id']
           );
-
-          if(!empty($cur_co['Co']['id'])) {
-            $url['co'] = $cur_co['Co']['id'];
-          }
         }
 
         print ($isVerified ? _txt('fd.yes') : _txt('fd.no')) . "\n";

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Petition Model
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses('CakeEmail', 'Network/Email');
@@ -347,7 +350,7 @@ class CoPetition extends AppModel {
   /**
    * Check the eligibility for a CO Petition.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id CO Petition ID
    * @param  Integer $actorCoPersonId CO Person ID of the person triggering the relink
    * @throws InvalidArgumentException
@@ -379,10 +382,14 @@ class CoPetition extends AppModel {
     
     if(!empty($pt['CoEnrollmentFlow']['CoEnrollmentSource'])) {
       foreach($pt['CoEnrollmentFlow']['CoEnrollmentSource'] as $es) {
-        if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
-          $searchSources[ $es['id'] ] = false;
-        } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
-          $requiredSources[ $es['id'] ] = false;
+        // If an OIS is suspended, we treat it as though it weren't attached in the first place
+        if(isset($es['OrgIdentitySource']['status'])
+           && $es['OrgIdentitySource']['status'] == SuspendableStatusEnum::Active) {
+          if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
+            $searchSources[ $es['id'] ] = false;
+          } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
+            $requiredSources[ $es['id'] ] = false;
+          }
         }
       }
     }
@@ -438,68 +445,71 @@ class CoPetition extends AppModel {
     foreach($emailAddresses as $ea) {
       if(!empty($ea['EmailAddress']['mail'])) {
         foreach($pt['CoEnrollmentFlow']['CoEnrollmentSource'] as $es) {
-          if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch
-             || $es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
-            // Since this is search and not retrieve, it's technically possible to get
-            // more than one result back from a source, if (eg) there are multiple records
-            // with the same email address. It's not exactly clear what to do in that situation,
-            // so for now we just add each record.
-            
-            try {
-              $oisResults = $this->Co->OrgIdentitySource->search($es['org_identity_source_id'],
-                                                                 array('mail' => $ea['EmailAddress']['mail']));
-            }
-            catch(Exception $e) {
-              // It's not really clear what to do on a failure, other than than we want to
-              // keep going. For now we'll record the failure in the log, but we need a better
-              // way to handle this. Also, this isn't I18n'd.
-              
-              $this->log("ERROR: OrgIdentitySource " . $es['org_identity_source_id'] . " : " . $e->getMessage());
-              continue;
-            }
-            
-            foreach($oisResults as $sourceKey => $oisRecord) {
-              // createOrgIdentity will also create the link to the CO Person. It may also
-              // run a pipeline (if configured). Which Pipeline we want to run is a bit confusing,
-              // since the Enrollment Flow, the OIS, and the CO can all have a pipeline configured.
-              // The normal priority is EF > OIS > CO (as per OrgIdentity.php. However, since a
-              // given EF can only create a single Org Identity, Org Identities created here aren't
-              // attached to the Petition and therefore aren't considered to have been created
-              // by an Enrollment Flow. So the Pipeline that will execute is either the one
-              // attached to the OIS, or if none the one attached to the CO.
+          if(isset($es['OrgIdentitySource']['status'])
+           && $es['OrgIdentitySource']['status'] == SuspendableStatusEnum::Active) {
+            if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch
+               || $es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
+              // Since this is search and not retrieve, it's technically possible to get
+              // more than one result back from a source, if (eg) there are multiple records
+              // with the same email address. It's not exactly clear what to do in that situation,
+              // so for now we just add each record.
               
               try {
-                $newOrgIdentityId = $this->Co->OrgIdentitySource->createOrgIdentity($es['org_identity_source_id'],
-                                                                                    $sourceKey,
-                                                                                    $actorCoPersonId,
-                                                                                    $pt['CoPetition']['co_id'],
-                                                                                    $pt['CoPetition']['enrollee_co_person_id'],
-                                                                                    false);
-                
-                // Note that we found something
-                if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
-                  $searchSources[ $es['id'] ] = true;
-                } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISRequired) {
-                  $requiredSources[ $es['id'] ] = true;
-                }
-                
-                $this->CoPetitionHistoryRecord->record($id,
-                                                       $actorCoPersonId,
-                                                       PetitionActionEnum::IdentityLinked,
-                                                       _txt('rs.pt.ois.link', array($newOrgIdentityId,
-                                                                                    $es['OrgIdentitySource']['description'],
-                                                                                    $es['org_identity_source_id'])));
-              } 
-              catch(OverflowException $e) {
-                // If there's already an org identity associated with the OIS, we
-                // definitely don't link it, but should we throw an error of some
-                // sort? It's a bit complicated... it could be a duplicate
-                // enrollment... or we're rechecking eligibility... or there's already
-                // an org identity linked to the same CO Person that this enrollment
-                // is linked to, which might be OK in some circumstances. For now, we
-                // won't do anything, just continue.
+                $oisResults = $this->Co->OrgIdentitySource->search($es['org_identity_source_id'],
+                                                                   array('mail' => $ea['EmailAddress']['mail']));
               }
-              // else let the exception pass back up the stack
+              catch(Exception $e) {
+                // It's not really clear what to do on a failure, other than than we want to
+                // keep going. For now we'll record the failure in the log, but we need a better
+                // way to handle this. Also, this isn't I18n'd.
+                
+                $this->log("ERROR: OrgIdentitySource " . $es['org_identity_source_id'] . " : " . $e->getMessage());
+                continue;
+              }
+              
+              foreach($oisResults as $sourceKey => $oisRecord) {
+                // createOrgIdentity will also create the link to the CO Person. It may also
+                // run a pipeline (if configured). Which Pipeline we want to run is a bit confusing,
+                // since the Enrollment Flow, the OIS, and the CO can all have a pipeline configured.
+                // The normal priority is EF > OIS > CO (as per OrgIdentity.php. However, since a
+                // given EF can only create a single Org Identity, Org Identities created here aren't
+                // attached to the Petition and therefore aren't considered to have been created
+                // by an Enrollment Flow. So the Pipeline that will execute is either the one
+                // attached to the OIS, or if none the one attached to the CO.
+                
+                try {
+                  $newOrgIdentityId = $this->Co->OrgIdentitySource->createOrgIdentity($es['org_identity_source_id'],
+                                                                                      $sourceKey,
+                                                                                      $actorCoPersonId,
+                                                                                      $pt['CoPetition']['co_id'],
+                                                                                      $pt['CoPetition']['enrollee_co_person_id'],
+                                                                                      false);
+                  
+                  // Note that we found something
+                  if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
+                    $searchSources[ $es['id'] ] = true;
+                  } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISRequired) {
+                    $requiredSources[ $es['id'] ] = true;
+                  }
+                  
+                  $this->CoPetitionHistoryRecord->record($id,
+                                                         $actorCoPersonId,
+                                                         PetitionActionEnum::IdentityLinked,
+                                                         _txt('rs.pt.ois.link', array($newOrgIdentityId,
+                                                                                      $es['OrgIdentitySource']['description'],
+                                                                                      $es['org_identity_source_id'])));
+                } 
+                catch(OverflowException $e) {
+                  // If there's already an org identity associated with the OIS, we
+                  // definitely don't link it, but should we throw an error of some
+                  // sort? It's a bit complicated... it could be a duplicate
+                  // enrollment... or we're rechecking eligibility... or there's already
+                  // an org identity linked to the same CO Person that this enrollment
+                  // is linked to, which might be OK in some circumstances. For now, we
+                  // won't do anything, just continue.
+                }
+                // else let the exception pass back up the stack
+              }
             }
           }
         }
@@ -1067,7 +1077,7 @@ class CoPetition extends AppModel {
   /**
    * Link an existing Org Identity to a CO Petition.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer CO Petition ID
    * @param  Integer Org Identity ID to link
    * @param  Integer CO Person ID of the petitioner
@@ -1701,6 +1711,9 @@ class CoPetition extends AppModel {
       $coRoleData['EnrolleeCoPersonRole']['co_person_id'] = $coPersonId;
       $coRoleData['EnrolleeCoPersonRole']['status'] = StatusEnum::Pending;
       
+      // Set the current timezone for CoPersonRole::afterSave
+      $this->EnrolleeCoPersonRole->setTimeZone($this->tz);
+      
       // Loop through all Addresses and Telephone Numbers to see if there are any
       // we should copy to the CO Person Role.
       foreach(array('Address', 'TelephoneNumber') as $m) {
@@ -1765,7 +1778,6 @@ class CoPetition extends AppModel {
       if($this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
         // Create a history record
         try {
-          // XXX This history record gets deleted shortly after it's written (CO-1295)
           $this->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
                                                          $coPersonRoleId,
                                                          $orgIdentityId,
@@ -1925,7 +1937,7 @@ class CoPetition extends AppModel {
     
     if(isset($pt['CoEnrollmentFlow']['notify_on_' . $action])
        && $pt['CoEnrollmentFlow']['notify_on_' . $action]) {
-      // As of v1.1.0, this uses the notification infrastructure instead of its own
+      // As of v2.0.0, this uses the notification infrastructure instead of its own
       // email code. A side effect is that all new users will have one notification
       // pending acknowledgment when they login... it might be better for it to
       // automatically expire shortly after being sent (CO-852).
@@ -1938,7 +1950,7 @@ class CoPetition extends AppModel {
         $enrolleeName = generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']);
       }
       
-      // Pull the message components from the template (as of v1.1.0) or configuration
+      // Pull the message components from the template (as of v2.0.0) or configuration
       // (now deprecated), if either is set. (Finalize only supports templates.)
       
       $subject = null;
@@ -1958,18 +1970,6 @@ class CoPetition extends AppModel {
       // Create substitution rules for any defined identifiers.
       // Note if multiple identifiers of a given type are found,
       // we'll concatenate them.
-      
-      foreach($pt['EnrolleeCoPerson']['Identifier'] as $i) {
-        if($i['status'] == SuspendableStatusEnum::Active) {
-          $t = 'IDENTIFIER:'.$i['type'];
-          
-          if(!empty($subs[$t])) {
-            $subs[$t] .= "," . $i['identifier'];
-          } else {
-            $subs[$t] = $i['identifier'];
-          }
-        }
-      }
       
       if($action == 'approval') {
         if(!empty($pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['id'])) {
@@ -2002,8 +2002,8 @@ class CoPetition extends AppModel {
         // else should probably throw an error
       }
       
-      $subject = processTemplate($subject, $subs);
-      $body = processTemplate($body, $subs);
+      $subject = processTemplate($subject, $subs, $pt['EnrolleeCoPerson']['Identifier']);
+      $body = processTemplate($body, $subs, $pt['EnrolleeCoPerson']['Identifier']);
       
       $this->Co
            ->CoPerson
@@ -2082,11 +2082,9 @@ class CoPetition extends AppModel {
       // To see if we should notify COU Admins, we need to see if this petition was
       // attached to a COU
       
-      if(!empty($pt['Cou']['name'])) {
-        // Use the COU name so we can map to its admin group
-        
+      if(!empty($pt['Cou']['id'])) {
         try {
-          $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id'], $pt['Cou']['name']);
+          $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id'], $pt['Cou']['id']);
         }
         catch(Exception $e) {
           $fail = true;
@@ -2192,7 +2190,7 @@ class CoPetition extends AppModel {
                                                                    $pt['CoPetition']['co_enrollment_flow_id'])));
     }
     
-    // Pull the message components from the template (as of v1.1.0) or configuration
+    // Pull the message components from the template (as of v2.0.0) or configuration
     // (now deprecated), if either is set.
     
     $subject = null;

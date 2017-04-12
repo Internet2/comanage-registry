@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Person Expunge View
  *
- * Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2014 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.5
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
   
   $params = array('title' => $title_for_layout);
@@ -73,14 +76,14 @@
 </script>
 <div class="co-info-topbox">
   <i class="material-icons">info</i>
-  <?php print _txt('op.expunge.confirm', array(generateCn($vv_co_person['PrimaryName']))); ?>
+  <?php print _txt('op.expunge.confirm', array(filter_var(generateCn($vv_co_person['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))); ?>
 </div>
 <div class="innerContent">
   <p>
     <?php print _txt('op.expunge.info'); ?>
     
     <ul>
-      <li><?php print _txt('op.expunge.info.cop', array(generateCn($vv_co_person['PrimaryName']),
+      <li><?php print _txt('op.expunge.info.cop', array(filter_var(generateCn($vv_co_person['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
                                                         $this->Html->url(array('controller' => 'co_people',
                                                                                'action'     => 'canvas',
                                                                                $vv_co_person['CoPerson']['id'])),
@@ -88,8 +91,8 @@
                                                                                'action'     => 'index',
                                                                                'copersonid' => $vv_co_person['CoPerson']['id'])))); ?></li>
       <?php foreach($vv_co_person['CoPersonRole'] as $cr): ?>
-      <li><?php print _txt('op.expunge.info.copr', array(!empty($cr['Cou']['name']) ? $cr['Cou']['name'] : $vv_co_person['Co']['name'],
-                                                         (!empty($cr['title']) ? $cr['title'] : _txt('fd.title.none')),
+      <li><?php print _txt('op.expunge.info.copr', array(!empty($cr['Cou']['name']) ? filter_var($cr['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS) : filter_var($vv_co_person['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS),
+                                                         (!empty($cr['title']) ? filter_var($cr['title'],FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.title.none')),
                                                          $this->Html->url(array('controller' => 'co_person_roles',
                                                                                 'action'     => 'view',
                                                                                 $cr['id'])))); ?></li>
@@ -98,12 +101,12 @@
         foreach($vv_co_person['CoOrgIdentityLink'] as $lnk) {
           if(count($lnk['OrgIdentity']['CoOrgIdentityLink']) > 1) {
             // There's a link to another identity, so we won't purge this org identity
-            print "<li>" . _txt('op.expunge.info.org.no', array(generateCn($lnk['OrgIdentity']['PrimaryName']),
+            print "<li>" . _txt('op.expunge.info.org.no', array(filter_var(generateCn($lnk['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
                                                                 $this->Html->url(array('controller' => 'org_identities',
                                                                                        'action'     => 'view',
                                                                                        $lnk['org_identity_id'])))) . "</li>\n";
           } else {
-            print "<li>" . _txt('op.expunge.info.org', array(generateCn($lnk['OrgIdentity']['PrimaryName']),
+            print "<li>" . _txt('op.expunge.info.org', array(filter_var(generateCn($lnk['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
                                                              $this->Html->url(array('controller' => 'org_identities',
                                                                                     'action'     => 'view',
                                                                                     $lnk['org_identity_id'])))) . "</li>\n";

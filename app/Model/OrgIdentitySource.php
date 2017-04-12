@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Organizational Identity Source Model
  *
- * Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2015-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class OrgIdentitySource extends AppModel {
@@ -65,7 +68,7 @@ class OrgIdentitySource extends AppModel {
       )
     ),
     'description' => array(
-      'rule' => 'notBlank',
+      'rule' => array('validateInput'),
       'required' => false,
       'allowEmpty' => true
     ),
@@ -98,6 +101,22 @@ class OrgIdentitySource extends AppModel {
       ),
       'required' => true,
     ),
+    'sync_query_mismatch_mode' => array(
+      'rule' => array(
+        'inList',
+        array(
+          OrgIdentityMismatchEnum::CreateNew,
+          OrgIdentityMismatchEnum::Ignore
+        )
+      ),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'sync_query_skip_known' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'co_pipeline_id' => array(
       'content' => array(
         'rule' => 'numeric',
@@ -114,7 +133,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Callback after model save.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Boolean $created True if new model is saved (ie: add)
    * @param  Array $options Options, as based to model::save()
    * @return Boolean True on success
@@ -143,7 +162,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Bind the specified plugin's backend model
    *
-   * @since COmanage Registry v1.1.0
+   * @since COmanage Registry v2.0.0
    * @param Integer $id OrgIdentitySource ID
    * @return Object Plugin Backend Model reference
    * @throws InvalidArgumentException
@@ -213,7 +232,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Create a new organizational identity record based on a result from an Org Identity Source.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to query
    * @param  String $sourceKey Record key to retrieve as basis of new Org Identity
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
@@ -236,6 +255,10 @@ class OrgIdentitySource extends AppModel {
     $args = array();
     $args['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $id;
     $args['conditions']['OrgIdentitySourceRecord.sorid'] = $sourceKey;
+    // Finding via a join to OrgIdentity bypasses ChangelogBehavior, so we need to
+    // manually exclude those records.
+    $args['conditions']['OrgIdentitySourceRecord.deleted'] = false;
+    $args['conditions'][] = 'OrgIdentitySourceRecord.org_identity_source_record_id IS NULL';
     
     $cnt = $this->OrgIdentitySourceRecord->OrgIdentity->find('count', $args);
     
@@ -351,7 +374,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Execute the appropriate pipeline for the specified Org Identity.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource
    * @param  Integer $orgIdentityId OrgIdentity ID
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
@@ -373,7 +396,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Obtain all source keys from a backend.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to query
    * @return Array Array of source keys
    * @throws DomainException, if backend does not support this query
@@ -391,7 +414,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Map a raw result into a list of group attributes suitable for mapping.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource ID
    * @param  String $raw Raw result record
    * @return Array Attributes configured for group processing
@@ -407,7 +430,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Retrieve a record from an Org Identity Source Backend.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    * @param  String $key Record key to retrieve
    * @return Array Raw record and Array in OrgIdentity format
@@ -464,7 +487,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Perform a search against an Org Identity Source Backend.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    * @param  Array $attributes Array in key/value format, where key is the same as returned by searchAttributes()
    * @return Array Array in OrgIdentity format
@@ -480,12 +503,12 @@ class OrgIdentitySource extends AppModel {
   /**
    * Search all available backends for records matching the specified email address.
    *
-   * @since  COmanange Registry v1.1.0
+   * @since  COmanange Registry v2.0.0
    * @param  String $email Email address to use as a search key
    * @param  Integer $coId CO ID, if org identities not pooled
    * @return Array Array of search results and (if available) associated Org Identities, sorted by backend
    * @throws InvalidArgumentException
-   * @deprecated since v1.1.0 CoEnrollmentSources make this function no longer useful
+   * @deprecated since v2.0.0 CoEnrollmentSources make this function no longer useful
    */
   
   public function searchAllByEmail($email, $coId=null) {
@@ -536,7 +559,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Obtain the set of searchable attributes for the Org Identity Source Backend.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to search
    * @return Array Array of searchable attributes
    * @throws InvalidArgumentException
@@ -551,7 +574,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Sync all Org Identity Sources. Intended primarily for use by CronShell
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  integer $coId CO ID
    * @return boolean True on success
    */
@@ -578,7 +601,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Sync an existing organizational identity record based on a result from an Org Identity Source.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Integer $id              OrgIdentitySource to query
    * @param  String  $sourceKey       Record key to retrieve as basis of new Org Identity
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
@@ -640,6 +663,8 @@ class OrgIdentitySource extends AppModel {
       $curorgid = $this->OrgIdentitySourceRecord->OrgIdentity->find('first', $args);
       
       if(!isset($curorgid['OrgIdentity']['id'])) {
+        $this->rollback();
+        
         if($jobId) {
           // Do this after the rollback so we don't lose it
           $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
@@ -665,8 +690,11 @@ class OrgIdentitySource extends AppModel {
       
       $status = 'unknown';
       
-      if(isset($brec['raw']) && isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
-         && $brec['raw'] == $cursrcrec['OrgIdentitySourceRecord']['source_record']) {
+      if((isset($brec['raw']) && isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
+          && $brec['raw'] == $cursrcrec['OrgIdentitySourceRecord']['source_record'])
+         || // was record previously deleted?
+         (!$brec['raw'] && (!isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
+                            || !$cursrcrec['OrgIdentitySourceRecord']['source_record']))) {
         // Source record has not changed, so don't bother doing anything
         
         if($jobId) {
@@ -752,6 +780,17 @@ class OrgIdentitySource extends AppModel {
         $newOrgId['OrgIdentity']['co_id'] = $curorgid['OrgIdentity']['co_id'];
         // Set the status (just in case)
         $newOrgId['OrgIdentity']['status'] = OrgIdentityStatusEnum::Synced;
+        
+        // Make sure all OrgIdentity keys are set, even if null. This will allow
+        // a value to go from set to not set (eg: a valid from date is NULL'd.)
+        
+        $nullAttrs = array_diff_key($this->OrgIdentitySourceRecord->OrgIdentity->validate,
+                                    $newOrgId['OrgIdentity']);
+        
+        // We're sort of behaving like array_fill_keys() here
+        foreach(array_keys($nullAttrs) as $k) {
+          $newOrgId['OrgIdentity'][$k] = null;
+        }
         
         // Diff array to see if we should save
         $cstr = $this->OrgIdentitySourceRecord->OrgIdentity->changesToString($newOrgId,
@@ -948,8 +987,25 @@ class OrgIdentitySource extends AppModel {
           $oisrec['OrgIdentitySourceRecord']['id'] = $cursrcrec['OrgIdentitySourceRecord']['id'];
         }
         
-        $this->OrgIdentitySourceRecord->clear();
-        $this->OrgIdentitySourceRecord->save($oisrec);
+        try {
+          $this->OrgIdentitySourceRecord->clear();
+          $this->OrgIdentitySourceRecord->save($oisrec);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          
+          if($jobId) {
+            // Do this after the rollback so we don't lose it
+            $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                         $sourceKey,
+                                                         $e->getMessage(),
+                                                         null,
+                                                         $curorgid['OrgIdentity']['id'],
+                                                         JobStatusEnum::Failed);
+          }
+          
+          throw new RuntimeException($e->getMessage());
+        }
         
         if($jobId) {
           $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
@@ -959,7 +1015,6 @@ class OrgIdentitySource extends AppModel {
                                                        $curorgid['OrgIdentity']['id'],
                                                        JobStatusEnum::Complete);
         }
-  
         
         $status = 'synced';
       }
@@ -970,12 +1025,29 @@ class OrgIdentitySource extends AppModel {
         // This should allow more obvious behavior if (eg) the pipeline definition
         // is updated.
         
-        $this->executePipeline($id,
-                               $curorgid['OrgIdentity']['id'],
-                               ($status == 'removed')
-                               ? SyncActionEnum::Delete
-                               : SyncActionEnum::Update,
-                               $actorCoPersonId);
+        try {
+          $this->executePipeline($id,
+                                 $curorgid['OrgIdentity']['id'],
+                                 ($status == 'removed')
+                                 ? SyncActionEnum::Delete
+                                 : SyncActionEnum::Update,
+                                 $actorCoPersonId);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          
+          if($jobId) {
+            // Do this after the rollback so we don't lose it
+            $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                         $sourceKey,
+                                                         $e->getMessage(),
+                                                         null,
+                                                         $curorgid['OrgIdentity']['id'],
+                                                         JobStatusEnum::Failed);
+          }
+          
+          throw new RuntimeException($e->getMessage());
+        }
       }
       
       // Commit
@@ -1000,7 +1072,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Sync an Org Identity Source.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array   $orgIdentitySource Org Identity Source to process
    * @return boolean                    True on success
    * @throws RuntimeException
@@ -1049,6 +1121,13 @@ class OrgIdentitySource extends AppModel {
       // For each OrgIdentity linked to this source, run SyncOrgIdentity,
       // which will perform updates and deletes
       
+      $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                   null,
+                                                   _txt('jb.ois.sync.update.start', array(count($orgRecords))),
+                                                   null,
+                                                   null,
+                                                   JobStatusEnum::Notice);
+      
       foreach($orgRecords as $rec) {
         try {
           $r = $this->syncOrgIdentity($rec['OrgIdentitySourceRecord']['org_identity_source_id'],
@@ -1063,6 +1142,13 @@ class OrgIdentitySource extends AppModel {
           $resCnt['error']++;
         }
       }
+      
+      $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                   null,
+                                                   _txt('jb.ois.sync.update.finish'),
+                                                   null,
+                                                   null,
+                                                   JobStatusEnum::Notice);
     }
     
     // We do the other tasks after update so we don't update a record we just synced
@@ -1105,6 +1191,13 @@ class OrgIdentitySource extends AppModel {
                                                      JobStatusEnum::Failed);
       }
       
+      $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                   null,
+                                                   _txt('jb.ois.sync.full.start', array(count($sourceKeys), count($knownKeys), count($newKeys))),
+                                                   null,
+                                                   null,
+                                                   JobStatusEnum::Notice);
+
       foreach($newKeys as $newKey) {
         // This is basically the same logic as used in SyncModeEnum::Query, below
         try {
@@ -1143,6 +1236,13 @@ class OrgIdentitySource extends AppModel {
                                                        JobStatusEnum::Failed);
         }        
       }
+      
+      $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                   null,
+                                                   _txt('jb.ois.sync.full.finish'),
+                                                   null,
+                                                   null,
+                                                   JobStatusEnum::Notice);
     }
     
     if($orgIdentitySource['OrgIdentitySource']['sync_mode'] == SyncModeEnum::Query) {
@@ -1166,12 +1266,62 @@ class OrgIdentitySource extends AppModel {
       $args['joins'][0]['type'] = 'INNER';
       $args['joins'][0]['conditions'][0] = 'OrgIdentity.id=EmailAddress.org_identity_id';
       $args['conditions']['OrgIdentity.co_id'] = $orgIdentitySource['OrgIdentitySource']['co_id'];
+      // Don't pull duplicate email addresses
+      $args['fields'][] = 'DISTINCT EmailAddress.mail';
       $args['contain'] = false;
       
       // Might want to add caching here at some point, maybe using CakeCache
       $emails = $this->Co->OrgIdentity->EmailAddress->find('all', $args);
       
-      foreach($emails as $ea) {
+      // Extracted email addresses (not Cake format)
+      $emailList = array();
+      
+      if(isset($orgIdentitySource['OrgIdentitySource']['sync_query_skip_known'])
+         && $orgIdentitySource['OrgIdentitySource']['sync_query_skip_known']) {
+        // If sync_query_skip_known don't pull email addresses where the org_identity_id is
+        // already associated with a Source Record in this Source. (We should be able to do
+        // this as a subselect, but Cake makes it unnecessarily hard to do so, and also
+        // doesn't fire callbacks so Changelog queries aren't added.)
+        
+        $subArgs = array();
+        $subArgs['joins'][0]['table'] = 'org_identities';
+        $subArgs['joins'][0]['alias'] = 'OrgIdentity';
+        $subArgs['joins'][0]['type'] = 'INNER';
+        $subArgs['joins'][0]['conditions'][0] = 'OrgIdentity.id=EmailAddress.org_identity_id';
+        $subArgs['joins'][1]['table'] = 'org_identity_source_records';
+        $subArgs['joins'][1]['alias'] = 'OrgIdentitySourceRecord';
+        $subArgs['joins'][1]['type'] = 'INNER';
+        $subArgs['joins'][1]['conditions'][0] = 'OrgIdentity.id=OrgIdentitySourceRecord.org_identity_id';
+        $subArgs['conditions'][] = 'EmailAddress.org_identity_id IS NOT NULL';
+        $subArgs['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $orgIdentitySource['OrgIdentitySource']['id'];
+        $subArgs['fields'][] = 'DISTINCT EmailAddress.mail';
+        $subArgs['contain'] = false;
+        
+        $knownEmails = $this->Co->OrgIdentity->EmailAddress->find('all', $subArgs);
+        
+        // It's not clear from the documentation, but Hash::diff returns the items in the
+        // first array that are not in the second array. (It does not care about items in the
+        // second array that are not in the first array.) However, that doesn't seem to work
+        // (the result set is way too large), so instead we'll extract and use native PHP diff.
+        
+        $e2 = Hash::extract($emails, '{n}.EmailAddress.mail');
+        $ke2 = Hash::extract($knownEmails, '{n}.EmailAddress.mail');
+        
+        $emailList = array_diff($e2, $ke2);
+      } else {
+        // Reformat $emails to be consistent with array_diff format
+        
+        $emailList = Hash::extract($emails, '{n}.EmailAddress.mail');
+      }
+      
+      $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                   null,
+                                                   _txt('jb.ois.sync.query.start', array(count($emailList), count($emails))),
+                                                   null,
+                                                   null,
+                                                   JobStatusEnum::Notice);
+      
+      foreach($emailList as $ea) {
         // Since this is search and not retrieve, it's technically possible to get
         // more than one result back from a source, if (eg) there are multiple records
         // with the same email address. It's not exactly clear what to do in that situation,
@@ -1179,7 +1329,7 @@ class OrgIdentitySource extends AppModel {
         
         try {
           $oisResults = $this->search($orgIdentitySource['OrgIdentitySource']['id'],
-                                      array('mail' => $ea['EmailAddress']['mail']));
+                                      array('mail' => $ea));
         }
         catch(Exception $e) {
           // We would create a Job History Record, but we don't have a source key
@@ -1196,7 +1346,47 @@ class OrgIdentitySource extends AppModel {
           // for email match, the right thing will happen. Otherwise, we'll probably cause a new
           // CO Person record to be created.
           
-          // This is basically the same logic as SyncModeEnum::Full, above
+          // This is similar logic as SyncModeEnum::Full, above
+          
+          // We walk through the response and look for an email address that matches the
+          // one we are searching on. Some backends could return different addresses from
+          // the one we sent, eg: if a person changed their email address in the backend
+          // data source and the source maintained as a "previous" address.
+          
+          // For now, we require the email address we searched on to be in the results. If it
+          // isn't, the OIS configuration determines what we do. In ignore mode, we'll simply
+          // log an error and move on to the next result. In "create new identity" mode, we'll
+          // continue on to createOrgIdentity, which will handle the situation appropriately.
+          
+          // We do this search regardless of mode since even if we create a new Org Identity,
+          // the logging information might help an admin figure out what happened.
+          $emailMatched = false;
+          
+          foreach($oisRecord['EmailAddress'] as $oea) {
+            if($oea['mail'] == $ea) {
+              $emailMatched = true;
+              break;
+            }
+          }
+          
+          if(!$emailMatched) {
+            // We didn't find the email address we were searching for. Create a job history
+            // record to record the situation, and continue to the next record.
+            
+            $resCnt['error']++;
+            
+            $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                         $sourceKey,
+                                                         _txt('er.ois.mismatch', array($ea)),
+                                                         null,
+                                                         null,
+                                                         JobStatusEnum::Notice);
+            
+            if(isset($orgIdentitySource['OrgIdentitySource']['sync_query_mismatch_mode'])
+               && $orgIdentitySource['OrgIdentitySource']['sync_query_mismatch_mode'] == OrgIdentityMismatchEnum::Ignore) {
+              continue;
+            }
+          }
           
           try {
             // The first thing createOrgIdentity does is check for an existing record,
@@ -1231,13 +1421,20 @@ class OrgIdentitySource extends AppModel {
             
             $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
                                                          $sourceKey,
-                                                         $e->getMessage(),
+                                                         $e->getMessage() . " (" . $ea . ")",
                                                          null,
                                                          null,
                                                          JobStatusEnum::Failed);
           }
         }
       }
+      
+      $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                   null,
+                                                   _txt('jb.ois.sync.query.finish'),
+                                                   null,
+                                                   null,
+                                                   JobStatusEnum::Notice);
     }
 
     $this->Co->CoJob->finish($jobId, json_encode($resCnt));
@@ -1246,7 +1443,7 @@ class OrgIdentitySource extends AppModel {
   /**
    * Validate Org Identity Source Record
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array   $backendRecord Record from OIS Backend
    * @throws InvalidArgumentException
    */

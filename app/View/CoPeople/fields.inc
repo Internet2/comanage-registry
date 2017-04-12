@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Person Fields
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
   // Globals
@@ -50,7 +53,7 @@
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('me.population'), $args);
   if($this->action == "canvas") {
-    $this->Html->addCrumb(generateCn($co_people[0]['PrimaryName']));
+    $this->Html->addCrumb(filter_var(generateCn($co_people[0]['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS));
   } elseif($this->action == "invite") {
     $args = array(
       'controller' => 'org_identities',
@@ -392,7 +395,7 @@
                     print $this->Form->hidden('PrimaryName.primary_name', array('default' => true));
                     print ($e ? $this->Form->input('PrimaryName.honorific',
                       array('default' => $co_people[0]['PrimaryName']['honorific']))
-                      : Sanitize::html($co_people[0]['PrimaryName']['honorific']));
+                      : filter_var($co_people[0]['PrimaryName']['honorific'],FILTER_SANITIZE_SPECIAL_CHARS));
                     ?>
                   </td>
                 </tr>
@@ -403,7 +406,7 @@
                   <td>
                     <?php print ($e ? $this->Form->input('PrimaryName.given',
                       array('default' => $co_people[0]['PrimaryName']['given']))
-                      : Sanitize::html($co_people[0]['PrimaryName']['given'])); ?>
+                      : filter_var($co_people[0]['PrimaryName']['given'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
                   </td>
                 </tr>
                 <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -413,7 +416,7 @@
                   <td>
                     <?php print ($e ? $this->Form->input('PrimaryName.middle',
                       array('default' => $co_people[0]['PrimaryName']['middle']))
-                      : Sanitize::html($co_people[0]['PrimaryName']['middle'])); ?>
+                      : filter_var($co_people[0]['PrimaryName']['middle'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
                   </td>
                 </tr>
                 <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -423,7 +426,7 @@
                   <td>
                     <?php print ($e ? $this->Form->input('PrimaryName.family',
                       array('default' => $co_people[0]['PrimaryName']['family']))
-                      : Sanitize::html($co_people[0]['PrimaryName']['family'])); ?>
+                      : filter_var($co_people[0]['PrimaryName']['family'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
                   </td>
                 </tr>
                 <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -437,7 +440,7 @@
                   <td>
                     <?php print ($e ? $this->Form->input('PrimaryName.suffix',
                       array('default' => $co_people[0]['PrimaryName']['suffix']))
-                      : Sanitize::html($co_people[0]['PrimaryName']['suffix'])); ?>
+                      : filter_var($co_people[0]['PrimaryName']['suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
                   </td>
                 </tr>
                 <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -486,7 +489,7 @@
                   <td>
                     <?php
                     if($e) {
-                      print $this->Form->submit(_txt('op.inv'));
+                      print $this->Form->submit($submit_label);
                     }
                     ?>
                   </td>
@@ -507,52 +510,65 @@
                           'action' => 'edit',
                           $n['id']));
                 } elseif($perm == PermissionEnum::ReadOnly) {
-                  print generateCn($n);
+                  print filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS);
                 }
 
-                print " ("
-                  . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                  . $vv_cop_name_types[ $n['type'] ]
-                  . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
-                  . ")";
+                  print " ("
+                    . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
+                    . (!empty($n['SourceName']['id'])
+                      ? filter_var($n['SourceName']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS) . ", "
+                      : "")
+                    . filter_var($vv_cop_name_types[ $n['type'] ],FILTER_SANITIZE_SPECIAL_CHARS)
+                    . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
+                    . ")";
                 ?>
               </div>
               <div class="field-actions">
                 <?php
-                if($perm == PermissionEnum::ReadWrite) {
-                  if(!$n['primary_name']) {
-                    print '<a class="deletebutton" title="' . _txt('op.delete')
-                      . '" onclick="javascript:js_confirm_generic(\''
-                      . _txt('js.remove') . '\',\''    // dialog body text
-                      . $this->Html->url(              // dialog confirm URL
-                        array(
-                          'controller' => 'names',
-                          'action' => 'delete', $n['id'],
-                          'co' => $cur_co['Co']['id']
-                        )
-                      ) . '\',\''
-                      . _txt('op.remove') . '\',\''    // dialog confirm button
-                      . _txt('op.cancel') . '\',\''    // dialog cancel button
-                      . _txt('op.remove') . '\',[\''   // dialog title
-                      . filter_var(_jtxt(generateCn($n)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                      . '\']);">'
-                      . _txt('op.delete')
-                      . '</a>';
-
-                    print $this->Html->link(_txt('op.primary'),
-                        array('controller' => 'names',
-                          'action'     => 'primary',
-                          $n['id'],
-                          'copersonid' => $co_people[0]['CoPerson']['id']),
-                        array('class' => 'primarybutton'));
-                  }
-
-                  print $this->Html->link(_txt('op.edit'),
+                  if(!empty($n['SourceName']['id'])) {
+                    // This name came from an OIS and so can't be edited, and for the moment
+                    // can't be made primary (though maybe that'll change with a use case).
+                    print $this->Html->link(_txt('op.view'),
                       array('controller' => 'names',
+                        'action' => 'view',
+                        $n['id']),
+                      array('class' => 'viewbutton'));
+                  } else {
+                    if ($perm == PermissionEnum::ReadWrite) {
+                      if (!$n['primary_name']) {
+                        print '<a class="deletebutton" title="' . _txt('op.delete')
+                          . '" onclick="javascript:js_confirm_generic(\''
+                          . _txt('js.remove') . '\',\''    // dialog body text
+                          . $this->Html->url(              // dialog confirm URL
+                            array(
+                              'controller' => 'names',
+                              'action' => 'delete', $n['id'],
+                              'co' => $cur_co['Co']['id']
+                            )
+                          ) . '\',\''
+                          . _txt('op.remove') . '\',\''    // dialog confirm button
+                          . _txt('op.cancel') . '\',\''    // dialog cancel button
+                          . _txt('op.remove') . '\',[\''   // dialog title
+                          . filter_var(_jtxt(generateCn($n)), FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                          . '\']);">'
+                          . _txt('op.delete')
+                          . '</a>';
+
+                        print $this->Html->link(_txt('op.primary'),
+                          array('controller' => 'names',
+                            'action' => 'primary',
+                            $n['id'],
+                            'copersonid' => $co_people[0]['CoPerson']['id']),
+                          array('class' => 'primarybutton'));
+                      }
+
+                      print $this->Html->link(_txt('op.edit'),
+                          array('controller' => 'names',
                             'action' => 'edit',
                             $n['id']),
-                      array('class' => 'editbutton')) . "\n";
-                }
+                          array('class' => 'editbutton')) . "\n";
+                    }
+                  }  
                 ?>
               </div>
             </li>
@@ -594,8 +610,8 @@
                     print '<div class="field-data">';
                     print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'view', $id['id']));
                     print " &nbsp;("
-                      . $id['SourceIdentifier']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
-                      . ", " . $vv_cop_identifier_types[ $id['type'] ] . ")<br />\n";
+                      . filter_var($id['SourceIdentifier']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS)
+                      . ", " . filter_var($vv_cop_identifier_types[ $id['type'] ],FILTER_SANITIZE_SPECIAL_CHARS) . ")<br />\n";
                     print '</div>';
                     print '<div class="field-actions">';
                     print $this->Html->link(_txt('op.view'),
@@ -607,7 +623,11 @@
                     print '<li class="field-data-container">';
                     print '<div class="field-data">';
                     print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id']));
-                    print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ] . ")";
+                    print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ]
+                          . ($id['status'] == SuspendableStatusEnum::Suspended
+                             ? ", " . _txt('en.status.susp', null, SuspendableStatusEnum::Suspended)
+                             : "")
+                          . ")";
                     print '</div> <!-- field-data -->';
                     print '<div class="field-actions">';
                     // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
@@ -640,7 +660,7 @@
                 foreach($co_people[0]['Identifier'] as $id) {
                   print '<li class="field-data-container">';
                   print '<div class="field-data field-data-alone">';
-                  print Sanitize::html($id['identifier']) . " (" . $id['type'] . ")<br />\n";
+                  print filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS) . " (" . $id['type'] . ")<br />\n";
                   print '</div>';
                   print '</li>';
                 }
@@ -734,7 +754,7 @@
                   } elseif($perm == PermissionEnum::ReadOnly) {
                     print '<li class="field-data-container">';
                     print '<div class="field-data field-data-alone">';
-                    print Sanitize::html($ea['mail']) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
+                    print filter_var($ea['mail'],FILTER_SANITIZE_SPECIAL_CHARS) . " (" . $vv_cop_emailaddress_types[ $ea['type'] ] . ")\n";
                     print '</div>';
                     print '</li>';
                   }
@@ -770,8 +790,7 @@
             <?php
             if(isset($co_people[0]['CoGroupMember'])) {
               foreach($co_people[0]['CoGroupMember'] as $g) {
-                $isMembersGroup = ($g['CoGroup']['name'] == 'members' || strncmp($g['CoGroup']['name'], 'members:', 8)== 0);
-                if($e && !$es && !$isMembersGroup) {
+                if($e && !$es && !$g['CoGroup']['auto']) {
                   if($g['member'] || $g['owner']) {
                     print '<li class="field-data-container"><div class="field-data">';
                     print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
@@ -795,13 +814,21 @@
                       . '\']);">'
                       . _txt('op.delete')
                       . '</a>';
+
+                    if(!empty($g['source_org_identity_id'])) {
+                      print $this->Html->link(_txt('op.view.source'),
+                        array('controller' => 'org_identities',
+                          'action' => 'view',
+                          $g['source_org_identity_id']),
+                        array('class' => 'viewbutton'));
+                    }
                     print '</div></li>';
                   }
                 } else {
                   if($g['member'])
-                    print '<li class="field-data-container"><div class="field-data field-data-alone">' . Sanitize::html($g['CoGroup']['name']) . "</div></li>\n";
+                    print '<li class="field-data-container"><div class="field-data field-data-alone">' . filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . "</div></li>\n";
                   if($g['owner'])
-                    print '<li class="field-data-container"><div class="field-data field-data-alone">' . Sanitize::html($g['CoGroup']['name']) . " (" . _txt('fd.group.own') . ")</div></li>\n";
+                    print '<li class="field-data-container"><div class="field-data field-data-alone">' . filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . " (" . _txt('fd.group.own') . ")</div></li>\n";
                 }
               }
             }
@@ -958,11 +985,23 @@
                   foreach($co_people[0]['CoPersonRole'] as $r):
                     ?>
                     <tr class="line<?php print ($l % 2); $l++; ?>">
-                      <td><?php if(isset($r['Cou']['name'])) print Sanitize::html($r['Cou']['name']); ?></td>
-                      <td><?php if(isset($r['title'])) print Sanitize::html($r['title']); ?></td>
+                      <td><?php if(isset($r['Cou']['name'])) print filter_var($r['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+                      <td><?php if(isset($r['title'])) print filter_var($r['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
                       <td><?php if(isset($r['affiliation'])) print $vv_copr_affiliation_types[ $r['affiliation'] ]; ?></td>
-                      <td><?php if(isset($r['valid_from']) && $r['valid_from'] > 0) print $this->Time->format('Y M d', $r['valid_from']); ?></td>
-                      <td><?php if(isset($r['valid_through']) && $r['valid_through'] > 0) print $this->Time->format('Y M d', $r['valid_through']); ?></td>
+                      <td>
+                        <?php 
+                          if(isset($r['valid_from']) && $r['valid_from'] > 0) {
+                            print $this->Time->format($r['valid_from'], "%F %T", false, $vv_tz);
+                          } 
+                        ?>
+                      </td>
+                      <td>
+                        <?php
+                          if(isset($r['valid_through']) && $r['valid_through'] > 0) {
+                            print $this->Time->format($r['valid_through'], "%F %T", false, $vv_tz);
+                          }  
+                        ?>
+                      </td>
                       <td><?php if(isset($r['status'])) print _txt('en.status', null, $r['status']); ?></td>
                       <td>
                         <?php
@@ -1100,7 +1139,7 @@
               if(isset($co_people[0]['SshKey'])) {
                 foreach($co_people[0]['SshKey'] as $sk) {
                   print '<li class="field-data-container">';
-                  print Sanitize::html($sk['comment']) . "\n";
+                  print filter_var($sk['comment'],FILTER_SANITIZE_SPECIAL_CHARS) . "\n";
                   print '</li>';
                 }
               }
@@ -1138,8 +1177,10 @@
                 <tbody>
                 <tr class="line<?php print ($l % 2); $l++; ?>">
                   <th><?php print _txt('fd.name'); ?></th>
+                  <th><?php print _txt('fd.source'); ?></th>
                   <th><?php print _txt('fd.o'); ?></th>
-                  <th><?php print _txt('fd.affiliation'); ?></th>
+                  <th><?php print _txt('fd.valid_from.tz', array($vv_tz)); ?></th>
+                  <th><?php print _txt('fd.valid_through.tz', array($vv_tz)); ?></th>
                   <th><?php print _txt('fd.identifier.ids.login'); ?></th>
                   <th><?php print _txt('fd.actions'); ?></th>
                 </tr>
@@ -1149,47 +1190,63 @@
                     <td>
                       <?php
                         if(!empty($link['OrgIdentity']['PrimaryName'])) {
-                          print generateCn($link['OrgIdentity']['PrimaryName']);
+                          print filter_var(generateCn($link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
                         }
 
-                        print " (" . $link['OrgIdentity']['id'] . ")";
+                        print " (" . filter_var($link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS) . ")";
                       ?>
                     </td>
                     <td>
                       <?php
-                      if(!empty($link['OrgIdentity']['o']))
-                        print Sanitize::html($link['OrgIdentity']['o']);
+                        if(!empty($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])) {
+                          print filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS);
+                        }
                       ?>
                     </td>
                     <td>
                       <?php
-                      if(!empty($link['OrgIdentity']['affiliation']))
-                        print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $link['OrgIdentity']['affiliation'] ];
+                        if(!empty($link['OrgIdentity']['o'])) {
+                          print filter_var($link['OrgIdentity']['o'], FILTER_SANITIZE_SPECIAL_CHARS);
+                        }  
                       ?>
                     </td>
                     <td>
                       <?php
-                      if(!empty($link['OrgIdentity']['Identifier'])) {
-                        foreach($link['OrgIdentity']['Identifier'] as $id) {
-                          if(!empty($id['identifier'])
-                             && $id['login']
-                             && $id['status'] == StatusEnum::Active) {
-                            print $id['identifier'] . " (" . $id['type'] . ")<br />";
+                        if(isset($link['OrgIdentity']['valid_from']) && $link['OrgIdentity']['valid_from'] > 0) {
+                          print $this->Time->format($link['OrgIdentity']['valid_from'], "%F %T", false, $vv_tz);
+                        }  
+                      ?>
+                    </td>
+                    <td>
+                      <?php
+                        if(isset($link['OrgIdentity']['valid_through']) && $link['OrgIdentity']['valid_through'] > 0) {
+                          print $this->Time->format($link['OrgIdentity']['valid_through'], "%F %T", false, $vv_tz);
+                        }  
+                      ?>
+                    </td>
+                    <td>
+                      <?php
+                        if(!empty($link['OrgIdentity']['Identifier'])) {
+                          foreach($link['OrgIdentity']['Identifier'] as $id) {
+                            if(!empty($id['identifier'])
+                              && $id['login']
+                              && $id['status'] == StatusEnum::Active) {
+                              print filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS)
+                                . " (" . filter_var($id['type'],FILTER_SANITIZE_SPECIAL_CHARS) . ")<br />";
+                            }
                           }
                         }
-                      }
                       ?>
                     </td>
                     <td>
                       <?php
-                      print $this->Html->link(_txt($e && !$es ? 'op.edit' : 'op.view'),
-                          array('controller' => 'org_identities',
-                            'action' => ($e && !$es ? 'edit' : 'view'),
-                            $link['OrgIdentity']['id'],
-                            'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])),
-                          array('class' => ($e && !$es ? 'editbutton' : 'viewbutton'))) . "\n";
+                        print $this->Html->link(_txt($e && !$es ? 'op.edit' : 'op.view'),
+                            array('controller' => 'org_identities',
+                              'action' => ($e && !$es ? 'edit' : 'view'),
+                              $link['OrgIdentity']['id']),
+                            array('class' => ($e && !$es ? 'editbutton' : 'viewbutton'))) . "\n";
 
-                      if($permissions['relink']) {
+                        if($permissions['relink']) {
                         print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'linkid' => $link['id'])) . '\');">' . _txt('op.relink') . '</a>' . "\n";
                       }
 

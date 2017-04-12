@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Telephone Number Model
  *
- * Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2010-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 class TelephoneNumber extends AppModel {
@@ -63,6 +66,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 3),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'area_code' => array(
@@ -70,6 +76,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 8),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'number' => array(
@@ -77,6 +86,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 64),   // cake has telephone number validation, but US only
         'required' => false,                // We allow any chars to cover things like "ext 2009"
         'allowEmpty' => false
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'extension' => array(
@@ -84,6 +96,9 @@ class TelephoneNumber extends AppModel {
         'rule' => array('maxLength', 16),
         'required' => false,
         'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateInput')
       )
     ),
     'type' => array(

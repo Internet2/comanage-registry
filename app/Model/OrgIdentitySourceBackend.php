@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Org Identity Source Backend (Plugin) Parent Model
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v1.1.0
+ * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 abstract class OrgIdentitySourceBackend extends AppModel {
@@ -32,7 +35,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
   /**
    * Obtain the configuration for this backend. This will correspond to FooSource.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array Array of configuration information, as returned by find()
    */
   
@@ -48,7 +51,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
    * only return a non-empty array if they wish to take advantage of the automatic
    * group mapping service.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array As specified
    */
   
@@ -58,7 +61,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
    * Obtain all available records in the IdentitySource, as a list of unique keys
    * (ie: suitable for passing to retrieve()).
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array Array of unique keys
    * @throws DomainException If the backend does not support this type of requests
    */
@@ -69,7 +72,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
    * Convert a raw result, as from eg retrieve(), into an array of attributes that
    * can be used for group mapping.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  String $raw Raw record, as obtained via retrieve()
    * @return Array Array, where keys are attribute names and values are lists (arrays) of attributes
    */
@@ -81,7 +84,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
    * of two entries: 'raw', a string containing the raw record as returned by the
    * IdentitySource backend, and 'orgidentity', the data in OrgIdentity format.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  String $id Unique key to identify record
    * @return Array As specified
    * @throws InvalidArgumentException if not found
@@ -97,7 +100,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
    * to obtain the same record and attributes represent an OrgIdentity, including
    * related models.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $attributes Array in key/value format, where key is the same as returned by searchableAttributes()
    * @return Array Array of search results, as specified
    */
@@ -110,7 +113,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
    * to the IdentitySource (eg: a number or a field name) and label is the localized
    * string to be displayed to the user.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @return Array As specified
    */
   
@@ -119,7 +122,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
   /**
    * Set the plugin configuration for this backend. This will correspond to FooSource.
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v2.0.0
    * @param  Array $cfg Array of configuration information, as returned by find()
    */
   

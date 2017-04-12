@@ -2,24 +2,27 @@
 /**
  * COmanage Registry CO Enrollment Attribute Fields
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 ?>
 
@@ -39,7 +42,7 @@
     switch(attrname) {
     <?php foreach(array_keys($vv_enums) as $k): ?>
       case "<?php print $k; ?>":
-        ret = new Array(<?php print '"' . join('","', array_values($vv_enums[$k])) . '"'; ?>);
+        ret = new Array(<?php print '"' . join('","', array_values(filter_var($vv_enums[$k],FILTER_SANITIZE_SPECIAL_CHARS))) . '"'; ?>);
         break;
     <?php endforeach; ?>
     }
@@ -54,7 +57,7 @@
     switch(attrname) {
     <?php foreach(array_keys($vv_ext_attr_types) as $xa): ?>
       case "<?php print $xa; ?>":
-        return "<?php print $vv_ext_attr_types[$xa]; ?>";
+        return "<?php print filter_var($vv_ext_attr_types[$xa],FILTER_SANITIZE_SPECIAL_CHARS); ?>";
         break;
     <?php endforeach; ?>
     }
@@ -312,7 +315,7 @@
       <td>
         <?php print ($e
           ? $this->Form->input('label', array('default' => _txt('fd.untitled'),'class' => 'focusFirst'))
-          : Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['label'])); ?>
+          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['label'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -323,7 +326,7 @@
       <td>
         <?php print ($e
           ? $this->Form->input('description', array('size' => 40))
-          : Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['description'])); ?>
+          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
     <tr class="line<?php print ($l % 2); $l++; ?>">
@@ -348,7 +351,7 @@
             print $this->Form->error('status');
           }
         } else {
-          print Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']);
+          print filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS);
         }
         ?>
         <div id="type_div" style="display: none">
@@ -475,7 +478,7 @@
       <td>
         <?php print ($e
           ? $this->Form->input('ordr')
-          : Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ordr'])); ?>
+          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </td>
     </tr>
   </tbody>
@@ -488,7 +491,7 @@
         <div id="attr_def_val_div">
           <?php print ($e
             ? $this->Form->input('CoEnrollmentAttributeDefault.0.value', array('size' => 40))
-            : Sanitize::html($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'])); ?>
+            : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
         <div id="attr_def_val_affil_div">
           <?php if($e): ?>
@@ -497,7 +500,9 @@
                     onchange="set_attr_def_value('def_affil_val')">
               <option value=""></option>
               <?php foreach(array_keys($vv_affiliations) as $k): ?>
-                <option value="<?php print Sanitize::html($k); ?>"><?php print Sanitize::html($vv_affiliations[$k]); ?></option>
+                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                  <?php print filter_var($vv_affiliations[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                </option>
               <?php endforeach; ?>
             </select>
           <?php endif; ?>
@@ -509,7 +514,9 @@
                     onchange="set_attr_def_value('def_cou_val')">
               <option value=""></option>
               <?php foreach(array_keys($vv_cous) as $k): ?>
-                <option value="<?php print Sanitize::html($k); ?>"><?php print Sanitize::html($vv_cous[$k]); ?></option>
+                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                  <?php print filter_var($vv_cous[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                </option>
               <?php endforeach; ?>
             </select>
           <?php endif; ?>
@@ -579,7 +586,9 @@
                     onchange="set_attr_def_value('def_group_val')">
               <option value=""></option>
               <?php foreach(array_keys($vv_groups) as $k): ?>
-                <option value="<?php print Sanitize::html($k); ?>"><?php print Sanitize::html($vv_groups[$k]); ?></option>
+                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                  <?php print filter_var($vv_groups[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                </option>
               <?php endforeach; ?>
             </select>
           <?php endif; ?>
@@ -591,7 +600,9 @@
                     onchange="set_attr_def_value('def_sponsor_val')">
               <option value=""></option>
               <?php foreach(array_keys($vv_sponsors) as $k): ?>
-                <option value="<?php print Sanitize::html($k); ?>"><?php print Sanitize::html($vv_sponsors[$k]); ?></option>
+                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                  <?php print filter_var($vv_sponsors[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                </option>
               <?php endforeach; ?>
             </select>
           <?php endif; ?>

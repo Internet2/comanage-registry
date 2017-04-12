@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Language File
  *
- * Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2011-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
   
 global $cm_lang, $cm_texts, $cm_texts_orig;
@@ -68,6 +71,8 @@ $cm_texts['en_US'] = array(
   'ct.api_users.pl' =>          'API Users',
   'ct.attribute_enumerations.1'  => 'Attribute Enumeration',
   'ct.attribute_enumerations.pl' => 'Attribute Enumerations',
+  'ct.authentication_events.1'  => 'Authentication Event',
+  'ct.authentication_events.pl' => 'Authentication Events',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
   'ct.co_enrollment_attributes.1'  => 'Enrollment Attribute',
@@ -329,6 +334,11 @@ original notification at
                             AdministratorEnum::CoAdmin => 'CO Admin',
                             AdministratorEnum::CoOrCouAdmin => 'CO or COU Admin'),
   
+  'en.auth.event' => array(
+    AuthenticationEventEnum::ApiLogin      => 'API Login',
+    AuthenticationEventEnum::RegistryLogin => 'Registry Login'
+  ),
+  
   'en.chars.permitted' => array(
     PermittedCharacterEnum::AlphaNumeric      => 'AlphaNumeric Only',
     PermittedCharacterEnum::AlphaNumDotDashUS => 'AlphaNumeric and Dot, Dash, Underscore',
@@ -454,7 +464,16 @@ original notification at
   'en.extattr' =>     array(ExtendedAttributeEnum::Integer => 'Integer',
                             ExtendedAttributeEnum::Timestamp => 'Timestamp',
                             ExtendedAttributeEnum::Varchar32 => 'String (32)'),
-
+  
+  'en.group.type' => array(
+    GroupEnum::Standard      => 'Standard',
+    GroupEnum::ActiveMembers => 'Active Members',
+    GroupEnum::Admins        => 'Administrators',
+    GroupEnum::AllMembers    => 'All Members',
+    GroupEnum::NestedAdmins  => 'Nested Administrators',
+    GroupEnum::NestedMembers => 'Nested Members'
+  ),
+  
   'en.ia.algorithm' => array(IdentifierAssignmentEnum::Random => 'Random',
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
 
@@ -467,7 +486,7 @@ original notification at
                                  IdentifierEnum::National => 'National',
                                  IdentifierEnum::Network => 'Network',
                                  IdentifierEnum::OpenID => 'OpenID',
-                                 IdentifierEnum::ORCID => 'ORCID',
+                                 IdentifierEnum::ORCID => 'ORCID iD',
                                  IdentifierEnum::Reference => 'Match Reference',
                                  IdentifierEnum::SORID => 'System of Record ID',
                                  IdentifierEnum::UID => 'UID'),
@@ -693,6 +712,11 @@ original notification at
     SyncModeEnum::Update                    => 'Update'
   ),
   
+  'en.sync.query.mismatch.mode' => array(
+    OrgIdentityMismatchEnum::CreateNew      => 'Create New Org Identity',
+    OrgIdentityMismatchEnum::Ignore         => 'Ignore'
+  ),
+  
   'en.tandc.mode.enroll' => array(
     TAndCEnrollmentModeEnum::ExplicitConsent => 'Explicit Consent',
     TAndCEnrollmentModeEnum::ImpliedConsent  => 'Implied Consent',
@@ -790,6 +814,8 @@ original notification at
   'er.file.none' =>   'No file specified',
   'er.file.read' =>   'Unable to open "%1$s" for reading',
   'er.file.write' =>  'Unable to open "%1$s" for writing',
+  'er.gr.auto.edit' => 'Members of automatic groups may not be edited directly',
+  'er.gr.delete' =>   'This group cannot be deleted',
   'er.gr.exists' =>   'A group named "%1$s" already exists within the CO',
   'er.gr.init' =>     'Group created, but failed to set initial owner/member',
   'er.gr.nf' =>       'Group %1$s Not Found',
@@ -797,8 +823,9 @@ original notification at
   'er.gr.admin.delete' => 'Admin groups for COs and COUs may not be deleted directly',
   'er.gr.members.delete' => 'Members groups for COs and COUs may not be deleted directly',
   'er.gr.members.edit' => 'Members groups for COs and COUs may not be edited directly',
-  'er.gr.members.res' => 'Groups named "members" or prefixed "members:" are reserved',
   'er.gr.reconcile'    => 'Members group reconciliation failed: ',
+  'er.gr.reconcile.inv' => 'Specified group is not eligible for reconciliation',
+  'er.gr.reserved' => 'Groups named with the prefix "CO:" are reserved',
   'er.grm.already' => 'CO Person %1$s is already a member of group %2$s',
   'er.grm.history' =>  'Error creating history record when automatically adding CO Person ID %1$s to group %2$s',
   'er.grm.history.members' => 'Error creating history record when automatically adding CO Person ID %1$s to members group',
@@ -814,6 +841,7 @@ original notification at
   'er.id.format-a' => 'The identifier "%1$s" does not meet the required format (%2$s)',
   'er.id.unk' =>      'Unknown Identifier',
   'er.id.unk-a' =>    'Unknown Identifier "%1$s"',
+  'er.input.invalid' => 'Invalid character found',
   'er.inv.exp' =>     'Invitation Expired',
   'er.inv.exp.use' => 'Processing of invitation failed due to invitation expiration',
   'er.inv.nf' =>      'Invitation Not Found',
@@ -832,6 +860,7 @@ original notification at
   'er.notprov' =>     'Not Provided',
   'er.notprov.id' =>  '%1$s ID Not Provided',
   'er.ois.linked' =>  'The specified Source Key is already linked to an existing Org Identity',
+  'er.ois.mismatch' => 'Email address "%1$s" not found in result from backend',
   'er.ois.nolink' =>  'The specified Source Key is not linked to an existing Org Identity',
   'er.ois.noorg' =>   'Backend did not provide Org Identity',
   'er.ois.pt.linked' => 'This record is already linked to an existing Org Identity and cannot be used for the current petition.',
@@ -866,6 +895,7 @@ original notification at
   'er.setting' =>     'Invalid Setting',
   'er.setting.gr' =>  'Invalid Setting: No group specified',
   'er.sh.cache' =>    'WARNING: Cache directory %1$s NOT empty, you may need to manually clear it',
+  'er.soap.wsdl' =>   'Unable to retrieve WSDL: %1$s',
   'er.ssh.format' =>  'File does not appear to be a valid ssh public key',
   'er.ssh.private' => 'Uploaded file appears to be a private key',
   'er.ssh.rfc4716' => 'RFC4716 format public keys are not currently supported',
@@ -900,6 +930,7 @@ original notification at
   'fd.address.fields.req' => 'An address must consist of at least these fields:',
   'fd.admin' =>       'Administrator',
   'fd.ae.optvalue.desc' => 'Permitted value for this attribute',
+  'fd.affil-a' =>     '%1$s Affiliation',
   'fd.affiliation' => 'Affiliation',
   'fd.affiliation.ep' => 'eduPersonAffiliation',
   'fd.affiliation.ep.map.desc' => 'Map the extended affiliation to this eduPersonAffiliation, see <a href="https://spaces.internet2.edu/display/COmanage/Extending+the+Registry+Data+Model#ExtendingtheRegistryDataModel-%7B%7BeduPersonAffiliation%7D%7DandExtendedAffiliations">eduPersonAffiliation and Extended Affiliations</a>',
@@ -928,6 +959,9 @@ original notification at
   'fd.copy-a' =>      'Copy of %1$s',
   'fd.cou' =>         'COU',
   'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',  
+  'fd.cou-a' =>       '%1$s COU',
+  'fd.co_group.auto' => 'Automatic',
+  'fd.co_group.group_type' => 'Group Type',
   'fd.co_people.search' => 'CO Person Search',
   'fd.co_people.status' => 'CO Person Status',
   'fd.created' =>     'Created',
@@ -948,6 +982,7 @@ original notification at
   // Enrollment configuration fields
   'fd.ea.attr.copy2cop' => 'Copy this attribute to the CO Person record',
   'fd.ea.ignauth' =>  'Ignore Authoritative Values',
+  'fd.ea.ignauth.flow.desc' => 'Ignore authoritative values for attributes attached to this flow, such as those provided via environment variables, SAML, or LDAP',
   'fd.ea.ignauth.desc' => 'Ignore authoritative values for this attribute, such as those provided via environment variables, SAML, or LDAP',
   'fd.ea.desc'    =>  'Description',
   'fd.ea.desc.desc' => 'Descriptive text to be displayed when prompting for this attribute (like this text you\'re reading now)',
@@ -1064,9 +1099,11 @@ original notification at
   'fd.ev.for' =>      'Verification for %1$s',
   'fd.ev.verify' =>   'Verify email address %1$s',
   'fd.ev.verify.desc' => 'Please confirm %1$s is your email address by clicking the <b>Confirm</b> button, below.',
+  'fd.event' =>       'Event',
   'fd.false' =>       'False',
   'fd.group.desc.adm' => '%1$s Administrators',
   'fd.group.desc.mem' => '%1$s Members',
+  'fd.group.desc.mem.act' => '%1$s Active Members',
   'fd.group.grmem' => 'Group Member',
   'fd.group.grmemown' => 'Group Member and Owner',
   'fd.group.mem' =>   'Member',
@@ -1111,6 +1148,7 @@ original notification at
   'fd.inv.exp' =>     'Invitation Expiration',
   'fd.inv.for' =>     'Invitation for %1$s',
   'fd.inv.to' =>      'Invitation to %1$s',
+  'fd.ip' =>          'IP Address',
   'fd.key' =>         'Key',
   'fd.language' =>    'Language',
   'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
@@ -1129,6 +1167,7 @@ original notification at
   'fd.mt.sub' =>      'Message Subject',
   'fd.mt.sub.desc' => 'Subject line for message to be sent. See <a href="https://spaces.internet2.edu/x/pAADAw">supported substitutions</a>.',
   'fd.name' =>        'Name',
+  'fd.name-a' =>      '%1$s Name',
   'fd.name.affil'  => 'Name and Affiliation',
   'fd.name.d' =>      'Display Name',
   'fd.name.h.desc' => '(Dr, Hon, etc)',
@@ -1169,6 +1208,10 @@ original notification at
   'fd.ois.sync.disable' => 'Disable Org Identity Source Sync',
   'fd.ois.sync.disable.desc' => 'Disable automatic (scheduled) syncing of Organizational Identity Sources<br />This setting does not impact manual syncing',
   'fd.ois.sync.mode' => 'Sync Mode',
+  'fd.ois.sync.mismatch' => 'Email Mismatch Mode',
+  'fd.ois.sync.mismatch.desc' => 'If a returned record has a different email address than the one that was searched, how the record should be handled',
+  'fd.ois.sync.skipknown' => 'Do Not Query for Known Email Addresses',
+  'fd.ois.sync.skipknown.desc' => 'If an email address is already attached to an Org Identity associated with this Source, do not query for it',
   'fd.open' =>        'Open',
   'fd.order' =>       'Order',
   'fd.order.es.desc' => 'The order in which this source will be queried, among all sources configured for this enrollment flow with this mode',
@@ -1183,11 +1226,13 @@ original notification at
   'fd.perms' =>       'Permissions',
   'fd.permitted.name' => 'Name Permitted Fields',
   'fd.petitioner' =>  'Petitioner',
+  'fd.pi.connections' => 'Connections',
   'fd.pi.default' =>  'Pipeline For Default Enrollment',
   'fd.pi.default.desc' => 'If specified, Org Identities added via default enrollment will be processed using this Pipeline',
   'fd.pi.elect.name.p' => 'Primary Name Election Strategy',
   'fd.pi.match.str' => 'Match Strategy',
   'fd.pi.match.type' => 'Match Field Type',
+  'fd.pi.match.type.desc' => 'Required only for Identifier match strategy',
   'fd.pi.sync.add' => 'Sync on Add',
   'fd.pi.sync.affil' => 'CO Person Role Affiliation',
   'fd.pi.sync.affil.desc' => 'If set, created CO Person Roles will be given this affiliation (not the affiliation of the Organizational Identity)',
@@ -1258,6 +1303,7 @@ original notification at
   'fd.tc.agree.login' => 'You must agree to all of the following Terms and Conditions before continuing.',
   'fd.tc.agree.no' => 'Not Agreed',
   'fd.tc.agree.yes' => 'Agreed',
+  'fd.tc.archived' => 'The definition of this T&C changed after the agreement was recorded',
   'fd.tc.cou.desc' => 'If set, this T&C only applies to members of the specified COU',
   'fd.tc.for' =>      'Terms and Conditions for %1$s (%2$s)',
   'fd.tc.mode.login' => 'Terms and Conditions Mode',
@@ -1296,9 +1342,11 @@ original notification at
   'fd.url' =>         'URL',
   'fd.username.api' => 'API User Name',
   'fd.valid_from' =>  'Valid From',
-  'fd.valid_from.desc' => '(leave blank for immediate validity)',
+  'fd.valid_from.desc' => 'Leave blank for immediate validity',
+  'fd.valid_from.tz' => 'Valid From (%1$s)',
   'fd.valid_through' => 'Valid Through',
-  'fd.valid_through.desc' => '(leave blank for indefinite validity)',
+  'fd.valid_through.desc' => 'Leave blank for indefinite validity',
+  'fd.valid_through.tz' => 'Valid Through (%1$s)',
   'fd.value' =>       'Value',
   'fd.visibility' =>  'Visibility',
   'fd.xp.actions' =>  'All of the following <b>actions</b> will be taken when the specified conditions match:',
@@ -1342,12 +1390,15 @@ original notification at
   // Informational messages
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.idval.plugins'   => 'There are no Identifier Validator plugins currently installed.',
+  'in.login.last'      => 'Your last login as %1$s was at %2$s from %3$s',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
   'in.orgid.co'        => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
   'in.orgid.ois'       => 'This is the current record available directly from the source. To view the latest record retrieved and cached by Registry, click <i>View Organizational Identity Source Record</i>.',
   'in.orgid.ois.notfound' => 'The requested key was not found in the source. If an Organizational Identity was already created using this key, the source may have deleted or expired its record.',
   'in.orgid.oisr'      => 'This is the latest record retrieved from the source, as cached by Registry. To view the current record directly from the source, click <i>View Organizational Identity Source</i>.',
+  'in.orgid.pi.role'   => 'CO Person Role created from this Org Identity via Pipeline',
+  'in.orgid.pi.group'  => '%1$s Group Membership created from this Org Identity via Pipeline',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
 
   // Menu
@@ -1370,6 +1421,14 @@ original notification at
   // Can be changed to a static array of internationalized characters, for example:
   //'me.alpha' => array('a','ä','b','c'),
   'me.alpha' => range('a','z'),
+  
+  // Job related messages
+  'jb.ois.sync.full.finish' => 'Sync of new org identities from source complete',
+  'jb.ois.sync.full.start' => 'Beginning sync of new org identities from source (%1$s in source; %2$s already known, %3$s new)',
+  'jb.ois.sync.query.finish' => 'Query for matching org identities from source complete',
+  'jb.ois.sync.query.start' => 'Beginning query for matching org identities from source (%1$s email addresses to query of %2$s known)',
+  'jb.ois.sync.update.finish' => 'Sync of existing org identities from source complete',
+  'jb.ois.sync.update.start' => 'Beginning sync of existing org identities from source (%1$s current total)',
 
   // JavaScript dialog box strings
   // Can include token replacements in the form of {0}, {1}, {2}, etc.
@@ -1399,6 +1458,7 @@ original notification at
   'op.confirm' =>     'Confirm',
   'op.cont' =>        'Continue',
   'op.confirm.box' => 'Check the box to confirm',
+  'op.dashboard.select' => 'Welcome to %1$s. Please select an action from the menus, above.',
   'op.db.ok' =>       'Database schema update successful',
   'op.db.schema' =>   'Loading schema from file %1$s...',
   'op.decline' =>     'Decline',
@@ -1433,10 +1493,11 @@ original notification at
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
   'op.find.link' =>   'Find an Organizational Identity to Link to %1$s',
   'op.gr.memadd' =>   'Manage %1$s Group Memberships',
-  'op.gr.reconcile' => 'Reconcile',      
+  'op.gr.reconcile' => 'Reconcile',
   'op.gr.reconcile.all' => 'Reconcile All Members Groups',      
   'op.gr.reconcile.all.confirm' => 'Are you sure you wish to reconcile all members groups?',
-  'op.gr.reconcile.wait' => 'Reconciling members groups, please wait...',
+  'op.gr.reconcile.confirm' => 'Are you sure you wish to reconcile this group?',
+  'op.gr.reconcile.wait' => 'Requesting reconcilation, please wait...',
   'op.grm.edit' =>    'Edit Members of %1$s Group %2$s',
   'op.grm.manage' =>  'Manage My Group Memberships',
   'op.grm.my.groups' => 'My Groups',
@@ -1447,7 +1508,6 @@ original notification at
   'op.home.collabs' => 'Available Collaborations',
   'op.home.collabs.summary' => 'All collaborations in which user may participate',
   'op.home.no.collabs' => 'No collaborations are currently available.',
-  'op.dashboard.select' => 'Welcome to %1$s. Please select an action from the menus.',
   'op.id.auto' =>     'Autogenerate Identifiers',
   'op.id.auto.all' => 'Autogenerate Identifiers For All',
   'op.id.auto.all.confirm' => 'Are you sure you wish to autogenerate identifiers for all active CO People?',
@@ -1471,6 +1531,7 @@ original notification at
   'op.link.select' => 'Please select the CO Person you would like to attach the Organizational Identity "%1$s" (%2$s) to by clicking the associated link button.',
   'op.link.to.co' =>  'Link to %1$s CO Person',
   'op.login' =>       'Login',
+  'op.logins.view' => 'View Login History',
   'op.logout' =>      'Logout',
   'op.next' =>        'Next',
   'op.ois.conf.gr' => 'Configure Group Mapping',
@@ -1479,7 +1540,7 @@ original notification at
   'op.order.attr' =>  'Reorder Attributes',
   'op.order.link' =>  'Reorder Links',
   'op.orgid.add.ois' => 'Add New Org Identity From Source',
-  'op.orgid.edit.ois' => 'This Organizational Identity was created from an Organizational Identity Source and therefore cannot be edited.',
+  'op.orgid.edit.ois' => 'This Organizational Identity was created from an Organizational Identity Source (%1$s) and therefore cannot be edited.',
   'op.orgid.petition.ois' => 'Add New Org Identity From Source and Link To Petition',
   'op.orgid.sync.ois' => 'Resync Org Identity From Source',
   'op.petition' =>    'Petition',
@@ -1541,6 +1602,7 @@ original notification at
   'op.view' =>        'View',
   'op.view.all' =>    'View All',
   'op.view.pending' => 'View Pending',
+  'op.view.source' => 'View Source',
   'op.view-a' =>      'View %1$s',
   'op.view-f' =>      'View %1$s for %2$s',
   
@@ -1564,9 +1626,10 @@ original notification at
   'rs.ev.ver' =>      'Email Address verified',
   'rs.ev.ver-a' =>    'Email Address %1$s verified by %2$s',
   'rs.expunged' =>    'Record Expunged',
+  'rs.found.cnt' =>   '%1$s Record(s) Found',
   'rs.gr.added' =>    'Added CO Group "%1$s"',
   'rs.gr.deleted' =>  'Deleted CO Group "%1$s"',
-  'rs.gr.reconcile.ok' => 'Members Groups Reconciled',
+  'rs.gr.reconcile.ok' => 'Reconciliation Successful',
   'rs.grm.added' =>   'Added to CO Group %1$s (%2$s) (member=%3$s, owner=%4$s)',
   'rs.grm.added-p' => 'Added to CO Group %1$s (%2$s) via Petition (member=%3$s, owner=%4$s)',
   'rs.grm.deleted' => 'Removed from CO Group %1$s (%2$s)',
@@ -1647,6 +1710,8 @@ original notification at
   'rs.uploaded-a2' => '%1$s "%2$s" Uploaded',
   'rs.xp.action' =>   'Expiration Policy "%1$s" (%2$s): %3$s',
   'rs.xp.match' =>    'Expiration Policy "%1$s" (%2$s) conditions matched',
+  'rs.xp.role' =>     'Role Expired',
+  'rs.xp.role-a' =>   '%1$s Role Expired',
   
   // Setup
   
@@ -1708,6 +1773,8 @@ original notification at
   'sh.ug.100.cmpdefault' => 'Verifying default CMP Enrollment Configuration',
   'sh.ug.105.attrdefault' => 'Clearing extraneous CO Enrollment Attribute defaults',
   'sh.ug.110.ef' =>       'Migrating enrollment flow configurations',
+  'sh.ug.110.gr' =>       'Renaming and reconciling automatic groups (please wait, this may take some time)',
+  'sh.ug.110.is' =>       'Updating inactive identifier status',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

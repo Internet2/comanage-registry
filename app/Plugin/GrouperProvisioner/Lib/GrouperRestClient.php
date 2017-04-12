@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Grouper Rest Client
  *
- * Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- *
- * @copyright     Copyright (C) 2015 University Corporation for Advanced Internet Development, Inc.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 App::uses('GrouperRestClientException', 'GrouperProvisioner.Lib');
@@ -244,6 +247,64 @@ class GrouperRestClient extends HttpSocket {
     }
 
     return ;
+  }
+
+  /**
+   * Get group memberships for a subject
+   * - precondition: Subject is known to Grouper
+   *
+   * @since         COmanage Directory 2.0.0
+   * @param         string $subject Subject for which to retrieve group memberships
+   * @return        array List of names of the groups to which the subjet belongs
+   * @throws        GrouperRestClientException
+   */
+  public function getGroups($subject) {
+    $body = array(
+      'WsRestGetGroupsRequest' => array(
+        'actAsSubjectLookup' => array(
+          'subjectId' => 'GrouperSystem'
+          ),
+        'includeGroupDetail' => 'T',
+        'subjectLookups' => array(
+          array('subjectId' => $subject)
+          )
+        )
+      );
+
+    $body = json_encode($body);
+
+    $request = array(
+      'uri' => array(
+        'path' => 'subjects'
+        ),
+      'body' => $body
+      );
+
+    $result = $this->grouperRequest($request, 201);
+    $success = $result->WsGetGroupsResults->resultMetadata->success;
+    if ($success != 'T') {
+      $msg = 'Result from get groups was not success';
+      if(Configure::read('debug')) {
+        CakeLog::write('error', $msg);
+        CakeLog::write('error', 'Grouper WS request was ' . print_r($request, true));
+        CakeLog::write('error', 'Grouper WS result was ' . print_r($result, true));
+      }
+      throw new GrouperRestClientException($msg);
+    }
+
+    $results = $result->WsGetGroupsResults->results;
+
+    $groups = array();
+
+    foreach ($results as $r) {
+      if (array_key_exists('wsGroups', $r)) {
+        foreach ($r->wsGroups as $g) {
+          $groups[] = $g->name;
+        }
+      }
+    }
+
+    return $groups;
   }
 
   /**

@@ -2,24 +2,27 @@
 /**
  * COmanage Registry Provisioner Behavior
  *
- * Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under
- * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
  *
- * @copyright     Copyright (C) 2012-16 University Corporation for Advanced Internet Development, Inc.
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.8
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
 // Behaviors don't have access to sessions by default
@@ -242,28 +245,28 @@ class ProvisionerBehavior extends ModelBehavior {
     $copid = null;
     $gmodel = null;
     
+    // If we were called with saveField() or via manualProvisioning, $model->data will be likely be empty.
+    // We need to load it.
+    
+    if(empty($model->data)
+       && $provisioningAction != ProvisioningActionEnum::CoPersonDeleted) {
+      $args = array();
+      $args['conditions'][$model->alias.'.id'] = $model->id;
+      $args['contain'] = false;
+
+      try {
+        $model->data = $model->find('first', $args);
+      }
+      catch(Exception $e) {
+        // XXX We should really report this somehow
+        return;
+      }
+    }
+    
     // If a CO Person status has changed to or from a status that triggers group provisioning,
     // find all the groups with which that person has an association and rewrite them.
     
     if($model->name == 'CoPerson') {
-      // If we were called with saveField() or via manualProvisioning, $model->data will be likely be empty.
-      // We need to load it.
-      
-      if(empty($model->data)
-         && $provisioningAction != ProvisioningActionEnum::CoPersonDeleted) {
-        $args = array();
-        $args['conditions'][$model->alias.'.id'] = $model->id;
-        $args['contain'] = false;
-
-        try {
-          $model->data = $model->find('first', $args);
-        }
-        catch(Exception $e) {
-          // XXX We should really report this somehow
-          return;
-        }
-      }
-
       if(isset($model->cacheData[ $model->alias ]['status'])
          && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
          && (in_array($model->cacheData[ $model->alias ]['status'], $this->groupStatuses)
@@ -280,23 +283,28 @@ class ProvisionerBehavior extends ModelBehavior {
     // If identifiers have changed, resync groups as well since group memberships
     // may be keyed on one of them.
     
-    if($model->name == 'Identifier'
-       && !empty($model->data['Identifier']['co_person_id'])) {
-      if(!isset($model->cacheData['Identifier']['identifier'])
-         && !empty($model->data['Identifier']['identifier'])) {
-        $syncGroups = true;
-      } elseif(!empty($model->cacheData['Identifier']['modified'])
-               && !empty($model->data['Identifier']['modified'])
-               && ($model->cacheData['Identifier']['modified']
-                   != $model->data['Identifier']['modified'])) {
-        // Use modified as a proxy for seeing if anything has changed in the record
+    if($model->name == 'Identifier') {
+      if(!empty($model->data['Identifier']['co_person_id'])) {
+        if(!isset($model->cacheData['Identifier']['identifier'])
+           && !empty($model->data['Identifier']['identifier'])) {
+          $syncGroups = true;
+        } elseif(!empty($model->cacheData['Identifier']['modified'])
+                 && !empty($model->data['Identifier']['modified'])
+                 && ($model->cacheData['Identifier']['modified']
+                     != $model->data['Identifier']['modified'])) {
+          // Use modified as a proxy for seeing if anything has changed in the record
+          
+          $syncGroups = true;
+        }
         
-        $syncGroups = true;
-      }
-      
-      if($syncGroups) {
+        if($syncGroups) {
+          $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
+          $copid = $model->data['Identifier']['co_person_id'];
+        }
+      } elseif(!empty($model->cacheData['Identifier']['co_person_id'])) {
+        // Identifier was deleted
         $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
-        $copid = $model->data['Identifier']['co_person_id'];
+        $copid = $model->cacheData['Identifier']['co_person_id'];
       }
     }
     
@@ -328,6 +336,15 @@ class ProvisionerBehavior extends ModelBehavior {
           // We need to pass the CO Person ID to marshallCoGroupData
           $copid = $model->data[ $model->name ]['co_person_id'];
         }
+      } elseif(!empty($model->cacheData[ $model->name ]['co_group_id'])) {
+        // eg: CoGroupMember deleted
+        $gmodel = $model->CoGroup;
+        $coGroupIds[] = $model->cacheData[ $model->name ]['co_group_id'];
+        
+        if(!empty($model->cacheData[ $model->name ]['co_person_id'])) {
+          // We need to pass the CO Person ID to marshallCoGroupData
+          $copid = $model->cacheData[ $model->name ]['co_person_id'];
+        }
       }
     }
     
@@ -354,24 +371,37 @@ class ProvisionerBehavior extends ModelBehavior {
       } elseif(!empty($model->data[ $model->name ]['co_person_id'])) {
         $pmodel = $model->CoPerson;
         $coPersonIds[] = $model->data[ $model->name ]['co_person_id'];
+      } elseif(!empty($model->cacheData[ $model->name ]['co_person_id'])) {
+        $pmodel = $model->CoPerson;
+        $coPersonIds[] = $model->cacheData[ $model->name ]['co_person_id'];
       } elseif(!empty($model->data[ $model->name ]['co_person_role_id'])) {
         $pmodel = $model->CoPersonRole->CoPerson;
         $coPersonIds[] = $model->CoPersonRole->field('co_person_id',
                                                     array('id' => $model->data[ $model->name ]['co_person_role_id']));
+      } elseif(!empty($model->cacheData[ $model->name ]['co_person_role_id'])) {
+        $pmodel = $model->CoPersonRole->CoPerson;
+        $coPersonIds[] = $model->CoPersonRole->field('co_person_id',
+                                                    array('id' => $model->cacheData[ $model->name ]['co_person_role_id']));
       } elseif($model->name == 'CoPersonRole' && !empty($model->data['CoPersonRole']['id'])) {
         // eg: for saveField called via CoExpirationPolicy::executePolicies()
         $pmodel = $model->CoPerson;
         $coPersonIds[] = $model->field('co_person_id',
                                       array('id' => $model->data['CoPersonRole']['id']));
       } elseif($model->name == 'Identifier'
-               && !empty($model->data['Identifier']['org_identity_id'])
-               && empty($model->data['Identifier']['co_person_id'])) {
+               &&
+               ((!empty($model->data['Identifier']['org_identity_id'])
+                 && empty($model->data['Identifier']['co_person_id']))
+                || (!empty($model->cacheData['Identifier']['org_identity_id'])
+                 && empty($model->cacheData['Identifier']['co_person_id'])))) {
         // Identifiers from an org record can be provisioned into a CO Person record.
         // We need to map from the Org Identity ID to a CO Person ID, but the tricky
         // part here is that an Org Identity can map into multiple CO People.
         
         $args = array();
-        $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $model->data['Identifier']['org_identity_id'];
+        $args['conditions']['CoOrgIdentityLink.org_identity_id'] =
+          (!empty($model->data['Identifier']['org_identity_id'])
+           ? $model->data['Identifier']['org_identity_id']
+           : $model->cacheData['Identifier']['org_identity_id']);
         $args['fields'] = array('CoOrgIdentityLink.org_identity_id', 'CoOrgIdentityLink.co_person_id');
         $args['contain'] = false;
         
@@ -693,6 +723,8 @@ class ProvisionerBehavior extends ModelBehavior {
     } else {
       // Set the appropriate ID
       
+      $model->clear();
+      
       if($model->name == 'CoPerson' && $coPersonId) {
         $model->id = $coPersonId;
       } elseif($model->name == 'CoGroup' && $coGroupId) {
@@ -829,7 +861,14 @@ class ProvisionerBehavior extends ModelBehavior {
         // Count backwards so we don't trip over indices when we unset invalid memberships.
         
         // We need for CO Person to be in a status that provisions *group* memberships here,
-        // not a status for person provisioning
+        // not a status for person provisioning. However, we always leave the AllMembers group
+        // in place.
+        
+        if(!empty($coPersonData['CoGroupMember'][$i]['CoGroup']['group_type'])
+           && $coPersonData['CoGroupMember'][$i]['CoGroup']['group_type'] == GroupEnum::AllMembers) {
+          continue;
+        }
+        
         if(!in_array($coPersonData[$coPersonModel->alias]['status'], $this->groupStatuses)
            ||
            $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active) {
@@ -839,6 +878,23 @@ class ProvisionerBehavior extends ModelBehavior {
       
       if(count($coPersonData['CoGroupMember']) == 0) {
         unset($coPersonData['CoGroupMember']);
+      }
+    }
+    
+    // Remove any inactive org identities
+    
+    if(!empty($coPersonData['CoOrgIdentityLink'])) {
+      for($i = (count($coPersonData['CoOrgIdentityLink']) - 1);$i >= 0;$i--) {
+        // We don't currently look at Org Identity status since it's primarily used to track
+        // OIS sync state. However, this could change in the future.
+        
+        if((!empty($coPersonData['CoOrgIdentityLink'][$i]['OrgIdentity']['valid_from'])
+            && strtotime($coPersonData['CoOrgIdentityLink'][$i]['OrgIdentity']['valid_from']) >= time())
+           ||
+           (!empty($coPersonData['CoOrgIdentityLink'][$i]['OrgIdentity']['valid_through'])
+            && strtotime($coPersonData['CoOrgIdentityLink'][$i]['OrgIdentity']['valid_through']) < time())) {
+          unset($coPersonData['CoOrgIdentityLink'][$i]);
+        }
       }
     }
     
