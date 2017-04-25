@@ -633,8 +633,4 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
     }
   ?>
 
-  <li>
-    <div aria-expanded="false" role="button" tabindex="0" class="mdl-layout__drawer-button"><i class="fa fa-angle-double-left" aria-hidden="true"></i></div>
-  </li>
-
 </ul>

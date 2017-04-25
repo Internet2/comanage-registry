@@ -153,7 +153,6 @@
 
 <?php if(!isset($noLoginLogout) || !$noLoginLogout) : ?>
   <?php // Print the login/logout buttons
-    $buttonClasses = "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent";
     if($this->Session->check('Auth.User') != NULL) {
       $args = array('controller' => 'auth',
                     'action'     => 'logout',

@@ -128,14 +128,25 @@
     <!-- Primary layout -->
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
 
-      <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
-        <div id="user-defined-links-top">
-          <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
-        </div>
-      <?php endif; ?>
-
       <header id="banner" class="mdl-layout__header mdl-layout__header--scroll">
         <div class="mdl-layout__header-row">
+          <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
+            <div id="collaborationTitle">
+              <?php
+                if(!empty($cur_co['Co']['name'])) {
+                  $args = array();
+                  $args['plugin'] = null;
+                  $args['controller'] = 'co_dashboards';
+                  $args['action'] = 'dashboard';
+                  $args['co'] = $cur_co['Co']['id'];
+                  print $this->Html->link($cur_co['Co']['name'],$args);
+                } else {
+                  print _txt('coordinate');
+                }
+              ?>
+            </div>
+          <?php endif; // $vv_theme_hide_title ?>
+
           <div id="logo">
             <?php
               $imgFile = 'COmanage-Logo-LG-onBlue.png';
@@ -158,6 +169,17 @@
             ?>
           </div>
         </div>
+
+        <div id="top-menu">
+          <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
+            <div id="user-defined-links-top">
+              <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
+            </div>
+          <?php endif; ?>
+          <nav id="user-menu">
+            <?php print $this->element('menuUser'); ?>
+          </nav>
+        </div>
       </header>
 
       <?php if($this->Session->check('Auth.User')): ?>
@@ -173,22 +195,7 @@
         </div>
       <?php endif ?>
 
-      <nav id="user-menu">
-        <?php print $this->element('menuUser'); ?>
-      </nav>
-
       <main id="main" class="mdl-layout__content">
-        <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
-          <div id="collaborationTitle">
-          <?php
-            if(!empty($cur_co['Co']['name'])) {
-              print filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
-            } else {
-              print _txt('coordinate');
-            }
-          ?>
-          </div>
-        <?php endif; // $vv_theme_hide_title ?>
 
         <div id="content" class="mdl-grid">
         <?php

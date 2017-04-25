@@ -152,7 +152,19 @@
       print '</div>';
     } elseif(!$userInfo) {
       // Please login
-      print '<h1 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h1>';
+      print '<h1 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '<br/>';
+      print _txt('op.home.please') . ' ';
+      // Print the login button
+      $buttonClasses = "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored";
+      $args = array('controller' => 'auth',
+        'action'     => 'login',
+        'plugin'     => false
+      );
+      print ' <span id="welcome-login">';
+      print $this->Html->link(_txt('op.login') . ' <span class="fa fa-sign-in"></span>',
+        $args, array('escape'=>false, 'id' => 'welcome-login-button', 'class' => $buttonClasses));
+      print '</span>';
+      print '</h1>';
     }
 
   ?>

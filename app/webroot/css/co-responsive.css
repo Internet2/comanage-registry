@@ -31,9 +31,6 @@
 /**************************************************************************************************************/
 /* Larger phones (e.g. Samsung Galaxy) in portrait mode */
 @media only screen and (min-width: 360px) {
-  #logo img {
-    height: 30px;
-  }
   #notifications {
     margin-right: 4px;
   }
@@ -43,9 +40,6 @@
 /**************************************************************************************************************/
 /* Small phones in landscape mode  */
 @media only screen and (min-width: 480px) {
-  #logo img {
-    height: 38px;
-  }
   #notifications {
     margin-right: 12px;
   }
@@ -70,6 +64,8 @@
   }
   #user-common-name {
     display: inline;
+    position: relative;
+    top: -1px;
   }
   #user-links-cn {
     display: none;
@@ -198,11 +194,9 @@
     margin-left: 0;
     width: auto;
   }
-  .mdl-layout__header {
-    height: 64px !important; /* layout override */
-  }
   .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
-     padding-left: 12px;
+    padding-left: 12px;
+    height: 64px;
   }
   /* navigation / side drawer */
   /* mdl drawer overrides - change the drawer breakpoint from 1025 to 840 */
@@ -215,7 +209,7 @@
     box-shadow: none; /* use no shadow on desktop menu */
   }
   body.logged-in.with-user-defined-links .mdl-layout__drawer {
-    top: 91px;
+    top: 94px;
   }
   .mdl-layout__drawer-button {
     display: none;
@@ -223,9 +217,8 @@
   /* mdl content overrides */
   .mdl-layout__content {
     margin-left: 240px !important;
-    margin-top: -64px;
     position: relative;
-    z-index: 20;
+    z-index: 3;
     background-color: white;
   }
   #main.mdl-layout__content {
@@ -242,13 +235,11 @@
 
   /* HEADER */
   #logo {
-    margin-top: 11px;
+    width: auto;
+    right: 2em;
   }
   #user-menu {
     z-index: 30;
-  }
-  body.logged-in.with-user-defined-links #user-menu {
-    top: 35px;
   }
   #user-menu a.topMenu {
     color: white;
@@ -259,9 +250,6 @@
   #notifications #notifications-menu {
     width: 400px;
   }
-  #login {
-    margin-top: 14px;
-  }
   /* USER DEFINED LINKS (top) */
   #user-defined-links-left {
     display: none;
@@ -270,7 +258,8 @@
     display: block;
     background-color: #222;
     color: white;
-    min-height: 27px; /* essential */
+    /* min-height: 27px; /* essential */
+
   }
   #user-defined-links-top .custom-links li {
     display: inline-block;
@@ -408,9 +397,6 @@
 /**************************************************************************************************************/
 /* Mid to large devices (desktops, 1024px and up) */
 @media only screen and (min-width: 1024px) {
-  #logo {
-    margin-top: 4px;
-  }
   #co_people .person-info-inner {
     width: 300px;
   }

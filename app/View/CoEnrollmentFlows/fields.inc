@@ -74,7 +74,7 @@
     var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
     
     if(confirm != '<?php print VerificationModeEnum::None; ?>') {
-      $("#CoEnrollmentFlowInvitationValidity").closest("li").show('fade');
+      $("#CoEnrollmentFlowInvitationValidity").closest("ul.field-children").show('fade');
       fields_update_gadgets();
       $("#CoEnrollmentFlowRequireAuthn").closest("li").show('fade');
       
@@ -84,12 +84,7 @@
         $("#CoEnrollmentFlowDuplicateMode").closest("li").hide('fade');
       }
     } else {
-      $("#CoEnrollmentFlowInvitationValidity").closest("li").hide('fade');
-      $("#CoEnrollmentFlowVerificationTemplateId").closest("li").hide('fade');
-      $("#CoEnrollmentFlowVerificationSubject").closest("li").hide('fade');
-      $("#CoEnrollmentFlowVerificationBody").closest("li").hide('fade');
-      $("#CoEnrollmentFlowRequireAuthn").closest("li").hide('fade');
-      $("#CoEnrollmentFlowDuplicateMode").closest("li").hide('fade');
+      $("#CoEnrollmentFlowInvitationValidity").closest("ul.field-children").hide('fade');
     }
     
     tandc_update_gadgets();

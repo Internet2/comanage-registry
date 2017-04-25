@@ -46,7 +46,7 @@ h1 {
 }
 h1.loginMsg {
   font-size: 1.8em;
-  margin-top: 2em;
+  margin: 1em 0;
   text-align: center;
 }
 h1.firstPrompt {
@@ -98,16 +98,26 @@ a {
   background-color: #4796CC;
 }
 /* HEADER */
+#banner {
+  z-index: 4;
+}
 header.mdl-layout__header {
   display: block !important;  /* don't hide on mobile */
   background-color: #aed9f9;
 }
 .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
-  padding-left: 44px;
+  padding-left: 16px;
 }
 body.logged-out .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row,
 body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
   padding-left: 7px;
+}
+/* TOP MENU (BLACK BAR) */
+#top-menu {
+  position: relative;
+  line-height: 1.5em;
+  height: 30px;
+  background-color: #222;
 }
 /* USER DEFINED LINKS (top) */
 #user-defined-links-top  {
@@ -115,10 +125,15 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 }
 /* LOGO */
 #logo {
+  display: block;
   margin-top: 4px;
+  position: absolute;
+  right: 1em;
+  overflow: hidden;
+  width: 45px;
 }
 #logo img {
-  height: 24px;
+  height: 38px;
 }
 /* USER MENU */
 #user-menu {
@@ -128,13 +143,16 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
   z-index: 4;
 }
 body.logged-in #user-menu {
-  top: 12px;
+  top: 1px;
 }
 #user-menu #user,
 #user-menu #notifications,
 #user-menu #logout {
   float: left;
   position: relative;
+}
+.mdl-menu__container {
+  top: 26px !important;
 }
 #user-menu #user,
 #user-menu #logout {
@@ -144,16 +162,17 @@ body.logged-in #user-menu {
   display: none;
 }
 #user-menu a.topMenu {
-  color: #222;
+  color: #fff;
 }
 #user-menu .material-icons {
   vertical-align: bottom;
+  font-size: 23px;
 }
 #user-menu .icon-adjust {
   margin-right: -8px;
 }
 #user {
-  margin-top: 8px;
+  margin-top: 2px;
 }
 #user-links-menu li {
   text-align: center;
@@ -173,7 +192,11 @@ body.logged-in #user-menu {
 }
 /* NOTIFICATIONS */
 #notifications {
-  margin-top: 8px;
+  margin-top: 2px;
+}
+#user-notification-count {
+  position: relative;
+  top: -1px;
 }
 #notifications #notifications-menu {
   width: 220px;
@@ -229,7 +252,27 @@ form#notificationStatus {
 }
 /* LOGIN & LOGOUT */
 #login {
-  margin: 9px;
+  margin-top: -2px;
+  margin-right: 1em;
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Roboto","Helvetica","Arial",sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 36px;
+  min-width: 64px;
+  padding: 0 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+#welcome-login {
+  text-align: center;
+  margin: 1em auto;
 }
 /* hide logout button on mobile;
    instead, reveal in user menu */
@@ -310,6 +353,11 @@ form#notificationStatus {
   z-index: 100;
   padding-top: 0;
 }
+.mdl-layout__drawer-button {
+  color: white;
+  top: 42px;
+  left: -2px;
+}
 #main-menu {
   margin: 0;
   padding: 0 0 1em 0;
@@ -387,17 +435,19 @@ form#notificationStatus {
 }
 .custom-links a {
   display: block;
-  padding: 7px 7px 7px 20px;
+  padding: 8px 4px 8px 16px;
   color: #92B6D1;
 }
 /* CONTENT */
 #collaborationTitle {
-  background-color: #53b1f4; /* favorite blue */
-  /*background: #AED9F9; /* COmanage blue */
-  color: #fff; /* prefer #fff */
-  font-size: 20px;
+  color: #222;
+  font-size: 1.6em;
   min-height: 23px;
-  padding: 10px 0 8px 15px;
+  padding: 0 40px 0 0;
+  margin: 0;
+}
+#collaborationTitle a {
+  color: #222;
 }
 #breadcrumbs {
   font-size: 0.8em;
@@ -1593,7 +1643,8 @@ td.indented {
 }
 .mdl-button--accent.mdl-button--accent.mdl-button--raised,
 .mdl-button--accent.mdl-button--accent.mdl-button--fab {
-  background-color: #c33;
+  background-color: #c33; /* red */
+  /*background-color: #2BB673; green */
   color: #fff;
 }
 .mdl-data-table th,
