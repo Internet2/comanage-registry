@@ -253,7 +253,7 @@ form#notificationStatus {
 /* LOGIN & LOGOUT */
 #login {
   margin-top: -2px;
-  margin-right: 1em;
+  margin-right: 0;
   color: white;
   cursor: pointer;
   display: inline-block;
@@ -1644,7 +1644,7 @@ td.indented {
 .mdl-button--accent.mdl-button--accent.mdl-button--raised,
 .mdl-button--accent.mdl-button--accent.mdl-button--fab {
   background-color: #c33; /* red */
-  /*background-color: #2BB673; green */
+  /* background-color: #2BB673; /* green */
   color: #fff;
 }
 .mdl-data-table th,
