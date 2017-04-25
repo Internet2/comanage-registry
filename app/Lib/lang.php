@@ -1504,7 +1504,6 @@ original notification at
   'op.grm.title' =>   '%1$s %2$s Membership For %3$s',
   'op.history' =>     'View History',
   'op.home.login' =>  'Welcome to %1$s.',
-  'op.home.please' =>  'Please',
   'op.home.select' => 'Welcome to %1$s. Please select a collaboration.',
   'op.home.collabs' => 'Available Collaborations',
   'op.home.collabs.summary' => 'All collaborations in which user may participate',
