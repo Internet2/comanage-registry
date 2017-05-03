@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Invite Reply View
+ * COmanage Registry Test Confirmer Reply View
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,13 +21,13 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.1
+ * @since         COmanage Registry v3.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 ?>
 <?php if(!empty($invite)): ?>
 <?php
-  $params = array('title' => $title_for_layout);
+  $params = array('title' => 'Put Your Title Here');
   print $this->element("pageTitle", $params);
   
   $verifyEmail = !empty($invite['CoInvite']['email_address_id']);
@@ -39,23 +39,10 @@
       array(filter_var(generateCn($invitee['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))); ?>
   </span>
 
-<?php
-  if($verifyEmail) {
-    print "<p>" . _txt('fd.ev.verify.desc', array($invite['EmailAddress']['mail'])) . "</p>";
-  } elseif(empty($co_petitions)) {
-    // Default enrollment, put up some basic text
-    print "<p>" . _txt('em.invite.body', array($invitee['Co']['name'])) . "</p>";
-  }
-  
-  include "buttons.inc";
-?>
+  <?php
+    // Include the default confirmation buttons. This requires $invite and
+    // $co_enrollment_flow to be set by the controller.
+    include APP . DS . "View" . DS . "CoInvites" . DS . "buttons.inc";
+  ?>
 </div>
-
-<?php
-  $e = false;
-
-  if(isset($co_petitions)) {
-    include ("petition-attributes.inc");
-  }
-?>
 <?php endif;

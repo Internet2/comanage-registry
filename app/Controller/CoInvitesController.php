@@ -474,6 +474,31 @@ class CoInvitesController extends AppController {
         
         $this->set('co_enrollment_flow', $enrollmentFlow);
         
+        $plugins = $this->loadAvailablePlugins('confirmer', 'simple');
+        
+        // Make sure $plugins is in alphabetical order so we have some sort of order.
+        sort($plugins);
+        
+        if(!empty($plugins)) {
+          // Walk through the identified plugins until one decides it wants to handle the request.
+          
+          foreach($plugins as $plugin) {
+            if($this->$plugin->willHandle((!empty($invitee['Co']['id']) ? $invitee['Co']['id'] : null),
+                                   (!empty($invite['CoInvite']['id']) ? $invite['CoInvite'] : null),
+                                   (!empty($invite['CoPetition']['id']) ? $invite['CoPetition'] : null))) {
+              // Issue a redirect into the plugin
+              
+              $target = array();
+              $target['plugin'] = Inflector::underscore($plugin);
+              $target['controller'] = "test_confirmers";
+              $target['action'] = 'reply';
+              $target[] = $inviteid;
+              
+              $this->redirect($target);
+            }
+          }
+        }
+        
         $enrollmentAttributes = $this->CoInvite
                                      ->CoPetition
                                      ->CoEnrollmentFlow
