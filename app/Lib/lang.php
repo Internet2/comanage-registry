@@ -1270,6 +1270,8 @@ original notification at
   'fd.roles' =>       'Roles',
   'fd.room' =>        'Room',
   'fd.searchbase' =>  'Search Base',
+  'fd.set' =>         'Set',
+  'fd.set.not' =>     'Not Set',
   'fd.sshkey.comment' => 'Comment',
   'fd.sshkey.skey' => 'Key',
   'fd.sshkey.type' => 'Key Type',

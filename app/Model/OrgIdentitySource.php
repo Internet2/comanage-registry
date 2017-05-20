@@ -245,6 +245,7 @@ class OrgIdentitySource extends AppModel {
    * @throws RuntimeException
    */
   
+// XXX CO-1469 flip provision default to true? then maybe update CoPetitionsController to call w/false
   public function createOrgIdentity($id, $sourceKey, $actorCoPersonId=null, $coId=null, $targetCoPersonId=null, $provision=false) {
     // Unlike CoPipeline::syncOrgIdentityToCoPerson, we have a separate call
     // for create vs update. This is because $Backend->retrieve() will return
@@ -391,6 +392,23 @@ class OrgIdentitySource extends AppModel {
     // Otherwise, no pipeline to run, so just return success.
     
     return true;
+  }
+  
+  /**
+   * Instantiate the backend model for the specified Source.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $id Organizational Identity Source ID
+   * @return Model Plugin backend
+   * @throws InvalidArgumentException
+   */
+  
+  public function instantiateBackendModel($id) {
+    // We could just make bindPluginBackendModel public, but this
+    // allows a layer of indirection in case we need to change the
+    // internal (protected) call.
+    
+    return $this->bindPluginBackendModel($id);
   }
   
   /**
@@ -1205,6 +1223,7 @@ class OrgIdentitySource extends AppModel {
                                                        $newKey,
                                                        null,
                                                        $orgIdentitySource['OrgIdentitySource']['co_id']);
+// XXX CO-1469 provision?
           
           $resCnt['new']++;
           
@@ -1396,6 +1415,7 @@ class OrgIdentitySource extends AppModel {
                                                          $sourceKey,
                                                          null,
                                                          $orgIdentitySource['OrgIdentitySource']['co_id']);
+// XXX CO-1469 provision?
             
             $resCnt['new']++;
             

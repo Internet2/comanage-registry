@@ -122,36 +122,54 @@ if(isset($permissions['search']) && $permissions['search'] ) {
 
       <td class="actions">
         <?php
-        if($permissions['edit']) {
-          print $this->Html->link(
-              _txt('op.edit'),
-              array(
-                'controller' => 'org_identities',
-                'action' => 'edit',
-                $p['OrgIdentity']['id']
-              ),
-              array('class' => 'editbutton spin')
-            ) . "\n";
-        }
-        if($permissions['delete']) {
-          print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-            . '" onclick="javascript:js_confirm_generic(\''
-            . _txt('js.remove') . '\',\''    // dialog body text
-            . $this->Html->url(              // dialog confirm URL
-              array(
-                'controller' => 'org_identities',
-                'action' => 'delete',
-                $p['OrgIdentity']['id']
-              )
-            ) . '\',\''
-            . _txt('op.remove') . '\',\''    // dialog confirm button
-            . _txt('op.cancel') . '\',\''    // dialog cancel button
-            . _txt('op.remove') . '\',[\''   // dialog title
-            . filter_var(_jtxt(generateCn($p['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-            . '\']);">'
-            . _txt('op.delete')
-            . '</button>';
-        }
+          if(!empty($p['OrgIdentitySourceRecord']['id'])) {
+            // This Org Identity came from an OIS and so can't be edited
+            // (but it can be deleted)
+            
+            if($permissions['view']) {
+              print $this->Html->link(
+                  _txt('op.view'),
+                  array(
+                    'controller' => 'org_identities',
+                    'action' => 'view',
+                    $p['OrgIdentity']['id']
+                  ),
+                  array('class' => 'viewbutton spin')
+                ) . "\n";
+            }
+          } else {
+            if($permissions['edit']) {
+              print $this->Html->link(
+                  _txt('op.edit'),
+                  array(
+                    'controller' => 'org_identities',
+                    'action' => 'edit',
+                    $p['OrgIdentity']['id']
+                  ),
+                  array('class' => 'editbutton spin')
+                ) . "\n";
+            }
+          }
+          
+          if($permissions['delete']) {
+            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.remove') . '\',\''    // dialog body text
+              . $this->Html->url(              // dialog confirm URL
+                array(
+                  'controller' => 'org_identities',
+                  'action' => 'delete',
+                  $p['OrgIdentity']['id']
+                )
+              ) . '\',\''
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\',[\''   // dialog title
+              . filter_var(_jtxt(generateCn($p['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+              . '\']);">'
+              . _txt('op.delete')
+              . '</button>';
+          }
         ?>
         <?php ; ?>
       </td>

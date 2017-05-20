@@ -88,20 +88,12 @@ class CoGroupOisMappingsController extends StandardController {
       // Find the OIS id
       $ois_id = $this->viewVars['vv_ois_id'];
       
-      // Pull the OIS and find the associated plugin. Then query the plugin to see
-      // what attributes it is willing to map to group memberships.
+      // Instantiate the backend to get the available group mapping attributes.
       
-      $args = array();
-      $args['conditions']['OrgIdentitySource.id'] = $ois_id;
-      $args['contain'] = false;
-      
-      $ois = $this->CoGroupOisMapping->OrgIdentitySource->find('first', $args);
-      
-      if(!empty($ois['OrgIdentitySource']['plugin'])) {
-        $plugin = $ois['OrgIdentitySource']['plugin'];
-        $bmodel = $plugin . 'Backend';
-        $this->loadModel($plugin . '.' . $bmodel);
-        $this->set('vv_ois_group_attrs', $this->$bmodel->groupableAttributes());
+      try {
+        $Backend = $this->CoGroupOisMapping->OrgIdentitySource->instantiateBackendModel($ois_id);
+        
+        $this->set('vv_ois_group_attrs', $Backend->groupableAttributes());
         
         // And provide the available set of groups to query
         $args = array();
@@ -112,6 +104,9 @@ class CoGroupOisMappingsController extends StandardController {
         $args['contain'] = false;
         
         $this->set('vv_groups', $this->CoGroupOisMapping->CoGroup->find('list', $args));
+      }
+      catch(Exception $e) {
+        // Just fail silently
       }
     }
     

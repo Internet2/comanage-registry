@@ -83,26 +83,17 @@ class OrgIdentitySourcesController extends StandardController {
     
     $plugins = $this->loadAvailablePlugins('orgidsource');
     
-    $pluginGroupAttrs = array();
-    
     // Bind the models so Cake can magically pull associated data. Note this will
     // create associations with *all* orgid source plugins, not just the one that
     // is actually associated with this Org Identity Source. Given that most installations
     // will only have a handful of source plugins, that seems OK (vs parsing the request
-    // data to figure out which type of Plugin we should bind). Also, it turns out
-    // we need to load the plugins anyway so we can see if they want us to manage
-    // their group mappings.
+    // data to figure out which type of Plugin we should bind).
     
     foreach(array_values($plugins) as $plugin) {
       $relation = array('hasOne' => array($plugin => array('dependent' => true)));
       
       // Set reset to false so the bindings don't disappear after the first find
       $this->OrgIdentitySource->bindModel($relation, false);
-      
-      // Look for group attributes
-      $bmodel = $plugin . 'Backend';
-      $this->loadModel($plugin . '.' . $bmodel);
-      $pluginGroupAttrs[ $plugin ] = $this->$bmodel->groupableAttributes();
       
       // Make this plugin containable
       $this->edit_contains[] = $plugin;
@@ -111,14 +102,30 @@ class OrgIdentitySourcesController extends StandardController {
     
     $this->set('plugins', $plugins);
     
-    if(!$pool) {
-      // Group mappings only fire via pipelines, which only work when not pooled
-      $this->set('vv_plugin_group_attrs', $pluginGroupAttrs);
-    }
-    
     if(!empty($this->request->params['pass'][0])
        && is_numeric($this->request->params['pass'][0])) {
       // Pull the plugin information associated with the ID
+      
+      // Pull OIS group mappings, but as they only fire via pipelines,
+      // (which only work when not pooled) check the pooled status.
+      
+      if(!$pool) {
+        try {
+          $Backend = $this->OrgIdentitySource->instantiateBackendModel($this->request->params['pass'][0]);
+          
+          // With the backend instantiated we can see if the instance supports groupable attributes
+          
+          if(!$pool) {
+            // Group mappings only fire via pipelines, which only work when not pooled
+            $this->set('vv_plugin_group_attrs', $Backend->groupableAttributes());
+          }
+        }
+        catch(Exception $e) {
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+          $this->performRedirect();
+        }
+      }
+      
       $args = array();
       $args['conditions']['OrgIdentitySource.id'] = $this->request->params['pass'][0];
       $args['contain'] = $this->edit_contains;
@@ -253,6 +260,7 @@ class OrgIdentitySourcesController extends StandardController {
                                                              $this->Session->read('Auth.User.co_person_id'),
                                                              $coId,
                                                              $targetCoPersonId);
+// XXX CO-1469 provision if no petitionid?
         
         if(!empty($this->request->params['named']['copetitionid'])) {
           // Redirect back into the enrollment flow to link the identity
