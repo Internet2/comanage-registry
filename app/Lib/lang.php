@@ -1067,6 +1067,8 @@ original notification at
   'fd.ef.px.desc' =>  'Executable to call to initiate user provisioning',
   'fd.ef.rd.confirm' => 'Confirmation Redirect URL',
   'fd.ef.rd.confirm.desc' => 'URL to redirect to after the email address associated with the Petition is confirmed. Leave blank for account linking enrollment.',
+  'fd.ef.rd.finalize' => 'Finalization Redirect URL',
+  'fd.ef.rd.finalize.desc' => 'URL to redirect to after processing of the enrollment has completed.',
   'fd.ef.rd.submit' => 'Submission Redirect URL',
   'fd.ef.rd.submit.desc' => 'URL to redirect to after Petition is submitted by someone who is not already in the CO.',
   'fd.ef.saml' =>     'Enable SAML Attribute Extraction',

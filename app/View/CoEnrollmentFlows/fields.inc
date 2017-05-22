@@ -813,6 +813,19 @@
         : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_confirm'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('redirect_on_finalize', _txt('fd.ef.rd.finalize')) : _txt('fd.ef.rd.finalize')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.rd.finalize.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('redirect_on_finalize', array('size' => 60))
+        : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_finalize'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
   <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
   <li>
     <div class="field-name">

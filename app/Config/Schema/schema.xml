@@ -1213,6 +1213,7 @@
     <field name="t_and_c_mode" type="C" size="2" />
     <field name="redirect_on_submit" type="C" size="256" />
     <field name="redirect_on_confirm" type="C" size="256" />
+    <field name="redirect_on_finalize" type="C" size="256" />
     <field name="ignore_authoritative" type="L" />
     <field name="duplicate_mode" type="C" size="2" />
     <field name="co_theme_id" type="I">
