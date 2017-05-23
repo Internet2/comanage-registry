@@ -224,7 +224,8 @@
     <div class="field-info field-email">
       <?php
         $fieldString = filter_var($co_notifications[0]['CoNotification']['email_body'], FILTER_SANITIZE_STRING);
-        $regexUrlFinder = "/(http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/";
+        //$regexUrlFinder = "/(http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/";
+        $regexUrlFinder = "/(http|https)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]*(\/\S*)?/";
         foreach (explode(PHP_EOL, $fieldString) as $line) {
           if (trim($line)) {
             print '<p>';

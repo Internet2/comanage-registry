@@ -159,6 +159,9 @@
   #dialog-review {
     height: auto !important; /* desktop size */
   }
+  #ui-datepicker-div {
+    left: 30% !important;
+  }
   /* MATCHABLE INFO BOX */
   .co-info-matchable {
     float: right;
@@ -212,6 +215,30 @@
     top: 94px;
   }
   .mdl-layout__drawer-button {
+    display: none; /* never show native mdl drawer button on desktop - we use custom behavior */
+  }
+  /* show our custom navigation icon for shrinking and expanding the drawer in desktop mode */
+  #desktop-hamburger {
+    display: inline-block;
+    float: left;
+    position: relative;
+    top: 3px;
+    margin: 0;
+    padding: 0 0 0 12px;
+    cursor: pointer;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* menu drawer half-closed styles */
+  #navigation-drawer.half-closed {
+    width: 48px;
+    transition: width 0.1s ease;
+  }
+  #main.drawer-half-closed {
+    margin-left: 48px !important;
+    transition: margin 0.1s ease;
+  }
+  #navigation-drawer.half-closed .menuTitle,
+  #navigation-drawer.half-closed .arrow {
     display: none;
   }
   /* mdl content overrides */
@@ -378,7 +405,7 @@
     width: 250px;
   }
   #co_people .person-status {
-    width: 150px;
+    width: auto;
   }
   #right-sidebar #menu {
     padding-left: 1em;

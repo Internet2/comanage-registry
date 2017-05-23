@@ -46,8 +46,7 @@
 
     <!-- Load CSS -->
     <?php
-      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui.min') . "\n    ";
-      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui-comanage-overrides') . "\n    ";
+      print $this->Html->css('jquery/jquery-ui-1.12.1.custom/jquery-ui.min') . "\n    ";
       print $this->Html->css('mdl/mdl-1.2.0/material.css') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
@@ -55,8 +54,8 @@
 
     <!-- Load JavaScript -->
     <?php /* only JQuery here - other scripts at bottom */
-      print $this->Html->script('jquery/jquery-1.11.3.min.js') . "\n    ";
-      print $this->Html->script('jquery/jquery-ui-1.11.4.custom/jquery-ui.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-3.2.1.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js') . "\n    ";
     ?>
 
     <!-- Include external files and scripts -->

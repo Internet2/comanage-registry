@@ -53,8 +53,7 @@
 
     <!-- Load CSS -->
     <?php
-      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui.min') . "\n    ";
-      print $this->Html->css('jquery/jquery-ui-1.11.4.custom/jquery-ui-comanage-overrides') . "\n    ";
+      print $this->Html->css('jquery/jquery-ui-1.12.1.custom/jquery-ui.min') . "\n    ";
       print $this->Html->css('mdl/mdl-1.2.0/material.min.css') . "\n    ";
       print $this->Html->css('jquery/metisMenu/metisMenu.min.css') . "\n    ";
       print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
@@ -69,8 +68,8 @@
 
     <!-- Load JavaScript -->
     <?php /* only JQuery here - other scripts at bottom */
-      print $this->Html->script('jquery/jquery-1.11.3.min.js') . "\n    ";
-      print $this->Html->script('jquery/jquery-ui-1.11.4.custom/jquery-ui.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-3.2.1.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js') . "\n    ";
     ?>
 
     <!-- Include external files and scripts -->
@@ -171,6 +170,9 @@
         </div>
 
         <div id="top-menu">
+          <?php if($this->Session->check('Auth.User')): ?>
+            <div id="desktop-hamburger"><i class="material-icons">menu</i></div>
+          <?php endif; ?>
           <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
             <div id="user-defined-links-top">
               <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>

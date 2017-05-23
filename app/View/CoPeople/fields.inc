@@ -962,10 +962,10 @@
             }
           ?>
           <a href="#tabs-role" class="fieldGroupName">
-            <i class="material-icons">add_box</i>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('fd.attrs.copr'); ?>
           </a>
-          <ul id="tabs-role" class="fields data-list data-table" style="display: none;">
+          <ul id="tabs-role" class="fields data-list data-table">
             <li>
               <?php if($this->action != "invite"): ?>
                 <!-- Person Role Data -->
@@ -1095,10 +1095,10 @@
             }
           ?>
           <a href="#tabs-sshkeys" class="fieldGroupName">
-            <i class="material-icons">add_box</i>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('ct.ssh_keys.pl'); ?>
           </a>
-          <ul id="tabs-sshkeys" class="fields data-list" style="display: none;">
+          <ul id="tabs-sshkeys" class="fields data-list">
 
             <?php
             if($e)
@@ -1167,10 +1167,10 @@
             }
           ?>
           <a href="#tabs-orgid" class="fieldGroupName">
-            <i class="material-icons">add_box</i>
+            <i class="material-icons">indeterminate_check_box</i>
             <?php print _txt('ct.org_identities.pl'); ?>
           </a>
-          <ul id="tabs-orgid" class="fields data-list data-table" style="display: none;">
+          <ul id="tabs-orgid" class="fields data-list data-table">
             <li>
               <!-- Org Identity Data -->
               <table id="<?php print $this->action; ?>_org_identities">

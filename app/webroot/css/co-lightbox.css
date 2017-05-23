@@ -30,7 +30,9 @@
 
 body {
   background-color: white;
-  padding: 3em 4.5em 0;
+}
+#lightboxContent {
+  margin: 3em 4em;
 }
 h1 {
   font-size: 1.4em;

@@ -158,14 +158,14 @@
                     'action'     => 'logout',
                     'plugin'     => false);
       print $this->Html->link(_txt('op.logout') . ' <span class="fa fa-sign-out"></span>',
-            $args, array('escape'=>false, 'id' => 'logout', 'class' => $buttonClasses));
+            $args, array('escape'=>false, 'id' => 'logout', 'class' => ''));
     } else {
       $args = array('controller' => 'auth',
                     'action'     => 'login',
                     'plugin'     => false
                    );
       print $this->Html->link(_txt('op.login') . ' <span class="fa fa-sign-in"></span>',
-            $args, array('escape'=>false, 'id' => 'login', 'class' => $buttonClasses));
+            $args, array('escape'=>false, 'id' => 'login', 'class' => ''));
     }
   ?>
 <?php endif; ?>
