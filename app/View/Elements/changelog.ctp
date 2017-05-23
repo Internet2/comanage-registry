@@ -111,7 +111,7 @@
 
     <?php if(${$modelpl}[0][$req]['deleted']): ?>
       // Add "Deleted" text next to page title, if we're looking at a deleted entity
-      $(".pageTitle h2").append('<span class="deleted"><?php print _txt('fd.deleted'); ?></span>');
+      $(".pageTitle h1").append('<span class="deleted"><?php print _txt('fd.deleted'); ?></span>');
     <?php endif ?>
   });
 </script>
