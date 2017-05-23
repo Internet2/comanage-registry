@@ -318,11 +318,10 @@ class CoExtendedAttributesController extends StandardController {
           $dbc->rollback($this);
           return(false);
         }
-        
-        $sql = "ALTER TABLE "
-             . $this->CoExtendedAttribute->tablePrefix . "co_" . $reqdata['CoExtendedAttribute']['co_id'] . "_person_extended_attributes
-                RENAME COLUMN " . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
-             . " TO " . $reqdata['CoExtendedAttribute']['name'];
+
+          $sql = "ALTER TABLE " . $cotable . " RENAME COLUMN "
+              . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
+              . " TO " . $reqdata['CoExtendedAttribute']['name'];
       
         if($this->CoExtendedAttribute->query($sql) === false) {
           if($this->request->is('restful')) {
