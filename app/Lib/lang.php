@@ -75,6 +75,7 @@ $cm_texts['en_US'] = array(
   'ct.authentication_events.pl' => 'Authentication Events',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
+  'ct.co_configuration.1'  => 'Configuration for %1$s',
   'ct.co_enrollment_attributes.1'  => 'Enrollment Attribute',
   'ct.co_enrollment_attributes.pl' => 'Enrollment Attributes',
   'ct.co_enrollment_flows.1'  => 'Enrollment Flow',

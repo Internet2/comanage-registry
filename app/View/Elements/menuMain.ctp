@@ -239,12 +239,26 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       if ($permissions['menu']['coconfig']) {
         print '<li class="configMenu">';
 
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_configuration';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+
+        print $this->Html->link('<i class="material-icons">build</i><span class="menuTitle">' . _txt('me.configuration') . '</span><span class="mdl-ripple"></span>',
+          $args, array('escape' => false, 'class' => 'mdl-js-ripple-effect'));
+
+        /*
+         * XXX keep the following code block temporarily.
+         * XXX This section has been moved to the co_configuration view page.
+         *
         print '<a class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
         print '<i class="material-icons">build</i>';
         print '<span class="menuTitle">' . _txt('me.configuration') . '</span>';
         print '<span class="fa arrow fa-fw"></span>';
         print '<span class="mdl-ripple"></span>';
         print '</a>';
+
         print '<ul aria-expanded="false">';
         
         if (isset($permissions['menu']['cosettings']) && $permissions['menu']['cosettings']) {
@@ -496,6 +510,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         }
 
         print "</ul>";
+        */
         print "</li>";
       }
     }

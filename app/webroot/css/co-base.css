@@ -524,6 +524,11 @@ body.co_people.canvas #titleNavContainer {
   margin-left: 1.5em;
   line-height: 1.2em;
 }
+/* INNER CONTENT - for non-table-based layouts */
+.inner-content {
+  clear: both;
+  margin-top: 1em;
+}
 /* REDIRECT PAGE */
 #redirect-box {
   background-color: #f5f5f5;
@@ -543,6 +548,15 @@ body.co_people.canvas #titleNavContainer {
 }
 #fpCoList .mdl-grid.co-row:hover {
   background-color: #eee;
+}
+/* CONFIGURATION PAGE */
+#configuration-menu {
+  padding: 1em;
+  margin: 0;
+}
+#configuration-menu li {
+  list-style: none;
+  margin-bottom: 0.5em;
 }
 /* ENROLLMENT FLOW STEPS */
 #enrollmentFlowIntro {
