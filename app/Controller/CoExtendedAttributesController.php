@@ -319,10 +319,17 @@ class CoExtendedAttributesController extends StandardController {
           return(false);
         }
 
-          $sql = "ALTER TABLE " . $cotable . " RENAME COLUMN "
-              . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
-              . " TO " . $reqdata['CoExtendedAttribute']['name'];
-      
+        if ($dbc->config['datasource'] === 'Database/Mysql') {
+            $sql = "ALTER TABLE " . $cotable . " CHANGE "
+                . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
+                . " " . $reqdata['CoExtendedAttribute']['name']
+                . " " . $reqdata['CoExtendedAttribute']['type'];
+        } else {
+            $sql = "ALTER TABLE " . $cotable . " RENAME COLUMN "
+                . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
+                . " TO " . $reqdata['CoExtendedAttribute']['name'];
+        }
+
         if($this->CoExtendedAttribute->query($sql) === false) {
           if($this->request->is('restful')) {
             $this->Api->restResultHeader(500, "Database Error");
