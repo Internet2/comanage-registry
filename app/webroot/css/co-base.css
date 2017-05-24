@@ -46,7 +46,7 @@ h1 {
 }
 h1.loginMsg {
   font-size: 1.8em;
-  margin-top: 2em;
+  margin: 1em 0;
   text-align: center;
 }
 h1.firstPrompt {
@@ -98,16 +98,29 @@ a {
   background-color: #4796CC;
 }
 /* HEADER */
+#banner {
+  z-index: 4;
+}
 header.mdl-layout__header {
   display: block !important;  /* don't hide on mobile */
   background-color: #aed9f9;
 }
 .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
-  padding-left: 44px;
+  padding-left: 16px;
 }
 body.logged-out .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row,
 body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
   padding-left: 7px;
+}
+/* TOP MENU (BLACK BAR) */
+#top-menu {
+  position: relative;
+  line-height: 1.5em;
+  height: 30px;
+  background-color: #222;
+}
+#desktop-hamburger {
+  display: none; /* hide our custom drawer toggle on mobile where we will expose the MDL drawer toggle */
 }
 /* USER DEFINED LINKS (top) */
 #user-defined-links-top  {
@@ -115,10 +128,15 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 }
 /* LOGO */
 #logo {
+  display: block;
   margin-top: 4px;
+  position: absolute;
+  right: 1em;
+  overflow: hidden;
+  width: 45px;
 }
 #logo img {
-  height: 24px;
+  height: 38px;
 }
 /* USER MENU */
 #user-menu {
@@ -128,13 +146,16 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
   z-index: 4;
 }
 body.logged-in #user-menu {
-  top: 12px;
+  top: 1px;
 }
 #user-menu #user,
 #user-menu #notifications,
 #user-menu #logout {
   float: left;
   position: relative;
+}
+.mdl-menu__container {
+  top: 26px !important;
 }
 #user-menu #user,
 #user-menu #logout {
@@ -144,16 +165,17 @@ body.logged-in #user-menu {
   display: none;
 }
 #user-menu a.topMenu {
-  color: #222;
+  color: #fff;
 }
 #user-menu .material-icons {
   vertical-align: bottom;
+  font-size: 23px;
 }
 #user-menu .icon-adjust {
   margin-right: -8px;
 }
 #user {
-  margin-top: 8px;
+  margin-top: 2px;
 }
 #user-links-menu li {
   text-align: center;
@@ -173,7 +195,11 @@ body.logged-in #user-menu {
 }
 /* NOTIFICATIONS */
 #notifications {
-  margin-top: 8px;
+  margin-top: 2px;
+}
+#user-notification-count {
+  position: relative;
+  top: -1px;
 }
 #notifications #notifications-menu {
   width: 220px;
@@ -229,7 +255,27 @@ form#notificationStatus {
 }
 /* LOGIN & LOGOUT */
 #login {
-  margin: 9px;
+  margin-top: -2px;
+  margin-right: 0;
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Roboto","Helvetica","Arial",sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 36px;
+  min-width: 64px;
+  padding: 0 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+#welcome-login {
+  text-align: center;
+  margin: 1em auto;
 }
 /* hide logout button on mobile;
    instead, reveal in user menu */
@@ -310,6 +356,11 @@ form#notificationStatus {
   z-index: 100;
   padding-top: 0;
 }
+.mdl-layout__drawer-button {
+  color: white;
+  top: 42px;
+  left: -2px;
+}
 #main-menu {
   margin: 0;
   padding: 0 0 1em 0;
@@ -387,17 +438,19 @@ form#notificationStatus {
 }
 .custom-links a {
   display: block;
-  padding: 7px 7px 7px 20px;
+  padding: 8px 4px 8px 16px;
   color: #92B6D1;
 }
 /* CONTENT */
 #collaborationTitle {
-  background-color: #53b1f4; /* favorite blue */
-  /*background: #AED9F9; /* COmanage blue */
-  color: #fff; /* prefer #fff */
-  font-size: 20px;
+  color: #222;
+  font-size: 1.6em;
   min-height: 23px;
-  padding: 10px 0 8px 15px;
+  padding: 0 40px 0 0;
+  margin: 0;
+}
+#collaborationTitle a {
+  color: #222;
 }
 #breadcrumbs {
   font-size: 0.8em;
@@ -430,10 +483,6 @@ body.co_people.canvas #titleNavContainer {
   float: left;
   margin: 0.6em 0 0;
   padding: 0;
-}
-#topLinks .ui-icon {
-  float: left;
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_217bc0_256x240.png");
 }
 #topLinks.ui-widget-content {
   border: none;
@@ -475,6 +524,11 @@ body.co_people.canvas #titleNavContainer {
   margin-left: 1.5em;
   line-height: 1.2em;
 }
+/* INNER CONTENT - for non-table-based layouts */
+.inner-content {
+  clear: both;
+  margin-top: 1em;
+}
 /* REDIRECT PAGE */
 #redirect-box {
   background-color: #f5f5f5;
@@ -494,6 +548,15 @@ body.co_people.canvas #titleNavContainer {
 }
 #fpCoList .mdl-grid.co-row:hover {
   background-color: #eee;
+}
+/* CONFIGURATION PAGE */
+#configuration-menu {
+  padding: 1em;
+  margin: 0;
+}
+#configuration-menu li {
+  list-style: none;
+  margin-bottom: 0.5em;
 }
 /* ENROLLMENT FLOW STEPS */
 #enrollmentFlowIntro {
@@ -892,8 +955,9 @@ body.co_petitions .ui-dialog {
 }
 #co_people .ui-accordion .ui-accordion-header .ui-accordion-header-icon {
   /* override jquery default icon positioning */
-  margin-top: 0;
-  top: 14px;
+  float: left;
+  margin: 0 0.5em 0 0;
+  top: 6px;
 }
 #co_people .ui-accordion .ui-accordion-content {
   padding: 0;
@@ -1418,6 +1482,13 @@ ul.form-list li.field-stack textarea {
 #ui-datepicker-div {
   top: 0 !important;
 }
+.ui-datepicker select.ui-datepicker-month-year {
+  width: 100%;
+}
+.ui-datepicker select.ui-datepicker-month,
+.ui-datepicker select.ui-datepicker-year {
+  width: 49%;
+}
 /* XXX determine which among the following five rules are still in use */
 .required-info {
   float: left;
@@ -1496,6 +1567,7 @@ a.desc::before {
 }
 .ui-button {
   font-size: 0.9em !important;
+  padding: 0.3em 0.75em 0.3em 0.5em;
 }
 .co-grid {
   clear: both;
@@ -1593,7 +1665,8 @@ td.indented {
 }
 .mdl-button--accent.mdl-button--accent.mdl-button--raised,
 .mdl-button--accent.mdl-button--accent.mdl-button--fab {
-  background-color: #c33;
+  background-color: #c33; /* red */
+  /* background-color: #2BB673; /* green */
   color: #fff;
 }
 .mdl-data-table th,

@@ -31,9 +31,6 @@
 /**************************************************************************************************************/
 /* Larger phones (e.g. Samsung Galaxy) in portrait mode */
 @media only screen and (min-width: 360px) {
-  #logo img {
-    height: 30px;
-  }
   #notifications {
     margin-right: 4px;
   }
@@ -43,9 +40,6 @@
 /**************************************************************************************************************/
 /* Small phones in landscape mode  */
 @media only screen and (min-width: 480px) {
-  #logo img {
-    height: 38px;
-  }
   #notifications {
     margin-right: 12px;
   }
@@ -70,6 +64,8 @@
   }
   #user-common-name {
     display: inline;
+    position: relative;
+    top: -1px;
   }
   #user-links-cn {
     display: none;
@@ -163,6 +159,9 @@
   #dialog-review {
     height: auto !important; /* desktop size */
   }
+  #ui-datepicker-div {
+    left: 30% !important;
+  }
   /* MATCHABLE INFO BOX */
   .co-info-matchable {
     float: right;
@@ -198,11 +197,9 @@
     margin-left: 0;
     width: auto;
   }
-  .mdl-layout__header {
-    height: 64px !important; /* layout override */
-  }
   .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
-     padding-left: 12px;
+    padding-left: 12px;
+    height: 64px;
   }
   /* navigation / side drawer */
   /* mdl drawer overrides - change the drawer breakpoint from 1025 to 840 */
@@ -215,17 +212,40 @@
     box-shadow: none; /* use no shadow on desktop menu */
   }
   body.logged-in.with-user-defined-links .mdl-layout__drawer {
-    top: 91px;
+    top: 94px;
   }
   .mdl-layout__drawer-button {
+    display: none; /* never show native mdl drawer button on desktop - we use custom behavior */
+  }
+  /* show our custom navigation icon for shrinking and expanding the drawer in desktop mode */
+  #desktop-hamburger {
+    display: inline-block;
+    float: left;
+    position: relative;
+    top: 3px;
+    margin: 0;
+    padding: 0 0 0 12px;
+    cursor: pointer;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* menu drawer half-closed styles */
+  #navigation-drawer.half-closed {
+    width: 48px;
+    transition: width 0.1s ease;
+  }
+  #main.drawer-half-closed {
+    margin-left: 48px !important;
+    transition: margin 0.1s ease;
+  }
+  #navigation-drawer.half-closed .menuTitle,
+  #navigation-drawer.half-closed .arrow {
     display: none;
   }
   /* mdl content overrides */
   .mdl-layout__content {
     margin-left: 240px !important;
-    margin-top: -64px;
     position: relative;
-    z-index: 20;
+    z-index: 3;
     background-color: white;
   }
   #main.mdl-layout__content {
@@ -242,13 +262,11 @@
 
   /* HEADER */
   #logo {
-    margin-top: 11px;
+    width: auto;
+    right: 2em;
   }
   #user-menu {
     z-index: 30;
-  }
-  body.logged-in.with-user-defined-links #user-menu {
-    top: 35px;
   }
   #user-menu a.topMenu {
     color: white;
@@ -259,9 +277,6 @@
   #notifications #notifications-menu {
     width: 400px;
   }
-  #login {
-    margin-top: 14px;
-  }
   /* USER DEFINED LINKS (top) */
   #user-defined-links-left {
     display: none;
@@ -270,7 +285,8 @@
     display: block;
     background-color: #222;
     color: white;
-    min-height: 27px; /* essential */
+    /* min-height: 27px; /* essential */
+
   }
   #user-defined-links-top .custom-links li {
     display: inline-block;
@@ -379,6 +395,24 @@
     bottom: 1em;
     right: 1em;
   }
+  /* GENERAL */
+  .two-col {
+    -webkit-column-count: 2; /* Chrome, Safari, Opera */
+    -moz-column-count: 2; /* Firefox */
+    column-count: 2;
+    -webkit-column-gap: 20px; /* Chrome, Safari, Opera */
+    -moz-column-gap: 20px; /* Firefox */
+    column-gap: 20px;
+  }
+  .three-col {
+    -webkit-column-count: 3; /* Chrome, Safari, Opera */
+    -moz-column-count: 3; /* Firefox */
+    column-count: 3;
+    -webkit-column-gap: 20px; /* Chrome, Safari, Opera */
+    -moz-column-gap: 20px; /* Firefox */
+    column-gap: 20px;
+  }
+
 }
 
 /* MEDIUM DESKTOP */
@@ -389,7 +423,7 @@
     width: 250px;
   }
   #co_people .person-status {
-    width: 150px;
+    width: auto;
   }
   #right-sidebar #menu {
     padding-left: 1em;
@@ -408,9 +442,6 @@
 /**************************************************************************************************************/
 /* Mid to large devices (desktops, 1024px and up) */
 @media only screen and (min-width: 1024px) {
-  #logo {
-    margin-top: 4px;
-  }
   #co_people .person-info-inner {
     width: 300px;
   }

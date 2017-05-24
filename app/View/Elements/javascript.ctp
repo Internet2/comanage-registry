@@ -37,9 +37,36 @@
 
     // MDL prematurely marks all required=true fields with "is-invalid" class.
     // Remove it. Must be done after MDL scripts have run (hence, window.load)
-    $(window).load(function() {
+    $(window).on('load', function() {
       $('.mdl-textfield').removeClass('is-invalid');
     });
+
+    // DESKTOP MENU DRAWER BEHAVIOR
+    // Check the drawer half-closed cookie on first load and set the drawer state appropriately
+    if (Cookies.get("desktop-drawer-state") == "half-closed") {
+      $("#navigation-drawer").addClass("half-closed");
+      $("#main").addClass("drawer-half-closed");
+    }
+
+    // Desktop hamburger menu-drawer toggle
+    $('#desktop-hamburger').click(function () {
+      $("#navigation-drawer").toggleClass("half-closed");
+      $("#main").toggleClass("drawer-half-closed");
+      // set a cookie to hold drawer half-open state between requests
+      if( $("#navigation-drawer").hasClass("half-closed")) {
+        Cookies.set("desktop-drawer-state", "half-closed");
+      } else {
+        Cookies.set("desktop-drawer-state", "open");
+      }
+    });
+
+    // Desktop half-closed drawer behavior
+    $('#navigation-drawer a.menuTop').click(function () {
+      if (Cookies.get("desktop-drawer-state") == "half-closed") {
+        $("#navigation-drawer").toggleClass("half-closed");
+      }
+    });
+    // END DESKTOP MENU DRAWER BEHAVIOR
 
     // Accordion
     $(".accordion").accordion();
@@ -118,7 +145,10 @@
       text: true
     });
 
-    $(".editbutton").button({
+    $(".editbutton").button(
+      {  classes: {
+      "ui-button": "highlight"
+      },
       icons: {
         primary: 'ui-icon-pencil'
       },

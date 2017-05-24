@@ -91,7 +91,7 @@
     <?php foreach ($co_notifications as $c): ?>
     <tr class="line<?php print ($i % 2)+1; ?>">
       <td><?php print filter_var($c['CoNotification']['action'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-      <td><?php print $this->Html->link(filter_var($c['CoNotification']['comment'],FILTER_SANITIZE_SPECIAL_CHARS),
+      <td><?php print $this->Html->link($c['CoNotification']['comment'],
                                         array(
                                           'controller' => 'co_notifications',
                                           'action'     => 'view',

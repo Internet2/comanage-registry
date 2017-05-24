@@ -44,19 +44,20 @@
     <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
 
-    <!-- Include the comanage and jquery style sheets -->
+    <!-- Load CSS -->
     <?php
-    print $this->Html->css('jquery/ui/css/comanage-theme/jquery-ui-1.10.0.comanage');
-    print $this->Html->css('jquery/superfish/css/superfish');
+    print $this->Html->css('jquery/jquery-ui-1.12.1.custom/jquery-ui.min') . "\n    ";
+    print $this->Html->css('mdl/mdl-1.2.0/material.min.css') . "\n    ";
+    print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
     print $this->Html->css('co-base');
     print $this->Html->css('co-responsive');
     print $this->Html->css('co-lightbox');
     ?>
 
-    <!-- Get jquery code -->
+    <!-- Load JavaScript -->
     <?php
-    print $this->Html->script('jquery/ui/js/jquery-1.9.0.js');
-    print $this->Html->script('jquery/ui/js/jquery-ui-1.10.0.custom.min.js');
+    print $this->Html->script('jquery/jquery-3.2.1.min.js') . "\n    ";
+    print $this->Html->script('jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js') . "\n    ";
     print $this->Html->script('jquery/spin.min.js');
     ?>
 

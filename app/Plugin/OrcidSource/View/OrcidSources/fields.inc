@@ -53,17 +53,6 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print _txt('pl.orcidsource.description'); ?>
-        <span class="required">*</span>
-      </div>
-    </div>
-    <div class="field-info">
-      <?php print ($e ? $this->Form->input('description', array('size' => 50)) : Sanitize::html($orcid_sources[0]['OrcidSource']['description'])); ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
         <?php print _txt('pl.orcidsource.clientid'); ?>
         <span class="required">*</span>
       </div>
