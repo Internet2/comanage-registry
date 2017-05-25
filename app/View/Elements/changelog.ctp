@@ -63,7 +63,17 @@
           </th>
           <td>
             <?php
-            print ${$modelpl}[0][$req]['revision'];
+              print ${$modelpl}[0][$req]['revision'];
+              
+              $mkey = $modelu . '_id';
+              
+              if(!empty(${$modelpl}[0][$req][$mkey])) {
+                print "&nbsp;(" . _txt('er.archived') . ") " .
+                      $this->Html->link(_txt('op.view.current'),
+                                        array('controller' => $modelpl,
+                                              'action' => $this->action,
+                                              ${$modelpl}[0][$req][$mkey]));
+              }
             ?>
           </td>
         </tr>

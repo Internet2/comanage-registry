@@ -1602,6 +1602,7 @@ original notification at
   'op.verify' =>      'Verify',
   'op.view' =>        'View',
   'op.view.all' =>    'View All',
+  'op.view.current' => 'View Current',
   'op.view.pending' => 'View Pending',
   'op.view.source' => 'View Source',
   'op.view-a' =>      'View %1$s',
