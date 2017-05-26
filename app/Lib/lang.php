@@ -938,6 +938,7 @@ original notification at
   'fd.all' =>         'All',
   'fd.an.desc' =>     'Alphanumeric characters only',
   'fd.approver' =>    'Approver',
+  'fd.archived' =>    'Archived',
   'fd.attribute' =>   'Attribute',
   'fd.attr.env' =>    'Environment Variable Name',
   'fd.attr.ldap' =>   'LDAP Name',

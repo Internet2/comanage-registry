@@ -119,6 +119,10 @@
       }
     });
 
+    <?php if(${$modelpl}[0][$req]['revision']): ?>
+    // Add "Archived" text next to page title, if we're looking at an archived entity
+    $(".pageTitle h1").append('<span class="archived"><?php print _txt('fd.archived'); ?></span>');
+    <?php endif ?>
     <?php if(${$modelpl}[0][$req]['deleted']): ?>
       // Add "Deleted" text next to page title, if we're looking at a deleted entity
       $(".pageTitle h1").append('<span class="deleted"><?php print _txt('fd.deleted'); ?></span>');
