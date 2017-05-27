@@ -67,32 +67,34 @@
               )
             ) . "\n";
 
-            // QR code button
-            print $this->Html->link(
-              $this->Html->image(
-                'qrcode-icon.png',
+            // QR code button - requires GD2 library
+            if (extension_loaded ("gd")) {
+              print $this->Html->link(
+                $this->Html->image(
+                  'qrcode-icon.png',
+                  array(
+                    'alt' => _txt('op.begin')
+                  )
+                ),
                 array(
-                  'alt' => _txt('op.begin')
-                )
-              ),
-              array(
-                'controller' => 'qrcode',
-                '?' => array(
-                  'c' => $this->Html->url(
-                    array(
-                      'controller' => 'co_petitions',
-                      'action' => 'start',
-                      'coef' => $c['CoEnrollmentFlow']['id']
-                    ),
-                    array(
-                      'full' => true,
-                      'escape' => false
+                  'controller' => 'qrcode',
+                  '?' => array(
+                    'c' => $this->Html->url(
+                      array(
+                        'controller' => 'co_petitions',
+                        'action' => 'start',
+                        'coef' => $c['CoEnrollmentFlow']['id']
+                      ),
+                      array(
+                        'full' => true,
+                        'escape' => false
+                      )
                     )
                   )
-                )
-              ),
-              array('class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect','escape' => false)
-            ) . "\n";
+                ),
+                array('class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect', 'escape' => false)
+              ) . "\n";
+            }
           }
         ?>
       </div>
