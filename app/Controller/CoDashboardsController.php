@@ -81,7 +81,7 @@ class CoDashboardsController extends StandardController {
    */
 
   public function configuration() {
-    $this->set('title_for_layout', _txt('db.configuration', array($this->cur_co['Co']['name'])));
+    $this->set('title_for_layout', _txt('op.dashboard.configuration', array($this->cur_co['Co']['name'])));
   }
 
   /**

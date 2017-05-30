@@ -1415,9 +1415,6 @@ original notification at
   'me.population.cou'  => 'My %1$s Population',
   'me.tandc'           => 'Terms and Conditions',
 
-  // Dashboards
-  'db.configuration'   => 'Configuration for %1$s',
-
   // Breadcrumbs
   'bc.home'            => 'Home',
 
@@ -1462,6 +1459,7 @@ original notification at
   'op.confirm' =>     'Confirm',
   'op.cont' =>        'Continue',
   'op.confirm.box' => 'Check the box to confirm',
+  'op.dashboard.configuration' => 'Configuration for %1$s',
   'op.dashboard.select' => 'Welcome to %1$s. Please select an action from the menus.',
   'op.db.ok' =>       'Database schema update successful',
   'op.db.schema' =>   'Loading schema from file %1$s...',
