@@ -241,8 +241,8 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
         $args = array();
         $args['plugin'] = null;
-        $args['controller'] = 'co_configuration';
-        $args['action'] = 'index';
+        $args['controller'] = 'co_dashboards';
+        $args['action'] = 'configuration';
         $args['co'] = $menuCoId;
 
         print $this->Html->link('<i class="material-icons">build</i><span class="menuTitle">' . _txt('me.configuration') . '</span><span class="mdl-ripple"></span>',
