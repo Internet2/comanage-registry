@@ -105,7 +105,6 @@ $tabIndex = 1;
       'empty'   => _txt('op.select.empty-a', array(_txt('ct.org_identity_sources.1'))),
       'label'   => _txt('ct.org_identity_sources.1'),
       'tabindex' => $tabIndex++,
-      'onchange' => 'this.form.submit()',
       'value'   => (!empty($this->request->params['named']['Search.orgIdentitySource'])
                     ? $this->request->params['named']['Search.orgIdentitySource']
                     : ''));
