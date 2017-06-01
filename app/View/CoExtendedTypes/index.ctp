@@ -79,7 +79,7 @@
   <form method="get" action="/registry/co_extended_types/index/co:<?php print $cur_co['Co']['id'] ?>">
     <span class="filters">
       <label class="select-name" for="attr"><?php print _txt('fd.et.forattr'); ?></label>
-      <select name="attr" id="attr" onchange="this.form.submit();">
+      <select name="attr" id="attr">
         <?php foreach($vv_supported_attrs as $a => $label): ?>
         <option value="<?php print $a; ?>"<?php if($attr == $a) print " selected"; ?>><?php print $label; ?></option>
         <?php endforeach; ?>

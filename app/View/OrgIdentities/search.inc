@@ -132,7 +132,6 @@ $tabIndex = 1;
           'empty'   => _txt('op.select.empty-a', array(_txt('ct.org_identity_sources.1'))),
           'label'   => _txt('ct.org_identity_sources.1'),
           'tabindex' => 5,
-          'onchange' => 'this.form.submit()',
           'value'   => (!empty($this->request->params['named']['Search.orgIdentitySource'])
                         ? $this->request->params['named']['Search.orgIdentitySource']
                         : ''));
@@ -162,7 +161,6 @@ $tabIndex = 1;
         'empty'   => _txt('fd.affiliation') . ' ' . _txt('op.select.empty'),
         'label'   => _txt('fd.affiliation'),
         'tabindex' => 8,
-        'onchange' => 'this.form.submit()',
         'value'   => (!empty($this->request->params['named']['Search.affiliation']) ? $this->request->params['named']['Search.affiliation'] : ''));
       print $this->Form->input('Search.affiliation', $formParams);
       ?>

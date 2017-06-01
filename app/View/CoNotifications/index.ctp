@@ -57,24 +57,31 @@
         . "/" . $vv_request_type . ":" . $vv_co_person_id;
 ?>
 
-<form method="get" id="notificationStatus" action="<?php print $furl; ?>">
-  <span class="select-name"><?php print _txt('op.filter.status'); ?></span>
-  <select name="status" onchange="this.form.submit();">
-    <option value=""><?php print _txt('fd.unresolved'); ?></option>
-    <option value="all"<?php if($curstatus == "all") print " selected";?>><?php print _txt('fd.all'); ?></option>
-    <?php
-      foreach(array_keys($vv_notification_statuses) as $s) {
-        print "<option value=\"" . $s . "\"";
-        
-        if($s == $curstatus) {
-          print " selected";
-        }
-        
-        print ">" . $vv_notification_statuses[$s] . "</option>\n";
-      }
-    ?>
-  </select>
-</form>
+<div id="notificationsFilter" class="top-filter">
+  <form method="get" id="notificationStatus" action="<?php print $furl; ?>">
+    <span class="filters">
+      <span class="select-name"><?php print _txt('op.filter.status'); ?></span>
+      <select name="status">
+        <option value=""><?php print _txt('fd.unresolved'); ?></option>
+        <option value="all"<?php if($curstatus == "all") print " selected";?>><?php print _txt('fd.all'); ?></option>
+        <?php
+          foreach(array_keys($vv_notification_statuses) as $s) {
+            print "<option value=\"" . $s . "\"";
+
+            if($s == $curstatus) {
+              print " selected";
+            }
+
+            print ">" . $vv_notification_statuses[$s] . "</option>\n";
+          }
+        ?>
+      </select>
+    </span>
+    <span class="submit-button">
+      <input type="submit" value="<?php print _txt('op.filter')?>"/>
+    </span>
+  </form>
+</div>
 
 <table id="co_notifications">
   <thead>

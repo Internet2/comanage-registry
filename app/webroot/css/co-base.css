@@ -246,7 +246,6 @@ ul.form-list.notification-list .field-info {
 }
 form#notificationStatus {
   clear: left;
-  margin: 0.5em 0;
 }
 .notificationStatus {
   float: left;
