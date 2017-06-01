@@ -59,7 +59,7 @@
 
 <form method="get" id="notificationStatus" action="<?php print $furl; ?>">
   <span class="select-name"><?php print _txt('op.filter.status'); ?></span>
-  <select name="status" onchange="this.form.submit();">
+  <select name="status">
     <option value=""><?php print _txt('fd.unresolved'); ?></option>
     <option value="all"<?php if($curstatus == "all") print " selected";?>><?php print _txt('fd.all'); ?></option>
     <?php
@@ -74,6 +74,7 @@
       }
     ?>
   </select>
+  <input type="submit" value="<?php print _txt('op.filter')?>"/>
 </form>
 
 <table id="co_notifications" class="ui-widget">

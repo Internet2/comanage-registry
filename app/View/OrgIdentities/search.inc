@@ -134,7 +134,6 @@ $tabIndex = 1;
     'empty'   => _txt('fd.affiliation') . ' ' . _txt('op.select.empty'),
     'label'   => _txt('fd.affiliation'),
     'tabindex' => $tabIndex++,
-    'onchange' => 'this.form.submit()',
     'value'   => (!empty($this->request->params['named']['Search.affiliation']) ? $this->request->params['named']['Search.affiliation'] : ''));
   print $this->Form->input('Search.affiliation', $formParams);
   ?>
