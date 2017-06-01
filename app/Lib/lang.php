@@ -1297,6 +1297,8 @@ original notification at
   'fd.svc.euri.desc' => 'Entitlement URI, as specified by <a href="http://software.internet2.edu/eduperson/internet2-mace-dir-eduperson-201602.html">eduPerson</a>',
   'fd.svc.group' =>   'Service Group',
   'fd.svc.group.desc' => 'Access to this Service requires membership in this Group',
+  'fd.svc.label' =>   'Service Label',
+  'fd.svc.label.desc' => 'Protocol specific service label, eg SAML Entity ID or OIDC Client ID',
   'fd.svc.mail' =>    'Service Contact Email',
   'fd.svc.mail.desc' => 'Email contact address for assistance with this Service',
   'fd.svc.portal' =>  'Service Portal',

@@ -72,6 +72,11 @@ class CoService extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'service_label' => array(
+      'rule' => array('validateInput'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'contact_email' => array(
       'rule' => array('email'),
       'required' => false,

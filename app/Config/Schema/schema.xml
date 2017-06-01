@@ -1960,6 +1960,7 @@
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
     <field name="service_url" type="C" size="256" />
+    <field name="service_label" type="C" size="1024" />
     <field name="contact_email" type="C" size="128" />
     <field name="entitlement_uri" type="C" size="256" />
     <field name="visibility" type="C" size="2" />

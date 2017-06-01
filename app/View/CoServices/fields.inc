@@ -187,6 +187,19 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('service_label', _txt('fd.svc.label')) : _txt('fd.svc.label')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.label.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('service_label')
+                   : filter_var($co_services[0]['CoService']['service_label'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('contact_email', _txt('fd.svc.mail')) : _txt('fd.svc.mail')); ?>
       </div>
       <div class="field-desc"><?php print _txt('fd.svc.mail.desc'); ?></div>
