@@ -320,7 +320,7 @@ class CoExtendedAttributesController extends StandardController {
         }
         
         $sql = "ALTER TABLE "
-             . $this->CoExtendedAttribute->tablePrefix . "co_" . $reqdata['CoExtendedAttribute']['co_id'] . "_person_extended_attributes
+             . $this->CoExtendedAttribute->tablePrefix . "co" . $reqdata['CoExtendedAttribute']['co_id'] . "_person_extended_attributes
                 RENAME COLUMN " . filter_var($curdata['CoExtendedAttribute']['name'], FILTER_SANITIZE_MAGIC_QUOTES)
              . " TO " . $reqdata['CoExtendedAttribute']['name'];
       
