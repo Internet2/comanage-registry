@@ -360,10 +360,10 @@
       resizable: false,
       modal: true,
       buttons: {
-        '<?php _txt('op.cancel'); ?>': function() {
+        '<?php print _txt('op.cancel'); ?>': function() {
           $(this).dialog('close');
         },
-        '<?php _txt('op.ok'); ?>': function() {
+        '<?php print _txt('op.ok'); ?>': function() {
           $(this).dialog('close');
         }
       }
