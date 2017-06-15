@@ -126,6 +126,20 @@
 
     <!-- Primary layout -->
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+      
+      <div id="top-menu">
+        <?php if($this->Session->check('Auth.User')): ?>
+          <div id="desktop-hamburger"><i class="material-icons">menu</i></div>
+        <?php endif; ?>
+        <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
+          <div id="user-defined-links-top">
+            <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
+          </div>
+        <?php endif; ?>
+        <nav id="user-menu">
+          <?php print $this->element('menuUser'); ?>
+        </nav>
+      </div>
 
       <header id="banner" class="mdl-layout__header mdl-layout__header--scroll">
         <div class="mdl-layout__header-row">
@@ -169,19 +183,6 @@
           </div>
         </div>
 
-        <div id="top-menu">
-          <?php if($this->Session->check('Auth.User')): ?>
-            <div id="desktop-hamburger"><i class="material-icons">menu</i></div>
-          <?php endif; ?>
-          <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
-            <div id="user-defined-links-top">
-              <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
-            </div>
-          <?php endif; ?>
-          <nav id="user-menu">
-            <?php print $this->element('menuUser'); ?>
-          </nav>
-        </div>
       </header>
 
       <?php if($this->Session->check('Auth.User')): ?>

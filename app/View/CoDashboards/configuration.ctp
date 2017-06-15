@@ -46,7 +46,7 @@
       print '<ul id="configuration-menu" class="three-col">';
 
       if (isset($permissions['menu']['cosettings']) && $permissions['menu']['cosettings']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_settings';
@@ -54,12 +54,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_settings.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['coattrenums']) && $permissions['menu']['coattrenums']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'attribute_enumerations';
@@ -67,12 +66,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.attribute_enumerations.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['cous']) && $permissions['menu']['cous']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'cous';
@@ -80,12 +78,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.cous.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['coef']) && $permissions['menu']['coef']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_enrollment_flows';
@@ -93,12 +90,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_enrollment_flows.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['coxp']) && $permissions['menu']['coxp']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_expiration_policies';
@@ -106,12 +102,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_expiration_policies.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['extattrs']) && $permissions['menu']['extattrs']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_extended_attributes';
@@ -119,12 +114,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_extended_attributes.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['exttypes']) && $permissions['menu']['exttypes']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_extended_types';
@@ -132,12 +126,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_extended_types.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['idassign']) && $permissions['menu']['idassign']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_identifier_assignments';
@@ -145,7 +138,6 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_identifier_assignments.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
@@ -162,7 +154,7 @@
       }
 
       if (isset($permissions['menu']['colocalizations']) && $permissions['menu']['colocalizations']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_localizations';
@@ -170,12 +162,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_localizations.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['comessagetemplates']) && $permissions['menu']['comessagetemplates']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_message_templates';
@@ -183,12 +174,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_message_templates.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['conavigationlinks']) && $permissions['menu']['conavigationlinks']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_navigation_links';
@@ -196,12 +186,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_navigation_links.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['orgidsources']) && $permissions['menu']['orgidsources']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'org_identity_sources';
@@ -209,12 +198,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.org_identity_sources.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['copipelines']) && $permissions['menu']['copipelines']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_pipelines';
@@ -222,12 +210,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_pipelines.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['coprovtargets']) && $permissions['menu']['coprovtargets']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_provisioning_targets';
@@ -235,12 +222,11 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_provisioning_targets.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
       if (isset($permissions['menu']['coselfsvcperm']) && $permissions['menu']['coselfsvcperm']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_self_service_permissions';
@@ -248,7 +234,6 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_self_service_permissions.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 
@@ -265,7 +250,7 @@
       }
 
       if (isset($permissions['menu']['cotandc']) && $permissions['menu']['cotandc']) {
-        print '<li class="mdl-js-ripple-effect">';
+        print '<li>';
         $args = array();
         $args['plugin'] = null;
         $args['controller'] = 'co_terms_and_conditions';
@@ -273,7 +258,6 @@
         $args['co'] = $menuCoId;
 
         print $this->Html->link(_txt('ct.co_terms_and_conditions.pl'), $args);
-        print '<span class="mdl-ripple"></span>';
         print "</li>";
       }
 

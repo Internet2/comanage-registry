@@ -99,7 +99,7 @@ a {
 }
 /* HEADER */
 #banner {
-  z-index: 4;
+  box-shadow: 0 1px 2px #999;
 }
 header.mdl-layout__header {
   display: block !important;  /* don't hide on mobile */
@@ -357,7 +357,7 @@ form#notificationStatus {
 }
 .mdl-layout__drawer-button {
   color: white;
-  top: 42px;
+  top: -14px;
   left: -2px;
 }
 #main-menu {
