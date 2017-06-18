@@ -51,89 +51,91 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<table id="co_message_templates">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-      <th><?php print $this->Paginator->sort('context', _txt('fd.mt.context')); ?></th>
-      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_message_templates as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print $this->Html->link($c['CoMessageTemplate']['description'],
-                                  array('controller' => 'co_message_templates',
-                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                        $c['CoMessageTemplate']['id']));
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($c['CoMessageTemplate']['context'])) {
-            print _txt('en.mt.context', null, $c['CoMessageTemplate']['context']);
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($c['CoMessageTemplate']['status'])) {
-            print _txt('en.status', null, $c['CoMessageTemplate']['status']);
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if($permissions['edit']) {
-            print $this->Html->link(_txt('op.edit'),
-                array(
-                  'controller' => 'co_message_templates',
-                  'action' => 'edit',
-                  $c['CoMessageTemplate']['id']
-                ),
-                array('class' => 'editbutton')) . "\n";
-          }
-          
-          if($permissions['duplicate']) {
-            print $this->Html->link(_txt('op.dupe'),
+<div class="table-container">
+  <table id="co_message_templates">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+        <th><?php print $this->Paginator->sort('context', _txt('fd.mt.context')); ?></th>
+        <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($co_message_templates as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            print $this->Html->link($c['CoMessageTemplate']['description'],
                                     array('controller' => 'co_message_templates',
-                                          'action' => 'duplicate',
-                                          $c['CoMessageTemplate']['id']),
-                                    array('class' => 'copybutton')) . "\n";
-          }
-          
-          if($permissions['delete']) {
-            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-              . '" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.remove') . '\',\''    // dialog body text
-              . $this->Html->url(              // dialog confirm URL
-                array(
-                  'controller' => 'co_message_templates',
-                  'action' => 'delete',
-                  $c['CoMessageTemplate']['id']
-                )
-              ) . '\',\''
-              . _txt('op.remove') . '\',\''    // dialog confirm button
-              . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($c['CoMessageTemplate']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.delete')
-              . '</button>';
-          }
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                          $c['CoMessageTemplate']['id']));
+          ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($c['CoMessageTemplate']['context'])) {
+              print _txt('en.mt.context', null, $c['CoMessageTemplate']['context']);
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($c['CoMessageTemplate']['status'])) {
+              print _txt('en.status', null, $c['CoMessageTemplate']['status']);
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if($permissions['edit']) {
+              print $this->Html->link(_txt('op.edit'),
+                  array(
+                    'controller' => 'co_message_templates',
+                    'action' => 'edit',
+                    $c['CoMessageTemplate']['id']
+                  ),
+                  array('class' => 'editbutton')) . "\n";
+            }
+
+            if($permissions['duplicate']) {
+              print $this->Html->link(_txt('op.dupe'),
+                                      array('controller' => 'co_message_templates',
+                                            'action' => 'duplicate',
+                                            $c['CoMessageTemplate']['id']),
+                                      array('class' => 'copybutton')) . "\n";
+            }
+
+            if($permissions['delete']) {
+              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'co_message_templates',
+                    'action' => 'delete',
+                    $c['CoMessageTemplate']['id']
+                  )
+                ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . filter_var(_jtxt($c['CoMessageTemplate']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.delete')
+                . '</button>';
+            }
+          ?>
+          <?php ; ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
   
 <?php
   print $this->element("pagination");

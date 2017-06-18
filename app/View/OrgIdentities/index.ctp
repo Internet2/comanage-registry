@@ -87,78 +87,81 @@ if(isset($permissions['search']) && $permissions['search'] ) {
 }
 ?>
 
-<table id="org_identities">
-  <thead>
-  <tr>
-    <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
-    <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
-    <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
-    <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
-    <th><?php print $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-    <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
-  </tr>
-  </thead>
-
-  <tbody>
-  <?php $i = 0; ?>
-  <?php foreach ($org_identities as $p): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-        print $this->Html->link(
-          generateCn($p['PrimaryName']),
-          array(
-            'controller' => 'org_identities',
-            'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-            $p['OrgIdentity']['id']
-          )
-        );
-        ?>
-      </td>
-      <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-      <td><?php if(!empty($p['OrgIdentity']['affiliation'])) print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); ?></td>
-
-      <td class="actions">
-        <?php
-        if($permissions['edit']) {
-          print $this->Html->link(
-              _txt('op.edit'),
-              array(
-                'controller' => 'org_identities',
-                'action' => 'edit',
-                $p['OrgIdentity']['id']
-              ),
-              array('class' => 'editbutton spin')
-            ) . "\n";
-        }
-        if($permissions['delete']) {
-          print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-            . '" onclick="javascript:js_confirm_generic(\''
-            . _txt('js.remove') . '\',\''    // dialog body text
-            . $this->Html->url(              // dialog confirm URL
-              array(
-                'controller' => 'org_identities',
-                'action' => 'delete',
-                $p['OrgIdentity']['id']
-              )
-            ) . '\',\''
-            . _txt('op.remove') . '\',\''    // dialog confirm button
-            . _txt('op.cancel') . '\',\''    // dialog cancel button
-            . _txt('op.remove') . '\',[\''   // dialog title
-            . filter_var(_jtxt(generateCn($p['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-            . '\']);">'
-            . _txt('op.delete')
-            . '</button>';
-        }
-        ?>
-        <?php ; ?>
-      </td>
+<div class="table-container">
+  <table id="org_identities">
+    <thead>
+    <tr>
+      <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
+      <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
+      <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
+      <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
+      <th><?php print $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
+      <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
     </tr>
-    <?php $i++; ?>
-  <?php endforeach; ?>
-  </tbody>
-</table>
+    </thead>
 
-<?php print $this->element("pagination"); ?>
+    <tbody>
+    <?php $i = 0; ?>
+    <?php foreach ($org_identities as $p): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+          print $this->Html->link(
+            generateCn($p['PrimaryName']),
+            array(
+              'controller' => 'org_identities',
+              'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+              $p['OrgIdentity']['id']
+            )
+          );
+          ?>
+        </td>
+        <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td><?php if(!empty($p['OrgIdentity']['affiliation'])) print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); ?></td>
+
+        <td class="actions">
+          <?php
+          if($permissions['edit']) {
+            print $this->Html->link(
+                _txt('op.edit'),
+                array(
+                  'controller' => 'org_identities',
+                  'action' => 'edit',
+                  $p['OrgIdentity']['id']
+                ),
+                array('class' => 'editbutton spin')
+              ) . "\n";
+          }
+          if($permissions['delete']) {
+            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.remove') . '\',\''    // dialog body text
+              . $this->Html->url(              // dialog confirm URL
+                array(
+                  'controller' => 'org_identities',
+                  'action' => 'delete',
+                  $p['OrgIdentity']['id']
+                )
+              ) . '\',\''
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\',[\''   // dialog title
+              . filter_var(_jtxt(generateCn($p['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+              . '\']);">'
+              . _txt('op.delete')
+              . '</button>';
+          }
+          ?>
+          <?php ; ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+    <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
+
+<?php
+  print $this->element("pagination");

@@ -160,191 +160,193 @@
 <br />
 <?php else: // vv_not_found ?>
 <div class="innerContent">
-  <table id="view_org_identity_source_record">
-    <tbody>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('ct.org_identity_sources.1'); ?>
-        </td>
-        <td>
-          <?php
-            print $vv_org_identity_source['description'];
-
-            if($vv_org_identity_source['status'] != SuspendableStatusEnum::Active) {
-              print " (" . _txt('en.status.susp', null, $vv_org_identity_source['status']) . ")";
-            }
-          ?>
-        </td>
-      </tr>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.sorid'); ?>
-        </td>
-        <td>
-          <?php print $key; ?>
-        </td>
-      </tr>
-      <?php if(!empty($vv_org_source_record['Name'])) foreach($vv_org_source_record['Name'] as $name): ?>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php
-            print _txt('fd.name') . " (";
-
-            if(isset($name['primary_name']) && $name['primary_name'])
-              print _txt('fd.name.primary_name') . ", ";
-
-            print $name['type'] . ")";
-          ?>
-        </td>
-        <td>
-          <?php print generateCn($name); ?>
-        </td>
-      </tr>
-      <?php endforeach; // name ?>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.affiliation'); ?>
-        </td>
-        <td>
-          <?php
-            if(!empty($vv_org_source_record['OrgIdentity']['affiliation'])) {
-              print $vv_org_source_record['OrgIdentity']['affiliation'];
-            }
-          ?>
-        </td>
-      </tr>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.valid_from.tz', array('UTC')); ?>
-        </td>
-        <td>
-          <?php
-            if(!empty($vv_org_source_record['OrgIdentity']['valid_from'])) {
-              print $vv_org_source_record['OrgIdentity']['valid_from'];
-            }
-          ?>
-        </td>
-      </tr>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.valid_through.tz', array('UTC')); ?>
-        </td>
-        <td>
-          <?php
-            if(!empty($vv_org_source_record['OrgIdentity']['valid_through'])) {
-              print $vv_org_source_record['OrgIdentity']['valid_through'];
-            }
-          ?>
-        </td>
-      </tr>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.title'); ?>
-        </td>
-        <td>
-          <?php
-            if(!empty($vv_org_source_record['OrgIdentity']['title'])) {
-              print $vv_org_source_record['OrgIdentity']['title'];
-            }
-          ?>
-        </td>
-      </tr>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.o'); ?>
-        </td>
-        <td>
-          <?php
-            if(!empty($vv_org_source_record['OrgIdentity']['o'])) {
-              print $vv_org_source_record['OrgIdentity']['o'];
-            }
-          ?>
-        </td>
-      </tr>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.ou'); ?>
-        </td>
-        <td>
-          <?php
-            if(!empty($vv_org_source_record['OrgIdentity']['ou'])) {
-              print $vv_org_source_record['OrgIdentity']['ou'];
-            }
-          ?>
-        </td>
-      </tr>
-      <?php if(!empty($vv_org_source_record['Address'])) foreach($vv_org_source_record['Address'] as $addr): ?>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.address') . " (" . $addr['type'] . ")"; ?>
-        </td>
-        <td>
-          <?php print formatAddress($addr); ?>
-        </td>
-      </tr>
-      <?php endforeach; // address ?>
-      <?php if(!empty($vv_org_source_record['EmailAddress'])) foreach($vv_org_source_record['EmailAddress'] as $email): ?>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.email_address.mail') . " (" . $email['type'] . ")"; ?>
-        </td>
-        <td>
-          <?php print $email['mail']; ?>
-        </td>
-      </tr>
-      <?php endforeach; // email ?>
-      <?php if(!empty($vv_org_source_record['Identifier'])) foreach($vv_org_source_record['Identifier'] as $id): ?>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.identifier.identifier') . " (" . $id['type'] . ")"; ?>
-        </td>
-        <td>
-          <?php print $id['identifier']; ?>
-        </td>
-      </tr>
-      <?php endforeach; // identifier ?>
-      <?php if(!empty($vv_org_source_record['TelephoneNumber'])) foreach($vv_org_source_record['TelephoneNumber'] as $phone): ?>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.telephone_number.number') . " (" . $phone['type'] . ")"; ?>
-        </td>
-        <td>
-          <?php print formatTelephone($phone); ?>
-        </td>
-      </tr>
-      <?php endforeach; // telephone ?>
-      <?php if(!empty($vv_mapped_groups)): ?>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.group.mem.map'); ?>
-        </td>
-        <td>
-          <ul>
+  <div class="table-container">
+    <table id="view_org_identity_source_record">
+      <tbody>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('ct.org_identity_sources.1'); ?>
+          </td>
+          <td>
             <?php
-              foreach($vv_mapped_groups as $g) {
-                print "<li>" . $g['CoGroup']['name'] . "</li>\n";
+              print $vv_org_identity_source['description'];
+
+              if($vv_org_identity_source['status'] != SuspendableStatusEnum::Active) {
+                print " (" . _txt('en.status.susp', null, $vv_org_identity_source['status']) . ")";
               }
             ?>
-          </ul>
-        </td>
-      </tr>
-      <?php endif; // mapped groups ?>
-      <tr class="line<?php print $l++ % 2; ?>">
-        <td>
-          <?php print _txt('fd.ois.record'); ?><br />
-          <span class="descr"><?php print _txt('fd.ois.record.desc'); ?></span>
-        </td>
-        <td>
-          <pre>
+          </td>
+        </tr>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.sorid'); ?>
+          </td>
+          <td>
+            <?php print $key; ?>
+          </td>
+        </tr>
+        <?php if(!empty($vv_org_source_record['Name'])) foreach($vv_org_source_record['Name'] as $name): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
             <?php
-              if(!empty($vv_raw_source_record)) {
-                print htmlspecialchars($vv_raw_source_record);
+              print _txt('fd.name') . " (";
+
+              if(isset($name['primary_name']) && $name['primary_name'])
+                print _txt('fd.name.primary_name') . ", ";
+
+              print $name['type'] . ")";
+            ?>
+          </td>
+          <td>
+            <?php print generateCn($name); ?>
+          </td>
+        </tr>
+        <?php endforeach; // name ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.affiliation'); ?>
+          </td>
+          <td>
+            <?php
+              if(!empty($vv_org_source_record['OrgIdentity']['affiliation'])) {
+                print $vv_org_source_record['OrgIdentity']['affiliation'];
               }
             ?>
-          </pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          </td>
+        </tr>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.valid_from.tz', array('UTC')); ?>
+          </td>
+          <td>
+            <?php
+              if(!empty($vv_org_source_record['OrgIdentity']['valid_from'])) {
+                print $vv_org_source_record['OrgIdentity']['valid_from'];
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.valid_through.tz', array('UTC')); ?>
+          </td>
+          <td>
+            <?php
+              if(!empty($vv_org_source_record['OrgIdentity']['valid_through'])) {
+                print $vv_org_source_record['OrgIdentity']['valid_through'];
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.title'); ?>
+          </td>
+          <td>
+            <?php
+              if(!empty($vv_org_source_record['OrgIdentity']['title'])) {
+                print $vv_org_source_record['OrgIdentity']['title'];
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.o'); ?>
+          </td>
+          <td>
+            <?php
+              if(!empty($vv_org_source_record['OrgIdentity']['o'])) {
+                print $vv_org_source_record['OrgIdentity']['o'];
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.ou'); ?>
+          </td>
+          <td>
+            <?php
+              if(!empty($vv_org_source_record['OrgIdentity']['ou'])) {
+                print $vv_org_source_record['OrgIdentity']['ou'];
+              }
+            ?>
+          </td>
+        </tr>
+        <?php if(!empty($vv_org_source_record['Address'])) foreach($vv_org_source_record['Address'] as $addr): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.address') . " (" . $addr['type'] . ")"; ?>
+          </td>
+          <td>
+            <?php print formatAddress($addr); ?>
+          </td>
+        </tr>
+        <?php endforeach; // address ?>
+        <?php if(!empty($vv_org_source_record['EmailAddress'])) foreach($vv_org_source_record['EmailAddress'] as $email): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.email_address.mail') . " (" . $email['type'] . ")"; ?>
+          </td>
+          <td>
+            <?php print $email['mail']; ?>
+          </td>
+        </tr>
+        <?php endforeach; // email ?>
+        <?php if(!empty($vv_org_source_record['Identifier'])) foreach($vv_org_source_record['Identifier'] as $id): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.identifier.identifier') . " (" . $id['type'] . ")"; ?>
+          </td>
+          <td>
+            <?php print $id['identifier']; ?>
+          </td>
+        </tr>
+        <?php endforeach; // identifier ?>
+        <?php if(!empty($vv_org_source_record['TelephoneNumber'])) foreach($vv_org_source_record['TelephoneNumber'] as $phone): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.telephone_number.number') . " (" . $phone['type'] . ")"; ?>
+          </td>
+          <td>
+            <?php print formatTelephone($phone); ?>
+          </td>
+        </tr>
+        <?php endforeach; // telephone ?>
+        <?php if(!empty($vv_mapped_groups)): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.group.mem.map'); ?>
+          </td>
+          <td>
+            <ul>
+              <?php
+                foreach($vv_mapped_groups as $g) {
+                  print "<li>" . $g['CoGroup']['name'] . "</li>\n";
+                }
+              ?>
+            </ul>
+          </td>
+        </tr>
+        <?php endif; // mapped groups ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.ois.record'); ?><br />
+            <span class="descr"><?php print _txt('fd.ois.record.desc'); ?></span>
+          </td>
+          <td>
+            <pre>
+              <?php
+                if(!empty($vv_raw_source_record)) {
+                  print htmlspecialchars($vv_raw_source_record);
+                }
+              ?>
+            </pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 <?php endif; // vv_not_found

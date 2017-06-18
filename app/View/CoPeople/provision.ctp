@@ -160,80 +160,82 @@
   });
 </script>
 
-<table id="provisioning_status">
-  <thead>
-    <tr>
-      <th><?php print _txt('fd.desc'); ?></th>
-      <th><?php print _txt('fd.status'); ?></th>
-      <th><?php print _txt('fd.timestamp'); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_provisioning_status as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php print filter_var($c['CoProvisioningTarget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)
-              . " (" . filter_var($c['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS) . ")"; ?>
-      </td>
-      <td>
-        <?php
-          print _txt('en.status.prov.target', null, ($c['status']['status']));
-          
-          if(!empty($c['status']['comment'])) {
-            print ": " . filter_var($c['status']['comment'],FILTER_SANITIZE_SPECIAL_CHARS);
-          }
-          
-          // Display a message if this record is not eligible to be provisioned
-          // to this target
-          
-          if(!empty($c['CoProvisioningTarget']['provision_co_group_id'])) {
-            if(!empty($co_person)
-               && !in_array($c['CoProvisioningTarget']['provision_co_group_id'],
-                            Hash::extract($co_person, 'CoGroupMember.{n}.co_group_id'))) {
-              print " (" . _txt('rs.prov.inel.grmem') . ")";
-            } elseif(!empty($co_group)
-                     && $co_group['CoGroup']['id'] != $c['CoProvisioningTarget']['provision_co_group_id']) {
-              print " (" . _txt('rs.prov.inel.group') . ")";
+<div class="table-container">
+  <table id="provisioning_status">
+    <thead>
+      <tr>
+        <th><?php print _txt('fd.desc'); ?></th>
+        <th><?php print _txt('fd.status'); ?></th>
+        <th><?php print _txt('fd.timestamp'); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($co_provisioning_status as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php print filter_var($c['CoProvisioningTarget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)
+                . " (" . filter_var($c['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS) . ")"; ?>
+        </td>
+        <td>
+          <?php
+            print _txt('en.status.prov.target', null, ($c['status']['status']));
+
+            if(!empty($c['status']['comment'])) {
+              print ": " . filter_var($c['status']['comment'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if($c['status']['timestamp']) {
-            print $this->Time->format($c['status']['timestamp'], "%c $vv_tz", false, $vv_tz);
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          $url = array(
-            'controller' => 'co_provisioning_targets',
-            'action'     => 'provision',
-            $c['CoProvisioningTarget']['id']
-          );
-          
-          if(!empty($co_person)) {
-            $url['copersonid'] = $co_person['CoPerson']['id'] . ".json";
-          } elseif(!empty($co_group)) {
-            $url['cogroupid'] = $co_group['CoGroup']['id'] . ".json";
-          }
-          
-          print '<a class="provisionbutton"
-                    title="' . _txt('op.prov') . '"
-                    onclick="javascript:js_confirm_provision(\'' .
-                      $this->Html->url($url)
-                    . '\');">' . _txt('op.prov') . "</a>\n";
-        ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+
+            // Display a message if this record is not eligible to be provisioned
+            // to this target
+
+            if(!empty($c['CoProvisioningTarget']['provision_co_group_id'])) {
+              if(!empty($co_person)
+                 && !in_array($c['CoProvisioningTarget']['provision_co_group_id'],
+                              Hash::extract($co_person, 'CoGroupMember.{n}.co_group_id'))) {
+                print " (" . _txt('rs.prov.inel.grmem') . ")";
+              } elseif(!empty($co_group)
+                       && $co_group['CoGroup']['id'] != $c['CoProvisioningTarget']['provision_co_group_id']) {
+                print " (" . _txt('rs.prov.inel.group') . ")";
+              }
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if($c['status']['timestamp']) {
+              print $this->Time->format($c['status']['timestamp'], "%c $vv_tz", false, $vv_tz);
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            $url = array(
+              'controller' => 'co_provisioning_targets',
+              'action'     => 'provision',
+              $c['CoProvisioningTarget']['id']
+            );
+
+            if(!empty($co_person)) {
+              $url['copersonid'] = $co_person['CoPerson']['id'] . ".json";
+            } elseif(!empty($co_group)) {
+              $url['cogroupid'] = $co_group['CoGroup']['id'] . ".json";
+            }
+
+            print '<a class="provisionbutton"
+                      title="' . _txt('op.prov') . '"
+                      onclick="javascript:js_confirm_provision(\'' .
+                        $this->Html->url($url)
+                      . '\');">' . _txt('op.prov') . "</a>\n";
+          ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
 
 <div id="progressbar-dialog" title="<?php print _txt('op.prov'); ?>">
   <p><?php print _txt('op.prov.wait'); ?></p>

@@ -99,42 +99,44 @@
   });
 </script>
 
-<table id="provisioning_targets">
-  <thead>
-    <tr>
-      <th><?php print _txt('fd.order'); ?></th>
-      <th><?php print _txt('fd.desc'); ?></th>
-      <th><?php print _txt('fd.plugin'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody id="sortable">
-    <?php foreach ($co_provisioning_targets as $c): ?>
-      <tr id = "CoProvisioningTargetId_<?php print $c['CoProvisioningTarget']['id']?>" class="line1">
-        <td class = "order">
-          <span class="ui-icon ui-icon-arrow-4"></span>
-        </td>
-        <td>
-          <?php
-            print $this->Html->link($c['CoProvisioningTarget']['description'],
-                                    array('controller' => 'co_provisioning_targets',
-                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                          $c['CoProvisioningTarget']['id']));
-          ?>
-        </td>
-        <td><?php print $c['CoProvisioningTarget']['plugin']; ?></td>
+<div class="table-container">
+  <table id="provisioning_targets">
+    <thead>
+      <tr>
+        <th><?php print _txt('fd.order'); ?></th>
+        <th><?php print _txt('fd.desc'); ?></th>
+        <th><?php print _txt('fd.plugin'); ?></th>
       </tr>
-    <?php endforeach; ?>
-  </tbody>
-  
-  <tfoot>
-    <tr>
-      <th colspan="3">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
-</table>
+    </thead>
+
+    <tbody id="sortable">
+      <?php foreach ($co_provisioning_targets as $c): ?>
+        <tr id = "CoProvisioningTargetId_<?php print $c['CoProvisioningTarget']['id']?>" class="line1">
+          <td class = "order">
+            <span class="ui-icon ui-icon-arrow-4"></span>
+          </td>
+          <td>
+            <?php
+              print $this->Html->link($c['CoProvisioningTarget']['description'],
+                                      array('controller' => 'co_provisioning_targets',
+                                            'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                            $c['CoProvisioningTarget']['id']));
+            ?>
+          </td>
+          <td><?php print $c['CoProvisioningTarget']['plugin']; ?></td>
+        </tr>
+      <?php endforeach; ?>
+    </tbody>
+
+    <tfoot>
+      <tr>
+        <th colspan="3">
+          <?php print $this->element("pagination"); ?>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
 
 <?php
   $args = array();

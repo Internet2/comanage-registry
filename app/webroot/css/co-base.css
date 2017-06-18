@@ -848,8 +848,8 @@ body.co_petitions .ui-dialog {
   margin: 0;
   min-height: 1.5em;
   padding: 0.5em;
-  background-color: #9FC6E2;
-  /*background-color: #186696;*/
+  /*background-color: #9FC6E2;*/
+  background-color: #186696;
   color: white;
   text-align: center;
 }
@@ -1582,8 +1582,8 @@ a.desc::before {
   content: "▼"; /*\25bc in escaped hex*/
 }
 .ui-widget-header {
-  background-color: #9FC6E2;
-  /*ackground-color: #186696;*/
+  /*background-color: #9FC6E2;*/
+  background-color: #186696;
 }
 .ui-button {
   font-size: 0.9em !important;
@@ -1624,8 +1624,8 @@ th, td {
   font-weight: normal;
 }
 th {
-  background-color: #9fc6e2;
-  /*background-color: #186696;*/
+  /*background-color: #9fc6e2;*/
+  background-color: #186696;
   color: white;
 }
 th a {

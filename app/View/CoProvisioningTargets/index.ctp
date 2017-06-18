@@ -235,109 +235,111 @@
   });
 </script>
 
-<table id="cos">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-      <th><?php print $this->Paginator->sort('plugin', _txt('fd.plugin')); ?></th>
-      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_provisioning_targets as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          $plugin = filter_var($c['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
-          $pl = Inflector::underscore($plugin);
-          $plmodel = "Co" . $plugin . "Target";
-          
-          print $this->Html->link(
-            $c['CoProvisioningTarget']['description'],
-            array(
-              'controller' => 'co_provisioning_targets',
-              'action' => (($permissions['edit'])
-                           ? 'edit'
-                           : ($permissions['view'] ? 'view' : '')),
-              $c['CoProvisioningTarget']['id'],
-              'co' => $cur_co['Co']['id']
-            )
-          );
-        ?>
-      </td>
-      <td><?php print $plugin; ?></td>
-      <td>
-        <?php print _txt('en.status.prov', null, $c['CoProvisioningTarget']['status']); ?>
-      </td>
-      <td><?php print $c['CoProvisioningTarget']['ordr']; ?></td>
-      <td>
-        <?php
-          if($permissions['edit']) {
+<div class="table-container">
+  <table id="cos">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+        <th><?php print $this->Paginator->sort('plugin', _txt('fd.plugin')); ?></th>
+        <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+        <th><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($co_provisioning_targets as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            $plugin = filter_var($c['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
+            $pl = Inflector::underscore($plugin);
+            $plmodel = "Co" . $plugin . "Target";
+
             print $this->Html->link(
-              _txt('op.edit'),
+              $c['CoProvisioningTarget']['description'],
               array(
                 'controller' => 'co_provisioning_targets',
-                'action' => 'edit',
+                'action' => (($permissions['edit'])
+                             ? 'edit'
+                             : ($permissions['view'] ? 'view' : '')),
                 $c['CoProvisioningTarget']['id'],
                 'co' => $cur_co['Co']['id']
-              ),
-              array('class' => 'editbutton')
-            ) . "\n";
-            
-            print $this->Html->link(
-              _txt('op.config'),
-              array(
-                'plugin' => $pl,
-                'controller' => 'co_' . $pl . '_targets',
-                'action' => 'edit',
-                $c[$plmodel]['id']
-              ),
-              array('class' => 'configurebutton')
-            ) . "\n";
-          }
-          
-          if($permissions['delete']) {
-            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-              . '" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.remove') . '\',\''    // dialog body text
-              . $this->Html->url(              // dialog confirm URL
+              )
+            );
+          ?>
+        </td>
+        <td><?php print $plugin; ?></td>
+        <td>
+          <?php print _txt('en.status.prov', null, $c['CoProvisioningTarget']['status']); ?>
+        </td>
+        <td><?php print $c['CoProvisioningTarget']['ordr']; ?></td>
+        <td>
+          <?php
+            if($permissions['edit']) {
+              print $this->Html->link(
+                _txt('op.edit'),
                 array(
                   'controller' => 'co_provisioning_targets',
-                  'action' => 'delete',
+                  'action' => 'edit',
                   $c['CoProvisioningTarget']['id'],
                   'co' => $cur_co['Co']['id']
-                )
-              ) . '\',\''
-              . _txt('op.remove') . '\',\''    // dialog confirm button
-              . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($c['CoProvisioningTarget']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.delete')
-              . '</button>';
-          }
+                ),
+                array('class' => 'editbutton')
+              ) . "\n";
 
-          if($permissions['provisionall']) {
-            print '<a class="provisionbutton"
-                      title="' . _txt('op.prov.all') . '"
-                      onclick="javascript:js_confirm_provision(\'' .
-                                                               $this->Html->url(array('controller' => 'co_provisioning_targets',
-                                                                                                      'action' => 'provision',
-                                                                                                      $c['CoProvisioningTarget']['id']))
-                                                              . '\');">'
-                  . _txt('op.prov.all') . "</a>\n";
-          }
-        ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+              print $this->Html->link(
+                _txt('op.config'),
+                array(
+                  'plugin' => $pl,
+                  'controller' => 'co_' . $pl . '_targets',
+                  'action' => 'edit',
+                  $c[$plmodel]['id']
+                ),
+                array('class' => 'configurebutton')
+              ) . "\n";
+            }
+
+            if($permissions['delete']) {
+              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'co_provisioning_targets',
+                    'action' => 'delete',
+                    $c['CoProvisioningTarget']['id'],
+                    'co' => $cur_co['Co']['id']
+                  )
+                ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . filter_var(_jtxt($c['CoProvisioningTarget']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.delete')
+                . '</button>';
+            }
+
+            if($permissions['provisionall']) {
+              print '<a class="provisionbutton"
+                        title="' . _txt('op.prov.all') . '"
+                        onclick="javascript:js_confirm_provision(\'' .
+                                                                 $this->Html->url(array('controller' => 'co_provisioning_targets',
+                                                                                                        'action' => 'provision',
+                                                                                                        $c['CoProvisioningTarget']['id']))
+                                                                . '\');">'
+                    . _txt('op.prov.all') . "</a>\n";
+            }
+          ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
   
 <?php print $this->element("pagination"); ?>
 

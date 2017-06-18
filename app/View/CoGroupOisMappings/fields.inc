@@ -49,96 +49,99 @@
   
   print $this->Form->hidden('org_identity_source_id', array('default' => $vv_ois_id)) . "\n";
 ?>
-<table id="<?php print $this->action; ?>_co_group_ois_mapping">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <?php print $this->Form->label('attribute', _txt('fd.attribute')); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (!empty($co_group_ois_mappings[0]['CoGroupOisMapping']['attribute'])
-                             ? $co_group_ois_mappings[0]['CoGroupOisMapping']['attribute']
-                             : "");
-          $attrs['empty'] = false;
-          
-          print $this->Form->select('attribute',
-                                    $vv_ois_group_attrs,
-                                    $attrs);
-          
-          if($this->Form->isFieldError('attribute')) {
-            print $this->Form->error('attribute');
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print $this->Form->label('comparison', _txt('fd.comparison')); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php
-          global $cm_lang, $cm_texts;
-          
-          $attrs = array();
-          $attrs['value'] = (!empty($co_group_ois_mappings[0]['CoGroupOisMapping']['comparison'])
-                             ? $co_group_ois_mappings[0]['CoGroupOisMapping']['comparison']
-                             : "");
-          $attrs['empty'] = false;
-          
-          print $this->Form->select('comparison',
-                                    $cm_texts[ $cm_lang ]['en.comparison'],
-                                    $attrs);
-          
-          if($this->Form->isFieldError('comparison')) {
-            print $this->Form->error('comparison');
-          }
-        ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print $this->Form->label('pattern', _txt('fd.pattern')); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e ? $this->Form->input('pattern') : filter_var($co_group_ois_mappings[0]['CoGroupOisMapping']['pattern'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print $this->Form->label('co_group_id', _txt('fd.ois.gr.map')); ?><span class="required">*</span><br />
-        <span class="descr"><?php print _txt('fd.ois.gr.map.desc'); ?></span>
-      </td>
-      <td>
-        <?php
-          $attrs = array();
-          $attrs['value'] = (!empty($co_group_ois_mappings[0]['CoGroupOisMapping']['co_group_id'])
-                             ? $co_group_ois_mappings[0]['CoGroupOisMapping']['co_group_id']
-                             : "");
-          $attrs['empty'] = false;
-          
-          print $this->Form->select('co_group_id',
-                                    $vv_groups,
-                                    $attrs);
-          
-          if($this->Form->isFieldError('co_group_id')) {
-            print $this->Form->error('co_group_id');
-          }
-        ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+
+<div class="table-container">
+  <table id="<?php print $this->action; ?>_co_group_ois_mapping">
+    <tbody>
+      <tr class="line1">
+        <td>
+          <?php print $this->Form->label('attribute', _txt('fd.attribute')); ?><span class="required">*</span>
+        </td>
+        <td>
+          <?php
+            $attrs = array();
+            $attrs['value'] = (!empty($co_group_ois_mappings[0]['CoGroupOisMapping']['attribute'])
+                               ? $co_group_ois_mappings[0]['CoGroupOisMapping']['attribute']
+                               : "");
+            $attrs['empty'] = false;
+
+            print $this->Form->select('attribute',
+                                      $vv_ois_group_attrs,
+                                      $attrs);
+
+            if($this->Form->isFieldError('attribute')) {
+              print $this->Form->error('attribute');
+            }
+          ?>
+        </td>
+      </tr>
+      <tr class="line2">
+        <td>
+          <?php print $this->Form->label('comparison', _txt('fd.comparison')); ?><span class="required">*</span>
+        </td>
+        <td>
+          <?php
+            global $cm_lang, $cm_texts;
+
+            $attrs = array();
+            $attrs['value'] = (!empty($co_group_ois_mappings[0]['CoGroupOisMapping']['comparison'])
+                               ? $co_group_ois_mappings[0]['CoGroupOisMapping']['comparison']
+                               : "");
+            $attrs['empty'] = false;
+
+            print $this->Form->select('comparison',
+                                      $cm_texts[ $cm_lang ]['en.comparison'],
+                                      $attrs);
+
+            if($this->Form->isFieldError('comparison')) {
+              print $this->Form->error('comparison');
+            }
+          ?>
+        </td>
+      </tr>
+      <tr class="line1">
+        <td>
+          <?php print $this->Form->label('pattern', _txt('fd.pattern')); ?><span class="required">*</span>
+        </td>
+        <td>
+          <?php print ($e ? $this->Form->input('pattern') : filter_var($co_group_ois_mappings[0]['CoGroupOisMapping']['pattern'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </td>
+      </tr>
+      <tr class="line2">
+        <td>
+          <?php print $this->Form->label('co_group_id', _txt('fd.ois.gr.map')); ?><span class="required">*</span><br />
+          <span class="descr"><?php print _txt('fd.ois.gr.map.desc'); ?></span>
+        </td>
+        <td>
+          <?php
+            $attrs = array();
+            $attrs['value'] = (!empty($co_group_ois_mappings[0]['CoGroupOisMapping']['co_group_id'])
+                               ? $co_group_ois_mappings[0]['CoGroupOisMapping']['co_group_id']
+                               : "");
+            $attrs['empty'] = false;
+
+            print $this->Form->select('co_group_id',
+                                      $vv_groups,
+                                      $attrs);
+
+            if($this->Form->isFieldError('co_group_id')) {
+              print $this->Form->error('co_group_id');
+            }
+          ?>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+        </td>
+        <td>
+          <?php
+            if($e) {
+              print $this->Form->submit($submit_label);
+            }
+          ?>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

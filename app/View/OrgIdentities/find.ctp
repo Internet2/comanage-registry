@@ -53,73 +53,70 @@
   <?php print _txt('in.orgid.co'); ?>
 </div>
 
-<table id="org_identities">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
-      <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
-      <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
-      <th><?php print $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-      <th><?php print _txt('fd.email_address.mail'); ?></th>
-      <th><?php print _txt('op.inv'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($org_identities as $p): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td><?php print $this->Html->link(generateCn($p['PrimaryName']),
-                                        array('controller'             => 'org_identities',
-                                              'action'                 => 'view',
-                                              $p['OrgIdentity']['id'],
-                                              'co'                     => ($pool_org_identities ? false : $cur_co['Co']['id']))); ?></td>
-      <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-      <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-      <td><?php if(!empty($p['OrgIdentity']['affiliation'])) { print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); } ?></td>
-      <td><?php foreach($p['EmailAddress'] as $ea) print filter_var($ea['mail'],FILTER_SANITIZE_SPECIAL_CHARS) . "<br />"; ?></td>
-      <td><?php
-        // Don't offer an invite link for org identities that are already in the CO
-        
-        $linked = false;
-        
-        foreach($p['CoOrgIdentityLink'] as $lnk) {
-          if(!empty($lnk['CoPerson']['co_id'])
-             && $lnk['CoPerson']['co_id'] == $cur_co['Co']['id']) {
-            $linked = true;
-            break;
+<div class="table-container">
+  <table id="org_identities">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
+        <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
+        <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
+        <th><?php print $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
+        <th><?php print _txt('fd.email_address.mail'); ?></th>
+        <th><?php print _txt('op.inv'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($org_identities as $p): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td><?php print $this->Html->link(generateCn($p['PrimaryName']),
+                                          array('controller'             => 'org_identities',
+                                                'action'                 => 'view',
+                                                $p['OrgIdentity']['id'],
+                                                'co'                     => ($pool_org_identities ? false : $cur_co['Co']['id']))); ?></td>
+        <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td><?php if(!empty($p['OrgIdentity']['affiliation'])) { print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); } ?></td>
+        <td><?php foreach($p['EmailAddress'] as $ea) print filter_var($ea['mail'],FILTER_SANITIZE_SPECIAL_CHARS) . "<br />"; ?></td>
+        <td><?php
+          // Don't offer an invite link for org identities that are already in the CO
+
+          $linked = false;
+
+          foreach($p['CoOrgIdentityLink'] as $lnk) {
+            if(!empty($lnk['CoPerson']['co_id'])
+               && $lnk['CoPerson']['co_id'] == $cur_co['Co']['id']) {
+              $linked = true;
+              break;
+            }
           }
-        }
-        
-        if(!$linked) {
-          if($op == 'link') {
-            // CO Person specified, so link instead of invite
-            print $this->Html->link(_txt('op.link'),
-                                       array('controller' => 'co_people',
-                                             'action' => 'link',
-                                             filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS),
-                                             'orgidentityid' => $p['OrgIdentity']['id']),
-                                       array('class' => 'linkbutton'));
-          } else {
-            print $this->Html->link(_txt('op.inv'),
-                                       array('controller' => 'co_people',
-                                             'action' => 'invite',
-                                             'orgidentityid' => $p['OrgIdentity']['id'],
-                                             'co' => $cur_co['Co']['id']),
-                                       array('class' => 'invitebutton'));
+
+          if(!$linked) {
+            if($op == 'link') {
+              // CO Person specified, so link instead of invite
+              print $this->Html->link(_txt('op.link'),
+                                         array('controller' => 'co_people',
+                                               'action' => 'link',
+                                               filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS),
+                                               'orgidentityid' => $p['OrgIdentity']['id']),
+                                         array('class' => 'linkbutton'));
+            } else {
+              print $this->Html->link(_txt('op.inv'),
+                                         array('controller' => 'co_people',
+                                               'action' => 'invite',
+                                               'orgidentityid' => $p['OrgIdentity']['id'],
+                                               'co' => $cur_co['Co']['id']),
+                                         array('class' => 'invitebutton'));
+            }
           }
-        }
-      ?></td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
+        ?></td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
   
-  <tfoot>
-    <tr>
-      <th colspan="8">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
-</table>
+<?php
+  print $this->element("pagination");

@@ -101,37 +101,39 @@
   });
 </script>
 
-<table id="co_navigation_links">  
-  <thead>
-    <tr>
-      <th><?php print _txt('fd.ea.order'); ?></th>
-      <th><?php print _txt('fd.link.title'); ?></th>
-      <th><?php print _txt('fd.link.url'); ?></th>
-      <th><?php print _txt('fd.desc'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody id="sortable">
-    <?php $i = 0; ?>
-    <?php foreach ($co_navigation_links as $c): ?>
-      <tr id = "CoNavigationLinkId_<?php print $c['CoNavigationLink']['id']?>" class="line1">
-        <td class = "order">
-          <span class="ui-icon ui-icon-arrow-4"></span>
-        </td>
-        <td>
-          <?php
-            print $this->Html->link($c['CoNavigationLink']['title'],
-                                    array('controller' => 'co_navigation_links',
-                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoNavigationLink']['id']));
-          ?>
-        </td>
-        <td><?php print filter_var($c['CoNavigationLink']['url'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-        <td><?php print filter_var($c['CoNavigationLink']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+<div class="table-container">
+  <table id="co_navigation_links">
+    <thead>
+      <tr>
+        <th><?php print _txt('fd.ea.order'); ?></th>
+        <th><?php print _txt('fd.link.title'); ?></th>
+        <th><?php print _txt('fd.link.url'); ?></th>
+        <th><?php print _txt('fd.desc'); ?></th>
       </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+    </thead>
+
+    <tbody id="sortable">
+      <?php $i = 0; ?>
+      <?php foreach ($co_navigation_links as $c): ?>
+        <tr id = "CoNavigationLinkId_<?php print $c['CoNavigationLink']['id']?>" class="line1">
+          <td class = "order">
+            <span class="ui-icon ui-icon-arrow-4"></span>
+          </td>
+          <td>
+            <?php
+              print $this->Html->link($c['CoNavigationLink']['title'],
+                                      array('controller' => 'co_navigation_links',
+                                            'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoNavigationLink']['id']));
+            ?>
+          </td>
+          <td><?php print filter_var($c['CoNavigationLink']['url'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+          <td><?php print filter_var($c['CoNavigationLink']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
   
 <?php print $this->element("pagination"); ?>
 

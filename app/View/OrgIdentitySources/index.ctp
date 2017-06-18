@@ -52,147 +52,149 @@
 
 ?>
 
-<table id="org_identity_sources">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php print $this->Paginator->sort('sync_mode', _txt('fd.ois.sync.mode')); ?></th>
-      <th><?php print $this->Paginator->sort('co_pipeline_id', _txt('fd.pipeline')); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($org_identity_sources as $o): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          $plugin = filter_var($o['OrgIdentitySource']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
-          $pl = Inflector::underscore($plugin);
-          $plmodel = $plugin;
-          $plm = Inflector::tableize($plmodel);
-          
-          print $this->Html->link(
-            $o['OrgIdentitySource']['description'],
-            array(
-              'controller' => 'org_identity_sources',
-              'action' => (($permissions['edit'])
-                           ? 'edit'
-                           : ($permissions['view'] ? 'view' : '')),
-              $o['OrgIdentitySource']['id']
-            )
-          );
-        ?>
-      </td>
-      <td>
-        <?php print _txt('en.status.susp', null, $o['OrgIdentitySource']['status']); ?>
-      </td>
-      <td>
-        <?php print _txt('en.sync.mode', null, $o['OrgIdentitySource']['sync_mode']); ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($o['OrgIdentitySource']['co_pipeline_id'])) {
-            print $vv_co_pipelines[ $o['OrgIdentitySource']['co_pipeline_id'] ];
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if($o['OrgIdentitySource']['status'] == SuspendableStatusEnum::Active
-             && $permissions['query']) {
+<div class="table-container">
+  <table id="org_identity_sources">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+        <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+        <th><?php print $this->Paginator->sort('sync_mode', _txt('fd.ois.sync.mode')); ?></th>
+        <th><?php print $this->Paginator->sort('co_pipeline_id', _txt('fd.pipeline')); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($org_identity_sources as $o): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            $plugin = filter_var($o['OrgIdentitySource']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
+            $pl = Inflector::underscore($plugin);
+            $plmodel = $plugin;
+            $plm = Inflector::tableize($plmodel);
+
             print $this->Html->link(
-              _txt('op.search'),
+              $o['OrgIdentitySource']['description'],
               array(
                 'controller' => 'org_identity_sources',
-                'action' => 'query',
+                'action' => (($permissions['edit'])
+                             ? 'edit'
+                             : ($permissions['view'] ? 'view' : '')),
                 $o['OrgIdentitySource']['id']
-              ),
-              array('class' => 'searchbutton')
-            ) . "\n";
-          }
-          
-          if($permissions['edit']) {
-            print $this->Html->link(
-              _txt('op.edit'),
-              array(
-                'controller' => 'org_identity_sources',
-                'action' => 'edit',
-                $o['OrgIdentitySource']['id']
-              ),
-              array('class' => 'editbutton')
-            ) . "\n";
-            
-            print $this->Html->link(
-              _txt('op.config'),
-              array(
-                'plugin' => $pl,
-                'controller' => $plm,
-                'action' => 'edit',
-                $o[$plmodel]['id']
-              ),
-              array('class' => 'configurebutton')
-            ) . "\n";
-            
-            if(!empty($vv_plugin_group_attrs[$plmodel])) {
-              print $this->Html->link(_txt('op.ois.conf.gr'),
-                                      array(
-                                        'controller' => 'co_group_ois_mappings',
-                                        'action' => 'index',
-                                        'org_identity_source' => $o['OrgIdentitySource']['id']
-                                      ),
-                                      array('class' => 'configurebutton')) . "\n";
+              )
+            );
+          ?>
+        </td>
+        <td>
+          <?php print _txt('en.status.susp', null, $o['OrgIdentitySource']['status']); ?>
+        </td>
+        <td>
+          <?php print _txt('en.sync.mode', null, $o['OrgIdentitySource']['sync_mode']); ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($o['OrgIdentitySource']['co_pipeline_id'])) {
+              print $vv_co_pipelines[ $o['OrgIdentitySource']['co_pipeline_id'] ];
             }
-          }
-          
-          if($permissions['inventory']) {
-            print '<button type="button" class="viewbutton" title="' . _txt('op.inventory.view')
-              . '" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.ois.inventory') . '\',\''    // dialog body text
-              . $this->Html->url(                     // dialog confirm URL
+          ?>
+        </td>
+        <td>
+          <?php
+            if($o['OrgIdentitySource']['status'] == SuspendableStatusEnum::Active
+               && $permissions['query']) {
+              print $this->Html->link(
+                _txt('op.search'),
                 array(
                   'controller' => 'org_identity_sources',
-                  'action' => 'inventory',
+                  'action' => 'query',
                   $o['OrgIdentitySource']['id']
-                )
-              ) . '\',\''
-              . _txt('op.view') . '\',\''      // dialog confirm button
-              . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.inventory.view') . '\',[\''   // dialog title
-              . filter_var(_jtxt($o['OrgIdentitySource']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.inventory.view')
-              . '</button>';
-          }
-          
-          if($permissions['delete']) {
-            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-              . '" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.remove') . '\',\''    // dialog body text
-              . $this->Html->url(              // dialog confirm URL
+                ),
+                array('class' => 'searchbutton')
+              ) . "\n";
+            }
+
+            if($permissions['edit']) {
+              print $this->Html->link(
+                _txt('op.edit'),
                 array(
                   'controller' => 'org_identity_sources',
-                  'action' => 'delete',
+                  'action' => 'edit',
                   $o['OrgIdentitySource']['id']
-                )
-              ) . '\',\''
-              . _txt('op.remove') . '\',\''    // dialog confirm button
-              . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($o['OrgIdentitySource']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.delete')
-              . '</button>';
-          }
-        ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+                ),
+                array('class' => 'editbutton')
+              ) . "\n";
+
+              print $this->Html->link(
+                _txt('op.config'),
+                array(
+                  'plugin' => $pl,
+                  'controller' => $plm,
+                  'action' => 'edit',
+                  $o[$plmodel]['id']
+                ),
+                array('class' => 'configurebutton')
+              ) . "\n";
+
+              if(!empty($vv_plugin_group_attrs[$plmodel])) {
+                print $this->Html->link(_txt('op.ois.conf.gr'),
+                                        array(
+                                          'controller' => 'co_group_ois_mappings',
+                                          'action' => 'index',
+                                          'org_identity_source' => $o['OrgIdentitySource']['id']
+                                        ),
+                                        array('class' => 'configurebutton')) . "\n";
+              }
+            }
+
+            if($permissions['inventory']) {
+              print '<button type="button" class="viewbutton" title="' . _txt('op.inventory.view')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.ois.inventory') . '\',\''    // dialog body text
+                . $this->Html->url(                     // dialog confirm URL
+                  array(
+                    'controller' => 'org_identity_sources',
+                    'action' => 'inventory',
+                    $o['OrgIdentitySource']['id']
+                  )
+                ) . '\',\''
+                . _txt('op.view') . '\',\''      // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.inventory.view') . '\',[\''   // dialog title
+                . filter_var(_jtxt($o['OrgIdentitySource']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.inventory.view')
+                . '</button>';
+            }
+
+            if($permissions['delete']) {
+              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'org_identity_sources',
+                    'action' => 'delete',
+                    $o['OrgIdentitySource']['id']
+                  )
+                ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . filter_var(_jtxt($o['OrgIdentitySource']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.delete')
+                . '</button>';
+            }
+          ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
 
 <?php
   print $this->element("pagination");

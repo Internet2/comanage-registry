@@ -37,52 +37,48 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<table id="org_identity_sources">
-  <thead>
-    <tr>
-      <th><?php print _txt('fd.name'); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach($vv_org_id_sources as $id => $desc): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print filter_var($desc,FILTER_SANITIZE_SPECIAL_CHARS);
-        ?>
-      </td>
-      <td>
-        <?php
-          if($permissions['select']) {
-            $args = array(
-              'controller' => 'org_identity_sources',
-              'action' => 'query',
-              $id
-            );
-            
-            if(!empty($this->request->params['named']['copetitionid'])) {
-              $args['copetitionid'] = filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS);
+<div class="table-container">
+  <table id="org_identity_sources">
+    <thead>
+      <tr>
+        <th><?php print _txt('fd.name'); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach($vv_org_id_sources as $id => $desc): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            print filter_var($desc,FILTER_SANITIZE_SPECIAL_CHARS);
+          ?>
+        </td>
+        <td>
+          <?php
+            if($permissions['select']) {
+              $args = array(
+                'controller' => 'org_identity_sources',
+                'action' => 'query',
+                $id
+              );
+
+              if(!empty($this->request->params['named']['copetitionid'])) {
+                $args['copetitionid'] = filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS);
+              }
+
+              print $this->Html->link(_txt('op.select'),
+                                      $args,
+                                      array('class' => 'forwardbutton')) . "\n";
             }
-            
-            print $this->Html->link(_txt('op.select'),
-                                    $args,
-                                    array('class' => 'forwardbutton')) . "\n";
-          }
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-  
-  <tfoot>
-    <tr>
-      <th colspan="2">
-      </th>
-    </tr>
-  </tfoot>
-</table>
+          ?>
+          <?php ; ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+
+  </table>
+</div>

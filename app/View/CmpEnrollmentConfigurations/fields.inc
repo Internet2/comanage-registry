@@ -179,7 +179,7 @@
         }
       ?>
     </div>
-    <div id="org_attributes" class="field-children" style="display: none;">
+    <div id="org_attributes" class="field-children table-container" style="display: none;">
       <table id="<?php print $this->action; ?>_cmp_enrollment_attributes">
         <?php
           $l = 1;

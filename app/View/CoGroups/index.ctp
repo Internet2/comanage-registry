@@ -297,181 +297,183 @@
   });
 </script>
 
-<table id="co_groups">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
-      <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-      <th><?php print $this->Paginator->sort('open', _txt('fd.open')); ?></th>
-      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_groups as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          // In addition to the usual permissions, an owner can edit and a member can view
-          // Anyone can view an open group
-          
-          $d = $permissions['delete'];
-          $e = $permissions['edit'];
-          $v = $permissions['view'] || $c['CoGroup']['open'];
-          
-          if(!empty($permissions['owner'])
-             && in_array($c['CoGroup']['id'], $permissions['owner'])) {
-            $d = true;
-            $e = true;
-          }
-          
-          if(!empty($permissions['member'])
-             && in_array($c['CoGroup']['id'], $permissions['member'])) {
-            $v = true;
-          }
-          
-          if(!empty($c['CoGroup']['group_type'])) {
-            if($c['CoGroup']['group_type'] != GroupEnum::Standard) {
-              // Non-standard groups can't be deleted
-              $d = false;
-            }
-            
-            if($c['CoGroup']['auto']) {
-              // Automatic groups can't be edited
-              $e = false;
-            }
-          }
-          
-          if($e || $v) {
-            print $this->Html->link($c['CoGroup']['name'],
-                                    array('controller' => 'co_groups',
-                                          'action' => ($e ? 'edit' : ($v ? 'view' : '')), $c['CoGroup']['id']));
-          } else {
-            print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
-          }
-        ?>
-      </td>
-      <td><?php print filter_var($c['CoGroup']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-      <td><?php print $c['CoGroup']['open'] ? _txt('fd.open') : _txt('fd.closed'); ?></td>
-      <td>
-        <?php
-          print _txt('en.status', null, $c['CoGroup']['status']);
-        ?>
-      </td>
-      <td class="actions">
-        <?php
-          if($this->action == 'select') {
-            if($permissions['select']) {
-              print $this->Form->hidden('CoGroupMember.rows.'.$i.'.co_group_id',
-                                        array('default' => $c['CoGroup']['id'])) . "\n";
-              
-              // We toggle the disabled status of the checkbox based on a person's permissions.
-              // A CO(U) Admin can edit any membership or ownership.
-              // A group owner can edit any membership or ownership for that group.
-              // Anyone can add or remove themself from or two an open group.
-              // Membership in members groups is automatically managed and so we toggle
-              // disabled status for members groups.
-              
-              $gmID = null;
-              $isMember = false;
-              $isOwner = false;
-              
-              foreach($c['CoGroupMember'] as $cgm) {
-                // Walk the CoGroupMemberships for this CoGroup to find the target CO Person
-                if($cgm['co_person_id'] == $vv_co_person_id) {
-                  $gmID = $cgm['id'];
-                  $isMember = $cgm['member'];
-                  $isOwner = $cgm['owner'];
-                  break;
-                }
-              }
-              
-              if($gmID) {
-                // Populate the cross reference
-                print $this->Form->hidden('CoGroupMember.rows.'.$i.'.id',
-                                          array('default' => $gmID)) . "\n";
-              }
-              
-              $disabled = !($e || $permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $c['CoGroup']['auto'];
-              print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
-                                          array('disabled' => $disabled,
-                                                'checked'    => $isMember));
-              print $this->Form->label('CoGroupMember.rows.'.$i.'.member',_txt('fd.group.mem'));
-              
-              $disabled = !($e || $permissions['selectany'] || $isOwner) || $c['CoGroup']['auto'];
-              print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
-                                          array('disabled' => $disabled,
-                                                'checked'    => $isOwner));
-              print $this->Form->label('CoGroupMember.rows.'.$i.'.owner',_txt('fd.group.own'));
-            }
-          } else {
-            if($e) {
-              print $this->Html->link(_txt('op.edit'),
-                                      array('controller' => 'co_groups',
-                                            'action' => 'edit',
-                                            $c['CoGroup']['id']),
-                                      array('class' => 'editbutton'))
-              . "\n";
-            }
-            elseif($v) {
-              print $this->Html->link(_txt('op.view'),
-                                      array('controller' => 'co_groups',
-                                            'action'     => 'view',
-                                            $c['CoGroup']['id']),
-                                      array('class'      => 'viewbutton'))
-                    . "\n";
-            }
-            
-            if($d) {
-              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-                . '" onclick="javascript:js_confirm_generic(\''
-                . _txt('js.remove') . '\',\''    // dialog body text
-                . $this->Html->url(              // dialog confirm URL
-                  array(
-                    'controller' => 'co_groups',
-                    'action' => 'delete',
-                    $c['CoGroup']['id'],
-                    'co' => $this->params['named']['co']
-                  )
-                ) . '\',\''
-                . _txt('op.remove') . '\',\''    // dialog confirm button
-                . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.remove') . '\',[\''   // dialog title
-                . filter_var(_jtxt($c['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                . '\']);">'
-                . _txt('op.delete')
-                . '</button>';
-            }
-          }
-          
-          if(!empty($c['CoGroupMember'][0]['source_org_identity_id'])) {
-            print $this->Html->link(_txt('op.view.source'),
-                                    array('controller' => 'org_identities',
-                                          'action' => 'view',
-                                          $c['CoGroupMember'][0]['source_org_identity_id']),
-                                    array('class' => 'viewbutton'));
-          }
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-
-  <?php if($this->action == 'select'): ?>
-    <tfoot>
+<div class="table-container">
+  <table id="co_groups">
+    <thead>
       <tr>
-        <td colspan="4"></td>
+        <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
+        <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+        <th><?php print $this->Paginator->sort('open', _txt('fd.open')); ?></th>
+        <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($co_groups as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
         <td>
-          <?php print $this->Form->submit(_txt('op.save')); ?>
+          <?php
+            // In addition to the usual permissions, an owner can edit and a member can view
+            // Anyone can view an open group
+
+            $d = $permissions['delete'];
+            $e = $permissions['edit'];
+            $v = $permissions['view'] || $c['CoGroup']['open'];
+
+            if(!empty($permissions['owner'])
+               && in_array($c['CoGroup']['id'], $permissions['owner'])) {
+              $d = true;
+              $e = true;
+            }
+
+            if(!empty($permissions['member'])
+               && in_array($c['CoGroup']['id'], $permissions['member'])) {
+              $v = true;
+            }
+
+            if(!empty($c['CoGroup']['group_type'])) {
+              if($c['CoGroup']['group_type'] != GroupEnum::Standard) {
+                // Non-standard groups can't be deleted
+                $d = false;
+              }
+
+              if($c['CoGroup']['auto']) {
+                // Automatic groups can't be edited
+                $e = false;
+              }
+            }
+
+            if($e || $v) {
+              print $this->Html->link($c['CoGroup']['name'],
+                                      array('controller' => 'co_groups',
+                                            'action' => ($e ? 'edit' : ($v ? 'view' : '')), $c['CoGroup']['id']));
+            } else {
+              print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+          ?>
+        </td>
+        <td><?php print filter_var($c['CoGroup']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td><?php print $c['CoGroup']['open'] ? _txt('fd.open') : _txt('fd.closed'); ?></td>
+        <td>
+          <?php
+            print _txt('en.status', null, $c['CoGroup']['status']);
+          ?>
+        </td>
+        <td class="actions">
+          <?php
+            if($this->action == 'select') {
+              if($permissions['select']) {
+                print $this->Form->hidden('CoGroupMember.rows.'.$i.'.co_group_id',
+                                          array('default' => $c['CoGroup']['id'])) . "\n";
+
+                // We toggle the disabled status of the checkbox based on a person's permissions.
+                // A CO(U) Admin can edit any membership or ownership.
+                // A group owner can edit any membership or ownership for that group.
+                // Anyone can add or remove themself from or two an open group.
+                // Membership in members groups is automatically managed and so we toggle
+                // disabled status for members groups.
+
+                $gmID = null;
+                $isMember = false;
+                $isOwner = false;
+
+                foreach($c['CoGroupMember'] as $cgm) {
+                  // Walk the CoGroupMemberships for this CoGroup to find the target CO Person
+                  if($cgm['co_person_id'] == $vv_co_person_id) {
+                    $gmID = $cgm['id'];
+                    $isMember = $cgm['member'];
+                    $isOwner = $cgm['owner'];
+                    break;
+                  }
+                }
+
+                if($gmID) {
+                  // Populate the cross reference
+                  print $this->Form->hidden('CoGroupMember.rows.'.$i.'.id',
+                                            array('default' => $gmID)) . "\n";
+                }
+
+                $disabled = !($e || $permissions['selectany'] || $c['CoGroup']['open'] || $isOwner) || $c['CoGroup']['auto'];
+                print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',
+                                            array('disabled' => $disabled,
+                                                  'checked'    => $isMember));
+                print $this->Form->label('CoGroupMember.rows.'.$i.'.member',_txt('fd.group.mem'));
+
+                $disabled = !($e || $permissions['selectany'] || $isOwner) || $c['CoGroup']['auto'];
+                print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',
+                                            array('disabled' => $disabled,
+                                                  'checked'    => $isOwner));
+                print $this->Form->label('CoGroupMember.rows.'.$i.'.owner',_txt('fd.group.own'));
+              }
+            } else {
+              if($e) {
+                print $this->Html->link(_txt('op.edit'),
+                                        array('controller' => 'co_groups',
+                                              'action' => 'edit',
+                                              $c['CoGroup']['id']),
+                                        array('class' => 'editbutton'))
+                . "\n";
+              }
+              elseif($v) {
+                print $this->Html->link(_txt('op.view'),
+                                        array('controller' => 'co_groups',
+                                              'action'     => 'view',
+                                              $c['CoGroup']['id']),
+                                        array('class'      => 'viewbutton'))
+                      . "\n";
+              }
+
+              if($d) {
+                print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                  . '" onclick="javascript:js_confirm_generic(\''
+                  . _txt('js.remove') . '\',\''    // dialog body text
+                  . $this->Html->url(              // dialog confirm URL
+                    array(
+                      'controller' => 'co_groups',
+                      'action' => 'delete',
+                      $c['CoGroup']['id'],
+                      'co' => $this->params['named']['co']
+                    )
+                  ) . '\',\''
+                  . _txt('op.remove') . '\',\''    // dialog confirm button
+                  . _txt('op.cancel') . '\',\''    // dialog cancel button
+                  . _txt('op.remove') . '\',[\''   // dialog title
+                  . filter_var(_jtxt($c['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                  . '\']);">'
+                  . _txt('op.delete')
+                  . '</button>';
+              }
+            }
+
+            if(!empty($c['CoGroupMember'][0]['source_org_identity_id'])) {
+              print $this->Html->link(_txt('op.view.source'),
+                                      array('controller' => 'org_identities',
+                                            'action' => 'view',
+                                            $c['CoGroupMember'][0]['source_org_identity_id']),
+                                      array('class' => 'viewbutton'));
+            }
+          ?>
+          <?php ; ?>
         </td>
       </tr>
-    </tfoot>
-  <?php endif; ?>
-</table>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+
+    <?php if($this->action == 'select'): ?>
+      <tfoot>
+        <tr>
+          <td colspan="4"></td>
+          <td>
+            <?php print $this->Form->submit(_txt('op.save')); ?>
+          </td>
+        </tr>
+      </tfoot>
+    <?php endif; ?>
+  </table>
+</div>
 
 <?php
   print $this->element("pagination");

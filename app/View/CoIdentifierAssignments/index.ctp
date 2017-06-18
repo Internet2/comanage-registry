@@ -246,61 +246,63 @@
   });
 </script>
 
-<table id="cous">
-  <thead>
-  <tr>
-    <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-    <th><?php print $this->Paginator->sort('identifier_type', _txt('fd.type')); ?></th>
-    <th><?php print _txt('fd.actions'); ?></th>
-  </tr>
-  </thead>
-
-  <tbody>
-  <?php $i = 0; ?>
-  <?php foreach ($co_identifier_assignments as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-        print $this->Html->link($c['CoIdentifierAssignment']['description'],
-          array('controller' => 'co_identifier_assignments',
-            'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoIdentifierAssignment']['id'], 'co' => $cur_co['Co']['id']));
-        ?>
-      </td>
-      <td><?php print filter_var($c['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-      <td>
-        <?php
-        if($permissions['edit']) {
-          print $this->Html->link(_txt('op.edit'),
-              array('controller' => 'co_identifier_assignments', 'action' => 'edit', $c['CoIdentifierAssignment']['id'], 'co' => $cur_co['Co']['id']),
-              array('class' => 'editbutton')) . "\n";
-        }
-        if($permissions['delete']) {
-          print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-            . '" onclick="javascript:js_confirm_generic(\''
-            . _txt('js.remove') . '\',\''    // dialog body text
-            . $this->Html->url(              // dialog confirm URL
-              array(
-                'controller' => 'co_identifier_assignments',
-                'action' => 'delete',
-                $c['CoIdentifierAssignment']['id'],
-                'co' => $cur_co['Co']['id']
-              )
-            ) . '\',\''
-            . _txt('op.remove') . '\',\''    // dialog confirm button
-            . _txt('op.cancel') . '\',\''    // dialog cancel button
-            . _txt('op.remove') . '\',[\''   // dialog title
-            . filter_var(_jtxt($c['CoIdentifierAssignment']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-            . '\']);">'
-            . _txt('op.delete')
-            . '</button>';
-        }
-        ?>
-      </td>
+<div class="table-container">
+  <table id="cous">
+    <thead>
+    <tr>
+      <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+      <th><?php print $this->Paginator->sort('identifier_type', _txt('fd.type')); ?></th>
+      <th><?php print _txt('fd.actions'); ?></th>
     </tr>
-    <?php $i++; ?>
-  <?php endforeach; ?>
-  </tbody>
-</table>
+    </thead>
+
+    <tbody>
+    <?php $i = 0; ?>
+    <?php foreach ($co_identifier_assignments as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+          print $this->Html->link($c['CoIdentifierAssignment']['description'],
+            array('controller' => 'co_identifier_assignments',
+              'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoIdentifierAssignment']['id'], 'co' => $cur_co['Co']['id']));
+          ?>
+        </td>
+        <td><?php print filter_var($c['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td>
+          <?php
+          if($permissions['edit']) {
+            print $this->Html->link(_txt('op.edit'),
+                array('controller' => 'co_identifier_assignments', 'action' => 'edit', $c['CoIdentifierAssignment']['id'], 'co' => $cur_co['Co']['id']),
+                array('class' => 'editbutton')) . "\n";
+          }
+          if($permissions['delete']) {
+            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.remove') . '\',\''    // dialog body text
+              . $this->Html->url(              // dialog confirm URL
+                array(
+                  'controller' => 'co_identifier_assignments',
+                  'action' => 'delete',
+                  $c['CoIdentifierAssignment']['id'],
+                  'co' => $cur_co['Co']['id']
+                )
+              ) . '\',\''
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\',[\''   // dialog title
+              . filter_var(_jtxt($c['CoIdentifierAssignment']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+              . '\']);">'
+              . _txt('op.delete')
+              . '</button>';
+          }
+          ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+    <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
 
 <?php print $this->element("pagination"); ?>
 

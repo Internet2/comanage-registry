@@ -59,6 +59,7 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
+<div class="table-container">
 <table id="co_group_ois_mappings">
   <thead>
     <tr>
@@ -140,12 +141,7 @@
     <?php $i++; ?>
     <?php endforeach; ?>
   </tbody>
-  
-  <tfoot>
-    <tr>
-      <th colspan="5">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
 </table>
+  
+<?php
+  print $this->element("pagination");

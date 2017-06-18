@@ -50,78 +50,80 @@
 
 ?>
 
-<table id="cos">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
-      <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($cos as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print $this->Html->link(
-            $c['Co']['name'],
-            array(
-              'controller' => 'cos',
-              'action' => (($permissions['edit'] && $c['Co']['name'] != 'COmanage')
-                           ? 'edit'
-                           : ($permissions['view'] ? 'view' : '')),
-              $c['Co']['id']
-            )
-          );
-        ?>
-      </td>
-      <td><?php print filter_var($c['Co']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-      <td>
-        <?php print _txt('en.status', null, $c['Co']['status']); ?>
-      </td>
-      <td>
-        <?php
-          if($permissions['edit'] && $c['Co']['name'] != 'COmanage')
+<div class="table-container">
+  <table id="cos">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
+        <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+        <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($cos as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
             print $this->Html->link(
-              _txt('op.edit'),
+              $c['Co']['name'],
               array(
                 'controller' => 'cos',
-                'action' => 'edit',
+                'action' => (($permissions['edit'] && $c['Co']['name'] != 'COmanage')
+                             ? 'edit'
+                             : ($permissions['view'] ? 'view' : '')),
                 $c['Co']['id']
-              ),
-              array('class' => 'editbutton')
-            ) . "\n";
-            
-          if($permissions['delete'] && $c['Co']['name'] != 'COmanage') {
-            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-              . '" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.remove') . '\',\''    // dialog body text
-              . $this->Html->url(              // dialog confirm URL
+              )
+            );
+          ?>
+        </td>
+        <td><?php print filter_var($c['Co']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td>
+          <?php print _txt('en.status', null, $c['Co']['status']); ?>
+        </td>
+        <td>
+          <?php
+            if($permissions['edit'] && $c['Co']['name'] != 'COmanage')
+              print $this->Html->link(
+                _txt('op.edit'),
                 array(
                   'controller' => 'cos',
-                  'action' => 'delete',
+                  'action' => 'edit',
                   $c['Co']['id']
-                )
-              ) . '\',\''
-              . _txt('op.remove') . '\',\''    // dialog confirm button
-              . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($c['Co']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.delete')
-              . '</button>';
-          }
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+                ),
+                array('class' => 'editbutton')
+              ) . "\n";
+
+            if($permissions['delete'] && $c['Co']['name'] != 'COmanage') {
+              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'cos',
+                    'action' => 'delete',
+                    $c['Co']['id']
+                  )
+                ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . filter_var(_jtxt($c['Co']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.delete')
+                . '</button>';
+            }
+          ?>
+          <?php ; ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
 
 <?php
   print $this->element("pagination");

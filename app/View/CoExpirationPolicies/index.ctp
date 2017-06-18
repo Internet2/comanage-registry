@@ -52,80 +52,82 @@
 
 ?>
 
-<table id="co_expiration_policies">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-      <th><?php print $this->Paginator->sort('CondCou.name', _txt('fd.cou')); ?></th>
-      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_expiration_policies as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print $this->Html->link($c['CoExpirationPolicy']['description'],
-                                  array('controller' => 'co_expiration_policies',
-                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                        $c['CoExpirationPolicy']['id']));
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($c['CondCou']['name'])) {
-            print filter_var($c['CondCou']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($c['CoExpirationPolicy']['status'])) {
-            print _txt('en.status', null, $c['CoExpirationPolicy']['status']);
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if($permissions['edit']) {
-            print $this->Html->link(_txt('op.edit'),
-                array(
-                  'controller' => 'co_expiration_policies',
-                  'action' => 'edit',
-                  $c['CoExpirationPolicy']['id']
-                ),
-                array('class' => 'editbutton')) . "\n";
-          }
-          if($permissions['delete']) {
-            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-              . '" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.remove') . '\',\''    // dialog body text
-              . $this->Html->url(              // dialog confirm URL
-                array(
-                  'controller' => 'co_expiration_policies',
-                  'action' => 'delete',
-                  $c['CoExpirationPolicy']['id']
-                )
-              ) . '\',\''
-              . _txt('op.remove') . '\',\''    // dialog confirm button
-              . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($c['CoExpirationPolicy']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.delete')
-              . '</button>';
-          }
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+<div class="table-container">
+  <table id="co_expiration_policies">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+        <th><?php print $this->Paginator->sort('CondCou.name', _txt('fd.cou')); ?></th>
+        <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($co_expiration_policies as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            print $this->Html->link($c['CoExpirationPolicy']['description'],
+                                    array('controller' => 'co_expiration_policies',
+                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                          $c['CoExpirationPolicy']['id']));
+          ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($c['CondCou']['name'])) {
+              print filter_var($c['CondCou']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($c['CoExpirationPolicy']['status'])) {
+              print _txt('en.status', null, $c['CoExpirationPolicy']['status']);
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if($permissions['edit']) {
+              print $this->Html->link(_txt('op.edit'),
+                  array(
+                    'controller' => 'co_expiration_policies',
+                    'action' => 'edit',
+                    $c['CoExpirationPolicy']['id']
+                  ),
+                  array('class' => 'editbutton')) . "\n";
+            }
+            if($permissions['delete']) {
+              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'co_expiration_policies',
+                    'action' => 'delete',
+                    $c['CoExpirationPolicy']['id']
+                  )
+                ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . filter_var(_jtxt($c['CoExpirationPolicy']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.delete')
+                . '</button>';
+            }
+          ?>
+          <?php ; ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
   
 <?php
   print $this->element("pagination");

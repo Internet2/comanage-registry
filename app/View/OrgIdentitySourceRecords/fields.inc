@@ -74,45 +74,48 @@
   </div>
 <?php endif; // view ?>
 
-<table id="<?php print $this->action; ?>_org_identity_source">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <?php print _txt('ct.org_identity_sources.1'); ?>
-      </td>
-      <td>
-        <?php print filter_var($org_identity_source_records[0]['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print _txt('fd.sorid'); ?>
-      </td>
-      <td>
-        <?php print filter_var($org_identity_source_records[0]['OrgIdentitySourceRecord']['sorid'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-      </td>
-    </tr>
-    <tr class="line1">
-      <td>
-        <?php print _txt('fd.update.last'); ?>
-      </td>
-      <td>
-        <?php
-          print $this->Time->format($org_identity_source_records[0]['OrgIdentitySourceRecord']['last_update'], "%c $vv_tz", false, $vv_tz);
-        ?>
-      </td>
-    </tr>
-    <tr class="line2">
-      <td>
-        <?php print _txt('fd.ois.record'); ?>
-      </td>
-      <td>
-        <pre>
-          <?php print filter_var($org_identity_source_records[0]['OrgIdentitySourceRecord']['source_record'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-        </pre>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div class="table-container">
+  <table id="<?php print $this->action; ?>_org_identity_source">
+    <tbody>
+      <tr class="line1">
+        <td>
+          <?php print _txt('ct.org_identity_sources.1'); ?>
+        </td>
+        <td>
+          <?php print filter_var($org_identity_source_records[0]['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+        </td>
+      </tr>
+      <tr class="line2">
+        <td>
+          <?php print _txt('fd.sorid'); ?>
+        </td>
+        <td>
+          <?php print filter_var($org_identity_source_records[0]['OrgIdentitySourceRecord']['sorid'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+        </td>
+      </tr>
+      <tr class="line1">
+        <td>
+          <?php print _txt('fd.update.last'); ?>
+        </td>
+        <td>
+          <?php
+            print $this->Time->format($org_identity_source_records[0]['OrgIdentitySourceRecord']['last_update'], "%c $vv_tz", false, $vv_tz);
+          ?>
+        </td>
+      </tr>
+      <tr class="line2">
+        <td>
+          <?php print _txt('fd.ois.record'); ?>
+        </td>
+        <td>
+          <pre>
+            <?php print filter_var($org_identity_source_records[0]['OrgIdentitySourceRecord']['source_record'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+          </pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-<?php print $this->element("changelog"); ?>
+<?php
+  print $this->element("changelog"); 

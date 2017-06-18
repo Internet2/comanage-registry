@@ -94,96 +94,93 @@
 
 ?>
 
-<table id="history_records">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('id', _txt('fd.id.seq')); ?></th>
-      <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
-      <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
-      <th><?php print $this->Paginator->sort('Actor.PrimaryName.family', _txt('fd.actor')); ?></th>
-      <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', _txt('ct.org_identities.1')); ?></th>
-      <th><?php print $this->Paginator->sort('CoPerson.PrimaryName.family', _txt('ct.co_people.1')); ?></th>
-      <th><?php print _txt('fd.action'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($history_records as $h): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td><?php print $h['HistoryRecord']['id']; ?></td>
-      <td><?php print $this->Time->niceShort($h['HistoryRecord']['created'], $vv_tz); ?></td>
-      <td><?php print filter_var($h['HistoryRecord']['comment'],FILTER_SANITIZE_SPECIAL_CHARS) . "\n";?></td>
-      <td>
-        <?php
-          if(!empty($h['ActorCoPerson']['id'])) {
+<div class="table-container">
+  <table id="history_records">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('id', _txt('fd.id.seq')); ?></th>
+        <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
+        <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
+        <th><?php print $this->Paginator->sort('Actor.PrimaryName.family', _txt('fd.actor')); ?></th>
+        <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', _txt('ct.org_identities.1')); ?></th>
+        <th><?php print $this->Paginator->sort('CoPerson.PrimaryName.family', _txt('ct.co_people.1')); ?></th>
+        <th><?php print _txt('fd.action'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($history_records as $h): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td><?php print $h['HistoryRecord']['id']; ?></td>
+        <td><?php print $this->Time->niceShort($h['HistoryRecord']['created'], $vv_tz); ?></td>
+        <td><?php print filter_var($h['HistoryRecord']['comment'],FILTER_SANITIZE_SPECIAL_CHARS) . "\n";?></td>
+        <td>
+          <?php
+            if(!empty($h['ActorCoPerson']['id'])) {
+              print $this->Html->link(
+                (!empty($h['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($h['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.deleted')),
+                array(
+                  'controller' => 'co_people',
+                  'action' => 'view',
+                  $h['ActorCoPerson']['id']
+                )
+              );
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($h['OrgIdentity']['id'])) {
+              print $this->Html->link(
+                (!empty($h['OrgIdentity']['PrimaryName']) ? filter_var(generateCn($h['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.deleted')),
+                array(
+                  'controller' => 'org_identities',
+                  'action' => 'view',
+                  $h['OrgIdentity']['id']
+                )
+              );
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($h['CoPerson']['id'])) {
+              print $this->Html->link(
+                (!empty($h['CoPerson']['PrimaryName']) ? filter_var(generateCn($h['CoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.deleted')),
+                array(
+                  'controller' => 'co_people',
+                  'action' => 'canvas',
+                  $h['CoPerson']['id']
+                )
+              );
+            }
+          ?>
+        </td>
+        <td>
+          <?php
             print $this->Html->link(
-              (!empty($h['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($h['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.deleted')),
+              _txt('op.view'),
               array(
-                'controller' => 'co_people',
-                'action' => 'view',
-                $h['ActorCoPerson']['id']
+                'controller' => 'history_records',
+                'action'     => 'view',
+                $h['HistoryRecord']['id']
+              ),
+              array(
+                'class' => 'viewbutton lightbox'
               )
             );
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($h['OrgIdentity']['id'])) {
-            print $this->Html->link(
-              (!empty($h['OrgIdentity']['PrimaryName']) ? filter_var(generateCn($h['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.deleted')),
-              array(
-                'controller' => 'org_identities',
-                'action' => 'view',
-                $h['OrgIdentity']['id']
-              )
-            );
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($h['CoPerson']['id'])) {
-            print $this->Html->link(
-              (!empty($h['CoPerson']['PrimaryName']) ? filter_var(generateCn($h['CoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.deleted')),
-              array(
-                'controller' => 'co_people',
-                'action' => 'canvas',
-                $h['CoPerson']['id']
-              )
-            );
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          print $this->Html->link(
-            _txt('op.view'),
-            array(
-              'controller' => 'history_records',
-              'action'     => 'view',
-              $h['HistoryRecord']['id']
-            ),
-            array(
-              'class' => 'viewbutton lightbox'
-            )
-          );
-        ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-  
-  <tfoot>
-    <tr>
-      <th colspan="7">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
-</table>
+          ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+
+  </table>
+</div>
+
+<?php print $this->element("pagination"); ?>
 
 <script type="text/javascript">
   $(document).ready(function() {

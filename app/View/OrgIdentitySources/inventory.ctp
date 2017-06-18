@@ -47,51 +47,47 @@
 <p><?php print _txt('rs.found.cnt', array(count($vv_source_keys))); ?></p>
 <?php endif; ?>
 
-<table id="org_identity_source_inventory" class="ui-widget">
-  <thead>
-    <tr class="ui-widget-header">
-      <th><?php print _txt('fd.ois.record'); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <?php if(!empty($vv_source_keys)): ?>
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach($vv_source_keys as $skey): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print filter_var($skey,FILTER_SANITIZE_SPECIAL_CHARS);
-        ?>
-      </td>
-      <td>
-        <?php
-          if($permissions['view']) {
-            $args = array(
-              'controller' => 'org_identity_sources',
-              'action'     => 'retrieve',
-              $vv_org_identity_source['id'],
-              'key'        => $skey
-            );
-            
-            print $this->Html->link(_txt('op.view'),
-                                    $args,
-                                    array('class' => 'viewbutton')) . "\n";
-          }
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-  <?php endif; // vv_source_keys ?>
-  
-  <tfoot>
-    <tr class="ui-widget-header">
-      <th colspan="2">
-      </th>
-    </tr>
-  </tfoot>
-</table>
+<div class="table-container">
+  <table id="org_identity_source_inventory" class="ui-widget">
+    <thead>
+      <tr class="ui-widget-header">
+        <th><?php print _txt('fd.ois.record'); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <?php if(!empty($vv_source_keys)): ?>
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach($vv_source_keys as $skey): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            print filter_var($skey,FILTER_SANITIZE_SPECIAL_CHARS);
+          ?>
+        </td>
+        <td>
+          <?php
+            if($permissions['view']) {
+              $args = array(
+                'controller' => 'org_identity_sources',
+                'action'     => 'retrieve',
+                $vv_org_identity_source['id'],
+                'key'        => $skey
+              );
+
+              print $this->Html->link(_txt('op.view'),
+                                      $args,
+                                      array('class' => 'viewbutton')) . "\n";
+            }
+          ?>
+          <?php ; ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+    <?php endif; // vv_source_keys ?>
+
+  </table>
+</div>
