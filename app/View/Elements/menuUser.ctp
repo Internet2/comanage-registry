@@ -46,11 +46,15 @@
               $n['CoNotification']['id']
             );
 
+/*            $linkedMarkup = '<span class="notification-comment">' . $n['CoNotification']['comment'] . '</span>';
+            $linkedMarkup += '<span class="notification-created">' . $this->Time->timeAgoInWords($n['CoNotification']['created']) . '</span>';
+            print $this->Html->link($linkedMarkup,$args);*/
+
             print '<span class="notification-comment">';
             print $this->Html->link($n['CoNotification']['comment'],$args);
             print '</span>';
             print '<span class="notification-created">';
-            print $this->Html->link($this->Time->timeAgoInWords($n['CoNotification']['created']),$args);
+            print $this->Time->timeAgoInWords($n['CoNotification']['created']);
             print '</span>';
 
             $notificationCount++;
@@ -152,14 +156,8 @@
 <?php endif ?>
 
 <?php if(!isset($noLoginLogout) || !$noLoginLogout) : ?>
-  <?php // Print the login/logout buttons
-    if($this->Session->check('Auth.User') != NULL) {
-      $args = array('controller' => 'auth',
-                    'action'     => 'logout',
-                    'plugin'     => false);
-      print $this->Html->link(_txt('op.logout') . ' <span class="fa fa-sign-out"></span>',
-            $args, array('escape'=>false, 'id' => 'logout', 'class' => ''));
-    } else {
+  <?php // Print the login button
+    if($this->Session->check('Auth.User') == NULL) {
       $args = array('controller' => 'auth',
                     'action'     => 'login',
                     'plugin'     => false

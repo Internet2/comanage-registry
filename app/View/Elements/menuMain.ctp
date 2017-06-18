@@ -518,7 +518,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
     // Platform Menu
     if(!empty($permissions['menu']['admin']) && $permissions['menu']['admin']) {
       print'<li class="platformMenu">';
-      print'<a href="#" class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
+      print'<a href="#" class="menuTop mdl-js-ripple-effect" aria-expanded="false">';
       print'<i class="material-icons">settings</i>';
       print '<span class="menuTitle">' . _txt('me.platform') . '</span>';
       print '<span class="fa arrow fa-fw"></span>';

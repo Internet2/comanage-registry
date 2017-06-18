@@ -58,6 +58,8 @@
   }
   #logout {
     /*display: block; -- keep hidden for now */
+    display: block;
+    color: white;
   }
   #user-menu {
     right: 15px;

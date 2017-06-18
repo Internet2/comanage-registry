@@ -83,7 +83,6 @@ global $cm_lang, $cm_texts;
       $args['placeholder'] = _txt('fd.name.given');
       //$args['class'] = 'mdl-textfield__input';
       $args['aria-label'] = _txt('fd.name.given');
-      $args['tabindex'] = '1';
       // XXX shouldn't these fields be sanitized?
       $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
       print $this->Form->input('Search.givenName',$args);
@@ -93,7 +92,6 @@ global $cm_lang, $cm_texts;
       $args['placeholder'] = _txt('fd.name.family');
       //$args['class'] = 'mdl-textfield__input';
       $args['aria-label'] = _txt('fd.name.family');
-      $args['tabindex'] = '2';
       $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
       print $this->Form->input('Search.familyName',$args);
 
@@ -102,7 +100,6 @@ global $cm_lang, $cm_texts;
       $args['placeholder'] = _txt('fd.email_address.mail');
       //$args['class'] = 'mdl-textfield__input';
       $args['aria-label'] = _txt('fd.email_address.mail');
-      $args['tabindex'] = '3';
       $args['value'] = !empty($this->request->params['named']['Search.mail']) ? $this->request->params['named']['Search.mail'] : '';
       print $this->Form->input('Search.mail', $args);
       ?>
@@ -115,7 +112,6 @@ global $cm_lang, $cm_texts;
       $args['placeholder'] = _txt('fd.identifier.identifier');
       //$args['class'] = 'mdl-textfield__input';
       $args['aria-label'] = _txt('fd.identifier.identifier');
-      $args['tabindex'] = '4';
       $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
       print $this->Form->input('Search.identifier', $args);
 
@@ -126,7 +122,6 @@ global $cm_lang, $cm_texts;
         //'class'   => 'co-selectfield',
         'aria-label'   => _txt('fd.status'),
         'empty'   => _txt('fd.status') . ' ' . _txt('op.select.empty'),
-        'tabindex' => '5',
         'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
 
       print $this->Form->input('Search.status', $formParams);
@@ -139,7 +134,6 @@ global $cm_lang, $cm_texts;
           //'class'   => 'co-selectfield',
           'aria-label' => _txt('fd.cou'),
           'empty' => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
-          'tabindex' => '6',
           'value' => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
 
         print $this->Form->input('Search.couid', $formParams);
@@ -153,7 +147,6 @@ global $cm_lang, $cm_texts;
         //$args['type'] = 'button';
 
         // search button (submit)
-        $args['tabindex'] = '8';
         $args['aria-label'] = _txt('op.search');
         $args['class'] = 'submit-button spin mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect';
         print $this->Form->submit(_txt('op.search'),$args);
@@ -162,7 +155,6 @@ global $cm_lang, $cm_texts;
         $args['class'] = 'clear-button spin mdl-button';
         $args['aria-label'] = _txt('op.clear.all');
         $args['onclick'] = 'clearSearch(this.form)';
-        $args['tabindex'] = '7';
         print $this->Form->button(_txt('op.clear.all'),$args);
         ?>
       </div>
