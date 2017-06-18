@@ -54,12 +54,17 @@ h1.firstPrompt {
   font-size: 1.2em;
   font-weight: normal;
 }
+#fpDashboard h2 {
+  margin: 0.5em 0;
+}
 h2 {
   font-size: 24px;
+  line-height: 28px;
   margin: 0;
 }
 a {
-  color: #2395E0;
+  /*color: #2395E0;*/
+  color: #07b; /* slightly darker: passes accessibility contrast checks */
   text-decoration: none;
 }
 #main a:active,
@@ -85,7 +90,7 @@ a {
 }
 #skip-to-content {
   position: relative;
-  background-color: #52ADEA;
+  background-color: #07b;
   color: white;
   padding: 0 1em 0.25em ;
   border-bottom-left-radius: 10px;
@@ -153,6 +158,7 @@ body.logged-in #user-menu {
 #user-menu #logout {
   float: left;
   position: relative;
+  color: #222;
 }
 .mdl-menu__container {
   top: 26px !important;
@@ -189,6 +195,7 @@ body.logged-in #user-menu {
 }
 #user-links-id {
   background-color: #2395E0;
+  /*background-color: #186696;*/
   color: white;
   text-align: center;
   padding: 0.4em;
@@ -286,6 +293,7 @@ form#notificationStatus {
 }
 .co-menu-button a {
   background-color: #2395E0;
+  /*background-color: #186696;*/
   color: white;
   text-align: center;
   padding: 0.4em;
@@ -841,6 +849,7 @@ body.co_petitions .ui-dialog {
   min-height: 1.5em;
   padding: 0.5em;
   background-color: #9FC6E2;
+  /*background-color: #186696;*/
   color: white;
   text-align: center;
 }
@@ -1063,6 +1072,17 @@ body.co_petitions .ui-dialog {
 }
 .ui-sortable tr {
   cursor: move;
+}
+/* general jquery overrides to fix color contrast WCAG AA */
+.ui-state-default a,
+.ui-state-default a:link,
+.ui-state-default a:visited,
+a.ui-button,
+a.ui-button:link,
+a.ui-button:visited,
+.ui-button {
+  color: #06b;
+  text-decoration: none;
 }
 /* For Top Search (co_people index and org_identity index)
    and Side Search (person canvas) */
@@ -1562,7 +1582,8 @@ a.desc::before {
   content: "▼"; /*\25bc in escaped hex*/
 }
 .ui-widget-header {
-  background: #9FC6E2;
+  background-color: #9FC6E2;
+  /*ackground-color: #186696;*/
 }
 .ui-button {
   font-size: 0.9em !important;
@@ -1591,6 +1612,10 @@ table {
   width: 100%;
   border-collapse: collapse;
 }
+.table-container {
+  overflow: auto;
+  clear: both;
+}
 th, td {
   padding: 0.5em;
   text-align: left;
@@ -1600,6 +1625,7 @@ th, td {
 }
 th {
   background-color: #9fc6e2;
+  /*background-color: #186696;*/
   color: white;
 }
 th a {

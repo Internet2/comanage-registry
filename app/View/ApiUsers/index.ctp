@@ -47,67 +47,69 @@
 
 ?>
 
-<table id="api_users">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('username', _txt('fd.username.api')); ?></th>
-      <th><?php print _txt('fd.password'); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($api_users as $a): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print $this->Html->link($a['ApiUser']['username'],
-                                  array('controller' => 'api_users',
-                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                        $a['ApiUser']['id']));
-        ?>
-      </td>
-      <td><?php print (isset($a['ApiUser']['password']) ? "*****" : ""); ?></td>
-      <td>
-        <?php
-          if($permissions['edit']) {
-            print $this->Html->link(_txt('op.edit'),
-                array(
-                  'controller' => 'api_users',
-                  'action' => 'edit',
-                  $a['ApiUser']['id']
-                ),
-                array('class' => 'editbutton')) . "\n";
-          }
-          if($permissions['delete']) {
-            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-              . '" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.remove') . '\',\''    // dialog body text
-              . $this->Html->url(              // dialog confirm URL
+<div class="table-container">
+  <table id="api_users">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('username', _txt('fd.username.api')); ?></th>
+        <th><?php print _txt('fd.password'); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($api_users as $a): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            print $this->Html->link($a['ApiUser']['username'],
+                                    array('controller' => 'api_users',
+                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                          $a['ApiUser']['id']));
+          ?>
+        </td>
+        <td><?php print (isset($a['ApiUser']['password']) ? "*****" : ""); ?></td>
+        <td>
+          <?php
+            if($permissions['edit']) {
+              print $this->Html->link(_txt('op.edit'),
                   array(
                     'controller' => 'api_users',
-                    'action' => 'delete',
+                    'action' => 'edit',
                     $a['ApiUser']['id']
-                  )
-                ) . '\',\''
-              . _txt('op.remove') . '\',\''    // dialog confirm button
-              . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($a['ApiUser']['username']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.delete')
-              . '</button>';
-          }
+                  ),
+                  array('class' => 'editbutton')) . "\n";
+            }
+            if($permissions['delete']) {
+              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                    array(
+                      'controller' => 'api_users',
+                      'action' => 'delete',
+                      $a['ApiUser']['id']
+                    )
+                  ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . filter_var(_jtxt($a['ApiUser']['username']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.delete')
+                . '</button>';
+            }
 
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+          ?>
+          <?php ; ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
 
 <?php
   print $this->element("pagination");

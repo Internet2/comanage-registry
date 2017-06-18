@@ -38,7 +38,7 @@
 <!DOCTYPE html>
 <html lang="<?php print _txt('lang'); ?>">
   <head>
-    <?php print $this->Html->meta(array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0',  'http-equiv' => "X-UA-Compatible")) . "\n"; ?>
+    <?php print $this->Html->meta(array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0')) . "\n"; ?>
     <?php print $this->Html->charset() . "\n"; ?>
 
     <title><?php print _txt('coordinate') . ': ' . filter_var($title_for_layout,FILTER_SANITIZE_STRING); ?></title>
