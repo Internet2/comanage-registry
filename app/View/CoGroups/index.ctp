@@ -45,6 +45,19 @@
     // Add page title
     $params = array();
     $params['title'] = _txt('op.gr.memadd', array($name_for_title));
+
+    // Add top links
+    $params['topLinks'] = array();
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.grm.manage.all'),
+      array(
+        'controller' => 'co_groups',
+        'action' => 'index',
+        'copersonid' => $this->Session->read('Auth.User.co_person_id'),
+        'co' => $cur_co['Co']['id']
+      ),
+      array('class' => 'runbutton')
+    );
   } else {
     // Add breadcrumbs
     $this->Html->addCrumb(_txt('ct.co_groups.pl'));
