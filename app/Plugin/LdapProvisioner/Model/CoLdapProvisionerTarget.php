@@ -1102,7 +1102,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
                                               $dns['newdnerr'])));
       }
+
+      // Filter out any attributes with the value array().  Add does not want 
+      // array() as the value for an attribute but a schema plugin might have 
+      // returned array() to signal no value for an attribute. The array() to 
+      // signal no value for an attribute works with Modify but not with Add.
       
+      $attributes = array_filter($attributes, function ($attrValue) {
+          return !(is_array($attrValue) && empty($attrValue));
+        });
+
       if(!@ldap_add($cxn, $dns['newdn'], $attributes)) {
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
