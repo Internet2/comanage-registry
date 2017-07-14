@@ -28,6 +28,9 @@
 class ActionEnum
 {
   // Codes beginning with 'X' (eg: 'XABC') are reserved for local use
+  const AuthenticatorDeleted            = 'DAUT';
+  const AuthenticatorEdited             = 'EAUT';
+  const AuthenticatorStatusEdited       = 'EATS';
   const CoGroupAdded                    = 'ACGR';
   const CoGroupDeleted                  = 'DCGR';
   const CoGroupEdited                   = 'ECGR';
@@ -148,6 +151,14 @@ class AuthenticationEventEnum
 {
   const ApiLogin               = 'AI';
   const RegistryLogin          = 'IN';
+}
+
+class AuthenticatorStatusEnum
+{
+  const Active                 = 'A';
+  const Expired                = 'XP';
+  const Locked                 = 'L';
+  const NotSet                 = 'NS';
 }
 
 class ComparisonEnum
@@ -466,6 +477,7 @@ class ProvisionerStatusEnum
 // The action for which a plugin may want to act on
 class ProvisioningActionEnum
 {
+  const AuthenticatorUpdated            = 'AU';
   const CoGroupAdded                  = 'GA';
   const CoGroupDeleted                = 'GD';
   const CoGroupReprovisionRequested   = 'GR';

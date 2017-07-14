@@ -73,6 +73,8 @@ $cm_texts['en_US'] = array(
   'ct.attribute_enumerations.pl' => 'Attribute Enumerations',
   'ct.authentication_events.1'  => 'Authentication Event',
   'ct.authentication_events.pl' => 'Authentication Events',
+  'ct.authenticators.1'  =>     'Authenticator',
+  'ct.authenticators.pl' =>     'Authenticators',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
   'ct.co_configuration.1'  => 'Configuration for %1$s',
@@ -238,6 +240,9 @@ original notification at
   // Enumerations, corresponding to enum.php
   // Default history comments
   'en.action' =>   array(
+    ActionEnum::AuthenticatorDeleted        => 'Authenticator Deleted',
+    ActionEnum::AuthenticatorEdited         => 'Authenticator Edited',
+    ActionEnum::AuthenticatorStatusEdited   => 'Authenticator Status Edited',
     ActionEnum::CoGroupAdded                => 'CO Group Added',
     ActionEnum::CoGroupDeleted              => 'CO Group Deleted',
     ActionEnum::CoGroupEdited               => 'CO Group Edited',
@@ -647,6 +652,13 @@ original notification at
                             StatusEnum::PendingConfirmation => 'Pending Confirmation',
                             StatusEnum::Suspended           => 'Suspended'),
   
+  'en.status.authr' => array(
+    AuthenticatorStatusEnum::Active               => 'Active',
+    AuthenticatorStatusEnum::Expired              => 'Expired',
+    AuthenticatorStatusEnum::Locked               => 'Locked',
+    AuthenticatorStatusEnum::NotSet               => 'Not Set'
+  ),
+  
   'en.status.ef' => array(
     EnrollmentFlowStatusEnum::Active              => 'Active',
     EnrollmentFlowStatusEnum::Suspended           => 'Suspended',
@@ -753,6 +765,8 @@ original notification at
   'er.auth.empty' =>  'Found empty username at login. Please contact an administrator for assistance.',
   'er.auth.org' =>    'The identifier "%1$s" is not registered. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
   'er.auth.roles' =>  'You do not have any current roles. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
+  // authr = Authenticator (model), vs Authentication (login)
+  'er.authr.unlocked' => 'Authenticator is already unlocked',
   'er.changelog.model.load' => 'Failed to load model "%1$s"',
   'er.co.cm.edit' =>  'Cannot edit COmanage CO',
   'er.co.cm.rm' =>    'Cannot remove COmanage CO',
@@ -843,6 +857,7 @@ original notification at
   'er.id.unk' =>      'Unknown Identifier',
   'er.id.unk-a' =>    'Unknown Identifier "%1$s"',
   'er.input.invalid' => 'Invalid character found',
+  'er.input.range' => 'Value not in permitted range',
   'er.inv.exp' =>     'Invitation Expired',
   'er.inv.exp.use' => 'Processing of invitation failed due to invitation expiration',
   'er.inv.nf' =>      'Invitation Not Found',
@@ -901,6 +916,7 @@ original notification at
   'er.ssh.private' => 'Uploaded file appears to be a private key',
   'er.ssh.rfc4716' => 'RFC4716 format public keys are not currently supported',
   'er.ssh.type' =>    'Unknown SSH key type "%1$s"',
+  'er.status.already' => 'Status is already %1$s',
   'er.timeout' =>     'Your session has expired. Please login again.',
   'er.token' =>       'Invalid token',
   'er.ug.blocked' =>  'Cannot automatically upgrade past version %1$s. Please upgrade to that version first.',
@@ -1441,6 +1457,9 @@ original notification at
   // Can include token replacements in the form of {0}, {1}, {2}, etc.
   // Pass a replacements array as the last parameter to js_confirm_generic() in default.ctp
   // NOTE: these strings should escape all quotes using &quot; (or \x22) and &apos; (or \x27)
+  'js.auth.lock'      =>  'Please confirm locking \x22{0}\x22 for {1}.',
+  'js.auth.reset'     =>  'Please confirm resetting \x22{0}\x22 for {1}.',
+  'js.auth.unlock'    =>  'Please confirm unlocking \x22{0}\x22 for {1}.',
   'js.ois.inventory'  =>  'Are you sure you wish to retrieve the full inventory from this backend? This may be slow and result in a large page load.',
   'js.remove'         =>  'Are you sure you wish to remove \x22{0}\x22?  This action cannot be undone.',
   'js.remove.member'  =>  'Are you sure you wish to remove this member from group \x22{0}\x22?  This action cannot be undone.',
@@ -1537,9 +1556,12 @@ original notification at
   'op.link.petition' => 'There is a petition %1$s (%2$s) attached to the Organizational Identity. You may wish to approve or deny this petition before linking.',
   'op.link.select' => 'Please select the CO Person you would like to attach the Organizational Identity "%1$s" (%2$s) to by clicking the associated link button.',
   'op.link.to.co' =>  'Link to %1$s CO Person',
+  'op.lock' =>        'Lock',
   'op.login' =>       'Login',
   'op.logins.view' => 'View Login History',
   'op.logout' =>      'Logout',
+  'op.manage' =>      'Manage',
+  'op.manage-a' =>    'Manage %1$s',
   'op.next' =>        'Next',
   'op.ois.conf.gr' => 'Configure Group Mapping',
   'op.ois.inventory' => 'View %1$s Inventory',
@@ -1582,7 +1604,7 @@ original notification at
   'op.remove' =>      'Remove',
   'op.reorder' =>     'Reorder',
   'op.reorder-a' =>   'Reorder %1$s',
-  'op.reset' =>       'Reset Form',
+  'op.reset' =>       'Reset',
   'op.restore.ef' =>  'Add/Restore Default Templates',
   'op.restore.types' => 'Add/Restore Default Types',
   'op.run' =>         'Run',
@@ -1603,6 +1625,7 @@ original notification at
   'op.tc.review.pt' => 'Review All Agreed To Terms and Conditions',
   'op.unlink' =>      'Unlink',
   'op.unlink.confirm' => 'Are you sure you wish to unlink this identity?',
+  'op.unlock' =>      'Unlock',
   'op.upload' =>      'Upload',
   'op.upload.new' =>  'Upload a New %1$s',
   'op.verify' =>      'Verify',
@@ -1618,6 +1641,10 @@ original notification at
   'rs.added-a' =>     '"%1$s" Added',
   'rs.added-a2' =>    '%1$s "%2$s" Added',
   'rs.added-a3' =>    '%1$s Added',
+  'rs.authr.locked' => 'Authenticator "%1$s" locked',
+  'rs.authr.reset' => 'Authenticator "%1$s" reset',
+  'rs.authr.status' => 'Authenticator "%1$s" status changed from %2$s to %3$s',
+  'rs.authr.unlocked' => 'Authenticator "%1$s" unlocked',
   'rs.cop.recalc' =>  'CO Person status recalculated to %1$s',
   'rs.copr.mod' =>    'CO Person Role status changed from %1$s to %2$s',
   'rs.copy-a1' =>     '%1$s Copied',

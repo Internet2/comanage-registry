@@ -1767,6 +1767,48 @@
     <!-- XXX almost certainly need to create some indexes here -->
     <!-- also delete of co person or provisioning target should cascade here -->
   </table>
+  
+  <table name="authenticators">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="authenticators_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="authenticator_statuses">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="authenticator_id" type="I">
+      <constraint>REFERENCES cm_authenticators(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="locked" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="authenticator_statuses_i1">
+      <col>authenticator_id</col>
+      <col>co_person_id</col>
+      <unique />
+    </index>
+  </table>
 
   <table name="co_navigation_links">
     <field name="id" type="I">

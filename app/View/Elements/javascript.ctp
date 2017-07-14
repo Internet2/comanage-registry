@@ -190,6 +190,13 @@
       text: true
     });
 
+    $(".lockbutton").button({
+      icons: {
+        primary: 'ui-icon-locked'
+      },
+      text: true
+    });
+
     $(".logoutbutton").button({
       icons: {
         primary: 'ui-icon-power'
@@ -277,6 +284,13 @@
     //$("button:reset").button();
     //$("button:reset").css('float', 'left');
 
+    $(".unlockbutton").button({
+      icons: {
+        primary: 'ui-icon-unlocked'
+      },
+      text: true
+    });
+    
     $(".unlinkbutton").button({
       icons: {
         primary: 'ui-icon-cancel'

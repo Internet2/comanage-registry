@@ -399,6 +399,7 @@ class AppController extends Controller {
     $modelpl = Inflector::tableize($req);
     
     // XXX This list should really be set on a per-Controller basis (eg: link only applies to CoPeople)
+    // As of v3.1.0, we will now look at $impliedCoIdActions. XXX Backport to other controllers. (CO-959)
     if($this->action == 'add'
        || $this->action == 'addKeyFile' // for SshKeysController
        || $this->action == 'assign'
@@ -406,7 +407,9 @@ class AppController extends Controller {
        || $this->action == 'index'
        || $this->action == 'link'
        || $this->action == 'select'
-       || $this->action == 'review') {
+       || $this->action == 'review'
+       // We don't currently do anything with the value for impliedCoIdActions, but we could...
+       || isset($this->impliedCoIdActions[ $this->action ])) {
       if(!empty($p['copersonid'])
          && (isset($model->CoPerson) || isset($model->Co))) {
         $CoPerson = (isset($model->CoPerson) ? $model->CoPerson : $model->Co->CoPerson);
@@ -854,6 +857,9 @@ class AppController extends Controller {
     $p['menu']['cos'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
     // Which COUs?
     $p['menu']['admincous'] = $roles['admincous'];
+    
+    // Manage Authenticators?
+    $p['menu']['authenticator'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Manage CO level attribute enumerations?
     $p['menu']['coattrenums'] = $roles['cmadmin'] || $roles['coadmin'];

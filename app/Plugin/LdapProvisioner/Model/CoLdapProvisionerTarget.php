@@ -488,11 +488,33 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   $attributes[$attr] = array();
                 }
                 break;
+              // Authenticators
               case 'sshPublicKey':
                 foreach($provisioningData['SshKey'] as $sk) {
                   global $ssh_ti;
                   
                   $attributes[$attr][] = $ssh_ti[ $sk['type'] ] . " " . $sk['skey'] . " " . $sk['comment'];
+                }
+                break;
+              case 'userPassword':
+                if($modify) {
+                  // Start with an empty list in case no active passwords
+                  $attributes[$attr] = array();
+                }
+                foreach($provisioningData['Password'] as $up) {
+                  // Skip locked passwords
+                  if(!isset($up['AuthenticatorStatus']['locked']) || !$up['AuthenticatorStatus']['locked']) {
+                    // There's probably a better place for this (an enum somewhere?)
+                    switch($up['password_type']) {
+                      // XXX we can't use PasswordAuthenticator's enums in case the plugin isn't installed
+                      case 'CR':
+                        $attributes[$attr][] = '{CRYPT}' . $up['password'];
+                        break;
+                      default:
+                        // Silently ignore other types
+                        break;
+                    }
+                  }
                 }
                 break;
               // Attributes from models attached to CO Person Role
@@ -847,6 +869,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $add = false;
         $person = true;
         break;
+      case ProvisioningActionEnum::AuthenticatorUpdated:
       case ProvisioningActionEnum::CoPersonPetitionProvisioned:
       case ProvisioningActionEnum::CoPersonPipelineProvisioned:
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
@@ -897,7 +920,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $add = true;
         break;
       default:
-        throw new RuntimeException("Not Implemented");
+        // Ignore all other actions
+        return true;
         break;
     }
     
@@ -1263,6 +1287,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
 //            'multiple'    => true,
 //            'typekey'     => 'en.name.type',
 //            'defaulttype' => NameEnum::Official
+          ),
+          'userPassword' => array(
+            'required'    => false,
+            'multiple'    => true
           ),
           // This isn't actually defined in an object class, it's part of the
           // server internal schema (if supported), but we don't have a better

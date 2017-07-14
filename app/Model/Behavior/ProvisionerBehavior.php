@@ -816,6 +816,56 @@ class ProvisionerBehavior extends ModelBehavior {
       throw new InvalidArgumentException(_txt('er.cop.unk'));
     }
     
+    // Because Authenticators are handled via plugins (which might not be configured)
+    // we need to handle them specially.
+    // XXX This should be easily modifiable to handle other types of Authenticators...
+    if(CakePlugin::loaded('PasswordAuthenticator')) {
+      // We should be able to just modify the 'contain' above, but for some reason
+      // this isn't working (possibly cake resetting associations somewhere or maybe
+      // due to Passward not being changelog enabled).
+      $coPersonModel->bindModel(array('hasMany' => array('PasswordAuthenticator.Password' => array('dependent' => true))));
+      
+      $args = array();
+      $args['conditions']['Password.co_person_id'] = $coPersonId;
+      // We also need the configuration ("Authenticator") status as well as
+      // the status of this specific authenticator ("AuthenticatorStatus").
+      // For some reason when called from SAMController::manage() (but not from other functions)
+      // this contain picks up PasswordAuthenticator, but not Authenticator or AuthenticatorStatus.
+      // So we have to make multiple calls.
+//      $args['contain']['PasswordAuthenticator']['Authenticator'] = 'AuthenticatorStatus';
+      $args['contain'][] = 'PasswordAuthenticator';
+      
+      $passwords = $coPersonModel->Password->find('all', $args);
+      
+      // We only want Authenticators that are Active. (The Plugins decide what to do
+      // with AuthenticatorStatus.)
+      
+      $coPersonData['Password'] = array();
+      
+      foreach($passwords as $p) {
+        // Now we need to pull the Authenticator and Status
+        if(!empty($p['PasswordAuthenticator']['authenticator_id'])) {
+          $args = array();
+          $args['conditions']['Authenticator.id'] = $p['PasswordAuthenticator']['authenticator_id'];
+          $args['contain'][] = 'AuthenticatorStatus';
+          
+          $aStatus = $coPersonModel->Password->PasswordAuthenticator->Authenticator->find('first', $args);
+          
+          if(isset($aStatus['Authenticator']['status'])
+             && $aStatus['Authenticator']['status'] == SuspendableStatusEnum::Active) {
+            // Reformat the data to match the main find
+            $pd = $p['Password'];
+            
+            if(!empty($aStatus['AuthenticatorStatus'][0])) {
+              $pd['AuthenticatorStatus'] = $aStatus['AuthenticatorStatus'][0];
+            }
+          
+            $coPersonData['Password'][] = $pd;
+          }
+        }
+      }
+    }
+    
     // At the moment, if a CO Person is not active we remove their Role Records
     // (even if those are active) and group memberships, but leave the rest of the
     // data in tact.

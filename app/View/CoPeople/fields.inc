@@ -141,6 +141,20 @@
         }
       }
       
+      if(isset($vv_authenticator_count) && $vv_authenticator_count > 0) {
+        // Link to authenticators for this person
+        
+        $sidebarButtons[] = array(
+          'icon'    => 'key',
+          'title'   => _txt('ct.authenticators.pl'),
+          'url'     => array(
+            'controller' => 'authenticators',
+            'action' => 'status',
+            'copersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
+      
       if($vv_enable_nsf_demo) {
         // Adjust the link to the NSF Demographics Controller according to whether or
         // not data has been set.

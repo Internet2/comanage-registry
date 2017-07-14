@@ -143,6 +143,14 @@ class CoPeopleController extends StandardController {
       
       // List of current COUs
       $this->set('vv_cous', $this->CoPerson->Co->Cou->allCous($this->cur_co['Co']['id']));
+      
+      // Are any authenticators defined for this CO?
+      
+      $args = array();
+      $args['conditions']['Authenticator.co_id'] = $this->cur_co['Co']['id'];
+      $args['contain'] = false;
+      
+      $this->set('vv_authenticator_count', $this->Co->Authenticator->find('count', $args));
     }
     
     parent::beforeRender();

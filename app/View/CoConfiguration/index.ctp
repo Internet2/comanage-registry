@@ -49,6 +49,19 @@
 
         print '<ul id="configuration-menu" class="three-col">';
 
+        if (isset($permissions['menu']['authenticator']) && $permissions['menu']['authenticator']) {
+          print '<li class="mdl-js-ripple-effect">';
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'authenticators';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+          
+          print $this->Html->link(_txt('ct.authenticators.pl'), $args);
+          print '<span class="mdl-ripple"></span>';
+          print "</li>";
+        }
+
         if (isset($permissions['menu']['cosettings']) && $permissions['menu']['cosettings']) {
           print '<li class="mdl-js-ripple-effect">';
           $args = array();
