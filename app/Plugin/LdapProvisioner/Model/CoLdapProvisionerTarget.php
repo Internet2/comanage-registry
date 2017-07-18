@@ -218,11 +218,19 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         
         $pattrs = $pmodel->assemblePluginAttributes($configuredAttributes[$oc], $provisioningData);
         
-        // Filter out any attributes in $pattrs that are not defined in $configuredAttributes
-        // and merge the results into the marshalled attributes
-        
-        $attributes = array_merge($attributes, array_intersect_key($pattrs, $configuredAttributes[$oc]));
-        
+        // Filter out any attributes in $pattrs that are not defined in $configuredAttributes.
+        $pattrs = array_intersect_key($pattrs, $configuredAttributes[$oc]);
+
+        // If this is not a modify operation than filter out any array() values.        
+        if(!$modify) {
+          $pattrs = array_filter($pattrs, function ($attrValue) {
+            return !(is_array($attrValue) && empty($attrValue));
+          });
+        }
+
+        // Merge into the marshalled attributes.
+        $attributes = array_merge($attributes, $pattrs);
+
         // Insert an objectclass
         $attributes['objectclass'][] = $oc;
         
@@ -251,10 +259,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       if($supportedAttributes[$oc]['objectclass']['required']
          || (isset($coProvisioningTargetData['CoLdapProvisionerTarget']['oc_' . strtolower($oc)])
              && $coProvisioningTargetData['CoLdapProvisionerTarget']['oc_' . strtolower($oc)])) {
-        $attributes['objectclass'][] = $oc;
-        
         // Within the objectclass, iterate across the supported attributes looking
-        // for required or enabled attributes
+        // for required or enabled attributes. We need to add at least one $attr
+        // before we add $oc to the list of objectclasses.
+        
+        $attrEmitted = false;
         
         foreach(array_keys($supportedAttributes[$oc]['attributes']) as $attr) {
           if($supportedAttributes[$oc]['attributes'][$attr]['required']
@@ -702,6 +711,19 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               $attributes[$attr] = array();
             }
           }
+          
+          // Check if we emitted anything
+          if(!empty($attributes[$attr])) {
+            $attrEmitted = true;
+          }
+        }
+        
+        // Add $oc to the list of objectclasses if an attribute was emitted, or if
+        // the objectclass is required (in which case the LDAP server will likely
+        // throw an error if a required attribute is missing).
+        
+        if($attrEmitted || $supportedAttributes[$oc]['objectclass']['required']) {
+          $attributes['objectclass'][] = $oc;
         }
       }
     }
@@ -1088,7 +1110,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
                                               $dns['newdnerr'])));
       }
-      
+
       if(!@ldap_add($cxn, $dns['newdn'], $attributes)) {
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }

@@ -252,8 +252,20 @@ class RoleComponent extends Component {
       $condValue = $groupType;
     }
     
-    if(isset($this->cache['coperson'][$coPersonId][$condKey][$condValue][$groupRole])) {
-      return $this->cache['coperson'][$coPersonId][$condKey][$condValue][$groupRole];
+    // We need to use the couId as an element in the caching, in particular for
+    // repeated calls from isCoOrCouAdmin()
+    $condCou = 0;
+    
+    if($couId) {
+      if($couId === true) {
+        $condCou = -1;
+      } else {
+        $condCou = $couId;
+      }
+    }
+    
+    if(isset($this->cache['coperson'][$coPersonId][$condKey][$condValue][$condCou][$groupRole])) {
+      return $this->cache['coperson'][$coPersonId][$condKey][$condValue][$condCou][$groupRole];
     }
     
     $CoGroup = ClassRegistry::init('CoGroup');
@@ -282,7 +294,7 @@ class RoleComponent extends Component {
     
     // Add this result to the cache
     
-    $this->cache['coperson'][$coPersonId][$condKey][$condValue][$groupRole] = $groups;
+    $this->cache['coperson'][$coPersonId][$condKey][$condValue][$condCou][$groupRole] = $groups;
     
     return $groups;
   }

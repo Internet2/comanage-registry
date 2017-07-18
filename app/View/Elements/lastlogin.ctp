@@ -29,8 +29,10 @@
   // and not any others.
   $lastlogin = $this->Session->read('Auth.User.lastlogin');
   
-  // Make sure we have at least one record to render
-  $a = Hash::extract($lastlogin, '{s}.AuthenticationEvent.authenticated_identifier');
+  if(!empty($lastlogin)) {
+    // Make sure we have at least one record to render
+    $a = Hash::extract($lastlogin, '{s}.AuthenticationEvent.authenticated_identifier');
+  }
   
   if(!empty($a)):
 ?>

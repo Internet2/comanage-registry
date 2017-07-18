@@ -236,6 +236,7 @@ class OrgIdentitySourcesController extends StandardController {
         
         $coId = null;
         $targetCoPersonId = null;
+        $provision = true;
         
         if(!empty($this->cur_co['Co']['id'])) {
           $coId = $this->cur_co['Co']['id'];
@@ -246,13 +247,16 @@ class OrgIdentitySourcesController extends StandardController {
           // If so, force link the new org identity to that petition.
           $targetCoPersonId = $this->CoPetition->field('enrollee_co_person_id',
                                                        array('CoPetition.id' => $this->request->params['named']['copetitionid']));
+          
+          $provision = false;
         }
         
         $orgid = $this->OrgIdentitySource->createOrgIdentity($id,
                                                              $key,
                                                              $this->Session->read('Auth.User.co_person_id'),
                                                              $coId,
-                                                             $targetCoPersonId);
+                                                             $targetCoPersonId,
+                                                             $provision);
         
         if(!empty($this->request->params['named']['copetitionid'])) {
           // Redirect back into the enrollment flow to link the identity

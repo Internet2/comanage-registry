@@ -2203,7 +2203,8 @@ class CoPetition extends AppModel {
     $subs = array(
       'CO_PERSON' => (!empty($pt['EnrolleeCoPerson']['PrimaryName'])
                       ? generateCn($pt['EnrolleeCoPerson']['PrimaryName']) : _txt('fd.enrollee.new')),
-      'NEW_COU'   => $pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'] ?: null,
+      'NEW_COU'   => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'])
+                      ? $pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'] : null),
       'SPONSOR'   => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName'])
                       ? generateCn($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName']) : null)
     );
