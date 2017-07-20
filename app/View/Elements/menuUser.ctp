@@ -28,11 +28,11 @@
          <?php print count($vv_my_notifications); ?>
       </span>
       <?php if(count($vv_my_notifications) > 0): ?>
-        <i class="material-icons icon-adjust">notifications_active</i>
+        <em class="material-icons icon-adjust">notifications_active</em>
       <?php else: ?>
-        <i class="material-icons icon-adjust">notifications</i>
+        <em class="material-icons icon-adjust">notifications</em>
       <?php endif?>
-      <i class="material-icons">arrow_drop_down</i>
+      <em class="material-icons">arrow_drop_down</em>
     </a>
     <ul id="notifications-menu" for="user-notifications" class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right">
 
@@ -82,8 +82,8 @@
           print $userCN;
         ?>
       </span>
-      <i class="material-icons icon-adjust">person</i>
-      <i class="material-icons drop-arrow">arrow_drop_down</i>
+      <em class="material-icons icon-adjust">person</em>
+      <em class="material-icons drop-arrow">arrow_drop_down</em>
     </a>
     <ul id="user-links-menu" class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="user-links">
       <li id="user-links-cn"><?php print $userCN; ?></li>

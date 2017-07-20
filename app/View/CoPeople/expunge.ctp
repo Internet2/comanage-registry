@@ -75,7 +75,7 @@
   }
 </script>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
+  <em class="material-icons">info</em>
   <?php print _txt('op.expunge.confirm', array(filter_var(generateCn($vv_co_person['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))); ?>
 </div>
 <div class="innerContent">

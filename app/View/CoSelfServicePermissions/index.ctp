@@ -53,7 +53,7 @@
 ?>
 
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
+  <em class="material-icons">info</em>
   <?php print _txt('fd.ssp.default'); ?>
 </div>
 

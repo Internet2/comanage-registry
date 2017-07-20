@@ -55,7 +55,7 @@
           if($permissions['select']) {
 
             // begin button
-            print $this->Html->link(_txt('op.begin') . ' <i class="material-icons">forward</i>',
+            print $this->Html->link(_txt('op.begin') . ' <em class="material-icons">forward</em>',
               array(
                 'controller' => 'co_petitions',
                 'action' => 'start',

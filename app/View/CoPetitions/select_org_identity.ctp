@@ -137,7 +137,7 @@
         }
         
         if($any_disabled) {
-          print "<p><i>" . _txt('fd.ois.search.select.disabled') . "</i></p>\n";
+          print "<p><em>" . _txt('fd.ois.search.select.disabled') . "</em></p>\n";
         }
       }
       

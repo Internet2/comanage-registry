@@ -90,13 +90,13 @@
 </script>
 <?php if(empty($vv_co_terms_and_conditions)): ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
+  <em class="material-icons">info</em>
   <?php print _txt('fd.tc.none'); ?>
 </div>
 <?php else: // vv_co_terms_and_conditions ?>
 <?php if(isset($this->params['named']['mode']) && $this->params['named']['mode'] == 'login' && $pending): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('fd.tc.agree.login'); ?>
   </div>
 <?php endif; // mode=login ?>

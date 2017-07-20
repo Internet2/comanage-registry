@@ -29,13 +29,13 @@
     print '<div class="co-info-matchable">';
     print '<div class="co-info-matchable-title">';
     print _txt('rs.match.possible');
-    print '<a href="#" class="close-button"><i class="material-icons">close</i></a>';
+    print '<a href="#" class="close-button"><em class="material-icons">close</em></a>';
     print '</div>';
     print "<ul>\n";
     
     foreach ($matches as $m) {
       print "<li>";
-      print '<i class="material-icons">person</i>';
+      print '<em class="material-icons">person</em>';
       print $this->Html->link(
         generateCn($m['PrimaryName']),
         array('controller' => 'co_people', 'action' => 'canvas', $m['CoPerson']['id'])

@@ -43,13 +43,13 @@
 
 <?php if($op == 'invite'): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('in.orgid.email'); ?>
   </div>
 <?php endif; // invite ?>
 
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
+  <em class="material-icons">info</em>
   <?php print _txt('in.orgid.co'); ?>
 </div>
 

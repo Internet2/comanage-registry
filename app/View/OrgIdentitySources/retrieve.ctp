@@ -140,13 +140,13 @@
 <?php if(!empty($vv_ois_record)
          && !empty($this->request->params['named']['copetitionid'])): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('er.ois.pt.linked'); ?>
   </div>
 <?php endif; ?>
 <?php if(!empty($vv_ois_record['OrgIdentitySourceRecord']['org_identity_id'])): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('in.orgid.ois'); ?>
   </div>
 <?php endif; // view ?>

@@ -73,9 +73,9 @@ $tabIndex = 1;
   <fieldset>
     <legend>
       <a href="#" id="top-search-toggle">
-        <i class="material-icons">search</i>
+        <em class="material-icons">search</em>
         <?php print _txt('op.search');?>
-        <i class="material-icons drop-arrow">arrow_drop_down</i>
+        <em class="material-icons drop-arrow">arrow_drop_down</em>
       </a>
     </legend>
 

@@ -95,14 +95,14 @@
 
 <?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['id'])): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('op.orgid.edit.ois', array($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])); ?>
   </div>
 <?php endif; // view ?>
 
 <?php if($this->action == 'edit'): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('in.orgidentities'); ?>
   </div>
 <?php endif; // edit ?>
@@ -129,7 +129,7 @@
         <?php endif; // e ?>
 
         <a href="#tabs-name" class="fieldGroupName">
-          <i class="material-icons">indeterminate_check_box</i>
+          <em class="material-icons">indeterminate_check_box</em>
           <?php print _txt('fd.name.affil'); ?>
         </a>
 
@@ -568,7 +568,7 @@
             </div>
           <?php endif; ?>
           <a href="#tabs-id" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.ids'); ?>
           </a>
           <ul id="tabs-id" class="fields data-list">
@@ -648,7 +648,7 @@
             </div>
           <?php endif; ?>
           <a href="#tabs-email" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.email_address.mail'); ?>
           </a>
           <ul id="tabs-email" class="fields data-list">
@@ -719,7 +719,7 @@
             </div>
           <?php endif; ?>
           <a href="#tabs-phone" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.telephone_number.number'); ?>
           </a>
           <ul id="tabs-phone" class="fields data-list">
@@ -795,7 +795,7 @@
             </div>
           <?php endif; ?>
           <a href="#tabs-address" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.address'); ?>
           </a>
           <ul id="tabs-address" class="fields data-list">
@@ -871,7 +871,7 @@
             </div>
           <?php endif; ?>
           <a href="#tabs-copeople" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('ct.co_people.pl'); ?>
           </a>
           <ul id="tabs-copeople" class="fields data-list">

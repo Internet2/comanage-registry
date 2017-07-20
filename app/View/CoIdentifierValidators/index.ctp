@@ -52,7 +52,7 @@
 ?>
 <?php if(empty($vv_plugins)): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('in.idval.plugins'); ?>
   </div>
 <?php else: // vv_plugins ?>

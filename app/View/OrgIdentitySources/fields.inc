@@ -92,7 +92,7 @@
   
 <?php if(empty($plugins)): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('er.plugin.none', array(_txt('ct.org_identity_sources.pl'))); ?>
   </div>
 <?php else: /* plugins */ ?>

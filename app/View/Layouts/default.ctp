@@ -129,7 +129,7 @@
       
       <div id="top-menu">
         <?php if($this->Session->check('Auth.User')): ?>
-          <div id="desktop-hamburger"><i class="material-icons">menu</i></div>
+          <div id="desktop-hamburger"><em class="material-icons">menu</em></div>
         <?php endif; ?>
         <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
           <div id="user-defined-links-top">

@@ -70,7 +70,7 @@
 
 <?php if($err != ""): ?>
   <div class="co-info-topbox">
-    <i class="material-icons error">info</i>
+    <em class="material-icons error">info</em>
     <?php print $err; ?>
   </div>
 <?php else: // $err ?>

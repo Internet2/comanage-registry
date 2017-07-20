@@ -40,7 +40,7 @@
 ?>
 <div id="changeLog">
   <a href="#tabs-changelog" class="fieldGroupNameCl">
-    <i class="material-icons">add_box</i>
+    <em class="material-icons">add_box</em>
     <?php print _txt('fd.changelog'); ?>
   </a>
   <ul id="tabs-changelog" class="fields data-list data-table" style="display: none;">

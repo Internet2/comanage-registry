@@ -100,7 +100,7 @@
         <li id="fields-role" class="fieldGroup">
 
           <a href="#tabs-role" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.attrs.copr'); ?>
           </a>
 
@@ -562,7 +562,7 @@
             <?php endif; // ReadWrite permission, telephone ?>
 
             <a href="#tabs-phone" class="fieldGroupName">
-              <i class="material-icons">indeterminate_check_box</i>
+              <em class="material-icons">indeterminate_check_box</em>
               <?php print _txt('ct.telephone_numbers.pl'); ?>
             </a>
 
@@ -674,7 +674,7 @@
             <?php endif; // ReadWrite permission, address ?>
 
             <a href="#tabs-address" class="fieldGroupName">
-              <i class="material-icons">indeterminate_check_box</i>
+              <em class="material-icons">indeterminate_check_box</em>
               <?php print _txt('ct.addresses.pl'); ?>
             </a>
 

@@ -141,7 +141,7 @@
       <li id="fields-conditions" class="fieldGroup">
 
         <a href="#tabs-conditions" class="fieldGroupName">
-          <i class="material-icons">add_box</i>
+          <em class="material-icons">add_box</em>
           <?php print _txt('fd.conditions'); ?>
         </a>
 
@@ -316,7 +316,7 @@
       <li id="fields-actions" class="fieldGroup">
 
         <a href="#tabs-actions" class="fieldGroupName">
-          <i class="material-icons">add_box</i>
+          <em class="material-icons">add_box</em>
           <?php print _txt('fd.actions'); ?>
         </a>
 

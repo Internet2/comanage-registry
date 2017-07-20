@@ -597,7 +597,7 @@
 </div>
 <?php if($this->action == 'view'): ?>
   <a href="#tabs-history" class="fieldGroupName">
-    <i class="material-icons">indeterminate_check_box</i>
+    <em class="material-icons">indeterminate_check_box</em>
     <?php print _txt('fd.history.pt'); ?>
   </a>
   <ul id="tabs-history" class="fields data-list data-table">

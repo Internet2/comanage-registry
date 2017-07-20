@@ -73,25 +73,25 @@
 
 <?php if($this->action == 'link'): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('op.link.select', array(filter_var(generateCn($vv_org_identity['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
       filter_var($vv_org_identity['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
   </div>
 <?php elseif($this->action == 'relink' && !empty($vv_co_org_identity_link['OrgIdentity'])): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('op.relink.select', array(filter_var(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
       filter_var($vv_co_org_identity_link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
   </div>
 <?php elseif($this->action == 'relink' && !empty($vv_co_person_role['CoPersonRole'])): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('op.relink.role.select', array(filter_var($vv_co_person_role['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS),
       filter_var($vv_co_person_role['CoPersonRole']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
   </div>
 <?php elseif($this->action == 'select'): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('op.select.select'); ?>
   </div>
 <?php endif; // link ?>
@@ -167,7 +167,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
     <li class="spin">
       <a href="javascript:clearSearch(document.getElementById('CoPersonSearchForm'));"
          title="<?php print _txt('op.clear.search'); ?>">
-        <i class="material-icons">block</i>
+        <em class="material-icons">block</em>
       </a>
     </li>
   </ul>
