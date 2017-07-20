@@ -649,7 +649,7 @@
           <?php endif; ?>
           <a href="#tabs-email" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.email_address.mail'); ?>
+            <?php print _txt('ct.email_addresses.pl'); ?>
           </a>
           <ul id="tabs-email" class="fields data-list">
             <?php
@@ -720,7 +720,7 @@
           <?php endif; ?>
           <a href="#tabs-phone" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.telephone_number.number'); ?>
+            <?php print _txt('ct.telephone_numbers.pl'); ?>
           </a>
           <ul id="tabs-phone" class="fields data-list">
             <?php
@@ -796,7 +796,7 @@
           <?php endif; ?>
           <a href="#tabs-address" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.address'); ?>
+            <?php print _txt('ct.addresses.pl'); ?>
           </a>
           <ul id="tabs-address" class="fields data-list">
             <?php

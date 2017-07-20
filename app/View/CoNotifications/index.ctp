@@ -64,6 +64,7 @@
       <select name="status">
         <option value=""><?php print _txt('fd.unresolved'); ?></option>
         <option value="all"<?php if($curstatus == "all") print " selected";?>><?php print _txt('fd.all'); ?></option>
+
         <?php
           foreach(array_keys($vv_notification_statuses) as $s) {
             print "<option value=\"" . $s . "\"";

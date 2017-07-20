@@ -76,6 +76,29 @@ class ApiComponent extends Component {
     
     // Use the model to validate the provided fields
     
+    if(!empty($this->reqModel->validate['type']['content']['rule'][0])
+       && $this->reqModel->validate['type']['content']['rule'][0] == 'validateExtendedType') {
+      // If the model supports extended types, we need to determine the CO ID,
+      // which we have to calculate from the requested person date.
+      
+      $coId = null;
+      
+      if(!empty($this->reqConvData['co_person_id'])) {
+        $coId = $this->reqModel->CoPerson->field('co_id',
+                                                 array('CoPerson.id' => $this->reqConvData['co_person_id']));
+      } elseif(!empty($this->reqConvData['co_person_role_id'])) {
+        $coId = $this->reqModel->CoPersonRole->field('co_id',
+                                                     array('CoPersonRole.id' => $this->reqConvData['co_person_role_id']));
+      }
+      
+      if($coId) {
+        $vrule = $this->reqModel->validate['type']['content']['rule'];
+        $vrule[1]['coid'] = $coId;
+        
+        $this->reqModel->validator()->getField('type')->getRule('content')->rule = $vrule;
+      }
+    }
+ 
     $this->reqModel->set($this->reqConvData);
     
     if(!$this->reqModel->validates()) {

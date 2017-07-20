@@ -245,7 +245,12 @@ class OrgIdentitySource extends AppModel {
    * @throws RuntimeException
    */
   
-  public function createOrgIdentity($id, $sourceKey, $actorCoPersonId=null, $coId=null, $targetCoPersonId=null, $provision=false) {
+  public function createOrgIdentity($id,
+                                    $sourceKey,
+                                    $actorCoPersonId=null,
+                                    $coId=null,
+                                    $targetCoPersonId=null,
+                                    $provision=true) {
     // Unlike CoPipeline::syncOrgIdentityToCoPerson, we have a separate call
     // for create vs update. This is because $Backend->retrieve() will return
     // data in a format that is more or less ready for a direct save.
