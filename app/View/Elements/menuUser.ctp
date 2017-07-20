@@ -51,7 +51,7 @@
             print $this->Html->link($linkedMarkup,$args);*/
 
             print '<span class="notification-comment">';
-            print $this->Html->link($n['CoNotification']['comment'],$args);
+            print $this->Html->link($n['CoNotification']['comment'],$args, array('title' => _txt('op.see.notification.num',array($n['CoNotification']['id']))));
             print '</span>';
             print '<span class="notification-created">';
             print $this->Time->timeAgoInWords($n['CoNotification']['created']);

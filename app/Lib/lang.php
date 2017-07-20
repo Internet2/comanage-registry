@@ -1587,6 +1587,7 @@ original notification at
   'op.search-a' =>    'Search %1$s',
   'op.search.restore' =>  'Restore default listing',
   'op.see.notifications' =>  'View all notifications',
+  'op.see.notification.num' =>  'notification #%1$s',
   'op.select' =>      'Select',
   'op.select-a' =>    'Select %1$s',
   'op.select.select' => 'Please select the CO Person you would like to attach to this Petition by clicking the associated select button.',
