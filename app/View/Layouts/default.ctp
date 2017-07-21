@@ -54,7 +54,7 @@
     <!-- Load CSS -->
     <?php
       print $this->Html->css('jquery/jquery-ui-1.12.1.custom/jquery-ui.min') . "\n    ";
-      print $this->Html->css('mdl/mdl-1.2.0/material.min.css') . "\n    ";
+      print $this->Html->css('mdl/mdl-1.3.0/material.min.css') . "\n    ";
       print $this->Html->css('jquery/metisMenu/metisMenu.min.css') . "\n    ";
       print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
@@ -266,7 +266,7 @@
 
     <!-- Load JavaScript -->
     <?php
-      print $this->Html->script('mdl/mdl-1.2.0/material.min.js') . "\n    ";
+      print $this->Html->script('mdl/mdl-1.3.0/material.min.js') . "\n    ";
       print $this->Html->script('jquery/metisMenu/metisMenu.min.js') . "\n    ";
       print $this->Html->script('js-cookie/js.cookie-2.1.3.min.js') . "\n    ";
       print $this->Html->script('jquery/spin.min.js') . "\n    ";

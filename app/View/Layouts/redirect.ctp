@@ -47,7 +47,7 @@
     <!-- Load CSS -->
     <?php
       print $this->Html->css('jquery/jquery-ui-1.12.1.custom/jquery-ui.min') . "\n    ";
-      print $this->Html->css('mdl/mdl-1.2.0/material.css') . "\n    ";
+      print $this->Html->css('mdl/mdl-1.3.0/material.css') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
     ?>
@@ -234,7 +234,7 @@
 
     <!-- Load JavaScript -->
     <?php
-      print $this->Html->script('mdl/mdl-1.2.0/material.min.js') . "\n    ";
+      print $this->Html->script('mdl/mdl-1.3.0/material.min.js') . "\n    ";
       print $this->Html->script('jquery/spin.min.js') . "\n    ";
     ?>
   </body>
