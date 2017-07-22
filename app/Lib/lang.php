@@ -1285,6 +1285,7 @@ original notification at
   'fd.ssp.default' => 'If permission is not explicitly granted here for a supported model, then self service updates are not permitted for that model. The permission will be Read Only. Default Read Write permission is required to add new values.',
   'fd.ssp.type.desc' => '"Default" applies this permission to all types not otherwise specified',
   'fd.status' =>      'Status',
+  'fd.status.filters' => 'Status filters',
   'fd.status.ae.desc' => 'Making an Attribute Enumeration inactive will not affect existing records using it',
   'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petition',
   'fd.status.et.desc' => 'An Extended Type that is in use cannot be made inactive',
@@ -1421,7 +1422,8 @@ original notification at
   // Alphabet menu (for co_people filter by first letter of family name)
   // Can be changed to a static array of internationalized characters, for example:
   //'me.alpha' => array('a','ä','b','c'),
-  'me.alpha' => range('a','z'),
+  'me.alpha'       => range('a','z'),
+  'me.alpha.label' => 'filter people by first letter of family name',
   
   // Job related messages
   'jb.ois.sync.full.finish' => 'Sync of new org identities from source complete',
@@ -1465,9 +1467,11 @@ original notification at
   'op.db.schema' =>   'Loading schema from file %1$s...',
   'op.decline' =>     'Decline',
   'op.delete' =>      'Delete',
+  'op.delete-a' =>    'Delete %1$s',
   'op.delete.consfdemographics' => 'this NSF demographic entry',
   'op.delete.ok' =>   'Are you sure you wish to remove "%1$s"? This action cannot be undone.',
   'op.deny' =>        'Deny',
+  'op.display.qr.for' => 'Display QR code for %1$s',
   'op.done' =>        'Done',
   'op.dupe' =>        'Duplicate',
   'op.edit' =>        'Edit',

@@ -128,7 +128,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
 }
 ?>
 
-<div id="peopleAlphabet" class="listControl">
+<div id="peopleAlphabet" class="listControl" aria-label="<?php print _txt('me.alpha.label'); ?>">
   <ul>
     <?php
       $args = array();
@@ -402,13 +402,18 @@ if(isset($permissions['search']) && $permissions['search'] ) {
                       } else {
                         print '<span class="roleTitleLinks">';
                         print $this->Html->link(($this->action == 'relink'
-                                                 ? _txt('op.view')
-                                                 : _txt('op.edit')),
-                                                array('controller' => 'co_person_roles',
-                                                      'action' => ($permissions['edit'] ? "edit" : "view"),
-                                                      $pr['id'],
-                                                      'co' => $cur_co['Co']['id']),
-                                                array('class' => 'editbutton spin'));
+                           ? _txt('op.view')
+                           : _txt('op.edit')),
+                          array('controller' => 'co_person_roles',
+                                'action' => ($permissions['edit'] ? "edit" : "view"),
+                                $pr['id'],
+                                'co' => $cur_co['Co']['id']),
+                          array(
+                            'class' => 'editbutton spin',
+                            'onclick' => 'noprop(event);',
+                            'title' => _txt('op.edit-a',array(_txt('ct.co_person_roles.1') . ' ' . $pr['title'])),
+                            'aria-label' => _txt('op.edit-a',array(_txt('ct.co_person_roles.1') . ' ' . $pr['title']))
+                          ));
                         print '</span>';
                         if(!empty($pr['title'])) {
                           print '<span class="roleTitleText">';

@@ -628,7 +628,7 @@
 <?php endif; // action == view ?>
 
 <div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
-  <iframe id="tandc_content" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>" height="600" width="700">
+  <iframe id="tandc_content" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
   </iframe>
 </div>
 

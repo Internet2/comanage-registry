@@ -179,6 +179,6 @@
 <?php endif; // vv_co_terms_and_conditions ?>
 
 <div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
-  <iframe id="tandc_content" height="600" width="700">
+  <iframe id="tandc_content">
   </iframe>
 </div>

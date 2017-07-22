@@ -55,7 +55,7 @@
           if($permissions['select']) {
 
             // begin button
-            print $this->Html->link(_txt('op.begin') . ' <em class="material-icons">forward</em>',
+            print $this->Html->link(_txt('op.begin') . ' <em class="material-icons" aria-hidden="true">forward</em>',
               array(
                 'controller' => 'co_petitions',
                 'action' => 'start',
@@ -73,7 +73,7 @@
                 $this->Html->image(
                   'qrcode-icon.png',
                   array(
-                    'alt' => _txt('op.begin')
+                    'alt' => _txt('op.display.qr.for',array(filter_var($c['CoEnrollmentFlow']['name'],FILTER_SANITIZE_SPECIAL_CHARS)))
                   )
                 ),
                 array(
@@ -92,7 +92,11 @@
                     )
                   )
                 ),
-                array('class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect', 'escape' => false)
+                array(
+                  'class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect', 
+                  'escape' => false,
+                  'title'  => _txt('op.display.qr.for',array($c['CoEnrollmentFlow']['name']))
+                )
               ) . "\n";
             }
           }
