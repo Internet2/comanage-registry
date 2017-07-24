@@ -322,8 +322,11 @@ class AuthenticatorsController extends SAuthController {
           $st['plugin_id'] = $a[ $a['Authenticator']['plugin'] ]['id'];
         }
         
-        // Pull the Authenticator status
+        // Does this plugin support multiple authenticators per instantiation?
+        $plugin = $a['Authenticator']['plugin'];
+        $st['multiple'] = $this->$plugin->multiple;
         
+        // Pull the Authenticator status
         $st['status'] = $this->Authenticator->status($a['Authenticator']['id'],
                                                      $this->request->params['named']['copersonid']);
         

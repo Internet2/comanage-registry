@@ -88,36 +88,80 @@
           $plamodel = Inflector::pluralize(str_replace("_authenticator", "", $pl));
           
           if(!empty($vv_co_person['CoPerson']['id'])) {
-            if($permissions['info']
-               && $c['status']['status'] != AuthenticatorStatusEnum::Locked) {
-            
-              print $this->Html->link(
-                _txt('op.view'),
-                array(
-                  'plugin' => $pl,
-                  'controller' => $plamodel,
-                  'action' => 'info',
-                  'authenticatorid' => $c['id'],
-                  'copersonid' => $vv_co_person['CoPerson']['id']
-                ),
-                array('class' => 'viewbutton')
-              );
-            }
-            
-            if($permissions['manage']
-               && $c['status']['status'] != AuthenticatorStatusEnum::Locked) {
-            
-              print $this->Html->link(
-                _txt('op.manage'),
-                array(
-                  'plugin' => $pl,
-                  'controller' => $plamodel,
-                  'action' => 'manage',
-                  'authenticatorid' => $c['id'],
-                  'copersonid' => $vv_co_person['CoPerson']['id']
-                ),
-                array('class' => 'editbutton')
-              );
+            if($c['multiple']) {
+              // Multiple Authenticators per instantiation, so hand off to the index page to manage
+              if($permissions['manage']
+                 && $c['status']['status'] != AuthenticatorStatusEnum::Locked) {
+                print $this->Html->link(
+                  _txt('op.manage'),
+                  array(
+                    'plugin' => $pl,
+                    'controller' => $plamodel,
+                    'action' => 'index',
+                    'authenticatorid' => $c['id'],
+                    'copersonid' => $vv_co_person['CoPerson']['id']
+                  ),
+                  array('class' => 'editbutton')
+                );
+              }
+            } else {
+              if($permissions['info']
+                 && $c['status']['status'] != AuthenticatorStatusEnum::Locked) {
+              
+                print $this->Html->link(
+                  _txt('op.view'),
+                  array(
+                    'plugin' => $pl,
+                    'controller' => $plamodel,
+                    'action' => 'info',
+                    'authenticatorid' => $c['id'],
+                    'copersonid' => $vv_co_person['CoPerson']['id']
+                  ),
+                  array('class' => 'viewbutton')
+                );
+              }
+              
+              if($permissions['manage']
+                 && $c['status']['status'] != AuthenticatorStatusEnum::Locked) {
+              
+                print $this->Html->link(
+                  _txt('op.manage'),
+                  array(
+                    'plugin' => $pl,
+                    'controller' => $plamodel,
+                    'action' => 'manage',
+                    'authenticatorid' => $c['id'],
+                    'copersonid' => $vv_co_person['CoPerson']['id']
+                  ),
+                  array('class' => 'editbutton')
+                );
+              }
+                            
+              if($permissions['reset']
+                 && $c['status']['status'] != AuthenticatorStatusEnum::Locked
+                 && $c['status']['status'] != AuthenticatorStatusEnum::NotSet) {
+                print '<button type="button" class="deletebutton" title="' . _txt('op.reset')
+                  . '" onclick="javascript:js_confirm_generic(\''
+                  . _txt('js.auth.reset') . '\',\''    // dialog body text
+                  . $this->Html->url(              // dialog confirm URL
+                    array(
+                      'plugin' => $pl,
+                      'controller' => $plamodel,
+                      'action' => 'reset',
+                      'authenticatorid' => $c['id'],
+                      'copersonid' => $vv_co_person['CoPerson']['id']
+                    )
+                  ) . '\',\''
+                  . _txt('op.reset') . '\',\''    // dialog confirm button
+                  . _txt('op.cancel') . '\',\''  // dialog cancel button
+                  . _txt('op.reset') . '\',[\''   // dialog title
+                  . filter_var(_jtxt($c['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                  . '\',\''
+                  . filter_var(_jtxt(generateCn($vv_co_person['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                  . '\']);">'
+                  . _txt('op.reset')
+                  . '</button>';
+              }
             }
             
             if($permissions['lock']
@@ -142,36 +186,8 @@
                 . '\']);">'
                 . _txt('op.lock')
                 . '</button>';
-            }
-            
-            if($permissions['reset']
-               && $c['status']['status'] != AuthenticatorStatusEnum::Locked
-               && $c['status']['status'] != AuthenticatorStatusEnum::NotSet) {
-              print '<button type="button" class="deletebutton" title="' . _txt('op.reset')
-                . '" onclick="javascript:js_confirm_generic(\''
-                . _txt('js.auth.reset') . '\',\''    // dialog body text
-                . $this->Html->url(              // dialog confirm URL
-                  array(
-                    'plugin' => $pl,
-                    'controller' => $plamodel,
-                    'action' => 'reset',
-                    'authenticatorid' => $c['id'],
-                    'copersonid' => $vv_co_person['CoPerson']['id']
-                  )
-                ) . '\',\''
-                . _txt('op.reset') . '\',\''    // dialog confirm button
-                . _txt('op.cancel') . '\',\''  // dialog cancel button
-                . _txt('op.reset') . '\',[\''   // dialog title
-                . filter_var(_jtxt($c['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                . '\',\''
-                . filter_var(_jtxt(generateCn($vv_co_person['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                . '\']);">'
-                . _txt('op.reset')
-                . '</button>';
-            }
-
-            if($permissions['unlock']
-               && $c['status']['status'] == AuthenticatorStatusEnum::Locked) {
+            } elseif($permissions['unlock']
+                     && $c['status']['status'] == AuthenticatorStatusEnum::Locked) {
               print '<button type="button" class="unlockbutton" title="' . _txt('op.unlock')
                 . '" onclick="javascript:js_confirm_generic(\''
                 . _txt('js.auth.unlock') . '\',\''    // dialog body text

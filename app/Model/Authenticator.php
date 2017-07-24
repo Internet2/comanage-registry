@@ -180,18 +180,17 @@ class Authenticator extends AppModel {
 		);
     
     $args = array();
-    $args['conditions']['AuthenticatorStatus.authenticator_id'] = $id;
-    $args['conditions']['AuthenticatorStatus.co_person_id'] = $coPersonId;
-    $args['contain'][] = 'Authenticator';
+    $args['conditions']['Authenticator.id'] = $id;
+    $args['contain'][] = 'AuthenticatorStatus.co_person_id = ' . $coPersonId;
     
-    $status = $this->AuthenticatorStatus->find('first', $args);
+    $status = $this->find('first', $args);
     
     // See what the backend has to say
     
     if(!empty($status['Authenticator']['plugin'])) {
-      if($status['Authenticator']['plugin']['status'] != SuspendableStatusEnum::Active) {
+      if($status['Authenticator']['status'] != SuspendableStatusEnum::Active) {
         $ret['comment'] = _txt('er.perm.status',
-                               array('en.status.susp', null, $status['Authenticator']['plugin']['status']));
+                               array('en.status.susp', null, $status['Authenticator']['status']));
         
         return $ret;
       }
@@ -214,8 +213,9 @@ class Authenticator extends AppModel {
     }
     
     // Locked status overrides backend status
-    if(isset($status['AuthenticatorStatus']['locked'])
-       && $status['AuthenticatorStatus']['locked']) {
+    // We should only have one AuthenticatorStatus in $status
+    if(isset($status['AuthenticatorStatus'][0]['locked'])
+       && $status['AuthenticatorStatus'][0]['locked']) {
       $ret['status'] = AuthenticatorStatusEnum::Locked;
     }
     

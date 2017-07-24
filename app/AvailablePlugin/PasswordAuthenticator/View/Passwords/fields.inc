@@ -34,7 +34,7 @@
 
   print $this->Form->hidden('password_authenticator_id',
                             array('default' => $vv_authenticator['PasswordAuthenticator']['id'])) . "\n";
-  print $this->Form->hidden('co_person_id', array('default' => $vv_co_person_id)) . "\n";
+  print $this->Form->hidden('co_person_id', array('default' => $vv_co_person['CoPerson']['id'])) . "\n";
   
   // For the moment this is not configurable and we only support SSHA (salted SHA 1).
   // If we support more than one format concurrently, we'll need to do some clever
@@ -61,7 +61,7 @@
   <!-- If we are editing our own password and one already exists, we must provide it
        (otherwise we're probably an admin -->
   <?php if(!empty($vv_current)
-           && ($vv_co_person_id == $this->Session->read('Auth.User.co_person_id'))): ?>
+           && ($vv_co_person['CoPerson']['id'] == $this->Session->read('Auth.User.co_person_id'))): ?>
   <li>
     <div class="field-name">
       <div class="field-title">

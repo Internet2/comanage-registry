@@ -49,7 +49,7 @@ class PasswordsController extends SAMController {
     // Determine what operations this user can perform
     
     // Merge in the permissions calculated by our parent
-    $p = array_merge($p, $this->calculateParentPermissions());
+    $p = array_merge($p, $this->calculateParentPermissions($this->Password->PasswordAuthenticator->multiple));
     
     $this->set('permissions', $p);
     return($p[$this->action]);

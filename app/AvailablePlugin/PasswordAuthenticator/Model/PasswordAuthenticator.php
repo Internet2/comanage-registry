@@ -73,6 +73,9 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 			'allowEmpty' => true
 		)
 	);
+	
+	// Does we support multiple authenticators per instantiation?
+	public $multiple = false;
   
   /**
    * Expose menu items.
