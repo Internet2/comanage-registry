@@ -204,7 +204,7 @@
                                     array('controller' => 'co_enrollment_attributes',
                                           'action' => 'view',
                                           $coe_attributes[0]['CoEnrollmentAttribute']['id']),
-                                          array('class' => 'boxtitle-link', 'tabindex' => '-1'));
+                                          array('class' => 'boxtitle-link'));
           } else {
             print filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS);
           }
@@ -296,7 +296,7 @@
               }
               $args['empty'] = !$ea['required'];
               $args['class'] = 'co-selectfield';
-              $args['aria-labelledby'] = $m;
+              $args['aria-label'] = $m;
 
               // Add focusFirst class if the first field
               if ($coe_attribute_index == 0) {
@@ -305,7 +305,7 @@
 
               // Render the form field, label, and error (if any)
               print $this->Form->select($fieldName, $ea['select'], $args);
-              // We use only the aria-labelledby attribute on select boxes. A label would look like this:
+              // We use only the aria-label attribute on select boxes. A label would look like this:
               // print $this->Form->label($fieldName, $m, array('class' => 'mdl-selectfield__label'));
               if($this->Form->isFieldError($fieldName)) {
                 print $this->Form->error($fieldName, array('class' => 'mdl-selectfield__error'));
@@ -341,8 +341,8 @@
               }
 
               // Render the form field, label, and error (if any)
-              print $this->Form->text($fieldName, $args);
               print $this->Form->label($fieldName, $ea['label'], array('class' => 'mdl-textfield__label'));
+              print $this->Form->text($fieldName, $args);
               /* XXX CO-1329: field errors on text fields are output by default; check to see if
                  an error is being properly produced for dates and if this next statement is needed. */
               if($this->Form->isFieldError($fieldName)) {
@@ -424,8 +424,8 @@
 
               // Render the form field, label, and error (if any)
               // error is output by default with class "error-message"
-              print $this->Form->input($fieldName, $args);
               print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+              print $this->Form->input($fieldName, $args);
 
               print "</div>\n";
 
