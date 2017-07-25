@@ -346,7 +346,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
             }
           ?>
         </div>
-        <span class="clearfix"/>
+        <span class="clearfix"></span>
       </div>
       <div class = "role-panel">
         <div class="roles-title"><?php print _txt('fd.roles'); ?></div>
