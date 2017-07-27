@@ -210,6 +210,12 @@
             </div>
           </div>
         </div>
+
+        <?php if(Configure::read('debug') > 0): ?>
+          <div id="debug" class="mdl-grid">
+            <?php print $this->element('sql_dump'); ?>
+          </div>
+        <?php endif; ?>
       </main>
 
       <?php if(!isset($vv_theme_hide_footer_logo) || !$vv_theme_hide_footer_logo): ?>
@@ -224,12 +230,7 @@
           <?php print $vv_theme_footer; ?>
         </footer>
       <?php endif; ?>
-      
-      <?php if(Configure::read('debug') > 0): ?>
-        <div id="debug">
-          <?php print $this->element('sql_dump'); ?>
-        </div>
-      <?php endif; ?>
+
     </div>
 
     <!-- Load JavaScript -->
