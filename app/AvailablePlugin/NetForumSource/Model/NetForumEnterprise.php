@@ -81,12 +81,13 @@ class NetForumEnterprise extends NetForumServer {
    * Issue a query by customer key. Be sure to call connect() first.
    * 
    * @since COmanage Registry v2.0.0
-   * @param String  $searchKey   Search key (customer key)
-   * @param Boolean $queryEvents Whether to also query for events for which the customer has registered
+   * @param String  $searchKey       Search key (customer key)
+   * @param Boolean $queryEvents     Whether to also query for events for which the customer has registered
+   * @param Boolean $queryCommittees Whether to also query for committee memberships
    * @return Array Array of OrgIdentity and raw (XML) data
    */
   
-  public function queryByCustomerKey($searchKey, $queryEvents=false) {
+  public function queryByCustomerKey($searchKey, $queryEvents=false, $queryCommittees=false) {
     $ret = array();
     
     // There should be only one result (or maybe none).
@@ -96,7 +97,9 @@ class NetForumEnterprise extends NetForumServer {
                                           array('IndividualKey' => $searchKey),
                                           false,
                                           true,
-                                          $queryEvents);
+                                          $queryEvents,
+                                          false,
+                                          $queryCommittees);
   }
   
   /**
@@ -169,6 +172,7 @@ class NetForumEnterprise extends NetForumServer {
    * @param Boolean $raw        If true, return raw (XML) record as well as formatted OrgIdentity data
    * @param Boolean $events     If true, query for events for matching customer keys (requires $raw, set to false if $callName is 'GetCustomerEvent')
    * @param Boolean $deep       If true, make an additional query on customer key to get more detailed record
+   * @param Boolean $committees If true, query for committee memberships for matching customer keys (requires $raw)
    * @return Array Array of OrgIdentity data, and optionally raw (XML) data
    * @throws SoapFault
    */
@@ -179,7 +183,8 @@ class NetForumEnterprise extends NetForumServer {
                                              $active=true,
                                              $raw=false,
                                              $events=false,
-                                             $deep=false) {
+                                             $deep=false,
+                                             $committees=false) {
     $results = array();
     
     $opts = array(
@@ -236,7 +241,11 @@ class NetForumEnterprise extends NetForumServer {
             }
           }
         } else {
-          $results[ (string)$entry->cst_key ] = $this->resultToOrgIdentity($entry);
+          if($raw) {
+            $results[] = $entry;
+          } else {
+            $results[ (string)$entry->cst_key ] = $this->resultToOrgIdentity($entry);
+          }
         }
       }
     } elseif(!empty($r->IndividualObject)) {
@@ -265,6 +274,28 @@ class NetForumEnterprise extends NetForumServer {
 
         if(!empty($mret[(string)$r->IndividualObject->ind_cst_key]['raw']['through'])) {
           $mxml->addChild('ValidThrough', $mret[(string)$r->IndividualObject->ind_cst_key]['raw']['through']);
+        }
+        
+        if($committees) {
+          // Look for committee memberships
+    
+          $cret = $this->queryNetForumEnterprise('WEBCommitteeGetCommitteesByCustomer',
+                                                 'WEBCommitteeGetCommitteesByCustomerResult',
+                                                 array(
+                                                  'CustomerKey' => (string)$r->IndividualObject->ind_cst_key
+                                                 ),
+                                                 $active,
+                                                 true);
+          
+          if(!empty($cret)) {
+            // Merge the raw records so a change in committee triggers a sync
+            $cxml = $r->IndividualObject->addChild('Committees');
+            
+            foreach($cret as $cmt) {
+              // XXX we could also check start/end dates and cpo_code, which appears to be a role
+              $cxml->addChild('CommitteeName', htmlspecialchars((string)$cmt->cmt_name));
+            }
+          }
         }
         
         if($raw) {

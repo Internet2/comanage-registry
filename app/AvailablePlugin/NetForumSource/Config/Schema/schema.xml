@@ -40,6 +40,7 @@
     <field name="serverurl" type="C" size="256" />
     <field name="username" type="C" size="128" />
     <field name="password" type="C" size="64" />
+    <field name="query_committees" type="L" />
     <field name="query_events" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

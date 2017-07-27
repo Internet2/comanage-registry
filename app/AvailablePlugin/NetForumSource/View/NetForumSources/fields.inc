@@ -77,6 +77,18 @@
   </li>
   <li>
     <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.netforumsource.querycmts'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.netforumsource.querycmts.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('query_committees')
+                   : ($net_forum_sources[0]['NetForumSource']['query_committees']
+                      ? _txt('fd.yes') : _txt('fd.no'))); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <div class="field-title"><?php print _txt('pl.netforumsource.queryevents'); ?></div>
       <div class="field-desc"><?php print _txt('pl.netforumsource.queryevents.desc'); ?></div>
     </div>

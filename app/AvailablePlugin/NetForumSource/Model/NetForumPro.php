@@ -69,12 +69,13 @@ class NetForumPro extends NetForumServer {
    * Issue a query by customer key. Be sure to call connect() first.
    * 
    * @since COmanage Registry v2.0.0
-   * @param String  $searchKey   Search key (customer key)
-   * @param Boolean $queryEvents Whether to also query for events for which the customer has registered
+   * @param String  $searchKey       Search key (customer key)
+   * @param Boolean $queryEvents     Whether to also query for events for which the customer has registered
+   * @param Boolean $queryCommittees Whether to also query for committee memberships
    * @return Array Array of OrgIdentity and raw (XML) data
    */
   
-  public function queryByCustomerKey($searchKey, $queryEvents=false) {
+  public function queryByCustomerKey($searchKey, $queryEvents=false, $queryCommittees=false) {
     $ret = array();
     
     // There should be only one result (or maybe none).
