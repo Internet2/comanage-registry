@@ -135,16 +135,6 @@
               ),
               array('class' => 'configurebutton')
             ) . "\n";
-            
-            if(!empty($vv_plugin_group_attrs[$plmodel])) {
-              print $this->Html->link(_txt('op.ois.conf.gr'),
-                                      array(
-                                        'controller' => 'co_group_ois_mappings',
-                                        'action' => 'index',
-                                        'org_identity_source' => $o['OrgIdentitySource']['id']
-                                      ),
-                                      array('class' => 'configurebutton')) . "\n";
-            }
           }
           
           if($permissions['inventory']) {
