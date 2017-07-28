@@ -618,7 +618,34 @@
             if($e && !$es) {
               if(isset($co_people[0]['Identifier'])) {
                 foreach($co_people[0]['Identifier'] as $id) {
-                 if(!empty($id['SourceIdentifier']['id'])) {
+                  $typestr = null;
+                  $removetxt = _txt('js.remove');
+                  
+                  // Handle identifiers associated with provisioning targets specially
+                  if(!empty($id['type'])) {
+                    if($id['type'] == IdentifierEnum::ProvisioningTarget) {
+                      $removetxt = _txt('js.remove.id.prov');
+                      
+                      if(!empty($id['CoProvisioningTarget']['description'])) {
+                        // Render a link to the target, instead, though only for admins.
+                        // We'll use link permission as a proxy (even though it really
+                        // means something else).
+
+                        if($permissions['link']) {
+                          $typestr = $this->Html->link($id['CoProvisioningTarget']['description'],
+                                                       array('controller' => 'co_provisioning_targets',
+                                                             'action' => 'edit',
+                                                             $id['CoProvisioningTarget']['id']));
+                        } else {
+                          $typestr = $id['CoProvisioningTarget']['description'];
+                        }
+                      }
+                    } else {
+                      $typestr = $vv_cop_identifier_types[ $id['type'] ];
+                    }
+                  }
+                  
+                  if(!empty($id['SourceIdentifier']['id'])) {
                     // This address came from an OIS and so can't be edited
                     print '<li class="field-data-container">';
                     print '<div class="field-data">';
@@ -637,7 +664,7 @@
                     print '<li class="field-data-container">';
                     print '<div class="field-data">';
                     print $this->Html->link($id['identifier'], array('controller' => 'identifiers', 'action' => 'edit', $id['id']));
-                    print " &#160;(" . $vv_cop_identifier_types[ $id['type'] ]
+                    print " &#160;(" . $typestr
                           . ($id['status'] == SuspendableStatusEnum::Suspended
                              ? ", " . _txt('en.status.susp', null, SuspendableStatusEnum::Suspended)
                              : "")
@@ -647,11 +674,12 @@
                     // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                     print '<a class="deletebutton" title="' . _txt('op.delete')
                       . '" onclick="javascript:js_confirm_generic(\''
-                      . _txt('js.remove') . '\',\''    // dialog body text
+                      . $removetxt . '\',\''    // dialog body text
                       . $this->Html->url(              // dialog confirm URL
                         array(
                           'controller' => 'identifiers',
-                          'action' => 'delete', $id['id']
+                          'action' => 'delete',
+                          $id['id']
                         )
                       ) . '\',\''
                       . _txt('op.remove') . '\',\''    // dialog confirm button
@@ -705,7 +733,7 @@
           ?>
           <a href="#tabs-email" class="fieldGroupName">
             <i class="material-icons">indeterminate_check_box</i>
-            <?php print _txt('fd.email_address.mail'); ?>
+            <?php print _txt('ct.email_addresses.pl'); ?>
           </a>
           <ul id="tabs-email" class="fields data-list">
             <?php

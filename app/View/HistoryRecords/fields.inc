@@ -206,6 +206,25 @@
   </li>
   <li>
     <div class="field-name">
+      <?php print _txt('ct.co_email_lists.1'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($history_records[0]['CoEmailList']['id'])) {
+          print $this->Html->link(
+            $history_records[0]['CoEmailList']['name'],
+            array(
+              'controller' => 'co_email_lists',
+              'action' => 'edit',
+              $history_records[0]['CoEmailList']['id']
+            )
+          );
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <?php print _txt('fd.actor'); ?>
     </div>
     <div class="field-info">

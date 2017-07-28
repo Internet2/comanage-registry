@@ -30,18 +30,18 @@ abstract class CoProvisionerPluginTarget extends AppModel {
   public $name = "CoProvisionerPluginTarget";
   
   /**
-   * Determine the provisioning status of this target for a CO Person or CO Group.
+   * Determine the provisioning status of this target.
    *
    * @since  COmanage Registry v0.8
-   * @param  Integer CO Provisioning Target ID
-   * @param  Integer CO Person ID (null if CO Group ID is specified)
-   * @param  Integer CO Group ID (null if CO Person ID is specified)
+   * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
+   * @param  Model   $Model                  Model being queried for status (eg: CoPerson, CoGroup, CoEmailList)
+   * @param  Integer $id                     $Model ID to check status for
    * @return Array ProvisioningStatusEnum, Timestamp of last update in epoch seconds, Comment
    * @throws InvalidArgumentException If $coPersonId not found
    * @throws RuntimeException For other errors
    */
   
-  public function status($coProvisioningTargetId, $coPersonId, $coGroupId=null) {
+  public function status($coProvisioningTargetId, $Model, $id) {
     // Check CoProvisioningExports for status
     
     $ret = array(
@@ -53,11 +53,8 @@ abstract class CoProvisionerPluginTarget extends AppModel {
     // Try to pull an existing record
     $args = array();
     $args['conditions']['CoProvisioningExport.co_provisioning_target_id'] = $coProvisioningTargetId;
-    if($coPersonId) {
-      $args['conditions']['CoProvisioningExport.co_person_id'] = $coPersonId;
-    } else {
-      $args['conditions']['CoProvisioningExport.co_group_id'] = $coGroupId;
-    }
+    $args['conditions']['CoProvisioningExport.' . Inflector::underscore($Model->name) . '_id'] = $id;
+    
     $export = $this->CoProvisioningTarget->CoProvisioningExport->find('first', $args);
     
     if(!empty($export)) {

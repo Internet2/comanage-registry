@@ -850,28 +850,34 @@ FROM
    * Determine the provisioning status of this target.
    *
    * @since  COmanage Registry v0.8.3
-   * @param  integer $coProvisioningTargetId CO provisioning target ID
-   * @param  integer $coPersonId CoPerson ID (null if CoGroup ID is specified)
-   * @param  integer $coGroupId CoGroup ID (null if CoPerson ID is specified)
-   * @return array ProvisioningStatusEnum, Timestamp of last update in epoch seconds, Comment
+   * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
+   * @param  Model   $Model                  Model being queried for status (eg: CoPerson, CoGroup, CoEmailList)
+   * @param  Integer $id                     $Model ID to check status for
+   * @return Array ProvisioningStatusEnum, Timestamp of last update in epoch seconds, Comment
+   * @throws InvalidArgumentException If $id not found
+   * @throws RuntimeException For other errors
    */
   
-  public function status($coProvisioningTargetId, $coPersonId, $coGroupId=null) {
+  public function status($coProvisioningTargetId, $Model, $id) {
     $ret = array(
       'status'    => ProvisioningStatusEnum::Unknown,
       'timestamp' => null,
       'comment'   => ""
     );
 
-    if(!empty($coPersonId)) {
+    if($Model->name == 'CoPerson') {
       // For CO people we just return unknown.
       $ret['comment'] = 'see status for individual groups';
       return $ret;
     }
-
+    
+    if($Model->name != 'CoGroup') {
+      throw new InvalidArgumentException(_txt('er.notimpl'));
+    }
+    
     $args = array();
     $args['conditions']['CoGrouperProvisionerTarget.co_provisioning_target_id'] = $coProvisioningTargetId;
-    $args['conditions']['CoGrouperProvisionerGroup.co_group_id'] = $coGroupId;
+    $args['conditions']['CoGrouperProvisionerGroup.co_group_id'] = $id;
 
     $group = $this->CoGrouperProvisionerGroup->find('first', $args);
 
@@ -880,7 +886,7 @@ FROM
       $ret['timestamp'] = $group['CoGrouperProvisionerGroup']['modified'];
     }
 
-   return $ret;
+    return $ret;
   }
 
   /**

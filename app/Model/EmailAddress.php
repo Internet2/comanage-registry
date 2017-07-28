@@ -87,6 +87,7 @@ class EmailAddress extends AppModel {
                         array('attribute' => 'EmailAddress.type',
                               'default' => array(EmailAddressEnum::Delivery,
                                                  EmailAddressEnum::Forwarding,
+                                                 EmailAddressEnum::MailingList,
                                                  EmailAddressEnum::Official,
                                                  EmailAddressEnum::Personal,
                                                  EmailAddressEnum::Preferred,

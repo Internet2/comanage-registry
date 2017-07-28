@@ -44,7 +44,11 @@ class CoProvisioningTarget extends AppModel {
     )
   );
   
-  public $hasMany = array("CoProvisioningExport" => array('dependent' => true));
+  public $hasMany = array(
+    "CoProvisioningExport" => array('dependent' => true),
+    // Identifiers created by the provisioner should disappear if the provisioner does
+    "Identifier" => array('dependent' => true)
+  );
   
   // Default display field for cake generated views
   public $displayField = "description";

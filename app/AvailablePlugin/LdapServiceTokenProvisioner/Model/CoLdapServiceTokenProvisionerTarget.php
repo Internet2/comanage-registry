@@ -93,7 +93,8 @@ class CoLdapServiceTokenProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoGroupReprovisionRequested:
         break;
       default:
-        throw new RuntimeException("Not Implemented");
+        // Ignore anything else
+        return true;
         break;
     }
     

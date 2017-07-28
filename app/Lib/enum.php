@@ -31,14 +31,21 @@ class ActionEnum
   const AuthenticatorDeleted            = 'DAUT';
   const AuthenticatorEdited             = 'EAUT';
   const AuthenticatorStatusEdited       = 'EATS';
+  const CoEmailListAdded                = 'ACEL';
+  const CoEmailListDeleted              = 'DCEL';
+  const CoEmailListEdited               = 'ECEL';
+  const CoEmailListManuallyProvisioned  = 'PCEM';
+  const CoEmailListProvisioned          = 'PCEA';
   const CoGroupAdded                    = 'ACGR';
   const CoGroupDeleted                  = 'DCGR';
   const CoGroupEdited                   = 'ECGR';
+  const CoGroupManuallyProvisioned      = 'PCGM';
   const CoGroupMemberAdded              = 'ACGM';
   const CoGroupMemberAddedPipeline      = 'ACGL';
   const CoGroupMemberDeleted            = 'DCGM';
   const CoGroupMemberDeletedPipeline    = 'DCGL';
   const CoGroupMemberEdited             = 'ECGM';
+  const CoGroupProvisioned              = 'PCGA';
   const CoPersonAddedManual             = 'ACPM';
   const CoPersonAddedPetition           = 'ACPP';
   const CoPersonAddedPipeline           = 'ACPL';
@@ -193,6 +200,7 @@ class ElectStrategyEnum {
 class EmailAddressEnum {
   const Delivery      = 'delivery';
   const Forwarding    = 'forwarding';
+  const MailingList   = 'list';
   const Official      = 'official';
   const Personal      = 'personal';
   const Preferred     = 'preferred';
@@ -282,18 +290,19 @@ class GroupEnum
 
 class IdentifierEnum
 {
-  const Badge      = 'badge';
-  const Enterprise = 'enterprise';
-  const ePPN       = 'eppn';
-  const ePTID      = 'eptid';
-  const Mail       = 'mail';
-  const National   = 'national';
-  const Network    = 'network';
-  const OpenID     = 'openid';
-  const ORCID      = 'orcid';
-  const Reference  = 'reference';
-  const SORID      = 'sorid';
-  const UID        = 'uid';
+  const Badge              = 'badge';
+  const Enterprise         = 'enterprise';
+  const ePPN               = 'eppn';
+  const ePTID              = 'eptid';
+  const Mail               = 'mail';
+  const National           = 'national';
+  const Network            = 'network';
+  const OpenID             = 'openid';
+  const ORCID              = 'orcid';
+  const ProvisioningTarget = 'provisioningtarget';
+  const Reference          = 'reference';
+  const SORID              = 'sorid';
+  const UID                = 'uid';
 }
 
 class JobStatusEnum
@@ -478,19 +487,23 @@ class ProvisionerStatusEnum
 class ProvisioningActionEnum
 {
   const AuthenticatorUpdated            = 'AU';
-  const CoGroupAdded                  = 'GA';
-  const CoGroupDeleted                = 'GD';
-  const CoGroupReprovisionRequested   = 'GR';
-  const CoGroupUpdated                = 'GU';
-  const CoPersonAdded                 = 'PA';
-  const CoPersonDeleted               = 'PD';
-  const CoPersonEnteredGracePeriod    = 'PG';
-  const CoPersonExpired               = 'PX';
-  const CoPersonPetitionProvisioned   = 'PP';  // Triggered after a petition is finalized
-  const CoPersonPipelineProvisioned   = 'PL';  // Triggered after a pipeline is executed
-  const CoPersonReprovisionRequested  = 'PR';
-  const CoPersonUnexpired             = 'PY';
-  const CoPersonUpdated               = 'PU';
+  const CoEmailListAdded                = 'LA';
+  const CoEmailListDeleted              = 'LD';
+  const CoEmailListReprovisionRequested = 'LR';
+  const CoEmailListUpdated              = 'LU';
+  const CoGroupAdded                    = 'GA';
+  const CoGroupDeleted                  = 'GD';
+  const CoGroupReprovisionRequested     = 'GR';
+  const CoGroupUpdated                  = 'GU';
+  const CoPersonAdded                   = 'PA';
+  const CoPersonDeleted                 = 'PD';
+  const CoPersonEnteredGracePeriod      = 'PG';
+  const CoPersonExpired                 = 'PX';
+  const CoPersonPetitionProvisioned     = 'PP';  // Triggered after a petition is finalized
+  const CoPersonPipelineProvisioned     = 'PL';  // Triggered after a pipeline is executed
+  const CoPersonReprovisionRequested    = 'PR';
+  const CoPersonUnexpired               = 'PY';
+  const CoPersonUpdated                 = 'PU';
 }
 
 // The status of a provisioned target

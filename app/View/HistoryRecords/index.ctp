@@ -27,6 +27,7 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
+
   if(isset($this->request->params['named']['copersonid'])) {
     // CO Person History
     $args = array();
@@ -45,7 +46,6 @@
     } else {
       $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
     }
-
   } elseif(isset($this->request->params['named']['orgidentityid'])) {
     // Org ID History
     $args = array();
@@ -58,11 +58,26 @@
     $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
 
     $args = array(
-      'controller' => 'orgIdentities',
+      'controller' => 'org_identities',
       'action' => 'edit',
       filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS));
     $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
+  } elseif(isset($this->request->params['named']['coemaillistid'])) {
+    // Org ID History
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_email_lists';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('ct.co_email_lists.pl'), $args);
+
+    $args = array(
+      'controller' => 'co_email_lists',
+      'action' => 'edit',
+      filter_var($this->request->params['named']['coemaillistid'],FILTER_SANITIZE_SPECIAL_CHARS));
+    $this->Html->addCrumb(_txt('ct.co_email_lists.1'), $args);
   }
+  
   $this->Html->addCrumb(_txt('ct.history_records.pl'));
 
   // Add page title
@@ -81,8 +96,10 @@
       $args['copersonid'] = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
     } elseif(isset($this->request->params['named']['orgidentityid'])) {
       $args['orgidentityid'] = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
+    } elseif(isset($this->request->params['named']['coemaillistid'])) {
+      $args['coemaillistid'] = filter_var($this->request->params['named']['coemaillistid'],FILTER_SANITIZE_SPECIAL_CHARS);
     }
-
+    
     $params['topLinks'][] = $this->Html->link(
       _txt('op.add-a', array(_txt('ct.history_records.1'))),
       $args,
@@ -101,8 +118,12 @@
       <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
       <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
       <th><?php print $this->Paginator->sort('Actor.PrimaryName.family', _txt('fd.actor')); ?></th>
+      <?php if(!empty($this->request->params['named']['coemaillistid'])): ?>
+      <th><?php print $this->Paginator->sort('CoEmailList.name', _txt('ct.co_email_lists.1')); ?></th>
+      <?php else: ?>
       <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', _txt('ct.org_identities.1')); ?></th>
       <th><?php print $this->Paginator->sort('CoPerson.PrimaryName.family', _txt('ct.co_people.1')); ?></th>
+      <?php endif; // coemaillistid ?>
       <th><?php print _txt('fd.action'); ?></th>
     </tr>
   </thead>
@@ -128,6 +149,22 @@
           }
         ?>
       </td>
+      <?php if(!empty($this->request->params['named']['coemaillistid'])): ?>
+      <td>
+        <?php
+          if(!empty($h['CoEmailList']['id'])) {
+            print $this->Html->link(
+              (!empty($h['CoEmailList']['name']) ? filter_var($h['CoEmailList']['name'],FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.deleted')),
+              array(
+                'controller' => 'co_email_lists',
+                'action' => 'edit',
+                $h['CoEmailList']['id']
+              )
+            );
+          }
+        ?>
+      </td>
+      <?php else: ?>
       <td>
         <?php
           if(!empty($h['OrgIdentity']['id'])) {
@@ -156,6 +193,7 @@
           }
         ?>
       </td>
+      <?php endif; // coemaillist ?>
       <td>
         <?php
           print $this->Html->link(

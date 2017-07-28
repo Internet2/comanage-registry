@@ -895,6 +895,9 @@ class AppController extends Controller {
     // Manage COU definitions?
     $p['menu']['cous'] = $roles['cmadmin'] || $roles['coadmin'];
 
+    // Manage CO Email Lists
+    $p['menu']['colists'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // Manage CO enrollment flow definitions?
     $p['menu']['coef'] = $roles['cmadmin'] || $roles['coadmin'];
     

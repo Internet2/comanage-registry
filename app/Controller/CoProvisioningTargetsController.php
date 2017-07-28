@@ -311,37 +311,35 @@ class CoProvisioningTargetsController extends StandardController {
   
   function provision($id) {
     if($this->request->is('restful')) {
-      $copersonid = null;
-      $cogroupid = null;
+      $sModel = null;
+      $sId = null;
+      $sAction = ProvisioningActionEnum::CoPersonReprovisionRequested;
       
       if(!empty($this->request->params['named']['copersonid'])) {
-        $copersonid = $this->request->params['named']['copersonid'];
+        $sId = $this->request->params['named']['copersonid'];
+        $sModel = 'CoPerson';
       } elseif(!empty($this->request->params['named']['cogroupid'])) {
-        $cogroupid = $this->request->params['named']['cogroupid'];
+        $sId = $this->request->params['named']['cogroupid'];
+        $sModel = 'CoGroup';
+        $sAction = ProvisioningActionEnum::CoGroupReprovisionRequested;
+      } elseif(!empty($this->request->params['named']['coemaillistid'])) {
+        $sId = $this->request->params['named']['coemaillistid'];
+        $sModel = 'CoEmailList';
+        $sAction = ProvisioningActionEnum::CoEmailListReprovisionRequested;
       } else {
         $this->Api->restResultHeader(500, "Bad Request");
       }
       
-      // Make sure copersonid or cogroupid is in the same CO as $id
+      // Make sure the subject is in the same CO as $id
       
       $args = array();
-      if($copersonid) {
-        $args['joins'][0]['table'] = 'co_people';
-        $args['joins'][0]['alias'] = 'CoPerson';
-        $args['joins'][0]['type'] = 'INNER';
-        $args['joins'][0]['conditions'][0] = 'CoProvisioningTarget.co_id=CoPerson.co_id';
-        $args['conditions']['CoProvisioningTarget.id'] = $id;
-        $args['conditions']['CoPerson.id'] = $copersonid;
-        $args['contain'] = false;
-      } else {
-        $args['joins'][0]['table'] = 'co_groups';
-        $args['joins'][0]['alias'] = 'CoGroup';
-        $args['joins'][0]['type'] = 'INNER';
-        $args['joins'][0]['conditions'][0] = 'CoProvisioningTarget.co_id=CoGroup.co_id';
-        $args['conditions']['CoProvisioningTarget.id'] = $id;
-        $args['conditions']['CoGroup.id'] = $cogroupid;
-        $args['contain'] = false;
-      }
+      $args['joins'][0]['table'] = Inflector::tableize($sModel);
+      $args['joins'][0]['alias'] = $sModel;
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoProvisioningTarget.co_id=' . $sModel . '.co_id';
+      $args['conditions'][$sModel.'.id'] = $sId;
+      $args['conditions']['CoProvisioningTarget.id'] = $id;
+      $args['contain'] = false;
       
       if($this->CoProvisioningTarget->find('count', $args) < 1) {
         // XXX this could also be co provisioning target not found -- do a separate find to check?
@@ -352,13 +350,12 @@ class CoProvisioningTargetsController extends StandardController {
       // Attach ProvisionerBehavior and manually invoke provisioning
       
       try {
-        if($copersonid) {
-          $this->CoProvisioningTarget->Co->CoPerson->Behaviors->load('Provisioner');
-          $this->CoProvisioningTarget->Co->CoPerson->manualProvision($id, $copersonid, null);
-        } else {
-          $this->CoProvisioningTarget->Co->CoGroup->Behaviors->load('Provisioner');
-          $this->CoProvisioningTarget->Co->CoGroup->manualProvision($id, null, $cogroupid, ProvisioningActionEnum::CoGroupReprovisionRequested);
-        }
+        $this->CoProvisioningTarget->Co->$sModel->Behaviors->load('Provisioner');
+        $this->CoProvisioningTarget->Co->$sModel->manualProvision($id,
+                                                                  ($sModel == 'CoPerson' ? $sId : null),
+                                                                  ($sModel == 'CoGroup' ? $sId : null),
+                                                                  $sAction,
+                                                                  ($sModel == 'CoEmailList' ? $sId : null));
       }
       catch(InvalidArgumentException $e) {
         switch($e->getMessage()) {

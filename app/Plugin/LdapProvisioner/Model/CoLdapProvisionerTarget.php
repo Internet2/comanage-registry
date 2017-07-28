@@ -1172,33 +1172,35 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
   }
   
   /**
-   * Determine the provisioning status of this target for a CO Person ID.
+   * Determine the provisioning status of this target.
    *
    * @since  COmanage Registry v0.8
-   * @param  Integer CO Provisioning Target ID
-   * @param  Integer CO Person ID (null if CO Group ID is specified)
-   * @param  Integer CO Group ID (null if CO Person ID is specified)
+   * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
+   * @param  Model   $Model                  Model being queried for status (eg: CoPerson, CoGroup, CoEmailList)
+   * @param  Integer $id                     $Model ID to check status for
    * @return Array ProvisioningStatusEnum, Timestamp of last update in epoch seconds, Comment
-   * @throws InvalidArgumentException If $coPersonId not found
+   * @throws InvalidArgumentException If $id not found
    * @throws RuntimeException For other errors
    */
   
-  public function status($coProvisioningTargetId, $coPersonId, $coGroupId=null) {
+  public function status($coProvisioningTargetId, $Model, $id) {
+    // We currently only support CoPerson and CoGroup
+    
+    if($Model->name != 'CoPerson' && $Model->name != 'CoGroup') {
+      throw new InvalidArgumentException(_txt('er.notimpl'));
+    }
+    
     $ret = array(
       'status'    => ProvisioningStatusEnum::Unknown,
       'timestamp' => null,
       'comment'   => ""
     );
     
-    // Pull the DN for this person, if we have one. Cake appears to correctly interpret
-    // these conditions into a JOIN.
+    // Pull the DN for this person, if we have one.
+    // Cake appears to correctly figure out the join (because no contain?)
     $args = array();
+    $args['conditions']['CoLdapProvisionerDn.' . Inflector::underscore($Model->name) . '_id'] = $id;
     $args['conditions']['CoLdapProvisionerTarget.co_provisioning_target_id'] = $coProvisioningTargetId;
-    if($coPersonId) {
-      $args['conditions']['CoLdapProvisionerDn.co_person_id'] = $coPersonId;
-    } elseif($coGroupId) {
-      $args['conditions']['CoLdapProvisionerDn.co_group_id'] = $coGroupId;
-    }
     
     $dnRecord = $this->CoLdapProvisionerDn->find('first', $args);
     
@@ -1222,7 +1224,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           }*/
           
           // Get the last provision time from the parent status function
-          $pstatus = parent::status($coProvisioningTargetId, $coPersonId, $coGroupId);
+          $pstatus = parent::status($coProvisioningTargetId, $Model, $id);
           
           if($pstatus['status'] == ProvisioningStatusEnum::Provisioned) {
             $ret['timestamp'] = $pstatus['timestamp'];

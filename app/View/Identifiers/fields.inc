@@ -104,6 +104,12 @@
   
   $l = 1;
 ?>
+<?php if(!empty($identifiers[0]['CoProvisioningTarget']['id'])): ?>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('in.id.prov', array($identifiers[0]['CoProvisioningTarget']['description'])); ?>
+</div>
+<?php endif; // provisioning target ?>
 
 <ul id="<?php print $this->action; ?>_identifier" class="fields form-list">
   <li>
@@ -136,19 +142,39 @@
     <div class="field-info">
       <?php
         $attrs = array();
-        $attrs['value'] = (isset($identifiers) ? $identifiers[0]['Identifier']['type'] : "");
+        $attrs['value'] = (!empty($identifiers[0]['Identifier']['type']) ? $identifiers[0]['Identifier']['type'] : "");
         $attrs['empty'] = false;
-
+        
         if($e) {
-          print $this->Form->select('type',
-                                    $vv_available_types,
-                                    $attrs);
-
-          if($this->Form->isFieldError('type')) {
-            print $this->Form->error('type');
+          if(!empty($identifiers[0]['CoProvisioningTarget']['id'])) {
+            // Don't allow the type to be changed, but send the type as hidden since
+            // it is required by the model
+            
+            print filter_var($vv_available_types[ $identifiers[0]['Identifier']['type'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+            print $this->Form->hidden('type',
+                                      array('default' =>
+                                            filter_var($identifiers[0]['Identifier']['type'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+          } else {
+            print $this->Form->select('type',
+                                      $vv_available_types,
+                                      $attrs);
+  
+            if($this->Form->isFieldError('type')) {
+              print $this->Form->error('type');
+            }
           }
         } else {
-          print $vv_available_types[ $identifiers[0]['Identifier']['type'] ];
+          print filter_var($vv_available_types[ $identifiers[0]['Identifier']['type'] ],FILTER_SANITIZE_SPECIAL_CHARS);;
+        }
+        
+        if(!empty($identifiers[0]['CoProvisioningTarget']['description'])) {
+          print " (" . $this->Html->link(filter_var($identifiers[0]['CoProvisioningTarget']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
+                                         array(
+                                           'controller' => 'co_provisioning_targets',
+                                           'action'     => 'edit',
+                                           $identifiers[0]['CoProvisioningTarget']['id']
+                                         ))
+                     . ")";
         }
       ?>
     </div>

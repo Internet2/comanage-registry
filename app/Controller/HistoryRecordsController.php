@@ -46,6 +46,7 @@ class HistoryRecordsController extends StandardController {
     ),
     'contain' => array(
       'ActorCoPerson' => array('PrimaryName'),
+      'CoEmailList',
       'CoPerson' => array('PrimaryName'),
       'CoPersonRole',
       'OrgIdentity' => array('PrimaryName'),
@@ -56,6 +57,7 @@ class HistoryRecordsController extends StandardController {
   
   public $view_contains = array(
     'ActorCoPerson' => 'PrimaryName',
+    'CoEmailList',
     'CoGroup',
     'CoPerson' => 'PrimaryName',
     'CoPersonRole',
@@ -129,6 +131,17 @@ class HistoryRecordsController extends StandardController {
         throw new InvalidArgumentException(_txt('er.notfound',
                                                 array(_txt('ct.co_people.1'),
                                                       filter_var($this->request->params['named']['actorcopersonid'],FILTER_SANITIZE_SPECIAL_CHARS))));
+      }
+    } elseif(!empty($this->request->params['named']['coemaillistid'])) {
+      $coId = $this->HistoryRecord->CoEmailList->field('co_id',
+                                                       array('id' => $this->request->params['named']['coemaillistid']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_email_lists.1'),
+                                                      filter_var($this->request->params['named']['coemaillistid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     } elseif(!empty($this->request->params['named']['cogroupid'])) {
       $coId = $this->HistoryRecord->CoGroup->field('co_id',
@@ -236,6 +249,12 @@ class HistoryRecordsController extends StandardController {
         
         $this->Paginator->settings = $this->paginate;
         $this->set('history_records', $this->Paginator->paginate('HistoryRecord', $args));
+      } elseif(!empty($this->request->params['named']['coemaillistid'])) {
+        $args = array();
+        $args['HistoryRecord.co_email_list_id'] = $this->request->params['named']['coemaillistid'];
+        
+        $this->Paginator->settings = $this->paginate;
+        $this->set('history_records', $this->Paginator->paginate('HistoryRecord', $args));
       } else {
         // Throw an error. This controller doesn't permit retrieve all history via the UI.
         
@@ -339,11 +358,13 @@ class HistoryRecordsController extends StandardController {
     
     // Determine what operations this user can perform
     
-    // Add history records?
-    $p['add'] = ($roles['cmadmin']
-                 || ($managed && ($roles['coadmin'] || $roles['couadmin']
-                                  || ($pool &&
-                                      ($roles['admin'] || $roles['subadmin'])))));
+    // Add history records? For now we only permit adds for history attached to
+    // person records due to complexities in StandardController::add and requires_person.
+    $p['add'] = (($pids['copersonid'] || $pids['orgidentityid'])
+                  && ($roles['cmadmin']
+                      || ($managed && ($roles['coadmin'] || $roles['couadmin']
+                                       || ($pool &&
+                                           ($roles['admin'] || $roles['subadmin']))))));
     
     // View history records?
     // We could allow $self to view own records, but for the moment we don't (for no specific reason)

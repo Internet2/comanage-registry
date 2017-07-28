@@ -373,6 +373,79 @@
     </index>
   </table>
   
+  <table name="co_groups">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="cou_id" type="I">
+      <constraint>REFERENCES cm_cous(id)</constraint>
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="description" type="C" size="256" />
+    <field name="open" type="L" />
+    <field name="status" type="C" size="2" />
+    <field name="group_type" type="C" size="2" />
+    <field name="auto" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_groups_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_groups_i2">
+      <col>name</col>
+    </index>
+    <index name="co_groups_i3">
+      <col>co_id</col>
+      <col>name</col>
+<!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
+      <unique />
+-->
+    </index>
+    <index name="co_groups_i4">
+      <col>co_group_id</col>
+    </index>
+    <index name="co_groups_i5">
+      <col>co_id</col>
+      <col>group_type</col>
+    </index>
+  </table>
+  
+  <table name="co_provisioning_targets">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="provision_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="ordr" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_provisioning_targets_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
   <table name="identifiers">
     <field name="id" type="I">
       <key />
@@ -390,6 +463,9 @@
     </field>
     <field name="source_identifier_id" type="I">
       <constraint>REFERENCES cm_identifiers(id)</constraint>
+    </field>
+    <field name="co_provisioning_target_id" type="I">
+      <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -415,6 +491,10 @@
     </index>
     <index name="identifiers_i4">
       <col>source_identifier_id</col>
+    </index>
+    <index name="identifiers_i5">
+      <col>co_person_id</col>
+      <col>co_provisioning_target_id</col>
     </index>
   </table>
 
@@ -602,55 +682,6 @@
     <index name="api_users_i1">
       <col>username</col>
       <unique />
-    </index>
-  </table>
-  
-  <table name="co_groups">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="cou_id" type="I">
-      <constraint>REFERENCES cm_cous(id)</constraint>
-    </field>
-    <field name="name" type="C" size="128" />
-    <field name="description" type="C" size="256" />
-    <field name="open" type="L" />
-    <field name="status" type="C" size="2" />
-    <field name="group_type" type="C" size="2" />
-    <field name="auto" type="L" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="co_group_id" type="I">
-      <constraint>REFERENCES cm_co_groups(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="co_groups_i1">
-      <col>co_id</col>
-    </index>
-    <index name="co_groups_i2">
-      <col>name</col>
-    </index>
-    <index name="co_groups_i3">
-      <col>co_id</col>
-      <col>name</col>
-<!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
-      <unique />
--->
-    </index>
-    <index name="co_groups_i4">
-      <col>co_group_id</col>
-    </index>
-    <index name="co_groups_i5">
-      <col>co_id</col>
-      <col>group_type</col>
     </index>
   </table>
   
@@ -1577,6 +1608,44 @@
     </index>
   </table>
   
+  <table name="co_email_lists">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="64" />
+    <field name="description" type="C" size="128" />
+    <field name="admins_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="members_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="moderators_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_email_list_id" type="I">
+      <constraint>REFERENCES cm_co_email_lists(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_email_lists_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_email_lists_i2">
+      <col>co_email_list_id</col>
+    </index>
+  </table>
+  
   <table name="co_jobs">
     <field name="id" type="I">
       <key />
@@ -1660,6 +1729,9 @@
     <field name="co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <field name="co_email_list_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
     <field name="actor_co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
@@ -1689,29 +1761,8 @@
     <index name="history_records_i5">
       <col>history_record_id</col>
     </index>
-  </table>
-  
-  <table name="co_provisioning_targets">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="description" type="C" size="256" />
-    <field name="plugin" type="C" size="32" />
-    <field name="provision_co_group_id" type="I">
-      <constraint>REFERENCES cm_co_groups(id)</constraint>
-    </field>
-    <field name="status" type="C" size="2" />
-    <field name="ordr" type="I" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    
-    <index name="co_provisioning_targets_i1">
-      <col>co_id</col>
+    <index name="history_records_i6">
+      <col>co_email_list_id</col>
     </index>
   </table>
   
@@ -1729,6 +1780,9 @@
     <field name="co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <field name="co_email_list_id" type="I">
+      <constraint>REFERENCES cm_co_email_lists(id)</constraint>
+    </field>
     <field name="exporttime" type="T" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -1742,6 +1796,12 @@
     <index name="co_provisioning_exports_i2">
       <col>co_provisioning_target_id</col>
       <col>co_group_id</col>
+      <unique />
+    </index>
+    
+    <index name="co_provisioning_exports_i3">
+      <col>co_provisioning_target_id</col>
+      <col>co_email_list_id</col>
       <unique />
     </index>
   </table>

@@ -36,6 +36,8 @@ class Identifier extends AppModel {
   public $belongsTo = array(
     // An identifier may be attached to a CO Person
     "CoPerson",
+    // An identifier may be created from a Provisioner
+    "CoProvisioningTarget",
     // An identifier may be attached to an Org Identity
     "OrgIdentity",
     // An identifier created from a Pipeline has a Source Identifier
@@ -87,6 +89,7 @@ class Identifier extends AppModel {
                                                  IdentifierEnum::Network,
                                                  IdentifierEnum::OpenID,
                                                  IdentifierEnum::ORCID,
+                                                 IdentifierEnum::ProvisioningTarget,
                                                  IdentifierEnum::Reference,
                                                  IdentifierEnum::SORID,
                                                  IdentifierEnum::UID))),

@@ -59,26 +59,34 @@ class CoProvisioningExport extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'co_email_list_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'exporttime' => array(
       'rule' => 'notBlank'
     )
   );
   
   /**
-   * Record that a given provisioning target was executed for a CO Person or CO Group.
+   * Record that a given provisioning target was executed for a CO Person, CO Group,
+   * or CO Email List.
    *
    * @since  COmanage Registry v0.8.2
    * @param  Integer CO Provisioning Target ID
-   * @param  Integer CO Person ID (null if CO Group ID is specified)
-   * @param  Integer CO Group ID (null if CO Person ID is specified)
+   * @param  Integer CO Person ID (null if another ID is specified)
+   * @param  Integer CO Group ID (null if another ID is specified)
+   * @param  Integer CO Email List ID (null if another ID is specified)
    * @throws RuntimeException For other errors
    */
   
-  public function record($coProvisioningTargetId, $coPersonId, $coGroupId) {
+  public function record($coProvisioningTargetId, $coPersonId, $coGroupId=null, $coEmailListId=null) {
     $data = array();
     $data['CoProvisioningExport']['co_provisioning_target_id'] = $coProvisioningTargetId;
     $data['CoProvisioningExport']['co_person_id'] = $coPersonId;
     $data['CoProvisioningExport']['co_group_id'] = $coGroupId;
+    $data['CoProvisioningExport']['co_email_list_id'] = $coEmailListId;
     $data['CoProvisioningExport']['exporttime'] = date('Y-m-d H:i:s');
     
     // See if we already have a row to update
@@ -86,8 +94,10 @@ class CoProvisioningExport extends AppModel {
     $args['conditions']['CoProvisioningExport.co_provisioning_target_id'] = $coProvisioningTargetId;
     if($coPersonId) {
       $args['conditions']['CoProvisioningExport.co_person_id'] = $coPersonId;
-    } else {
+    } elseif($coGroupId) {
       $args['conditions']['CoProvisioningExport.co_group_id'] = $coGroupId;
+    } else {
+      $args['conditions']['CoProvisioningExport.co_email_list_id'] = $coEmailListId;
     }
     $args['contain'] = false;
     $export = $this->find('first', $args);

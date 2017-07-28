@@ -70,6 +70,18 @@ class CoGroup extends AppModel {
       'className' => 'CoSetting',
       'foreignKey' => 'sponsor_co_group_id'
     ),
+    "EmailListAdmin" => array(
+      'className' => 'CoEmailList',
+      'foreignKey' => 'admins_co_group_id'
+    ),
+    "EmailListMember" => array(
+      'className' => 'CoEmailList',
+      'foreignKey' => 'members_co_group_id'
+    ),
+    "EmailListModerator" => array(
+      'className' => 'CoEmailList',
+      'foreignKey' => 'moderators_co_group_id'
+    ),
     "HistoryRecord"
   );
 
@@ -571,56 +583,6 @@ class CoGroup extends AppModel {
     return (($group['CoGroup']['group_type'] == GroupEnum::ActiveMembers
              || $group['CoGroup']['group_type'] == GroupEnum::AllMembers)
             && !empty($group['CoGroup']['cou_id']));
-  }
-  
-  /**
-   * Determine the current status of the provisioning targets for this CO Group.
-   *
-   * @since  COmanage Registry v0.8.2
-   * @param  Integer CO Group ID
-   * @return Array Current status of provisioning targets
-   * @throws RuntimeException
-   */
-  
-  public function provisioningStatus($coGroupId) {
-    // First, obtain the list of active provisioning targets for this group's CO.
-    
-    $args = array();
-    $args['joins'][0]['table'] = 'co_groups';
-    $args['joins'][0]['alias'] = 'CoGroup';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoGroup.co_id=CoProvisioningTarget.co_id';
-    $args['conditions']['CoGroup.id'] = $coGroupId;
-    $args['conditions']['CoProvisioningTarget.status !='] = ProvisionerStatusEnum::Disabled;
-    $args['contain'] = false;
-    
-    $targets = $this->Co->CoProvisioningTarget->find('all', $args);
-    
-    if(!empty($targets)) {
-      // Next, for each target ask the relevant plugin for the status for this group.
-      
-      // We may end up querying the same Plugin more than once, so maintain a cache.
-      $plugins = array();
-      
-      for($i = 0;$i < count($targets);$i++) {
-        $pluginModelName = $targets[$i]['CoProvisioningTarget']['plugin']
-                         . ".Co" . $targets[$i]['CoProvisioningTarget']['plugin'] . "Target";
-        
-        if(!isset($plugins[ $pluginModelName ])) {
-          $plugins[ $pluginModelName ] = ClassRegistry::init($pluginModelName, true);
-          
-          if(!$plugins[ $pluginModelName ]) {
-            throw new RuntimeException(_txt('er.plugin.fail', array($pluginModelName)));
-          }
-        }
-        
-        $targets[$i]['status'] = $plugins[ $pluginModelName ]->status($targets[$i]['CoProvisioningTarget']['id'],
-                                                                      null,
-                                                                      $coGroupId);
-      }
-    }
-    
-    return $targets;
   }
   
  /**

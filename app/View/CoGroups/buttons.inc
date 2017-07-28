@@ -105,7 +105,7 @@ if($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id'])) {
       'action'     => 'provision',
       $co_groups[0]['CoGroup']['id']
     ),
-    array('class' => 'notebutton')
+    array('class' => 'runbutton')
   );
 }
 

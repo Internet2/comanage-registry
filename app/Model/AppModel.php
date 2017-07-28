@@ -969,6 +969,65 @@ class AppModel extends Model {
   }
   
   /**
+   * Determine the current status of the provisioning targets for this CO Person.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer Model ID
+   * @return Array Current status of provisioning targets
+   * @throws RuntimeException
+   */
+  
+  public function provisioningStatus($id) {
+    // First, obtain the list of active provisioning targets for this record's CO.
+    
+    $args = array();
+    $args['joins'][0]['table'] = Inflector::tableize($this->name);
+    $args['joins'][0]['alias'] = $this->name;
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = $this->name.'.co_id=CoProvisioningTarget.co_id';
+    $args['conditions'][$this->name.'.id'] = $id;
+    $args['conditions']['CoProvisioningTarget.status !='] = ProvisionerStatusEnum::Disabled;
+    $args['contain'] = false;
+    
+    $targets = $this->Co->CoProvisioningTarget->find('all', $args);
+    
+    if(!empty($targets)) {
+      // Next, for each target ask the relevant plugin for the status for this person.
+      
+      // We may end up querying the same Plugin more than once, so maintain a cache.
+      $plugins = array();
+      
+      for($i = 0;$i < count($targets);$i++) {
+        $pluginModelName = $targets[$i]['CoProvisioningTarget']['plugin']
+                         . ".Co" . $targets[$i]['CoProvisioningTarget']['plugin'] . "Target";
+        
+        if(!isset($plugins[ $pluginModelName ])) {
+          $plugins[ $pluginModelName ] = ClassRegistry::init($pluginModelName, true);
+          
+          if(!$plugins[ $pluginModelName ]) {
+            throw new RuntimeException(_txt('er.plugin.fail', array($pluginModelName)));
+          }
+        }
+        
+        try {
+          $targets[$i]['status'] = $plugins[ $pluginModelName ]->status($targets[$i]['CoProvisioningTarget']['id'],
+                                                                        $this,
+                                                                        $id);
+        }
+        catch(Exception $e) {
+          $targets[$i]['status'] = array(
+            'status'    => ProvisioningStatusEnum::Unknown,
+            'timestamp' => null,
+            'comment'   => $e->getMessage()
+          );
+        }
+      }
+    }
+    
+    return $targets;
+  }
+  
+  /**
    * Recursively reload a behavior for a model and it's dependent=true related models.
    *
    * @since  COmanage Registry v0.9.4

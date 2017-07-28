@@ -61,7 +61,8 @@ class CoPeopleController extends StandardController {
     'CoPersonRole' => array('CoPetition', 'Cou'),
     // This deep nesting will allow us to display the source of the attribute
     'EmailAddress' => array('SourceEmailAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
-    'Identifier' => array('SourceIdentifier' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
+    'Identifier' => array('CoProvisioningTarget',
+                          'SourceIdentifier' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Name' => array('SourceName' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'PrimaryName',
     'SshKey'
@@ -1019,9 +1020,16 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoPerson.id'] = $id;
-      $args['contain'] = array('PrimaryName', 'CoGroupMember');
+      $args['contain'] = array(
+        'PrimaryName',
+        'CoGroupMember',
+        'Identifier'
+      );
       
       $this->set('co_person', $this->CoPerson->find('first', $args));
+      $this->set('title_for_layout',
+                 _txt('fd.prov.status.for',
+                      array(filter_var(generateCn($this->viewVars['co_person']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))));
     }
   }
   
