@@ -121,7 +121,7 @@
       }
     });
 
-    <?php if(${$modelpl}[0][$req]['revision']): ?>
+    <?php if(!empty(${$modelpl}[0][$req][$mkey])): ?>
     // Add "Archived" text next to page title, if we're looking at an archived entity
     $(".pageTitle h1").append('<span class="archived"><?php print _txt('fd.archived'); ?></span>');
     <?php endif ?>
