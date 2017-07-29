@@ -1,26 +1,28 @@
 <?php
-  /**
-   * COmanage Registry QR Code Controller - Outputs a QR code as PNG file
-   *
-   * Copyright (C) 2016 University Corporation for Advanced Internet Development, Inc.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-   * the License. You may obtain a copy of the License at
-   *
-   * http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software distributed under
-   * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-   * KIND, either express or implied. See the License for the specific language governing
-   * permissions and limitations under the License.
-   *
-   * @copyright     Copyright (C) 2012-15 University Corporation for Advanced Internet Development, Inc.
-   * @link          http://www.internet2.edu/comanage COmanage Project
-   * @package       registry
-   * @since         COmanage Registry v1.1.0
-   * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
-   * @version       $Id$
-   */
+/**
+ * COmanage Registry QR Code Controller - Outputs a QR code as PNG file
+ *
+ * Portions licensed to the University Corporation for Advanced Internet
+ * Development, Inc. ("UCAID") under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.
+ *
+ * UCAID licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * @link          http://www.internet2.edu/comanage COmanage Project
+ * @package       registry
+ * @since         COmanage Registry v3.0.0
+ */
 
 App::uses("StandardController", "Controller");
 
@@ -36,7 +38,7 @@ class QrcodeController extends StandardController {
    * Example: /registry/qrcode?c=http://www.internet2.edu  - will produce a QR code for the supplied URL
    * Example: /registry/qrcode?c=COmanage&d - will produce a QR code of the string "COmanage" and force a PNG download
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v3.0.0
    * @param  String c from request query string: content to be encoded in QR code, typically a URL
    * @param  String download from request query string: force a download of the PNG file
    * @return response as a PNG file
@@ -75,14 +77,12 @@ class QrcodeController extends StandardController {
     return $this->response;
   }
 
-
-
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v1.1.0
+   * @since  COmanage Registry v3.0.0
    * @return Array Permissions
    */
 
