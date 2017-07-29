@@ -32,6 +32,9 @@
     // Establish left-side navigation
     $('#main-menu').metisMenu();
 
+    // Never allow MDL to apply "aria-hidden" on the fixed menu drawer (it should always be available to screen readers)
+    $('#navigation-drawer').removeAttr('aria-hidden');
+
     // Focus any designated form element
     $('.focusFirst').focus();
 
@@ -50,13 +53,19 @@
 
     // Desktop hamburger menu-drawer toggle
     $('#desktop-hamburger').click(function () {
-      $("#navigation-drawer").toggleClass("half-closed");
-      $("#main").toggleClass("drawer-half-closed");
-      // set a cookie to hold drawer half-open state between requests
       if( $("#navigation-drawer").hasClass("half-closed")) {
-        Cookies.set("desktop-drawer-state", "half-closed");
-      } else {
+        $("#navigation-drawer").removeClass("half-closed");
+        $("#main").removeClass("drawer-half-closed");
+        // set a cookie to hold drawer half-open state between requests
         Cookies.set("desktop-drawer-state", "open");
+      } else {
+        $("#navigation-drawer").addClass("half-closed");
+        $("#main").addClass("drawer-half-closed");
+        // ensure all the sub-menus collapse when half-closing the menu
+        $("#navigation .metismenu li ul").removeClass("in");
+        $("#navigation .metismenu li").removeClass("active");
+        // set a cookie to hold drawer half-open state between requests
+        Cookies.set("desktop-drawer-state", "half-closed");
       }
     });
 
@@ -374,10 +383,10 @@
       resizable: false,
       modal: true,
       buttons: {
-        '<?php _txt('op.cancel'); ?>': function() {
+        '<?php print _txt('op.cancel'); ?>': function() {
           $(this).dialog('close');
         },
-        '<?php _txt('op.ok'); ?>': function() {
+        '<?php print _txt('op.ok'); ?>': function() {
           $(this).dialog('close');
         }
       }

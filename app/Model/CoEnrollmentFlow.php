@@ -715,7 +715,7 @@ class CoEnrollmentFlow extends AppModel {
       }
     }
     
-    for($i < 0;$i < count($ef['CoEnrollmentSource']);$i++) {
+    for($i = 0;$i < count($ef['CoEnrollmentSource']);$i++) {
       unset($ef['CoEnrollmentSource'][$i]['id']);
       unset($ef['CoEnrollmentSource'][$i]['co_enrollment_flow_id']);
       unset($ef['CoEnrollmentSource'][$i]['created']);

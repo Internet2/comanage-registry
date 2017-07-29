@@ -53,7 +53,7 @@
       <?php
 
         if(!empty($c['CoService']['service_url'])) {
-          print $this->Html->link('<i class="material-icons">public</i>',
+          print $this->Html->link('<em class="material-icons" aria-hidden="true">public</em>',
             $c['CoService']['service_url'],
             array(
               'class' => 'co-card-link',
@@ -62,7 +62,7 @@
             ));
         }
         if(!empty($c['CoService']['contact_email'])) {
-          print $this->Html->link('<i class="material-icons">email</i>',
+          print $this->Html->link('<em class="material-icons" aria-hidden="true">email</em>',
             'mailto:'.$c['CoService']['contact_email'],
             array(
               'class' => 'co-card-link',

@@ -471,7 +471,7 @@ class CoNotification extends AppModel {
                                $coName,
                                $not['CoNotification']['comment'],
                                $sourceurl,
-                               generateCn($actor['PrimaryName']),
+                               !empty($actor['PrimaryName']) ? generateCn($actor['PrimaryName']) : "(?)",
                                $fromAddress,
                                true);
             }

@@ -40,57 +40,69 @@
 ?>
 <div id="changeLog">
   <a href="#tabs-changelog" class="fieldGroupNameCl">
-    <i class="material-icons">add_box</i>
+    <em class="material-icons">add_box</em>
     <?php print _txt('fd.changelog'); ?>
   </a>
   <ul id="tabs-changelog" class="fields data-list data-table" style="display: none;">
     <li>
-      <table id="<?php print $this->action . "_" . $modelu . "_changelog"; ?>">
-        <tbody>
-        <tr class="line<?php print ($l % 2);
-                             print (${$modelpl}[0][$req]['deleted'] ? ' deleted' : '');
-                             $l++; ?>">
-          <th>
-            <?php print _txt('fd.deleted'); ?>
-          </th>
-          <td>
-            <?php print (${$modelpl}[0][$req]['deleted'] ? _txt('fd.yes') : _txt('fd.no')); ?>
-          </td>
-        </tr>
-        <tr class="line<?php print ($l % 2); $l++; ?>">
-          <th>
-            <?php print _txt('fd.revision'); ?>
-          </th>
-          <td>
-            <?php
-            print ${$modelpl}[0][$req]['revision'];
-            ?>
-          </td>
-        </tr>
-        <tr class="line<?php print ($l % 2); $l++; ?>">
-          <th>
-            <?php print _txt('fd.modified'); ?>
-          </th>
-          <td>
-            <?php
-            print $this->Time->format(${$modelpl}[0][$req]['modified'], "%c $vv_tz", false, $vv_tz);
-            ?>
-          </td>
-        </tr>
-        <tr class="line<?php print ($l % 2); $l++; ?>">
-          <th>
-            <?php print _txt('fd.actor'); ?>
-          </th>
-          <td>
-            <?php
-            if(!empty(${$modelpl}[0][$req]['actor_identifier'])) {
-              print filter_var(${$modelpl}[0][$req]['actor_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
-            }
-            ?>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+      <div class="table-container">
+        <table id="<?php print $this->action . "_" . $modelu . "_changelog"; ?>">
+          <tbody>
+          <tr class="line<?php print ($l % 2);
+                               print (${$modelpl}[0][$req]['deleted'] ? ' deleted' : '');
+                               $l++; ?>">
+            <th>
+              <?php print _txt('fd.deleted'); ?>
+            </th>
+            <td>
+              <?php print (${$modelpl}[0][$req]['deleted'] ? _txt('fd.yes') : _txt('fd.no')); ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <th>
+              <?php print _txt('fd.revision'); ?>
+            </th>
+            <td>
+              <?php
+                print ${$modelpl}[0][$req]['revision'];
+
+                $mkey = $modelu . '_id';
+
+                if(!empty(${$modelpl}[0][$req][$mkey])) {
+                  print "&nbsp;(" . _txt('er.archived') . ") " .
+                        $this->Html->link(_txt('op.view.current'),
+                                          array('controller' => $modelpl,
+                                                'action' => $this->action,
+                                                ${$modelpl}[0][$req][$mkey]));
+                }
+              ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <th>
+              <?php print _txt('fd.modified'); ?>
+            </th>
+            <td>
+              <?php
+              print $this->Time->format(${$modelpl}[0][$req]['modified'], "%c $vv_tz", false, $vv_tz);
+              ?>
+            </td>
+          </tr>
+          <tr class="line<?php print ($l % 2); $l++; ?>">
+            <th>
+              <?php print _txt('fd.actor'); ?>
+            </th>
+            <td>
+              <?php
+              if(!empty(${$modelpl}[0][$req]['actor_identifier'])) {
+                print filter_var(${$modelpl}[0][$req]['actor_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
+              }
+              ?>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </li>
   </ul>
 </div>
@@ -109,6 +121,10 @@
       }
     });
 
+    <?php if(${$modelpl}[0][$req]['revision']): ?>
+    // Add "Archived" text next to page title, if we're looking at an archived entity
+    $(".pageTitle h1").append('<span class="archived"><?php print _txt('fd.archived'); ?></span>');
+    <?php endif ?>
     <?php if(${$modelpl}[0][$req]['deleted']): ?>
       // Add "Deleted" text next to page title, if we're looking at a deleted entity
       $(".pageTitle h1").append('<span class="deleted"><?php print _txt('fd.deleted'); ?></span>');

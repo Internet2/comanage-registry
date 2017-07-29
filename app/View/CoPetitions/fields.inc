@@ -133,7 +133,7 @@
           <li id="fields-petition" class="fieldGroup">
 
             <a href="#tabs-petition" class="fieldGroupName">
-              <i class="material-icons">indeterminate_check_box</i>
+              <em class="material-icons">indeterminate_check_box</em>
               <?php print _txt('ct.co_petitions.1'); ?>
             </a>
 
@@ -244,7 +244,7 @@
 
         <li id="tabs-attributes" class="fieldGroup">
           <a href="#tabs-attributes" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.attrs.pet'); ?>
           </a>
 

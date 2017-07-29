@@ -206,7 +206,7 @@
       <li id="fields-match-strategy" class="fieldGroup">
 
         <a href="#tabs-match" class="fieldGroupName">
-          <i class="material-icons">add_box</i>
+          <em class="material-icons">add_box</em>
           <?php print _txt('fd.pi.match.str'); ?>
         </a>
   
@@ -281,7 +281,7 @@
       <li id="fields-sync" class="fieldGroup">
 
         <a href="#tabs-sync" class="fieldGroupName">
-          <i class="material-icons">add_box</i>
+          <em class="material-icons">add_box</em>
           <?php print _txt('fd.pi.sync.str'); ?>
         </a>
 
@@ -461,7 +461,7 @@
         <li id="fields-cxn" class="fieldGroup">
 
           <a href="#tabs-cxn" class="fieldGroupName">
-            <i class="material-icons">add_box</i>
+            <em class="material-icons">add_box</em>
             <?php print _txt('fd.pi.connections'); ?>
           </a>
 

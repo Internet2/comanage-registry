@@ -35,13 +35,13 @@
         print '<li class="' . $step['state'] . '">';
         switch ($step['state']) {
           case 'complete':
-            print '<i class="material-icons">done</i>';
+            print '<em class="material-icons">done</em>';
             break;
           case 'selected':
-            print '<i class="material-icons">forward</i>';
+            print '<em class="material-icons">forward</em>';
             break;
           case 'stopped':
-            print '<i class="material-icons">cancel</i>';
+            print '<em class="material-icons">cancel</em>';
             break;
           case 'incomplete':
             break;

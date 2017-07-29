@@ -90,93 +90,95 @@
 </script>
 <?php if(empty($vv_co_terms_and_conditions)): ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
+  <em class="material-icons">info</em>
   <?php print _txt('fd.tc.none'); ?>
 </div>
 <?php else: // vv_co_terms_and_conditions ?>
 <?php if(isset($this->params['named']['mode']) && $this->params['named']['mode'] == 'login' && $pending): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
+    <em class="material-icons">info</em>
     <?php print _txt('fd.tc.agree.login'); ?>
   </div>
 <?php endif; // mode=login ?>
-<table id="cous">
-  <thead>
-    <tr>
-      <th><?php print _txt('fd.desc'); ?></th>
-      <th><?php print _txt('fd.status'); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($vv_co_terms_and_conditions as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php print filter_var($c['CoTermsAndConditions']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($c['CoTAndCAgreement'])) {
-            print _txt('fd.tc.agree.yes')
-                  . " ("
-                  . $c['CoTAndCAgreement']['identifier']
-                  . ", "
-                  . $this->Time->format($c['CoTAndCAgreement']['agreement_time'], "%c $vv_tz", false, $vv_tz)
-                  . ")";
-            
-            if(!empty($c['CoTermsAndConditions']['co_terms_and_conditions_id'])) {
-              print "</br>" . _txt('fd.tc.archived');
-            }
-          } else {
-            print _txt('fd.tc.agree.no');
-          }
-        ?>
-      </td>
-      <td>
-        <?php if(!empty($c['CoTAndCAgreement'])): ?>
-        <button class="checkbutton"
-                type="button"
-                onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
-                                    '<?php print addslashes($c['CoTermsAndConditions']['url']); ?>',
-                                    'review',
-                                    '')">
-          <?php print _txt('op.tc.review'); ?>
-        </button>
-        <?php else: ?>
-        <button class="checkbutton"
-                type="button"
-                onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
-                                    '<?php print addslashes($c['CoTermsAndConditions']['url']); ?>',
-                                    'agree',
-                                    '<?php
-                                        $args = array(
-                                          'controller' => 'co_terms_and_conditions',
-                                          'action' => 'agree',
-                                          $c['CoTermsAndConditions']['id'],
-                                          'copersonid' => $vv_co_person['CoPerson']['id']
-                                        );
-                                        
-                                        // Pass through the mode for subsequent rendering
-                                        if(!empty($this->params['named']['mode'])) {
-                                          $args['mode'] = $this->params['named']['mode'];
-                                        }
-                                        
-                                        print $this->Html->url($args);
-                                      ?>')">
-          <?php print _txt('op.tc.review'); ?>
-        </button>
-        <?php endif; ?>
-      </td>
-    </tr>
-    <?php endforeach; ?>
-  </tbody>
+<div class="table-container">
+  <table id="cous">
+    <thead>
+      <tr>
+        <th><?php print _txt('fd.desc'); ?></th>
+        <th><?php print _txt('fd.status'); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
 
-</table>
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($vv_co_terms_and_conditions as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php print filter_var($c['CoTermsAndConditions']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($c['CoTAndCAgreement'])) {
+              print _txt('fd.tc.agree.yes')
+                    . " ("
+                    . $c['CoTAndCAgreement']['identifier']
+                    . ", "
+                    . $this->Time->format($c['CoTAndCAgreement']['agreement_time'], "%c $vv_tz", false, $vv_tz)
+                    . ")";
+
+              if(!empty($c['CoTermsAndConditions']['co_terms_and_conditions_id'])) {
+                print "</br>" . _txt('fd.tc.archived');
+              }
+            } else {
+              print _txt('fd.tc.agree.no');
+            }
+          ?>
+        </td>
+        <td>
+          <?php if(!empty($c['CoTAndCAgreement'])): ?>
+          <button class="checkbutton"
+                  type="button"
+                  onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
+                                      '<?php print addslashes($c['CoTermsAndConditions']['url']); ?>',
+                                      'review',
+                                      '')">
+            <?php print _txt('op.tc.review'); ?>
+          </button>
+          <?php else: ?>
+          <button class="checkbutton"
+                  type="button"
+                  onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
+                                      '<?php print addslashes($c['CoTermsAndConditions']['url']); ?>',
+                                      'agree',
+                                      '<?php
+                                          $args = array(
+                                            'controller' => 'co_terms_and_conditions',
+                                            'action' => 'agree',
+                                            $c['CoTermsAndConditions']['id'],
+                                            'copersonid' => $vv_co_person['CoPerson']['id']
+                                          );
+
+                                          // Pass through the mode for subsequent rendering
+                                          if(!empty($this->params['named']['mode'])) {
+                                            $args['mode'] = $this->params['named']['mode'];
+                                          }
+
+                                          print $this->Html->url($args);
+                                        ?>')">
+            <?php print _txt('op.tc.review'); ?>
+          </button>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <?php endforeach; ?>
+    </tbody>
+
+  </table>
+</div>
 <?php endif; // vv_co_terms_and_conditions ?>
 
 <div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
-  <iframe id="tandc_content" height="600" width="700">
+  <iframe id="tandc_content">
   </iframe>
 </div>

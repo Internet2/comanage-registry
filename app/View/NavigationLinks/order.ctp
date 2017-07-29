@@ -93,37 +93,39 @@
   });
 </script>
 
-<table id="navigation_links">  
-  <thead>
-    <tr>
-      <th><?php print _txt('fd.ea.order'); ?></th>
-      <th><?php print _txt('fd.link.title'); ?></th>
-      <th><?php print _txt('fd.link.url'); ?></th>
-      <th><?php print _txt('fd.desc'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody id="sortable">
-    <?php $i = 0; ?>
-    <?php foreach ($navigation_links as $c): ?>
-      <tr id = "NavigationLinkId_<?php print $c['NavigationLink']['id']?>" class="line1">
-        <td class = "order">
-          <span class="ui-icon ui-icon-arrow-4"></span>
-        </td>
-        <td>
-          <?php
-            print $this->Html->link($c['NavigationLink']['title'],
-                                    array('controller' => 'navigation_links',
-                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['NavigationLink']['id']));
-          ?>
-        </td>
-        <td><?php print filter_var($c['NavigationLink']['url'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-        <td><?php print filter_var($c['NavigationLink']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+<div class="table-container">
+  <table id="navigation_links">
+    <thead>
+      <tr>
+        <th><?php print _txt('fd.ea.order'); ?></th>
+        <th><?php print _txt('fd.link.title'); ?></th>
+        <th><?php print _txt('fd.link.url'); ?></th>
+        <th><?php print _txt('fd.desc'); ?></th>
       </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+    </thead>
+
+    <tbody id="sortable">
+      <?php $i = 0; ?>
+      <?php foreach ($navigation_links as $c): ?>
+        <tr id = "NavigationLinkId_<?php print $c['NavigationLink']['id']?>" class="line1">
+          <td class = "order">
+            <span class="ui-icon ui-icon-arrow-4"></span>
+          </td>
+          <td>
+            <?php
+              print $this->Html->link($c['NavigationLink']['title'],
+                                      array('controller' => 'navigation_links',
+                                            'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['NavigationLink']['id']));
+            ?>
+          </td>
+          <td><?php print filter_var($c['NavigationLink']['url'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+          <td><?php print filter_var($c['NavigationLink']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
   
 <?php print $this->element("pagination"); ?>
 

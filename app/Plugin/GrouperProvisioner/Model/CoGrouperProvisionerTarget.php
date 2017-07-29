@@ -1134,7 +1134,7 @@ FROM
       if (empty($subject)) {
         $coPersonId = $coGroup['CoGroup']['CoPerson']['id'];
         $this->log("GrouperProvisioner is unable to compute the Grouper subject for coPersonId = $coPersonId");
-        break;
+        return false;
       }
 
       $provisionerGroup = $this->CoGrouperProvisionerGroup->findProvisionerGroup($coProvisioningTargetData, $coGroup);

@@ -204,7 +204,7 @@
                                     array('controller' => 'co_enrollment_attributes',
                                           'action' => 'view',
                                           $coe_attributes[0]['CoEnrollmentAttribute']['id']),
-                                          array('class' => 'boxtitle-link', 'tabindex' => '-1'));
+                                          array('class' => 'boxtitle-link'));
           } else {
             print filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS);
           }
@@ -296,7 +296,7 @@
               }
               $args['empty'] = !$ea['required'];
               $args['class'] = 'co-selectfield';
-              $args['aria-labelledby'] = $m;
+              $args['aria-label'] = $m;
 
               // Add focusFirst class if the first field
               if ($coe_attribute_index == 0) {
@@ -305,7 +305,7 @@
 
               // Render the form field, label, and error (if any)
               print $this->Form->select($fieldName, $ea['select'], $args);
-              // We use only the aria-labelledby attribute on select boxes. A label would look like this:
+              // We use only the aria-label attribute on select boxes. A label would look like this:
               // print $this->Form->label($fieldName, $m, array('class' => 'mdl-selectfield__label'));
               if($this->Form->isFieldError($fieldName)) {
                 print $this->Form->error($fieldName, array('class' => 'mdl-selectfield__error'));
@@ -341,8 +341,8 @@
               }
 
               // Render the form field, label, and error (if any)
-              print $this->Form->text($fieldName, $args);
               print $this->Form->label($fieldName, $ea['label'], array('class' => 'mdl-textfield__label'));
+              print $this->Form->text($fieldName, $args);
               /* XXX CO-1329: field errors on text fields are output by default; check to see if
                  an error is being properly produced for dates and if this next statement is needed. */
               if($this->Form->isFieldError($fieldName)) {
@@ -424,8 +424,8 @@
 
               // Render the form field, label, and error (if any)
               // error is output by default with class "error-message"
-              print $this->Form->input($fieldName, $args);
               print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+              print $this->Form->input($fieldName, $args);
 
               print "</div>\n";
 
@@ -597,36 +597,38 @@
 </div>
 <?php if($this->action == 'view'): ?>
   <a href="#tabs-history" class="fieldGroupName">
-    <i class="material-icons">indeterminate_check_box</i>
+    <em class="material-icons">indeterminate_check_box</em>
     <?php print _txt('fd.history.pt'); ?>
   </a>
   <ul id="tabs-history" class="fields data-list data-table">
     <li>
-      <table id="<?php print $this->action; ?>_co_petition_attrs">
-        <tbody>
-          <tr>
-            <th><?php print _txt('fd.action'); ?></th>
-            <th><?php print _txt('fd.actor'); ?></th>
-            <th><?php print _txt('fd.comment'); ?></th>
-            <th><?php print _txt('fd.timestamp.tz', array($vv_tz)); ?></th>
-          </tr>
+      <div class="table-container">
+        <table id="<?php print $this->action; ?>_co_petition_attrs">
+          <tbody>
+            <tr>
+              <th><?php print _txt('fd.action'); ?></th>
+              <th><?php print _txt('fd.actor'); ?></th>
+              <th><?php print _txt('fd.comment'); ?></th>
+              <th><?php print _txt('fd.timestamp.tz', array($vv_tz)); ?></th>
+            </tr>
 
-          <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
-          <tr class="line<?php print ($l % 2); $l++; ?>">
-            <td><?php print $hr['action']; ?></td>
-            <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($hr['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.actor.self')); ?></td>
-            <td><?php print $hr['comment']; ?></td>
-            <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
-          </tr>
-          <?php endforeach; // CoPetitionHistoryRecord ?>
-        </tbody>
-      </table>
+            <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
+            <tr class="line<?php print ($l % 2); $l++; ?>">
+              <td><?php print $hr['action']; ?></td>
+              <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($hr['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.actor.self')); ?></td>
+              <td><?php print $hr['comment']; ?></td>
+              <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
+            </tr>
+            <?php endforeach; // CoPetitionHistoryRecord ?>
+          </tbody>
+        </table>
+      </div>
     </li>
   </ul>
 <?php endif; // action == view ?>
 
 <div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
-  <iframe id="tandc_content" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>" height="600" width="700">
+  <iframe id="tandc_content" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
   </iframe>
 </div>
 

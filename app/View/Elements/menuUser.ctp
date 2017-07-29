@@ -28,11 +28,11 @@
          <?php print count($vv_my_notifications); ?>
       </span>
       <?php if(count($vv_my_notifications) > 0): ?>
-        <i class="material-icons icon-adjust">notifications_active</i>
+        <em class="material-icons icon-adjust">notifications_active</em>
       <?php else: ?>
-        <i class="material-icons icon-adjust">notifications</i>
+        <em class="material-icons icon-adjust">notifications</em>
       <?php endif?>
-      <i class="material-icons">arrow_drop_down</i>
+      <em class="material-icons">arrow_drop_down</em>
     </a>
     <ul id="notifications-menu" for="user-notifications" class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right">
 
@@ -46,11 +46,15 @@
               $n['CoNotification']['id']
             );
 
+/*            $linkedMarkup = '<span class="notification-comment">' . $n['CoNotification']['comment'] . '</span>';
+            $linkedMarkup += '<span class="notification-created">' . $this->Time->timeAgoInWords($n['CoNotification']['created']) . '</span>';
+            print $this->Html->link($linkedMarkup,$args);*/
+
             print '<span class="notification-comment">';
-            print $this->Html->link($n['CoNotification']['comment'],$args);
+            print $this->Html->link($n['CoNotification']['comment'],$args, array('title' => _txt('op.see.notification.num',array($n['CoNotification']['id']))));
             print '</span>';
             print '<span class="notification-created">';
-            print $this->Html->link($this->Time->timeAgoInWords($n['CoNotification']['created']),$args);
+            print $this->Time->timeAgoInWords($n['CoNotification']['created']);
             print '</span>';
 
             $notificationCount++;
@@ -78,8 +82,8 @@
           print $userCN;
         ?>
       </span>
-      <i class="material-icons icon-adjust">person</i>
-      <i class="material-icons drop-arrow">arrow_drop_down</i>
+      <em class="material-icons icon-adjust">person</em>
+      <em class="material-icons drop-arrow">arrow_drop_down</em>
     </a>
     <ul id="user-links-menu" class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="user-links">
       <li id="user-links-cn"><?php print $userCN; ?></li>
@@ -152,14 +156,8 @@
 <?php endif ?>
 
 <?php if(!isset($noLoginLogout) || !$noLoginLogout) : ?>
-  <?php // Print the login/logout buttons
-    if($this->Session->check('Auth.User') != NULL) {
-      $args = array('controller' => 'auth',
-                    'action'     => 'logout',
-                    'plugin'     => false);
-      print $this->Html->link(_txt('op.logout') . ' <span class="fa fa-sign-out"></span>',
-            $args, array('escape'=>false, 'id' => 'logout', 'class' => ''));
-    } else {
+  <?php // Print the login button
+    if($this->Session->check('Auth.User') == NULL) {
       $args = array('controller' => 'auth',
                     'action'     => 'login',
                     'plugin'     => false

@@ -73,9 +73,9 @@ $tabIndex = 1;
   <fieldset>
     <legend>
       <a href="#" id="top-search-toggle">
-        <i class="material-icons">search</i>
+        <em class="material-icons">search</em>
         <?php print _txt('op.search');?>
-        <i class="material-icons drop-arrow">arrow_drop_down</i>
+        <em class="material-icons drop-arrow">arrow_drop_down</em>
       </a>
     </legend>
 
@@ -85,7 +85,6 @@ $tabIndex = 1;
       $args = array();
       $args['label'] = _txt('fd.name.given');
       $args['placeholder'] = _txt('fd.name.given');
-      $args['tabindex'] = 1;
       $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
       print $this->Form->input('Search.givenName',$args);
       ?>
@@ -93,7 +92,6 @@ $tabIndex = 1;
       $args = array();
       $args['label'] = _txt('fd.name.family');
       $args['placeholder'] = _txt('fd.name.family');
-      $args['tabindex'] = 2;
       $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
       print $this->Form->input('Search.familyName',$args);
       ?>
@@ -101,7 +99,6 @@ $tabIndex = 1;
       $args = array();
       $args['label'] = _txt('fd.email_address.mail');
       $args['placeholder'] = _txt('fd.email_address.mail');
-      $args['tabindex'] = 3;
       $args['value'] = !empty($this->request->params['named']['Search.mail']) ? $this->request->params['named']['Search.mail'] : '';
       print $this->Form->input('Search.mail', $args);
       ?>
@@ -109,7 +106,6 @@ $tabIndex = 1;
       $args = array();
       $args['label'] = _txt('fd.identifier.identifier');
       $args['placeholder'] = _txt('fd.identifier.identifier');
-      $args['tabindex'] = 3;
       $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
       print $this->Form->input('Search.identifier', $args);
       ?>
@@ -120,7 +116,6 @@ $tabIndex = 1;
       $args = array();
       $args['label'] = _txt('fd.o');
       $args['placeholder'] = _txt('fd.o');
-      $args['tabindex'] = 4;
       $args['value'] = !empty($this->request->params['named']['Search.organization']) ? $this->request->params['named']['Search.organization'] : '';
       print $this->Form->input('Search.organization',$args);
       ?>
@@ -131,8 +126,6 @@ $tabIndex = 1;
           'type'    => 'select',
           'empty'   => _txt('op.select.empty-a', array(_txt('ct.org_identity_sources.1'))),
           'label'   => _txt('ct.org_identity_sources.1'),
-          'tabindex' => 5,
-          'onchange' => 'this.form.submit()',
           'value'   => (!empty($this->request->params['named']['Search.orgIdentitySource'])
                         ? $this->request->params['named']['Search.orgIdentitySource']
                         : ''));
@@ -143,7 +136,6 @@ $tabIndex = 1;
       $args = array();
       $args['label'] = _txt('fd.ou');
       $args['placeholder'] = _txt('fd.ou');
-      $args['tabindex'] = 6;
       $args['value'] = !empty($this->request->params['named']['Search.department']) ? $this->request->params['named']['Search.department'] : '';
       print $this->Form->input('Search.department',$args);
       ?>
@@ -151,7 +143,6 @@ $tabIndex = 1;
       $args = array();
       $args['label'] = _txt('fd.title');
       $args['placeholder'] = _txt('fd.title');
-      $args['tabindex'] = 7;
       $args['value'] = !empty($this->request->params['named']['Search.title']) ? $this->request->params['named']['Search.title'] : '';
       print $this->Form->input('Search.title',$args);
       ?>
@@ -161,8 +152,6 @@ $tabIndex = 1;
         'type'    => 'select',
         'empty'   => _txt('fd.affiliation') . ' ' . _txt('op.select.empty'),
         'label'   => _txt('fd.affiliation'),
-        'tabindex' => 8,
-        'onchange' => 'this.form.submit()',
         'value'   => (!empty($this->request->params['named']['Search.affiliation']) ? $this->request->params['named']['Search.affiliation'] : ''));
       print $this->Form->input('Search.affiliation', $formParams);
       ?>
@@ -174,7 +163,6 @@ $tabIndex = 1;
         //$args['type'] = 'button';
 
         // search button (submit)
-        $args['tabindex'] = '10';
         $args['aria-label'] = _txt('op.search');
         $args['class'] = 'submit-button spin mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect';
         print $this->Form->submit(_txt('op.search'),$args);
@@ -183,7 +171,6 @@ $tabIndex = 1;
         $args['class'] = 'clear-button spin mdl-button';
         $args['aria-label'] = _txt('op.clear.all');
         $args['onclick'] = 'clearSearch(this.form)';
-        $args['tabindex'] = '9';
         print $this->Form->button(_txt('op.clear.all'),$args);
         ?>
       </div>

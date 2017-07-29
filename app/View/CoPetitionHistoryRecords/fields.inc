@@ -68,31 +68,34 @@
   $this->Html->addCrumb(_txt('op.petition.comment'));
 
 ?>
-<table id="<?php print $this->action; ?>_co_petition_history_record">
-  <tbody>
-    <tr class="line1">
-      <td>
-        <?php print _txt('fd.comment'); ?><span class="required">*</span>
-      </td>
-      <td>
-        <?php print ($e
-                     ? $this->Form->input('comment',
-                                          array('class' => 'focusFirst',
-                                                'size'  => '80'))
-                     : ""); ?>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-      </td>
-      <td>
-        <?php
-          if($e) {
-            print $this->Form->submit($submit_label);
-          }
-        ?>
-      </td>
-    </tr>
-  </tbody>
-</table>
+
+<div class="table-container">
+  <table id="<?php print $this->action; ?>_co_petition_history_record">
+    <tbody>
+      <tr class="line1">
+        <td>
+          <?php print _txt('fd.comment'); ?><span class="required">*</span>
+        </td>
+        <td>
+          <?php print ($e
+                       ? $this->Form->input('comment',
+                                            array('class' => 'focusFirst',
+                                                  'size'  => '80'))
+                       : ""); ?>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
+        </td>
+        <td>
+          <?php
+            if($e) {
+              print $this->Form->submit($submit_label);
+            }
+          ?>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>  

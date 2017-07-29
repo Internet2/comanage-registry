@@ -1261,6 +1261,29 @@ class CoPetitionsController extends StandardController {
           $this->CoPetition->linkOrgIdentity($id,
                                              $this->request->params['named']['orgidentityid'],
                                              $this->Session->read('Auth.User.co_person_id'));
+          
+          // If we don't already have a CO Person, and if the OIS was attached
+          // to a pipeline and that pipeline created a CO Person we should attach
+          // that CO Person to the petition.
+          
+          $pCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+          
+          if(!$pCoPersonId) {
+            $pCoPersonId = $this->CoPetition
+                                ->EnrolleeOrgIdentity
+                                ->CoOrgIdentityLink
+                                ->field('co_person_id',
+                                        array('CoOrgIdentityLink.org_identity_id'
+                                              => $this->request->params['named']['orgidentityid']));
+            
+            if($pCoPersonId) {
+              // Link this CO Person ID to the petition
+              
+              $this->CoPetition->linkCoPerson($id,
+                                              $pCoPersonId,
+                                              $this->Session->read('Auth.User.co_person_id'));
+            }
+          }
         } else {
           // Redirect into the OIS Selector
           
@@ -1381,6 +1404,7 @@ class CoPetitionsController extends StandardController {
             
             try {
 // XXX update this to query all EnrollmentSources in Claim mode
+// XXX also probably want to set provision=false
               $orgId = $this->OrgIdentitySource->createOrgIdentity($s[0], $s[1], null, (!empty($this->cur_co['Co']['id'])
                                                                                         ? $this->cur_co['Co']['id']
                                                                                         : null));

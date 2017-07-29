@@ -32,7 +32,7 @@ global $cm_lang, $cm_texts;
 
 <div id="coPeopleSimpleSearch" class="side-search">
   <div class="accHeader">
-    <i class="material-icons">search</i>
+    <em class="material-icons">search</em>
     <?php print _txt('fd.co_people.search');?>
   </div>
   <?php

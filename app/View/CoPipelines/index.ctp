@@ -52,66 +52,68 @@
 
 ?>
 
-<table id="co_pipelines">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('name', _txt('fd.key')); ?></th>
-      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_pipelines as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print $this->Html->link($c['CoPipeline']['name'],
-                                  array('controller' => 'co_pipelines',
-                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                        $c['CoPipeline']['id']));
-        ?>
-      </td>
-      <td>
-        <?php print _txt('en.status.susp', null, $c['CoPipeline']['status']); ?>
-      </td>
-      <td>
-        <?php
-          if($permissions['edit']) {
-            print $this->Html->link(_txt('op.edit'),
-              array('controller' => 'co_pipelines',
-                    'action' => 'edit',
-                    $c['CoPipeline']['id']),
-              array('class' => 'editbutton')) . "\n";
-          }
-          if($permissions['delete']) {
-            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-              . '" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.remove') . '\',\''    // dialog body text
-              . $this->Html->url(              // dialog confirm URL
-                array(
-                  'controller' => 'co_pipelines',
-                  'action' => 'delete',
-                  $c['CoPipeline']['id']
-                )
-              ) . '\',\''
-              . _txt('op.remove') . '\',\''    // dialog confirm button
-              . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($c['CoPipeline']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.delete')
-              . '</button>';
-          }
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
-</table>
+<div class="table-container">
+  <table id="co_pipelines">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('name', _txt('fd.key')); ?></th>
+        <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($co_pipelines as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            print $this->Html->link($c['CoPipeline']['name'],
+                                    array('controller' => 'co_pipelines',
+                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                          $c['CoPipeline']['id']));
+          ?>
+        </td>
+        <td>
+          <?php print _txt('en.status.susp', null, $c['CoPipeline']['status']); ?>
+        </td>
+        <td>
+          <?php
+            if($permissions['edit']) {
+              print $this->Html->link(_txt('op.edit'),
+                array('controller' => 'co_pipelines',
+                      'action' => 'edit',
+                      $c['CoPipeline']['id']),
+                array('class' => 'editbutton')) . "\n";
+            }
+            if($permissions['delete']) {
+              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'co_pipelines',
+                    'action' => 'delete',
+                    $c['CoPipeline']['id']
+                  )
+                ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . filter_var(_jtxt($c['CoPipeline']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.delete')
+                . '</button>';
+            }
+          ?>
+          <?php ; ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
 
 <?php
   print $this->element("pagination");

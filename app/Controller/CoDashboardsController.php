@@ -53,7 +53,7 @@ class CoDashboardsController extends StandardController {
    */
   
   public function parseCOID($data = null) {
-    if($this->action == 'dashboard') {
+    if($this->action == 'dashboard' || $this->action == 'configuration' ) {
       if(isset($this->request->params['named']['co'])) {
         return $this->request->params['named']['co'];
       }
@@ -73,7 +73,17 @@ class CoDashboardsController extends StandardController {
 
     $this->set('title_for_layout', $this->cur_co['Co']['name']);
   }
-  
+
+  /**
+   * Render the CO Configuration Dashboard.
+   *
+   * @since  COmanage Registry v3.0.0
+   */
+
+  public function configuration() {
+    $this->set('title_for_layout', _txt('op.dashboard.configuration', array($this->cur_co['Co']['name'])));
+  }
+
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
@@ -93,6 +103,9 @@ class CoDashboardsController extends StandardController {
     
     // View the dashboard for the specified CO?
     $p['dashboard'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+
+    // Lock down the configuration dashboard to only cmadmin and coadmin for now (might change in future)
+    $p['configuration'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];

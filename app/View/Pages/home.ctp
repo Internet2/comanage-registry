@@ -70,7 +70,7 @@
 
 <?php if($err != ""): ?>
   <div class="co-info-topbox">
-    <i class="material-icons error">info</i>
+    <em class="material-icons error">info</em>
     <?php print $err; ?>
   </div>
 <?php else: // $err ?>
@@ -89,7 +89,7 @@
         $cos = array();
       }
 
-      print '<h3>' . _txt('op.home.collabs') . '</h3>';
+      print '<h2>' . _txt('op.home.collabs') . '</h2>';
       print '<div id="fpCoList" class="co-grid co-grid-with-header mdl-shadow--2dp">';
       print '<div class="mdl-grid co-grid-header">';
       print '  <div class="mdl-cell mdl-cell--6-col">' . _txt('fd.name') . '</div>';

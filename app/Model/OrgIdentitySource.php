@@ -245,8 +245,12 @@ class OrgIdentitySource extends AppModel {
    * @throws RuntimeException
    */
   
-// XXX CO-1469 flip provision default to true? then maybe update CoPetitionsController to call w/false
-  public function createOrgIdentity($id, $sourceKey, $actorCoPersonId=null, $coId=null, $targetCoPersonId=null, $provision=false) {
+  public function createOrgIdentity($id,
+                                    $sourceKey,
+                                    $actorCoPersonId=null,
+                                    $coId=null,
+                                    $targetCoPersonId=null,
+                                    $provision=true) {
     // Unlike CoPipeline::syncOrgIdentityToCoPerson, we have a separate call
     // for create vs update. This is because $Backend->retrieve() will return
     // data in a format that is more or less ready for a direct save.
@@ -1223,7 +1227,6 @@ class OrgIdentitySource extends AppModel {
                                                        $newKey,
                                                        null,
                                                        $orgIdentitySource['OrgIdentitySource']['co_id']);
-// XXX CO-1469 provision?
           
           $resCnt['new']++;
           
@@ -1415,7 +1418,6 @@ class OrgIdentitySource extends AppModel {
                                                          $sourceKey,
                                                          null,
                                                          $orgIdentitySource['OrgIdentitySource']['co_id']);
-// XXX CO-1469 provision?
             
             $resCnt['new']++;
             

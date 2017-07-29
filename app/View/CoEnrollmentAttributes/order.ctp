@@ -113,43 +113,45 @@
   });
 </script>
 
-<table id="enrollment_attributes">
-  <thead>
-    <tr>
-      <th><?php print _txt('fd.ea.order'); ?></th>
-      <th><?php print _txt('fd.ea.label'); ?></th>
-      <th><?php print _txt('fd.attribute'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody id="sortable">
-    <?php foreach ($co_enrollment_attributes as $c): ?>
-      <tr id = "CoEnrollmentAttributeId_<?php print $c['CoEnrollmentAttribute']['id']?>" class="line1">
-        <td class = "order">
-          <span class="ui-icon ui-icon-arrow-4"></span>
-        </td>
-        <td>
-          <?php
-            print $this->Html->link($c['CoEnrollmentAttribute']['label'],
-                                    array('controller' => 'co_enrollment_attributes',
-                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                          $c['CoEnrollmentAttribute']['id'],
-                                          'coef' => $vv_coefid));
-          ?>
-        </td>
-        <td><?php print $vv_available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
+<div class="table-container">
+  <table id="enrollment_attributes">
+    <thead>
+      <tr>
+        <th><?php print _txt('fd.ea.order'); ?></th>
+        <th><?php print _txt('fd.ea.label'); ?></th>
+        <th><?php print _txt('fd.attribute'); ?></th>
       </tr>
-    <?php endforeach; ?>
-  </tbody>
-  
-  <tfoot>
-    <tr>
-      <th colspan="3">
-        <?php print $this->element("pagination"); ?>
-      </th>
-    </tr>
-  </tfoot>
-</table>
+    </thead>
+
+    <tbody id="sortable">
+      <?php foreach ($co_enrollment_attributes as $c): ?>
+        <tr id = "CoEnrollmentAttributeId_<?php print $c['CoEnrollmentAttribute']['id']?>" class="line1">
+          <td class = "order">
+            <span class="ui-icon ui-icon-arrow-4"></span>
+          </td>
+          <td>
+            <?php
+              print $this->Html->link($c['CoEnrollmentAttribute']['label'],
+                                      array('controller' => 'co_enrollment_attributes',
+                                            'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                            $c['CoEnrollmentAttribute']['id'],
+                                            'coef' => $vv_coefid));
+            ?>
+          </td>
+          <td><?php print $vv_available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
+        </tr>
+      <?php endforeach; ?>
+    </tbody>
+
+    <tfoot>
+      <tr>
+        <th colspan="3">
+          <?php print $this->element("pagination"); ?>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
 
 <?php
   $args = array();

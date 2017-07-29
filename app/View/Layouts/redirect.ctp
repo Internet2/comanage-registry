@@ -38,7 +38,7 @@
 <!DOCTYPE html>
 <html lang="<?php print _txt('lang'); ?>">
   <head>
-    <?php print $this->Html->meta(array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0',  'http-equiv' => "X-UA-Compatible")) . "\n"; ?>
+    <?php print $this->Html->meta(array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0')) . "\n"; ?>
     <?php print $this->Html->charset() . "\n"; ?>
 
     <title><?php print _txt('op.processing'); ?></title>
@@ -47,7 +47,7 @@
     <!-- Load CSS -->
     <?php
       print $this->Html->css('jquery/jquery-ui-1.12.1.custom/jquery-ui.min') . "\n    ";
-      print $this->Html->css('mdl/mdl-1.2.0/material.css') . "\n    ";
+      print $this->Html->css('mdl/mdl-1.3.0/material.css') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
     ?>
@@ -140,6 +140,20 @@
     <!-- Primary layout -->
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
 
+      <div id="top-menu">
+        <?php if($this->Session->check('Auth.User')): ?>
+          <div id="desktop-hamburger"><em class="material-icons">menu</em></div>
+        <?php endif; ?>
+        <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
+          <div id="user-defined-links-top">
+            <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
+          </div>
+        <?php endif; ?>
+        <nav id="user-menu">
+          <?php print $this->element('menuUser'); ?>
+        </nav>
+      </div>
+
       <header id="banner" class="mdl-layout__header mdl-layout__header--scroll">
         <div class="mdl-layout__header-row">
           <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
@@ -182,16 +196,6 @@
           </div>
         </div>
 
-        <div id="top-menu">
-          <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
-            <div id="user-defined-links-top">
-              <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
-            </div>
-          <?php endif; ?>
-          <nav id="user-menu">
-            <?php print $this->element('menuUser'); ?>
-          </nav>
-        </div>
       </header>
 
       <main id="main" class="mdl-layout__content">
@@ -206,6 +210,12 @@
             </div>
           </div>
         </div>
+
+        <?php if(Configure::read('debug') > 0): ?>
+          <div id="debug" class="mdl-grid">
+            <?php print $this->element('sql_dump'); ?>
+          </div>
+        <?php endif; ?>
       </main>
 
       <?php if(!isset($vv_theme_hide_footer_logo) || !$vv_theme_hide_footer_logo): ?>
@@ -220,17 +230,12 @@
           <?php print $vv_theme_footer; ?>
         </footer>
       <?php endif; ?>
-      
-      <?php if(Configure::read('debug') > 0): ?>
-        <div id="debug">
-          <?php print $this->element('sql_dump'); ?>
-        </div>
-      <?php endif; ?>
+
     </div>
 
     <!-- Load JavaScript -->
     <?php
-      print $this->Html->script('mdl/mdl-1.2.0/material.min.js') . "\n    ";
+      print $this->Html->script('mdl/mdl-1.3.0/material.min.js') . "\n    ";
       print $this->Html->script('jquery/spin.min.js') . "\n    ";
     ?>
   </body>

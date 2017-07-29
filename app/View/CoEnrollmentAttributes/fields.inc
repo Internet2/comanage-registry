@@ -305,350 +305,351 @@
   
   $l = 1;
 ?>
-<table id="<?php print $this->action; ?>_co_enrollment_attribute">
-  <tbody>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td width="50%"> <!-- force a width here and below so the two tables line up -->
-        <b><?php print _txt('fd.ea.label'); ?></b><br />
-        <span class="descr"><?php print _txt('fd.ea.label.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-          ? $this->Form->input('label', array('default' => _txt('fd.untitled'),'class' => 'focusFirst'))
-          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['label'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.ea.desc'); ?></b><br />
-        <span class="descr"><?php print _txt('fd.ea.desc.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-          ? $this->Form->input('description', array('size' => 40))
-          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.attribute'); ?></b>
-      </td>
-      <td>
-        <?php
-        $attrs['value'] = (isset($co_enrollment_attributes)
-          ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']
-          : null);
-        $attrs['empty'] = false;
-        $attrs['onchange'] = "document.getElementById('CoEnrollmentAttributeRequiredFields').value='';
-                                    toggle_attr_def_div();toggle_copy_to_coperson_div();toggle_attr_type_div();";
-
-        if($e) {
-          print $this->Form->select('attribute',
-            $vv_available_attributes,
-            $attrs);
-
-          if($this->Form->isFieldError('attribute')) {
-            print $this->Form->error('status');
-          }
-        } else {
-          print filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS);
-        }
-        ?>
-        <div id="type_div" style="display: none">
-          <?php
-          global $cm_lang, $cm_texts;
-
-          $attrs = array();
-          $attrs['value'] = (isset($co_enrollment_attributes[0]['CoEnrollmentAttribute']['language'])
-            ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['language']
-            : getPreferredLanguage());
-          $attrs['empty'] = true;
-
-          print $this->Form->select('language',
-            $cm_texts[ $cm_lang ]['en.language'],
-            $attrs);
-
-          if($this->Form->isFieldError('language')) {
-            print $this->Form->error('language');
-          }
-          ?>
-        </div>
-        <div id="address_required_fields_div" style="display: none">
-          <?php print _txt('fd.address.fields.req'); ?><br />
-          <select
-            id="CoEnrollmentAttributeAddressFields"
-            onchange="javascript:document.getElementById('CoEnrollmentAttributeRequiredFields').value=this.value">
-            <?php
-            global $cm_lang, $cm_texts;
-
-            foreach($cm_texts[ $cm_lang ]['en.required.address'] as $key => $txt):
-              ?>
-              <option value="<?php print $key; ?>"><?php print $txt; ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div id="name_required_fields_div" style="display: none">
-          <?php print _txt('fd.name.fields.req'); ?><br />
-          <select
-            id="CoEnrollmentAttributeNameFields"
-            onchange="javascript:document.getElementById('CoEnrollmentAttributeRequiredFields').value=this.value">
-            <?php
-            global $cm_lang, $cm_texts;
-
-            foreach($cm_texts[ $cm_lang ]['en.required.name'] as $key => $txt):
-              ?>
-              <option value="<?php print $key; ?>"><?php print $txt; ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div id="required_fields_div" style="display: none">
-          <?php
-          if($e) {
-            print $this->Form->input('required_fields');
-          }
-          ?>
-        </div>
-        <div id="copy_to_coperson_div" style="display: none">
+<div class="table-container">
+  <table id="<?php print $this->action; ?>_co_enrollment_attribute">
+    <tbody>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td width="50%"> <!-- force a width here and below so the two tables line up -->
+          <b><?php print _txt('fd.ea.label'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.ea.label.desc'); ?></span>
+        </td>
+        <td>
           <?php print ($e
-            ? $this->Form->input('copy_to_coperson',
-              array('default' => false))
-            : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['copy_to_coperson']
-              ? _txt('fd.yes') : _txt('fd.no')));
-          print _txt('fd.ea.attr.copy2cop');
-          ?>
-        </div>
-        <div id="login_div" style="display: none">
-          <?php print ($e
-            ? $this->Form->input('login', array('default' => false))
-            : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['login']
-              ? _txt('fd.yes') : _txt('fd.no')));
-          print _txt('fd.identifier.login.desc');
-          ?>
-        </div>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.required'); ?></b>
-      </td>
-      <td>
-        <?php
-        global $cm_lang, $cm_texts;
-        $attrs['value'] = (isset($co_enrollment_attributes)
-          ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['required']
-          : RequiredEnum::Required);
-        $attrs['empty'] = false;
-
-        if($e) {
-          print $this->Form->select('required',
-            $cm_texts[ $cm_lang ]['en.required'],
-            $attrs);
-
-          if($this->Form->isFieldError('required')) {
-            print $this->Form->error('required');
-          }
-        } else {
-          print _txt('en.required', null, $co_enrollment_attributes[0]['CoEnrollmentAttribute']['required']);
-        }
-        ?>
-      </td>
-    </tr>
-    <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
+            ? $this->Form->input('label', array('default' => _txt('fd.untitled'),'class' => 'focusFirst'))
+            : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['label'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </td>
+      </tr>
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
-          <b><?php print _txt('fd.ea.ignauth'); ?></b><br />
-          <span class="descr"><?php print _txt('fd.ea.ignauth.desc'); ?></span>
+          <b><?php print _txt('fd.ea.desc'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.ea.desc.desc'); ?></span>
+        </td>
+        <td>
+          <?php print ($e
+            ? $this->Form->input('description', array('size' => 40))
+            : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </td>
+      </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <b><?php print _txt('fd.attribute'); ?></b>
         </td>
         <td>
           <?php
-          print ($e
-            ? $this->Form->input('ignore_authoritative',
-              array('default' => false))
-            : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ignore_authoritative']
-              ? _txt('fd.yes') : _txt('fd.no')));
+          $attrs['value'] = (isset($co_enrollment_attributes)
+            ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']
+            : null);
+          $attrs['empty'] = false;
+          $attrs['onchange'] = "document.getElementById('CoEnrollmentAttributeRequiredFields').value='';
+                                      toggle_attr_def_div();toggle_copy_to_coperson_div();toggle_attr_type_div();";
+
+          if($e) {
+            print $this->Form->select('attribute',
+              $vv_available_attributes,
+              $attrs);
+
+            if($this->Form->isFieldError('attribute')) {
+              print $this->Form->error('status');
+            }
+          } else {
+            print filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS);
+          }
+          ?>
+          <div id="type_div" style="display: none">
+            <?php
+            global $cm_lang, $cm_texts;
+
+            $attrs = array();
+            $attrs['value'] = (isset($co_enrollment_attributes[0]['CoEnrollmentAttribute']['language'])
+              ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['language']
+              : getPreferredLanguage());
+            $attrs['empty'] = true;
+
+            print $this->Form->select('language',
+              $cm_texts[ $cm_lang ]['en.language'],
+              $attrs);
+
+            if($this->Form->isFieldError('language')) {
+              print $this->Form->error('language');
+            }
+            ?>
+          </div>
+          <div id="address_required_fields_div" style="display: none">
+            <?php print _txt('fd.address.fields.req'); ?><br />
+            <select
+              id="CoEnrollmentAttributeAddressFields"
+              onchange="javascript:document.getElementById('CoEnrollmentAttributeRequiredFields').value=this.value">
+              <?php
+              global $cm_lang, $cm_texts;
+
+              foreach($cm_texts[ $cm_lang ]['en.required.address'] as $key => $txt):
+                ?>
+                <option value="<?php print $key; ?>"><?php print $txt; ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div id="name_required_fields_div" style="display: none">
+            <?php print _txt('fd.name.fields.req'); ?><br />
+            <select
+              id="CoEnrollmentAttributeNameFields"
+              onchange="javascript:document.getElementById('CoEnrollmentAttributeRequiredFields').value=this.value">
+              <?php
+              global $cm_lang, $cm_texts;
+
+              foreach($cm_texts[ $cm_lang ]['en.required.name'] as $key => $txt):
+                ?>
+                <option value="<?php print $key; ?>"><?php print $txt; ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div id="required_fields_div" style="display: none">
+            <?php
+            if($e) {
+              print $this->Form->input('required_fields');
+            }
+            ?>
+          </div>
+          <div id="copy_to_coperson_div" style="display: none">
+            <?php print ($e
+              ? $this->Form->input('copy_to_coperson',
+                array('default' => false))
+              : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['copy_to_coperson']
+                ? _txt('fd.yes') : _txt('fd.no')));
+            print _txt('fd.ea.attr.copy2cop');
+            ?>
+          </div>
+          <div id="login_div" style="display: none">
+            <?php print ($e
+              ? $this->Form->input('login', array('default' => false))
+              : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['login']
+                ? _txt('fd.yes') : _txt('fd.no')));
+            print _txt('fd.identifier.login.desc');
+            ?>
+          </div>
+        </td>
+      </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <b><?php print _txt('fd.required'); ?></b>
+        </td>
+        <td>
+          <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (isset($co_enrollment_attributes)
+            ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['required']
+            : RequiredEnum::Required);
+          $attrs['empty'] = false;
+
+          if($e) {
+            print $this->Form->select('required',
+              $cm_texts[ $cm_lang ]['en.required'],
+              $attrs);
+
+            if($this->Form->isFieldError('required')) {
+              print $this->Form->error('required');
+            }
+          } else {
+            print _txt('en.required', null, $co_enrollment_attributes[0]['CoEnrollmentAttribute']['required']);
+          }
           ?>
         </td>
       </tr>
-    <?php endif; ?>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.ea.order'); ?></b><br />
-        <span class="descr"><?php print _txt('fd.ea.order.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-          ? $this->Form->input('ordr')
-          : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      </td>
-    </tr>
-  </tbody>
-  <tbody id="attr_def_div" style="display: none">
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td width="50%">
-        <b><?php print _txt('fd.ed.default'); ?></b><br />
-      </td>
-      <td>
-        <div id="attr_def_val_div">
+      <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
+        <tr class="line<?php print ($l % 2); $l++; ?>">
+          <td>
+            <b><?php print _txt('fd.ea.ignauth'); ?></b><br />
+            <span class="descr"><?php print _txt('fd.ea.ignauth.desc'); ?></span>
+          </td>
+          <td>
+            <?php
+            print ($e
+              ? $this->Form->input('ignore_authoritative',
+                array('default' => false))
+              : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ignore_authoritative']
+                ? _txt('fd.yes') : _txt('fd.no')));
+            ?>
+          </td>
+        </tr>
+      <?php endif; ?>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <b><?php print _txt('fd.ea.order'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.ea.order.desc'); ?></span>
+        </td>
+        <td>
           <?php print ($e
-            ? $this->Form->input('CoEnrollmentAttributeDefault.0.value', array('size' => 40))
-            : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
-        <div id="attr_def_val_affil_div">
-          <?php if($e): ?>
-            <select name="def_affil_val"
-                    id="def_affil_val"
-                    onchange="set_attr_def_value('def_affil_val')">
-              <option value=""></option>
-              <?php foreach(array_keys($vv_affiliations) as $k): ?>
-                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
-                  <?php print filter_var($vv_affiliations[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          <?php endif; ?>
-        </div>
-        <div id="attr_def_val_cou_div">
-          <?php if($e): ?>
-            <select name="def_cou_val"
-                    id="def_cou_val"
-                    onchange="set_attr_def_value('def_cou_val')">
-              <option value=""></option>
-              <?php foreach(array_keys($vv_cous) as $k): ?>
-                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
-                  <?php print filter_var($vv_cous[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          <?php endif; ?>
-        </div>
-        <div id="attr_def_val_date_div">
-          <?php if($e): ?>
-            <input name="def_date_type"
-                   id="def_date_fixed"
-                   type="radio"
-                   value="fixed"
-                   onchange="set_attr_def_from_date('fixed')"
-              />
-            <?php print _txt('fd.ed.date.fixed'); ?>
-            <input name="def_date_val_fixed"
-                   id="def_date_val_fixed"
-                   class="datepicker"
-                   onclick="set_attr_def_date_radio('fixed')"
-                   onchange="set_attr_def_value('def_date_val_fixed')"
-              />
-            <br />
-            <input name="def_date_type"
-                   id="def_date_next"
-                   type="radio"
-                   value="next"
-                   onchange="set_attr_def_from_date('next')"
-              />
-            <?php print _txt('fd.ed.date.next'); ?>
-            <input name="def_date_val_next"
-                   id="def_date_val_next"
-                   size="12"
-                   class="datepicker-m"
-                   onclick="set_attr_def_date_radio('next')"
-                   onchange="set_attr_def_value('def_date_val_next')"
-              />
-            <?php print _txt('fd.ed.date.next-note'); ?>
-            <br />
-            <input name="def_date_type"
-                   id="def_date_offset"
-                   size="6"
-                   type="radio"
-                   value="offset"
-                   onchange="set_attr_def_from_date('offset')"
-              />
-            <input name="def_date_val_offset"
-                   id="def_date_val_offset"
-                   size="4"
-                   onclick="set_attr_def_date_radio('offset')"
-                   onkeyup="set_attr_def_value('def_date_val_offset')"
-              />
-            <?php print _txt('fd.ed.date.offset'); ?>
-            <br />
-          <?php endif; ?>
-        </div>
-        <div id="attr_def_val_enum_div">
-          <?php if($e): ?>
-            <select name="def_enum_val"
-                    id="def_enum_val"
-                    onchange="set_attr_def_value('def_enum_val')">
-              <option value=""></option>
-            </select>
-          <?php endif; ?>
-        </div>
-        <div id="attr_def_val_group_div">
-          <?php if($e): ?>
-            <select name="def_group_val"
-                    id="def_group_val"
-                    onchange="set_attr_def_value('def_group_val')">
-              <option value=""></option>
-              <?php foreach(array_keys($vv_groups) as $k): ?>
-                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
-                  <?php print filter_var($vv_groups[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          <?php endif; ?>
-        </div>
-        <div id="attr_def_val_sponsor_div">
-          <?php if($e): ?>
-            <select name="def_sponsor_val"
-                    id="def_sponsor_val"
-                    onchange="set_attr_def_value('def_sponsor_val')">
-              <option value=""></option>
-              <?php foreach(array_keys($vv_sponsors) as $k): ?>
-                <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
-                  <?php print filter_var($vv_sponsors[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          <?php endif; ?>
-        </div>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.ed.modify'); ?></b><br />
-        <span class="descr"><?php print _txt('fd.ed.modify.desc'); ?></span>
-      </td>
-      <td>
-        <?php print ($e
-          ? $this->Form->input('CoEnrollmentAttributeDefault.0.modifiable',
-            array('default' => true))
-          : ($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['modifiable']
-            ? _txt('fd.yes') : _txt('fd.no'))); ?>
-      </td>
-    </tr>
-    <tr class="line<?php print ($l % 2); $l++; ?>">
-      <td>
-        <b><?php print _txt('fd.hidden'); ?></b><br />
-        <span class="descr"><?php print _txt('fd.hidden.desc'); ?></span>
-      </td>
-      <td>
-        <?php // Note this is a CoEnrollmentAttribute field, not CoEnrollmentAttributeDefault
-        print ($e
-          ? $this->Form->input('hidden', array('default' => false))
-          : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['hidden']
-            ? _txt('fd.yes') : _txt('fd.no'))); ?>
-      </td>
-    </tr>
-  </tbody>
-  <tfoot>
-    <tr>
-      <td></td>
-      <td>
-        <?php
-        if($e) {
-          print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
-        }
-        ?>
-      </td>
-    </tr>
-  </tfoot>
-</table>
-<div>
-  <?php print $this->element("changelog"); ?>
+            ? $this->Form->input('ordr')
+            : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </td>
+      </tr>
+    </tbody>
+    <tbody id="attr_def_div" style="display: none">
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td width="50%">
+          <b><?php print _txt('fd.ed.default'); ?></b><br />
+        </td>
+        <td>
+          <div id="attr_def_val_div">
+            <?php print ($e
+              ? $this->Form->input('CoEnrollmentAttributeDefault.0.value', array('size' => 40))
+              : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+          </div>
+          <div id="attr_def_val_affil_div">
+            <?php if($e): ?>
+              <select name="def_affil_val"
+                      id="def_affil_val"
+                      onchange="set_attr_def_value('def_affil_val')">
+                <option value=""></option>
+                <?php foreach(array_keys($vv_affiliations) as $k): ?>
+                  <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                    <?php print filter_var($vv_affiliations[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            <?php endif; ?>
+          </div>
+          <div id="attr_def_val_cou_div">
+            <?php if($e): ?>
+              <select name="def_cou_val"
+                      id="def_cou_val"
+                      onchange="set_attr_def_value('def_cou_val')">
+                <option value=""></option>
+                <?php foreach(array_keys($vv_cous) as $k): ?>
+                  <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                    <?php print filter_var($vv_cous[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            <?php endif; ?>
+          </div>
+          <div id="attr_def_val_date_div">
+            <?php if($e): ?>
+              <input name="def_date_type"
+                     id="def_date_fixed"
+                     type="radio"
+                     value="fixed"
+                     onchange="set_attr_def_from_date('fixed')"
+                />
+              <?php print _txt('fd.ed.date.fixed'); ?>
+              <input name="def_date_val_fixed"
+                     id="def_date_val_fixed"
+                     class="datepicker"
+                     onclick="set_attr_def_date_radio('fixed')"
+                     onchange="set_attr_def_value('def_date_val_fixed')"
+                />
+              <br />
+              <input name="def_date_type"
+                     id="def_date_next"
+                     type="radio"
+                     value="next"
+                     onchange="set_attr_def_from_date('next')"
+                />
+              <?php print _txt('fd.ed.date.next'); ?>
+              <input name="def_date_val_next"
+                     id="def_date_val_next"
+                     size="12"
+                     class="datepicker-m"
+                     onclick="set_attr_def_date_radio('next')"
+                     onchange="set_attr_def_value('def_date_val_next')"
+                />
+              <?php print _txt('fd.ed.date.next-note'); ?>
+              <br />
+              <input name="def_date_type"
+                     id="def_date_offset"
+                     size="6"
+                     type="radio"
+                     value="offset"
+                     onchange="set_attr_def_from_date('offset')"
+                />
+              <input name="def_date_val_offset"
+                     id="def_date_val_offset"
+                     size="4"
+                     onclick="set_attr_def_date_radio('offset')"
+                     onkeyup="set_attr_def_value('def_date_val_offset')"
+                />
+              <?php print _txt('fd.ed.date.offset'); ?>
+              <br />
+            <?php endif; ?>
+          </div>
+          <div id="attr_def_val_enum_div">
+            <?php if($e): ?>
+              <select name="def_enum_val"
+                      id="def_enum_val"
+                      onchange="set_attr_def_value('def_enum_val')">
+                <option value=""></option>
+              </select>
+            <?php endif; ?>
+          </div>
+          <div id="attr_def_val_group_div">
+            <?php if($e): ?>
+              <select name="def_group_val"
+                      id="def_group_val"
+                      onchange="set_attr_def_value('def_group_val')">
+                <option value=""></option>
+                <?php foreach(array_keys($vv_groups) as $k): ?>
+                  <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                    <?php print filter_var($vv_groups[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            <?php endif; ?>
+          </div>
+          <div id="attr_def_val_sponsor_div">
+            <?php if($e): ?>
+              <select name="def_sponsor_val"
+                      id="def_sponsor_val"
+                      onchange="set_attr_def_value('def_sponsor_val')">
+                <option value=""></option>
+                <?php foreach(array_keys($vv_sponsors) as $k): ?>
+                  <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                    <?php print filter_var($vv_sponsors[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            <?php endif; ?>
+          </div>
+        </td>
+      </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <b><?php print _txt('fd.ed.modify'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.ed.modify.desc'); ?></span>
+        </td>
+        <td>
+          <?php print ($e
+            ? $this->Form->input('CoEnrollmentAttributeDefault.0.modifiable',
+              array('default' => true))
+            : ($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['modifiable']
+              ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        </td>
+      </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <b><?php print _txt('fd.hidden'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.hidden.desc'); ?></span>
+        </td>
+        <td>
+          <?php // Note this is a CoEnrollmentAttribute field, not CoEnrollmentAttributeDefault
+          print ($e
+            ? $this->Form->input('hidden', array('default' => false))
+            : ($co_enrollment_attributes[0]['CoEnrollmentAttribute']['hidden']
+              ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        </td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td></td>
+        <td>
+          <?php
+          if($e) {
+            print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+          }
+          ?>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
 </div>
+
+<?php print $this->element("changelog"); ?>

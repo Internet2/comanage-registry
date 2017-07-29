@@ -385,7 +385,7 @@
         <?php endif; // invite+permission ?>
 
         <a href="#tabs-name" class="fieldGroupName">
-          <i class="material-icons">indeterminate_check_box</i>
+          <em class="material-icons">indeterminate_check_box</em>
           <?php print _txt('fd.name'); ?>
         </a>
 
@@ -610,7 +610,7 @@
             }
           ?>
           <a href="#tabs-id" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.ids'); ?>
           </a>
           <ul id="tabs-id" class="fields data-list">
@@ -732,7 +732,7 @@
             }
           ?>
           <a href="#tabs-email" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('ct.email_addresses.pl'); ?>
           </a>
           <ul id="tabs-email" class="fields data-list">
@@ -825,7 +825,7 @@
           }
           ?>
           <a href="#tabs-group" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.groups'); ?>
           </a>
           <ul id="tabs-group" class="fields data-list">
@@ -885,7 +885,7 @@
             print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
           ?>
           <a href="#tabs-coperson" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.attrs.cop'); ?>
           </a>
           <ul  id="tabs-coperson" class="fields form-list">
@@ -1004,7 +1004,7 @@
             }
           ?>
           <a href="#tabs-role" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.attrs.copr'); ?>
           </a>
           <ul id="tabs-role" class="fields data-list data-table">
@@ -1137,7 +1137,7 @@
             }
           ?>
           <a href="#tabs-sshkeys" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('ct.ssh_keys.pl'); ?>
           </a>
           <ul id="tabs-sshkeys" class="fields data-list">
@@ -1209,7 +1209,7 @@
             }
           ?>
           <a href="#tabs-orgid" class="fieldGroupName">
-            <i class="material-icons">indeterminate_check_box</i>
+            <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('ct.org_identities.pl'); ?>
           </a>
           <ul id="tabs-orgid" class="fields data-list data-table">

@@ -55,7 +55,7 @@
           if($permissions['select']) {
 
             // begin button
-            print $this->Html->link(_txt('op.begin') . ' <i class="material-icons">forward</i>',
+            print $this->Html->link(_txt('op.begin') . ' <em class="material-icons" aria-hidden="true">forward</em>',
               array(
                 'controller' => 'co_petitions',
                 'action' => 'start',
@@ -67,32 +67,38 @@
               )
             ) . "\n";
 
-            // QR code button
-            print $this->Html->link(
-              $this->Html->image(
-                'qrcode-icon.png',
+            // QR code button - requires GD2 library
+            if (extension_loaded ("gd")) {
+              print $this->Html->link(
+                $this->Html->image(
+                  'qrcode-icon.png',
+                  array(
+                    'alt' => _txt('op.display.qr.for',array(filter_var($c['CoEnrollmentFlow']['name'],FILTER_SANITIZE_SPECIAL_CHARS)))
+                  )
+                ),
                 array(
-                  'alt' => _txt('op.begin')
-                )
-              ),
-              array(
-                'controller' => 'qrcode',
-                '?' => array(
-                  'c' => $this->Html->url(
-                    array(
-                      'controller' => 'co_petitions',
-                      'action' => 'start',
-                      'coef' => $c['CoEnrollmentFlow']['id']
-                    ),
-                    array(
-                      'full' => true,
-                      'escape' => false
+                  'controller' => 'qrcode',
+                  '?' => array(
+                    'c' => $this->Html->url(
+                      array(
+                        'controller' => 'co_petitions',
+                        'action' => 'start',
+                        'coef' => $c['CoEnrollmentFlow']['id']
+                      ),
+                      array(
+                        'full' => true,
+                        'escape' => false
+                      )
                     )
                   )
+                ),
+                array(
+                  'class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect', 
+                  'escape' => false,
+                  'title'  => _txt('op.display.qr.for',array($c['CoEnrollmentFlow']['name']))
                 )
-              ),
-              array('class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect','escape' => false)
-            ) . "\n";
+              ) . "\n";
+            }
           }
         ?>
       </div>

@@ -51,80 +51,83 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<table id="co_services">
-  <thead>
-    <tr>
-      <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
-      <th><?php print $this->Paginator->sort('co_group_id', _txt('ct.co_groups.1')); ?></th>
-      <th><?php print $this->Paginator->sort('visibility', _txt('fd.visibility')); ?></th>
-      <th><?php print _txt('fd.actions'); ?></th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    <?php $i = 0; ?>
-    <?php foreach ($co_services as $c): ?>
-    <tr class="line<?php print ($i % 2)+1; ?>">
-      <td>
-        <?php
-          print $this->Html->link($c['CoService']['name'],
-                                  array('controller' => 'co_services',
-                                        'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                        $c['CoService']['id']));
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($c['CoService']['co_group_id'])
-             && !empty($vv_co_groups[ $c['CoService']['co_group_id'] ])) {
-            print $vv_co_groups[ $c['CoService']['co_group_id'] ];
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if(!empty($c['CoService']['visibility'])) {
-            print _txt('en.visibility', null, $c['CoService']['visibility']);
-          }
-        ?>
-      </td>
-      <td>
-        <?php
-          if($permissions['edit']) {
-            print $this->Html->link(_txt('op.edit'),
+<div class="table-container">
+  <table id="co_services">
+    <thead>
+      <tr>
+        <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
+        <th><?php print $this->Paginator->sort('co_group_id', _txt('ct.co_groups.1')); ?></th>
+        <th><?php print $this->Paginator->sort('visibility', _txt('fd.visibility')); ?></th>
+        <th><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <?php $i = 0; ?>
+      <?php foreach ($co_services as $c): ?>
+      <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            print $this->Html->link($c['CoService']['name'],
                                     array('controller' => 'co_services',
-                                          'action' => 'edit',
-                                          $c['CoService']['id']),
-                                    array('class' => 'editbutton')) . "\n";
-          }
+                                          'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                          $c['CoService']['id']));
+          ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($c['CoService']['co_group_id'])
+               && !empty($vv_co_groups[ $c['CoService']['co_group_id'] ])) {
+              print $vv_co_groups[ $c['CoService']['co_group_id'] ];
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($c['CoService']['visibility'])) {
+              print _txt('en.visibility', null, $c['CoService']['visibility']);
+            }
+          ?>
+        </td>
+        <td>
+          <?php
+            if($permissions['edit']) {
+              print $this->Html->link(_txt('op.edit'),
+                                      array('controller' => 'co_services',
+                                            'action' => 'edit',
+                                            $c['CoService']['id']),
+                                      array('class' => 'editbutton')) . "\n";
+            }
 
-          if($permissions['delete']) {
-            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-              . '" onclick="javascript:js_confirm_generic(\''
-              . _txt('js.remove') . '\',\''    // dialog body text
-              . $this->Html->url(              // dialog confirm URL
-                array(
-                  'controller' => 'co_services',
-                  'action' => 'delete',
-                  $c['CoService']['id']
-                )
-              ) . '\',\''
-              . _txt('op.remove') . '\',\''    // dialog confirm button
-              . _txt('op.cancel') . '\',\''    // dialog cancel button
-              . _txt('op.remove') . '\',[\''   // dialog title
-              . filter_var(_jtxt($c['CoService']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-              . '\']);">'
-              . _txt('op.delete')
-              . '</button>';
-          }
-        ?>
-        <?php ; ?>
-      </td>
-    </tr>
-    <?php $i++; ?>
-    <?php endforeach; ?>
-  </tbody>
+            if($permissions['delete']) {
+              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                . '" onclick="javascript:js_confirm_generic(\''
+                . _txt('js.remove') . '\',\''    // dialog body text
+                . $this->Html->url(              // dialog confirm URL
+                  array(
+                    'controller' => 'co_services',
+                    'action' => 'delete',
+                    $c['CoService']['id']
+                  )
+                ) . '\',\''
+                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.cancel') . '\',\''    // dialog cancel button
+                . _txt('op.remove') . '\',[\''   // dialog title
+                . filter_var(_jtxt($c['CoService']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . '\']);">'
+                . _txt('op.delete')
+                . '</button>';
+            }
+          ?>
+          <?php ; ?>
+        </td>
+      </tr>
+      <?php $i++; ?>
+      <?php endforeach; ?>
+    </tbody>
 
-</table>
+  </table>
+</div>
 
-<?php print $this->element("pagination"); ?>
+<?php
+  print $this->element("pagination");
