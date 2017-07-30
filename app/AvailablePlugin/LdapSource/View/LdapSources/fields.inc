@@ -37,6 +37,26 @@
   if(!$e && !$permissions['view'])
     return false;
   
+  // Add breadcrumbs
+  print $this->element("coCrumb");
+
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'org_identity_sources';
+  $args['action'] = 'index';
+  $args['co'] = $cur_co['Co']['id'];
+  $this->Html->addCrumb(_txt('ct.org_identity_sources.pl'), $args);
+
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'org_identity_sources';
+  $args['action'] = 'edit';
+  $args[] = $vv_oisid;
+  $this->Html->addCrumb($ldap_sources[0]['OrgIdentitySource']['description'], $args);
+
+  $crumbTxt = _txt('op.config');
+  $this->Html->addCrumb($crumbTxt);
+  
   print $this->Form->hidden('org_identity_source_id', array('default' => $vv_oisid)) . "\n";
 
 ?>
