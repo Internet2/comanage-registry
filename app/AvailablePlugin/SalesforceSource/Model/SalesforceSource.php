@@ -80,7 +80,12 @@ class SalesforceSource extends AppModel {
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
-    )
+    ),
+    'instance_url' => array(
+      'rule' => array('url', true),
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
   /**

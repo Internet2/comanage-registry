@@ -105,16 +105,20 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     if($this->pluginCfg['search_contacts']) {
       $r = $this->querySalesforceApi(array('id' => 'Contact-describe'));
       
-      foreach($r->fields as $f) {
-        $attrs[ $f->name ] = $f->label;
+      if(!empty($r->fields)) {
+        foreach($r->fields as $f) {
+          $attrs[ $f->name ] = $f->label;
+        }
       }
     }
     
     if($this->pluginCfg['search_users']) {
       $r = $this->querySalesforceApi(array('id' => 'User-describe'));
       
-      foreach($r->fields as $f) {
-        $attrs[ $f->name ] = $f->label;
+      if(!empty($r->fields)) {
+        foreach($r->fields as $f) {
+          $attrs[ $f->name ] = $f->label;
+        }
       }
     }
     
@@ -207,6 +211,12 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
       )
     );
     
+    $targetUrl = $this->pluginCfg['serverurl'];
+    
+    if(!empty($this->pluginCfg['instance_url'])) {
+      $targetUrl = $this->pluginCfg['instance_url'];
+    }
+    
     $HttpSocket = new HttpSocket();
     
     if(!empty($attributes['id'])) {
@@ -216,7 +226,7 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
       $sfid = explode('-', $attributes['id'], 2);
       
       $searchResults = $HttpSocket->get(
-        $this->pluginCfg['serverurl'] . "/services/data/v39.0/sobjects/" . $sfid[0] . "/" . $sfid[1],
+        $targetUrl . "/services/data/v39.0/sobjects/" . $sfid[0] . "/" . $sfid[1],
         null,
         $options
       );
@@ -224,7 +234,7 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
       // Obtain current limits
       
       $searchResults = $HttpSocket->get(
-        $this->pluginCfg['serverurl'] . "/services/data/v39.0/limits",
+        $targetUrl . "/services/data/v39.0/limits",
         null,
         $options
       );
@@ -240,14 +250,14 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
         // we should be able to traverse the relationship in one call, but it doesn't appear to work
         /*
         $searchResults = $HttpSocket->get(
-          $this->pluginCfg['serverurl'] . "/services/data/v39.0/sobjects/Contact/0030n000001bFWeAAM/Committee_Boards__r",
+          $targetUrl . "/services/data/v39.0/sobjects/Contact/0030n000001bFWeAAM/Committee_Boards__r",
           null,
           $options
         );*/
         
         // "SELECT *" doesn't work here
         $objectIds = $HttpSocket->get(
-          $this->pluginCfg['serverurl'] . "/services/data/v39.0/query/?q="
+          $targetUrl . "/services/data/v39.0/query/?q="
           . urlencode("SELECT Id FROM " . $attributes['sobject']
                       . " WHERE " . $attributes['sobject_key'] . "='" . $attributes['sobject_id'] . "'"),
           null,
@@ -264,7 +274,7 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
           foreach($jsr->records as $r) {
             // Now pull the associated object record
             $rRecord = $HttpSocket->get(
-              $this->pluginCfg['serverurl'] . "/services/data/v39.0/sobjects/" . $attributes['sobject'] . "/" . $r->Id,
+              $targetUrl . "/services/data/v39.0/sobjects/" . $attributes['sobject'] . "/" . $r->Id,
               null,
               $options
             );
@@ -303,7 +313,7 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
       }
       
       $searchResults = $HttpSocket->post(
-        $this->pluginCfg['serverurl'] . "/services/data/v39.0/parameterizedSearch",
+        $targetUrl . "/services/data/v39.0/parameterizedSearch",
         json_encode($searchAttributes),
         $options
       );
@@ -319,6 +329,12 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
       $this->refreshToken();
       
       return $this->querySalesforceApi($attributes);
+    }
+    
+    if($searchResults->code >= 400) {
+      // Some sort of error occurred
+      
+      throw new RuntimeException($json[0]->errorCode . ": " . $json[0]->message);
     }
     
     return $json;
@@ -361,8 +377,13 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     
     $SalesforceSource->id = $this->pluginCfg['id'];
     $SalesforceSource->saveField('access_token', $json->access_token);
+    // Update the instance url in case it changed
+    if(!empty($json->instance_url)) {
+      $SalesforceSource->saveField('instance_url', $json->instance_url);
+    }
     
     $this->pluginCfg['access_token'] = $json->access_token;
+    $this->pluginCfg['instance_url'] = $json->instance_url;
     
     return true;
   }

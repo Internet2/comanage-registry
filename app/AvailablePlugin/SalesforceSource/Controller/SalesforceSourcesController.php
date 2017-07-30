@@ -65,6 +65,10 @@ class SalesforceSourcesController extends SOISController {
       $this->SalesforceSource->id = $id;
       $this->SalesforceSource->saveField('access_token', $response->access_token);
       $this->SalesforceSource->saveField('refresh_token', $response->refresh_token);
+      // This will be (eg) cs67.salesforce.com
+      if(!empty($response->instance_url)) {
+        $this->SalesforceSource->saveField('instance_url', $response->instance_url);
+      }
       
       // Store the tokens
       
