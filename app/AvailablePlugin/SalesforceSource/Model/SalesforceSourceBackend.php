@@ -306,7 +306,8 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
         $searchAttributes['fields'] = array(
           'Id',
           'FirstName',
-          'MiddleName',
+// This field is not enabled by default (CO-1506)
+//          'MiddleName',
           'LastName',
           'Email'
         );
