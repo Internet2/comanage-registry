@@ -1337,6 +1337,7 @@ original notification at
   'fd.type' =>        'Type',
   'fd.type.warn' =>   'After an extended attribute is created, its type may not be changed',
   'fd.timezone' =>    'Timezone',
+  'fd.timezone.desc' => 'By default, browser detection is used to select a timezone. Only set a timezone here to force a particular selection.',
   'fd.timezone.change' => 'A change to your preferred timezone will take effect after your next login',
   'fd.update.last' => 'Last Updated',
   'fd.unresolved' =>  'Unresolved',

@@ -920,6 +920,10 @@
                     }
                   }
                 ?>
+                <div class="co-info">
+                  <span class="ui-icon ui-icon-info co-info"></span>
+                  <em><?php print _txt('fd.timezone.desc'); ?></em>
+                </div>
                 <?php if($e &&
                          ($permissions['editself']
                           // Special check for admins, who aren't editself
