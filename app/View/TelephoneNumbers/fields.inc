@@ -110,7 +110,7 @@
 <ul id="<?php print $this->action; ?>_telephone_number" class="fields form-list">
   <li>
     <div class="field-name">
-      <?php print _txt('fd.telephone_number.country_code'); ?>
+      <?php print ($e ? $this->Form->label('country_code',_txt('fd.telephone_number.country_code')) : _txt('fd.telephone_number.country_code')); ?>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('country_code') : filter_var($telephone_numbers[0]['TelephoneNumber']['country_code'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -118,7 +118,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.telephone_number.area_code'); ?>
+      <?php print ($e ? $this->Form->label('area_code',_txt('fd.telephone_number.area_code')) : _txt('fd.telephone_number.area_code')); ?>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('area_code') : filter_var($telephone_numbers[0]['TelephoneNumber']['area_code'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -126,7 +126,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.telephone_number.number'); ?><span class="required">*</span>
+      <?php print ($e ? $this->Form->label('number',_txt('fd.telephone_number.number')) : _txt('fd.telephone_number.number')); ?><span class="required">*</span>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('number', array('class' => 'focusFirst')) : filter_var($telephone_numbers[0]['TelephoneNumber']['number'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -134,7 +134,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.telephone_number.extension'); ?>
+      <?php print ($e ? $this->Form->label('extension',_txt('fd.telephone_number.extension')) : _txt('fd.telephone_number.extension')); ?>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('extension') : filter_var($telephone_numbers[0]['TelephoneNumber']['extension'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -142,7 +142,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.type'); ?>
+      <?php print ($e ? $this->Form->label('type',_txt('fd.type')) : _txt('fd.type')); ?>
     </div>
     <div class="field-info">
       <?php
