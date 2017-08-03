@@ -213,7 +213,7 @@
     top: 64px; /* never cover header */
     box-shadow: none; /* use no shadow on desktop menu */
   }
-  body.logged-in.with-user-defined-links .mdl-layout__drawer {
+  body.logged-in .mdl-layout__drawer {
     top: 94px;
   }
   .mdl-layout__drawer-button {
