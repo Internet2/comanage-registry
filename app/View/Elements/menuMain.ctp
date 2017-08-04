@@ -52,7 +52,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       print '<span class="fa arrow fa-fw"></span>';
       print '<span class="mdl-ripple"></span>';
       print '</a>';
-      print '<ul aria-expanded="false">';
+      print '<ul aria-expanded="false" class="collapse">';
 
       if (isset($permissions['menu']['cos']) && $permissions['menu']['cos']) {
         print '<li class="mdl-js-ripple-effect">';
@@ -165,7 +165,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         print '<span class="fa arrow fa-fw"></span>';
         print '<span class="mdl-ripple"></span>';
         print '</a>';
-        print '<ul aria-expanded="false">';
+        print '<ul aria-expanded="false" class="collapse">';
 
         print '<li class="mdl-js-ripple-effect">';
         $args = array();
@@ -247,7 +247,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       print '<span class="fa arrow fa-fw"></span>';
       print '<span class="mdl-ripple"></span>';
       print '</a>';
-      print '<ul aria-expanded="false">';
+      print '<ul aria-expanded="false" class="collapse">';
 
       print '<li class="mdl-js-ripple-effect">';
       $args = array();
