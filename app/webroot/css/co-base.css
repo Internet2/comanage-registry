@@ -818,7 +818,7 @@ body.co_petitions .approve-button {
   background-color: #2a2;
   background-image: none;
   border: 1px solid #191;
-  color: white;
+  color: white !important;
   font-weight: bold;
 }
 body.co_petitions .approve-button:hover {
@@ -828,7 +828,7 @@ body.co_petitions .deny-button {
   background-color: #c33;
   background-image: none;
   border: 1px solid #b22;
-  color: white;
+  color: white !important;
   font-weight: bold;
 }
 body.co_petitions .deny-button:hover {
