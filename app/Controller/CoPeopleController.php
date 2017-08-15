@@ -693,6 +693,9 @@ class CoPeopleController extends StandardController {
       $p['view'] = true;
     }
     
+    // View job history? This correlates with CoJobHistoryRecordsController
+    $p['jobhistory'] = ($roles['cmadmin'] || $roles['admin']);
+    
     // Link an Org Identity to a CO Person?
     $p['link'] = $roles['cmadmin'] || $roles['coadmin'];
     

@@ -1710,6 +1710,10 @@
     <index name="co_job_history_records_i3">
       <col>org_identity_id</col>
     </index>
+    
+    <index name="co_job_history_records_i4">
+      <col>co_job_id</col>
+      <col>record_key</col>
   </table>
   
   <table name="history_records">

@@ -62,7 +62,8 @@ class CoJob extends AppModel {
       'allowEmpty' => true
     ),
     'status' => array(
-      'rule' => array('inList', array(JobStatusEnum::Complete,
+      'rule' => array('inList', array(JobStatusEnum::Canceled,
+                                      JobStatusEnum::Complete,
                                       JobStatusEnum::Failed,
                                       JobStatusEnum::InProgress,
                                       JobStatusEnum::Queued)),
@@ -102,25 +103,77 @@ class CoJob extends AppModel {
   );
   
   /**
+   * Request a job to be canceled. This flags the job as canceled, but it is up to the Job itself
+   * to detect the status change and stop processing.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $id    Job ID
+   * @param  String  $actor Login Identifier of actor who requested cancelation
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
+   */
+  
+  public function cancel($id, $actor) {
+    // Make sure the job is in a cancelable status
+    
+    $curStatus = $this->field('status', array('CoJob.id' => $id));
+    
+    if(!$curStatus) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_jobs.1'), $id)));
+    }
+    
+    // This array corresponds to View/CoJob/fields.inc
+    if(!in_array($curStatus, array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
+      throw new InvalidArgumentException(_txt('er.jb.cxl.status', array(_txt('en.status.job', null, $curStatus))));
+    }
+    
+    // Finally update the status
+    
+    return $this->finish($id, _txt('rs.jb.cxld.by', array($actor)), JobStatusEnum::Canceled);
+  }
+  
+  /**
+   * Determine if a job has been canceled.
+   *
+   * @since  COmanage Registry  v3.1.0
+   * @param  Integer $id    Job ID
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
+   */
+  
+  public function canceled($id) {
+    $curStatus = $this->field('status', array('CoJob.id' => $id));
+    
+    if(!$curStatus) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_jobs.1'), $id)));
+    }
+    
+    return ($curStatus == JobStatusEnum::Canceled);
+  }
+  
+  /**
    * Update a job as completed.
    *
    * @since  COmanage Registry v2.0.0
-   * @param  Integer $id         Job ID
-   * @param  String  $summary    Summary
-   * @param  Boolean $successful Whether the job was successfully completed
+   * @param  Integer       $id         Job ID
+   * @param  String        $summary    Summary
+   * @param  JobStatusEnum $result Job Result
+   * @return Boolean True on success
    * @throws RuntimeException
    */
   
-  public function finish($id, $summary="", $successful=true) {
+  public function finish($id, $summary="", $result=JobStatusEnum::Complete) {
     // There's not really an elegant way to update more than 1 but less than all fields...
     
     $this->id = $id;
-    $this->saveField('status', ($successful ? JobStatusEnum::Complete : JobStatusEnum::Failed));
+    $this->saveField('status', $result);
     $this->saveField('complete_time', date('Y-m-d H:i:s', time()));
     
     // Make sure $summary fits in the available space
     $limit = $this->validate['finish_summary']['rule'][1];
     $this->saveField('finish_summary', substr($summary, 0, $limit));
+    
+    return true;
   }
   
   /**

@@ -503,6 +503,9 @@ class OrgIdentitiesController extends StandardController {
       $p['index'] = ($roles['cmadmin'] || $roles['admin'] || $roles['subadmin']);
       $p['search'] = $p['index'];
       
+      // View job history? This correlates with CoJobHistoryRecordsController
+      $p['jobhistory'] = ($roles['cmadmin'] || $roles['admin']);
+      
       // Explicit linking of an Org Identity to a CO Person?
       $p['link'] = ($roles['cmadmin'] || $roles['admin']);
       
@@ -549,6 +552,9 @@ class OrgIdentitiesController extends StandardController {
         $p['edit'] = true;
         $p['view'] = true;
       }
+      
+      // View job history? This correlates with CoJobHistoryRecordsController
+      $p['jobhistory'] = ($roles['cmadmin'] || $roles['admin']);
       
       // Explicit linking of an Org Identity to a CO Person?
       $p['link'] = ($roles['cmadmin'] || $roles['admin']);

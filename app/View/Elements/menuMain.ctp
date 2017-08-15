@@ -219,6 +219,24 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         } */
       }
 
+      // Jobs Menu
+      if ($permissions['menu']['cojobs']) {
+        print '<li class="configMenu">';
+
+        $linkContent = '<em class="material-icons" aria-hidden="true">assignment</em><span class="menuTitle">' . _txt('ct.co_jobs.pl') .
+          '</span><span class="mdl-ripple"></span>';
+
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_jobs';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+
+        print $this->Html->link($linkContent, $args, array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
+
+        print "</li>";
+      }
+      
       // Configuration Menu
       if ($permissions['menu']['coconfig']) {
         print '<li class="configMenu">';
@@ -325,7 +343,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
     // Collaborations Menu
     print '<li class="collabMenu">';
 
-    $linkContent = '<em class="material-icons" aria-hidden="true">assignment_turned_in</em><span class="menuTitle">' . _txt('me.collaborations') .
+    $linkContent = '<em class="material-icons" aria-hidden="true">transfer_within_a_station</em><span class="menuTitle">' . _txt('me.collaborations') .
       '</span><span class="mdl-ripple"></span>';
 
     print $this->Html->link($linkContent, '/', array('class' => 'mdl-js-ripple-effect', 'escape' => false,));

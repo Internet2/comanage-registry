@@ -901,6 +901,9 @@ class AppController extends Controller {
     // Manage CO enrollment flow definitions?
     $p['menu']['coef'] = $roles['cmadmin'] || $roles['coadmin'];
     
+    // Manage CO Jobs?
+    $p['menu']['cojobs'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // Manage CO Localizations?
     $p['menu']['colocalizations'] = $roles['cmadmin'] || $roles['coadmin'];
     

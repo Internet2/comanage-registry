@@ -156,12 +156,11 @@ class CoNotificationsController extends StandardController {
   public function cancel($id) {
     try {
       $this->CoNotification->cancel($id, $this->Session->read('Auth.User.co_person_id'));
+      $this->Flash->set(_txt('rs.nt.cxld'), array('key' => 'success'));    
     }
     catch(Exception $e) {
       $this->Flash->set($e->getMessage(), array('key' => 'error'));
     }
-    
-    $this->Flash->set(_txt('rs.nt.cxld'), array('key' => 'success'));
     
     // Not really clear where to redirect to
     $this->redirect("/");

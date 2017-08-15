@@ -36,12 +36,10 @@ class CoJobHistoryRecord extends AppModel {
     "OrgIdentity"
   );
   
-  public $hasOne = array(
-    "HistoryRecord"
-  );
-
   // Default display field for cake generated views
   public $displayField = "comment";
+  
+  public $actsAs = array('Containable');
   
   // Validation rules for table elements
   public $validate = array(

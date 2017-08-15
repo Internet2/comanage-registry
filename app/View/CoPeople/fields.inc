@@ -93,6 +93,19 @@
           )
         );
       }
+
+      // View Job History button
+      if($permissions['jobhistory']) {
+        $sidebarButtons[] = array(
+          'icon'    => 'note',
+          'title'   => _txt('op.history.job'),
+          'url'     => array(
+            'controller' => 'co_job_history_records',
+            'action' => 'index',
+            'copersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
       
       // Resend invitation button
       // This is based on index.ctp

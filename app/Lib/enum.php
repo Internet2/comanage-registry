@@ -307,6 +307,7 @@ class IdentifierEnum
 
 class JobStatusEnum
 {
+  const Canceled   = 'CX';
   const Complete   = 'OK';
   const Failed     = 'X';
   const InProgress = 'GO';

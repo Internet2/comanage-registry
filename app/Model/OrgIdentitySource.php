@@ -1151,6 +1151,8 @@ class OrgIdentitySource extends AppModel {
                                                    JobStatusEnum::Notice);
       
       foreach($orgRecords as $rec) {
+        if($this->Co->CoJob->canceled($jobId)) { return false; }
+        
         try {
           $r = $this->syncOrgIdentity($rec['OrgIdentitySourceRecord']['org_identity_source_id'],
                                       $rec['OrgIdentitySourceRecord']['sorid'],
@@ -1221,6 +1223,8 @@ class OrgIdentitySource extends AppModel {
                                                    JobStatusEnum::Notice);
 
       foreach($newKeys as $newKey) {
+        if($this->Co->CoJob->canceled($jobId)) { return false; }
+        
         // This is basically the same logic as used in SyncModeEnum::Query, below
         try {
           $newOrgIdentityId = $this->createOrgIdentity($orgIdentitySource['OrgIdentitySource']['id'],
@@ -1344,6 +1348,8 @@ class OrgIdentitySource extends AppModel {
                                                    JobStatusEnum::Notice);
       
       foreach($emailList as $ea) {
+        if($this->Co->CoJob->canceled($jobId)) { return false; }
+        
         // Since this is search and not retrieve, it's technically possible to get
         // more than one result back from a source, if (eg) there are multiple records
         // with the same email address. It's not exactly clear what to do in that situation,

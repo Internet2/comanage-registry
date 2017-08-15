@@ -105,6 +105,10 @@ $cm_texts['en_US'] = array(
   'ct.co_all_groups' =>         'All Groups',
   'ct.co_invites.1' =>          'Invite',
   'ct.co_invites.pl' =>         'Invites',
+  'ct.co_job_history_records.1' => 'Job History Record',
+  'ct.co_job_history_records.pl' => 'Job History Records',
+  'ct.co_jobs.1' =>             'Job',
+  'ct.co_jobs.pl' =>            'Jobs',
   'ct.co_localizations.1' =>    'Localization',
   'ct.co_localizations.pl' =>   'Localizations',
   'ct.co_message_templates.1' => 'Message Template',
@@ -507,6 +511,11 @@ original notification at
                                  IdentifierEnum::SORID => 'System of Record ID',
                                  IdentifierEnum::UID => 'UID'),
   
+  'en.job.type' => array(
+    JobTypeEnum::Expiration      => 'Expiration',
+    JobTypeEnum::OrgIdentitySync => 'Org Identity Sync'
+  ),
+  
   // As a moderately arbitrary decision, the languages listed here those with at least
   // 100m speakers per Ethnologue (by way of wikipedia)
   //  http://en.wikipedia.org/wiki/List_of_languages_by_total_number_of_speakers
@@ -675,6 +684,15 @@ original notification at
     EnrollmentFlowStatusEnum::Template            => 'Template'
   ),
   
+  'en.status.job' => array(
+    JobStatusEnum::Canceled   => 'Canceled',
+    JobStatusEnum::Complete   => 'Complete',
+    JobStatusEnum::Failed     => 'Failed',
+    JobStatusEnum::InProgress => 'In Progress',
+    JobStatusEnum::Notice     => 'Notice',
+    JobStatusEnum::Queued     => 'Queued'
+  ),
+  
   'en.status.not' => array(
     NotificationStatusEnum::Acknowledged          => 'Acknowledged',
     NotificationStatusEnum::Canceled              => 'Canceled',
@@ -764,6 +782,7 @@ original notification at
     VisibilityEnum::CoAdmin         => 'CO Admin',
     VisibilityEnum::CoGroupMember   => 'CO Group Member',
     VisibilityEnum::CoMember        => 'CO Member',
+    VisibilityEnum::Cou             => 'COU',
     VisibilityEnum::Unauthenticated => 'Unauthenticated Users'
   ),
   
@@ -872,6 +891,7 @@ original notification at
   'er.inv.exp' =>     'Invitation Expired',
   'er.inv.exp.use' => 'Processing of invitation failed due to invitation expiration',
   'er.inv.nf' =>      'Invitation Not Found',
+  'er.jb.cxl.status' => 'Job is not in a cancelable status (%1$s)',
   'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.multiple' =>    'Unexpectedly found multiple results',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
@@ -1189,6 +1209,14 @@ original notification at
   'fd.inv.for' =>     'Invitation for %1$s',
   'fd.inv.to' =>      'Invitation to %1$s',
   'fd.ip' =>          'IP Address',
+  'fd.job.complete_time' => 'Finished',
+  'fd.job.finish_summary' => 'Finish Summary',
+  'fd.job.mode' =>    'Job Mode',
+  'fd.job.queue_time' => 'Queued',
+  'fd.job.register_summary' => 'Register Summary',
+  'fd.job.start_summary' => 'Start Summary',
+  'fd.job.start_time' => 'Started',
+  'fd.job.type' =>    'Job Type',
   'fd.key' =>         'Key',
   'fd.language' =>    'Language',
   'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
@@ -1490,6 +1518,7 @@ original notification at
   'js.remove.id.prov' =>  'The identifier \x22{0}\x22 was created by the provisioning target, and removing it may cause operational problems. Are you sure you wish to remove it? This action cannot be undone.',
   'js.remove.member'  =>  'Are you sure you wish to remove this member from group \x22{0}\x22?  This action cannot be undone.',
   'js.reinvite'       =>  'Are you sure you wish to resend an invitation to {0}?  Any previous invitation will be invalidated.',
+  'js.cancel.job'     =>  'Are you sure you wish to cancel this job? Cancelation may not be immediate.',
   'js.confirm.verify' =>  'Are you sure you wish to send a verification request to {0}? Any previous request will be invalidated.',
 
   // Operations
@@ -1559,6 +1588,7 @@ original notification at
   'op.grm.my.groups' => 'My Groups',
   'op.grm.title' =>   '%1$s %2$s Membership For %3$s',
   'op.history' =>     'View History',
+  'op.history.job' => 'View Job History',
   'op.home.login' =>  'Welcome to %1$s.',
   'op.home.select' => 'Welcome to %1$s. Please select a collaboration.',
   'op.home.collabs' => 'Available Collaborations',
@@ -1707,6 +1737,8 @@ original notification at
   'rs.inv.dec' =>     'Invitation Declined',
   'rs.inv.dec-a' =>   'Invitation to %1$s declined',
   'rs.inv.sent' =>    'Invitation sent to %1$s',
+  'rs.jb.cxld' =>     'Job flagged as canceled, actual termination may not be immediate',
+  'rs.jb.cxld.by' =>  'Job canceled by %1$s',
   'rs.mail.verified' => 'Email Address "%1$s" verified',
   'rs.match.possible' => 'Possible Matches',
   'rs.moved.copr' =>  'CO Person Role "%1$s" (%2$s) moved from %3$s (%4$s) to %5$s (%6$s)',
