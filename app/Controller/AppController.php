@@ -1019,8 +1019,17 @@ class AppController extends Controller {
       
       $menu['services'] = $this->CoService->findServicesByPerson($this->Role,
                                                                  $this->cur_co['Co']['id'],
-                                                                 $this->Session->read('Auth.User.co_person_id'));
+                                                                 $this->Session->read('Auth.User.co_person_id'),
+                                                                 false);
     }
+    
+    // Pull the list of COUs and their names. Primarily intended for CO Service portal.
+    $args = array();
+    $args['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
+    $args['fields'] = array('Cou.id', 'Cou.name');
+    $args['contain'] = false;
+    
+    $menu['cous'] = $this->Co->Cou->find('list', $args);
     
     // Determine what menu contents plugins want available
     $plugins = $this->loadAvailablePlugins('all', 'simple');

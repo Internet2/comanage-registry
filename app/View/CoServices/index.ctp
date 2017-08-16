@@ -56,6 +56,7 @@
     <thead>
       <tr>
         <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
+        <th><?php print $this->Paginator->sort('cou_id', _txt('ct.cous.1')); ?></th>
         <th><?php print $this->Paginator->sort('co_group_id', _txt('ct.co_groups.1')); ?></th>
         <th><?php print $this->Paginator->sort('visibility', _txt('fd.visibility')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
@@ -72,6 +73,14 @@
                                     array('controller' => 'co_services',
                                           'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                                           $c['CoService']['id']));
+          ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($c['CoService']['cou_id'])
+               && !empty($vv_cous[ $c['CoService']['cou_id'] ])) {
+              print $vv_cous[ $c['CoService']['cou_id'] ];
+            }
           ?>
         </td>
         <td>

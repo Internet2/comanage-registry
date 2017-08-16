@@ -67,7 +67,10 @@ class CoServicesController extends StandardController {
       
       $services = $this->CoService->findServicesByPerson($this->Role,
                                                          $this->cur_co['Co']['id'],
-                                                         $coPersonId);
+                                                         $coPersonId,
+                                                         (!empty($this->request->params['named']['cou'])
+                                                          ? $this->request->params['named']['cou']
+                                                          : null));
       
       // We use co_services rather than vv_co_services to be consistent
       // with the index view
@@ -97,6 +100,13 @@ class CoServicesController extends StandardController {
       $args['order'] = array('CoGroup.name ASC');
 
       $this->set('vv_co_groups', $this->Co->CoGroup->find("list", $args));
+      
+      // and COUs
+      $args = array();
+      $args['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
+      $args['order'] = array('Cou.name ASC');
+
+      $this->set('vv_cous', $this->Co->Cou->find("list", $args));
     }
     
     parent::beforeRender();
@@ -151,8 +161,17 @@ class CoServicesController extends StandardController {
 
   public function parseCOID($data = null) {
     if($this->action == 'portal') {
-      if(isset($this->request->params['named']['co'])) {
+      if(!empty($this->request->params['named']['co'])) {
         return $this->request->params['named']['co'];
+      }
+      
+      if(!empty($this->request->params['named']['cou'])) {
+        // Map the COU to a CO
+        $coId = $this->CoService->Cou->field('co_id', array('Cou.id' => $this->request->params['named']['cou']));
+        
+        if($coId) {
+          return $coId;
+        }
       }
     }
 

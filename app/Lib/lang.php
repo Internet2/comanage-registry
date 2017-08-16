@@ -782,7 +782,6 @@ original notification at
     VisibilityEnum::CoAdmin         => 'CO Admin',
     VisibilityEnum::CoGroupMember   => 'CO Group Member',
     VisibilityEnum::CoMember        => 'CO Member',
-    VisibilityEnum::Cou             => 'COU',
     VisibilityEnum::Unauthenticated => 'Unauthenticated Users'
   ),
   
@@ -1359,6 +1358,7 @@ original notification at
   'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petition',
   'fd.status.et.desc' => 'An Extended Type that is in use cannot be made inactive',
   'fd.subject' =>     'Subject',
+  'fd.svc.cou.desc' => 'COU this Service is attached to, for Service Portal rendering',
   'fd.svc.euri' =>    'Entitlement URI',
   'fd.svc.euri.desc' => 'Entitlement URI, as specified by <a href="http://software.internet2.edu/eduperson/internet2-mace-dir-eduperson-201602.html">eduPerson</a>',
   'fd.svc.group' =>   'Service Group',
