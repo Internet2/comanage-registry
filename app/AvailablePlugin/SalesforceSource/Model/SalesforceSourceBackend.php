@@ -83,6 +83,74 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
   }
   
   /**
+   * Obtain a list of records changed since $lastStart, through $curStart.
+   * 
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $lastStart Time of start of last request, or 0 if no previous request
+   * @param  Integer $curStart  Time of start of current request
+   * @return Mixed Array of SORIDs, or false if not supported
+   * @throws RuntimeException
+   */
+  
+  public function getChangeList($lastStart, $curStart) {
+    $ids = array();
+    
+    // Determine which objects to query
+    
+    $sobjects = array();
+    
+    if($this->pluginCfg['search_contacts']) {
+      $sobjects[] = 'Contact';
+    }
+    
+    if($this->pluginCfg['search_users']) {
+      $sobjects[] = 'User';
+    }
+    
+    /* It doesn't appear as though we can get updates to custom objects the same way,
+     * and even if we did it's not clear if we could easily map them back to the
+     * parent user ID.
+     *
+    if(!empty($this->pluginCfg['custom_objects'])) {
+      $objs = explode(',', $this->pluginCfg['custom_objects']);
+      
+      foreach($objs as $obj) {
+        $o = explode(':', $obj);
+        $sobjects[] = $o[0];
+      }
+    }*/
+
+    if(empty($sobjects)) {
+      return false;
+    }
+    
+    // Salesforce only supports querying for the last 30 days, so if $lastStart is 0,
+    // we need to adjust it. (We set for ~29 days to allow for various time skew issues.)
+    
+    $attributes = array(
+      'start' => date("c", $lastStart ?: (time() - 2510000)),
+      'end'   => date("c", $curStart)
+    );
+    
+    foreach($sobjects as $sobject) {
+      $attributes['sobject'] = $sobject;
+      
+      $res = $this->querySalesforceApi($attributes);
+      
+      if(isset($res->ids)) {
+        // Might be empty if no records changed.
+        // While we're here, prefix the object type (which we use as part of the source key).
+        
+        $ids = array_merge($ids, preg_replace('/^/', $sobject.'-', $res->ids));
+      } else {
+        throw new RuntimeException(_txt('er.reply.unk'));
+      }
+    }
+    
+    return $ids;
+  }
+  
+  /**
    * Generate the set of attributes for the IdentitySource that can be used to map
    * to group memberships. The returned array should be of the form key => label,
    * where key is meaningful to the IdentitySource (eg: a number or a field name)
@@ -98,6 +166,13 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     // Use the Salesforce describe API (handily of the same form as an object ID)
     // to obtain the available set of attributes.
     // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_sobject_describe.htm
+    
+    // If we already cached them, return the cached results.
+    // This cache can be cleared by obtaining a new OAuth token
+    // (or manually nulling the value in the database).
+    if(!empty($this->pluginCfg['groupable_attrs'])) {
+      return json_decode($this->pluginCfg['groupable_attrs'], true);
+    }
     
     $attrs = array();
     
@@ -139,7 +214,16 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     
     // Sort by display label
     asort($attrs);
+
+    // Cache the results, since otherwise we consume 3 API calls each time we need this data
     
+    $this->pluginCfg['groupable_attrs'] = json_encode($attrs);
+    
+    $SFModel = ClassRegistry::init("SalesforceSource.SalesforceSource");
+
+    $SFModel->id = $this->pluginCfg['id'];
+    $SFModel->saveField('groupable_attrs', $this->pluginCfg['groupable_attrs']);
+
     return $attrs;
   }
   
@@ -238,6 +322,55 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
         null,
         $options
       );
+    } elseif(!empty($attributes['start']) && !empty($attributes['end'])) {
+      // Obtain changelist
+      
+      $searchResults = $HttpSocket->get(
+        $targetUrl . "/services/data/v39.0/sobjects/" . $attributes['sobject'] . "/updated/",
+        $attributes,
+        $options
+      );
+    } elseif(!empty($attributes['mail'])) {
+      // Search by email. In theory we should be able to do a parameterized search with IN=EMAIL,
+      // but this doesn't appear to actually constrain the search. So instead we use SOSL and
+      // mock up the results to look like parameterized search.
+      
+      $ret = new stdClass;
+      $ret->searchRecords = array();
+      
+      $sobjects = array();
+      
+      if($this->pluginCfg['search_contacts']) {
+        $sobjects[] = 'Contact';
+      }
+      if($this->pluginCfg['search_users']) {
+        $sobjects[] = 'User';
+      }
+      
+      foreach($sobjects as $sobject) {
+        $searchResults = $HttpSocket->get(
+          $targetUrl . "/services/data/v39.0/query/?q="
+                     . urlencode("SELECT Id from " . $sobject . " WHERE Email='" . $attributes['mail'] . "'"),
+          null,
+          $options
+        );
+        
+        if($searchResults->code == 200) {
+          $json = json_decode($searchResults->body);
+          
+          if($json->totalSize == 0) {          
+            return array();
+          }
+          
+          $ret->searchRecords[] = $this->querySalesforceApi(array('id' => $sobject.'-'.$json->records[0]->Id));
+        }
+        // else we should probably fall through for error handling
+      }
+      
+      if($searchResults->code == 200) {
+        return $ret;
+      }
+      // else fall through for error handling
     } else {
       // Search
       
@@ -311,6 +444,10 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
           'LastName',
           'Email'
         );
+        
+        // We should be able to do this to constrain searches to email addresses,
+        // but it doesn't appear to actually do that (so see special handling, above).
+        // $searchAttributes['in'] = 'EMAIL';
       }
       
       $searchResults = $HttpSocket->post(
@@ -587,8 +724,7 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     // won't support that.
     
     return array(
-      // XXX This really isn't the right language key, we want an fd.*
-      'q' => _txt('op.search')
+      'q' => _txt('fd.search.all')
     );
   }
 }

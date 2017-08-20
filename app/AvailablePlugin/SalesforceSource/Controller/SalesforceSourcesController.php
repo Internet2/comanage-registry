@@ -62,6 +62,8 @@ class SalesforceSourcesController extends SOISController {
       
       $response = $Backend->exchangeCode($_GET['code'], base64_decode($_GET['state']));
       
+      // Store the tokens
+      
       $this->SalesforceSource->id = $id;
       $this->SalesforceSource->saveField('access_token', $response->access_token);
       $this->SalesforceSource->saveField('refresh_token', $response->refresh_token);
@@ -69,8 +71,8 @@ class SalesforceSourcesController extends SOISController {
       if(!empty($response->instance_url)) {
         $this->SalesforceSource->saveField('instance_url', $response->instance_url);
       }
-      
-      // Store the tokens
+      // While we're here, clear the groupable attributes cache
+      $this->SalesforceSource->saveField('groupable_attrs', null);
       
       $this->Flash->set(_txt('pl.salesforcesource.token.ok'), array('key' => 'success'));
     }

@@ -890,6 +890,7 @@ original notification at
   'er.inv.exp' =>     'Invitation Expired',
   'er.inv.exp.use' => 'Processing of invitation failed due to invitation expiration',
   'er.inv.nf' =>      'Invitation Not Found',
+  'er.jb.concurrent' => 'A Job of this type is already registered (id=%1$s)',
   'er.jb.cxl.status' => 'Job is not in a cancelable status (%1$s)',
   'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.multiple' =>    'Unexpectedly found multiple results',
@@ -1336,6 +1337,7 @@ original notification at
   'fd.revision' =>    'Revision',
   'fd.roles' =>       'Roles',
   'fd.room' =>        'Room',
+  'fd.search.all' =>  'Search All Fields',
   'fd.searchbase' =>  'Search Base',
   'fd.set' =>         'Set',
   'fd.set.not' =>     'Not Set',
@@ -1503,6 +1505,7 @@ original notification at
   'jb.ois.sync.full.start' => 'Beginning sync of new org identities from source (%1$s in source; %2$s already known, %3$s new)',
   'jb.ois.sync.query.finish' => 'Query for matching org identities from source complete',
   'jb.ois.sync.query.start' => 'Beginning query for matching org identities from source (%1$s email addresses to query of %2$s known)',
+  'jb.ois.sync.update.changed' => '%1$s known record(s) changed, of %2$s reported by source',
   'jb.ois.sync.update.finish' => 'Sync of existing org identities from source complete',
   'jb.ois.sync.update.start' => 'Beginning sync of existing org identities from source (%1$s current total)',
 

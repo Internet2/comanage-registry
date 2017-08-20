@@ -75,7 +75,12 @@ class JobShell extends AppShell {
     // First see if syncing is enabled
     
     if($this->CoSetting->oisSyncEnabled($coId)) {
-      $this->OrgIdentitySource->syncAll($coId);
+      try {
+        $this->OrgIdentitySource->syncAll($coId);
+      }
+      catch(Exception $e) {
+        $this->out("- " . $e->getMessage());
+      }
     } else {
       $this->out("- " . _txt('sh.job.sync.ois.disabled'));
     }

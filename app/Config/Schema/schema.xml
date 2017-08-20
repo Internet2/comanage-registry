@@ -1676,6 +1676,13 @@
       <col>job_type</col>
       <col>job_type_fk</col>
     </index>
+    
+    <index name="co_jobs_i3">
+      <col>co_id</col>
+      <col>job_type</col>
+      <col>job_type_fk</col>
+      <col>status</col>
+    </index>
   </table>
   
   <table name="co_job_history_records">
@@ -1714,6 +1721,7 @@
     <index name="co_job_history_records_i4">
       <col>co_job_id</col>
       <col>record_key</col>
+    </index>
   </table>
   
   <table name="history_records">
@@ -1808,28 +1816,6 @@
       <col>co_email_list_id</col>
       <unique />
     </index>
-  </table>
-  
-  <table name="co_provisioning_queued_events">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="co_person_id" type="I">
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="co_provisioning_target_id" type="I">
-      <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
-    </field>
-    <field name="status" type="C" size="2" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    
-    <!-- XXX almost certainly need to create some indexes here -->
-    <!-- also delete of co person or provisioning target should cascade here -->
   </table>
   
   <table name="authenticators">

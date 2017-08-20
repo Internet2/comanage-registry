@@ -48,6 +48,7 @@
     <field name="refresh_token" type="C" size="160" />
     <field name="access_token" type="C" size="160" />
     <field name="instance_url" type="C" size="256" />
+    <field name="groupable_attrs" type="B" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

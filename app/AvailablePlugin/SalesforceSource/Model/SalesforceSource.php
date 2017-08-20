@@ -86,6 +86,11 @@ class SalesforceSource extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'groupable_attrs' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    )
   );
   
   /**
