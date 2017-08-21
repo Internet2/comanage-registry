@@ -821,6 +821,19 @@
         : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['redirect_on_finalize'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('return_url_whitelist', _txt('fd.ef.whitelist')) : _txt('fd.ef.whitelist')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.whitelist.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('return_url_whitelist')
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['return_url_whitelist'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
   <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
   <li>
     <div class="field-name">

@@ -995,11 +995,12 @@ class CoPetition extends AppModel {
    * @param  Integer Enrollment Flow ID
    * @param  Integer CO ID to attach the petition to
    * @param  Integer CO Person ID of the petitioner
+   * @param  String  URL to redirect to after enrollment, decoded
    * @return Integer ID of newly created Petition
    * @throws RunTimeException
    */
   
-  public function initialize($enrollmentFlowID, $coId, $petitionerId=null) {
+  public function initialize($enrollmentFlowID, $coId, $petitionerId=null, $returnUrl=null) {
     $this->CoEnrollmentFlow->id = $enrollmentFlowID;
     $efName = $this->CoEnrollmentFlow->field('name');
     
@@ -1007,6 +1008,7 @@ class CoPetition extends AppModel {
     $coPetitionData['CoPetition']['co_enrollment_flow_id'] = $enrollmentFlowID;
     $coPetitionData['CoPetition']['co_id'] = $coId;
     $coPetitionData['CoPetition']['status'] = PetitionStatusEnum::Created;
+    $coPetitionData['CoPetition']['return_url'] = $returnUrl;
     
     // If we don't have a petitioner, generate a token for use in linking pages
     

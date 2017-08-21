@@ -730,9 +730,21 @@ class CoPetitionsController extends StandardController {
           }
         }
         
+        // If a return URL was provided, store it for later use
+        $returnUrl = null;
+        
+        if(!empty($this->request->params['named']['return'])) {
+          // Because the URL is in a parameter, we expect it to be encoded.
+          // We use base64 to avoid weird parsing errors with partially
+          // visible URLs in a URL.
+          
+          $returnUrl = base64_decode($this->request->params['named']['return']);
+        }
+        
         $ptid = $this->CoPetition->initialize($efId,
                                               $coId,
-                                              $petitionerCoPersonId);
+                                              $petitionerCoPersonId,
+                                              $returnUrl);
       }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
@@ -1122,8 +1134,40 @@ class CoPetitionsController extends StandardController {
   
   protected function execute_redirectOnFinalize($id) {
     // Figure out where to redirect the enrollee to
-    $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_finalize',
-                                                            array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    
+    $targetUrl = $this->CoPetition->field('return_url', array('CoPetition.id' => $id));
+
+    if($targetUrl) {
+      // Check that this URL is whitelisted
+      
+      $whiteList = $this->CoPetition->CoEnrollmentFlow->field('return_url_whitelist',
+                                                              array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+      
+      if(!empty($whiteList)) {
+        $found = false;
+        
+        foreach(preg_split('/\R/', $whiteList) as $u) {
+          if(preg_match($u, $targetUrl)) {
+            $found = true;
+            break;
+          }
+        }
+        
+        if(!$found) {
+          // No match, so ignore
+          
+          $targetUrl = null;
+        }
+      } else {
+        // No whitelisted URLs, so ignore return_url
+        $targetUrl = null;
+      }
+    }
+    
+    if(!$targetUrl || $targetUrl == "") {
+      $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_finalize',
+                                                              array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    }
     
     if(!$targetUrl || $targetUrl == "") {
       // We're done with the enrollment, use the default redirect behavior
