@@ -459,6 +459,14 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     
     $json = json_decode($searchResults->body);
     
+    // Salesforce includes some elements we don't need that change on each request,
+    // impacting our ability to detect record changes, so we remove them.
+    // (We could instead use LastModifiedDate to detect changes, but the OIS
+    // infrastructure doesn't currently support that approach.)
+    
+    unset($json->LastViewedDate);
+    unset($json->LastReferencedDate);
+    
     if($searchResults->code == 401
        && !empty($json[0]->errorCode)
        && $json[0]->errorCode == 'INVALID_SESSION_ID') {

@@ -345,6 +345,20 @@
             </pre>
           </td>
         </tr>
+        <?php if($vv_org_identity_source['hash_source_record']): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.ois.record.hashed'); ?>
+          </td>
+          <td>
+            <?php
+              if(!empty($vv_source_record_hash)) {
+                print $vv_source_record_hash;
+              }
+            ?>
+          </td>
+        </tr>
+        <?php endif; // hash_source_record ?>
       </tbody>
     </table>
   </div>

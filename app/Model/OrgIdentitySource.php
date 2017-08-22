@@ -123,6 +123,11 @@ class OrgIdentitySource extends AppModel {
         'required' => false,
         'allowEmpty' => true
       )
+    ),
+    'hash_source_record' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -291,7 +296,11 @@ class OrgIdentitySource extends AppModel {
     $orgid['OrgIdentitySourceRecord'] = array(
       'org_identity_source_id' => $id,
       'sorid'                  => $sourceKey,
-      'source_record'          => isset($brec['raw']) ? $brec['raw'] : null,
+      'source_record'          => (!empty($brec['hash'])
+                                   ? $brec['hash']
+                                   : (isset($brec['raw'])
+                                      ? $brec['raw']
+                                      : null)),
       'last_update'            => date('Y-m-d H:i:s')
     );
     
@@ -522,6 +531,15 @@ class OrgIdentitySource extends AppModel {
       }
     }
     
+    if($this->cdata['OrgIdentitySource']['hash_source_record']) {
+      // Create a hash of the raw record. We could also support backend
+      // specific change detection (eg: etags) here instead.
+      
+      if(!empty($ret['raw'])) {
+        $ret['hash'] = md5($ret['raw']);
+      }
+    }
+    
     return $ret;
   }
   
@@ -747,11 +765,17 @@ class OrgIdentitySource extends AppModel {
       
       $status = 'unknown';
       
-      if((isset($brec['raw']) && isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
-          && $brec['raw'] == $cursrcrec['OrgIdentitySourceRecord']['source_record'])
+      $crec = (!empty($brec['hash'])
+               ? $brec['hash']
+               : (isset($brec['raw'])
+                  ? $brec['raw']
+                  : null));
+      
+      if((isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
+          && $crec == $cursrcrec['OrgIdentitySourceRecord']['source_record'])
          || // was record previously deleted?
-         (!$brec['raw'] && (!isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
-                            || !$cursrcrec['OrgIdentitySourceRecord']['source_record']))) {
+         (!$crec && (!isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
+                     || !$cursrcrec['OrgIdentitySourceRecord']['source_record']))) {
         // Source record has not changed, so don't bother doing anything
         
         if($jobId) {
@@ -1036,7 +1060,7 @@ class OrgIdentitySource extends AppModel {
         $oisrec['OrgIdentitySourceRecord'] = array(
           'org_identity_source_id' => $id,
           'sorid'                  => $sourceKey,
-          'source_record'          => isset($brec['raw']) ? $brec['raw'] : null,
+          'source_record'          => $crec,
           'last_update'            => date('Y-m-d H:i:s')
         );
         

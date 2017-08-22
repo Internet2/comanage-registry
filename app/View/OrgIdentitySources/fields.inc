@@ -339,6 +339,17 @@
         <?php print ($e ? $this->Form->input('eppn_suffix') : filter_var($org_identity_sources[0]['OrgIdentitySource']['eppn_suffix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title">
+          <?php print _txt('fd.ois.record.hash'); ?>
+        </div>
+        <div class="field-desc"><?php print _txt('fd.ois.record.hash.desc'); ?></div>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->input('hash_source_record'); ?>
+      </div>
+    </li>
     <?php if($e): ?>
       <li class="fields-submit">
         <div class="field-name">

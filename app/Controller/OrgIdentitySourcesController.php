@@ -528,6 +528,10 @@ class OrgIdentitySourcesController extends StandardController {
           }
         }
         
+        if(!empty($r['hash'])) {
+          $this->set('vv_source_record_hash', $r['hash']);
+        }
+        
         // See if there is an associated Org Identity
         $args = array();
         $args['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $id;

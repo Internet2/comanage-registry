@@ -1055,6 +1055,7 @@
     <field name="sync_query_skip_known" type="L" />
     <field name="eppn_identifier_type" type="C" size="128" />
     <field name="eppn_suffix" type="C" size="128" />
+    <field name="hash_source_record" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="org_identity_source_id" type="I">
