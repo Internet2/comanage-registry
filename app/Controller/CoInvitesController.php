@@ -490,7 +490,7 @@ class CoInvitesController extends AppController {
               
               $target = array();
               $target['plugin'] = Inflector::underscore($plugin);
-              $target['controller'] = "test_confirmers";
+              $target['controller'] = Inflector::tableize($plugin);
               $target['action'] = 'reply';
               $target[] = $inviteid;
               

@@ -30,7 +30,8 @@
     
     print $this->Html->link(
       _txt('op.confirm'),
-      array('controller' => 'co_invites',
+      array('plugin' => null,
+            'controller' => 'co_invites',
             'action' => 'authverify',
             $invite['CoInvite']['invitation']),
       array('class' => 'checkbutton')
@@ -38,7 +39,8 @@
     
     print $this->Html->link(
       _txt('op.cancel'),
-      array('controller' => 'co_invites',
+      array('plugin' => null,
+            'controller' => 'co_invites',
             'action' => 'decline',
             $invite['CoInvite']['invitation']),
       array('class' => 'cancelbutton')
@@ -46,7 +48,8 @@
   } else {
     print $this->Html->link(
       _txt('op.accept'),
-      array('controller' => 'co_invites',
+      array('plugin' => null,
+            'controller' => 'co_invites',
             'action' => (isset($co_enrollment_flow['CoEnrollmentFlow']['require_authn'])
                          && $co_enrollment_flow['CoEnrollmentFlow']['require_authn']) ? 'authconfirm' : 'confirm',
             $invite['CoInvite']['invitation']),
@@ -55,7 +58,8 @@
     
     print $this->Html->link(
       _txt('op.decline'),
-      array('controller' => 'co_invites',
+      array('plugin' => null,
+            'controller' => 'co_invites',
             'action' => 'decline',
             $invite['CoInvite']['invitation']),
       array('class' => 'cancelbutton')
