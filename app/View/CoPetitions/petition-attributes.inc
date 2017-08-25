@@ -534,7 +534,7 @@
         <?php foreach($vv_terms_and_conditions as $t): ?>
           <li class="line<?php print ($l % 2); $l++; ?>">
               <strong><?php print filter_var($t['CoTermsAndConditions']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></strong><br/>
-              <button class="checkbutton spin"
+              <button class="checkbutton"
                       type="button"
                       onClick="open_tandc('<?php print addslashes($t['CoTermsAndConditions']['description']); ?>',
                         '<?php print addslashes($t['CoTermsAndConditions']['url']); ?>',
