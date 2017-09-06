@@ -227,8 +227,8 @@ class NetForumPro extends NetForumServer {
               // Events are accessed via a separate call. Our typical use case will be to map events
               // to groups, so we'll make that separate call and then merge the results.
               
-              $eret = $this->queryForEvents($entry->cst_key);
-
+              $eret = $this->queryForEvents((string)$entry->cst_key);
+              
               if($eret) {
                 $exml = $entry->addChild('Events');
                 
