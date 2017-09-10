@@ -69,6 +69,18 @@
         print "</li>";
       }
 
+      if (isset($permissions['menu']['authenticator']) && $permissions['menu']['authenticator']) {
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'authenticators';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+
+        print $this->Html->link(_txt('ct.authenticators.pl'), $args);
+        print "</li>";
+      }
+
       if (isset($permissions['menu']['cous']) && $permissions['menu']['cous']) {
         print '<li>';
         $args = array();
