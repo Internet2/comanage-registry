@@ -97,10 +97,15 @@ class CoSelfServicePermission extends AppModel {
     
     switch($action) {
       case 'add':
-        // For add, we require read/write
-        if(isset($this->pcache[$model]['*'])
-           && $this->pcache[$model]['*'] == PermissionEnum::ReadWrite) {
-          return true;
+        // For add, we require read/write on at least one type, or default.
+        // Note we don't currently have a need to filter on $type here,
+        // as that is done by MVPAController.
+        if(isset($this->pcache[$model])) {
+          foreach($this->pcache[$model] as $t => $p) {
+            if($p == PermissionEnum::ReadWrite) {
+              return true;
+            }
+          }
         }
         break;
       case 'delete':

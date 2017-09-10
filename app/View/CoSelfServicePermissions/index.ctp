@@ -74,7 +74,7 @@
       <tr class="line<?php print ($i % 2)+1; ?>">
         <td>
           <?php
-            print $this->Html->link($c['CoSelfServicePermission']['model'],
+            print $this->Html->link(_txt('ct.'.Inflector::tableize($c['CoSelfServicePermission']['model']).'.1'),
                                     array('controller' => 'co_self_service_permissions',
                                           'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                                           $c['CoSelfServicePermission']['id']));

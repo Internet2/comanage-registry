@@ -50,16 +50,32 @@ class PermissionHelper extends AppHelper {
       return ($e ? PermissionEnum::ReadWrite : PermissionEnum::ReadOnly);
     }
     
-    if($type
-       && isset($permissions['selfsvc'][$model][$type])) {
-      return $permissions['selfsvc'][$model][$type];
+    if($type) {
+      // Only return the permission for this type (or default if none configured)
+      if(isset($permissions['selfsvc'][$model][$type])) {
+        return $permissions['selfsvc'][$model][$type];
+      } elseif(isset($permissions['selfsvc'][$model]['*'])) {
+        // Use default value
+        return $permissions['selfsvc'][$model]['*'];
+      }
+      
+      return PermissionEnum::None;
+    } else {
+      // If no type is specified, return the most generous permission
+      
+      $maxperm = PermissionEnum::None;
+      
+      foreach($permissions['selfsvc'][$model] as $t => $p) {
+        if($p == PermissionEnum::ReadWrite) {
+          // Most permissive option, so just return it
+          return $p;
+        } elseif($p == PermissionEnum::ReadOnly) {
+          // $maxperm can only be None or ReadOnly
+          $maxperm = $p;
+        }
+      }
+      
+      return $maxperm;
     }
-    
-    if(isset($permissions['selfsvc'][$model]['*'])) {
-      // Use default value
-      return $permissions['selfsvc'][$model]['*'];
-    }
-    
-    return PermissionEnum::None;
   }
 }

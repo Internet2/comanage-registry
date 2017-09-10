@@ -1357,7 +1357,7 @@ original notification at
   'fd.sponsor.inel' => 'The current sponsor is no longer eligible to act as a sponsor',
   'fd.sponsor.mode' => 'Sponsor Eligibility Mode',
   'fd.sponsor.mode.desc' => 'Which CO People are eligible to sponsor CO Person Roles',
-  'fd.ssp.default' => 'If permission is not explicitly granted here for a supported model, then self service updates are not permitted for that model. The permission will be Read Only. Default Read Write permission is required to add new values.',
+  'fd.ssp.default' => 'If permission is not explicitly granted here for a supported model, then self service updates are not permitted for that model. The permission will be Read Only.',
   'fd.ssp.type.desc' => '"Default" applies this permission to all types not otherwise specified',
   'fd.status' =>      'Status',
   'fd.status.filters' => 'Status filters',
