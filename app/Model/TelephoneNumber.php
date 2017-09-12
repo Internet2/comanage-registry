@@ -40,6 +40,8 @@ class TelephoneNumber extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
+    // An email address may be attached to a CO Department
+    "CoDepartment",
     // A telephone number may be attached to a CO Person Role
     "CoPersonRole",
     // A telephone number may be attached to an Org Identity
@@ -101,6 +103,13 @@ class TelephoneNumber extends AppModel {
         'rule' => array('validateInput')
       )
     ),
+    'description' => array(
+      'content' => array(
+        'rule' => array('validateInput'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
     'type' => array(
       'content' => array(
         'rule' => array('validateExtendedType',
@@ -122,6 +131,13 @@ class TelephoneNumber extends AppModel {
       )
     ),
     'org_identity_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'co_department_id' => array(
       'content' => array(
         'rule' => 'numeric',
         'required' => false,

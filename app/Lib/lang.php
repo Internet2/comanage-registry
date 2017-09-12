@@ -77,6 +77,8 @@ $cm_texts['en_US'] = array(
   'ct.authenticators.pl' =>     'Authenticators',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
+  'ct.co_departments.1' =>      'Department',
+  'ct.co_departments.pl' =>     'Departments',
   'ct.co_email_lists.1' =>      'Email List',
   'ct.co_email_lists.pl' =>     'Email Lists',
   'ct.co_enrollment_attributes.1'  => 'Enrollment Attribute',
@@ -176,6 +178,8 @@ $cm_texts['en_US'] = array(
   'ct.ssh_keys.pl' =>           'SSH Keys',
   'ct.telephone_numbers.1' =>   'Telephone Number',
   'ct.telephone_numbers.pl' =>  'Telephone Numbers',
+  'ct.urls.1' =>                'URL',
+  'ct.urls.pl' =>               'URLs',
   
   // Embedded Discovery Service
   
@@ -778,6 +782,12 @@ original notification at
                                       ContactEnum::Mobile => 'Mobile',
                                       ContactEnum::Office => 'Office'),
   
+  // Extended type, key must be en.model.attribute
+  'en.url.type' => array(
+    UrlEnum::Official => 'Official',
+    UrlEnum::Personal => 'Personal',
+  ),
+  
   'en.visibility' => array(
     VisibilityEnum::CoAdmin         => 'CO Admin',
     VisibilityEnum::CoGroupMember   => 'CO Group Member',
@@ -922,7 +932,7 @@ original notification at
   'er.perm.status' => 'Permission Denied: Status is %1$s',
   'er.permission' =>  'Permission Denied',
   'er.person.noex' => 'Person does not exist',
-  'er.person.none' => 'No CO Person, CO Person Role, or Org Identity specified',
+  'er.person.none' => 'No CO Person, CO Person Role, Org Identity, or CO Department specified',
   'er.pi.match.multi' => 'Canonical %1$s match type found more than one matching record',
   'er.plugin.fail' => 'Failed to load plugin "%1$s"',
   'er.plugin.none' => 'There are no suitable plugins available. No %1$s can be added.',
@@ -969,6 +979,7 @@ original notification at
   'fd.address' =>     'Address',
   // The next set must be named fd.model.validation-field
   'fd.address.country' => 'Country',
+  'fd.address.description' => 'Description',
   'fd.address.language' => 'Language',
   'fd.address.locality' => 'City',
   'fd.address.street' => 'Street',
@@ -1025,6 +1036,14 @@ original notification at
   'fd.de.disab'   =>  'Disability',
   'fd.de.enable'  =>  'Enable NSF Demographics',
   'fd.default'    =>  'Default',
+  'fd.dp.group.admin' => 'Administrative Group',
+  'fd.dp.group.admin.desc' => 'Group containing the Department administrators',
+  'fd.dp.group.leader' => 'Leadership Group',
+  'fd.dp.group.leader.desc' => 'Group containing the Department leadership (Chair/s, PI/s, VP/s, etc)',
+  'fd.dp.group.support' => 'Support Group',
+  'fd.dp.group.support.desc' => 'Group containing the Department support personnel',
+  'fd.dp.intro' =>    'Introduction',
+  'fd.dp.intro.desc' => 'A short introductory text describing the purpose or other information about the department',
   'fd.desc' =>        'Description',
   // fd.description is for default field mapping in AppModel::ChangesForModel
   'fd.description' => 'Description',
@@ -1151,6 +1170,7 @@ original notification at
   'fd.el.gr.moderators.desc' => 'Members of this group will be provisioned as moderators of the list, if supported by the mailing list service',
   'fd.el.name.desc' => 'List name may only consist of alphanumeric characters, dot, dash, and underscore',
   // This must be named fd.model.validation-field
+  'fd.email_address.description' => 'Description',
   'fd.email_address.mail' => 'Email',
   'fd.email_address.verified' => 'Verified',
   'fd.email_address.unverified' => 'Unverified',
@@ -1201,6 +1221,7 @@ original notification at
   // fd.id.seq should be used only for database internal column IDs
   'fd.id.seq' =>      'ID',
   // The next set must be named fd.model.validation-field
+  'fd.identifier.description' => 'Description',
   'fd.identifier.identifier' => 'Identifier',
   'fd.identifier.login' => 'Login',
   'fd.identifier.login.desc' =>  'Allow this identifier to login to Registry',
@@ -1395,6 +1416,7 @@ original notification at
   'fd.telephone_number.area_code' => 'Area Code',
   'fd.telephone_number.number' => 'Number',
   'fd.telephone_number.extension' => 'Extension',
+  'fd.telephone_number.description' => 'Description',
   // This one is for rendering into a telephone number string (eg: 555 1212 x279)
   'fd.telephone.ext' => 'x',
   'fd.text' =>        'Text',
@@ -1420,6 +1442,10 @@ original notification at
   'fd.update.last' => 'Last Updated',
   'fd.unresolved' =>  'Unresolved',
   'fd.untitled' =>    'Untitled',
+  // This must be named fd.model.validation-field
+  'fd.url.description' => 'Description',
+  'fd.url.url' =>     'URL',
+  'fd.url.url.desc' => 'URL, including protocol (ie: http://myvo.org, not just myvo.org)',
   'fd.url' =>         'URL',
   'fd.username.api' => 'API User Name',
   'fd.valid_from' =>  'Valid From',
@@ -1881,6 +1907,7 @@ original notification at
   'sh.ug.110.ef' =>       'Migrating enrollment flow configurations',
   'sh.ug.110.gr' =>       'Renaming and reconciling automatic groups (please wait, this may take some time)',
   'sh.ug.110.is' =>       'Updating inactive identifier status',
+  'sh.ug.310.url' =>      'Instantiating default URL Extended Types',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

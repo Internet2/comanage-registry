@@ -39,8 +39,16 @@ class NamesController extends MVPAController {
     )
   );
 
+  public $edit_contains = array(
+    'CoPerson' => array('PrimaryName'),
+    'OrgIdentity' => array('PrimaryName')
+  );
+
   public $view_contains = array(
-    'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))
+    'CoPerson' => array('PrimaryName'),
+    'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'),
+                           'PrimaryName'),
+    'SourceName'
   );
   
   /**

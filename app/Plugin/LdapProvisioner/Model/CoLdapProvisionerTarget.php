@@ -386,6 +386,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               case 'eduPersonPrincipalNamePrior':
               case 'eduPersonUniqueId':
               case 'employeeNumber':
+              case 'labeledURI':
               case 'mail':
               case 'uid':
                 // Map the attribute to the model and column
@@ -395,6 +396,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'eduPersonPrincipalNamePrior' => 'Identifier',
                   'eduPersonUniqueId' => 'Identifier',
                   'employeeNumber' => 'Identifier',
+                  'labeledURI' => 'Url',
                   'mail' => 'EmailAddress',
                   'uid' => 'Identifier'
                 );
@@ -405,6 +407,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'eduPersonPrincipalNamePrior' => 'identifier',
                   'eduPersonUniqueId' => 'identifier',
                   'employeeNumber' => 'identifier',
+                  'labeledURI' => 'url',
                   'mail' => 'mail',
                   'uid' => 'identifier'
                 );
@@ -478,7 +481,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     if(empty($targetType) || ($targetType == $m['type'])) {
                       // And finally that the attribute itself is set
                       if(!empty($m[ $cols[$attr] ])) {
-                        $attributes[$attr][] = $m[ $cols[$attr] ] . $scope;
+                        if($attr == 'labeledURI' && !empty($m['description'])) {
+                          // Special case for labeledURI, which permits a description to be appended
+                          $attributes[$attr][] = $m[ $cols[$attr] ] . " " . $m['description'];
+                        } else {
+                          $attributes[$attr][] = $m[ $cols[$attr] ] . $scope;
+                        }
+                        
                         $found = true;
                       }
                     }
@@ -1401,6 +1410,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'o' => array(
             'required'    => false,
             'multiple'    => true
+          ),
+          'labeledURI' => array(
+            'required'    => false,
+            'multiple'    => true,
+            'extendedtype' => 'url_types',
+            'defaulttype' => UrlEnum::Official
           ),
           'mail' => array(
             'required'    => false,

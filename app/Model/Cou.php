@@ -48,7 +48,8 @@ class Cou extends AppModel {
       'className' => 'Cou',
       'foreignKey'=>'parent_id'
     ),
-    // We specifically want to delete CO Groups that reference this COU
+    // We specifically want to delete CO Departments and Groups that reference this COU
+    "CoDepartment" => array('dependent' => true),
     "CoGroup" => array('dependent' => true),
     "CoPersonRole",
     "CoPetition",

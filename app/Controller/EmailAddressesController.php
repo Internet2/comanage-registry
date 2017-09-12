@@ -38,9 +38,18 @@ class EmailAddressesController extends MVPAController {
       'mail' => 'asc'
     )
   );
+  
+  public $edit_contains = array(
+    'CoDepartment',
+    'CoPerson' => array('PrimaryName'),
+    'OrgIdentity' => array('PrimaryName')
+  );
 
   public $view_contains = array(
-    'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')),
+    'CoDepartment',
+    'CoPerson' => array('PrimaryName'),
+    'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'),
+                           'PrimaryName'),
     'SourceEmailAddress'
   );
   

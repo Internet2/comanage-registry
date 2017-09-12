@@ -458,7 +458,8 @@
                   print " " . $this->Form->select($xprefix . '.type',
                                                   $xtypeopts,
                                                   array('value' => $xval,
-                                                        'empty' => $xempty));
+                                                        'empty' => $xempty,
+                                                        'required' => false));
                 }
               }
 

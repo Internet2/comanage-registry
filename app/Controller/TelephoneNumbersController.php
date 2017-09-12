@@ -39,8 +39,17 @@ class TelephoneNumbersController extends MVPAController {
     )
   );
 
+  public $edit_contains = array(
+    'CoDepartment',
+    'CoPersonRole' => array('CoPerson' => 'PrimaryName'),
+    'OrgIdentity' => array('PrimaryName')
+  );
+
   public $view_contains = array(
-    'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')),
+    'CoDepartment',
+    'CoPersonRole' => array('CoPerson' => 'PrimaryName'),
+    'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'),
+                           'PrimaryName'),
     'SourceTelephoneNumber'
   );
   

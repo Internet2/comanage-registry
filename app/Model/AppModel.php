@@ -754,6 +754,9 @@ class AppModel extends Model {
       $args['contain'][] = 'CoPerson';
       if(isset($this->validate['org_identity_id'])) {
         // This is an MVPA
+        if(isset($this->belongsTo['CoDepartment'])) {
+          $args['contain'][] = 'CoDepartment';
+        }
         $args['contain'][] = 'OrgIdentity';
       }
       
@@ -763,10 +766,14 @@ class AppModel extends Model {
         return $cop['CoPerson']['co_id'];
       }
       
-      // Is this an MVPA where this is an org identity?
+      // Is this an MVPA where this is an org identity or CO department?
       
       if(!empty($cop['OrgIdentity']['co_id'])) {
         return $cop['OrgIdentity']['co_id'];
+      }
+      
+      if(!empty($cop['CoDepartment']['co_id'])) {
+        return $cop['CoDepartment']['co_id'];
       }
       
       // If this is an MVPA, don't fail on no CO ID since that may not be the current configuration
@@ -783,10 +790,25 @@ class AppModel extends Model {
       $args['contain'][] = 'CoPersonRole';
       if(isset($this->validate['org_identity_id'])) {
         // This is an MVPA
+        if(isset($this->belongsTo['CoDepartment'])) {
+          $args['contain'][] = 'CoDepartment';
+        }
         $args['contain'][] = 'OrgIdentity';
       }
       
       $copr = $this->find('first', $args);
+      
+      // Is this an MVPA where this is an org identity or CO department?
+      
+      if(!empty($copr['OrgIdentity']['co_id'])) {
+        return $copr['OrgIdentity']['co_id'];
+      }
+      
+      if(!empty($copr['CoDepartment']['co_id'])) {
+        return $copr['CoDepartment']['co_id'];
+      }
+      
+      // Else lookup the CO Person
       
       if(!empty($copr['CoPersonRole']['co_person_id'])) {
         $args = array();
@@ -798,12 +820,6 @@ class AppModel extends Model {
         if(!empty($cop['CoPerson']['co_id'])) {
           return $cop['CoPerson']['co_id'];
         }
-      }
-      
-      // Is this an MVPA where this is an org identity?
-      
-      if(!empty($copr['OrgIdentity']['co_id'])) {
-        return $copr['OrgIdentity']['co_id'];
       }
       
       // If this is an MVPA, don't fail on no CO ID since that may not be the current configuration

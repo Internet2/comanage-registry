@@ -39,6 +39,7 @@ class CoExtendedTypesController extends StandardController {
                        'Identifier',
                        'Name',
                        'TelephoneNumber',
+                       'Url',
                        'CoEnrollmentAttribute',
                        'CoExpirationPolicy',
                        'CoIdentifierAssignment',

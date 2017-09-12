@@ -36,6 +36,18 @@ class CoGroup extends AppModel {
   public $hasMany = array(
     // A CoGroup has zero or more members
     "CoGroupMember" => array('dependent' => true),
+    "CoDepartmentAdministrativeCoGroup" => array(
+      'className' => 'CoDepartment',
+      'foreignKey' => 'administrative_co_group_id'
+    ),
+    "CoDepartmentLeadershipCoGroup" => array(
+      'className' => 'CoDepartment',
+      'foreignKey' => 'leadership_co_group_id'
+    ),
+    "CoDepartmentSupportCoGroup" => array(
+      'className' => 'CoDepartment',
+      'foreignKey' => 'support_co_group_id'
+    ),
     "CoEnrollmentFlowApproverCoGroup" => array(
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'approver_co_group_id'

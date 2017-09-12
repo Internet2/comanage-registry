@@ -175,7 +175,8 @@ class CoPipeline extends AppModel {
       'TelephoneNumber',
       'OrgIdentitySourceRecord',
       // These will pull associated models that were created via the Pipeline
-      'PipelineCoPersonRole'
+      'PipelineCoPersonRole',
+      'Url'
     );
     
     $orgIdentity = $this->Co->OrgIdentity->find('first', $args);
@@ -681,11 +682,12 @@ class CoPipeline extends AppModel {
     
     // Supported associated models and their parent relation
     $models = array(
-      'Address'      => 'co_person_role_id',
-      'EmailAddress' => 'co_person_id',
-      'Identifier'   => 'co_person_id',
-      'Name'         => 'co_person_id',
-      'TelephoneNumber' => 'co_person_role_id'
+      'Address'         => 'co_person_role_id',
+      'EmailAddress'    => 'co_person_id',
+      'Identifier'      => 'co_person_id',
+      'Name'            => 'co_person_id',
+      'TelephoneNumber' => 'co_person_role_id',
+      'Url'             => 'co_person_id'
     );
     
     foreach($models as $m => $pkey) {
@@ -867,7 +869,9 @@ class CoPipeline extends AppModel {
         if(!$model->save($nr, array("provision" => false,
                                     "skipAvailability" => true,
                                     "trustVerified" => true))) {
-          throw new RuntimeException(_txt('er.db.save-a', array($m)));
+          
+          throw new RuntimeException(_txt('er.db.save-a',
+                                          array($m . " (" . join(',', array_keys($model->validationErrors)). ")")));
         }
         
         $doProvision = true;

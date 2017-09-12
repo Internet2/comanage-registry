@@ -34,6 +34,8 @@ class Identifier extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
+    // An identifier may be attached to a CO Department
+    "CoDepartment",
     // An identifier may be attached to a CO Person
     "CoPerson",
     // An identifier may be created from a Provisioner
@@ -120,6 +122,13 @@ class Identifier extends AppModel {
       )
     ),
     'org_identity_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'co_department_id' => array(
       'content' => array(
         'rule' => 'numeric',
         'required' => false,

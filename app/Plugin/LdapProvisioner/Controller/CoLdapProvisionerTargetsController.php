@@ -55,6 +55,7 @@ class CoLdapProvisionerTargetsController extends SPTController {
     $this->set('email_address_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
     $this->set('identifier_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
     $this->set('telephone_number_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->CoPersonRole->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
+    $this->set('url_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Url->types($this->cur_co['Co']['id'], 'type'));
   }
   
   /**

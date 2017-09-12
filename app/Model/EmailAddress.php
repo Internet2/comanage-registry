@@ -40,6 +40,8 @@ class EmailAddress extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
+    // An email address may be attached to a CO Department
+    "CoDepartment",
     // An email address may be attached to a CO Person
     "CoPerson",
     // An email address may be attached to an Org Identity
@@ -52,11 +54,7 @@ class EmailAddress extends AppModel {
   );
   
   public $hasOne = array(
-    "CoInvite",
-    "PipelineEmailAddress" => array(
-      'className' => 'EmailAddress',
-      'foreignKey' => 'source_email_address_id'
-    )
+    "CoInvite"
   );
   
   // Default display field for cake generated views
@@ -79,6 +77,13 @@ class EmailAddress extends AppModel {
       'filter' => array(
         'rule' => array('validateInput',
                         array('filter' => FILTER_SANITIZE_EMAIL))
+      )
+    ),
+    'description' => array(
+      'content' => array(
+        'rule' => array('validateInput'),
+        'required' => false,
+        'allowEmpty' => true
       )
     ),
     'type' => array(
@@ -109,6 +114,13 @@ class EmailAddress extends AppModel {
       )
     ),
     'org_identity_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'co_department_id' => array(
       'content' => array(
         'rule' => 'numeric',
         'required' => false,

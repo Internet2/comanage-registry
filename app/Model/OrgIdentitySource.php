@@ -731,7 +731,8 @@ class OrgIdentitySource extends AppModel {
         'EmailAddress',
         'Identifier',
         'Name',
-        'TelephoneNumber'
+        'TelephoneNumber',
+        'Url'
       );
       
       // XXX We should use findForUpdate here, but that doesn't support contains yet
@@ -917,7 +918,8 @@ class OrgIdentitySource extends AppModel {
           'EmailAddress',
           'Identifier',
           'Name',
-          'TelephoneNumber'
+          'TelephoneNumber',
+          'Url'
         );
         
         foreach($models as $m) {

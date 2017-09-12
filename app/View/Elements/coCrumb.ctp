@@ -25,6 +25,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
+  // Always emit CO Name
   if(!empty($cur_co['Co']['name'])) {
     $args = array();
     $args['plugin'] = null;
@@ -32,4 +33,79 @@
     $args['action'] = 'dashboard';
     $args['co'] = $cur_co['Co']['id'];
     $this->Html->addCrumb($cur_co['Co']['name'], $args);
+  }
+  
+  // Possibly emit MVPA specific breadcrumbs
+  if(!empty($mvpa)) {
+    if(!empty($vv_pid['codeptid'])) {
+      // CO Department
+      $args = array(
+        'plugin' => null,
+        'controller' => 'co_departments',
+        'action' => 'index',
+        'co' => $cur_co['Co']['id']
+      );
+      $this->Html->addCrumb(_txt('ct.co_departments.pl'), $args);
+  
+      $args = array(
+        'controller' => 'co_departments',
+        'action' => 'edit',
+        $vv_pid['codeptid']
+      );
+      $this->Html->addCrumb($vv_bc_name, $args);
+    } elseif(!empty($vv_pid['copersonid'])) {
+      // CO Person
+      $args = array(
+        'plugin' => null,
+        'controller' => 'co_people',
+        'action' => 'index',
+        'co' => $cur_co['Co']['id']
+      );
+      $this->Html->addCrumb(_txt('me.population'), $args);
+  
+      $args = array(
+        'controller' => 'co_people',
+        'action' => 'canvas',
+        $vv_pid['copersonid']
+      );
+      $this->Html->addCrumb($vv_bc_name, $args);
+    } elseif(!empty($vv_pid['copersonroleid'])) {
+      // CO Person Role
+      
+      $args = array(
+        'plugin' => null,
+        'controller' => 'co_people',
+        'action' => 'canvas',
+        $vv_pbc_id
+      );
+      $this->Html->addCrumb($vv_pbc_name, $args);
+  
+      $args = array(
+        'controller' => 'co_person_roles',
+        'action' => 'edit',
+        $vv_pid['copersonroleid']
+      );
+      $this->Html->addCrumb($vv_bc_name, $args);
+    } else {
+      // Org ID
+      $args = array(
+        'plugin' => null,
+        'controller' => 'org_identities',
+        'action' => 'index'
+      );
+      if(!$pool_org_identities) {
+        $args['co'] = $cur_co['Co']['id'];
+      }
+      $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
+  
+      $args = array(
+        'controller' => 'orgIdentities',
+        'action' => 'edit',
+        $vv_pid['orgidentityid']
+      );
+      $this->Html->addCrumb($vv_bc_name, $args);
+    }
+    
+    $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.' . $mvpa . '.1')));
+    $this->Html->addCrumb($crumbTxt);
   }

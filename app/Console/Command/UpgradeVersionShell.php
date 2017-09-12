@@ -32,6 +32,7 @@ class UpgradeVersionShell extends AppShell {
                     'Co',
                     'CoEnrollmentAttributeDefault',
                     'CoEnrollmentFlow',
+                    'CoExtendedType',
                     'CoGroup',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
                     'Identifier');
@@ -69,7 +70,8 @@ class UpgradeVersionShell extends AppShell {
     "1.0.7" => array('block' => false),
     "2.0.0" => array('block' => false, 'post' => 'post110'),
     "2.0.1" => array('block' => false),
-    "3.0.0" => array('block' => false)
+    "3.0.0" => array('block' => false),
+    "3.1.0" => array('block' => false, 'post' => 'post310')
   );
   
   public function getOptionParser() {
@@ -354,5 +356,22 @@ class UpgradeVersionShell extends AppShell {
     // 2.0.0 uses SuspendableStatusEnum for Identifier::status
     $this->out(_txt('sh.ug.110.is'));
     $this->Identifier->_ug110();
+  }
+  
+  public function post310() {
+    // 3.1.0 adds the Url MVPA, so we instantiate the default types across all COs.
+    $this->out(_txt('sh.ug.310.url'));
+    
+    $args = array();
+    $args['contain'] = false;
+    
+    $cos = $this->Co->find('all', $args);
+    
+    // We update inactive COs as well, in case they become active again
+    foreach($cos as $co) {
+      $this->out('- ' . $co['Co']['name']);
+
+      $this->CoExtendedType->addDefault($co['Co']['id'], 'Url.type');
+    }
   }
 }

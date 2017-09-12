@@ -652,6 +652,11 @@ class TAndCLoginModeEnum
   const DisableAllServices = 'D';
 }
 
+class UrlEnum {
+  const Official      = 'official';
+  const Personal      = 'personal';
+}
+
 class VerificationModeEnum
 {
   const Automatic = 'A';

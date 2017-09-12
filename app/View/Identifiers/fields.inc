@@ -35,74 +35,14 @@
   
   if(!$e && !$permissions['view'])
     return(false);
-
-  $idForBreadcrumbs = '';
-  $idType = null;
   
-  // Migrate the target person from a named argument to a form field
-  if($this->action == 'add' && isset($this->request->params['named']['copersonid'])) {
-    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'person';
-  } elseif(isset($this->request->data['Identifier']['co_person_id'])) {
-    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'person';
-  } elseif(!empty($identifiers[0]['Identifier']['co_person_id'])) {
-    $idForBreadcrumbs = filter_var($identifiers[0]['Identifier']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'person';
-  } elseif($this->action == 'add' && isset($this->params['named']['orgidentityid'])){
-    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'org';
-  } elseif(isset($this->request->data['Identifier']['org_identity_id'])) {
-    $idForBreadcrumbs = filter_var($this->request->data['Identifier']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'org';
-  } elseif(!empty($identifiers[0]['Identifier']['org_identity_id'])) {
-    $idForBreadcrumbs = filter_var($identifiers[0]['Identifier']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'org';
-  }
-  
-  if($idType == 'org') {
-    print $this->Form->hidden('org_identity_id', array('default' => $idForBreadcrumbs)) . "\n";
-  } elseif($idType == 'person') {
-    print $this->Form->hidden('co_person_id', array('default' => $idForBreadcrumbs)) . "\n";
-  }
+  // We can emit all attributes because the ones we don't want should be null
+  print $this->Form->hidden('co_department_id', array('default' => $vv_pid['codeptid'])) . "\n";
+  print $this->Form->hidden('org_identity_id', array('default' => $vv_pid['orgidentityid'])) . "\n";
+  print $this->Form->hidden('co_person_id', array('default' => $vv_pid['copersonid'])) . "\n";
   
   // Add breadcrumbs
-  print $this->element("coCrumb");
-  if($idType == 'person') {
-    // CO Person History
-    $args = array();
-    $args['plugin'] = null;
-    $args['controller'] = 'co_people';
-    $args['action'] = 'index';
-    $args['co'] = $cur_co['Co']['id'];
-    $this->Html->addCrumb(_txt('me.population'), $args);
-
-    $args = array(
-      'controller' => 'co_people',
-      'action' => 'canvas',
-      $idForBreadcrumbs);
-    $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
-  } else {
-    // Org ID History
-    $args = array();
-    $args['plugin'] = null;
-    $args['controller'] = 'org_identities';
-    $args['action'] = 'index';
-    if(!$pool_org_identities) {
-      $args['co'] = $cur_co['Co']['id'];
-    }
-    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
-
-    $args = array(
-      'controller' => 'orgIdentities',
-      'action' => 'edit',
-      $idForBreadcrumbs);
-    $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
-  }
-  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.identifiers.1')));
-  $this->Html->addCrumb($crumbTxt);
-  
-  $l = 1;
+  print $this->element("coCrumb", array('mvpa' => 'identifiers'));
 ?>
 <?php if(!empty($identifiers[0]['CoProvisioningTarget']['id'])): ?>
 <div class="co-info-topbox">
@@ -179,7 +119,7 @@
       ?>
     </div>
   </li>
-  <?php if($idType == 'org'): ?>
+  <?php if(!empty($vv_pid['orgidentityid'])): ?>
     <li>
       <div class="field-name">
         <?php print _txt('fd.identifier.login'); ?><br />

@@ -292,6 +292,16 @@ class OrgIdentitySourcesController extends StandardController {
       }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
+        
+        // Redirect back to retrieve key
+        $args = array(
+          'controller' => 'org_identity_sources',
+          'action'     => 'retrieve',
+          $id,
+          'key'        => $key
+        );
+        
+        $this->redirect($args);
       }
     } else {
       $this->Flash->set(_txt('er.notprov.id', array(_txt('fd.sorid'))),

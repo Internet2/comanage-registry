@@ -314,6 +314,16 @@
           </td>
         </tr>
         <?php endforeach; // telephone ?>
+        <?php if(!empty($vv_org_source_record['Url'])) foreach($vv_org_source_record['Url'] as $url): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.url.url') . " (" . $url['type'] . ")"; ?>
+          </td>
+          <td>
+            <?php print $url['url']; ?>
+          </td>
+        </tr>
+        <?php endforeach; // url ?>
         <?php if(!empty($vv_mapped_groups)): ?>
         <tr class="line<?php print $l++ % 2; ?>">
           <td>

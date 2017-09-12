@@ -410,7 +410,19 @@ class AppController extends Controller {
        || $this->action == 'review'
        // We don't currently do anything with the value for impliedCoIdActions, but we could...
        || isset($this->impliedCoIdActions[ $this->action ])) {
-      if(!empty($p['copersonid'])
+      if(!empty($p['codeptid']) && (isset($model->CoDepartment))) {
+        $CoDepartment = $model->CoDepartment;
+        
+        $coId = $CoDepartment->field('co_id', array('id' => $p['codeptid']));
+        
+        if($coId) {
+          return $coId;
+        } else {
+          throw new InvalidArgumentException(_txt('er.notfound',
+                                                  array(_txt('ct.co_departments.1'),
+                                                        filter_var($p['codeptid'],FILTER_SANITIZE_SPECIAL_CHARS))));
+        }
+      } elseif(!empty($p['copersonid'])
          && (isset($model->CoPerson) || isset($model->Co))) {
         $CoPerson = (isset($model->CoPerson) ? $model->CoPerson : $model->Co->CoPerson);
         
@@ -502,6 +514,8 @@ class AppController extends Controller {
    * For Models that accept a CO Person ID, a CO Person Role ID, or an Org
    * Identity ID, verify that a valid ID was specified.  Also, generate an
    * array suitable for redirecting back to the controller.
+   * Effective with v3.1.0, a CO Department ID is also considered a "Person",
+   * since MVPAs are being extended to cover Departments.
    * - precondition: A copersonid, copersonroleid, or orgidentityid must be provided in $this->request (params or data)
    * - postcondition: On error, the session flash message will be set and a redirect will be generated (HTML)
    * - postcondition: On error, HTTP status returned (REST)
@@ -526,6 +540,7 @@ class AppController extends Controller {
     
     $copid = $pids['copersonid'];
     $coprid = $pids['copersonroleid'];
+    $codeptid = $pids['codeptid'];
     $orgiid = $pids['orgidentityid'];
     $co = null;
     
@@ -575,6 +590,24 @@ class AppController extends Controller {
         $redirect[] = $coprid;
         if($co != null)
           $redirect['co'] = $co;
+        $rc = 1;
+      }
+    }
+    elseif($codeptid != null)
+    {
+      $redirect['controller'] = 'co_departments';
+
+      $x = $model->CoDepartment->findById($codeptid);
+      
+      if(empty($x))
+      {
+        $redirect['action'] = 'index';
+        $rc = -1;
+      }
+      else
+      {
+        $redirect['action'] = 'edit';
+        $redirect[] = $codeptid;
         $rc = 1;
       }
     }
@@ -867,6 +900,21 @@ class AppController extends Controller {
     // Manage any CO configuration?
     $p['menu']['coconfig'] = $roles['cmadmin'] || $roles['coadmin'];
     
+    // View CO departments?
+    $p['menu']['codepartments'] = $roles['cmadmin'];
+    
+    if(!$roles['cmadmin']
+       && $roles['user']
+       && !empty($this->cur_co['Co']['id'])) {
+      // Only render departments link for regular users if departments are defined
+      $args = array();
+      $args['conditions']['CoDepartment.co_id'] = $this->cur_co['Co']['id'];
+      
+      $this->loadModel('CoDepartment');
+      
+      $p['menu']['codepartments'] = (boolean)$this->CoDepartment->find('count', $args);
+    }
+    
     // Select from available enrollment flows?
     $p['menu']['createpetition'] = $roles['user'];
     
@@ -991,9 +1039,10 @@ class AppController extends Controller {
       $menu['cos'] = array();
     }
     
+    $this->loadModel('Co');
+    
     if($this->viewVars['permissions']['menu']['admin']) {
       // Show all active COs for admins
-      $this->loadModel('Co');
       $params = array('conditions' => array('Co.status' => StatusEnum::Active),
                       'fields'     => array('Co.id', 'Co.name', 'Co.description'),
                       'recursive'  => false
@@ -1072,7 +1121,7 @@ class AppController extends Controller {
     $coid = null;
     
     try {
-      // First try to look up the CO ID based on the request. 
+      // First try to look up the CO ID based on the request.
       $coid = $this->calculateImpliedCoId($data);
     }
     catch(Exception $e) {
@@ -1113,7 +1162,8 @@ class AppController extends Controller {
   
   /**
    * For Models that accept a CO Person ID, a CO Person Role ID or an Org Identity ID,
-   * find the provided person ID.
+   * find the provided person ID. Effective v3.1.0, CO Department ID is considered a person ID
+   * for MVPA purposes.
    * - precondition: A copersonid, copersonroleid, or orgidentityid must be provided in $this->request (params or data)
    *
    * @since  COmanage Registry v0.1
@@ -1130,6 +1180,7 @@ class AppController extends Controller {
     // Find a person
     $copid  = null;
     $coprid  = null;
+    $deptid = null;
     $orgiid = null;
     
     if(!empty($data['co_person_id']))
@@ -1138,24 +1189,32 @@ class AppController extends Controller {
       $coprid = $data['co_person_role_id'];
     elseif(!empty($data['org_identity_id']))
       $orgiid = $data['org_identity_id'];
+    elseif(!empty($data['co_department_id']))
+      $deptid = $data['co_department_id'];
     elseif(!empty($data[$req]['co_person_id']))
       $copid = $data[$req]['co_person_id'];
     elseif(!empty($data[$req]['co_person_role_id']))
       $coprid = $data[$req]['co_person_role_id'];
     elseif(!empty($data[$req]['org_identity_id']))
       $orgiid = $data[$req]['org_identity_id'];
-    elseif(!empty($this->request->params['named']['copersonid']))
-      $copid = $this->request->params['named']['copersonid'];
-    elseif(!empty($this->request->params['named']['copersonroleid']))
-      $coprid = $this->request->params['named']['copersonroleid'];
-    elseif(!empty($this->request->params['named']['orgidentityid']))
-      $orgiid = $this->request->params['named']['orgidentityid'];
+    elseif(!empty($data[$req]['co_department_id']))
+      $deptid = $data[$req]['co_department_id'];
     elseif(!empty($this->request->data[$req]['co_person_id']))
       $copid = $this->request->data[$req]['co_person_id'];
     elseif(!empty($this->request->data[$req]['co_person_role_id']))
       $coprid = $this->request->data[$req]['co_person_role_id'];
     elseif(!empty($this->request->data[$req]['org_identity_id']))
       $orgiid = $this->request->data[$req]['org_identity_id'];
+    elseif(!empty($this->request->data[$req]['codeptid']))
+      $deptid = $this->request->data[$req]['codeptid'];
+    elseif(!empty($this->request->params['named']['copersonid']))
+      $copid = $this->request->params['named']['copersonid'];
+    elseif(!empty($this->request->params['named']['copersonroleid']))
+      $coprid = $this->request->params['named']['copersonroleid'];
+    elseif(!empty($this->request->params['named']['orgidentityid']))
+      $orgiid = $this->request->params['named']['orgidentityid'];
+    elseif(!empty($this->request->params['named']['codeptid']))
+      $deptid = $this->request->params['named']['codeptid'];
     elseif(isset($this->request->data[$modelcc][0]['Person'])) {
       // API / JSON
       switch($this->request->data[$modelcc][0]['Person']['Type']) {
@@ -1164,6 +1223,9 @@ class AppController extends Controller {
           break;
         case 'CoRole':
           $coprid = $this->request->data[$modelcc][0]['Person']['Id'];
+          break;
+        case 'Dept':
+          $deptid = $this->request->data[$modelcc][0]['Person']['Id'];
           break;
         case 'Org':
           $orgiid = $this->request->data[$modelcc][0]['Person']['Id'];
@@ -1178,6 +1240,9 @@ class AppController extends Controller {
           break;
         case 'CoRole':
           $coprid = $this->request->data[$modelcc][$req]['Person']['Id'];
+          break;
+        case 'Dept':
+          $deptid = $this->request->data[$modelcc][$req]['Person']['Id'];
           break;
         case 'Org':
           $orgiid = $this->request->data[$modelcc][$req]['Person']['Id'];
@@ -1204,9 +1269,12 @@ class AppController extends Controller {
         $coprid = $rec[$req]['co_person_role_id'];
       elseif(isset($rec[$req]['org_identity_id']))
         $orgiid = $rec[$req]['org_identity_id'];
+      elseif(isset($rec[$req]['co_department_id']))
+        $deptid = $rec[$req]['co_department_id'];
     }
     
-    return(array("copersonid" => $copid,
+    return(array("codeptid" => $deptid,
+                 "copersonid" => $copid,
                  "copersonroleid" => $coprid,
                  "orgidentityid" => $orgiid));
   }

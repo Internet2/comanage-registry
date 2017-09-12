@@ -542,233 +542,26 @@
           </ul><!-- tabs-role -->
         </li><!-- fields-role -->
 
-        <?php if($this->action != "add"): ?>
-
-          <li id="fields-phone" class="fieldGroup">
-
-            <?php if($this->Permission->selfService($permissions, $e, 'TelephoneNumber') == PermissionEnum::ReadWrite): ?>
-              <div class="coAddEditButtons">
-                <?php
-                print $this->Html->link(_txt('op.add'),
-                  array(
-                    'controller' => 'telephone_numbers',
-                    'action' => 'add',
-                    'copersonroleid' => $co_person_roles[0]['CoPersonRole']['id']
-                  ),
-                  array('class' => 'addbutton')
-                );
-                ?>
-              </div>
-            <?php endif; // ReadWrite permission, telephone ?>
-
-            <a href="#tabs-phone" class="fieldGroupName">
-              <em class="material-icons">indeterminate_check_box</em>
-              <?php print _txt('ct.telephone_numbers.pl'); ?>
-            </a>
-
-            <ul id="tabs-phone" class="fields data-list">
-
-              <?php if(!empty($co_person_roles[0]['TelephoneNumber'])): ?>
-                <?php foreach($co_person_roles[0]['TelephoneNumber'] as $t): ?>
-                  <?php
-                    if(!empty($t['SourceTelephoneNumber']['id'])) {
-                      // This telephone number came from an OIS and so can't be edited
-                      print '<li>';
-                      print '<div class="field-data">';
-                      print $this->Html->link($t['number'], array('controller' => 'telephone_numbers', 'action' => 'view', $t['id']));
-                      print " &nbsp;("
-                        . $t['SourceTelephoneNumber']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
-                        . ", " . $vv_copr_telephonenumber_types[ $t['type'] ] . ")<br />\n";
-                      print '</div>';
-                      print '<div class="field-actions">';
-                      print $this->Html->link(_txt('op.view'),
-                                              array('controller' => 'telephone_numbers', 'action' => 'view', $t['id']),
-                                              array('class' => 'viewbutton')) . "\n";
-                      print '</div>';
-                      print '</li>';
-
-                      continue;
-                    }
-
-                    $perm = $this->Permission->selfService($permissions, $e, 'TelephoneNumber', $t['type']);
-                  ?>
-
-                  <?php if($perm == PermissionEnum::ReadWrite): ?>
-                    <li>
-                      <div class="field-data">
-                        <?php
-                          print $this->Html->link(formatTelephone($t),
-                            array(
-                              'controller' => 'telephone_numbers',
-                              'action' => 'edit',
-                              $t['id']
-                            )
-                          );
-                        ?>
-                        <span class="data-desc">
-                          (<?php print $vv_copr_telephonenumber_types[ $t['type'] ]; ?>)
-                        </span>
-                      </div>
-                      <div class="field-actions">
-                        <?php
-                          print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-                            . '" onclick="javascript:js_confirm_generic(\''
-                            . _txt('js.remove') . '\',\''    // dialog body text
-                            . $this->Html->url(              // dialog confirm URL
-                              array(
-                                'controller' => 'telephone_numbers',
-                                'action' => 'delete',
-                                $t['id']
-                              )
-                            ) . '\',\''
-                            . _txt('op.remove') . '\',\''    // dialog confirm button
-                            . _txt('op.cancel') . '\',\''    // dialog cancel button
-                            . _txt('op.remove') . '\',[\''   // dialog title
-                            . filter_var(_jtxt(formatTelephone($t)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                            . '\']);">'
-                            . _txt('op.delete')
-                            . '</button>';
-                          print $this->Html->link(_txt('op.edit'),
-                              array(
-                                'controller' => 'telephone_numbers',
-                                'action' => 'edit',
-                                $t['id']
-                              ),
-                              array('class' => 'editbutton')) . "\n";
-                        ?>
-                      </div>
-                    </li>
-
-                  <?php elseif($perm == PermissionEnum::ReadOnly): ?>
-                    <div class="field-data">
-                      <?php print filter_var(formatTelephone($t),FILTER_SANITIZE_SPECIAL_CHARS); ?>
-                      <span class="data-desc">
-                        (<?php print $vv_copr_telephonenumber_types[ $t['type'] ]; ?>)
-                      </span>
-                    </div>
-                  <?php endif; // ReadWrite permissions ?>
-
-
-                <?php endforeach; // TelephoneNumber ?>
-              <?php else: ?>
-                <li><div class="field-data field-data-alone"><?php print _txt('fd.none'); ?></div></li>
-              <?php endif; // TelephoneNumber ?>
-            </ul><!-- tabs-phone -->
-          </li><!-- fields-phone -->
-
-          <li id="fields-address" class="fieldGroup">
-
-            <?php if($this->Permission->selfService($permissions, $e, 'Address') == PermissionEnum::ReadWrite): ?>
-              <div class="coAddEditButtons">
-                <?php
-                print $this->Html->link(_txt('op.add'),
-                  array(
-                    'controller' => 'addresses',
-                    'action' => 'add',
-                    'copersonroleid' => $co_person_roles[0]['CoPersonRole']['id']),
-                  array('class' => 'addbutton'
-                  )
-                );
-                ?>
-              </div>
-            <?php endif; // ReadWrite permission, address ?>
-
-            <a href="#tabs-address" class="fieldGroupName">
-              <em class="material-icons">indeterminate_check_box</em>
-              <?php print _txt('ct.addresses.pl'); ?>
-            </a>
-
-            <ul id="tabs-address" class="fields data-list">
-
-              <?php if(!empty($co_person_roles[0]['Address'])): ?>
-                <?php foreach($co_person_roles[0]['Address'] as $addr): ?>
-                  <?php
-                    if(!empty($addr['SourceAddress']['id'])) {
-                      // This address came from an OIS and so can't be edited
-                      print '<li class="field-data-container">';
-                      print '<div class="field-data">';
-                      print $this->Html->link($addr['street'], array('controller' => 'addresses', 'action' => 'view', $addr['id']));
-                      print " &nbsp;("
-                        . $addr['SourceAddress']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description']
-                        . ", " . $vv_copr_address_types[ $addr['type'] ] . ")<br />\n";
-                      print '</div>';
-                      print '<div class="field-actions">';
-                      print $this->Html->link(_txt('op.view'),
-                                              array('controller' => 'addresses', 'action' => 'view', $addr['id']),
-                                              array('class' => 'viewbutton')) . "\n";
-                      print '</div>';
-                      print '</li>';
-
-                      continue;
-                    }
-
-                    $perm = $this->Permission->selfService($permissions, $e, 'Address', $addr['type']);
-                  ?>
-
-                  <li>
-
-                    <?php if($perm == PermissionEnum::ReadWrite): ?>
-
-                      <div class="field-data">
-                        <?php
-                          print $this->Html->link($addr['street'],
-                            array(
-                              'controller' => 'addresses',
-                              'action' => 'edit',
-                              $addr['id'])
-                          );
-                        ?>
-                        <span class="data-desc">
-                            (<?php print $vv_copr_address_types[ $addr['type'] ]; ?>)
-                          </span>
-                      </div>
-                      <div class="field-actions">
-                        <?php
-                        print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
-                            array(
-                              'controller' => 'addresses',
-                              'action' => 'delete',
-                              $addr['id'],
-                              'co' => $cur_co['Co']['id']
-                            )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt($addr['street']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</button>';
-                        print $this->Html->link(_txt('op.edit'),
-                            array(
-                              'controller' => 'addresses',
-                              'action' => 'edit',
-                              $addr['id']
-                            ),
-                            array('class' => 'editbutton')) . "\n";
-                        ?>
-                      </div>
-                    <?php elseif($perm == PermissionEnum::ReadOnly): ?>
-                      <div class="field-data">
-                        <?php print filter_var($addr['street'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-                        <span class="data-desc">
-                          (<?php $vv_copr_address_types[ $addr['type'] ]; ?>)
-                        </span>
-                      </div>
-                    <?php endif; // ReadWrite permissions ?>
-                  </li>
-                <?php endforeach; // Address ?>
-              <?php else: ?>
-                <li>
-                  <div class="field-data"><?php print _txt('fd.none'); ?></div>
-                </li>
-              <?php endif; // Address ?>
-            </ul><!-- tabs-address -->
-          </li><!-- fields-address -->
-        <?php endif; // !add ?>
+        <?php
+          if($this->action != "add") {
+            $args = array(
+              'edit'         => $e,
+              'self_service' => true,
+              'model'        => 'CoPersonRole',
+              'model_param'  => 'copersonroleid',
+              'mvpa_model'   => 'TelephoneNumber',
+              'mvpa_field'   => null,
+              'mvpa_format'  => 'formatTelephone'
+            );
+            
+            print $this->element('mvpa', $args);
+            
+            $args['mvpa_model'] = 'Address';
+            $args['mvpa_format'] = 'formatAddress';
+            
+            print $this->element('mvpa', $args);
+          }
+        ?>
       </ul>
     </div>
   </div>

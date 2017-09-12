@@ -84,7 +84,9 @@ class OrgIdentity extends AppModel {
       'foreignKey' => 'source_org_identity_id'
     ),
     // A person can have one or more telephone numbers
-    "TelephoneNumber" => array('dependent' => true)
+    "TelephoneNumber" => array('dependent' => true),
+    // A person can have one or more URL
+    "Url" => array('dependent' => true)
   );
 
   public $belongsTo = array(

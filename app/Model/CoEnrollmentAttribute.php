@@ -167,6 +167,12 @@ class CoEnrollmentAttribute extends AppModel {
     foreach(array_keys($emailAddressTypes) as $k)
       $ret['p:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $emailAddressTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
     
+    $Url = ClassRegistry::init('Url');
+    $urlTypes = $Url->types($coid, 'type');
+    
+    foreach(array_keys($urlTypes) as $k)
+      $ret['p:url:'.$k] = _txt('fd.url.url') . " (" . $urlTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
+    
     // (2a) Group Memberships are Multi valued CO Person attributes, but have all sorts
     // of special logic around them so they get their own code (code=g)
     
@@ -221,6 +227,9 @@ class CoEnrollmentAttribute extends AppModel {
         
       foreach(array_keys($cm_texts[ $cm_lang ]['en.telephone_number.type']) as $k)
         $ret['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $cm_texts[ $cm_lang ]['en.telephone_number.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+        
+      foreach(array_keys($cm_texts[ $cm_lang ]['en.url.type']) as $k)
+        $ret['i:url:'.$k] = _txt('fd.url.url') . " (" . $cm_texts[ $cm_lang ]['en.url.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
     }
     
     // (7) Enrollment Flow specific attributes -- these don't get copied out of the petition (code=e)
@@ -545,10 +554,15 @@ class CoEnrollmentAttribute extends AppModel {
         
         foreach(array_keys($attrModel->validate) as $k) {
           // Skip fields that are autopopulated
-          if($k != 'co_person_id'
+          if($k != 'co_department_id'
+             && $k != 'co_person_id'
              && $k != 'co_person_role_id'
              && $k != 'org_identity_id'
-             && $k != 'source_' . $attrName . '_id') {
+             && $k != 'source_' . $attrName . '_id'
+             // For now, we skip description (introduced to MVPAs in 3.1.0)
+             // because it will generally be too confusing to people.
+             // "What's my email description?" This could become configurable, though.
+             && $k != 'description') {
             $attr = array();
               
             // The attribute ID and attribute key will be the same for all components

@@ -80,6 +80,12 @@ class DefaultNormalizer extends AppModel {
         'punctuationToSpace' => array('country_code', 'area_code', 'number', 'extension'),
         'trimWhitespace' => array('country_code', 'area_code', 'number', 'extension')
       ),
+      'Url' => array(
+        // We don't normalize an http:// prefix because cake validation will prevent
+        // a URL from being submitted without a prefix (and we wouldn't know the
+        // protocol anyway).
+        'trimWhitespace' => array('url')
+      )
     );
     
     // In order for this to work, Co#PersonExtendedAttribute has to be after CoPersonRole

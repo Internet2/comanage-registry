@@ -65,7 +65,8 @@ class CoPeopleController extends StandardController {
                           'SourceIdentifier' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Name' => array('SourceName' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'PrimaryName',
-    'SshKey'
+    'SshKey',
+    'Url' => array('SourceUrl' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
   );
   
   // We need various related models for index and search
@@ -75,7 +76,8 @@ class CoPeopleController extends StandardController {
     'EmailAddress',
     'Identifier',
     'Name',
-    'PrimaryName'
+    'PrimaryName',
+    'Url'
   );
   
   /**
@@ -137,8 +139,9 @@ class CoPeopleController extends StandardController {
       $this->set('vv_enable_nsf_demo', $this->Co->CoSetting->nsfDemgraphicsEnabled($this->cur_co['Co']['id']));
       
       // Mappings for extended types
-      $this->set('vv_cop_emailaddress_types', $this->CoPerson->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
-      $this->set('vv_cop_identifier_types', $this->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_email_addresses_types', $this->CoPerson->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_identifiers_types', $this->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_urls_types', $this->CoPerson->Url->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_cop_name_types', $this->CoPerson->Name->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_copr_affiliation_types', $this->CoPerson->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
       

@@ -36,76 +36,16 @@
   if(!$e && !$permissions['view'])
     return(false);
 
-  $idForBreadcrumbs = '';
-  $idType = null;
-
-  // Migrate the target person from a named argument to a form field
-  if($this->action == 'add' && isset($this->request->params['named']['copersonroleid'])) {
-    $idForBreadcrumbs = filter_var($this->request->params['named']['copersonroleid'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'role';
-  } elseif(isset($this->request->data['TelephoneNumber']['co_person_role_id'])) {
-    $idForBreadcrumbs = filter_var($this->request->data['TelephoneNumber']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'role';
-  } elseif(!empty($telephone_numbers[0]['TelephoneNumber']['co_person_role_id'])) {
-    $idForBreadcrumbs = filter_var($telephone_numbers[0]['TelephoneNumber']['co_person_role_id'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'role';
-  } elseif($this->action == 'add' && isset($this->request->params['named']['orgidentityid'])) {
-    $idForBreadcrumbs = filter_var($this->request->params['named']['orgidentityid'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'org';
-  } elseif(isset($this->request->data['TelephoneNumber']['org_identity_id'])) {
-    $idForBreadcrumbs = filter_var($this->request->data['TelephoneNumber']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'org';
-  } elseif(!empty($telephone_numbers[0]['TelephoneNumber']['org_identity_id'])) {
-    $idForBreadcrumbs = filter_var($telephone_numbers[0]['TelephoneNumber']['org_identity_id'],FILTER_SANITIZE_SPECIAL_CHARS);
-    $idType = 'org';
-  }
+  // We can emit all attributes because the ones we don't want should be null
+  print $this->Form->hidden('co_department_id', array('default' => $vv_pid['codeptid'])) . "\n";
+  print $this->Form->hidden('org_identity_id', array('default' => $vv_pid['orgidentityid'])) . "\n";
+  print $this->Form->hidden('co_person_role_id', array('default' => $vv_pid['copersonroleid'])) . "\n";
   
-  if($idType == 'org') {
-    print $this->Form->hidden('org_identity_id', array('default' => $idForBreadcrumbs)) . "\n";
-  } elseif($idType == 'role') {
-    print $this->Form->hidden('co_person_role_id', array('default' => $idForBreadcrumbs)) . "\n";
-  }
-
   if(isset($this->params['named']['co']))
     print $this->Form->hidden('co_id', array('default' => filter_var($this->params['named']['co'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
 
   // Add breadcrumbs
-  print $this->element("coCrumb");
-  if($idType == 'role') {
-    // CO Person History
-    $args = array();
-    $args['plugin'] = null;
-    $args['controller'] = 'co_people';
-    $args['action'] = 'index';
-    $args['co'] = $cur_co['Co']['id'];
-    $this->Html->addCrumb(_txt('me.population'), $args);
-    
-    $args = array(
-      'controller' => 'co_person_roles',
-      'action' => 'edit',
-      $idForBreadcrumbs);
-    $this->Html->addCrumb(_txt('ct.co_person_roles.1'), $args);
-  } elseif($idType == 'org') {
-    // Org ID History
-    $args = array();
-    $args['plugin'] = null;
-    $args['controller'] = 'org_identities';
-    $args['action'] = 'index';
-    if(!$pool_org_identities) {
-      $args['co'] = $cur_co['Co']['id'];
-    }
-    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
-    
-    $args = array(
-      'controller' => 'orgIdentities',
-      'action' => 'edit',
-      $idForBreadcrumbs);
-    $this->Html->addCrumb(_txt('ct.org_identities.1'), $args);
-  }
-  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.telephone_numbers.1')));
-  $this->Html->addCrumb($crumbTxt);
-
-  $l = 1;
+  print $this->element("coCrumb", array('mvpa' => 'telephone_numbers'));
 ?>
 <ul id="<?php print $this->action; ?>_telephone_number" class="fields form-list">
   <li>
@@ -138,6 +78,14 @@
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('extension') : filter_var($telephone_numbers[0]['TelephoneNumber']['extension'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('description',_txt('fd.desc')); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('description') : filter_var($telephone_numbers[0]['TelephoneNumber']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>

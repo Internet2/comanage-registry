@@ -247,9 +247,9 @@ class CoPersonRolesController extends StandardController {
     
     if(!$this->request->is('restful')){
       // Mappings for extended types
-      $this->set('vv_copr_address_types', $this->CoPersonRole->Address->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_addresses_types', $this->CoPersonRole->Address->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_copr_affiliation_types', $this->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
-      $this->set('vv_copr_telephonenumber_types', $this->CoPersonRole->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_telephone_numbers_types', $this->CoPersonRole->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
       
       // Generate list of sponsors
       $this->set('vv_sponsors', $this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));

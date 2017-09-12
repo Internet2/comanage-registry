@@ -550,307 +550,43 @@
         </div>
       </li><!-- fields-name -->
 
-      <?php if($this->action != "add"): ?>
-        <!-- Ids -->
-        <li id="fields-id" class="fieldGroup">
-          <?php if($e): ?>
-            <div class="coAddEditButtons">
-              <?php
-                $linktarget = array('controller'    => 'identifiers',
-                  'action'        => 'add',
-                  'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                  'co'            => ($pool_org_identities ? false : $cur_co['Co']['id'])
-                );
-                $linkparams = array('class'  => 'addbutton');
+      <?php
+        if($this->action != "add") {
+          $args = array(
+            'edit'         => $e,
+            'self_service' => false,
+            'model'        => 'OrgIdentity',
+            'model_param'  => 'orgidentityid',
+            'mvpa_model'   => 'Identifier',
+            'mvpa_field'   => 'identifier'
+          );
+          
+          print $this->element('mvpa', $args);
+          
+          $args['mvpa_model'] = 'EmailAddress';
+          $args['mvpa_field'] = 'mail';
+          
+          print $this->element('mvpa', $args);
+          
+          $args['mvpa_model'] = 'Url';
+          $args['mvpa_field'] = 'url';
+          
+          print $this->element('mvpa', $args);
+          
+          $args['mvpa_model'] = 'TelephoneNumber';
+          $args['mvpa_field'] = null;
+          $args['mvpa_format'] = 'formatTelephone';
+          
+          print $this->element('mvpa', $args);
+          
+          $args['mvpa_model'] = 'Address';
+          $args['mvpa_format'] = 'formatAddress';
+          
+          print $this->element('mvpa', $args);
+        }
+      ?>
 
-                print $this->Html->link(_txt('op.add'), $linktarget, $linkparams);
-              ?>
-            </div>
-          <?php endif; ?>
-          <a href="#tabs-id" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.ids'); ?>
-          </a>
-          <ul id="tabs-id" class="fields data-list">
-            <?php
-              if(isset($org_identities[0]['Identifier'])) {
-                foreach($org_identities[0]['Identifier'] as $id) {
-                  print '<li class="field-data-container">';
-                  print '<div class="field-data">';
-                  print $this->Html->link($id['identifier'],
-                    array('controller' => 'identifiers',
-                      'action' => ($e ? 'edit' : 'view'),
-                      $id['id']));
-                  print "&nbsp;(" . $id['type'] . ")\n";
-                  print '</div>';
-                  print '<div class="field-actions">';
-
-                  if(isset($id['login']) && $id['login']) {
-                    print $this->Html->link(_txt('ct.authentication_events.pl'),
-                      array('controller' => 'authentication_events',
-                        'action' => 'index',
-                        'identifier' => $id['identifier']),
-                      array('class' => 'notebutton'));
-                  }
-
-                  if($e) {
-                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                    print '<a class="deletebutton" title="' . _txt('op.delete')
-                      . '" onclick="javascript:js_confirm_generic(\''
-                      . _txt('js.remove') . '\',\''    // dialog body text
-                      . $this->Html->url(              // dialog confirm URL
-                        array(
-                          'controller' => 'identifiers',
-                          'action' => 'delete',
-                          $id['id'],
-                          'co' => ($pool_org_identities ? false : $cur_co['Co']['id'])
-                        )
-                      ) . '\',\''
-                      . _txt('op.remove') . '\',\''    // dialog confirm button
-                      . _txt('op.cancel') . '\',\''    // dialog cancel button
-                      . _txt('op.remove') . '\',[\''   // dialog title
-                      . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                      . '\']);">'
-                      . _txt('op.delete')
-                      . '</a>';
-                    print $this->Html->link(_txt('op.edit'),
-                        array('controller' => 'identifiers',
-                          'action' => 'edit',
-                          $id['id']),
-                        array('class' => 'editbutton')) . "\n";
-                  } else {
-                    print $this->Html->link(_txt('op.view'),
-                        array('controller' => 'identifiers',
-                          'action' => 'view',
-                          $id['id']),
-                        array('class' => 'viewbutton')) . "\n";
-                  }
-                  print '</div>';
-                  print '</li>';
-                }
-              }
-            ?>
-          </ul><!-- tabs-id -->
-        </li><!-- fields-id -->
-
-        <!-- Email -->
-        <li id="fields-email" class="fieldGroup">
-          <?php if($e): ?>
-            <div class="coAddEditButtons">
-              <?php
-                $linktarget = array('controller'    => 'email_addresses',
-                  'action'        => 'add',
-                  'orgidentityid' => $org_identities[0]['OrgIdentity']['id']
-                );
-                $linkparams = array('class'  => 'addbutton');
-                print $this->Html->link(_txt('op.add'), $linktarget, $linkparams);
-              ?>
-            </div>
-          <?php endif; ?>
-          <a href="#tabs-email" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('ct.email_addresses.pl'); ?>
-          </a>
-          <ul id="tabs-email" class="fields data-list">
-            <?php
-              if(isset($org_identities[0]['EmailAddress'])) {
-                foreach($org_identities[0]['EmailAddress'] as $ea) {
-                  print '<li class="field-data-container">';
-                  print '<div class="field-data">';
-                  print $this->Html->link($ea['mail'], array('controller' => 'email_addresses',
-                    'action' => ($e ? 'edit' : 'view'),
-                    $ea['id']));
-                  print "&nbsp;(" . _txt('en.email_address.type', null, $ea['type']) . ", "
-                    . ($ea['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')) . ")";
-                  print '</div>';
-                  print '<div class="field-actions">';
-
-                  if($e) {
-                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                    print '<a class="deletebutton" title="' . _txt('op.delete')
-                      . '" onclick="javascript:js_confirm_generic(\''
-                      . _txt('js.remove') . '\',\''    // dialog body text
-                      . $this->Html->url(              // dialog confirm URL
-                        array(
-                          'controller' => 'email_addresses',
-                          'action' => 'delete',
-                          $ea['id']
-                        )
-                      ) . '\',\''
-                      . _txt('op.remove') . '\',\''    // dialog confirm button
-                      . _txt('op.cancel') . '\',\''    // dialog cancel button
-                      . _txt('op.remove') . '\',[\''   // dialog title
-                      . filter_var(_jtxt($ea['mail']),FILTER_SANITIZE_EMAIL)  // dialog body text replacement strings
-                      . '\']);">'
-                      . _txt('op.delete')
-                      . '</a>';
-                    print $this->Html->link(_txt('op.edit'),
-                        array('controller' => 'email_addresses',
-                          'action' => 'edit',
-                          $ea['id']),
-                        array('class' => 'editbutton')) . "\n";
-                  } else {
-                    print $this->Html->link(_txt('op.view'),
-                        array('controller' => 'email_addresses',
-                          'action' => 'view',
-                          $ea['id']),
-                        array('class' => 'viewbutton')) . "\n";
-                  }
-                  print '</div>';
-                  print '</li>';
-                }
-              }
-            ?>
-          </ul><!-- tabs-email -->
-        </li><!-- fields-email -->
-
-        <!-- Phone numbers -->
-        <li id="fields-phone" class="fieldGroup">
-          <?php if($e): ?>
-            <div class="coAddEditButtons">
-              <?php
-                $linktarget = array('controller'    => 'telephone_numbers',
-                  'action'        => 'add',
-                  'orgidentityid' => $org_identities[0]['OrgIdentity']['id']
-                );
-                $linkparams = array('class'  => 'addbutton');
-                print $this->Html->link(_txt('op.add'), $linktarget, $linkparams);
-              ?>
-            </div>
-          <?php endif; ?>
-          <a href="#tabs-phone" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('ct.telephone_numbers.pl'); ?>
-          </a>
-          <ul id="tabs-phone" class="fields data-list">
-            <?php
-              if(isset($org_identities[0]['TelephoneNumber'])) {
-                foreach($org_identities[0]['TelephoneNumber'] as $t) {
-                  print '<li class="field-data-container">';
-                  print '<div class="field-data">';
-                  print $this->Html->link(formatTelephone($t),
-                    array('controller' => 'telephone_numbers',
-                      'action' => ($e ? 'edit' : 'view'),
-                      $t['id']));
-                  print "&nbsp;(" . _txt('en.telephone_number.type', null, $t['type']) . ")<br />\n";
-                  print '</div>';
-                  print '<div class="field-actions">';
-
-                  if($e) {
-                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                    print '<a class="deletebutton" title="' . _txt('op.delete')
-                      . '" onclick="javascript:js_confirm_generic(\''
-                      . _txt('js.remove') . '\',\''    // dialog body text
-                      . $this->Html->url(              // dialog confirm URL
-                        array(
-                          'controller' => 'telephone_numbers',
-                          'action' => 'delete',
-                          $t['id']
-                        )
-                      ) . '\',\''
-                      . _txt('op.remove') . '\',\''    // dialog confirm button
-                      . _txt('op.cancel') . '\',\''    // dialog cancel button
-                      . _txt('op.remove') . '\',[\''   // dialog title
-                      . filter_var(_jtxt(formatTelephone($t)),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                      . '\']);">'
-                      . _txt('op.delete')
-                      . '</a>';
-                    print $this->Html->link(_txt('op.edit'),
-                        array('controller' => 'telephone_numbers',
-                          'action' => 'edit',
-                          $t['id']),
-                        array('class' => 'editbutton')) . "\n";
-                  } else {
-                    print $this->Html->link(_txt('op.view'),
-                        array('controller' => 'telephone_numbers',
-                          'action' => 'view',
-                          $t['id']),
-                        array('class' => 'viewbutton')) . "\n";
-                  }
-
-                  print '</div>';
-                  print '</li>';
-                }
-              }
-            ?>
-          </ul><!-- tabs-phone -->
-        </li><!-- fields-phone -->
-        
-        <!-- Addresses -->
-        <li id="fields-address" class="fieldGroup">
-          <?php if($e): ?>
-            <div class="coAddEditButtons">
-              <?php
-                $linktarget = array('controller'    => 'addresses',
-                  'action'        => 'add',
-                  'orgidentityid' => $org_identities[0]['OrgIdentity']['id']
-                );
-                $linkparams = array('class'  => 'addbutton');
-
-                print $this->Html->link(_txt('op.add'),
-                  $linktarget,
-                  $linkparams
-                );
-              ?>
-            </div>
-          <?php endif; ?>
-          <a href="#tabs-address" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('ct.addresses.pl'); ?>
-          </a>
-          <ul id="tabs-address" class="fields data-list">
-            <?php
-              if(isset($org_identities[0]['Address'])) {
-                foreach($org_identities[0]['Address'] as $addr) {
-                  print '<li class="field-data-container">';
-                  print '<div class="field-data">';
-                  print $this->Html->link($addr['street'], array('controller' => 'addresses',
-                    'action'     => ($e ? 'edit' : 'view'),
-                    $addr['id']));
-                  print "&nbsp;(" . _txt('en.address.type', null, $addr['type']) . ")<br />\n";
-                  print '</div>';
-                  print '<div class="field-actions">';
-
-                  if($e) {
-                    // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                    print '<a class="deletebutton" title="' . _txt('op.delete')
-                      . '" onclick="javascript:js_confirm_generic(\''
-                      . _txt('js.remove') . '\',\''    // dialog body text
-                      . $this->Html->url(              // dialog confirm URL
-                        array(
-                          'controller' => 'addresses',
-                          'action' => 'delete',
-                          $addr['id']
-                        )
-                      ) . '\',\''
-                      . _txt('op.remove') . '\',\''    // dialog confirm button
-                      . _txt('op.cancel') . '\',\''    // dialog cancel button
-                      . _txt('op.remove') . '\',[\''   // dialog title
-                      . filter_var(_jtxt($addr['street']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                      . '\']);">'
-                      . _txt('op.delete')
-                      . '</a>';
-                    print $this->Html->link(_txt('op.edit'),
-                        array('controller' => 'addresses',
-                          'action'     => 'edit',
-                          $addr['id']),
-                        array('class' => 'editbutton')) . "\n";
-                  } else {
-                    print $this->Html->link(_txt('op.view'),
-                        array('controller' => 'addresses',
-                          'action'     => 'view',
-                          $addr['id']),
-                        array('class' => 'viewbutton')) . "\n";
-                  }
-
-                  print '</div>';
-                  print '</li>';
-                }
-              }
-            ?>
-          </ul><!-- tabs-address -->
-        </li><!-- fields-address -->
-        
+      <?php if($this->action != "add"): ?>       
         <!-- Associated CoPeople listings -->
         <li id="fields-copeople" class="fieldGroup">
           <?php if($e): ?>

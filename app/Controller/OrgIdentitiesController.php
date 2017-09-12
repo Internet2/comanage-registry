@@ -60,7 +60,8 @@ class OrgIdentitiesController extends StandardController {
     'Name',
     'OrgIdentitySourceRecord' => array('OrgIdentitySource'),
     'PrimaryName',
-    'TelephoneNumber'
+    'TelephoneNumber',
+    'Url'
   );
   
   public $view_contains = array(
@@ -75,7 +76,8 @@ class OrgIdentitiesController extends StandardController {
 //    'PipelineCoPersonRole',
     'PipelineCoGroupMember' => array('CoGroup'),
     'PrimaryName',
-    'TelephoneNumber'
+    'TelephoneNumber',
+    'Url'
   );
   
   /**
@@ -171,6 +173,15 @@ class OrgIdentitiesController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_co_person_roles', $this->OrgIdentity->PipelineCoPersonRole->find('first', $args));
+    }
+    
+    if(!$this->request->is('restful') && !empty($this->cur_co['Co']['id'])) {
+      // Mappings for extended types
+      $this->set('vv_addresses_types', $this->OrgIdentity->Address->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_email_addresses_types', $this->OrgIdentity->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_identifiers_types', $this->OrgIdentity->Identifier->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_telephone_numbers_types', $this->OrgIdentity->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_urls_types', $this->OrgIdentity->Url->types($this->cur_co['Co']['id'], 'type'));
     }
     
     parent::beforeRender();
