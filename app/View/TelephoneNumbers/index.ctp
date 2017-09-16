@@ -80,7 +80,7 @@
       <td>    
         <?php
           if($permissions['edit']) {
-            print $this->Html->link('Edit',
+            print $this->Html->link(_txt('op.edit'),
                 array('controller' => 'telephone_numbers', 'action' => 'edit', $t['TelephoneNumber']['id']),
                 array('class' => 'editbutton')) . "\n";
           }

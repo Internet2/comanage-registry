@@ -218,11 +218,19 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         
         $pattrs = $pmodel->assemblePluginAttributes($configuredAttributes[$oc], $provisioningData);
         
-        // Filter out any attributes in $pattrs that are not defined in $configuredAttributes
-        // and merge the results into the marshalled attributes
-        
-        $attributes = array_merge($attributes, array_intersect_key($pattrs, $configuredAttributes[$oc]));
-        
+        // Filter out any attributes in $pattrs that are not defined in $configuredAttributes.
+        $pattrs = array_intersect_key($pattrs, $configuredAttributes[$oc]);
+
+        // If this is not a modify operation than filter out any array() values.        
+        if(!$modify) {
+          $pattrs = array_filter($pattrs, function ($attrValue) {
+            return !(is_array($attrValue) && empty($attrValue));
+          });
+        }
+
+        // Merge into the marshalled attributes.
+        $attributes = array_merge($attributes, $pattrs);
+
         // Insert an objectclass
         $attributes['objectclass'][] = $oc;
         
@@ -1102,7 +1110,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
                                               $dns['newdnerr'])));
       }
-      
+
       if(!@ldap_add($cxn, $dns['newdn'], $attributes)) {
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
