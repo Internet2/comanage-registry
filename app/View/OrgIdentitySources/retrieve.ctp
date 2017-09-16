@@ -198,11 +198,11 @@
             if(isset($name['primary_name']) && $name['primary_name'])
               print _txt('fd.name.primary_name') . ", ";
             
-            print $name['type'] . ")";
+            print filter_var($name['type'],FILTER_SANITIZE_SPECIAL_CHARS) . ")";
           ?>
         </td>
         <td>
-          <?php print generateCn($name); ?>
+          <?php print filter_var(generateCn($name),FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </td>
       </tr>
       <?php endforeach; // name ?>
@@ -213,7 +213,7 @@
         <td>
           <?php
             if(!empty($vv_org_source_record['OrgIdentity']['affiliation'])) {
-              print $vv_org_source_record['OrgIdentity']['affiliation'];
+              print filter_var($vv_org_source_record['OrgIdentity']['affiliation'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </td>
@@ -225,7 +225,7 @@
         <td>
           <?php
             if(!empty($vv_org_source_record['OrgIdentity']['valid_from'])) {
-              print $vv_org_source_record['OrgIdentity']['valid_from'];
+              print filter_var($vv_org_source_record['OrgIdentity']['valid_from'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </td>
@@ -237,7 +237,7 @@
         <td>
           <?php
             if(!empty($vv_org_source_record['OrgIdentity']['valid_through'])) {
-              print $vv_org_source_record['OrgIdentity']['valid_through'];
+              print filter_var($vv_org_source_record['OrgIdentity']['valid_through'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </td>
@@ -249,7 +249,7 @@
         <td>
           <?php
             if(!empty($vv_org_source_record['OrgIdentity']['title'])) {
-              print $vv_org_source_record['OrgIdentity']['title'];
+              print filter_var($vv_org_source_record['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </td>
@@ -261,7 +261,7 @@
         <td>
           <?php
             if(!empty($vv_org_source_record['OrgIdentity']['o'])) {
-              print $vv_org_source_record['OrgIdentity']['o'];
+              print filter_var($vv_org_source_record['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </td>
@@ -273,7 +273,7 @@
         <td>
           <?php
             if(!empty($vv_org_source_record['OrgIdentity']['ou'])) {
-              print $vv_org_source_record['OrgIdentity']['ou'];
+              print filter_var($vv_org_source_record['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
           ?>
         </td>
@@ -284,7 +284,7 @@
           <?php print _txt('fd.address') . " (" . $addr['type'] . ")"; ?>
         </td>
         <td>
-          <?php print formatAddress($addr); ?>
+          <?php print filter_var(formatAddress($addr),FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </td>
       </tr>
       <?php endforeach; // address ?>
@@ -294,7 +294,7 @@
           <?php print _txt('fd.email_address.mail') . " (" . $email['type'] . ")"; ?>
         </td>
         <td>
-          <?php print $email['mail']; ?>
+          <?php print filter_var($email['mail'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </td>
       </tr>
       <?php endforeach; // email ?>
@@ -304,7 +304,7 @@
           <?php print _txt('fd.identifier.identifier') . " (" . $id['type'] . ")"; ?>
         </td>
         <td>
-          <?php print $id['identifier']; ?>
+          <?php print filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </td>
       </tr>
       <?php endforeach; // identifier ?>
@@ -314,7 +314,7 @@
           <?php print _txt('fd.telephone_number.number') . " (" . $phone['type'] . ")"; ?>
         </td>
         <td>
-          <?php print formatTelephone($phone); ?>
+          <?php print filter_var(formatTelephone($phone),FILTER_SANITIZE_SPECIAL_CHARS); ?>
         </td>
       </tr>
       <?php endforeach; // telephone ?>
@@ -327,7 +327,7 @@
           <ul>
             <?php
               foreach($vv_mapped_groups as $g) {
-                print "<li>" . $g['CoGroup']['name'] . "</li>\n";
+                print "<li>" . filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . "</li>\n";
               }
             ?>
           </ul>
@@ -343,7 +343,7 @@
           <pre>
             <?php
               if(!empty($vv_raw_source_record)) {
-                print htmlspecialchars($vv_raw_source_record);
+                print filter_var($vv_raw_source_record,FILTER_SANITIZE_SPECIAL_CHARS);
               }
             ?>
           </pre>
