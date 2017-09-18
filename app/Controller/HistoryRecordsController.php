@@ -381,7 +381,7 @@ class HistoryRecordsController extends StandardController {
   /**
    * Redirect to 'index' view if orgidentityid and coid are defined, otherwise use default redirect.
    *
-   * {@inheritdoc }
+   * @since  COmanage Registry v2.0.2
    */
   function performRedirect() {
     if (isset($this->request->params['named']['orgidentityid'], $this->cur_co['Co']['id'])) {
