@@ -1151,6 +1151,7 @@ original notification at
   'fd.key' =>         'Key',
   'fd.language' =>    'Language',
   'fd.lan.desc' =>    'Lowercase alphanumeric characters only',
+  'fd.lan.res.desc' => 'Lowercase alphanumeric characters only<br />Must not be a reserved word',
   'fd.link.location' => 'Link Location',  
   'fd.link.order' =>  'Link Order',
   'fd.link.title' =>  'Link Title',
