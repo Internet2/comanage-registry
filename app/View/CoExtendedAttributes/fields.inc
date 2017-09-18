@@ -56,7 +56,7 @@
         <strong class="fieldTitle">
           <?php print ($e ? $this->Form->label('name', _txt('fd.name')) : _txt('fd.name')); ?>
         </strong><span class="required">*</span><br />
-        <span class="desc"><?php print _txt('fd.lan.desc'); ?></span>
+        <span class="desc"><?php print _txt('fd.lan.res.desc'); ?></span>
       </td>
       <td>
         <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($co_extended_attributes[0]['CoExtendedAttribute']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
