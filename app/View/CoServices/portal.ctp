@@ -40,15 +40,15 @@
   
   <?php foreach ($co_services as $c): ?>
   <div class="co-card">
-    <h2><?php print filter_var($c['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></h2>
+    <h2><?php print filter_var($c['CoService']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></h2>
     <div class="co-card-content">
       <?php /* XXX keep the following for future RFE; these improve the portal layout:
       <div class="co-card-image">
         <img src="http://www.npr.org/about/images/press/Logos/npr_logo_rgb.JPG"/>
-      </div>
-      <div class="co-card-description">
-        How about a description?
       </div> */ ?>
+      <div class="co-card-description">
+        <?php print filter_var($c['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+      </div>
       <div class="co-card-icons">
       <?php
 

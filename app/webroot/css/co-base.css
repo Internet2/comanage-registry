@@ -35,13 +35,14 @@ html * {
 body {
   color: #222;
   -webkit-overflow-scrolling: touch; /* for dialog boxes */
+  font-size: 12px; /* MDL override from 14px; */
 }
 h1,h2,h3,h4,h5 {
   font-family: 'Noto Sans Bold','Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
   color: #555;
 }
 h1 {
-  font-size: 28px;
+  font-size: 2em;
   margin: 0;
 }
 h1.loginMsg {
@@ -234,7 +235,7 @@ body.logged-in #user-menu {
   background-color: rgb(238,238,238);
 }
 #notifications .notification-created {
-  font-size: 0.8em;
+  font-size: 0.9em;
 }
 #notifications .notification-created a {
   color: #444;
@@ -451,7 +452,7 @@ form#notificationStatus {
 /* CONTENT */
 #collaborationTitle {
   color: #222;
-  font-size: 1.6em;
+  font-size: 2em;
   min-height: 23px;
   padding: 0 40px 0 0;
   margin: 0;
@@ -460,7 +461,7 @@ form#notificationStatus {
   color: #222;
 }
 #breadcrumbs {
-  font-size: 0.8em;
+  font-size: 0.9em;
 }
 body.co_petitions.view #titleNavContainer,
 body.co_person_roles #titleNavContainer,
@@ -1550,6 +1551,10 @@ ul.form-list li.field-stack textarea {
 .invisible {
   display: none;
 }
+ul, ol { /* MDL override */
+  font-size: 12px;
+  line-height: 20px;
+}
 .fieldTitle {
   font-weight: bold;
 }
@@ -1674,6 +1679,7 @@ td.indented {
   text-align: right;
 }
 /* MDL OVERRIDES */
+/* See also font-size in body, and in GENERAL ul,li from 14px to 12px */
 #main.mdl-layout__content {
   overflow-x: auto; /* allow side scrolling on mobile */
 }
