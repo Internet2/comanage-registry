@@ -131,7 +131,7 @@ class NetForumPro extends NetForumServer {
    * 
    * @since COmanage Registry v2.0.0
    * @param String  $searchKey   Search key (customer key)
-   * @return Array Array of OrgIdentity data
+   * @return SimpleXMLElement Object Unprocessed response from NetForum
    */
   
   public function queryForEvents($searchKey) {
@@ -141,7 +141,15 @@ class NetForumPro extends NetForumServer {
       'szRecordDate' => ''
     );
     
-    return $this->queryNetForumPro('GetCustomerEvent', 'GetCustomerEventResult', $search);
+    return $this->queryNetForumPro('GetCustomerEvent',
+                                   'GetCustomerEventResult',
+                                   $search,
+                                   true,
+                                   false,
+                                   false,
+                                   false,
+                                   // We want to return the raw response so the caller can process it
+                                   false);
   }
   
   /**
@@ -155,6 +163,7 @@ class NetForumPro extends NetForumServer {
    * @param Boolean $raw        If true, return raw (XML) record as well as formatted OrgIdentity data
    * @param Boolean $events     If true, query for events for matching customer keys (requires $raw, set to false if $callName is 'GetCustomerEvent')
    * @param Boolean $deep       If true, make an additional query on customer key to get more detailed record
+   * @param Boolean $process    If true, attempt to process the record into OrgIdentity format
    * @return Array Array of OrgIdentity data, and optionally raw (XML) data
    * @throws SoapFault
    */
@@ -165,7 +174,8 @@ class NetForumPro extends NetForumServer {
                                       $active=true,
                                       $raw=false,
                                       $events=false,
-                                      $deep=false) {
+                                      $deep=false,
+                                      $process=true) {
     $results = array();
     
     $opts = array(
@@ -197,6 +207,10 @@ class NetForumPro extends NetForumServer {
     
     $r = new SimpleXMLElement($sresponse->$resultName->any);
     
+    if(!$process) {
+      return $r;
+    }
+    
     foreach($r->Result as $entry) {
       if($deep) {
         // If requested to go deep, we don't expect MemberStatus in the "abbreviated" result
@@ -226,8 +240,8 @@ class NetForumPro extends NetForumServer {
               // Events are accessed via a separate call. Our typical use case will be to map events
               // to groups, so we'll make that separate call and then merge the results.
               
-              $eret = $this->queryForEvents($entry->cst_key);
-
+              $eret = $this->queryForEvents((string)$entry->cst_key);
+              
               if($eret) {
                 $exml = $entry->addChild('Events');
                 

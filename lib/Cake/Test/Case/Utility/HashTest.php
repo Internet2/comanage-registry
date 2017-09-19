@@ -1,17 +1,17 @@
 <?php
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @package       Cake.Utility
  * @since         CakePHP(tm) v 2.2.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('Hash', 'Utility');
@@ -236,10 +236,13 @@ class HashTest extends CakeTestCase {
  */
 	public function testGetEmptyKey() {
 		$data = array(
-			'' => 'some value'
+			true => 'true value',
+			false => 'false value',
+			'' => 'some value',
 		);
-		$result = Hash::get($data, '');
-		$this->assertSame($data[''], $result);
+		$this->assertSame($data[''], Hash::get($data, ''));
+		$this->assertSame($data[false], Hash::get($data, false));
+		$this->assertSame($data[true], Hash::get($data, true));
 	}
 
 /**
@@ -249,7 +252,7 @@ class HashTest extends CakeTestCase {
  * @return void
  */
 	public function testGetInvalidPath() {
-		Hash::get(array('one' => 'two'), true);
+		Hash::get(array('one' => 'two'), new StdClass());
 	}
 
 /**
@@ -652,8 +655,21 @@ class HashTest extends CakeTestCase {
  * @return void
  */
 	public function testFilter() {
-		$result = Hash::filter(array('0', false, true, 0, array('one thing', 'I can tell you', 'is you got to be', false)));
-		$expected = array('0', 2 => true, 3 => 0, 4 => array('one thing', 'I can tell you', 'is you got to be'));
+		$result = Hash::filter(array(
+			'0',
+			false,
+			true,
+			0,
+			0.0,
+			array('one thing', 'I can tell you', 'is you got to be', false)
+		));
+		$expected = array(
+			'0',
+			2 => true,
+			3 => 0,
+			4 => 0.0,
+			5 => array('one thing', 'I can tell you', 'is you got to be')
+		);
 		$this->assertSame($expected, $result);
 
 		$result = Hash::filter(array(1, array(false)));
