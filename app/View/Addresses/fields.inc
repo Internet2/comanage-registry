@@ -50,7 +50,7 @@
 <ul id="<?php print $this->action; ?>_address" class="fields form-list">
   <li>
     <div class="field-name vtop">
-      <?php print _txt('fd.address.street'); ?>
+      <?php print ($e ? $this->Form->label('street',_txt('fd.address.street')) : _txt('fd.address.street')); ?>
       <?php if(in_array('street', $required_fields)): ?>
       <span class="required">*</span>
       <?php endif; // required_fields ?>
@@ -61,7 +61,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.address.room'); ?>
+      <?php print ($e ? $this->Form->label('room',_txt('fd.address.room')) : _txt('fd.address.room')); ?>
       <?php if(in_array('room', $required_fields)): ?>
       <span class="required">*</span>
       <?php endif; // required_fields ?>
@@ -72,7 +72,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.address.locality'); ?>
+      <?php print ($e ? $this->Form->label('locality',_txt('fd.address.locality')) : _txt('fd.address.locality')); ?>
       <?php if(in_array('locality', $required_fields)): ?>
       <span class="required">*</span>
       <?php endif; // required_fields ?>
@@ -83,7 +83,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.address.state'); ?>
+      <?php print ($e ? $this->Form->label('state',_txt('fd.address.state')) : _txt('fd.address.state')); ?>
       <?php if(in_array('state', $required_fields)): ?>
       <span class="required">*</span>
       <?php endif; // required_fields ?>
@@ -94,7 +94,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.address.postal_code'); ?>
+      <?php print ($e ? $this->Form->label('postal_code',_txt('fd.address.postal_code')) : _txt('fd.address.postal_code')); ?>
       <?php if(in_array('postal_code', $required_fields)): ?>
       <span class="required">*</span>
       <?php endif; // required_fields ?>
@@ -105,7 +105,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.address.country'); ?>
+      <?php print ($e ? $this->Form->label('country',_txt('fd.address.country')) : _txt('fd.address.country')); ?>
       <?php if(in_array('country', $required_fields)): ?>
       <span class="required">*</span>
       <?php endif; // required_fields ?>
@@ -148,7 +148,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.language'); ?>
+      <?php print ($e ? $this->Form->label('language',_txt('fd.language')) : _txt('fd.language')); ?>
     </div>
     <div class="field-info">
       <?php

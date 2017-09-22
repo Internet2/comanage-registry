@@ -399,4 +399,22 @@ class HistoryRecordsController extends StandardController {
     $this->set('permissions', $p);
     return $p[$this->action];
   }
+
+  /**
+   * Redirect to 'index' view if orgidentityid and coid are defined, otherwise use default redirect.
+   *
+   * @since  COmanage Registry v2.0.2
+   */
+  function performRedirect() {
+    if (isset($this->request->params['named']['orgidentityid'], $this->cur_co['Co']['id'])) {
+      $redirectUrl = array(
+        'controller'    => Inflector::tableize($this->modelClass),
+        'action'        => 'index',
+        'orgidentityid' => filter_var($this->request->params['named']['orgidentityid'], FILTER_SANITIZE_SPECIAL_CHARS),
+        'co'            => filter_var($this->cur_co['Co']['id'], FILTER_SANITIZE_SPECIAL_CHARS));
+      $this->redirect($redirectUrl);
+    } else {
+      parent::performRedirect();
+    }
+  }
 }

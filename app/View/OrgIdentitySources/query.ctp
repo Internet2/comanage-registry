@@ -64,60 +64,59 @@
   
   $this->Html->addCrumb(_txt('ct.org_identity_sources.pl'), $args);
   $this->Html->addCrumb($title_for_layout);
+  
+  $options = array(
+    'url' => array(
+      'action' => 'query',
+      $vv_org_identity_source['id']
+    )
+  );
+  
+  print $this->Form->create('OrgIdentitySource', $options);
+  
+  if(!empty($this->request->params['named']['copetitionid'])) {
+    print $this->Form->hidden('copetitionid', array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS)));
+  }
+  
+  $index = 1;
 ?>
-<?php if(!empty($vv_search_results)): ?>
-<p><?php print _txt('rs.found.cnt', array(count($vv_search_results))); ?></p>
-<?php endif; ?>
 
-<div id="sourceSearch" class="topSearch">
-  <p><?php print _txt('op.search');?>:</p>
-  <fieldset>
-    <?php
-      $options = array(
-        'url' => array(
-          'action' => 'query',
-          $vv_org_identity_source['id']
-        )
-      );
-      
-      print $this->Form->create('OrgIdentitySource', $options);
-      
-      if(!empty($this->request->params['named']['copetitionid'])) {
-        print $this->Form->hidden('copetitionid', array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS)));
-      }
-      
-      $index = 1;
-      
-      foreach($vv_search_attrs as $field => $label) {
-        $args = array();
-        $args['label'] = $label;
-        $args['placeholder'] = $label;
-        $args['tabindex'] = $index++;
-        $args['value'] = (!empty($this->request->params['named']['Search.' . $field])
-                          ? filter_var($this->request->params['named']['Search.' . $field],FILTER_SANITIZE_SPECIAL_CHARS) : '');
-        
-        print $this->Form->input('Search.' . $field, $args);
-      }
-    ?>
-    <div class="topSearchSubmit">
+<ul id="<?php print $this->action; ?>_ois_query" class="fields form-list">
+<?php
+  foreach($vv_search_attrs as $field => $label) {
+    $args = array();
+    $args['label'] = false;
+    $args['placeholder'] = $label;
+    $args['tabindex'] = $index++;
+    $args['value'] = (!empty($this->request->params['named']['Search.' . $field])
+                      ? filter_var($this->request->params['named']['Search.' . $field],FILTER_SANITIZE_SPECIAL_CHARS) : '');
+    
+    print '
+    <li>
+      <div class="field-name">
+        <div class="field-title">' . filter_var($label,FILTER_SANITIZE_SPECIAL_CHARS) . '</div>
+      </div>
+      <div class="field-info">'. $this->Form->input('Search.' . $field, $args) . '</div>
+    </li>';
+  }
+?>
+  <li class="fields-submit">
+    <div class="field-name">
+    </div>
+    <div class="field-info">
       <?php
-        $args = array();
-        $args['type'] = 'button';
-        $args['class'] = 'clearButton spin';
-        $args['onclick'] = 'clearSearch(this.form)';
-        $args['tabindex'] = $index+1;
-        print $this->Form->button(_txt('op.clear.all'),$args);
-        
         $args = array();
         $args['tabindex'] = $index;
         print $this->Form->submit(_txt('op.search'),$args);
       ?>
     </div>
-    <?php print $this->Form->end();?>
-  </fieldset>
-</div>
+  </li>
+</ul>
+<?php print $this->Form->end();?>
 
 <?php if(!empty($vv_search_results)): ?>
+<p><b></b><?php print _txt('rs.found.cnt', array(count($vv_search_results))); ?></b></p>
+
 <div class="table-container">
   <table id="org_identity_source_results">
     <thead>
