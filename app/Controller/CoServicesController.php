@@ -35,7 +35,7 @@ class CoServicesController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'CoServices.description' => 'asc'
+      'CoServices.name' => 'asc'
     )
   );
   
@@ -76,10 +76,34 @@ class CoServicesController extends StandardController {
       // with the index view
       $this->set('co_services', $services);
       
-      if(!$coPersonId && !empty($services)) {
-        // Allow anonymous access
-        
-        $this->Auth->allow('portal');
+      if(!empty($services)) {
+        if(!$coPersonId) {
+          // Allow anonymous access
+          
+          $this->Auth->allow('portal');
+        } else {
+          // Pull the list of group memberships for the current Person.
+          
+          $memberGroups = $this->CoService->CoGroup->findForCoPerson($coPersonId, null, null, null, false);
+          
+          if($memberGroups) {
+            $this->set('vv_member_groups', Hash::extract($memberGroups, '{n}.CoGroup.id'));
+          }
+          
+          // Pull the list of open groups.
+          
+          $args = array();
+          $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+          $args['conditions']['CoGroup.open'] = true;
+          $args['fields'] = array('id');
+          $args['contain'] = false;
+          
+          $openGroups = $this->CoService->CoGroup->find('list', $args);
+          
+          if($openGroups) {
+            $this->set('vv_open_groups', $openGroups);
+          }
+        }
       }
     }
   }
@@ -92,7 +116,9 @@ class CoServicesController extends StandardController {
    */
   
   function beforeRender() {
-    if(!$this->request->is('restful')) {
+    if(!$this->request->is('restful')
+       // We don't need this for portal view, since we pull stuff in beforefilter
+       && $this->action != 'portal') {
       // Pull the list of available groups
       $args = array();
       $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
@@ -141,6 +167,12 @@ class CoServicesController extends StandardController {
     // View all existing CO Service?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Join the group associated with a CO Service?
+    $p['join'] = $roles['comember'];
+    
+    // Leave the group associated with a CO Service?
+    $p['leave'] = $roles['comember'];
+    
     // View the CO Service Portal?
     $p['portal'] = true;
     
@@ -149,6 +181,54 @@ class CoServicesController extends StandardController {
     
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * Join the CO Group associated with the specified service
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  $id CO Service ID
+   */
+  
+  public function join($id) {
+    try {
+      $this->CoService->setServiceGroupMembership($id,
+                                                  $this->Role,
+                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  'join');
+      
+      $this->Flash->set(_txt('rs.svc.grmem'), array('key' => 'success'));
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+    }
+    
+    $this->performRedirect();
+  }
+  
+  /**
+   * Leave the CO Group associated with the specified service
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  $id CO Service ID
+   */
+  
+  public function leave($id) {
+    try {
+      $this->CoService->setServiceGroupMembership($id,
+                                                  $this->Role,
+                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  'leave');
+      
+      $this->Flash->set(_txt('rs.svc.grmem'), array('key' => 'success'));
+    }
+    catch(Exception $e) {
+      $this->Flash->set(_txt('rs.svc.grmem'), array('key' => 'error'));
+    }
+    
+    $this->performRedirect();
   }
   
   /**
@@ -176,6 +256,39 @@ class CoServicesController extends StandardController {
     }
 
     return parent::parseCOID();
+  }
+
+  /**
+   * Perform a redirect back to the controller's default view.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v3.1.0
+   */
+
+  function performRedirect() {
+    if($this->action == 'join'
+       || $this->action == 'leave') {
+      // Redirect to the portal
+      
+      $args = array(
+        'controller' => 'co_services',
+        'action'     => 'portal'
+      );
+      
+      if(!empty($this->request->params['named']['cou'])) {
+        // This was an advisory parameter. We don't do anything with it
+        // other than pass it back into the redirect... if someone dorked
+        // with it findServiceByPerson() will still do the right thing.
+        
+        $args['cou'] = filter_var($this->request->params['named']['cou'],FILTER_SANITIZE_SPECIAL_CHARS);
+      } else {
+        $args['co'] = $this->cur_co['Co']['id'];
+      }
+      
+      $this->redirect($args);
+    }
+    
+    parent::performRedirect();
   }
   
   /**

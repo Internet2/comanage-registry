@@ -283,6 +283,108 @@ class CoGroupMember extends AppModel {
   }
   
   /**
+   * Set a group membership for a CO Person.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  RoleComponent $Role      RoleComponent
+   * @param  Integer $coGroupId       CO Group ID
+   * @param  Integer $coPersonId      CO Person ID to set membership for
+   * @param  Boolean $member          Whether Person is a member of the Group
+   * @param  Boolean $owner           Whether Person is an owner of the Group
+   * @param  Integer $actorCoPersonId CO Person ID of requestor
+   * @param  Boolean $provision       Whether to fire provisioners on save
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   * @todo   This should become the core function used by all other calls, except maybe syncMembership.
+   */
+  
+  public function setMembership($Role, $coGroupId, $coPersonId, $member, $owner, $actorCoPersonId, $provision=true) {
+    // First pull the group info
+    
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $coGroupId;
+    $args['contain'] = false;
+    
+    $group = $this->CoGroup->find('first', $args);
+    
+    if(!$group) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_groups.1'), $coGroupId)));
+    }
+    
+    // Reject updates to auto groups
+    
+    if($group['CoGroup']['auto']) {
+      throw new InvalidArgumentException(_txt('er.gr.auto.edit'));
+    }
+    
+    // Or to closed groups where $actorCoPersonId is not an owner or admin
+    
+    if(!$group['CoGroup']['open']
+       && !$Role->isGroupManager($coPersonId, $coGroupId)) {
+      throw new RuntimeException(_txt('er.permission'));
+    }
+    
+    // See if there is already a row for this group+person, if so update it
+    
+    $args = array();
+    $args['conditions']['CoGroupMember.co_group_id'] = $coGroupId;
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    $args['contain'] = false;
+    
+    $grmem = $this->find('first', $args);
+
+    // Store the membership
+    // Contrary to former practice, we save empty rows (is this a problem for existing code?)
+    
+    $hAction = null;
+    $hText = "";
+    
+    $this->clear();
+    $data = array();
+    $data['CoGroupMember']['co_group_id'] = $coGroupId;
+    $data['CoGroupMember']['co_person_id'] = $coPersonId;
+    $data['CoGroupMember']['member'] = $member;
+    $data['CoGroupMember']['owner'] = $owner;
+    if(!empty($grmem['CoGroupMember']['id'])) {
+      $data['CoGroupMember']['id'] = $grmem['CoGroupMember']['id'];
+      
+      $hAction = ActionEnum::CoGroupMemberEdited;
+      $hText = _txt('rs.grm.edited', array($group['CoGroup']['name'],
+                                          $coGroupId,
+                                          ($grmem['CoGroupMember']['member'] ? _txt('fd.yes') : _txt('fd.no')),
+                                          ($grmem['CoGroupMember']['owner'] ? _txt('fd.yes') : _txt('fd.no')),
+                                          ($member ? _txt('fd.yes') : _txt('fd.no')),
+                                          ($owner ? _txt('fd.yes') : _txt('fd.no'))));
+    } else {
+      $hAction = ActionEnum::CoGroupMemberAdded;
+      $hText = _txt('rs.grm.added', array($group['CoGroup']['name'],
+                                          $coGroupId,
+                                          ($member ? _txt('fd.yes') : _txt('fd.no')),
+                                          ($owner ? _txt('fd.yes') : _txt('fd.no'))));
+    }
+    
+    $options = array();
+    if(!$provision) {
+      $options['provision'] = false;
+    }
+    
+    $this->save($data, $options);
+    
+    // Create a history record
+      
+    $this->CoPerson->HistoryRecord->record($coPersonId,
+                                           null,
+                                           null,
+                                           $actorCoPersonId,
+                                           $hAction,
+                                           $hText,
+                                           $coGroupId);
+
+    return true;
+  }
+  
+  /**
    * Sync a group membership based. This function is primarily intended for
    * syncing automatically managed groups (eg: "members").
    *

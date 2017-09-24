@@ -156,7 +156,7 @@ class CoService extends AppModel {
     }
     $args['conditions']['CoService.visibility'] = $visibility;
     $args['conditions']['CoService.status'] = SuspendableStatusEnum::Active;
-    $args['order'] = 'CoService.description';
+    $args['order'] = 'CoService.name';
     $args['contain'] = false;
     
     $services = $this->find('all', $args);
@@ -202,5 +202,44 @@ class CoService extends AppModel {
     $args['contain'] = false;
     
     return $this->find('list', $args);
+  }
+  
+  /**
+   * Set a membership attribute for the group associated with the CO Service.
+   *
+   * @param  Integer $id              CO Service ID
+   * @param  RoleComponent $Role      RoleComponent
+   * @param  Integer $coPersonId      CO Person ID to set membership for
+   * @param  Integer $actorCoPersonId CO Person ID of requestor
+   * @param  String  $action          Action: "join" or "leave"
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+  
+  public function setServiceGroupMembership($id, $Role, $coPersonId, $actorCoPersonId, $action="join") {
+    // First see if there is even a group associated with this service
+    
+    $coGroupId = $this->field('co_group_id', array('CoService.id' => $id));
+    
+    if(!$coGroupId) {
+      throw new InvalidArgumentException(_txt('er.svc.group.none'));
+    }
+    
+    // setMembership will take care of logical checks (open group, etc).
+    // Let any exception pass up the stack.
+    
+    $member = ($action == "join");
+    $owner = false;
+    
+    $this->CoGroup
+         ->CoGroupMember->setMembership($Role,
+                                        $coGroupId,
+                                        $coPersonId,
+                                        $member,
+                                        $owner,
+                                        $actorCoPersonId);
+         
+    return true;
   }
 }

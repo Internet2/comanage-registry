@@ -75,7 +75,7 @@
     </div>
     <div class="field-info">
       <?php print ($e
-                   ? $this->Form->input('description', array('class' => 'focusFirst'))
+                   ? $this->Form->input('description')
         : filter_var($co_services[0]['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
