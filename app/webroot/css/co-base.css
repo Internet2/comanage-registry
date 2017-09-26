@@ -135,7 +135,7 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 /* LOGO */
 #logo {
   display: block;
-  margin-top: 4px;
+  margin-top: 10px;
   position: absolute;
   right: 1em;
   overflow: hidden;
@@ -1192,7 +1192,8 @@ a#top-search-toggle:hover {
   margin: 0.25em;
 }
 /* SERVICE PORTAL */
-#co-services {
+#co-services,
+#co-departments {
   clear: both;
 }
 .co-card h2  {
@@ -1207,6 +1208,9 @@ a#top-search-toggle:hover {
   min-height: 3em; /* XXX if images and descriptions are added, make this 5em;*/
   min-width: 90%;
   border: 1px solid #eee;
+}
+.co-card.is-member {
+  border-bottom: 1px solid #07b;
 }
 .co-card img {
   min-width: 100%;

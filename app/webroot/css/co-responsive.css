@@ -57,7 +57,6 @@
     line-height: 2em;
   }
   #logout {
-    /*display: block; -- keep hidden for now */
     display: block;
     color: white;
   }
@@ -270,6 +269,7 @@
   #logo {
     width: auto;
     right: 2em;
+    margin-top: 4px;
   }
   #user-menu {
     z-index: 30;
@@ -400,6 +400,11 @@
     position: absolute;
     bottom: 1em;
     right: 1em;
+  }
+  .co-card-join-button {
+    position: absolute;
+    bottom: 1em;
+    left: 1em;
   }
   /* GENERAL */
   .two-col {
