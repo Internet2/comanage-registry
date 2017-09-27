@@ -155,9 +155,17 @@ class CoGroupOisMapping extends AppModel {
       
       if(!empty($attributes[$attr])) {
         // There can be more than one value for a given attribute
-        
-        foreach($attributes[$attr] as $v) {
-          if($this->compare($v,
+        if(is_array($attributes[$attr])) {
+          foreach($attributes[$attr] as $v) {
+            if($this->compare($v,
+                              $m['CoGroupOisMapping']['comparison'],
+                              $m['CoGroupOisMapping']['pattern'])) {
+              // Match found
+              $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = "member";
+            }
+          }
+        } else {
+          if($this->compare($attributes[$attr],
                             $m['CoGroupOisMapping']['comparison'],
                             $m['CoGroupOisMapping']['pattern'])) {
             // Match found

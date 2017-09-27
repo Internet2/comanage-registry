@@ -30,10 +30,6 @@ App::uses("OrgIdentitySourceBackend", "Model");
 class FileSourceBackend extends OrgIdentitySourceBackend {
   public $name = "FileSourceBackend";
   
-  protected $groupAttrs = array(
-    // Not yet supported
-  );
-  
   /**
    * Generate the set of attributes for the IdentitySource that can be used to map
    * to group memberships. The returned array should be of the form key => label,
@@ -47,7 +43,10 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function groupableAttributes() {
-    return $this->groupAttrs;
+    return array(
+      '16' => _txt('fd.title'),
+      '17' => _txt('fd.o')
+    );
   }
   
   /**
@@ -73,10 +72,12 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function resultToGroups($raw) {
-    // XXX not yet supported
-    $ret = array();
+    // We just return the decoded raw record, which will be a superset of groupable attributes.
+    // No real need to filter that down.
     
-    return $ret;
+    $attrs = json_decode($raw, true);
+    
+    return $attrs;
   }
   
   /**
