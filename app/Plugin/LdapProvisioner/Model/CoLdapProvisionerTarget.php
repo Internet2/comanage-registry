@@ -1429,7 +1429,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           ),
           'eduPersonOrcid' => array(
             'required'  => false,
-            'multiple'  => false,
+            'multiple'  => true,
             'alloworgvalue' => true
           ),
           'eduPersonPrincipalName' => array(
