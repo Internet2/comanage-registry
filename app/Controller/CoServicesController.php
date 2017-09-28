@@ -75,7 +75,18 @@ class CoServicesController extends StandardController {
       // We use co_services rather than vv_co_services to be consistent
       // with the index view
       $this->set('co_services', $services);
-      
+
+      // We'll produce a department listing on the service portal, so get the department(s)
+      // XXX Perhaps this should go on its own Departments portal page?
+      // XXX This is allowed to unauthenticated users - confirm that this is acceptable
+      $args = array();
+      $args['conditions']['CoDepartment.co_id'] = $this->cur_co['Co']['id'];
+      $this->loadModel('CoDepartment');
+
+      $departments = $this->CoDepartment->find('all', $args);
+
+      $this->set('co_departments', $departments);
+
       if(!empty($services)) {
         if(!$coPersonId) {
           // Allow anonymous access

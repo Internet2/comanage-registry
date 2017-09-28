@@ -146,13 +146,13 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 }
 /* USER MENU */
 #user-menu {
-  position: absolute;
-  right: 0;
-  top: 0;
+  text-align: right;
   z-index: 4;
 }
 body.logged-in #user-menu {
-  top: 1px;
+  float: right;
+  margin: 0 0 1em;
+  margin-top: 1px;
 }
 #user-menu #user,
 #user-menu #notifications,
@@ -1204,8 +1204,7 @@ a#top-search-toggle:hover {
   background-color: #f5f5f5;
   margin: 0 0 1em 0;
   padding: 0.75em 1.25em 1.25em 1.25em;
-  cursor: pointer;
-  min-height: 3em; /* XXX if images and descriptions are added, make this 5em;*/
+  min-height: 130px;
   min-width: 90%;
   border: 1px solid #eee;
 }
@@ -1222,8 +1221,37 @@ a#top-search-toggle:hover {
   margin-right: 4px;
 }
 .co-card .co-card-icons {
-  text-align: right;
+  position: absolute;
+  bottom: 1em;
+  right: 1em;
   margin-top: 0.75em;
+}
+.co-card-join-button {
+  position: absolute;
+  bottom: 1em;
+  left: 1em;
+}
+.co-dept {
+  border: 1px solid #e0e0e0;
+  margin: 1em 0 2em;
+}
+.co-dept-header {
+  background-color: #f5f5f5;
+  padding: 0 0.5em;
+}
+.co-dept-header h3 {
+  font-size: 1.6em;
+  margin: 0;
+  padding: 0;
+}
+.co-dept-desc {
+  font-style: italic;
+}
+.co-dept-content {
+  padding: 0.5em;
+}
+.co-dept table {
+  overflow-x: scroll;
 }
 /* PERSON CANVAS */
 .personExplorer ul {
@@ -1554,6 +1582,11 @@ ul.form-list li.field-stack textarea {
 .hidden,
 .invisible {
   display: none;
+}
+p { /* MDL override */
+  font-size: inherit;
+  margin: 0 0 1em;
+  line-height: 1.6em;
 }
 ul, ol { /* MDL override */
   font-size: 12px;

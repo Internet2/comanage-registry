@@ -288,11 +288,9 @@
     display: none;
   }
   #user-defined-links-top  {
-    display: block;
+    display: inline-block;
     background-color: #222;
     color: white;
-    /* min-height: 27px; /* essential */
-
   }
   #user-defined-links-top .custom-links li {
     display: inline-block;
@@ -392,19 +390,12 @@
     float: left;
     margin: 0 1.25em 1.25em 0;
     padding: 0.75em 1.25em 1.25em 1.25em;
-    min-height: 100px; /* XXX if images and descriptions are added, make this 200px;*/
+    min-height: 150px;
     min-width: 0;
     width: 200px;
   }
-  .co-card .co-card-icons {
-    position: absolute;
-    bottom: 1em;
-    right: 1em;
-  }
-  .co-card-join-button {
-    position: absolute;
-    bottom: 1em;
-    left: 1em;
+  .co-dept ul.form-list .field-title {
+    font-weight: normal;
   }
   /* GENERAL */
   .two-col {

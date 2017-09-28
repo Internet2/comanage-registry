@@ -152,23 +152,94 @@
 
 <?php if(!empty($co_departments)): ?>
   <div id="co-departments">
-    <h2>Departments</h2>
+    <h2><?php print _txt('ct.co_departments.pl'); ?></h2>
     <?php foreach ($co_departments as $c): ?>
-      <div class="co-department" style="white-space: pre;">
-        <?php print_r($c); ?>
+      <div class="co-dept">
+        <div class="co-dept-header">
+          <h3><?php print filter_var($c['CoDepartment']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></h3>
+        </div>
+        <div class="co-dept-content">
+          <?php if(!empty($c['CoDepartment']['description'])): ?>
+            <p class="co-dept-desc">
+              <?php print filter_var($c['CoDepartment']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+            </p>
+          <?php endif; ?>
+          <?php if(!empty($c['CoDepartment']['introduction'])): ?>
+            <p class="co-dept-intro">
+              <?php print filter_var($c['CoDepartment']['introduction'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+            </p>
+          <?php endif; ?>
+
+          <?php if(!empty($c['Address']) or
+                   !empty($c['EmailAddress']) or
+                   !empty($c['Identifier']) or
+                   !empty($c['TelephoneNumber']) or
+                   !empty($c['Url'])): ?>
+            <ul class="co-dept-mvpas fields form-list">
+              <?php if(!empty($c['Address'])) foreach($c['Address'] as $addr): ?>
+                <li>
+                  <div class="field-name">
+                    <div class="field-title">
+                      <?php print _txt('fd.address') . " <em>(" . $addr['type'] . ")</em>"; ?>
+                    </div>
+                  </div>
+                  <div class="field-info">
+                    <?php print filter_var(formatAddress($addr),FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                  </div>
+                </li>
+              <?php endforeach; // address ?>
+              <?php if(!empty($c['EmailAddress'])) foreach($c['EmailAddress'] as $email): ?>
+                <li>
+                  <div class="field-name">
+                    <div class="field-title">
+                      <?php print _txt('ct.email_addresses.1') . " <em>(" . $email['type'] . ")</em>"; ?>
+                    </div>
+                  </div>
+                  <div class="field-info">
+                    <?php print $this->Html->link($email['mail'], 'mailto:' . $email['mail']); ?>
+                  </div>
+                </li>
+              <?php endforeach; // email ?>
+              <?php if(!empty($c['Identifier'])) foreach($c['Identifier'] as $id): ?>
+                <li>
+                  <div class="field-name">
+                    <div class="field-title">
+                      <?php print _txt('fd.identifier.identifier') . " <em>(" . $id['type'] . ")</em>"; ?>
+                    </div>
+                  </div>
+                  <div class="field-info">
+                    <?php print filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                  </div>
+                </li>
+              <?php endforeach; // identifier ?>
+              <?php if(!empty($c['TelephoneNumber'])) foreach($c['TelephoneNumber'] as $phone): ?>
+                <li>
+                  <div class="field-name">
+                    <div class="field-title">
+                      <?php print _txt('ct.telephone_numbers.1') . " <em>(" . $phone['type'] . ")</em>"; ?>
+                    </div>
+                  </div>
+                  <div class="field-info">
+                    <?php print filter_var(formatTelephone($phone),FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                  </div>
+                </li>
+              <?php endforeach; // telephone ?>
+              <?php if(!empty($c['Url'])) foreach($c['Url'] as $url): ?>
+                <li>
+                  <div class="field-name">
+                    <div class="field-title">
+                      <?php print _txt('fd.url.url') . " <em>(" . $url['type'] . ")</em>"; ?>
+                    </div>
+                  </div>
+                  <div class="field-info">
+                    <?php print $this->Html->link($url['url']); ?>
+                  </div>
+                </li>
+              <?php endforeach; // url ?>
+            </ul>
+          <?php endif; ?>
+        </div>
       </div>
     <?php endforeach; ?>
   </div>
 <?php endif; ?>
-
-<script type="text/javascript">
-$(function() {
-  $(".co-card").click(function() {
-    var url = $(this).find(".co-card-link").attr("href");
-    if (url == "") {
-      return;
-    }
-    location.href = url;
-  });
-});
-</script>
