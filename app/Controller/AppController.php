@@ -1003,6 +1003,9 @@ class AppController extends Controller {
       $p['menu']['orgidsources'] = false;
     }
     
+    // Perform a search?
+    $p['menu']['search'] = $roles['user'];
+    
     $this->set('permissions', $p);
   }
 

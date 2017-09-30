@@ -120,4 +120,22 @@ class CoEmailList extends AppModel {
   public $cm_enum_types = array(
     'status' => 'SuspendableStatusEnum'
   );
+  
+  /**
+   * Perform a keyword search.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $coId CO ID to constrain search to
+   * @param  String  $q    String to search for
+   * @return Array Array of search results, as from find('all)
+   */
+  
+  public function search($coId, $q) {
+    $args = array();
+    $args['conditions']['LOWER(CoEmailList.name) LIKE'] = '%' . strtolower($q) . '%';
+    $args['conditions']['CoEmailList.co_id'] = $coId;
+    $args['contain'] = false;
+    
+    return $this->find('all', $args);
+  }
 }

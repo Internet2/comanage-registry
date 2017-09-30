@@ -478,4 +478,40 @@ class CoPersonRole extends AppModel {
     $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $couId, $coPersonId, $activeEligible, $provision);
     $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::AllMembers, $couId, $coPersonId, $allEligible, $provision);
   }
+  
+  /**
+   * Perform a keyword search.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $coId CO ID to constrain search to
+   * @param  String  $q    String to search for
+   * @return Array Array of search results, as from find('all)
+   */
+  
+  public function search($coId, $q) {
+    // Tokenize $q on spaces
+    $tokens = explode(" ", $q);
+    
+    $args = array();
+    $args['joins'][0]['table'] = 'co_people';
+    $args['joins'][0]['alias'] = 'CoPerson';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
+    
+    foreach($tokens as $t) {
+      $args['conditions']['AND'][] = array(
+        // For some reason CoPersonRole.title throws a database error
+        'OR' => array(
+          'LOWER(title) LIKE' => '%' . strtolower($t) . '%',
+          'LOWER(o) LIKE' => '%' . strtolower($t) . '%',
+          'LOWER(ou) LIKE' => '%' . strtolower($t) . '%',
+        )
+      );
+    }
+    
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['contain'] = false;
+    
+    return $this->find('all', $args);
+  }
 }

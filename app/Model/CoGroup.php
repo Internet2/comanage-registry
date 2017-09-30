@@ -709,4 +709,31 @@ class CoGroup extends AppModel {
     
     return true;  
   }
+  
+  /**
+   * Perform a keyword search.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $coId CO ID to constrain search to
+   * @param  String  $q    String to search for
+   * @return Array Array of search results, as from find('all)
+   */
+  
+  public function search($coId, $q) {
+    // Tokenize $q on spaces
+    $tokens = explode(" ", $q);
+    
+    $args = array();
+    foreach($tokens as $t) {
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'LOWER(CoGroup.name) LIKE' => '%' . strtolower($t) . '%'
+        )
+      );
+    }
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['contain'] = false;
+    
+    return $this->find('all', $args);
+  }
 }

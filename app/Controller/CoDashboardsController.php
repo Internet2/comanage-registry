@@ -43,6 +43,20 @@ class CoDashboardsController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  public $uses = array(
+    'Address',
+    'CoDepartment',
+    'CoEmailList',
+    'CoEnrollmentFlow',
+    'CoGroup',
+    'CoPersonRole',
+    'CoService',
+    'EmailAddress',
+    'Identifier',
+    'Name',
+    'TelephoneNumber'
+  );
 
   /**
    * For Models that accept a CO ID, find the provided CO ID.
@@ -56,6 +70,12 @@ class CoDashboardsController extends StandardController {
     if($this->action == 'dashboard' || $this->action == 'configuration' ) {
       if(isset($this->request->params['named']['co'])) {
         return $this->request->params['named']['co'];
+      }
+    }
+    
+    if($this->action == 'search') {
+      if(isset($this->request->query['co'])) {
+        return $this->request->query['co'];
       }
     }
     
@@ -101,13 +121,125 @@ class CoDashboardsController extends StandardController {
     
     // Determine what operations this user can perform
     
-    // View the dashboard for the specified CO?
-    $p['dashboard'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
-
     // Lock down the configuration dashboard to only cmadmin and coadmin for now (might change in future)
     $p['configuration'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // View the dashboard for the specified CO?
+    $p['dashboard'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+    
+    // Execute a cross-model search?
+    $p['search'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * Perform a cross model search.
+   *
+   * @since  COmanage Registry v3.1.0
+   */
+  
+  public function search() {
+    $results = array();
+    $roles = array();
+    
+    if(!empty($this->request->query['q'])) {
+      /* To add a new backend to search:
+       * (1) Implement $model->search($id, $q)
+       * (2) Add the model here, and define which roles can query it
+       * (3) Add the model to $uses, above
+       * (4) Add the model to View/CoDashboards/search.ctp
+       * (5) Update documentation at https://spaces.internet2.edu/display/COmanage/Searching+and+Filtering
+       */
+      
+      $models = array(
+        'Address' => array('cmadmin', 'coadmin', 'couadmin'),
+        'CoDepartment' => array('cmadmin', 'coadmin', 'couadmin', 'comember'),
+        'CoEmailList' => array('cmadmin', 'coadmin', 'couadmin'),
+        'CoEnrollmentFlow' => array('cmadmin', 'coadmin'),
+        'CoGroup' => array('cmadmin', 'coadmin', 'couadmin', 'comember'),
+        'CoPersonRole' => array('cmadmin', 'coadmin', 'couadmin'),
+        // CoService does not allow comember since portals may be constrained by cou
+        'CoService' => array('cmadmin', 'coadmin', 'couadmin'),
+        'EmailAddress' => array('cmadmin', 'coadmin', 'couadmin'),
+        'Identifier' => array('cmadmin', 'coadmin', 'couadmin'),
+        'Name' => array('cmadmin', 'coadmin', 'couadmin'),
+        'TelephoneNumber' => array('cmadmin', 'coadmin', 'couadmin'),
+      );
+      
+      // Which models we search depends on our permissions
+      
+      $roles = $this->Role->calculateCMRoles();
+      
+      foreach(array_keys($models) as $m) {
+        $authorized = false;
+        
+        foreach($models[$m] as $role) {
+          if(isset($roles[$role]) && $roles[$role]) {
+            $authorized = true;
+            break;
+          }
+        }
+        
+        if($authorized) {
+          // Query backend
+          
+          $results[$m] = $this->$m->search($this->cur_co['Co']['id'],
+                                           $this->request->query['q']);
+        }
+      }
+    }
+    
+    // If we get exactly one person search result, redirect to that record
+    
+    $matches = Hash::extract($results, '{s}.{n}');
+    
+    if(count($matches) == 1) {
+      $match = Hash::get($matches, '0');
+      
+      // Figure out what model the results are for
+      $matchModel = key($match);
+      
+      // If the record references a person, redirect to the person record instead
+      if(!empty($match[$matchModel]['co_person_id'])) {
+        $args = array(
+          'controller' => 'co_people',
+          'action'     => 'canvas',
+          $match[$matchModel]['co_person_id']
+        );
+        
+        $this->redirect($args);
+      }
+      
+      // If the record references a person role, redirect to the person role record instead
+      if(!empty($match[$matchModel]['co_person_role_id'])) {
+        $args = array(
+          'controller' => 'co_person_roles',
+          'action'     => 'edit',
+          $match[$matchModel]['co_person_role_id']
+        );
+        
+        $this->redirect($args);
+      }
+      
+      // Otherwise redirect to the model's view. We don't really know if the current
+      // person can edit or just view, so if they're an admin we redirect them to edit
+      // otherwise view.
+      $args = array(
+        'controller' => Inflector::tableize($matchModel),
+        'action'     => ((isset($roles['cmadmin']) && $roles['cmadmin'])
+                         || (isset($roles['coadmin']) && $roles['coadmin'])
+                         || (isset($roles['couadmin']) && $roles['couadmin']))
+                        ? 'edit' : 'view',
+        $match[$matchModel]['id']
+      );
+      
+      $this->redirect($args);
+    }
+    
+    // Otherwise drop through to the view
+    
+    $this->set('vv_results', $results);
   }
 }

@@ -1068,6 +1068,21 @@ class AppModel extends Model {
   }
   
   /**
+   * Perform a keyword search.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $coId CO ID to constrain search to
+   * @param  String  $q    String to search for
+   * @return Array Array of search results, as from find('all)
+   */
+  
+  public function search($coId, $q) {
+    // This should be overridden by models that support it.
+    
+    throw new RuntimeException(_txt('er.notimpl'));
+  }
+  
+  /**
    * Set the current timezone for use within the model.
    *
    * @since  COmanage Registry v2.0.0

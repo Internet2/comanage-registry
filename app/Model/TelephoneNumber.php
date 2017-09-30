@@ -145,4 +145,30 @@ class TelephoneNumber extends AppModel {
       )
     )
   );
+  
+  /**
+   * Perform a keyword search.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $coId CO ID to constrain search to
+   * @param  String  $q    String to search for
+   * @return Array Array of search results, as from find('all)
+   */
+  
+  public function search($coId, $q) {
+    $args = array();
+    $args['joins'][0]['table'] = 'co_person_roles';
+    $args['joins'][0]['alias'] = 'CoPersonRole';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPersonRole.id=TelephoneNumber.co_person_role_id';
+    $args['joins'][1]['table'] = 'co_people';
+    $args['joins'][1]['alias'] = 'CoPerson';
+    $args['joins'][1]['type'] = 'INNER';
+    $args['joins'][1]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
+    $args['conditions']['TelephoneNumber.number'] = $q;
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['contain'] = false;
+    
+    return $this->find('all', $args);
+  }
 }

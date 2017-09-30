@@ -260,6 +260,28 @@ class EmailAddress extends AppModel {
   }
   
   /**
+   * Perform a keyword search.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $coId CO ID to constrain search to
+   * @param  String  $q    String to search for
+   * @return Array Array of search results, as from find('all)
+   */
+  
+  public function search($coId, $q) {
+    $args = array();
+    $args['joins'][0]['table'] = 'co_people';
+    $args['joins'][0]['alias'] = 'CoPerson';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPerson.id=EmailAddress.co_person_id';
+    $args['conditions']['LOWER(EmailAddress.mail)'] = $q;
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['contain'] = false;
+    
+    return $this->find('all', $args);
+  }
+  
+  /**
    * Mark an address as verified.
    *
    * @since  COmanage Registry v0.7

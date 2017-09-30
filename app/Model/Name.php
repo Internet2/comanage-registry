@@ -304,4 +304,39 @@ class Name extends AppModel {
     
     return true;
   }
+  
+  /**
+   * Perform a keyword search.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $coId CO ID to constrain search to
+   * @param  String  $q    String to search for
+   * @return Array Array of search results, as from find('all)
+   */
+  
+  public function search($coId, $q) {
+    // Tokenize $q on spaces
+    $tokens = explode(" ", $q);
+    
+    $args = array();
+    $args['joins'][0]['table'] = 'co_people';
+    $args['joins'][0]['alias'] = 'CoPerson';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoPerson.id=Name.co_person_id';
+    
+    foreach($tokens as $t) {
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'LOWER(Name.given) LIKE' => '%' . strtolower($t) . '%',
+          'LOWER(Name.middle) LIKE' => '%' . strtolower($t) . '%',
+          'LOWER(Name.family) LIKE' => '%' . strtolower($t) . '%',
+        )
+      );
+    }
+    
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['contain'] = false;
+    
+    return $this->find('all', $args);
+  }
 }
