@@ -39,6 +39,12 @@ class CosController extends StandardController {
     )
   );
   
+  public $view_contains = array();
+  
+  public $edit_contains = array();
+  
+  public $delete_contains = array();
+  
   // In order to delete a CO, we need to always use hard delete, since soft
   // deleting records will result in foreign key dependencies sticking around
   public $useHardDelete = true;
