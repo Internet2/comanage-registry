@@ -1611,6 +1611,14 @@ ul, ol { /* MDL override */
 .vtop {
   vertical-align: top !important;
 }
+.warn-level-a,
+.warn-level-a td {
+  background-color: #fcc;
+}
+.warn-level-b,
+.warn-level-b td {
+  background-color: #f5f5bb;
+}
 .asc, .desc {
   font-style: italic;
   text-decoration: none;

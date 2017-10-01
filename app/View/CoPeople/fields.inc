@@ -856,31 +856,68 @@
                   <?php
                   $rcnt = 1;
                   foreach($co_people[0]['CoPersonRole'] as $r):
-                    ?>
-                    <tr class="line<?php print ($l % 2); $l++; ?>">
-                      <td><?php if(isset($r['Cou']['name'])) print filter_var($r['Cou']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-                      <td><?php if(isset($r['title'])) print filter_var($r['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-                      <td><?php if(isset($r['affiliation'])) print $vv_copr_affiliation_types[ $r['affiliation'] ]; ?></td>
-                      <td>
-                        <?php 
-                          if(isset($r['valid_from']) && $r['valid_from'] > 0) {
-                            print $this->Time->format($r['valid_from'], "%F %T", false, $vv_tz);
-                          } 
-                        ?>
-                      </td>
-                      <td>
-                        <?php
-                          if(isset($r['valid_through']) && $r['valid_through'] > 0) {
-                            print $this->Time->format($r['valid_through'], "%F %T", false, $vv_tz);
-                          }  
-                        ?>
-                      </td>
-                      <td><?php if(isset($r['status'])) print _txt('en.status', null, $r['status']); ?></td>
-                      <td>
-                        <?php
-                        if($es // Editing self
+
+                    // Set the status styling
+                    $statusClass = "status-normal";
+
+                    if ($r['status'] == 'S' or $r['status'] == 'XP' or $r['status'] == 'D') {
+                      // Style status for suspended, expired, deleted
+                      $statusClass = "warn-level-a"; // reddish-pink
+                    } elseif ($r['status'] != 'A') {
+                      // Style status if otherwise not active
+                      $statusClass = "warn-level-b"; // yellowish
+                    }
+
+                    // Independent of status, set the style based on dates if needed:
+                    $validThroughDate = !empty($r['valid_through']) ? $this->Time->format($r['valid_through'], "%F", false, $vv_tz) : false;
+                    $validFromDate = !empty($r['valid_from']) ? $this->Time->format($r['valid_from'], "%F", false, $vv_tz) : false;
+
+                    if ($validThroughDate and $this->Time->isPast($validThroughDate)) {
+                      // valid through date exists and is in the past
+                      $statusClass = "warn-level-a";
+                    } elseif ($validFromDate and $this->Time->isFuture($validFromDate)) {
+                      // valid from date is in the future
+                      $statusClass = "warn-level-b";
+                    }
+                    
+                  ?>
+                  <tr class="line<?php print ($l % 2) . ' ' . $statusClass; $l++; ?>">
+                    <td><?php if (isset($r['Cou']['name'])) {
+                        print filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
+                      } ?></td>
+                    <td><?php if (isset($r['title'])) {
+                        print filter_var($r['title'], FILTER_SANITIZE_SPECIAL_CHARS);
+                      } ?></td>
+                    <td><?php if (isset($r['affiliation'])) {
+                        print $vv_copr_affiliation_types[$r['affiliation']];
+                      } ?></td>
+                    <td>
+                      <?php
+                        if (isset($r['valid_from']) && $r['valid_from'] > 0) {
+                          print $this->Time->format($r['valid_from'], "%F %T", false, $vv_tz);
+                        }
+                      ?>
+                    </td>
+                    <td>
+                      <?php
+                        if (isset($r['valid_through']) && $r['valid_through'] > 0) {
+                          print $this->Time->format($r['valid_through'], "%F %T", false, $vv_tz);
+                        }
+                      ?>
+                    </td>
+                    <td>
+                      <?php 
+                        if (isset($r['status'])) {
+                          print _txt('en.status', null, $r['status']);
+                        } 
+                      ?>
+                    </td>
+                    <td>
+                      <?php
+                        if ($es // Editing self
                           || empty($r['Cou']) // No COU set for this person
-                          || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))) // Admin for the COU
+                          || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))
+                        ) // Admin for the COU
                         {
                           // COU Admins can only edit their own folks, so we need a bit of
                           // a machination to determine if they can edit these records
@@ -889,9 +926,10 @@
                           // Currently, users can self-edit some role level attributes,
                           // so give them an edit button, too.
 
-                          if($permissions['enroll']
+                          if ($permissions['enroll']
                             && $r['status'] == StatusEnum::PendingApproval
-                            && !empty($r['CoPetition'][0]['id'])) {
+                            && !empty($r['CoPetition'][0]['id'])
+                          ) {
                             print $this->Html->link(_txt('op.petition'),
                               array('controller' => 'co_petitions',
                                 'action' => 'view',
@@ -901,17 +939,17 @@
                               array('class' => 'petitionbutton'));
                           }
 
-                          if($permissions['canvas']) {
+                          if ($permissions['canvas']) {
                             print $this->Html->link(_txt('op.edit'),
                                 array('controller' => 'co_person_roles', 'action' => 'edit', $r['id']),
                                 array('class' => 'editbutton')) . "\n";
                           }
 
-                          if($permissions['relink']) {
+                          if ($permissions['relink']) {
                             print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.role.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'copersonroleid' => $r['id'])) . '\');">' . _txt('op.relink') . '</a>' . "\n";
                           }
 
-                          if($permissions['delete']) {
+                          if ($permissions['delete']) {
                             print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
                               . '" onclick="javascript:js_confirm_generic(\''
                               . _txt('js.remove') . '\',\''    // dialog body text
@@ -925,23 +963,23 @@
                               . _txt('op.remove') . '\',\''    // dialog confirm button
                               . _txt('op.cancel') . '\',\''    // dialog cancel button
                               . _txt('op.remove') . '\',[\''   // dialog title
-                              . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                              . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])), FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                               . '\']);">'
                               . _txt('op.delete')
                               . '</button>';
                           }
-                        } elseif($permissions['view']) {
+                        } elseif ($permissions['view']) {
                           print $this->Html->link(_txt('op.view'),
                               array('controller' => 'co_person_roles', 'action' => 'view', $r['id']),
                               array('class' => 'viewbutton')) . "\n";
                         }
-                        ?>
-                      </td>
-                    </tr>
-                    <?php
-                      $rcnt++;
-                      endforeach; // co_people
-                    ?>
+                      ?>
+                    </td>
+                  </tr>
+                  <?php
+                    $rcnt++;
+                    endforeach; // co_people
+                  ?>
                   </tbody>
                 </table>
               <?php endif; // invite ?>
