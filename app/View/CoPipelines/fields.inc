@@ -59,11 +59,8 @@
     
     if(match == '<?php print MatchStrategyEnum::EmailAddress; ?>') {
       $("#CoPipelineMatchType").closest('li').show('fade');
-      // XXX set types
     } else if(match == '<?php print MatchStrategyEnum::Identifier; ?>') {
-      update_type_select();
       $("#CoPipelineMatchType").closest('li').show('fade');
-      // XXX set types
     } else {
       $("#CoPipelineMatchType").closest('li').hide('fade');
     }
