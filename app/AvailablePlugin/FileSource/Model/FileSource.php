@@ -49,6 +49,11 @@ class FileSource extends AppModel {
       'rule' => 'notBlank',
       'required' => true,
       'allowEmpty' => false
+    ),
+    'archivedir' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   

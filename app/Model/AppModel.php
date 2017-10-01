@@ -1074,13 +1074,13 @@ class AppModel extends Model {
    * @param  Integer $coId CO ID to constrain search to
    * @param  String  $q    String to search for
    * @return Array Array of search results, as from find('all)
-   */
+   * @todo   OrgIdentitySourceBackend.php defines a different search() for OIS backends. Reconcile this.
   
   public function search($coId, $q) {
     // This should be overridden by models that support it.
     
     throw new RuntimeException(_txt('er.notimpl'));
-  }
+  }*/
   
   /**
    * Set the current timezone for use within the model.

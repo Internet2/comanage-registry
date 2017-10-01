@@ -34,6 +34,9 @@ abstract class OrgIdentitySourceBackend extends AppModel {
   
   /**
    * Obtain a list of records changed since $lastStart, through $curStart.
+   * Note this list should only include updated or deleted records, and not NEW records.
+   * New records will not be processed via the changelist, and may throw an error.
+   * (New records should be processed via FULL processing, QUERY mode, or MANUAL sync.)
    * 
    * @since  COmanage Registry v3.1.0
    * @param  Integer $lastStart Time of start of last request, or 0 if no previous request

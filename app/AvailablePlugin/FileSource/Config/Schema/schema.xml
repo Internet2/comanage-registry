@@ -38,6 +38,7 @@
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
     <field name="filepath" type="C" size="256" />
+    <field name="archivedir" type="C" size="256" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

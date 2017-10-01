@@ -37,9 +37,12 @@ $cm_file_source_texts['en_US'] = array(
   'ct.file_sources.pl' => 'File Organizational Identity Sources',
   
   // Error messages
+  'er.filesource.copy' => 'Failed to copy "%1$s" to "%2$s"',
   'er.filesource.read' => 'Cannot open source file "%1$s" for reading',
   
   // Plugin texts
+  'pl.filesource.archivedir'       => 'Archive Directory',
+  'pl.filesource.archivedir.desc'  => 'If specified, a limited number of prior copies of the source file will be stored here.',
   'pl.filesource.filepath'         => 'File Path',
   'pl.filesource.info'             => 'The specified file must be readable before this configuration can be saved.',
 );

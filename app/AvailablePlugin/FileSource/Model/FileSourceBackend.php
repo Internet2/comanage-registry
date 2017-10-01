@@ -31,6 +31,124 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
   public $name = "FileSourceBackend";
   
   /**
+   * Obtain a list of records changed since $lastStart, through $curStart.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $lastStart Time of start of last request, or 0 if no previous request
+   * @param  Integer $curStart  Time of start of current request
+   * @return Mixed              Array of SORIDs, or false if not supported
+   * @throws RuntimeException
+   */
+
+  public function getChangeList($lastStart, $curStart) {
+    if(!empty($this->pluginCfg['archivedir'])) {
+      // Maintain a copy of the previous file in order to do a diff and
+      // generate a changelist.
+      
+      $ret = array();
+      
+      $infile = $this->pluginCfg['filepath'];
+      $basename = basename($infile);
+      $archive1 = $this->pluginCfg['archivedir'] . DS . $basename . ".1";
+      $archive2 = $this->pluginCfg['archivedir'] . DS . $basename . ".2";
+      
+      // ok to archive?
+      $ok = true;
+      
+      // We could either read the files simultaneously in order (lower memory requirement),
+      // or read one and hash it (can read records out of sequence). For now we'll take
+      // the second approach.
+      
+      if(is_readable($archive1)) {
+        // Start by creating a set of previously known records.
+        $knownRecords = array();
+        
+        $handle = fopen($archive1, "r");
+        
+        if(!$handle) {
+          throw new RuntimeException('er.filesource.read', array($archive1));
+        }
+        
+        // We don't use fgetcsv here because we don't want to parse the full line,
+        // we just need the SORID as a key.
+        while(($data = fgets($handle)) !== false) {
+          $d = explode(',', $data, 2);
+          
+          $knownRecords[ $d[0] ] = $d[1];
+        }
+        
+        fclose($handle);
+        
+        // Now read the new file and look for changes.
+        $handle = fopen($infile, "r");
+        
+        if(!$handle) {
+          throw new RuntimeException('er.filesource.read', array($infile));
+        }
+        
+        while(($data = fgets($handle)) !== false) {
+          $d = explode(',', $data, 2);
+          
+          if(array_key_exists($d[0], $knownRecords)) {
+            if($d[1] != $knownRecords[ $d[0] ]) {
+              // This record changed, push the SORID onto the change list
+              $ret[] = $d[0];
+            }
+            
+            // Unset the key so we can see which records were deleted.
+            unset($knownRecords[ $d[0] ]);
+          } else {
+            // This is a new record (ie: in $infile, not in $archive1),
+            // so we ignore it.
+          }
+        }
+        
+        fclose($handle);
+        
+        // Finally, any remaining keys in $knownRecords are delete operations.
+        if(!empty($knownRecords)) {
+          $ret = array_merge($ret, array_keys($knownRecords));
+        }
+        
+        // If no changes, don't archive.
+        if(empty($ret)) {
+          $ok = false;
+        }
+      } else {
+        // If there is no archive file, return nothing, since there are no changes.
+        // We do however want to create an archive file for our next run.
+      }
+      
+      // We copy the current file to the archive here, even though we haven't processed it yet
+      // since we don't have a good way to otherwise know when we're done processing. Since
+      // this could cause problems (ie: if the job is canceled or killed), we'll keep *two*
+      // backup copies.
+      
+      if($ok && is_readable($archive1)) {
+        $ok = copy($archive1, $archive2);
+        
+        if(!$ok) {
+          throw new RuntimeException(_txt('er.filesource.copy', array($archive1, $archive2)));
+        }
+      }
+      
+      if($ok && is_readable($infile)) {
+        $ok = copy($infile, $archive1);
+        
+        if(!$ok) {
+          throw new RuntimeException(_txt('er.filesource.copy', array($infile, $archive1)));
+        }
+      }
+      
+      return $ret;
+    } else {
+      // changelist not supported if no archive dir
+      
+      return false;
+    }
+  }
+  
+  /**
    * Generate the set of attributes for the IdentitySource that can be used to map
    * to group memberships. The returned array should be of the form key => label,
    * where key is meaningful to the IdentitySource (eg: a number or a field name)
