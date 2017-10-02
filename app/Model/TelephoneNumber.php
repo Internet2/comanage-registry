@@ -167,6 +167,7 @@ class TelephoneNumber extends AppModel {
     $args['joins'][1]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
     $args['conditions']['TelephoneNumber.number'] = $q;
     $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['order'] = array('TelephoneNumber.number');
     $args['contain'] = false;
     
     return $this->find('all', $args);

@@ -1510,7 +1510,7 @@ original notification at
   'in.orgid.pi.role'   => 'CO Person Role created from this Org Identity via Pipeline',
   'in.orgid.pi.group'  => '%1$s Group Membership created from this Org Identity via Pipeline',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
-
+  
   // Menu
   'me.account'         => 'My Account',
   'me.changepassword'  => 'Change Password',
@@ -1835,6 +1835,7 @@ original notification at
   'rs.pt.status.h' => 'Petition changed status from %1$s to %2$s',
   'rs.pt.tc.explicit' => 'Explicit agreement to Terms and Conditions "%1$s"',
   'rs.pt.tc.implied' => 'Implied agreement to Terms and Conditions "%1$s"',
+  'rs.search.1' =>    'Exact match for "%1$s" found (%2$s)',
   'rs.search.none' => 'No results found',
   'rs.saved' =>       'Saved',
   'rs.svc.grmem' =>   'Group membership successfully updated',

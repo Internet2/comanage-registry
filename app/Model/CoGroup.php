@@ -732,6 +732,7 @@ class CoGroup extends AppModel {
       );
     }
     $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['order'] = array('CoGroup.name');
     $args['contain'] = false;
     
     return $this->find('all', $args);

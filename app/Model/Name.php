@@ -335,6 +335,7 @@ class Name extends AppModel {
     }
     
     $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['order'] = array('Name.family', 'Name.given', 'Name.middle');
     $args['contain'] = false;
     
     return $this->find('all', $args);

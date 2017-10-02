@@ -126,6 +126,7 @@ class CoDepartment extends AppModel {
       );
     }
     $args['conditions']['CoDepartment.co_id'] = $coId;
+    $args['order'] = array('CoDepartment.name');
     $args['contain'] = false;
     
     return $this->find('all', $args);

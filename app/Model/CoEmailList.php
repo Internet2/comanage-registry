@@ -134,6 +134,7 @@ class CoEmailList extends AppModel {
     $args = array();
     $args['conditions']['LOWER(CoEmailList.name) LIKE'] = '%' . strtolower($q) . '%';
     $args['conditions']['CoEmailList.co_id'] = $coId;
+    $args['order'] = array('CoEmailList.name');
     $args['contain'] = false;
     
     return $this->find('all', $args);

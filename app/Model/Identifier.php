@@ -337,6 +337,7 @@ class Identifier extends AppModel {
     $args['joins'][0]['conditions'][0] = 'CoPerson.id=Identifier.co_person_id';
     $args['conditions']['Identifier.identifier'] = $q;
     $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['order'] = array('Identifier.identifier');
     $args['contain'] = false;
     
     return $this->find('all', $args);

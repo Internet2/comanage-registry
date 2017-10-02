@@ -276,6 +276,7 @@ class EmailAddress extends AppModel {
     $args['joins'][0]['conditions'][0] = 'CoPerson.id=EmailAddress.co_person_id';
     $args['conditions']['LOWER(EmailAddress.mail)'] = $q;
     $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['order'] = array('EmailAddress.mail');
     $args['contain'] = false;
     
     return $this->find('all', $args);

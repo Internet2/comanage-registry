@@ -242,6 +242,7 @@ class Address extends AppModel {
     
     $args['conditions']['LOWER(Address.street) LIKE'] = '%' . strtolower($q) . '%';
     $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['order'] = array('Address.street');
     $args['contain'] = false;
     
     return $this->find('all', $args);

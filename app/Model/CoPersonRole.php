@@ -510,6 +510,7 @@ class CoPersonRole extends AppModel {
     }
     
     $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['order'] = array('CoPersonRole.title');
     $args['contain'] = false;
     
     return $this->find('all', $args);

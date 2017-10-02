@@ -226,6 +226,7 @@ class CoService extends AppModel {
       );
     }
     $args['conditions']['CoService.co_id'] = $coId;
+    $args['order'] = array('CoService.name');
     $args['contain'] = false;
     
     return $this->find('all', $args);

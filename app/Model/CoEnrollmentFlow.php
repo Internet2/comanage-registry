@@ -762,6 +762,7 @@ class CoEnrollmentFlow extends AppModel {
       );
     }
     $args['conditions']['CoEnrollmentFlow.co_id'] = $coId;
+    $args['order'] = array('CoEnrollmentFlow.name');
     $args['contain'] = false;
     
     return $this->find('all', $args);

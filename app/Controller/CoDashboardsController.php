@@ -201,6 +201,11 @@ class CoDashboardsController extends StandardController {
       // Figure out what model the results are for
       $matchModel = key($match);
       
+      $this->Flash->set(_txt('rs.search.1',
+                             array(filter_var($this->request->query['q'],FILTER_SANITIZE_SPECIAL_CHARS),
+                                   _txt('ct.'.Inflector::tableize($matchModel).'.1'))),
+                        array('key' => 'information'));
+      
       // If the record references a person, redirect to the person record instead
       if(!empty($match[$matchModel]['co_person_id'])) {
         $args = array(
