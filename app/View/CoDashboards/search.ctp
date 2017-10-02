@@ -1,6 +1,5 @@
 <?php
   /**
-CO-819
    * COmanage Registry CO Search View
    *
    * Portions licensed to the University Corporation for Advanced Internet
@@ -83,7 +82,6 @@ CO-819
       && (empty($vv_results) || count(Hash::extract($vv_results, '{s}.{n}')) == 0)) {
       print _txt('rs.search.none');
     }
-//debug($vv_results);
     
     // Models associated with CoPerson
     
@@ -97,7 +95,6 @@ CO-819
         print "<ul>";
         
         foreach($vv_results[$m] as $r) {
-  // XXX assuming we only get back CO People
           $args = array(
             'plugin'     => null,
             'controller' => 'co_people',
@@ -130,7 +127,6 @@ CO-819
         print "<ul>";
         
         foreach($vv_results[$m] as $r) {
-  // XXX assuming we only get back CO Person Roles
           $args = array(
             'plugin'     => null,
             'controller' => 'co_person_roles',
