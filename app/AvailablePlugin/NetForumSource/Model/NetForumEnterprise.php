@@ -156,9 +156,19 @@ class NetForumEnterprise extends NetForumServer {
    */
   
   public function queryForEvents($searchKey) {
-    // Not supported until we have an example to work with
+    $search = array(
+      'CustomerKey'     => $searchKey
+    );
     
-    throw new LogicException(_txt('er.notimpl'));
+    return $this->queryNetForumEnterprise('WEBActivityGetPurchasedEventsByCustomer',
+                                          'WEBActivityGetPurchasedEventsByCustomerResult',
+                                          $search,
+                                          true,
+                                          // We want to return the raw response so the caller can process it
+                                          true,
+                                          false,
+                                          false,
+                                          false);
   }
   
   /**
@@ -294,6 +304,22 @@ class NetForumEnterprise extends NetForumServer {
             foreach($cret as $cmt) {
               // XXX we could also check start/end dates and cpo_code, which appears to be a role
               $cxml->addChild('CommitteeName', htmlspecialchars((string)$cmt->cmt_name));
+            }
+          }
+        }
+        
+        if($events) {
+          // If configured, pull events (evt_code) for purposes of mapping to group memberships.
+          // Events are accessed via a separate call. Our typical use case will be to map events
+          // to groups, so we'll make that separate call and then merge the results.
+          
+          $eret = $this->queryForEvents((string)$r->IndividualObject->ind_cst_key);
+          
+          if($eret) {
+            $exml = $r->IndividualObject->addChild('Events');
+            
+            foreach($eret as $e) {
+              $exml->addChild('EventProductCode', (string)$e->evt_code);
             }
           }
         }
