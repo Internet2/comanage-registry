@@ -670,6 +670,15 @@ class CoPetitionsController extends StandardController {
           }
           catch(Exception $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
+            
+            // Log the error into the petition history
+            $this->CoPetition
+                 ->CoPetitionHistoryRecord
+                 ->record($coPetitionId,
+                          $this->Session->read('Auth.User.co_person_id'),
+                          PetitionActionEnum::StepFailed,
+                          $e->getMessage());
+            
             // Don't redirect since it will mask the actual error
             //$this->performRedirect(); 
           }
@@ -685,8 +694,17 @@ class CoPetitionsController extends StandardController {
           }
           catch(Exception $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
+            
+            // Log the error into the petition history
+            $this->CoPetition
+                 ->CoPetitionHistoryRecord
+                 ->record($coPetitionId,
+                          $this->Session->read('Auth.User.co_person_id'),
+                          PetitionActionEnum::StepFailed,
+                          $e->getMessage());
+            
             // Don't redirect since it will mask the actual error
-            //$this->performRedirect(); 
+            //$this->performRedirect();
           }
           
           // Make sure we don't issue a redirect
@@ -1239,14 +1257,16 @@ class CoPetitionsController extends StandardController {
     if($matchPolicy == EnrollmentMatchPolicyEnum::Self) {
       // Grab the current CO Person ID and store it in the petition
       
-      $this->CoPetition->linkCoPerson($id,
+      $this->CoPetition->linkCoPerson($this->cachedEnrollmentFlowID,
+                                      $id,
                                       $this->Session->read('Auth.User.co_person_id'),
                                       $this->Session->read('Auth.User.co_person_id'));
     } elseif($matchPolicy == EnrollmentMatchPolicyEnum::Select) {
       if(!empty($this->request->params['named']['copersonid'])) {
         // We're back from the people picker. Grab the requested CO Person ID and store it
         
-        $this->CoPetition->linkCoPerson($id,
+        $this->CoPetition->linkCoPerson($this->cachedEnrollmentFlowID,
+                                        $id,
                                         $this->request->params['named']['copersonid'],
                                         $this->Session->read('Auth.User.co_person_id'));
       } else {
@@ -1302,7 +1322,8 @@ class CoPetitionsController extends StandardController {
           // We're back from the org identity (source) selector.
           // Grab the requested Org Identity ID and store it.
           
-          $this->CoPetition->linkOrgIdentity($id,
+          $this->CoPetition->linkOrgIdentity($this->cachedEnrollmentFlowID,
+                                             $id,
                                              $this->request->params['named']['orgidentityid'],
                                              $this->Session->read('Auth.User.co_person_id'));
           
@@ -1323,7 +1344,8 @@ class CoPetitionsController extends StandardController {
             if($pCoPersonId) {
               // Link this CO Person ID to the petition
               
-              $this->CoPetition->linkCoPerson($id,
+              $this->CoPetition->linkCoPerson($this->cachedEnrollmentFlowID,
+                                              $id,
                                               $pCoPersonId,
                                               $this->Session->read('Auth.User.co_person_id'));
             }
@@ -1454,7 +1476,8 @@ class CoPetitionsController extends StandardController {
                                                                                         : null));
               
 // XXX don't want to do this where more than 1 org identity can be linked
-              $this->CoPetition->linkOrgIdentity($id,
+              $this->CoPetition->linkOrgIdentity($this->cachedEnrollmentFlowID,
+                                                 $id,
                                                  $orgId,
                                                  // XXX this probably isn't set yet
                                                  $this->Session->read('Auth.User.co_person_id'));
@@ -2258,6 +2281,15 @@ class CoPetitionsController extends StandardController {
     }
     catch(Exception $e) {
       $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      
+      // Log the error into the petition history
+      $this->CoPetition
+           ->CoPetitionHistoryRecord
+           ->record($id,
+                    $this->Session->read('Auth.User.co_person_id'),
+                    PetitionActionEnum::StepFailed,
+                    $e->getMessage());
+           
       $this->performRedirect(); 
     }
     

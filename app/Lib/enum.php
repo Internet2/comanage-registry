@@ -294,6 +294,7 @@ class IdentifierEnum
   const Enterprise         = 'enterprise';
   const ePPN               = 'eppn';
   const ePTID              = 'eptid';
+  const ePUID              = 'epuid';
   const Mail               = 'mail';
   const National           = 'national';
   const Network            = 'network';
@@ -458,6 +459,7 @@ class PetitionActionEnum
   const InviteSent              = 'IS';
   const NotificationSent        = 'NS';
   const StatusUpdated           = 'SU';
+  const StepFailed              = 'SX';
   const TCExplicitAgreement     = 'TE';
   const TCImpliedAgreement      = 'TI';
 }

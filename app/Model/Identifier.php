@@ -86,6 +86,7 @@ class Identifier extends AppModel {
                                                  IdentifierEnum::Enterprise,
                                                  IdentifierEnum::ePPN,
                                                  IdentifierEnum::ePTID,
+                                                 IdentifierEnum::ePUID,
                                                  IdentifierEnum::Mail,
                                                  IdentifierEnum::National,
                                                  IdentifierEnum::Network,

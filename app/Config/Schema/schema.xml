@@ -1167,6 +1167,7 @@
     <field name="sync_mode" type="C" size="2" />
     <field name="sync_query_mismatch_mode" type="C" size="2" />
     <field name="sync_query_skip_known" type="L" />
+    <field name="sync_on_user_login" type="L" />
     <field name="eppn_identifier_type" type="C" size="128" />
     <field name="eppn_suffix" type="C" size="128" />
     <field name="hash_source_record" type="L" />

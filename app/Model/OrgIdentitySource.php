@@ -117,6 +117,11 @@ class OrgIdentitySource extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'sync_on_user_login' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'co_pipeline_id' => array(
       'content' => array(
         'rule' => 'numeric',
@@ -674,12 +679,81 @@ class OrgIdentitySource extends AppModel {
   }
   
   /**
+   * Perform a sync of any Org Identity associated with any CO Person associated
+   * with a specified login identifier, where the Org Identity is attached to an
+   * Org Identity Source in "sync_on_login" mode.
+   * Intended to be called at login, ie: not in the context of a specific CO.
+   * Org Identity Pooling is NOT supported.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  integer $identifier Login identifier
+   */
+  
+  public function syncByIdentifier($identifier) {
+    // Look up all org identities associated with this identifier, which also have
+    // an associated Org Identity Source with sync_on_user_login set. For each
+    // matching identifier, perform a sync.
+    
+    $args = array();
+    $args['conditions']['Identifier.identifier'] = $identifier;
+    $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['Identifier.login'] = true;
+    // But actually what we want is any Org Identity associated with any
+    // CO Person associated with $identifier.
+    // That's a lot of nesting!
+    $args['contain']['OrgIdentity']['CoOrgIdentityLink']['CoPerson']['CoOrgIdentityLink']['OrgIdentity']['OrgIdentitySourceRecord'] = 'OrgIdentitySource';
+    
+    $ids = $this->Co->CoPerson->Identifier->find('all', $args);
+    
+    // The set of Org Identities we want is buried in the result. Note we can get more
+    // than one result in $ids since we're querying across COs, but within the result
+    // we should only get one CO's worth of stuff.
+    
+    foreach($ids as $id) {
+      if(!empty($id['OrgIdentity']['CoOrgIdentityLink'][0]['CoPerson']['CoOrgIdentityLink'])) {
+        // This is the set of Org Identities within this CO that $identifier is associated with
+        
+        foreach($id['OrgIdentity']['CoOrgIdentityLink'][0]['CoPerson']['CoOrgIdentityLink'] as $lnk) {
+          if(!empty($lnk['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['id'])
+             && $lnk['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['sync_on_user_login']) {
+            // This is an OrgIdentity that was created from a source, and that source
+            // is set to sync, so do the sync.
+            
+            try {
+              $ret = $this->syncOrgIdentity($lnk['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['id'],
+                                            $lnk['OrgIdentity']['OrgIdentitySourceRecord']['sorid'],
+                                            // The actor is implicitly the CO Person associated with this record
+                                            $id['OrgIdentity']['CoOrgIdentityLink'][0]['CoPerson']['id']);
+              
+              if($ret['status'] != 'unchanged') {
+                // Cut a history record
+                $this->OrgIdentitySourceRecord->OrgIdentity->HistoryRecord->record($id['OrgIdentity']['CoOrgIdentityLink'][0]['CoPerson']['id'],
+                                                                                   null,
+                                                                                   $lnk['OrgIdentity']['id'],
+                                                                                   $id['OrgIdentity']['CoOrgIdentityLink'][0]['CoPerson']['id'],
+                                                                                   ($ret['status'] == 'removed'
+                                                                                    ? ActionEnum::OrgIdRemovedSource
+                                                                                    : ActionEnum::OrgIdEditedSource),
+                                                                                   _txt('rs.ois.sync.login'));
+              }
+            }
+            catch(Exception $e) {
+              // XXX We don't want to break the loop on an exception, and it's not really
+              // clear what we should do with it. Maybe register as a Notification to admins?
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  /**
    * Sync an existing organizational identity record based on a result from an Org Identity Source.
    *
    * @since  COmanage Registry v2.0.0
    * @param  Integer $id              OrgIdentitySource to query
-   * @param  String  $sourceKey       Record key to retrieve as basis of new Org Identity
-   * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
+   * @param  String  $sourceKey       Record key to retrieve as basis of Org Identity
+   * @param  Integer $actorCoPersonId CO Person ID of actor syncing new Org Identity
    * @param  Integer $jobId           If being run as part of a CO Job, the CO Job ID
    * @return Array                    'id' is ID of Org Identity, and 'status' is "synced", "unchanged", or "removed"
    * @throws InvalidArgumentException

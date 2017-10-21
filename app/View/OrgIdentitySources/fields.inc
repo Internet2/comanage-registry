@@ -264,6 +264,17 @@
         ?>
       </div>
     </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title">
+          <?php print _txt('fd.ois.sync.loginquery'); ?>
+        </div>
+        <div class="field-desc"><?php print _txt('fd.ois.sync.loginquery.desc'); ?></div>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->input('sync_on_user_login'); ?>
+      </div>
+    </li>
     <?php if(!empty($vv_co_pipelines)): ?>
     <li>
       <div class="field-name">
