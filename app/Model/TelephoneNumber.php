@@ -157,10 +157,6 @@ class TelephoneNumber extends AppModel {
   
   public function search($coId, $q) {
     $args = array();
-    $args['joins'][0]['table'] = 'co_person_roles';
-    $args['joins'][0]['alias'] = 'CoPersonRole';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPersonRole.id=TelephoneNumber.co_person_role_id';
     $args['joins'][1]['table'] = 'co_people';
     $args['joins'][1]['alias'] = 'CoPerson';
     $args['joins'][1]['type'] = 'INNER';
@@ -168,7 +164,7 @@ class TelephoneNumber extends AppModel {
     $args['conditions']['TelephoneNumber.number'] = $q;
     $args['conditions']['CoPerson.co_id'] = $coId;
     $args['order'] = array('TelephoneNumber.number');
-    $args['contain'] = false;
+    $args['contain']['CoPersonRole']['CoPerson'] = 'PrimaryName';
     
     return $this->find('all', $args);
   }

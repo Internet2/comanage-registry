@@ -106,8 +106,17 @@
           
           if($m == 'Name') {
             $linkLabel = generateCn($r['Name']);
+            
+            // There might be more than one role, but for now we'll only look at the first
+            if(!empty($r['CoPerson']['CoPersonRole'][0]['title'])) {
+              $linkLabel .= " (" . $r['CoPerson']['CoPersonRole'][0]['title'] . ")";
+            }
           } elseif(!empty($r[$m][$k])) {
             $linkLabel = $r[$m][$k];
+            
+            if(!empty($r['CoPerson']['PrimaryName']['id'])) {
+              $linkLabel .= " (" . generateCn($r['CoPerson']['PrimaryName']) . ")";
+            }
           }
           
           print "<li>" . $this->Html->link($linkLabel, $args). "</li>\n";
@@ -134,7 +143,13 @@
             $r[$m]['co_person_role_id']
           );
           
-          print "<li>" . $this->Html->link($fn($r[$m]), $args). "</li>\n";
+          $linkLabel = $fn($r[$m]);
+          
+          if(!empty($r['CoPersonRole']['CoPerson']['PrimaryName']['id'])) {
+            $linkLabel .= " (" . generateCn($r['CoPersonRole']['CoPerson']['PrimaryName']) . ")";
+          }
+          
+          print "<li>" . $this->Html->link($linkLabel, $args). "</li>\n";
         }
         
         print "</ul>\n";

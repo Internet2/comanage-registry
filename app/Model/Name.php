@@ -319,10 +319,6 @@ class Name extends AppModel {
     $tokens = explode(" ", $q);
     
     $args = array();
-    $args['joins'][0]['table'] = 'co_people';
-    $args['joins'][0]['alias'] = 'CoPerson';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPerson.id=Name.co_person_id';
     
     foreach($tokens as $t) {
       $args['conditions']['AND'][] = array(
@@ -336,7 +332,7 @@ class Name extends AppModel {
     
     $args['conditions']['CoPerson.co_id'] = $coId;
     $args['order'] = array('Name.family', 'Name.given', 'Name.middle');
-    $args['contain'] = false;
+    $args['contain']['CoPerson'] = 'CoPersonRole';
     
     return $this->find('all', $args);
   }

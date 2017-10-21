@@ -191,18 +191,25 @@ class CoDashboardsController extends StandardController {
       }
     }
     
-    // If we get exactly one person search result, redirect to that record
+    // If we get exactly search result, redirect to that record. This is slightly
+    // tricky in that we could get multiple results that point to the same object
+    // (eg: because there are multiple similar names attached to a CO Person).
     
     $matches = Hash::extract($results, '{s}.{n}');
+    $pmatches = array_filter(array_unique(Hash::extract($results, '{s}.{n}.{s}.co_person_id')));
+    $prmatches = array_filter(array_unique(Hash::extract($results, '{s}.{n}.{s}.co_person_role_id')));
     
-    if(count($matches) == 1) {
+    // It's a single match if there is a single person or person role result,
+    // or if there is a single result overall, redirect to that result.
+    if(((count($pmatches) + count($prmatches)) == 1)
+       || count($matches) == 1) {
       $match = Hash::get($matches, '0');
       
       // Figure out what model the results are for
       $matchModel = key($match);
       
       $this->Flash->set(_txt('rs.search.1',
-                             array(filter_var($this->request->query['q'],FILTER_SANITIZE_SPECIAL_CHARS),
+                             array(filter_var($this->request->query['q'], FILTER_SANITIZE_SPECIAL_CHARS),
                                    _txt('ct.'.Inflector::tableize($matchModel).'.1'))),
                         array('key' => 'information'));
       

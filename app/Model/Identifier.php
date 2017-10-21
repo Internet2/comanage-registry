@@ -332,14 +332,10 @@ class Identifier extends AppModel {
   
   public function search($coId, $q) {
     $args = array();
-    $args['joins'][0]['table'] = 'co_people';
-    $args['joins'][0]['alias'] = 'CoPerson';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPerson.id=Identifier.co_person_id';
     $args['conditions']['Identifier.identifier'] = $q;
     $args['conditions']['CoPerson.co_id'] = $coId;
     $args['order'] = array('Identifier.identifier');
-    $args['contain'] = false;
+    $args['contain']['CoPerson'] = 'PrimaryName';
     
     return $this->find('all', $args);
   }
