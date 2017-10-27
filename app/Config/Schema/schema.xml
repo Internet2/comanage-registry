@@ -1189,50 +1189,6 @@
     </index>
   </table>
   
-  <table name="org_identity_source_records">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
-    </field>
-    <field name="sorid" type="C" size="40" />
-    <field name="source_record" type="XL" />
-    <field name="last_update" type="T" />
-    <field name="org_identity_id" type="I">
-      <constraint>REFERENCES cm_org_identities(id)</constraint>
-    </field>
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="org_identity_source_record_id" type="I">
-      <constraint>REFERENCES cm_org_identity_source_records(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="org_identity_source_records_i1">
-      <col>org_identity_source_id</col>
-      <col>sorid</col>
-<!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
-      <unique />
--->
-    </index>
-    
-    <index name="org_identity_source_records_i2">
-      <col>org_identity_id</col>
-    </index>
-    
-    <index name="org_identity_source_records_i3">
-      <col>org_identity_source_id</col>
-    </index>
-    
-    <index name="org_identity_source_records_i4">
-      <col>org_identity_source_record_id</col>
-    </index>
-  </table>
-  
   <table name="co_group_ois_mappings">
     <field name="id" type="I">
       <key />
@@ -1417,6 +1373,7 @@
     <field name="hidden" type="L" />
     <field name="copy_to_coperson" type="L" />
     <field name="ignore_authoritative" type="L" />
+    <field name="default_env" type="C" size="80" />
     <field name="login" type="L" />
     <field name="language" type="C" size="16" />
     <field name="created" type="T" />
@@ -1640,6 +1597,69 @@
     
     <index name="co_petition_history_records_i2">
       <col>co_petition_history_record_id</col>
+    </index>
+  </table>
+  
+  <table name="org_identity_source_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
+    </field>
+    <field name="sorid" type="C" size="40" />
+    <field name="source_record" type="XL" />
+    <field name="last_update" type="T" />
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <!-- This could arguably go in org_identity instead, allowing CO Petitions
+         to be linked directly to Org Identities and CO People, but there are
+         a few reasons not to.
+         (1) We'd end up with circular foreign keys, which makes this file
+             harder to maintain.
+         (2) It makes it clearer that the *source record* is what the enrollment
+             flow obtained; the creation of the org identity was an artifact
+             of that collection.
+         (3) It avoids ambiguity with enrollee_org_identity_id and
+             enrollee_co_person_id, which are linked when petitioner attributes
+             are used to create an identity.
+    -->
+    <field name="co_petition_id" type="I">
+      <constraint>REFERENCES cm_co_petitions(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="org_identity_source_record_id" type="I">
+      <constraint>REFERENCES cm_org_identity_source_records(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="org_identity_source_records_i1">
+      <col>org_identity_source_id</col>
+      <col>sorid</col>
+<!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
+      <unique />
+-->
+    </index>
+    
+    <index name="org_identity_source_records_i2">
+      <col>org_identity_id</col>
+    </index>
+    
+    <index name="org_identity_source_records_i3">
+      <col>org_identity_source_id</col>
+    </index>
+    
+    <index name="org_identity_source_records_i4">
+      <col>org_identity_source_record_id</col>
+    </index>
+    
+    <index name="org_identity_source_records_i5">
+      <col>co_petition_id</col>
     </index>
   </table>
   

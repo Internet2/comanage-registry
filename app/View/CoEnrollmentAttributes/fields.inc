@@ -473,6 +473,17 @@
       <?php endif; ?>
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
+          <b><?php print _txt('fd.ea.default_env'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.ea.default_env.desc'); ?></span>
+        </td>
+        <td>
+          <?php print ($e
+            ? $this->Form->input('default_env', array('size' => 40))
+            : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['default_env'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </td>
+      </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
           <b><?php print _txt('fd.ea.order'); ?></b><br />
           <span class="descr"><?php print _txt('fd.ea.order.desc'); ?></span>
         </td>

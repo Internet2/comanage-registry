@@ -43,6 +43,7 @@ class OrgIdentitySourceRecordsController extends StandardController {
   );
   
   public $view_contains = array(
+    'CoPetition',
     'OrgIdentity' => array('PrimaryName'),
     'OrgIdentitySource'
   );

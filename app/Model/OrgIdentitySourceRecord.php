@@ -20,7 +20,8 @@ class OrgIdentitySourceRecord extends AppModel {
                          'Containable');
   
   // Association rules from this model to other models
-  public $belongsTo = array('OrgIdentity',
+  public $belongsTo = array('CoPetition',
+                            'OrgIdentity',
                             'OrgIdentitySource');
   
   public $hasMany = array();
@@ -59,6 +60,13 @@ class OrgIdentitySourceRecord extends AppModel {
       )
     ),
     'org_identity_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'co_petition_id' => array(
       'content' => array(
         'rule' => 'numeric',
         'required' => false,

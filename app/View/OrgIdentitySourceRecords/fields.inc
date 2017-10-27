@@ -113,6 +113,25 @@
           </pre>
         </td>
       </tr>
+      <tr class="line1">
+        <td>
+          <?php print _txt('ct.co_petitions.1'); ?>
+        </td>
+        <td>
+          <?php
+            if(!empty($org_identity_source_records[0]['CoPetition']['id'])) {
+              print $this->Html->link(
+                $org_identity_source_records[0]['CoPetition']['id'],
+                array(
+                  'controller' => 'co_petitions',
+                  'action'     => 'view',
+                  $org_identity_source_records[0]['CoPetition']['id']
+                )
+              );
+            }
+          ?>
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>

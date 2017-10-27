@@ -213,14 +213,14 @@ class EnvSource extends AppModel {
       ),
       'env_name_given' => array(
         'label'   => _txt('fd.name.given') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")",
-        'default' => 'ENV_OIS_GIVEN'
+        'default' => 'ENV_OIS_NAME_GIVEN'
       ),
       'env_name_middle' => array(
         'label'   => _txt('fd.name.middle') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")"
       ),
       'env_name_family' => array(
         'label'   => _txt('fd.name.family') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")",
-        'default' => 'ENV_OIS_FAMILY'
+        'default' => 'ENV_OIS_NAME_FAMILY'
       ),
       'env_name_suffix' => array(
         'label'   => _txt('fd.name.suffix') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")"

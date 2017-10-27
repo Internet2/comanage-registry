@@ -59,4 +59,30 @@ class CoOrgIdentityLink extends AppModel {
       'rule' => 'numeric'
     )
   );
+  
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v3.1.0
+   */
+
+  public function beforeSave($options = array()) {
+    // Make sure we don't already have a link for the specified targets.
+    
+    if(empty($this->data['CoOrgIdentityLink']['id'])) {
+      $args = array();
+      $args['conditions']['CoOrgIdentityLink.co_person_id'] = $this->data['CoOrgIdentityLink']['co_person_id'];
+      $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $this->data['CoOrgIdentityLink']['org_identity_id'];
+      $args['contain'] = false;
+      
+      $cnt = $this->find('count', $args);
+      
+      if($cnt > 0) {
+        throw new RuntimeException(_txt('er.linked'));
+      }
+    }
+
+    return true;
+  }
 }

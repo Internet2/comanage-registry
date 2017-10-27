@@ -458,6 +458,7 @@ class PetitionActionEnum
   const InviteConfirmed         = 'IC';
   const InviteSent              = 'IS';
   const NotificationSent        = 'NS';
+  const OrgIdentitySourced      = 'OC';
   const StatusUpdated           = 'SU';
   const StepFailed              = 'SX';
   const TCExplicitAgreement     = 'TE';

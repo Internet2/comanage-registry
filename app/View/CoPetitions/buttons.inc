@@ -98,36 +98,4 @@ if($this->action != "add") {
       )
     );
   }
-
-  // Add button for related Org Identity
-  if(!empty($co_petitions[0]['CoPetition']['enrollee_org_identity_id'])) {
-    $params['topLinks'][] = $this->Html->link(
-      _txt('ct.org_identities.1'),
-      array(
-        'controller'    => 'org_identities',
-        'action'        => 'view',
-        $co_petitions[0]['CoPetition']['enrollee_org_identity_id'],
-        'co'            => $co_petitions[0]['CoPetition']['co_id']
-      ),
-      array(
-        'class' => 'contactbutton'
-      )
-    );
-  }
-
-  // Add button for related CO Person
-  if(!empty($co_petitions[0]['CoPetition']['enrollee_co_person_id'])) {
-    $params['topLinks'][] = $this->Html->link(
-      _txt('ct.co_people.1'),
-      array(
-        'controller'    => 'co_people',
-        'action'        => 'canvas',
-        $co_petitions[0]['CoPetition']['enrollee_co_person_id']
-      ),
-      array(
-        'class' => 'contactbutton'
-      )
-    );
-  }
-
 }

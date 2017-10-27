@@ -240,6 +240,94 @@
               </li>
             </ul>
           </li>
+          
+          <li id="identities-petition" class="fieldGroup">
+            <a href="#tabs-identities" class="fieldGroupName">
+              <em class="material-icons">indeterminate_check_box</em>
+              <?php print _txt('fd.pt.identities'); ?>
+            </a>
+
+            <ul id=co_petition_identities" class="fields form-list">
+              <li>
+                <div class="field-name"><?php print _txt('ct.co_people.1'); ?></div>
+                <div class="field-info">
+                  <?php
+                    if(!empty($co_petitions[0]['EnrolleeCoPerson']['id'])) {
+                      print $this->Html->link(
+                        generateCn($co_petitions[0]['EnrolleeCoPerson']['PrimaryName']),
+                        array(
+                          'controller'    => 'co_people',
+                          'action'        => 'canvas',
+                          $co_petitions[0]['EnrolleeCoPerson']['id']
+                        )
+                      );
+                    }
+                  ?>
+                </div>
+              </li>
+              <li>
+                <div class="field-name"><?php print _txt('ct.co_person_roles.1'); ?></div>
+                <div class="field-info">
+                  <?php
+                    if(!empty($co_petitions[0]['CoPetition']['enrollee_co_person_role_id'])) {
+                      print $this->Html->link(
+                        $co_petitions[0]['CoPetition']['enrollee_co_person_role_id'],
+                        array(
+                          'controller'    => 'co_person_roles',
+                          'action'        => 'edit',
+                          $co_petitions[0]['CoPetition']['enrollee_co_person_role_id']
+                        )
+                      );
+                    }
+                  ?>
+                </div>
+              </li>
+              <li>
+                <div class="field-name"><?php print _txt('ct.org_identities.1'); ?></div>
+                <div class="field-info">
+                  <?php
+                    if(!empty($co_petitions[0]['EnrolleeOrgIdentity']['id'])) {
+                      print $this->Html->link(
+                        generateCn($co_petitions[0]['EnrolleeOrgIdentity']['PrimaryName']),
+                        array(
+                          'controller'    => 'org_identities',
+                          'action'        => 'edit',
+                          $co_petitions[0]['EnrolleeOrgIdentity']['id']
+                        )
+                      );
+                    }
+                  ?>
+                </div>
+              </li>
+              <li>
+                <div class="field-name"><?php print _txt('ct.org_identity_source_records.pl'); ?></div>
+                <div class="field-info">
+                  <?php
+                    if(!empty($co_petitions[0]['OrgIdentitySourceRecord'])) {
+                      foreach($co_petitions[0]['OrgIdentitySourceRecord'] as $oisr) {
+                        print $this->Html->link(
+                          generateCn($oisr['OrgIdentity']['PrimaryName']),
+                          array(
+                            'controller'    => 'org_identity_source_records',
+                            'action'        => 'view',
+                            $oisr['id']
+                          )
+                        )
+                        . " (" . $this->Html->link(
+                          $oisr['OrgIdentitySource']['description'],
+                          array(
+                            'controller'  => 'org_identity_sources',
+                            'action'      => 'edit',
+                            $oisr['OrgIdentitySource']['id']
+                          )
+                        ) . ")<br />";
+                      }
+                    }
+                  ?>
+                </div>
+              </li>
+            </ul>
+          </li>
         <?php endif; // action != add ?>
 
         <li id="tabs-attributes" class="fieldGroup">

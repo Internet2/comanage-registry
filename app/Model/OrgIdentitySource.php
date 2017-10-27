@@ -244,11 +244,12 @@ class OrgIdentitySource extends AppModel {
    *
    * @since  COmanage Registry v2.0.0
    * @param  Integer $id OrgIdentitySource to query
-   * @param  String $sourceKey Record key to retrieve as basis of new Org Identity
+   * @param  String  $sourceKey Record key to retrieve as basis of new Org Identity
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
    * @param  Integer $coId CO ID, if org identities are not pooled
    * @param  Integer $targetCoPersonId CO Person ID to link new Org Identity to, if already known
    * @param  Boolean $provision Whether to execute provisioning
+   * @param  Integer $coPetitionId If executing as part of a petition, the CO Petition ID
    * @return Integer ID of new Org Identity
    * @throws InvalidArgumentException
    * @throws OverflowException
@@ -260,7 +261,8 @@ class OrgIdentitySource extends AppModel {
                                     $actorCoPersonId=null,
                                     $coId=null,
                                     $targetCoPersonId=null,
-                                    $provision=true) {
+                                    $provision=true,
+                                    $coPetitionId=null) {
     // Unlike CoPipeline::syncOrgIdentityToCoPerson, we have a separate call
     // for create vs update. This is because $Backend->retrieve() will return
     // data in a format that is more or less ready for a direct save.
@@ -306,7 +308,8 @@ class OrgIdentitySource extends AppModel {
                                    : (isset($brec['raw'])
                                       ? $brec['raw']
                                       : null)),
-      'last_update'            => date('Y-m-d H:i:s')
+      'last_update'            => date('Y-m-d H:i:s'),
+      'co_petition_id'         => $coPetitionId
     );
     
     // Start a transaction
@@ -330,9 +333,20 @@ class OrgIdentitySource extends AppModel {
                                                                          $orgIdentityId,
                                                                          $actorCoPersonId,
                                                                          ActionEnum::OrgIdAddedSource,
-                                                                         _txt('rs.org.src.new',
+                                                                         _txt(($coPetitionId ? 'rs.org.src.new.pet' : 'rs.org.src.new'),
                                                                               array($this->cdata['OrgIdentitySource']['description'],
                                                                                     $this->cdata['OrgIdentitySource']['id'])));
+      
+      // Also attach a history record to the petition, if appropriate
+      
+      if($coPetitionId) {
+        $this->Co->CoPetition->CoPetitionHistoryRecord->record($coPetitionId,
+                                                               $actorCoPersonId,
+                                                               PetitionActionEnum::OrgIdentitySourced,
+                                                               _txt('rs.org.src.new',
+                                                                    array($this->cdata['OrgIdentitySource']['description'],
+                                                                          $this->cdata['OrgIdentitySource']['id'])));
+      }
     }
     catch(Exception $e) {
       $dbc->rollback();

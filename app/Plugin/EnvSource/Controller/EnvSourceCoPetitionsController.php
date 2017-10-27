@@ -55,6 +55,10 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     
     $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $id));
     
+    // We distinguish self-signup enrollment from account linking by the presence
+    // of $token, which will be populated at the start of a self-signup enrollment
+    // (since the user will not be registered) and but not at the start of account
+    // linking (since the user is already registered).
     if(!$token) {
       // Generate a token and issue a reauthentication redirect
       
@@ -89,8 +93,9 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     }
     
     // Clear the token
-    $this->CoPetition->id = $id;
-    $this->CoPetition->saveField('petitioner_token', null);
+    // -- We don't actually do this since it breaks self-signup
+    //$this->CoPetition->id = $id;
+    //$this->CoPetition->saveField('petitioner_token', null);
 
     // Before passing through to a view, we need to clear a confusing Cake generated
     // error message. See UsersController::login() for more information.
@@ -133,7 +138,9 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
                                                             $sorid,
                                                             $actorCoPersonId,
                                                             $this->cur_co['Co']['id'],
-                                                            $actorCoPersonId);
+                                                            $actorCoPersonId,
+                                                            true,
+                                                            $id);
     
     // The step is done
 

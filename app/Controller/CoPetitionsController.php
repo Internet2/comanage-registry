@@ -93,6 +93,7 @@ class CoPetitionsController extends StandardController {
   public $view_contains = array(
     'ApproverCoPerson' => 'PrimaryName',
     'EnrolleeCoPerson' => 'PrimaryName',
+    'EnrolleeOrgIdentity' => 'PrimaryName',
     'PetitionerCoPerson' => 'PrimaryName',
     'SponsorCoPerson' => 'PrimaryName',
     'CoPetitionHistoryRecord' => array(
@@ -102,7 +103,11 @@ class CoPetitionsController extends StandardController {
     ),
     'CoEnrollmentFlow',
     'CoInvite',
-    'Cou'
+    'Cou',
+    'OrgIdentitySourceRecord' => array(
+      'OrgIdentity' => 'PrimaryName',
+      'OrgIdentitySource'
+    )
   );
   
   // Cached copy of enrollment flow ID, once determined
@@ -409,28 +414,35 @@ class CoPetitionsController extends StandardController {
           $enrollmentAttributes = $this->CoPetition->filterHistoricalAttributes($enrollmentAttributes, $vAttrs);
         }
         
-        if($this->action != 'view'
-           && $this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
-          // If enrollment flows can populate org identities, then see if we're configured
-          // to pull environment variables. If so, for this configuration they simply
-          // replace modifiable default values.
-          
-          $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
-          
-          if($envValues) {
-            // This flow might be configured to ignore authoritative values
-            $ignoreAuthValues = $this->CoPetition
-                                     ->CoEnrollmentFlow->field('ignore_authoritative',
-                                                               array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+        if($this->action != 'view') {
+          // Deprecated for removal in 4.0.0
+          if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
+            // If enrollment flows can populate org identities, then see if we're configured
+            // to pull environment variables. If so, for this configuration they simply
+            // replace modifiable default values.
             
-            if(!$ignoreAuthValues) {
-              $enrollmentAttributes = $this->CoPetition
-                                           ->CoEnrollmentFlow
-                                           ->CoEnrollmentAttribute
-                                           ->mapEnvAttributes($enrollmentAttributes,
-                                                              $envValues);
+            $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
+            
+            if($envValues) {
+              // This flow might be configured to ignore authoritative values
+              $ignoreAuthValues = $this->CoPetition
+                                       ->CoEnrollmentFlow->field('ignore_authoritative',
+                                                                 array('CoEnrollmentFlow.id' => $enrollmentFlowID));
+              
+              if(!$ignoreAuthValues) {
+                $enrollmentAttributes = $this->CoPetition
+                                             ->CoEnrollmentFlow
+                                             ->CoEnrollmentAttribute
+                                             ->mapEnvAttributes($enrollmentAttributes,
+                                                                $envValues);
+              }
             }
           }
+          
+          $enrollmentAttributes = $this->CoPetition
+                                       ->CoEnrollmentFlow
+                                       ->CoEnrollmentAttribute
+                                       ->mapEnvAttributes($enrollmentAttributes, array());
         }
         
         $this->set('co_enrollment_attributes', $enrollmentAttributes);
@@ -1401,6 +1413,32 @@ class CoPetitionsController extends StandardController {
           }
         }
         
+        // Before we continue, if we haven't yet linked an OrgIdentity into
+        // the petition see if we have one to link. We do this here because
+        // we want to deterministically pick the first source to create an
+        // Org Identity (so admins can configure appropriately).
+        // We need this so that steps like sendConfirmation will work correctly.
+        
+        $pOrgIdentityId = $this->CoPetition->field('enrollee_org_identity_id', array('CoPetition.id' => $id));
+        
+        if(!$pOrgIdentityId) {
+          $args = array();
+          $args['conditions']['OrgIdentitySourceRecord.co_petition_id'] = $id;
+          $args['conditions'][] = 'OrgIdentitySourceRecord.org_identity_id IS NOT NULL';
+          $args['contain'] = false;
+          
+          $newOrgId = $this->CoPetition->OrgIdentitySourceRecord->find('first', $args);
+          
+          if(!empty($newOrgId['OrgIdentitySourceRecord']['org_identity_id'])) {
+            $this->CoPetition->linkOrgIdentity($this->cachedEnrollmentFlowID,
+                                               $id,
+                                               $newOrgId['OrgIdentitySourceRecord']['org_identity_id'],
+                                               $this->Session->read('Auth.User.co_person_id'));
+          }
+          
+          // We don't create an org identity link since saveAttributes will do that.
+        }
+        
         if($current < count($authsources)) {
           // Redirect into the next plugin
           
@@ -1456,6 +1494,7 @@ class CoPetitionsController extends StandardController {
 // XXX where is token verified?
             $this->set('vv_ois_mode', 'email-select');
             
+// XXX note this searches *all* Active backends, not just those in a query mode or whatever
             $sourceRecords = $this->OrgIdentitySource->searchAllByEmail($this->request->data['OrgIdentitySource']['mail'],
                                                                         (!empty($this->cur_co['Co']['id'])
                                                                          ? $this->cur_co['Co']['id']

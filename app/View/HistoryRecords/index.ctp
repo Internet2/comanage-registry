@@ -143,7 +143,7 @@
                 (!empty($h['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($h['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.deleted')),
                 array(
                   'controller' => 'co_people',
-                  'action' => 'view',
+                  'action' => 'canvas',
                   $h['ActorCoPerson']['id']
                 )
               );

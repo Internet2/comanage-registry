@@ -80,8 +80,7 @@
             }
             
             if(!empty($attr['desc'])) {
-              // XXX should use field-desc equivalent
-              print "<br /><i>" . $attr['desc'] . "</i>";
+              print "<span class=\"descr\">" . $attr['desc'] . "</span>";
             }
           ?>
         </td>

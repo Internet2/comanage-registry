@@ -82,7 +82,8 @@ class CoPetition extends AppModel {
     // A CO Petition has zero or more CO Petition Attributes
     "CoPetitionAttribute" => array('dependent' => true),
     // A CO Petition has zero or more CO Petition History Records
-    "CoPetitionHistoryRecord" => array('dependent' => true)
+    "CoPetitionHistoryRecord" => array('dependent' => true),
+    "OrgIdentitySourceRecord"
   );
   
   // Default display field for cake generated views
@@ -1902,6 +1903,56 @@ class CoPetition extends AppModel {
           $dbc->rollback();
           throw new RuntimeException(_txt('er.db.save-a', array('CoTermsAndConditions')));
         }
+      }
+    }
+
+    if($createLink && $coPersonId) {
+      // If we created a new CO Person, check to see if we also created any
+      // Org Identities via Org Identity (Enrollment) Sources. If so, create
+      // links to those as well.
+      
+      $args = array();
+      $args['conditions']['OrgIdentitySourceRecord.co_petition_id'] = $id;
+      $args['fields'] = array('id', 'org_identity_id');
+      $args['contain'] = false;
+      
+      $pOrgIds = $this->EnrolleeOrgIdentity
+                      ->OrgIdentitySourceRecord
+                      ->find('list', $args);
+      
+      foreach($pOrgIds as $pid => $porgid) {
+        // Create a CO Org Identity Link, if we haven't already
+        
+        if($porgid == $orgIdentityId) {
+          continue;
+        }
+        
+        $coOrgLink = array();
+        $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $porgid;
+        $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $coPersonId;
+        
+        // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
+        // provisioning just in case that changes in the future.
+        
+        $this->EnrolleeCoPerson->CoOrgIdentityLink->clear();
+        
+        if($this->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
+          // Create a history record
+          try {
+            $this->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
+                                                           $coPersonRoleId,
+                                                           $porgid,
+                                                           $petitionerId,
+                                                           ActionEnum::CoPersonOrgIdLinked);
+          }
+          catch(Exception $e) {
+            $dbc->rollback();
+            throw new RuntimeException($e->getMessage());
+          }
+        } else {
+          $dbc->rollback();
+          throw new RuntimeException(_txt('er.db.save-a', array('CoOrgIdentityLink')));
+        }        
       }
     }
     
