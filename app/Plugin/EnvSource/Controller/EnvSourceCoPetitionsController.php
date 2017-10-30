@@ -35,6 +35,62 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
                        "OrgIdentitySource",
                        "EnvSource.EnvSource",
                        "EnvSource.EnvSourceBackend");
+  
+  public $in_reauth = false;
+
+  /**
+   * Callback before other controller methods are invoked or views are rendered.
+   * - postcondition: If invalid enrollment flow provided, session flash message set
+   *
+   * @since  COmanage Registry v3.1.0
+   */
+  
+  function beforeFilter() {
+    // We need some special authorization logic here, depending on the type of flow.
+    // This is loosely based on parent::beforeFilter().
+    $noAuth = false;
+    
+    // For self signup, we simply require a token (and for the token to match).
+    $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+    $passedToken = $this->parseToken();
+    
+    if($token && $token != '' && $passedToken) {
+      if($token == $passedToken) {
+        // If we were passed a reauth flag, we require authentication even though
+        // the token matched. This enables account linking.
+        if(!isset($this->request->params['named']['reauth'])
+           || $this->request->params['named']['reauth'] != 1) {
+          $noAuth = true;
+        } else {
+          // Store a hint for isAuthorized that we matched the token and are reauthenticating,
+          // so we can authorize the transaction.
+          
+          $this->in_reauth = true;
+        }
+        
+        // Dump the token into a viewvar in case needed
+        $this->set('vv_petition_token', $token);
+      } else {
+        $this->Flash->set(_txt('er.token'), array('key' => 'error'));
+        $this->redirect("/");
+      }
+    }
+        
+    if($noAuth) {
+      $this->Auth->allow($this->action);
+      
+      if(!$this->Session->check('Auth.User.name')) {
+        // If authentication is not required, and we're not authenticated as
+        // a valid user, hide the login/logout button to minimize confusion
+        
+        $this->set('noLoginLogout', true);
+      }
+    }
+    
+    // We want our grandparent's beforeFilter to run, but not our parent's,
+    // as that will clobber the special authz logic we just implemented.
+    StandardController::beforeFilter();
+  }
 
   /**
    * Enrollment Flow selectOrgIdentity (authenticate mode)
@@ -78,7 +134,9 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
         'action'     => 'selectOrgIdentityAuthenticate',
         $id,
         'oisid'      => $oiscfg['OrgIdentitySource']['id'],
-        'token'      => $token
+        'token'      => $token,
+        // Hint that we're performing account linking
+        'reauth'     => '1'
       );
       
       $this->Session->write('Logout.redirect', $redirect);
@@ -86,17 +144,6 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
       $this->redirect('/auth/logout');
     }
     
-    // Verify the token
-    if(empty($this->request->params['named']['token'])
-       || $token != $this->request->params['named']['token']) {
-      throw new InvalidArgumentException(_txt('er.envsource.token'));
-    }
-    
-    // Clear the token
-    // -- We don't actually do this since it breaks self-signup
-    //$this->CoPetition->id = $id;
-    //$this->CoPetition->saveField('petitioner_token', null);
-
     // Before passing through to a view, we need to clear a confusing Cake generated
     // error message. See UsersController::login() for more information.
     CakeSession::delete('Message.error');
@@ -145,5 +192,27 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     // The step is done
 
     $this->redirect($onFinish);
+  }
+  
+  /**
+   * Authorization for this Controller, called by Auth component
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: $permissions set with calculated permissions
+   *
+   * @since  COmanage Registry v3.1.0
+   * @return Array Permissions
+   */
+  
+  function isAuthorized() {
+    $roles = $this->Role->calculateCMRoles();
+    
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+    
+    // Probably an account linking being initiated, so we need a valid user
+    $p['selectOrgIdentityAuthenticate'] = $roles['copersonid'] || $this->in_reauth;
+    
+    $this->set('permissions', $p);
+    return $p[$this->action];
   }
 }
