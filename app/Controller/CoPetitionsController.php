@@ -1434,9 +1434,29 @@ class CoPetitionsController extends StandardController {
                                                $id,
                                                $newOrgId['OrgIdentitySourceRecord']['org_identity_id'],
                                                $this->Session->read('Auth.User.co_person_id'));
+            // If there is already a CO Person attached to the Petition (from selectEnrollee),
+            // create a CoOrgIdentityLink for that CO Person to this Org Identity.
+            // (This would typically be for an account linking flow.)
+            // Otherwise, we don't create an org identity link since saveAttributes will do that.
+ 
+            $pCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+ 
+            if($pCoPersonId) {
+              $coOrgLink = array();
+              $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $newOrgId['OrgIdentitySourceRecord']['org_identity_id'];
+              $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $pCoPersonId;
+ 
+              // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
+              // provisioning just in case that changes in the future. We'll also ignore
+              // any error in the unlikely event there is already a link in place.
+              try {
+                if($this->CoPetition->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false)));
+              }
+              catch(Exception $e) {
+ 
+              }
+            }
           }
-          
-          // We don't create an org identity link since saveAttributes will do that.
         }
         
         if($current < count($authsources)) {

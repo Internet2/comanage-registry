@@ -44,4 +44,6 @@ $cm_env_source_texts['en_US'] = array(
   
   // Plugin texts
   'pl.envsource.sorid.desc'       => 'This must be set to an environment variable holding a unique identifier for any authenticated user.',
+  'pl.envsource.name.unknown'   => 'Unknownname',
+  'pl.envsource.sorid.desc'     => 'This must be set to an environment variable holding a unique identifier for any authenticated user.',
 );

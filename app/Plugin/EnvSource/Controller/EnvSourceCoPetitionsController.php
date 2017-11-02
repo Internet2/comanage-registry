@@ -215,4 +215,16 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     $this->set('permissions', $p);
     return $p[$this->action];
   }
+
+  /**
+   * Perform a redirect back to the controller's default view.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v3.1.0
+   */
+
+  function performRedirect() {
+    // We don't want our parent's behavior, so always redirect to /.
+    $this->redirect('/');
+  }
 }

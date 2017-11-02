@@ -118,6 +118,20 @@ class EnvSourceBackend extends OrgIdentitySourceBackend {
     $orgdata['Name'][0]['primary_name'] = true;
     $orgdata['Name'][0]['type'] = NameEnum::Official;
     
+    // We need a Name in order to save an OrgIdentity, but we may not get one since
+    // some IdPs don't release meaningful attributes. So we create default values.
+    
+    if(empty($orgdata['Name'][0]['given'])) {
+      // For now we only check given, though it's possible we only received a
+      // given name but the current configuration requires both given and family.
+    
+      // The only thing we can guarantee is SORID
+      $orgdata['Name'][0]['given'] = $result['env_identifier_sorid'];
+    
+      // Populate a default last name in case it's required.
+      $orgdata['Name'][0]['family'] = _txt('pl.envsource.name.unknown');
+    }
+    
     $orgdata['EmailAddress'] = array();
     
     if($result['env_mail']) {
