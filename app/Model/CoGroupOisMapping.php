@@ -71,6 +71,7 @@ class CoGroupOisMapping extends AppModel {
       'allowEmpty' => false
     ),
     'pattern' => array(
+      // XXX We would ideally check for a valid regular expression when ComparisonEnum is Regex
       'rule' => 'notBlank',
       'required' => true,
       'allowEmpty' => false
@@ -120,7 +121,7 @@ class CoGroupOisMapping extends AppModel {
         return (strcasecmp($value, $pattern) !== 0);
         break;
       case ComparisonEnum::Regex:
-        return (strcasecmp($value, $pattern) !== 0);
+        return (preg_match($pattern, $value));
         break;
       default:
         // Ignore anything unexpected

@@ -1297,6 +1297,7 @@ original notification at
   'fd.ois.eppn.type.desc' => 'If set, use the identifier of this type to construct an ePPN',
   'fd.ois.gr.map' =>  'Target Group',
   'fd.ois.gr.map.desc' => 'When the above conditions are matched, a membership will be created in this group',
+  'fd.ois.pattern.desc' => 'For regular expressions, including leading and trailing slashes (eg: /foo.*/)',
   'fd.ois.record' =>  'Source Record',
   'fd.ois.record.desc' => 'If the source record is empty, it likely indicates this record is no longer available from the datasource',
   'fd.ois.record.count' => '%1$s: %2$s records currently synced',

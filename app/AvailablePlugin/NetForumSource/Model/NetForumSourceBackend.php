@@ -162,14 +162,14 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
       }
     }
     
-    // Also check Events, if not empty (currently supported by Pro backend only)
+    // Also check Events, if not empty
     if(!empty($attrs->Events->EventProductCode)) {
-      $ret['EventProductCode'] = $attrs->Events->EventProductCode;
+      $ret['EventProductCode'] = (array)$attrs->Events->EventProductCode;
     }
     
-    // Also check Committees, if not empty (currently supported by Enterprise backend only)
+    // Also check Committees, if not empty
     if(!empty($attrs->Committees->CommitteeName)) {
-      $ret['CommitteeName'] = $attrs->Committees->CommitteeName;
+      $ret['CommitteeName'] = (array)$attrs->Committees->CommitteeName;
     }
     
     return $ret;

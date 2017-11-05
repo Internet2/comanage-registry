@@ -85,7 +85,10 @@ class NetForumPro extends NetForumServer {
                                    array('szCstKey' => $searchKey),
                                    false,
                                    true,
-                                   $queryEvents);
+                                   $queryEvents,
+                                   false,
+                                   true,
+                                   $queryCommittees);
   }
   
   /**
@@ -128,6 +131,30 @@ class NetForumPro extends NetForumServer {
   }
   
   /**
+   * Issue a query for customer committees. Be sure to call connect() first.
+   * 
+   * @since COmanage Registry v3.1.0
+   * @param String  $searchId   Search key (note: Customer ID, not Customer Key)
+   * @return SimpleXMLElement Object Unprocessed response from NetForum
+   */
+  
+  public function queryForCommittees($searchId) {
+    $search = array(
+      'szCstId'     => $searchId
+    );
+    
+    return $this->queryNetForumPro('GetCommitteeListByCstID',
+                                   'GetCommitteeListByCstIdResult',
+                                   $search,
+                                   true,
+                                   false,
+                                   false,
+                                   false,
+                                   // We want to return the raw response so the caller can process it
+                                   false);
+  }
+  
+  /**
    * Issue a query for customer events. Be sure to call connect() first.
    * 
    * @since COmanage Registry v2.0.0
@@ -165,6 +192,7 @@ class NetForumPro extends NetForumServer {
    * @param Boolean $events     If true, query for events for matching customer keys (requires $raw, set to false if $callName is 'GetCustomerEvent')
    * @param Boolean $deep       If true, make an additional query on customer key to get more detailed record
    * @param Boolean $process    If true, attempt to process the record into OrgIdentity format
+   * @param Boolean $committees If true, query for committee memberships for matching customer keys (requires $raw)
    * @return Array Array of OrgIdentity data, and optionally raw (XML) data
    * @throws SoapFault
    */
@@ -176,7 +204,8 @@ class NetForumPro extends NetForumServer {
                                       $raw=false,
                                       $events=false,
                                       $deep=false,
-                                      $process=true) {
+                                      $process=true,
+                                      $committees=false) {
     $results = array();
     
     $opts = array(
@@ -236,6 +265,20 @@ class NetForumPro extends NetForumServer {
           // The raw option is largely intended for retrieve()
           
           if($raw) {
+            if($committees) {
+              // Look for committee memberships, note we need cst_id, not cst_key
+              
+              $cret = $this->queryForCommittees((string)$entry->cst_id);
+              
+              if($cret) {
+                $cxml = $entry->addChild('Committees');
+                
+                foreach($cret->Result as $c) {
+                  $cxml->addChild('CommitteeName', (string)$c->cmt_name);
+                }
+              }
+            }
+            
             if($events) {
               // If configured, pull events (prd_code) for purposes of mapping to group memberships.
               // Events are accessed via a separate call. Our typical use case will be to map events

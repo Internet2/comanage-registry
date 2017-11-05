@@ -101,7 +101,8 @@
       </tr>
       <tr class="line1">
         <td>
-          <?php print $this->Form->label('pattern', _txt('fd.pattern')); ?><span class="required">*</span>
+          <?php print $this->Form->label('pattern', _txt('fd.pattern')); ?><span class="required">*</span><br />
+          <span class="descr"><?php print _txt('fd.ois.pattern.desc'); ?></span>
         </td>
         <td>
           <?php print ($e ? $this->Form->input('pattern') : filter_var($co_group_ois_mappings[0]['CoGroupOisMapping']['pattern'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
