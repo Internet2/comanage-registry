@@ -736,15 +736,21 @@ class StandardController extends AppController {
                || ($req == 'CoPersonRole'
                    && !empty($this->params['url']['copersonid']))) {
         if(!empty($this->params['url']['copersonid'])) {
-          $t = $model->findAllByCoPersonId($this->params['url']['copersonid']);
+          $args = array();
+          $args['conditions'][$model->name . '.co_person_id'] = $this->params['url']['copersonid'];
+          $args['contain'] = false;
+          
+          $t = $model->find('all', $args);
           
           if(empty($t)) {
             // We need to determine if copersonid is unknown or just
             // has no objects attached to it
             
-            $o = $model->CoPerson->findById($this->params['url']['copersonid']);
+            $args = array();
+            $args['conditions']['CoPerson.id'] = $this->params['url']['copersonid'];
+            $args['contain'] = false;
             
-            if(empty($o)) {
+            if(!$model->CoPerson->find('count', $args)) {
               $this->Api->restResultHeader(404, "CO Person Unknown");
             } else {
               $this->Api->restResultHeader(204, "CO Person Has No " . $req);
@@ -755,15 +761,21 @@ class StandardController extends AppController {
           
           $this->set($modelpl, $this->Api->convertRestResponse($t));
         } elseif(!empty($this->params['url']['copersonroleid'])) {
-          $t = $model->findAllByCoPersonRoleId($this->params['url']['copersonroleid']);
+          $args = array();
+          $args['conditions'][$model->name . '.co_person_role_id'] = $this->params['url']['copersonroleid'];
+          $args['contain'] = false;
+          
+          $t = $model->find('all', $args);
           
           if(empty($t)) {
             // We need to determine if copersonroleid is unknown or just
             // has no objects attached to it
             
-            $o = $model->CoPersonRole->findById($this->params['url']['copersonroleid']);
+            $args = array();
+            $args['conditions']['CoPersonRole.id'] = $this->params['url']['copersonroleid'];
+            $args['contain'] = false;
             
-            if(empty($o)) {
+            if(!$model->CoPersonRole->find('count', $args)) {
               $this->Api->restResultHeader(404, "CO Person Role Unknown");
             } else {
               $this->Api->restResultHeader(204, "CO Person Role Has No " . $req);
@@ -774,15 +786,21 @@ class StandardController extends AppController {
           
           $this->set($modelpl, $this->Api->convertRestResponse($t));
         } elseif(!empty($this->params['url']['orgidentityid'])) {
-          $t = $model->findAllByOrgIdentityId($this->params['url']['orgidentityid']);
+          $args = array();
+          $args['conditions'][$model->name . '.org_identity_id'] = $this->params['url']['orgidentityid'];
+          $args['contain'] = false;
+          
+          $t = $model->find('all', $args);
           
           if(empty($t)) {
             // We need to determine if orgidentityid is unknown or just
             // has no objects attached to it
             
-            $o = $model->OrgIdentity->findById($this->params['url']['orgidentityid']);
+            $args = array();
+            $args['conditions']['OrgIdentity.id'] = $this->params['url']['orgidentityid'];
+            $args['contain'] = false;
             
-            if(empty($o)) {
+            if(!$model->OrgIdentity->find('count', $args)) {
               $this->Api->restResultHeader(404, "Org Identity Unknown");
             } else {
               $this->Api->restResultHeader(204, "Org Identity Has No " . $req);
@@ -804,14 +822,22 @@ class StandardController extends AppController {
             // XXX need to do an authz check on this
             
             if(isset($model->CoPerson)) {
-              if(!$model->CoPerson->Co->findById($this->params['url']['coid'])) {
+              $args = array();
+              $args['conditions']['Co.id'] = $this->params['url']['coid'];
+              $args['contain'] = false;
+              
+              if(!$model->CoPerson->Co->find('count', $args)) {
                 $this->Api->restResultHeader(404, "CO Unknown");
                 return;
               }
               
               $params['conditions'] = array('CoPerson.co_id' => $this->params['url']['coid']);
             } else {
-              if(!$model->Co->findById($this->params['url']['coid'])) {
+              $args = array();
+              $args['conditions']['Co.id'] = $this->params['url']['coid'];
+              $args['contain'] = false;
+              
+              if(!$model->Co->find('count', $args)) {
                 $this->Api->restResultHeader(404, "CO Unknown");
                 return;
               }
@@ -831,14 +857,22 @@ class StandardController extends AppController {
           // XXX need to do an authz check on this
 
           if(isset($model->CoPerson)) {
-            if(!$model->CoPerson->Co->findById($this->params['url']['coid'])) {
+            $args = array();
+            $args['conditions']['Co.id'] = $this->params['url']['coid'];
+            $args['contain'] = false;
+            
+            if(!$model->CoPerson->Co->find('count', $args)) {
               $this->Api->restResultHeader(404, "CO Unknown");
               return;
             }
             
             $params['conditions'] = array('CoPerson.co_id' => $this->params['url']['coid']);
           } else {
-            if(!$model->Co->findById($this->params['url']['coid'])) {
+            $args = array();
+            $args['conditions']['Co.id'] = $this->params['url']['coid'];
+            $args['contain'] = false;
+            
+            if(!$model->Co->find('count', $args)) {
               $this->Api->restResultHeader(404, "CO Unknown");
               return;
             }
@@ -854,7 +888,11 @@ class StandardController extends AppController {
             // Currently, only CoPersonRole will get here, so we don't also check for
             // (eg) $model->CoPersonRole, and we don't need to do a join like above
             
-            if(!$model->Cou->findById($this->params['url']['couid'])) {
+            $args = array();
+            $args['conditions']['Cou.id'] = $this->params['url']['couid'];
+            $args['contain'] = false;
+            
+            if(!$model->Cou->find('count', $args)) {
               $this->Api->restResultHeader(404, "COU Unknown");
               return;
             }
@@ -865,6 +903,9 @@ class StandardController extends AppController {
             return;
           }
         }
+        
+        // We don't ever need associated models
+        $params['contain'] = false;
         
         $this->set($modelpl, $this->Api->convertRestResponse($model->find('all', $params)));
       }
