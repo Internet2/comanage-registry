@@ -555,6 +555,9 @@ class CoPipeline extends AppModel {
       
       $this->Co->CoPerson->Name->clear();
       
+      // We need to inject the CO so extended types can be saved
+      $this->Co->CoPerson->Name->validate['type']['content']['rule'][1]['coid'] = $orgIdentity['OrgIdentity']['co_id'];
+      
       if(!$this->Co->CoPerson->Name->save($name, array("provision" => false))) {
         throw new RuntimeException(_txt('er.db.save-a', array('Name')));
       }
@@ -657,6 +660,9 @@ class CoPipeline extends AppModel {
         $newCoPersonRole['CoPersonRole']['source_org_identity_id'] = $orgIdentity['OrgIdentity']['id'];
         
         $this->Co->CoPerson->CoPersonRole->clear();
+        
+        // We need to inject the CO so extended types can be saved
+        $this->Co->CoPerson->CoPersonRole->validate['affiliation']['content']['rule'][1]['coid'] = $orgIdentity['OrgIdentity']['co_id'];
         
         if(!$this->Co->CoPerson->CoPersonRole->save($newCoPersonRole, array("provision" => false))) {
           throw new RuntimeException(_txt('er.db.save-a', array('CoPersonRole')));
@@ -860,6 +866,9 @@ class CoPipeline extends AppModel {
       // And finally process the save for any remaining records
       foreach($newRecords as $srcid => $nr) {
         $model->clear();
+        
+        // We need to inject the CO so extended types can be saved
+        $model->validate['type']['content']['rule'][1]['coid'] = $orgIdentity['OrgIdentity']['co_id'];
         
         // For identifiers and email addresses, we want to skip availability checking
         // since we might be writing multiple versions of the same attribute (from
