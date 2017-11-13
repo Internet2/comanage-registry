@@ -62,6 +62,13 @@ class DefaultNormalizer extends AppModel {
         'mixCase' => array('title', 'o', 'ou'),
         'trimWhitespace' => array('title', 'o', 'ou')
       ),
+      // We get passed the alias, not the model name during enrollment.
+      // There's not an obvious generic way to figure the out, but for now this
+      // only happens here, so we simply duplicate the rules. (CO-1550)
+      'EnrolleeCoPersonRole' => array(
+        'mixCase' => array('title', 'o', 'ou'),
+        'trimWhitespace' => array('title', 'o', 'ou')
+      ),
       'EmailAddress' => array(
         // Note cake validation will likely prevent this from being called
         'trimWhitespace' => array('mail')
