@@ -53,7 +53,7 @@ class NormalizationBehavior extends ModelBehavior {
    */
   
   public function normalize(Model $model, $data, $coId = false) {
-    $mname = $model->name;
+    $mname = $model->alias;
     
     // If $coId is false, look for a CO ID. If we don't find one or if $coId is null,
     // we're dealing with org identity data, which normalizations don't currently support.
@@ -70,6 +70,8 @@ class NormalizationBehavior extends ModelBehavior {
             $coId = $model->CoPerson->findCoForRecord($model->data[$mname]['co_person_id']);
           } elseif(!empty($model->data[$mname]['co_person_role_id'])) {
             $coId = $model->CoPersonRole->findCoForRecord($model->data[$mname]['co_person_role_id']);
+          } elseif(!empty($model->data[$mname]['cou_id'])) {
+            $coId = $model->Cou->findCoForRecord($model->data[$mname]['cou_id']);
           }
         }
       }
