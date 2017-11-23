@@ -735,7 +735,32 @@ class StandardController extends AppController {
                // (But we need to fall through to the other logic if copersonid is not specified, hack hack.)
                || ($req == 'CoPersonRole'
                    && !empty($this->params['url']['copersonid']))) {
-        if(!empty($this->params['url']['copersonid'])) {
+        if(!empty($this->params['url']['codeptid'])) {
+          $args = array();
+          $args['conditions'][$model->name . '.co_department_id'] = $this->params['url']['codeptid'];
+          $args['contain'] = false;
+          
+          $t = $model->find('all', $args);
+          
+          if(empty($t)) {
+            // We need to determine if codeptid is unknown or just
+            // has no objects attached to it
+            
+            $args = array();
+            $args['conditions']['CoDepartment.id'] = $this->params['url']['codeptid'];
+            $args['contain'] = false;
+            
+            if(!$model->CoDepartment->find('count', $args)) {
+              $this->Api->restResultHeader(404, "CO Department Unknown");
+            } else {
+              $this->Api->restResultHeader(204, "CO Department Has No " . $req);
+            }
+            
+            return;
+          }
+          
+          $this->set($modelpl, $this->Api->convertRestResponse($t));
+        } elseif(!empty($this->params['url']['copersonid'])) {
           $args = array();
           $args['conditions'][$model->name . '.co_person_id'] = $this->params['url']['copersonid'];
           $args['contain'] = false;

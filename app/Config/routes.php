@@ -63,6 +63,8 @@ Router::connect(
 Router::mapResources(array(
   'addresses',
   'attribute_enumerations',
+	'co_departments',
+	'co_email_lists',
   'co_extended_attributes',
   'co_extended_types',
   'co_invites',
@@ -73,6 +75,7 @@ Router::mapResources(array(
   'co_org_identity_links',
   'co_people',
   'co_person_roles',
+	'co_services',
 	'co_t_and_c_agreements',
 	'co_terms_and_conditions',
   'cos',
@@ -84,7 +87,8 @@ Router::mapResources(array(
   'navigation_links',
   'org_identities',
   'organizations',
-  'telephone_numbers'
+  'telephone_numbers',
+	'urls'
 ));
 Router::parseExtensions();
 

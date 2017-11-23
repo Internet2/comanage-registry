@@ -108,7 +108,14 @@ class CoService extends AppModel {
       'allowEmpty' => false
     )
   );
-    
+  
+  // Enum type hints
+  
+  public $cm_enum_types = array(
+    'status' => 'SuspendableStatusEnum',
+    'visibility' => 'VisibilityEnum'
+  );
+  
   /**
    * Find CO Services visible to the specified CO Person.
    *

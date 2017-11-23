@@ -50,6 +50,10 @@
           } else {
             switch($k)
             {
+            case 'CoDepartmentId':
+              $a['Person'] = array('Type' => 'Dept',
+                                   'Id' => $m[$req][$k]);
+              break;
             case 'CoPersonId':
               $a['Person'] = array('Type' => 'CO',
                                    'Id' => $m[$req][$k]);

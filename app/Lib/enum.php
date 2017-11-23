@@ -673,6 +673,20 @@ class VisibilityEnum
   const CoGroupMember   = 'CG';
   const CoMember        = 'CP';
   const Unauthenticated = 'P';
+  
+  public static $from_api = array(
+    'CoAdmin'         => VisibilityEnum::CoAdmin,
+    'CoGroupMember'   => VisibilityEnum::CoGroupMember,
+    'CoMember'        => VisibilityEnum::CoMember,
+    'Unauthenticated' => VisibilityEnum::Unauthenticated
+  );
+  
+  public static $to_api = array(
+    VisibilityEnum::CoAdmin         => 'CoAdmin',
+    VisibilityEnum::CoGroupMember   => 'CoGroupMember',
+    VisibilityEnum::CoMember        => 'CoMember',
+    VisibilityEnum::Unauthenticated => 'Unauthenticated'
+  );
 }
 
 // Old style enums below, deprecated

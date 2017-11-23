@@ -86,7 +86,7 @@ class Url extends AppModel {
                         array('attribute' => 'Url.type',
                               'default' => array(UrlEnum::Official,
                                                  UrlEnum::Personal))),
-        'required' => false,
+        'required' => true,
         'allowEmpty' => false
       )
     ),

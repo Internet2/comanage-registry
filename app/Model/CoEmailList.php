@@ -38,15 +38,15 @@ class CoEmailList extends AppModel {
     "Co",
     "AdminsCoGroup" => array(
       'className' => 'CoGroup',
-      'foreignKey' => 'co_group_id'
+      'foreignKey' => 'admins_co_group_id'
     ),
     "MembersCoGroup" => array(
       'className' => 'CoGroup',
-      'foreignKey' => 'co_group_id'
+      'foreignKey' => 'members_co_group_id'
     ),
     "ModeratorsGroup" => array(
       'className' => 'CoGroup',
-      'foreignKey' => 'co_group_id'
+      'foreignKey' => 'moderators_co_group_id'
     )
   );
   
