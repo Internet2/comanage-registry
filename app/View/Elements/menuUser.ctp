@@ -126,7 +126,7 @@
         foreach(array_keys($menuContent['plugins']) as $plugin) {
           if(isset($menuContent['plugins'][$plugin]['coperson'])) {
             foreach(array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
-              print '<li class="mdl-menu__item"> 
+              print '<li> 
                        <a href="#">'.$label.'</a>
                        <span class="sf-sub-indicator"> »</span>
                        <ul>';
@@ -137,10 +137,10 @@
 
                 $args = $menuContent['plugins'][$plugin]['coperson'][$label];
 
-                $args[] = $co['co_person_id'];
+                $args[] = 'copersonid:' . $co['co_person_id'];
                 $args['plugin'] = Inflector::underscore($plugin);
 
-                print "<li>" . $this->Html->link($co['co_name'], $args) . "</li>\n";
+                print '<li class="mdl-menu__item">' . $this->Html->link($co['co_name'], $args) . "</li>\n";
               }
 
               print "</ul></li>";
